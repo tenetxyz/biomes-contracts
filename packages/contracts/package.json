@@ -15,11 +15,11 @@
     "test": "tsc --noEmit && mud test"
   },
   "dependencies": {
-    "@latticexyz/cli": "2.0.0-next.17",
-    "@latticexyz/schema-type": "2.0.0-next.17",
-    "@latticexyz/store": "2.0.0-next.17",
-    "@latticexyz/world": "2.0.0-next.17",
-    "@latticexyz/world-modules": "2.0.0-next.17"
+    "@latticexyz/cli": "link:../../../mud/packages/cli",
+    "@latticexyz/schema-type": "link:../../../mud/packages/schema-type",
+    "@latticexyz/store": "link:../../../mud/packages/store",
+    "@latticexyz/world": "link:../../../mud/packages/world",
+    "@latticexyz/world-modules": "link:../../../mud/packages/world-modules"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",
