@@ -39,7 +39,6 @@ contract BuildSystem is System {
       ),
       "BuildSystem: player is too far from the block"
     );
-    // TODO: Spend stamina for building?
 
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {

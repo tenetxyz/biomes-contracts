@@ -36,7 +36,6 @@ export default mudConfig({
       },
     },
     ReversePosition: {
-      // TODO: Remove this table once KeyWithValueModule is more gas efficient for single key lookups
       keySchema: {
         x: "int32",
         y: "int32",
