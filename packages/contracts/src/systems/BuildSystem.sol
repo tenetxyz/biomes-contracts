@@ -3,6 +3,9 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
+import { getKeysWithValue } from "@latticexyz/world-modules/src/modules/keyswithvalue/getKeysWithValue.sol";
+import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
+
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -10,7 +13,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Inventory } from "../codegen/tables/Inventory.sol";
+import { Inventory, InventoryTableId } from "../codegen/tables/Inventory.sol";
 
 import { VoxelCoord } from "../Types.sol";
 import { AirObjectID, PlayerObjectID, MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
@@ -36,7 +39,6 @@ contract BuildSystem is System {
       ),
       "BuildSystem: player is too far from the block"
     );
-
     // TODO: Spend stamina for building?
 
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
@@ -51,6 +53,10 @@ contract BuildSystem is System {
       );
     } else {
       require(ObjectType.get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
+
+      (bytes memory staticData, PackedCounter encodedLengths, bytes memory dynamicData) = Inventory.encode(entityId);
+      bytes32[] memory inventoryEntityIds = getKeysWithValue(InventoryTableId, staticData, encodedLengths, dynamicData);
+      require(inventoryEntityIds.length == 0, "BuildSystem: Cannot build where there are dropped objects");
     }
 
     Inventory.deleteRecord(entityId);

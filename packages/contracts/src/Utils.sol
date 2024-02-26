@@ -3,7 +3,6 @@ pragma solidity >=0.8.24;
 
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysWithValue } from "@latticexyz/world-modules/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
 
 import { PositionData } from "./codegen/tables/Position.sol";
 import { Inventory, InventoryTableId } from "./codegen/tables/Inventory.sol";
