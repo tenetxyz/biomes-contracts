@@ -35,6 +35,17 @@ export default mudConfig({
         z: "int32",
       },
     },
+    ReversePosition: {
+      // TODO: Remove this table once KeyWithValueModule is more gas efficient for single key lookups
+      keySchema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      valueSchema: {
+        entityId: "bytes32",
+      },
+    },
     Player: {
       keySchema: {
         player: "address",
@@ -49,7 +60,7 @@ export default mudConfig({
       },
       valueSchema: {
         lastTxBlock: "uint256",
-        numMovesInTx: "uint256"
+        numMovesInTx: "uint256",
       },
     },
     Inventory: {
@@ -114,5 +125,5 @@ export default mudConfig({
       root: true,
       args: [],
     },
-  ]
+  ],
 });
