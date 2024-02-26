@@ -62,7 +62,7 @@ contract MineSystem is System {
       Position.set(airEntityId, coord.x, coord.y, coord.z);
       ReversePosition.set(coord.x, coord.y, coord.z, airEntityId);
     } else {
-      require(ObjectType.get(entityId) == AirObjectID, "MineSystem: cannot mine air");
+      require(ObjectType.get(entityId) == objectTypeId, "MineSystem: invalid block type");
 
       Position.deleteRecord(entityId);
       ReversePosition.deleteRecord(coord.x, coord.y, coord.z);

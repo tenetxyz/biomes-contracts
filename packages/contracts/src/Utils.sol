@@ -97,3 +97,14 @@ function addToInventory(bytes32 entityId, bytes32 objectTypeId, uint8 numObjects
     InventoryMetadata.set(inventoryEntityId, newNumObjects, numUsesLeft);
   }
 }
+
+function removeFromInventory(bytes32 inventorEntityId, uint8 numObjectsToRemove) {
+  uint8 numCurrentObjects = InventoryMetadata.getNumObjects(inventorEntityId);
+  require(numCurrentObjects >= numObjectsToRemove, "Not enough objects in inventory");
+  if (numCurrentObjects > numObjectsToRemove) {
+    InventoryMetadata.setNumObjects(inventorEntityId, numCurrentObjects - numObjectsToRemove);
+  } else {
+    Inventory.deleteRecord(inventorEntityId);
+    InventoryMetadata.deleteRecord(inventorEntityId);
+  }
+}

@@ -46,6 +46,17 @@ export default mudConfig({
         entityId: "bytes32",
       },
     },
+    Drops: {
+      keySchema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      valueSchema: {
+        objectTypeIds: "bytes32[]",
+        objectAmounts: "uint256[]",
+      },
+    },
     Player: {
       keySchema: {
         player: "address",
@@ -71,13 +82,29 @@ export default mudConfig({
         ownerEntityId: "bytes32",
       },
     },
-    InventoryMetadata: {
+    ItemMetadata: {
       keySchema: {
         entityId: "bytes32",
       },
       valueSchema: {
-        numObjects: "uint8",
         numUsesLeft: "uint16",
+      },
+    },
+    InventorySlots: {
+      keySchema: {
+        ownerEntityId: "bytes32",
+      },
+      valueSchema: {
+        numSlotsUsed: "uint8",
+      },
+    },
+    InventoryCount: {
+      keySchema: {
+        ownerEntityId: "bytes32",
+        objectTypeId: "bytes32",
+      },
+      valueSchema: {
+        count: "uint256",
       },
     },
     Equipped: {
