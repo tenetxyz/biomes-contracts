@@ -11,11 +11,10 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Inventory } from "../codegen/tables/Inventory.sol";
-import { InventoryMetadata } from "../codegen/tables/InventoryMetadata.sol";
 
 import { VoxelCoord } from "../Types.sol";
 import { AirObjectID, PlayerObjectID, MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube, removeFromInventory } from "../Utils.sol";
+import { positionDataToVoxelCoord, inSurroundingCube, removeFromInventoryCount } from "../Utils.sol";
 
 contract BuildSystem is System {
   function build(bytes32 inventoryEntityId, VoxelCoord memory coord) public {
@@ -54,7 +53,8 @@ contract BuildSystem is System {
       require(ObjectType.get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
     }
 
-    removeFromInventory(inventoryEntityId, 1);
+    Inventory.deleteRecord(entityId);
+    removeFromInventoryCount(playerEntityId, objectTypeId, 1);
 
     Position.set(inventoryEntityId, coord.x, coord.y, coord.z);
     ReversePosition.set(coord.x, coord.y, coord.z, inventoryEntityId);

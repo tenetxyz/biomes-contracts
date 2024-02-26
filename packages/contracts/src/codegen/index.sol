@@ -7,7 +7,6 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData, ObjectTypeMetadataTableId }
 import { ObjectType, ObjectTypeTableId } from "./tables/ObjectType.sol";
 import { Position, PositionData, PositionTableId } from "./tables/Position.sol";
 import { ReversePosition, ReversePositionTableId } from "./tables/ReversePosition.sol";
-import { Drops, DropsData, DropsTableId } from "./tables/Drops.sol";
 import { Player, PlayerTableId } from "./tables/Player.sol";
 import { PlayerMetadata, PlayerMetadataData, PlayerMetadataTableId } from "./tables/PlayerMetadata.sol";
 import { Inventory, InventoryTableId } from "./tables/Inventory.sol";

@@ -24,7 +24,7 @@ ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000
 ResourceId constant InventorySlotsTableId = _tableId;
 
 FieldLayout constant _fieldLayout = FieldLayout.wrap(
-  0x0001010001000000000000000000000000000000000000000000000000000000
+  0x0002010002000000000000000000000000000000000000000000000000000000
 );
 
 library InventorySlots {
@@ -53,7 +53,7 @@ library InventorySlots {
    */
   function getValueSchema() internal pure returns (Schema) {
     SchemaType[] memory _valueSchema = new SchemaType[](1);
-    _valueSchema[0] = SchemaType.UINT8;
+    _valueSchema[0] = SchemaType.UINT16;
 
     return SchemaLib.encode(_valueSchema);
   }
@@ -93,51 +93,51 @@ library InventorySlots {
   /**
    * @notice Get numSlotsUsed.
    */
-  function getNumSlotsUsed(bytes32 ownerEntityId) internal view returns (uint8 numSlotsUsed) {
+  function getNumSlotsUsed(bytes32 ownerEntityId) internal view returns (uint16 numSlotsUsed) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Get numSlotsUsed.
    */
-  function _getNumSlotsUsed(bytes32 ownerEntityId) internal view returns (uint8 numSlotsUsed) {
+  function _getNumSlotsUsed(bytes32 ownerEntityId) internal view returns (uint16 numSlotsUsed) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Get numSlotsUsed.
    */
-  function get(bytes32 ownerEntityId) internal view returns (uint8 numSlotsUsed) {
+  function get(bytes32 ownerEntityId) internal view returns (uint16 numSlotsUsed) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Get numSlotsUsed.
    */
-  function _get(bytes32 ownerEntityId) internal view returns (uint8 numSlotsUsed) {
+  function _get(bytes32 ownerEntityId) internal view returns (uint16 numSlotsUsed) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Set numSlotsUsed.
    */
-  function setNumSlotsUsed(bytes32 ownerEntityId, uint8 numSlotsUsed) internal {
+  function setNumSlotsUsed(bytes32 ownerEntityId, uint16 numSlotsUsed) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
@@ -147,7 +147,7 @@ library InventorySlots {
   /**
    * @notice Set numSlotsUsed.
    */
-  function _setNumSlotsUsed(bytes32 ownerEntityId, uint8 numSlotsUsed) internal {
+  function _setNumSlotsUsed(bytes32 ownerEntityId, uint16 numSlotsUsed) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
@@ -157,7 +157,7 @@ library InventorySlots {
   /**
    * @notice Set numSlotsUsed.
    */
-  function set(bytes32 ownerEntityId, uint8 numSlotsUsed) internal {
+  function set(bytes32 ownerEntityId, uint16 numSlotsUsed) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
@@ -167,7 +167,7 @@ library InventorySlots {
   /**
    * @notice Set numSlotsUsed.
    */
-  function _set(bytes32 ownerEntityId, uint8 numSlotsUsed) internal {
+  function _set(bytes32 ownerEntityId, uint16 numSlotsUsed) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
@@ -198,7 +198,7 @@ library InventorySlots {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint8 numSlotsUsed) internal pure returns (bytes memory) {
+  function encodeStatic(uint16 numSlotsUsed) internal pure returns (bytes memory) {
     return abi.encodePacked(numSlotsUsed);
   }
 
@@ -208,7 +208,7 @@ library InventorySlots {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(uint8 numSlotsUsed) internal pure returns (bytes memory, PackedCounter, bytes memory) {
+  function encode(uint16 numSlotsUsed) internal pure returns (bytes memory, PackedCounter, bytes memory) {
     bytes memory _staticData = encodeStatic(numSlotsUsed);
 
     PackedCounter _encodedLengths;

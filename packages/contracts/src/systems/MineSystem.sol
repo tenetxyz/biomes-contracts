@@ -11,11 +11,10 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Inventory } from "../codegen/tables/Inventory.sol";
-import { InventoryMetadata } from "../codegen/tables/InventoryMetadata.sol";
 
 import { VoxelCoord } from "../Types.sol";
 import { AirObjectID, PlayerObjectID, MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube, addToInventory } from "../Utils.sol";
+import { positionDataToVoxelCoord, inSurroundingCube, addToInventoryCount } from "../Utils.sol";
 
 contract MineSystem is System {
   function mine(bytes32 objectTypeId, VoxelCoord memory coord) public {
@@ -69,7 +68,7 @@ contract MineSystem is System {
     }
 
     Inventory.set(entityId, playerEntityId);
-    addToInventory(playerEntityId, objectTypeId, 1);
+    addToInventoryCount(playerEntityId, PlayerObjectID, objectTypeId, 1);
 
     // TODO apply gravity
   }
