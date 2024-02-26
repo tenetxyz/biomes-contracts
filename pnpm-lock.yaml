@@ -44,6 +44,9 @@ importers:
       '@latticexyz/cli':
         specifier: link:../../../mud/packages/cli
         version: link:../../../mud/packages/cli
+      '@latticexyz/config':
+        specifier: link:../../../mud/packages/config
+        version: link:../../../mud/packages/config
       '@latticexyz/schema-type':
         specifier: link:../../../mud/packages/schema-type
         version: link:../../../mud/packages/schema-type

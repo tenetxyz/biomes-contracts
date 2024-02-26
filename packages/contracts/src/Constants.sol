@@ -11,7 +11,7 @@ uint256 constant BLOCKS_BEFORE_INCREASE_HEALTH = 60; // 1 minute if 1 block == 1
 uint256 constant HEALTH_INCREASE_RATE = 2;
 uint256 constant GRAVITY_DAMAGE = 10;
 
-int32 constant MAX_PLAYER_BUILD_MINE_RADIUS = 5;
+int32 constant MAX_PLAYER_BUILD_MINE_HALF_WIDTH = 5;
 
 uint8 constant MAX_BLOCK_STACKABLE = 99;
 
