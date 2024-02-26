@@ -24,12 +24,12 @@ ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000
 ResourceId constant PlayerMetadataTableId = _tableId;
 
 FieldLayout constant _fieldLayout = FieldLayout.wrap(
-  0x0040020020200000000000000000000000000000000000000000000000000000
+  0x0024020020040000000000000000000000000000000000000000000000000000
 );
 
 struct PlayerMetadataData {
-  uint256 lastTxBlock;
-  uint256 numMovesInTx;
+  uint256 lastMoveBlock;
+  uint32 numMovesInBlock;
 }
 
 library PlayerMetadata {
@@ -59,7 +59,7 @@ library PlayerMetadata {
   function getValueSchema() internal pure returns (Schema) {
     SchemaType[] memory _valueSchema = new SchemaType[](2);
     _valueSchema[0] = SchemaType.UINT256;
-    _valueSchema[1] = SchemaType.UINT256;
+    _valueSchema[1] = SchemaType.UINT32;
 
     return SchemaLib.encode(_valueSchema);
   }
@@ -79,8 +79,8 @@ library PlayerMetadata {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](2);
-    fieldNames[0] = "lastTxBlock";
-    fieldNames[1] = "numMovesInTx";
+    fieldNames[0] = "lastMoveBlock";
+    fieldNames[1] = "numMovesInBlock";
   }
 
   /**
@@ -98,9 +98,9 @@ library PlayerMetadata {
   }
 
   /**
-   * @notice Get lastTxBlock.
+   * @notice Get lastMoveBlock.
    */
-  function getLastTxBlock(bytes32 entityId) internal view returns (uint256 lastTxBlock) {
+  function getLastMoveBlock(bytes32 entityId) internal view returns (uint256 lastMoveBlock) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -109,9 +109,9 @@ library PlayerMetadata {
   }
 
   /**
-   * @notice Get lastTxBlock.
+   * @notice Get lastMoveBlock.
    */
-  function _getLastTxBlock(bytes32 entityId) internal view returns (uint256 lastTxBlock) {
+  function _getLastMoveBlock(bytes32 entityId) internal view returns (uint256 lastMoveBlock) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -120,65 +120,65 @@ library PlayerMetadata {
   }
 
   /**
-   * @notice Set lastTxBlock.
+   * @notice Set lastMoveBlock.
    */
-  function setLastTxBlock(bytes32 entityId, uint256 lastTxBlock) internal {
+  function setLastMoveBlock(bytes32 entityId, uint256 lastMoveBlock) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastTxBlock)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastMoveBlock)), _fieldLayout);
   }
 
   /**
-   * @notice Set lastTxBlock.
+   * @notice Set lastMoveBlock.
    */
-  function _setLastTxBlock(bytes32 entityId, uint256 lastTxBlock) internal {
+  function _setLastMoveBlock(bytes32 entityId, uint256 lastMoveBlock) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastTxBlock)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastMoveBlock)), _fieldLayout);
   }
 
   /**
-   * @notice Get numMovesInTx.
+   * @notice Get numMovesInBlock.
    */
-  function getNumMovesInTx(bytes32 entityId) internal view returns (uint256 numMovesInTx) {
+  function getNumMovesInBlock(bytes32 entityId) internal view returns (uint32 numMovesInBlock) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (uint256(bytes32(_blob)));
+    return (uint32(bytes4(_blob)));
   }
 
   /**
-   * @notice Get numMovesInTx.
+   * @notice Get numMovesInBlock.
    */
-  function _getNumMovesInTx(bytes32 entityId) internal view returns (uint256 numMovesInTx) {
+  function _getNumMovesInBlock(bytes32 entityId) internal view returns (uint32 numMovesInBlock) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (uint256(bytes32(_blob)));
+    return (uint32(bytes4(_blob)));
   }
 
   /**
-   * @notice Set numMovesInTx.
+   * @notice Set numMovesInBlock.
    */
-  function setNumMovesInTx(bytes32 entityId, uint256 numMovesInTx) internal {
+  function setNumMovesInBlock(bytes32 entityId, uint32 numMovesInBlock) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((numMovesInTx)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((numMovesInBlock)), _fieldLayout);
   }
 
   /**
-   * @notice Set numMovesInTx.
+   * @notice Set numMovesInBlock.
    */
-  function _setNumMovesInTx(bytes32 entityId, uint256 numMovesInTx) internal {
+  function _setNumMovesInBlock(bytes32 entityId, uint32 numMovesInBlock) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((numMovesInTx)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((numMovesInBlock)), _fieldLayout);
   }
 
   /**
@@ -214,8 +214,8 @@ library PlayerMetadata {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 entityId, uint256 lastTxBlock, uint256 numMovesInTx) internal {
-    bytes memory _staticData = encodeStatic(lastTxBlock, numMovesInTx);
+  function set(bytes32 entityId, uint256 lastMoveBlock, uint32 numMovesInBlock) internal {
+    bytes memory _staticData = encodeStatic(lastMoveBlock, numMovesInBlock);
 
     PackedCounter _encodedLengths;
     bytes memory _dynamicData;
@@ -229,8 +229,8 @@ library PlayerMetadata {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 entityId, uint256 lastTxBlock, uint256 numMovesInTx) internal {
-    bytes memory _staticData = encodeStatic(lastTxBlock, numMovesInTx);
+  function _set(bytes32 entityId, uint256 lastMoveBlock, uint32 numMovesInBlock) internal {
+    bytes memory _staticData = encodeStatic(lastMoveBlock, numMovesInBlock);
 
     PackedCounter _encodedLengths;
     bytes memory _dynamicData;
@@ -245,7 +245,7 @@ library PlayerMetadata {
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 entityId, PlayerMetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.lastTxBlock, _table.numMovesInTx);
+    bytes memory _staticData = encodeStatic(_table.lastMoveBlock, _table.numMovesInBlock);
 
     PackedCounter _encodedLengths;
     bytes memory _dynamicData;
@@ -260,7 +260,7 @@ library PlayerMetadata {
    * @notice Set the full data using the data struct.
    */
   function _set(bytes32 entityId, PlayerMetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.lastTxBlock, _table.numMovesInTx);
+    bytes memory _staticData = encodeStatic(_table.lastMoveBlock, _table.numMovesInBlock);
 
     PackedCounter _encodedLengths;
     bytes memory _dynamicData;
@@ -274,10 +274,10 @@ library PlayerMetadata {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (uint256 lastTxBlock, uint256 numMovesInTx) {
-    lastTxBlock = (uint256(Bytes.slice32(_blob, 0)));
+  function decodeStatic(bytes memory _blob) internal pure returns (uint256 lastMoveBlock, uint32 numMovesInBlock) {
+    lastMoveBlock = (uint256(Bytes.slice32(_blob, 0)));
 
-    numMovesInTx = (uint256(Bytes.slice32(_blob, 32)));
+    numMovesInBlock = (uint32(Bytes.slice4(_blob, 32)));
   }
 
   /**
@@ -291,7 +291,7 @@ library PlayerMetadata {
     PackedCounter,
     bytes memory
   ) internal pure returns (PlayerMetadataData memory _table) {
-    (_table.lastTxBlock, _table.numMovesInTx) = decodeStatic(_staticData);
+    (_table.lastMoveBlock, _table.numMovesInBlock) = decodeStatic(_staticData);
   }
 
   /**
@@ -318,8 +318,8 @@ library PlayerMetadata {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint256 lastTxBlock, uint256 numMovesInTx) internal pure returns (bytes memory) {
-    return abi.encodePacked(lastTxBlock, numMovesInTx);
+  function encodeStatic(uint256 lastMoveBlock, uint32 numMovesInBlock) internal pure returns (bytes memory) {
+    return abi.encodePacked(lastMoveBlock, numMovesInBlock);
   }
 
   /**
@@ -329,10 +329,10 @@ library PlayerMetadata {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
-    uint256 lastTxBlock,
-    uint256 numMovesInTx
+    uint256 lastMoveBlock,
+    uint32 numMovesInBlock
   ) internal pure returns (bytes memory, PackedCounter, bytes memory) {
-    bytes memory _staticData = encodeStatic(lastTxBlock, numMovesInTx);
+    bytes memory _staticData = encodeStatic(lastMoveBlock, numMovesInBlock);
 
     PackedCounter _encodedLengths;
     bytes memory _dynamicData;

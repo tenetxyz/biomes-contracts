@@ -59,8 +59,8 @@ export default mudConfig({
         entityId: "bytes32",
       },
       valueSchema: {
-        lastTxBlock: "uint256",
-        numMovesInTx: "uint256",
+        lastMoveBlock: "uint256",
+        numMovesInBlock: "uint32",
       },
     },
     Inventory: {

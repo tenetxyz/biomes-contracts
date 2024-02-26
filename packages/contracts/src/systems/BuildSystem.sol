@@ -45,7 +45,7 @@ contract BuildSystem is System {
     if (entityId == bytes32(0)) {
       // Check terrain block type
       (bool success, bytes memory occurrence) = _world().staticcall(
-        bytes.concat(ObjectTypeMetadata.getOccurence(objectTypeId), abi.encode(coord))
+        bytes.concat(ObjectTypeMetadata.getOccurence(AirObjectID), abi.encode(coord))
       );
       require(
         success && occurrence.length > 0 && abi.decode(occurrence, (bytes32)) == AirObjectID,
