@@ -8,6 +8,17 @@ uint8 constant MAX_BLOCK_STACKABLE = 99;
 uint256 constant MAX_PLAYER_INVENTORY_SLOTS = 35;
 uint256 constant MAX_CHEST_INVENTORY_SLOTS = 12;
 
+// Terrain
+enum Biome {
+  Mountains,
+  Desert,
+  Forest,
+  Savanna
+}
+
+int32 constant STRUCTURE_CHUNK = 5;
+int32 constant STRUCTURE_CHUNK_CENTER = STRUCTURE_CHUNK / 2 + 1;
+
 // Object Types
 
 // Players

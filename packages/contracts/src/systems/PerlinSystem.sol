@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity >=0.8.24;
 
-import { ABDKMath64x64 as Math } from "@everlonxyz/src/libraries/ABDKMath64x64.sol";
+import { ABDKMath64x64 as Math } from "@everlonxyz/utils/src/libraries/ABDKMath64x64.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 // Commonly used numbers as 64.64 fixed point

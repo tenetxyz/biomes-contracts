@@ -1,5 +1,5 @@
 {
-  "name": "everlon",
+  "name": "everlonxyz",
   "private": true,
   "scripts": {
     "build": "pnpm recursive run build",

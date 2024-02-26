@@ -1,26 +1,22 @@
 {
-  "name": "@everlonxyz/contracts",
-  "version": "0.0.0",
+  "name": "@everlonxyz/utils",
+  "version": "0.0.1",
   "private": true,
   "license": "MIT",
   "scripts": {
-    "build": "mud build",
-    "clean": "forge clean && rimraf src/codegen",
-    "deploy:local": "pnpm run build && mud deploy",
-    "deploy:testnet": "pnpm run build && mud deploy --profile=lattice-testnet",
-    "dev": "pnpm mud dev-contracts",
+    "build": "forge build",
+    "clean": "forge clean",
     "lint": "pnpm run prettier && pnpm run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
-    "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
-    "test": "tsc --noEmit && mud test"
+    "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix"
   },
   "dependencies": {
-    "@everlonxyz/utils": "workspace:*",
     "@latticexyz/cli": "link:../../../mud/packages/cli",
     "@latticexyz/schema-type": "link:../../../mud/packages/schema-type",
     "@latticexyz/store": "link:../../../mud/packages/store",
     "@latticexyz/world": "link:../../../mud/packages/world",
-    "@latticexyz/world-modules": "link:../../../mud/packages/world-modules"
+    "@latticexyz/world-modules": "link:../../../mud/packages/world-modules",
+    "@openzeppelin/contracts": "^4.9.1"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",
