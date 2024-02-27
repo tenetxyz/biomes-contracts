@@ -10,5 +10,7 @@ import { VoxelCoord } from "./../../Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IMoveSystem {
+  function applyGravity(VoxelCoord memory coord) external returns (bool);
+
   function move(VoxelCoord[] memory newCoords) external;
 }

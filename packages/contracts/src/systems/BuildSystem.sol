@@ -65,7 +65,5 @@ contract BuildSystem is System {
 
     Position.set(inventoryEntityId, coord.x, coord.y, coord.z);
     ReversePosition.set(coord.x, coord.y, coord.z, inventoryEntityId);
-
-    // TODO apply gravity
   }
 }
