@@ -16,7 +16,7 @@ import { LimestoneObjectID, LimestoneBrickObjectID, LimestoneCarvedObjectID, Lim
 
 import { createSingleInputRecipe, createDoubleInputRecipe } from "../../Utils.sol";
 
-contract InitCraftedStoneSystem is System {
+contract InitCraftedStonesSystem is System {
   function createCraftedBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {
     ObjectTypeMetadata.set(
       terrainBlockObjectTypeId,
