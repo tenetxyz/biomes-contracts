@@ -15,7 +15,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "../Types.sol";
 import { AirObjectID, PlayerObjectID, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube, regenHealth, regenStamina } from "../Utils.sol";
+import { positionDataToVoxelCoord, inSurroundingCube, regenHealth, regenStamina, useEquipped } from "../Utils.sol";
 
 int32 constant SPAWN_LOW_X = 200;
 int32 constant SPAWN_HIGH_X = 300;
@@ -69,6 +69,10 @@ contract PlayerSystem is System {
       inSurroundingCube(playerCoord, 1, hitCoord),
       "PlayerSystem: hit entity is not in surrounding cube of player"
     );
+
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId);
+    useEquipped(playerEntityId);
 
     // Calculate stamina and health reduction
     uint32 currentStamina = Stamina.getStamina(playerEntityId);

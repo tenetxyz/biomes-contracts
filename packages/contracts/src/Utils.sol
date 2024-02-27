@@ -10,6 +10,8 @@ import { ObjectType } from "./codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "./codegen/tables/ObjectTypeMetadata.sol";
 import { InventorySlots } from "./codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "./codegen/tables/InventoryCount.sol";
+import { Equipped } from "./codegen/tables/Equipped.sol";
+import { ItemMetadata } from "./codegen/tables/ItemMetadata.sol";
 import { Health, HealthData } from "./codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "./codegen/tables/Stamina.sol";
 
@@ -69,16 +71,35 @@ function removeFromInventoryCount(bytes32 ownerEntityId, bytes32 objectTypeId, u
   bool hasFinalPartialStack = numFinalObjects % stackable != 0;
 
   uint16 numFinalSlotsUsed = numFinalFullStacks + (hasFinalPartialStack ? 1 : 0);
-  if(numFinalSlotsUsed == 0){
+  if (numFinalSlotsUsed == 0) {
     InventorySlots.deleteRecord(ownerEntityId);
   } else {
     InventorySlots.set(ownerEntityId, numFinalSlotsUsed);
   }
 
-  if(numFinalObjects == 0){
+  if (numFinalObjects == 0) {
     InventoryCount.deleteRecord(ownerEntityId, objectTypeId);
   } else {
     InventoryCount.set(ownerEntityId, objectTypeId, numFinalObjects);
+  }
+}
+
+function useEquipped(bytes32 entityId) {
+  bytes32 inventoryEntityId = Equipped.get(entityId);
+  if (inventoryEntityId != bytes32(0)) {
+    uint16 numUsesLeft = ItemMetadata.get(inventoryEntityId);
+    if (numUsesLeft > 0) {
+      if (numUsesLeft == 1) {
+        // Destroy equipped item
+        removeFromInventoryCount(entityId, ObjectType.get(inventoryEntityId), 1);
+        ItemMetadata.deleteRecord(inventoryEntityId);
+        Inventory.deleteRecord(inventoryEntityId);
+        Equipped.deleteRecord(entityId);
+        ObjectType.deleteRecord(inventoryEntityId);
+      } else {
+        ItemMetadata.set(inventoryEntityId, numUsesLeft - 1);
+      }
+    } // 0 = unlimited uses
   }
 }
 
