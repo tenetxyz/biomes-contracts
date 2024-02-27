@@ -73,25 +73,6 @@ contract InventorySystem is System {
     }
   }
 
-  function holdsInventory(bytes32 objectTypeId) internal pure returns (bool) {
-    return objectTypeId == PlayerObjectID || objectTypeId == ChestObjectID;
-  }
-
-  function transferInventoryItem(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    bytes32 dstObjectTypeId,
-    bytes32 inventoryEntityId
-  ) internal {
-    require(Inventory.get(inventoryEntityId) == srcEntityId, "InventorySystem: entity does not own inventory item");
-    require(Equipped.get(srcEntityId) != inventoryEntityId, "InventorySystem: cannot transfer equipped item");
-    Inventory.set(inventoryEntityId, dstEntityId);
-
-    bytes32 inventoryObjectTypeId = ObjectType.get(inventoryEntityId);
-    removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);
-    addToInventoryCount(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
-  }
-
   function transfer(bytes32 srcEntityId, bytes32 dstEntityId, bytes32[] memory inventoryEntityIds) public {
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "InventorySystem: player does not exist");
@@ -119,5 +100,24 @@ contract InventorySystem is System {
     for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
       transferInventoryItem(srcEntityId, dstEntityId, dstObjectTypeId, inventoryEntityIds[i]);
     }
+  }
+
+  function holdsInventory(bytes32 objectTypeId) internal pure returns (bool) {
+    return objectTypeId == PlayerObjectID || objectTypeId == ChestObjectID;
+  }
+
+  function transferInventoryItem(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    bytes32 dstObjectTypeId,
+    bytes32 inventoryEntityId
+  ) internal {
+    require(Inventory.get(inventoryEntityId) == srcEntityId, "InventorySystem: entity does not own inventory item");
+    require(Equipped.get(srcEntityId) != inventoryEntityId, "InventorySystem: cannot transfer equipped item");
+    Inventory.set(inventoryEntityId, dstEntityId);
+
+    bytes32 inventoryObjectTypeId = ObjectType.get(inventoryEntityId);
+    removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);
+    addToInventoryCount(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
   }
 }
