@@ -19,11 +19,10 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     IWorld(worldAddress).initPlayerObjectTypes();
-    IWorld(worldAddress).initBlockObjectTypes();
+    IWorld(worldAddress).initTerrainBlockObjectTypes();
     IWorld(worldAddress).initItemObjectTypes();
     IWorld(worldAddress).initToolObjectTypes();
 
-    IWorld(worldAddress).initBlockRecipes();
     IWorld(worldAddress).initItemRecipes();
     IWorld(worldAddress).initToolRecipes();
 
