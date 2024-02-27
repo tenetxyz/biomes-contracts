@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
-import { AirObjectID } from "../../Constants.sol";
+import { AirObjectID } from "../../ObjectTypeIds.sol";
 
 contract InitBlocksSystem is System {
   function initBlockObjectTypes() public {

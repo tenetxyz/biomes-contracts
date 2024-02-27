@@ -15,9 +15,11 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Inventory, InventoryTableId } from "../codegen/tables/Inventory.sol";
 
-import { VoxelCoord } from "../Types.sol";
-import { AirObjectID, PlayerObjectID, MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube, removeFromInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
+import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
+import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, removeFromInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
+import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract BuildSystem is System {
   function build(bytes32 inventoryEntityId, VoxelCoord memory coord) public {

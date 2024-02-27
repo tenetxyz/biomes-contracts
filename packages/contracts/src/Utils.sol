@@ -15,24 +15,12 @@ import { ItemMetadata } from "./codegen/tables/ItemMetadata.sol";
 import { Health, HealthData } from "./codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "./codegen/tables/Stamina.sol";
 
-import { VoxelCoord } from "./Types.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, BLOCKS_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "./Constants.sol";
+import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, BLOCKS_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "./Constants.sol";
+import { AirObjectID, PlayerObjectID, ChestObjectID } from "./ObjectTypeIds.sol";
 
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);
-}
-
-function inSurroundingCube(
-  VoxelCoord memory cubeCenter,
-  int32 halfWidth,
-  VoxelCoord memory checkCoord
-) pure returns (bool) {
-  // Check if `checkCoord` is within the cube in all three dimensions
-  bool isInX = checkCoord.x >= cubeCenter.x - halfWidth && checkCoord.x <= cubeCenter.x + halfWidth;
-  bool isInY = checkCoord.y >= cubeCenter.y - halfWidth && checkCoord.y <= cubeCenter.y + halfWidth;
-  bool isInZ = checkCoord.z >= cubeCenter.z - halfWidth && checkCoord.z <= cubeCenter.z + halfWidth;
-
-  return isInX && isInY && isInZ;
 }
 
 function addToInventoryCount(

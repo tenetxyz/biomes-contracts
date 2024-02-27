@@ -6,10 +6,9 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
-import { PlayerObjectID } from "../../Constants.sol";
+import { PlayerObjectID } from "../../ObjectTypeIds.sol";
 
 contract InitPlayersSystem is System {
-
   function initPlayerObjectTypes() public {
     // Players
     ObjectTypeMetadata.set(
@@ -25,5 +24,4 @@ contract InitPlayersSystem is System {
       })
     );
   }
-
 }

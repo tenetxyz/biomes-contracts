@@ -13,9 +13,11 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Inventory } from "../codegen/tables/Inventory.sol";
 
-import { VoxelCoord } from "../Types.sol";
-import { AirObjectID, PlayerObjectID, MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube, addToInventoryCount, regenHealth, regenStamina, useEquipped } from "../Utils.sol";
+import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
+import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, addToInventoryCount, regenHealth, regenStamina, useEquipped } from "../Utils.sol";
+import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract MineSystem is System {
   function mine(bytes32 objectTypeId, VoxelCoord memory coord) public {

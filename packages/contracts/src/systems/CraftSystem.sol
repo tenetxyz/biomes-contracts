@@ -19,9 +19,10 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
-import { VoxelCoord } from "../Types.sol";
-import { AirObjectID, PlayerObjectID } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube, addToInventoryCount, removeFromInventoryCount } from "../Utils.sol";
+import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, addToInventoryCount, removeFromInventoryCount } from "../Utils.sol";
+import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract CraftSystem is System {
   function craft(bytes32 recipeId, bytes32[] memory ingredientEntityIds, bytes32 stationEntityId) public {

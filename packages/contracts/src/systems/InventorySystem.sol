@@ -19,9 +19,10 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
-import { VoxelCoord } from "../Types.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube, addToInventoryCount, removeFromInventoryCount } from "../Utils.sol";
+import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, addToInventoryCount, removeFromInventoryCount } from "../Utils.sol";
+import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract InventorySystem is System {
   function equip(bytes32 inventoryEntityId) public {

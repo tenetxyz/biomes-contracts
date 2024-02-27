@@ -16,9 +16,10 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Inventory, InventoryTableId } from "../codegen/tables/Inventory.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
-import { VoxelCoord } from "../Types.sol";
-import { AirObjectID, PlayerObjectID } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube, addToInventoryCount, removeFromInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
+import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, addToInventoryCount, removeFromInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
+import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract MoveSystem is System {
   function applyGravity(VoxelCoord memory coord) public returns (bool) {
@@ -59,7 +60,7 @@ contract MoveSystem is System {
     for (uint256 i = 0; i < newCoords.length; i++) {
       VoxelCoord memory newCoord = newCoords[i];
       bool gravityRan = move(playerEntityId, oldCoord, newCoord, true);
-      if(gravityRan){
+      if (gravityRan) {
         // then, the player is now at a new coord we don't know about, so we just break
         break;
       }

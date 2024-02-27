@@ -13,9 +13,11 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 
-import { VoxelCoord } from "../Types.sol";
-import { AirObjectID, PlayerObjectID, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube, regenHealth, regenStamina, useEquipped } from "../Utils.sol";
+import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../Constants.sol";
+import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, regenHealth, regenStamina, useEquipped } from "../Utils.sol";
+import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 int32 constant SPAWN_LOW_X = 200;
 int32 constant SPAWN_HIGH_X = 300;

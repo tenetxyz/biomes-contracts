@@ -8,11 +8,11 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../../codegen/tables/Recipes.sol";
 
-import { MAX_TOOL_STACKABLE, WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../Constants.sol";
-import { OakLogObjectID } from "../../Constants.sol";
+import { MAX_TOOL_STACKABLE } from "../../Constants.sol";
+import { WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
+import { OakLogObjectID } from "../../ObjectTypeIds.sol";
 
 contract InitToolsSystem is System {
-
   // TODO: add durability and damage values
   function initToolObjectTypes() public {
     ObjectTypeMetadata.set(

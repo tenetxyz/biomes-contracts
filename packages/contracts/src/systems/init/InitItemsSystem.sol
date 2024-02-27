@@ -8,8 +8,9 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../../codegen/tables/Recipes.sol";
 
-import { MAX_BLOCK_STACKABLE, GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID } from "../../Constants.sol";
-import { GoldOreObjectID } from "../../Constants.sol";
+import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
+import { GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID } from "../../ObjectTypeIds.sol";
+import { GoldOreObjectID } from "../../ObjectTypeIds.sol";
 
 contract InitItemsSystem is System {
   function initItemObjectTypes() public {
