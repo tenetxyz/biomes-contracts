@@ -18,7 +18,7 @@ import { Recipes, RecipesData } from "./codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, BLOCKS_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "./Constants.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID } from "./ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, ChestObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "./ObjectTypeIds.sol";
 
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);
@@ -153,7 +153,9 @@ function creteSingleInputWithStationRecipe(
   inputObjectTypeAmounts[0] = inputObjectTypeAmount;
 
   // Form recipe id from input and output object type ids
-  bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, inputObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount));
+  bytes32 recipeId = keccak256(
+    abi.encodePacked(inputObjectTypeId, inputObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount)
+  );
   Recipes.set(
     recipeId,
     RecipesData({
@@ -172,9 +174,14 @@ function creteSingleInputRecipe(
   bytes32 outputObjectTypeId,
   uint8 outputObjectTypeAmount
 ) {
-  creteSingleInputWithStationRecipe(bytes32(0), inputObjectTypeId, inputObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  creteSingleInputWithStationRecipe(
+    bytes32(0),
+    inputObjectTypeId,
+    inputObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
 }
-
 
 function creteDoubleInputWithStationRecipe(
   bytes32 stationObjectTypeId,
@@ -194,7 +201,16 @@ function creteDoubleInputWithStationRecipe(
   inputObjectTypeAmounts[1] = inputObjectTypeAmount2;
 
   // Form recipe id from input and output object type ids
-  bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId1, inputObjectTypeAmount1, inputObjectTypeId2, inputObjectTypeAmount2, outputObjectTypeId, outputObjectTypeAmount));
+  bytes32 recipeId = keccak256(
+    abi.encodePacked(
+      inputObjectTypeId1,
+      inputObjectTypeAmount1,
+      inputObjectTypeId2,
+      inputObjectTypeAmount2,
+      outputObjectTypeId,
+      outputObjectTypeAmount
+    )
+  );
   Recipes.set(
     recipeId,
     RecipesData({
@@ -215,5 +231,65 @@ function creteDoubleInputRecipe(
   bytes32 outputObjectTypeId,
   uint8 outputObjectTypeAmount
 ) {
-  creteDoubleInputWithStationRecipe(bytes32(0), inputObjectTypeId1, inputObjectTypeAmount1, inputObjectTypeId2, inputObjectTypeAmount2, outputObjectTypeId, outputObjectTypeAmount);
+  creteDoubleInputWithStationRecipe(
+    bytes32(0),
+    inputObjectTypeId1,
+    inputObjectTypeAmount1,
+    inputObjectTypeId2,
+    inputObjectTypeAmount2,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+}
+
+function createRecipeForAllLogVariations(
+  uint8 logObjectTypeAmount,
+  bytes32 outputObjectTypeId,
+  uint8 outputObjectTypeAmount
+) {
+  creteSingleInputRecipe(OakLogObjectID, logObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  creteSingleInputRecipe(SakuraLogObjectID, logObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  creteSingleInputRecipe(RubberLogObjectID, logObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  creteSingleInputRecipe(BirchLogObjectID, logObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+}
+
+function createRecipeForAllLogVariationsWithInput(
+  uint8 logObjectTypeAmount,
+  bytes32 inputObjectTypeId,
+  uint8 inputObjectTypeAmount,
+  bytes32 outputObjectTypeId,
+  uint8 outputObjectTypeAmount
+) {
+  creteDoubleInputRecipe(
+    inputObjectTypeId,
+    inputObjectTypeAmount,
+    OakLogObjectID,
+    logObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  creteDoubleInputRecipe(
+    inputObjectTypeId,
+    inputObjectTypeAmount,
+    SakuraLogObjectID,
+    logObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  creteDoubleInputRecipe(
+    inputObjectTypeId,
+    inputObjectTypeAmount,
+    RubberLogObjectID,
+    logObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  creteDoubleInputRecipe(
+    inputObjectTypeId,
+    inputObjectTypeAmount,
+    BirchLogObjectID,
+    logObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
 }

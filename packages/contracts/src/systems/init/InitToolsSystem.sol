@@ -10,209 +10,70 @@ import { Recipes, RecipesData } from "../../codegen/tables/Recipes.sol";
 
 import { MAX_TOOL_STACKABLE } from "../../Constants.sol";
 import { WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
-import { OakLogObjectID } from "../../ObjectTypeIds.sol";
+import { OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID, SilverBarObjectID, GoldBarObjectID, DiamondObjectID, NeptuniumBarObjectID, StoneObjectID } from "../../ObjectTypeIds.sol";
+
+import { creteSingleInputRecipe, creteDoubleInputRecipe, createRecipeForAllLogVariations, createRecipeForAllLogVariationsWithInput } from "../../Utils.sol";
 
 contract InitToolsSystem is System {
-  // TODO: add durability and damage values
-  function initToolObjectTypes() public {
+  function createTool(bytes32 toolObjectTypeId, uint16 mass, uint16 durability, uint16 damage) internal {
     ObjectTypeMetadata.set(
-      WoodenPickObjectID,
+      toolObjectTypeId,
       ObjectTypeMetadataData({
         isPlayer: false,
         isBlock: false,
-        mass: 16,
+        mass: mass,
         stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      WoodenAxeObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 16,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      WoodenWhackerObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 32,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      StonePickObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 36,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      StoneAxeObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 36,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      StoneWhackerObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 72,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      SilverPickObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 160,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      SilverAxeObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 160,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      SilverWhackerObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 216,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      GoldPickObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 176,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      GoldAxeObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 176,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      DiamondPickObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 196,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      DiamondAxeObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 196,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      NeptuniumPickObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 336,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      NeptuniumAxeObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 336,
-        stackable: MAX_TOOL_STACKABLE,
-        durability: 0,
-        damage: 0,
+        durability: durability,
+        damage: damage,
         occurence: bytes4(0)
       })
     );
   }
 
-  // TODO: Make callable only once
-  // TODO: Add rest of recipes
+  // TODO: add durability and damage values
+  function initToolObjectTypes() public {
+    createTool(WoodenPickObjectID, 16, 0, 0);
+    createTool(WoodenAxeObjectID, 16, 0, 0);
+    createTool(WoodenWhackerObjectID, 32, 0, 0);
+
+    createTool(StonePickObjectID, 36, 0, 0);
+    createTool(StoneAxeObjectID, 36, 0, 0);
+    createTool(StoneWhackerObjectID, 72, 0, 0);
+
+    createTool(SilverPickObjectID, 160, 0, 0);
+    createTool(SilverAxeObjectID, 160, 0, 0);
+    createTool(SilverWhackerObjectID, 216, 0, 0);
+
+    createTool(GoldPickObjectID, 176, 0, 0);
+    createTool(GoldAxeObjectID, 176, 0, 0);
+
+    createTool(DiamondPickObjectID, 196, 0, 0);
+    createTool(DiamondAxeObjectID, 196, 0, 0);
+
+    createTool(NeptuniumPickObjectID, 336, 0, 0);
+    createTool(NeptuniumAxeObjectID, 336, 0, 0);
+  }
+
   function initToolRecipes() public {
+    createRecipeForAllLogVariations(4, WoodenPickObjectID, 1);
+    createRecipeForAllLogVariations(4, WoodenAxeObjectID, 1);
+    createRecipeForAllLogVariations(8, WoodenWhackerObjectID, 1);
+
+    createRecipeForAllLogVariationsWithInput(4, StoneObjectID, 8, StonePickObjectID, 1);
+    createRecipeForAllLogVariationsWithInput(4, StoneObjectID, 8, StoneAxeObjectID, 1);
+    createRecipeForAllLogVariationsWithInput(2, StoneObjectID, 4, StoneWhackerObjectID, 1);
+
+    createRecipeForAllLogVariationsWithInput(4, SilverBarObjectID, 4, SilverPickObjectID, 1);
+    createRecipeForAllLogVariationsWithInput(4, SilverBarObjectID, 4, SilverAxeObjectID, 1);
+    creteSingleInputRecipe(SilverBarObjectID, 6, SilverWhackerObjectID, 1);
+
+    createRecipeForAllLogVariationsWithInput(4, GoldBarObjectID, 4, GoldPickObjectID, 1);
+    createRecipeForAllLogVariationsWithInput(4, GoldBarObjectID, 4, GoldAxeObjectID, 1);
+
+    createRecipeForAllLogVariationsWithInput(4, DiamondObjectID, 4, DiamondPickObjectID, 1);
+    createRecipeForAllLogVariationsWithInput(4, DiamondObjectID, 4, DiamondAxeObjectID, 1);
+
+    createRecipeForAllLogVariationsWithInput(4, NeptuniumBarObjectID, 4, NeptuniumPickObjectID, 1);
+    createRecipeForAllLogVariationsWithInput(4, NeptuniumBarObjectID, 4, NeptuniumAxeObjectID, 1);
   }
 }
