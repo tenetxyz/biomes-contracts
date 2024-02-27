@@ -127,10 +127,10 @@ export default mudConfig({
       },
       valueSchema: {
         stationObjectTypeId: "bytes32",
+        outputObjectTypeId: "bytes32",
+        outputObjectTypeAmount: "uint8",
         inputObjectTypeIds: "bytes32[]",
         inputObjectTypeAmounts: "uint8[]",
-        outputObjectTypeIds: "bytes32[]",
-        outputObjectTypeAmounts: "uint8[]",
       },
     },
   },

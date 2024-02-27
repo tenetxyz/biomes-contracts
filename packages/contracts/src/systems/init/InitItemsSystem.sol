@@ -10,55 +10,20 @@ import { Recipes, RecipesData } from "../../codegen/tables/Recipes.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID } from "../../ObjectTypeIds.sol";
-import { GoldOreObjectID } from "../../ObjectTypeIds.sol";
+import { SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../../ObjectTypeIds.sol";
+import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectTypeIds.sol";
+import { BellflowerObjectID, SakuraLumberObjectID, HempObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "../../ObjectTypeIds.sol";
+
+import { creteSingleInputRecipe, creteDoubleInputRecipe } from "../../Utils.sol";
 
 contract InitItemsSystem is System {
-  function initItemObjectTypes() public {
+  function createItem(bytes32 itemObjectTypeId, uint16 mass) internal {
     ObjectTypeMetadata.set(
-      GoldBarObjectID,
+      itemObjectTypeId,
       ObjectTypeMetadataData({
         isPlayer: false,
         isBlock: false,
-        mass: 40,
-        stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      SilverBarObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 36,
-        stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      DiamondObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 60,
-        stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
-    ObjectTypeMetadata.set(
-      NeptuniumBarObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 80,
+        mass: mass,
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
         damage: 0,
@@ -67,40 +32,46 @@ contract InitItemsSystem is System {
     );
   }
 
-  // TODO: Make callable only once
-  // TODO: Add rest of recipes
+  function initItemObjectTypes() public {
+    createItem(SilverBarObjectID, 36);
+    createItem(GoldBarObjectID, 40);
+    createItem(DiamondObjectID, 60);
+    createItem(NeptuniumBarObjectID, 80);
+
+    createItem(BlueDyeObjectID, 1);
+    createItem(BrownDyeObjectID, 1);
+    createItem(GreenDyeObjectID, 1);
+    createItem(MagentaDyeObjectID, 1);
+    createItem(OrangeDyeObjectID, 1);
+    createItem(PinkDyeObjectID, 1);
+    createItem(PurpleDyeObjectID, 1);
+    createItem(RedDyeObjectID, 1);
+    createItem(TanDyeObjectID, 1);
+    createItem(WhiteDyeObjectID, 1);
+    createItem(YellowDyeObjectID, 1);
+    createItem(BlackDyeObjectID, 1);
+    createItem(SilverDyeObjectID, 1);
+  }
+
   function initItemRecipes() public {
-    // Setup variables
-    bytes32 stationObjectTypeId;
-    bytes32[] memory inputObjectTypeIds;
-    uint8[] memory inputObjectTypeAmounts;
-    bytes32[] memory outputObjectTypeIds;
-    uint8[] memory outputObjectTypeAmounts;
-    bytes32 newRecipeId;
+    creteSingleInputRecipe(SilverOreObjectID, 4, SilverBarObjectID, 1);
+    creteSingleInputRecipe(GoldOreObjectID, 4, GoldBarObjectID, 1);
+    creteSingleInputRecipe(DiamondOreObjectID, 4, DiamondObjectID, 1);
+    creteSingleInputRecipe(NeptuniumOreObjectID, 4, NeptuniumBarObjectID, 1);
 
-    // recipeGoldBar
-    stationObjectTypeId = bytes32(0);
+    creteSingleInputRecipe(BellflowerObjectID, 10, BlueDyeObjectID, 10);
+    creteSingleInputRecipe(SakuraLumberObjectID, 10, BrownDyeObjectID, 10);
+    creteSingleInputRecipe(HempObjectID, 10, GreenDyeObjectID, 10);
+    creteSingleInputRecipe(DaylilyObjectID, 10, OrangeDyeObjectID, 10);
+    creteSingleInputRecipe(AzaleaObjectID, 10, PinkDyeObjectID, 10);
+    creteSingleInputRecipe(LilacObjectID, 10, PurpleDyeObjectID, 10);
+    creteSingleInputRecipe(RoseObjectID, 10, RedDyeObjectID, 10);
+    creteSingleInputRecipe(SandObjectID, 5, TanDyeObjectID, 10);
+    creteSingleInputRecipe(CottonBushObjectID, 2, WhiteDyeObjectID, 8);
+    creteSingleInputRecipe(DandelionObjectID, 10, YellowDyeObjectID, 10);
+    creteSingleInputRecipe(SilverOreObjectID, 1, SilverDyeObjectID, 9);
+    creteSingleInputRecipe(NeptuniumOreObjectID, 1, BlackDyeObjectID, 20);
 
-    inputObjectTypeIds = new bytes32[](1);
-    inputObjectTypeIds[0] = GoldOreObjectID;
-    inputObjectTypeAmounts = new uint8[](1);
-    inputObjectTypeAmounts[0] = 4;
-
-    outputObjectTypeIds = new bytes32[](1);
-    outputObjectTypeIds[0] = GoldBarObjectID;
-    outputObjectTypeAmounts = new uint8[](1);
-    outputObjectTypeAmounts[0] = 1;
-
-    newRecipeId = getUniqueEntity();
-    Recipes.set(
-      newRecipeId,
-      RecipesData({
-        stationObjectTypeId: stationObjectTypeId,
-        inputObjectTypeIds: inputObjectTypeIds,
-        inputObjectTypeAmounts: inputObjectTypeAmounts,
-        outputObjectTypeIds: outputObjectTypeIds,
-        outputObjectTypeAmounts: outputObjectTypeAmounts
-      })
-    );
+    creteDoubleInputRecipe(LilacObjectID, 5, AzaleaObjectID, 5, MagentaDyeObjectID, 10);
   }
 }

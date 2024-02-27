@@ -214,39 +214,5 @@ contract InitToolsSystem is System {
   // TODO: Make callable only once
   // TODO: Add rest of recipes
   function initToolRecipes() public {
-    // Setup variables
-    bytes32 stationObjectTypeId;
-    bytes32[] memory inputObjectTypeIds;
-    uint8[] memory inputObjectTypeAmounts;
-    bytes32[] memory outputObjectTypeIds;
-    uint8[] memory outputObjectTypeAmounts;
-    bytes32 newRecipeId;
-
-    // Wooden Pickaxe
-    stationObjectTypeId = bytes32(0);
-
-    // Recipe inputs
-    inputObjectTypeIds = new bytes32[](1);
-    inputObjectTypeIds[0] = OakLogObjectID;
-    inputObjectTypeAmounts = new uint8[](1);
-    inputObjectTypeAmounts[0] = 4;
-
-    // Recipe outputs
-    outputObjectTypeIds = new bytes32[](1);
-    outputObjectTypeIds[0] = WoodenPickObjectID;
-    outputObjectTypeAmounts = new uint8[](1);
-    outputObjectTypeAmounts[0] = 1;
-
-    newRecipeId = getUniqueEntity();
-    Recipes.set(
-      newRecipeId,
-      RecipesData({
-        stationObjectTypeId: stationObjectTypeId,
-        inputObjectTypeIds: inputObjectTypeIds,
-        inputObjectTypeAmounts: inputObjectTypeAmounts,
-        outputObjectTypeIds: outputObjectTypeIds,
-        outputObjectTypeAmounts: outputObjectTypeAmounts
-      })
-    );
   }
 }

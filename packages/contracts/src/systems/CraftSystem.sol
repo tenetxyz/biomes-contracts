@@ -69,22 +69,20 @@ contract CraftSystem is System {
       removeFromInventoryCount(playerEntityId, recipeData.inputObjectTypeIds[i], recipeData.inputObjectTypeAmounts[i]);
     }
 
-    // Create the crafted objects
-    for (uint256 i = 0; i < recipeData.outputObjectTypeIds.length; i++) {
-      bytes32 newInventoryEntityId = getUniqueEntity();
-      ObjectType.set(newInventoryEntityId, recipeData.outputObjectTypeIds[i]);
-      Inventory.set(newInventoryEntityId, playerEntityId);
-      uint16 durability = ObjectTypeMetadata.getDurability(recipeData.outputObjectTypeIds[i]);
-      if (durability > 0) {
-        ItemMetadata.set(newInventoryEntityId, durability);
-      }
-
-      addToInventoryCount(
-        playerEntityId,
-        PlayerObjectID,
-        recipeData.outputObjectTypeIds[i],
-        recipeData.outputObjectTypeAmounts[i]
-      );
+    // Create the crafted object
+    bytes32 newInventoryEntityId = getUniqueEntity();
+    ObjectType.set(newInventoryEntityId, recipeData.outputObjectTypeId);
+    Inventory.set(newInventoryEntityId, playerEntityId);
+    uint16 durability = ObjectTypeMetadata.getDurability(recipeData.outputObjectTypeId);
+    if (durability > 0) {
+      ItemMetadata.set(newInventoryEntityId, durability);
     }
+
+    addToInventoryCount(
+      playerEntityId,
+      PlayerObjectID,
+      recipeData.outputObjectTypeId,
+      recipeData.outputObjectTypeAmount
+    );
   }
 }

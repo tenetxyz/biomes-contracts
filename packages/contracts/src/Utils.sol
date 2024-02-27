@@ -14,6 +14,7 @@ import { Equipped } from "./codegen/tables/Equipped.sol";
 import { ItemMetadata } from "./codegen/tables/ItemMetadata.sol";
 import { Health, HealthData } from "./codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "./codegen/tables/Stamina.sol";
+import { Recipes, RecipesData } from "./codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, BLOCKS_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "./Constants.sol";
@@ -137,4 +138,82 @@ function regenStamina(bytes32 entityId) {
   }
 
   Stamina.set(entityId, StaminaData({ stamina: newStamina, lastUpdateBlock: block.number }));
+}
+
+function creteSingleInputWithStationRecipe(
+  bytes32 stationObjectTypeId,
+  bytes32 inputObjectTypeId,
+  uint8 inputObjectTypeAmount,
+  bytes32 outputObjectTypeId,
+  uint8 outputObjectTypeAmount
+) {
+  bytes32[] memory inputObjectTypeIds = new bytes32[](1);
+  inputObjectTypeIds[0] = inputObjectTypeId;
+  uint8[] memory inputObjectTypeAmounts = new uint8[](1);
+  inputObjectTypeAmounts[0] = inputObjectTypeAmount;
+
+  // Form recipe id from input and output object type ids
+  bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, inputObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount));
+  Recipes.set(
+    recipeId,
+    RecipesData({
+      stationObjectTypeId: stationObjectTypeId,
+      inputObjectTypeIds: inputObjectTypeIds,
+      inputObjectTypeAmounts: inputObjectTypeAmounts,
+      outputObjectTypeId: outputObjectTypeId,
+      outputObjectTypeAmount: outputObjectTypeAmount
+    })
+  );
+}
+
+function creteSingleInputRecipe(
+  bytes32 inputObjectTypeId,
+  uint8 inputObjectTypeAmount,
+  bytes32 outputObjectTypeId,
+  uint8 outputObjectTypeAmount
+) {
+  creteSingleInputWithStationRecipe(bytes32(0), inputObjectTypeId, inputObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+}
+
+
+function creteDoubleInputWithStationRecipe(
+  bytes32 stationObjectTypeId,
+  bytes32 inputObjectTypeId1,
+  uint8 inputObjectTypeAmount1,
+  bytes32 inputObjectTypeId2,
+  uint8 inputObjectTypeAmount2,
+  bytes32 outputObjectTypeId,
+  uint8 outputObjectTypeAmount
+) {
+  bytes32[] memory inputObjectTypeIds = new bytes32[](2);
+  inputObjectTypeIds[0] = inputObjectTypeId1;
+  inputObjectTypeIds[1] = inputObjectTypeId2;
+
+  uint8[] memory inputObjectTypeAmounts = new uint8[](2);
+  inputObjectTypeAmounts[0] = inputObjectTypeAmount1;
+  inputObjectTypeAmounts[1] = inputObjectTypeAmount2;
+
+  // Form recipe id from input and output object type ids
+  bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId1, inputObjectTypeAmount1, inputObjectTypeId2, inputObjectTypeAmount2, outputObjectTypeId, outputObjectTypeAmount));
+  Recipes.set(
+    recipeId,
+    RecipesData({
+      stationObjectTypeId: stationObjectTypeId,
+      inputObjectTypeIds: inputObjectTypeIds,
+      inputObjectTypeAmounts: inputObjectTypeAmounts,
+      outputObjectTypeId: outputObjectTypeId,
+      outputObjectTypeAmount: outputObjectTypeAmount
+    })
+  );
+}
+
+function creteDoubleInputRecipe(
+  bytes32 inputObjectTypeId1,
+  uint8 inputObjectTypeAmount1,
+  bytes32 inputObjectTypeId2,
+  uint8 inputObjectTypeAmount2,
+  bytes32 outputObjectTypeId,
+  uint8 outputObjectTypeAmount
+) {
+  creteDoubleInputWithStationRecipe(bytes32(0), inputObjectTypeId1, inputObjectTypeAmount1, inputObjectTypeId2, inputObjectTypeAmount2, outputObjectTypeId, outputObjectTypeAmount);
 }
