@@ -9,7 +9,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
-
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 
