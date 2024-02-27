@@ -8,24 +8,11 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../../codegen/tables/Recipes.sol";
 
-import { MAX_BLOCK_STACKABLE, PaperObjectID, GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID } from "../../Constants.sol";
+import { MAX_BLOCK_STACKABLE, GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID } from "../../Constants.sol";
 import { GoldOreObjectID } from "../../Constants.sol";
 
 contract InitItemsSystem is System {
   function initItemObjectTypes() public {
-    ObjectTypeMetadata.set(
-      PaperObjectID,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: false,
-        mass: 1,
-        stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0,
-        occurence: bytes4(0)
-      })
-    );
-
     ObjectTypeMetadata.set(
       GoldBarObjectID,
       ObjectTypeMetadataData({
