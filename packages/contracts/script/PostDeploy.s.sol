@@ -20,11 +20,14 @@ contract PostDeploy is Script {
 
     IWorld(worldAddress).initPlayerObjectTypes();
     IWorld(worldAddress).initTerrainBlockObjectTypes();
+    IWorld(worldAddress).initCraftedStoneObjectTypes();
     IWorld(worldAddress).initItemObjectTypes();
     IWorld(worldAddress).initToolObjectTypes();
 
+    IWorld(worldAddress).initCraftedStoneRecipes();
     IWorld(worldAddress).initItemRecipes();
     IWorld(worldAddress).initToolRecipes();
+
 
     vm.stopBroadcast();
   }

@@ -12,7 +12,7 @@ import { MAX_TOOL_STACKABLE } from "../../Constants.sol";
 import { WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
 import { OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID, SilverBarObjectID, GoldBarObjectID, DiamondObjectID, NeptuniumBarObjectID, StoneObjectID } from "../../ObjectTypeIds.sol";
 
-import { creteSingleInputRecipe, creteDoubleInputRecipe, createRecipeForAllLogVariations, createRecipeForAllLogVariationsWithInput } from "../../Utils.sol";
+import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLogVariations, createRecipeForAllLogVariationsWithInput } from "../../Utils.sol";
 
 contract InitToolsSystem is System {
   function createTool(bytes32 toolObjectTypeId, uint16 mass, uint16 durability, uint16 damage) internal {
@@ -65,7 +65,7 @@ contract InitToolsSystem is System {
 
     createRecipeForAllLogVariationsWithInput(4, SilverBarObjectID, 4, SilverPickObjectID, 1);
     createRecipeForAllLogVariationsWithInput(4, SilverBarObjectID, 4, SilverAxeObjectID, 1);
-    creteSingleInputRecipe(SilverBarObjectID, 6, SilverWhackerObjectID, 1);
+    createSingleInputRecipe(SilverBarObjectID, 6, SilverWhackerObjectID, 1);
 
     createRecipeForAllLogVariationsWithInput(4, GoldBarObjectID, 4, GoldPickObjectID, 1);
     createRecipeForAllLogVariationsWithInput(4, GoldBarObjectID, 4, GoldAxeObjectID, 1);

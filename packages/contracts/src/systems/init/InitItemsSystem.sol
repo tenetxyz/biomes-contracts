@@ -6,7 +6,6 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { Recipes, RecipesData } from "../../codegen/tables/Recipes.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID } from "../../ObjectTypeIds.sol";
@@ -14,7 +13,7 @@ import { SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObj
 import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectTypeIds.sol";
 import { BellflowerObjectID, SakuraLumberObjectID, HempObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "../../ObjectTypeIds.sol";
 
-import { creteSingleInputRecipe, creteDoubleInputRecipe } from "../../Utils.sol";
+import { createSingleInputRecipe, createDoubleInputRecipe } from "../../Utils.sol";
 
 contract InitItemsSystem is System {
   function createItem(bytes32 itemObjectTypeId, uint16 mass) internal {
@@ -54,24 +53,24 @@ contract InitItemsSystem is System {
   }
 
   function initItemRecipes() public {
-    creteSingleInputRecipe(SilverOreObjectID, 4, SilverBarObjectID, 1);
-    creteSingleInputRecipe(GoldOreObjectID, 4, GoldBarObjectID, 1);
-    creteSingleInputRecipe(DiamondOreObjectID, 4, DiamondObjectID, 1);
-    creteSingleInputRecipe(NeptuniumOreObjectID, 4, NeptuniumBarObjectID, 1);
+    createSingleInputRecipe(SilverOreObjectID, 4, SilverBarObjectID, 1);
+    createSingleInputRecipe(GoldOreObjectID, 4, GoldBarObjectID, 1);
+    createSingleInputRecipe(DiamondOreObjectID, 4, DiamondObjectID, 1);
+    createSingleInputRecipe(NeptuniumOreObjectID, 4, NeptuniumBarObjectID, 1);
 
-    creteSingleInputRecipe(BellflowerObjectID, 10, BlueDyeObjectID, 10);
-    creteSingleInputRecipe(SakuraLumberObjectID, 10, BrownDyeObjectID, 10);
-    creteSingleInputRecipe(HempObjectID, 10, GreenDyeObjectID, 10);
-    creteSingleInputRecipe(DaylilyObjectID, 10, OrangeDyeObjectID, 10);
-    creteSingleInputRecipe(AzaleaObjectID, 10, PinkDyeObjectID, 10);
-    creteSingleInputRecipe(LilacObjectID, 10, PurpleDyeObjectID, 10);
-    creteSingleInputRecipe(RoseObjectID, 10, RedDyeObjectID, 10);
-    creteSingleInputRecipe(SandObjectID, 5, TanDyeObjectID, 10);
-    creteSingleInputRecipe(CottonBushObjectID, 2, WhiteDyeObjectID, 8);
-    creteSingleInputRecipe(DandelionObjectID, 10, YellowDyeObjectID, 10);
-    creteSingleInputRecipe(SilverOreObjectID, 1, SilverDyeObjectID, 9);
-    creteSingleInputRecipe(NeptuniumOreObjectID, 1, BlackDyeObjectID, 20);
+    createSingleInputRecipe(BellflowerObjectID, 10, BlueDyeObjectID, 10);
+    createSingleInputRecipe(SakuraLumberObjectID, 10, BrownDyeObjectID, 10);
+    createSingleInputRecipe(HempObjectID, 10, GreenDyeObjectID, 10);
+    createSingleInputRecipe(DaylilyObjectID, 10, OrangeDyeObjectID, 10);
+    createSingleInputRecipe(AzaleaObjectID, 10, PinkDyeObjectID, 10);
+    createSingleInputRecipe(LilacObjectID, 10, PurpleDyeObjectID, 10);
+    createSingleInputRecipe(RoseObjectID, 10, RedDyeObjectID, 10);
+    createSingleInputRecipe(SandObjectID, 5, TanDyeObjectID, 10);
+    createSingleInputRecipe(CottonBushObjectID, 2, WhiteDyeObjectID, 8);
+    createSingleInputRecipe(DandelionObjectID, 10, YellowDyeObjectID, 10);
+    createSingleInputRecipe(SilverOreObjectID, 1, SilverDyeObjectID, 9);
+    createSingleInputRecipe(NeptuniumOreObjectID, 1, BlackDyeObjectID, 20);
 
-    creteDoubleInputRecipe(LilacObjectID, 5, AzaleaObjectID, 5, MagentaDyeObjectID, 10);
+    createDoubleInputRecipe(LilacObjectID, 5, AzaleaObjectID, 5, MagentaDyeObjectID, 10);
   }
 }

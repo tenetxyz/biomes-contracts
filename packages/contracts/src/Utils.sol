@@ -140,7 +140,7 @@ function regenStamina(bytes32 entityId) {
   Stamina.set(entityId, StaminaData({ stamina: newStamina, lastUpdateBlock: block.number }));
 }
 
-function creteSingleInputWithStationRecipe(
+function createSingleInputWithStationRecipe(
   bytes32 stationObjectTypeId,
   bytes32 inputObjectTypeId,
   uint8 inputObjectTypeAmount,
@@ -168,13 +168,13 @@ function creteSingleInputWithStationRecipe(
   );
 }
 
-function creteSingleInputRecipe(
+function createSingleInputRecipe(
   bytes32 inputObjectTypeId,
   uint8 inputObjectTypeAmount,
   bytes32 outputObjectTypeId,
   uint8 outputObjectTypeAmount
 ) {
-  creteSingleInputWithStationRecipe(
+  createSingleInputWithStationRecipe(
     bytes32(0),
     inputObjectTypeId,
     inputObjectTypeAmount,
@@ -183,7 +183,7 @@ function creteSingleInputRecipe(
   );
 }
 
-function creteDoubleInputWithStationRecipe(
+function createDoubleInputWithStationRecipe(
   bytes32 stationObjectTypeId,
   bytes32 inputObjectTypeId1,
   uint8 inputObjectTypeAmount1,
@@ -223,7 +223,7 @@ function creteDoubleInputWithStationRecipe(
   );
 }
 
-function creteDoubleInputRecipe(
+function createDoubleInputRecipe(
   bytes32 inputObjectTypeId1,
   uint8 inputObjectTypeAmount1,
   bytes32 inputObjectTypeId2,
@@ -231,7 +231,7 @@ function creteDoubleInputRecipe(
   bytes32 outputObjectTypeId,
   uint8 outputObjectTypeAmount
 ) {
-  creteDoubleInputWithStationRecipe(
+  createDoubleInputWithStationRecipe(
     bytes32(0),
     inputObjectTypeId1,
     inputObjectTypeAmount1,
@@ -247,10 +247,10 @@ function createRecipeForAllLogVariations(
   bytes32 outputObjectTypeId,
   uint8 outputObjectTypeAmount
 ) {
-  creteSingleInputRecipe(OakLogObjectID, logObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  creteSingleInputRecipe(SakuraLogObjectID, logObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  creteSingleInputRecipe(RubberLogObjectID, logObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  creteSingleInputRecipe(BirchLogObjectID, logObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(OakLogObjectID, logObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(SakuraLogObjectID, logObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(RubberLogObjectID, logObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(BirchLogObjectID, logObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
 }
 
 function createRecipeForAllLogVariationsWithInput(
@@ -260,7 +260,7 @@ function createRecipeForAllLogVariationsWithInput(
   bytes32 outputObjectTypeId,
   uint8 outputObjectTypeAmount
 ) {
-  creteDoubleInputRecipe(
+  createDoubleInputRecipe(
     inputObjectTypeId,
     inputObjectTypeAmount,
     OakLogObjectID,
@@ -268,7 +268,7 @@ function createRecipeForAllLogVariationsWithInput(
     outputObjectTypeId,
     outputObjectTypeAmount
   );
-  creteDoubleInputRecipe(
+  createDoubleInputRecipe(
     inputObjectTypeId,
     inputObjectTypeAmount,
     SakuraLogObjectID,
@@ -276,7 +276,7 @@ function createRecipeForAllLogVariationsWithInput(
     outputObjectTypeId,
     outputObjectTypeAmount
   );
-  creteDoubleInputRecipe(
+  createDoubleInputRecipe(
     inputObjectTypeId,
     inputObjectTypeAmount,
     RubberLogObjectID,
@@ -284,7 +284,7 @@ function createRecipeForAllLogVariationsWithInput(
     outputObjectTypeId,
     outputObjectTypeAmount
   );
-  creteDoubleInputRecipe(
+  createDoubleInputRecipe(
     inputObjectTypeId,
     inputObjectTypeAmount,
     BirchLogObjectID,
