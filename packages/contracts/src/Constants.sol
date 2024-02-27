@@ -13,6 +13,7 @@ uint256 constant GRAVITY_DAMAGE = 10;
 int32 constant MAX_PLAYER_BUILD_MINE_HALF_WIDTH = 5;
 
 uint8 constant MAX_BLOCK_STACKABLE = 99;
+uint8 constant MAX_TOOL_STACKABLE = 1;
 
 uint256 constant MAX_PLAYER_INVENTORY_SLOTS = 35;
 uint256 constant MAX_CHEST_INVENTORY_SLOTS = 12;
@@ -47,7 +48,7 @@ bytes32 constant GoldPickObjectID = bytes32(keccak256("gold-pick"));
 bytes32 constant GoldAxeObjectID = bytes32(keccak256("gold-axe"));
 bytes32 constant NeptuniumPickObjectID = bytes32(keccak256("neptunium-pick"));
 bytes32 constant NeptuniumAxeObjectID = bytes32(keccak256("neptunium-axe"));
-bytes32 constant DiamondPickObjectID = bytes32(keccak256("diamond-axe"));
+bytes32 constant DiamondPickObjectID = bytes32(keccak256("diamond-pick"));
 bytes32 constant DiamondAxeObjectID = bytes32(keccak256("diamond-axe"));
 
 // Items
@@ -55,6 +56,7 @@ bytes32 constant PaperObjectID = bytes32(keccak256("paper"));
 bytes32 constant GoldBarObjectID = bytes32(keccak256("gold-bar"));
 bytes32 constant SilverBarObjectID = bytes32(keccak256("silver-ore"));
 bytes32 constant NeptuniumBarObjectID = bytes32(keccak256("neptunium-bar"));
+bytes32 constant DiamondObjectID = bytes32(keccak256("diamond"));
 
 // Blocks
 bytes32 constant AirObjectID = bytes32(keccak256("air"));
@@ -101,7 +103,6 @@ bytes32 constant ClayObjectID = bytes32(keccak256("clay"));
 bytes32 constant BedrockObjectID = bytes32(keccak256("bedrock"));
 bytes32 constant LavaObjectID = bytes32(keccak256("lava"));
 bytes32 constant DiamondOreObjectID = bytes32(keccak256("diamond-ore"));
-bytes32 constant DiamondObjectID = bytes32(keccak256("diamond"));
 bytes32 constant GoldOreObjectID = bytes32(keccak256("gold-ore"));
 bytes32 constant GoldCubeObjectID = bytes32(keccak256("gold-cube"));
 bytes32 constant CoalOreObjectID = bytes32(keccak256("coal-ore"));

@@ -18,6 +18,15 @@ contract PostDeploy is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
+    IWorld(worldAddress).initPlayerObjectTypes();
+    IWorld(worldAddress).initBlockObjectTypes();
+    IWorld(worldAddress).initItemObjectTypes();
+    IWorld(worldAddress).initToolObjectTypes();
+
+    IWorld(worldAddress).initBlockRecipes();
+    IWorld(worldAddress).initItemRecipes();
+    IWorld(worldAddress).initToolRecipes();
+
     vm.stopBroadcast();
   }
 }
