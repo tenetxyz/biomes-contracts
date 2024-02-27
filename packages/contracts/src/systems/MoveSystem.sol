@@ -17,7 +17,7 @@ import { Inventory, InventoryTableId } from "../codegen/tables/Inventory.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
 import { VoxelCoord } from "../Types.sol";
-import { AirObjectID, PlayerObjectID, MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
+import { AirObjectID, PlayerObjectID } from "../Constants.sol";
 import { positionDataToVoxelCoord, inSurroundingCube, addToInventoryCount, removeFromInventoryCount } from "../Utils.sol";
 
 contract MoveSystem is System {

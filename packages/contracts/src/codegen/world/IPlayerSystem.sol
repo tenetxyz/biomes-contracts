@@ -11,4 +11,8 @@ import { VoxelCoord } from "./../../Types.sol";
  */
 interface IPlayerSystem {
   function spawnPlayer(VoxelCoord memory spawnCoord) external;
+
+  function activatePlayer() external;
+
+  function hitPlayer(bytes32 hitEntityId) external;
 }
