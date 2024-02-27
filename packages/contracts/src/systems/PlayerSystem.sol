@@ -25,7 +25,7 @@ int32 constant SPAWN_LOW_Z = 0;
 int32 constant SPAWN_HIGH_Z = 300;
 
 contract PlayerSystem is System {
-  function spawnPlayer(VoxelCoord memory spawnCoord) public {
+  function spawnPlayer(VoxelCoord memory spawnCoord) public returns (bytes32) {
     address newPlayer = _msgSender();
     require(Player.get(newPlayer) == bytes32(0), "PlayerSystem: player already exists");
 
@@ -52,6 +52,8 @@ contract PlayerSystem is System {
     PlayerMetadata.set(entityId, block.number, 0);
     Health.set(entityId, block.number, MAX_PLAYER_HEALTH);
     Stamina.set(entityId, block.number, MAX_PLAYER_STAMINA);
+
+    return entityId;
   }
 
   function activatePlayer() public {

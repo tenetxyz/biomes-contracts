@@ -10,7 +10,7 @@ import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IPlayerSystem {
-  function spawnPlayer(VoxelCoord memory spawnCoord) external;
+  function spawnPlayer(VoxelCoord memory spawnCoord) external returns (bytes32);
 
   function activatePlayer() external;
 

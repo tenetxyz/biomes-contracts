@@ -52,7 +52,7 @@ contract InventorySystem is System {
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(coord) == AirObjectID, "BuildSystem: cannot build on non-air block");
+      require(getTerrainObjectTypeId(coord) == AirObjectID, "InventorySystem: cannot build on non-air block");
 
       // Create new entity
       entityId = getUniqueEntity();
@@ -60,7 +60,7 @@ contract InventorySystem is System {
       Position.set(entityId, coord.x, coord.y, coord.z);
       ReversePosition.set(coord.x, coord.y, coord.z, entityId);
     } else {
-      require(ObjectType.get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
+      require(ObjectType.get(entityId) == AirObjectID, "InventorySystem: cannot build on non-air block");
     }
 
     for (uint256 i = 0; i < inventoryEntityIds.length; i++) {

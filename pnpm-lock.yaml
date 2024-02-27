@@ -47,6 +47,9 @@ importers:
       '@latticexyz/config':
         specifier: link:../../../mud/packages/config
         version: link:../../../mud/packages/config
+      '@latticexyz/gas-report':
+        specifier: link:../../../mud/packages/gas-report
+        version: link:../../../mud/packages/gas-report
       '@latticexyz/schema-type':
         specifier: link:../../../mud/packages/schema-type
         version: link:../../../mud/packages/schema-type

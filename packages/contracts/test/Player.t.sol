@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
+import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
@@ -25,7 +26,7 @@ import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../src/ObjectTypeIds.sol";
 
-contract PlayerTest is MudTest {
+contract PlayerTest is MudTest, GasReporter {
   IWorld private world;
   address payable internal alice;
 
@@ -40,9 +41,11 @@ contract PlayerTest is MudTest {
     vm.startPrank(alice, alice);
 
     VoxelCoord memory spawnCoord = VoxelCoord(197, 27, 203);
-    world.spawnPlayer(spawnCoord);
 
-    bytes32 playerEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
+    startGasReport("spawn player");
+    bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
+    endGasReport();
+
     assertTrue(playerEntityId != bytes32(0), "Player entity not found");
     assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player object not found");
     assertTrue(Player.get(alice) == playerEntityId, "Player entity not found in player table");

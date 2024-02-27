@@ -18,11 +18,11 @@ import { Inventory } from "../codegen/tables/Inventory.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { getTerrainObjectTypeId, positionDataToVoxelCoord, addToInventoryCount, regenHealth, regenStamina, useEquipped } from "../Utils.sol";
+import { applyGravity, getTerrainObjectTypeId, positionDataToVoxelCoord, addToInventoryCount, regenHealth, regenStamina, useEquipped } from "../Utils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract MineSystem is System {
-  function mine(bytes32 objectTypeId, VoxelCoord memory coord) public {
+  function mine(bytes32 objectTypeId, VoxelCoord memory coord) public returns (bytes32) {
     require(ObjectTypeMetadata.getIsBlock(objectTypeId), "MineSystem: object type is not a block");
     require(objectTypeId != AirObjectID, "MineSystem: cannot mine air");
 
@@ -70,6 +70,13 @@ contract MineSystem is System {
     Inventory.set(entityId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, objectTypeId, 1);
 
-    SystemSwitch.call(abi.encodeCall(IMoveSystem.applyGravity, (coord)));
+    // Apply gravity
+    VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);
+    bytes32 aboveEntityId = ReversePosition.get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+    if (aboveEntityId != bytes32(0) && ObjectType.get(aboveEntityId) == PlayerObjectID) {
+      applyGravity(_msgSender(), aboveEntityId, aboveCoord);
+    }
+
+    return entityId;
   }
 }

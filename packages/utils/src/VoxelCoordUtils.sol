@@ -3,6 +3,10 @@ pragma solidity >=0.8.24;
 
 import { VoxelCoord } from "./Types.sol";
 
+function voxelCoordsAreEqual(VoxelCoord memory c1, VoxelCoord memory c2) pure returns (bool) {
+  return c1.x == c2.x && c1.y == c2.y && c1.z == c2.z;
+}
+
 function inSurroundingCube(
   VoxelCoord memory cubeCenter,
   int32 halfWidth,

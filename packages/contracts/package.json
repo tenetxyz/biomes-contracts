@@ -12,7 +12,8 @@
     "lint": "pnpm run prettier && pnpm run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
-    "test": "tsc --noEmit && mud test"
+    "test": "tsc --noEmit && mud test",
+    "test:verbose": "GAS_REPORTER_ENABLED=true pnpm run test --forgeOptions='-vvv'"
   },
   "dependencies": {
     "@everlonxyz/utils": "workspace:*",
@@ -21,7 +22,8 @@
     "@latticexyz/schema-type": "link:../../../mud/packages/schema-type",
     "@latticexyz/store": "link:../../../mud/packages/store",
     "@latticexyz/world": "link:../../../mud/packages/world",
-    "@latticexyz/world-modules": "link:../../../mud/packages/world-modules"
+    "@latticexyz/world-modules": "link:../../../mud/packages/world-modules",
+    "@latticexyz/gas-report": "link:../../../mud/packages/gas-report"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",

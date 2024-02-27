@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
+import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
@@ -22,10 +23,12 @@ import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { voxelCoordsAreEqual } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
+import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../src/ObjectTypeIds.sol";
 
-contract PlayerTest is MudTest {
+contract PlayerTest is MudTest, GasReporter {
   IWorld private world;
   address payable internal alice;
   VoxelCoord spawnCoord;
@@ -39,19 +42,36 @@ contract PlayerTest is MudTest {
 
   function setupPlayer() public returns (bytes32) {
     spawnCoord = VoxelCoord(197, 27, 203);
-    world.spawnPlayer(spawnCoord);
-    return ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
+    return world.spawnPlayer(spawnCoord);
   }
 
   function testMine() public {
     vm.startPrank(alice, alice);
 
-    bytes32 playerEntityId = setupPlayer();
+    setupPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
-    console.logBytes32(terrainObjectTypeId);
+
+    startGasReport("mine terrain");
+    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+    endGasReport();
+
+    assertTrue(inventoryId != bytes32(0), "Inventory entity not found");
+    bytes32 mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertTrue(mineEntityId != bytes32(0), "Mine entity not found");
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Object not mined");
+
+    startGasReport("build");
+    world.build(inventoryId, mineCoord);
+    endGasReport();
+
+    assertTrue(voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(inventoryId)), mineCoord), "Position not set");
+    assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Object not built");
+
+    startGasReport("mine");
     world.mine(terrainObjectTypeId, mineCoord);
+    endGasReport();
 
     vm.stopPrank();
   }
