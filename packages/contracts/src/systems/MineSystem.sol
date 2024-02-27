@@ -14,12 +14,10 @@ import { Inventory } from "../codegen/tables/Inventory.sol";
 
 import { VoxelCoord } from "../Types.sol";
 import { AirObjectID, PlayerObjectID, MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube, addToInventoryCount } from "../Utils.sol";
+import { positionDataToVoxelCoord, inSurroundingCube, addToInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
 
 contract MineSystem is System {
   function mine(bytes32 objectTypeId, VoxelCoord memory coord) public {
-    // TODO increase stamina + health
-
     require(ObjectTypeMetadata.getIsBlock(objectTypeId), "MineSystem: object type is not a block");
     require(objectTypeId != AirObjectID, "MineSystem: cannot mine air");
 
@@ -33,6 +31,8 @@ contract MineSystem is System {
       ),
       "MineSystem: player is too far from the block"
     );
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId);
 
     // Spend stamina for mining
     uint32 currentStamina = Stamina.getStamina(playerEntityId);

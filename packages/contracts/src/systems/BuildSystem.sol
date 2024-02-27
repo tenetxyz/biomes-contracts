@@ -17,17 +17,19 @@ import { Inventory, InventoryTableId } from "../codegen/tables/Inventory.sol";
 
 import { VoxelCoord } from "../Types.sol";
 import { AirObjectID, PlayerObjectID, MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube, removeFromInventoryCount } from "../Utils.sol";
+import { positionDataToVoxelCoord, inSurroundingCube, removeFromInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
 
 contract BuildSystem is System {
   function build(bytes32 inventoryEntityId, VoxelCoord memory coord) public {
-    // TODO increase stamina + health
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "BuildSystem: player does not exist");
     require(
       Inventory.get(inventoryEntityId) == playerEntityId,
       "BuildSystem: inventory entity does not belong to the player"
     );
+
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId);
 
     bytes32 objectTypeId = ObjectType.get(inventoryEntityId);
     require(ObjectTypeMetadata.getIsBlock(objectTypeId), "BuildSystem: object type is not a block");

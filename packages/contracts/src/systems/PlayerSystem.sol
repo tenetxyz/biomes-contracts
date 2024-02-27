@@ -15,7 +15,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "../Types.sol";
 import { AirObjectID, PlayerObjectID, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube } from "../Utils.sol";
+import { positionDataToVoxelCoord, inSurroundingCube, regenHealth, regenStamina } from "../Utils.sol";
 
 int32 constant SPAWN_LOW_X = 200;
 int32 constant SPAWN_HIGH_X = 300;
@@ -54,8 +54,8 @@ contract PlayerSystem is System {
   function activatePlayer() public {
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "PlayerSystem: player does not exist");
-
-    // TODO increase stamina + health
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId);
   }
 
   function hitPlayer(bytes32 hitEntityId) public {

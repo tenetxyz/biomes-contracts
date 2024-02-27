@@ -18,14 +18,15 @@ import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
 import { VoxelCoord } from "../Types.sol";
 import { AirObjectID, PlayerObjectID } from "../Constants.sol";
-import { positionDataToVoxelCoord, inSurroundingCube, addToInventoryCount, removeFromInventoryCount } from "../Utils.sol";
+import { positionDataToVoxelCoord, inSurroundingCube, addToInventoryCount, removeFromInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
 
 contract MoveSystem is System {
   function move(VoxelCoord[] memory newCoords) public {
-    // TODO increase stamina + health
-
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "MoveSystem: player does not exist");
+
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId);
 
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
     VoxelCoord memory oldCoord = playerCoord;
