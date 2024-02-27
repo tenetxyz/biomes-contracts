@@ -28,6 +28,7 @@ import { AirObjectID, PlayerObjectID } from "../src/ObjectTypeIds.sol";
 contract PlayerTest is MudTest {
   IWorld private world;
   address payable internal alice;
+  VoxelCoord spawnCoord;
 
   function setUp() public override {
     super.setUp();
@@ -36,18 +37,21 @@ contract PlayerTest is MudTest {
     world = IWorld(worldAddress);
   }
 
-  function testSpawnPlayer() public {
+  function setupPlayer() public returns (bytes32) {
+    spawnCoord = VoxelCoord(197, 27, 203);
+    world.spawnPlayer(spawnCoord);
+    return ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
+  }
+
+  function testMine() public {
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory spawnCoord = VoxelCoord(197, 27, 203);
-    world.spawnPlayer(spawnCoord);
+    bytes32 playerEntityId = setupPlayer();
 
-    bytes32 playerEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    assertTrue(playerEntityId != bytes32(0), "Player entity not found");
-    assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player object not found");
-    assertTrue(Player.get(alice) == playerEntityId, "Player entity not found in player table");
-    assertTrue(Health.getHealth(playerEntityId) == MAX_PLAYER_HEALTH, "Player health not set");
-    assertTrue(Stamina.getStamina(playerEntityId) == MAX_PLAYER_STAMINA, "Player stamina not set");
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    console.logBytes32(terrainObjectTypeId);
+    world.mine(terrainObjectTypeId, mineCoord);
 
     vm.stopPrank();
   }

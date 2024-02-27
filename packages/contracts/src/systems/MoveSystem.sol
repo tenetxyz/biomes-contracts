@@ -18,7 +18,7 @@ import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, addToInventoryCount, removeFromInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
+import { getTerrainObjectTypeId, positionDataToVoxelCoord, addToInventoryCount, removeFromInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract MoveSystem is System {
@@ -82,13 +82,7 @@ contract MoveSystem is System {
     bytes32 newEntityId = ReversePosition.get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
-      (bool success, bytes memory occurrence) = _world().staticcall(
-        bytes.concat(ObjectTypeMetadata.getOccurence(AirObjectID), abi.encode(newCoord))
-      );
-      require(
-        success && occurrence.length > 0 && abi.decode(occurrence, (bytes32)) == AirObjectID,
-        "MoveSystem: cannot move to non-air block"
-      );
+      require(getTerrainObjectTypeId(newCoord) == AirObjectID, "MoveSystem: cannot move to non-air block");
 
       // Create new entity
       newEntityId = getUniqueEntity();

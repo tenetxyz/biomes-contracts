@@ -16,11 +16,10 @@ import { IInitTerrainBlocksSystem } from "./IInitTerrainBlocksSystem.sol";
 import { IInitToolsSystem } from "./IInitToolsSystem.sol";
 import { IInitWorkbenchBlocksSystem } from "./IInitWorkbenchBlocksSystem.sol";
 import { IInventorySystem } from "./IInventorySystem.sol";
-import { ILibTerrainSystem } from "./ILibTerrainSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
-import { IPerlinSystem } from "./IPerlinSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
+import { ITerrainSystem } from "./ITerrainSystem.sol";
 
 /**
  * @title IWorld
@@ -41,11 +40,10 @@ interface IWorld is
   IInitToolsSystem,
   IInitWorkbenchBlocksSystem,
   IInventorySystem,
-  ILibTerrainSystem,
   IMineSystem,
   IMoveSystem,
-  IPerlinSystem,
-  IPlayerSystem
+  IPlayerSystem,
+  ITerrainSystem
 {
 
 }

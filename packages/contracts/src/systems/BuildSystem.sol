@@ -18,7 +18,7 @@ import { Inventory, InventoryTableId } from "../codegen/tables/Inventory.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, removeFromInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
+import { getTerrainObjectTypeId, positionDataToVoxelCoord, removeFromInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract BuildSystem is System {
@@ -47,13 +47,7 @@ contract BuildSystem is System {
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      (bool success, bytes memory occurrence) = _world().staticcall(
-        bytes.concat(ObjectTypeMetadata.getOccurence(AirObjectID), abi.encode(coord))
-      );
-      require(
-        success && occurrence.length > 0 && abi.decode(occurrence, (bytes32)) == AirObjectID,
-        "BuildSystem: cannot build on non-air block"
-      );
+      require(getTerrainObjectTypeId(coord) == AirObjectID, "BuildSystem: cannot build on non-air block");
     } else {
       require(ObjectType.get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
 

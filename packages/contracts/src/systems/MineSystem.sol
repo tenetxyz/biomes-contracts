@@ -3,6 +3,8 @@ pragma solidity >=0.8.24;
 
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import { SystemSwitch } from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
+import { IMoveSystem } from "../codegen/world/IMoveSystem.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
@@ -16,7 +18,7 @@ import { Inventory } from "../codegen/tables/Inventory.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, addToInventoryCount, regenHealth, regenStamina, useEquipped } from "../Utils.sol";
+import { getTerrainObjectTypeId, positionDataToVoxelCoord, addToInventoryCount, regenHealth, regenStamina, useEquipped } from "../Utils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract MineSystem is System {
@@ -47,13 +49,7 @@ contract MineSystem is System {
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      (bool success, bytes memory occurrence) = _world().staticcall(
-        bytes.concat(ObjectTypeMetadata.getOccurence(objectTypeId), abi.encode(coord))
-      );
-      require(
-        success && occurrence.length > 0 && abi.decode(occurrence, (bytes32)) == objectTypeId,
-        "MineSystem: block type does not match with terrain type"
-      );
+      require(getTerrainObjectTypeId(coord) == objectTypeId, "MineSystem: block type does not match with terrain type");
 
       // Create new entity
       entityId = getUniqueEntity();
@@ -74,6 +70,6 @@ contract MineSystem is System {
     Inventory.set(entityId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, objectTypeId, 1);
 
-    IWorld(_world()).applyGravity(coord);
+    SystemSwitch.call(abi.encodeCall(IMoveSystem.applyGravity, (coord)));
   }
 }

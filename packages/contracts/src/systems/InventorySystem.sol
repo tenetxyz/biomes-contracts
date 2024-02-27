@@ -21,7 +21,7 @@ import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, addToInventoryCount, removeFromInventoryCount } from "../Utils.sol";
+import { getTerrainObjectTypeId, positionDataToVoxelCoord, addToInventoryCount, removeFromInventoryCount } from "../Utils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract InventorySystem is System {
@@ -52,13 +52,7 @@ contract InventorySystem is System {
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      (bool success, bytes memory occurrence) = _world().staticcall(
-        bytes.concat(ObjectTypeMetadata.getOccurence(AirObjectID), abi.encode(coord))
-      );
-      require(
-        success && occurrence.length > 0 && abi.decode(occurrence, (bytes32)) == AirObjectID,
-        "BuildSystem: cannot build on non-air block"
-      );
+      require(getTerrainObjectTypeId(coord) == AirObjectID, "BuildSystem: cannot build on non-air block");
 
       // Create new entity
       entityId = getUniqueEntity();

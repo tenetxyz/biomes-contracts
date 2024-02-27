@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { SystemSwitch } from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
+import { ITerrainSystem } from "./codegen/world/ITerrainSystem.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysWithValue } from "@latticexyz/world-modules/src/modules/keyswithvalue/getKeysWithValue.sol";
 
@@ -22,6 +24,10 @@ import { AirObjectID, PlayerObjectID, ChestObjectID, OakLogObjectID, SakuraLogOb
 
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);
+}
+
+function getTerrainObjectTypeId(VoxelCoord memory coord) returns (bytes32) {
+  return abi.decode(SystemSwitch.call(abi.encodeCall(ITerrainSystem.getTerrainBlock, (coord))), (bytes32));
 }
 
 function addToInventoryCount(

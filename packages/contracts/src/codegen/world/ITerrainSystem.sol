@@ -6,9 +6,9 @@ pragma solidity >=0.8.24;
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 
 /**
- * @title ILibTerrainSystem
+ * @title ITerrainSystem
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
-interface ILibTerrainSystem {
+interface ITerrainSystem {
   function getTerrainBlock(VoxelCoord memory coord) external view returns (bytes32);
 }
