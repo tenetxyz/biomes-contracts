@@ -15,7 +15,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, regenHealth, regenStamina, useEquipped, getTerrainObjectTypeId } from "../Utils.sol";
+import { positionDataToVoxelCoord, regenHealth, regenStamina, useEquipped, getTerrainObjectTypeId, despawnPlayer } from "../Utils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 // TODO: update to actual spawn area
@@ -104,18 +104,5 @@ contract PlayerSystem is System {
     if (newHealth == 0) {
       despawnPlayer(_msgSender(), hitEntityId);
     }
-  }
-
-  function despawnPlayer(address player, bytes32 playerEntityId) internal {
-    // Note: Inventory is already attached to the entity id, which means it'll be
-    // attached to air, ie it's a "dropped" item
-    ObjectType.set(playerEntityId, AirObjectID);
-
-    Health.deleteRecord(playerEntityId);
-    Stamina.deleteRecord(playerEntityId);
-    Equipped.deleteRecord(playerEntityId);
-
-    PlayerMetadata.deleteRecord(playerEntityId);
-    Player.deleteRecord(player);
   }
 }

@@ -434,22 +434,26 @@ function applyGravity(address player, bytes32 playerEntityId, VoxelCoord memory 
   Health.setHealth(playerEntityId, newHealth);
 
   if (newHealth == 0) {
-    // despawn player
-    ObjectType.set(playerEntityId, AirObjectID);
-
-    Health.deleteRecord(playerEntityId);
-    Stamina.deleteRecord(playerEntityId);
-    if (Equipped.get(playerEntityId) != bytes32(0)) {
-      Equipped.deleteRecord(playerEntityId);
-    }
-
-    PlayerMetadata.deleteRecord(playerEntityId);
-    Player.deleteRecord(player);
-
+    despawnPlayer(player, playerEntityId);
     return true;
   }
 
   // Recursively apply gravity until the player is on the ground or dead
   applyGravity(player, playerEntityId, newCoord);
   return true;
+}
+
+function despawnPlayer(address player, bytes32 playerEntityId) {
+  // Note: Inventory is already attached to the entity id, which means it'll be
+  // attached to air, ie it's a "dropped" item
+  ObjectType.set(playerEntityId, AirObjectID);
+
+  Health.deleteRecord(playerEntityId);
+  Stamina.deleteRecord(playerEntityId);
+  if (Equipped.get(playerEntityId) != bytes32(0)) {
+    Equipped.deleteRecord(playerEntityId);
+  }
+
+  PlayerMetadata.deleteRecord(playerEntityId);
+  Player.deleteRecord(player);
 }
