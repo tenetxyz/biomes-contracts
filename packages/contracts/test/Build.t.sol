@@ -4,9 +4,11 @@ pragma solidity >=0.8.24;
 import "forge-std/Test.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
+import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
@@ -24,9 +26,9 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord } from "../src/Utils.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID } from "../src/ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, addToInventoryCount } from "../src/Utils.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
+import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 
 contract BuildTest is MudTest, GasReporter {
   IWorld private world;
@@ -59,36 +61,239 @@ contract BuildTest is MudTest, GasReporter {
     bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
     bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+    assertTrue(inventoryId != bytes32(0), "Inventory entity not found");
+    assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
+    assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
 
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
 
-    startGasReport("build terrain");
     VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+    startGasReport("build terrain");
     world.build(inventoryId, buildCoord);
     endGasReport();
 
-    assertTrue(voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(inventoryId)), buildCoord), "Position not set");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(inventoryId)), buildCoord),
+      "Position not set"
+    );
+    assertTrue(
+      ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z) == inventoryId,
+      "Reverse position not set"
+    );
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Object not built");
+    assertTrue(Stamina.getStamina(playerEntityId) == staminaBefore, "Stamina consumed");
+    assertTrue(Inventory.get(inventoryId) == bytes32(0), "Inventory still set");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 0, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
     vm.stopPrank();
   }
 
-  function testBuildNonTerrain() public {}
+  function testBuildNonTerrain() public {
+    vm.startPrank(alice, alice);
 
-  function testBuildInvalidInventory() public {}
+    bytes32 playerEntityId = setupPlayer();
 
-  function testBuildInventoryFull() public {}
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+    assertTrue(inventoryId != bytes32(0), "Inventory entity not found");
+    assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
+    assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
 
-  function testBuildEmptyInventory() public {}
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
 
-  function testBuildNonBlock() public {}
+    bytes32 mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertTrue(mineEntityId != bytes32(0), "Mine entity not found");
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Terrain block is not air");
+    VoxelCoord memory buildCoord = mineCoord;
+    startGasReport("build non-terrain");
+    world.build(inventoryId, buildCoord);
+    endGasReport();
 
-  function testBuildWithoutPlayer() public {}
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(inventoryId)), buildCoord),
+      "Position not set"
+    );
+    assertTrue(
+      ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z) == inventoryId,
+      "Reverse position not set"
+    );
+    assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Object not built");
+    assertTrue(Stamina.getStamina(playerEntityId) == staminaBefore, "Stamina consumed");
+    assertTrue(Inventory.get(inventoryId) == bytes32(0), "Inventory still set");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 0, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
-  function testBuildTooFar() public {}
+    vm.stopPrank();
+  }
 
-  function testBuildRegenHealthAndStamina() public {}
+  function testBuildNonBlock() public {
+    vm.startPrank(alice, alice);
 
-  function testBuildWithDrops() public {}
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, WoodenPickObjectID);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
+    uint16 durability = 10;
+    ItemMetadata.set(newInventoryId, durability);
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+
+    vm.expectRevert();
+    world.build(newInventoryId, buildCoord);
+
+    vm.stopPrank();
+  }
+
+  function testBuildWithoutPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+
+    vm.stopPrank();
+
+    vm.expectRevert();
+    world.build(inventoryId, buildCoord);
+
+    vm.stopPrank();
+  }
+
+  function testBuildTooFar() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+
+    VoxelCoord memory buildCoord = VoxelCoord(
+      spawnCoord.x,
+      spawnCoord.y,
+      spawnCoord.z + MAX_PLAYER_BUILD_MINE_HALF_WIDTH + 1
+    );
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+
+    vm.expectRevert();
+    world.build(inventoryId, buildCoord);
+
+    vm.stopPrank();
+  }
+
+  function testBuildInvalidInventory() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+
+    inventoryId = bytes32(uint256(inventoryId) + 1);
+    assertTrue(Inventory.get(inventoryId) == bytes32(0), "Inventory entity found");
+
+    vm.expectRevert();
+    world.build(inventoryId, buildCoord);
+
+    vm.stopPrank();
+  }
+
+  function testBuildInventoryFull() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ObjectTypeMetadata.setStackable(GrassObjectID, 1);
+    bytes32 inventoryId;
+    for (uint i = 0; i < MAX_PLAYER_INVENTORY_SLOTS; i++) {
+      inventoryId = getUniqueEntity();
+      ObjectType.set(inventoryId, GrassObjectID);
+      Inventory.set(inventoryId, playerEntityId);
+      addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    }
+    assertTrue(
+      InventoryCount.get(playerEntityId, GrassObjectID) == MAX_PLAYER_INVENTORY_SLOTS,
+      "Inventory count not set properly"
+    );
+    assertTrue(InventorySlots.get(playerEntityId) == MAX_PLAYER_INVENTORY_SLOTS, "Inventory slots not set correctly");
+    vm.stopPrank();
+
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+    startGasReport("build terrain w/ full inventory");
+    world.build(inventoryId, buildCoord);
+    endGasReport();
+
+    vm.stopPrank();
+  }
+
+  function testBuildRegenHealthAndStamina() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    Stamina.setStamina(playerEntityId, 1);
+    Stamina.setLastUpdateBlock(playerEntityId, block.number);
+
+    Health.setHealth(playerEntityId, 1);
+    Health.setLastUpdateBlock(playerEntityId, block.number);
+    vm.stopPrank();
+
+    vm.startPrank(alice, alice);
+
+    uint256 newBlockNumber = block.number + BLOCKS_BEFORE_INCREASE_STAMINA + BLOCKS_BEFORE_INCREASE_HEALTH + 1;
+    vm.roll(newBlockNumber);
+
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+    uint32 healthBefore = Health.getHealth(playerEntityId);
+
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+    startGasReport("build terrain w/ health and stamina regen");
+    world.build(inventoryId, buildCoord);
+    endGasReport();
+
+    assertTrue(Stamina.getStamina(playerEntityId) > staminaBefore, "Stamina not regened");
+    assertTrue(Stamina.getLastUpdateBlock(playerEntityId) == newBlockNumber, "Stamina last update block not set");
+    assertTrue(Health.getHealth(playerEntityId) > healthBefore, "Health not regened");
+    assertTrue(Health.getLastUpdateBlock(playerEntityId) == newBlockNumber, "Health last update block not set");
+
+    vm.stopPrank();
+  }
 }
