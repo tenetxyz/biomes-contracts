@@ -57,9 +57,7 @@ contract PlayerSystem is System {
     return entityId;
   }
 
-  function activatePlayer() public {
-    bytes32 playerEntityId = Player.get(_msgSender());
-    require(playerEntityId != bytes32(0), "PlayerSystem: player does not exist");
+  function activatePlayer(bytes32 playerEntityId) public {
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
   }
