@@ -5,6 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
@@ -13,7 +14,7 @@ import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../Constants.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, regenHealth, regenStamina, useEquipped, getTerrainObjectTypeId, despawnPlayer } from "../Utils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
@@ -81,16 +82,21 @@ contract PlayerSystem is System {
     // Calculate stamina and health reduction
     uint32 currentStamina = Stamina.getStamina(playerEntityId);
     require(currentStamina > 0, "PlayerSystem: player has no stamina");
-    uint32 staminaRequired = 250;
+    uint32 staminaRequired = HIT_STAMINA_COST;
 
     // Try spending all the stamina
     uint32 staminaSpend = staminaRequired > currentStamina ? currentStamina : staminaRequired;
 
-    // TODO: Calculate damage based on equipped item
-    uint32 receiverDamage = 10;
+
+    bytes32 equippedEntityId = Equipped.get(playerEntityId);
+    uint32 receiverDamage = PLAYER_HAND_DAMAGE;
+    if(equippedEntityId != bytes32(0)){
+      receiverDamage = ObjectTypeMetadata.getDamage(ObjectType.get(equippedEntityId));
+    }
+
     // Update damage to be the actual damage done
     if (staminaSpend < staminaRequired) {
-      receiverDamage = (staminaSpend * receiverDamage) / 250;
+      receiverDamage = (staminaSpend * receiverDamage) / HIT_STAMINA_COST;
     }
     require(receiverDamage > 0, "PlayerSystem: damage is 0");
 

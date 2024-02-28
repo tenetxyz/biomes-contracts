@@ -127,4 +127,20 @@ contract PlayerTest is MudTest, GasReporter {
 
     vm.stopPrank();
   }
+
+  function testHit() public {}
+
+  function testHitWithEquipped() public {}
+
+  function testHitNonPlayer() public {}
+
+  function testHitWithoutPlayer() public {}
+
+  function testHitTooFar() public {}
+
+  function testHitNotEnoughStamina() public {}
+
+  function testHitFatal() public {}
+
+  function testHitRegenHealthAndStamina() public {}
 }
