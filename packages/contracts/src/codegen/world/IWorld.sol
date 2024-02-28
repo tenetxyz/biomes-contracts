@@ -7,14 +7,12 @@ import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.
 
 import { IBuildSystem } from "./IBuildSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
-import { IInitCraftedStonesSystem } from "./IInitCraftedStonesSystem.sol";
 import { IInitDyedBlocksSystem } from "./IInitDyedBlocksSystem.sol";
 import { IInitHandBlocksSystem } from "./IInitHandBlocksSystem.sol";
 import { IInitInteractablesSystem } from "./IInitInteractablesSystem.sol";
-import { IInitItemsSystem } from "./IInitItemsSystem.sol";
 import { IInitPlayersSystem } from "./IInitPlayersSystem.sol";
 import { IInitTerrainBlocksSystem } from "./IInitTerrainBlocksSystem.sol";
-import { IInitWorkbenchBlocksSystem } from "./IInitWorkbenchBlocksSystem.sol";
+import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
 import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
 import { IInventorySystem } from "./IInventorySystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
@@ -32,14 +30,12 @@ interface IWorld is
   IBaseWorld,
   IBuildSystem,
   ICraftSystem,
-  IInitCraftedStonesSystem,
   IInitDyedBlocksSystem,
   IInitHandBlocksSystem,
   IInitInteractablesSystem,
-  IInitItemsSystem,
   IInitPlayersSystem,
   IInitTerrainBlocksSystem,
-  IInitWorkbenchBlocksSystem,
+  IInitThermoblastSystem,
   IInitWorkbenchSystem,
   IInventorySystem,
   IMineSystem,
