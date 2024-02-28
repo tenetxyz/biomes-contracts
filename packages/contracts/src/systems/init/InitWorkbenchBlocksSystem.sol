@@ -7,7 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
-import { GoldCubeObjectID, SilverCubeObjectID, DiamondCubeObjectID, NeptuniumCubeObjectID, OakLumberObjectID, ReinforcedOakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, ReinforcedRubberLumberObjectID, BirchLumberObjectID, ReinforcedBirchLumberObjectID, MushroomLeatherBlockObjectID } from "../../ObjectTypeIds.sol";
+import { GoldCubeObjectID, SilverCubeObjectID, DiamondCubeObjectID, NeptuniumCubeObjectID, ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID, MushroomLeatherBlockObjectID } from "../../ObjectTypeIds.sol";
 import { SilverOreObjectID, GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLogVariations } from "../../Utils.sol";
@@ -34,12 +34,8 @@ contract InitWorkbenchBlocksSystem is System {
     createWorkbenchBlock(DiamondCubeObjectID, 480);
     createWorkbenchBlock(NeptuniumCubeObjectID, 640);
 
-    createWorkbenchBlock(OakLumberObjectID, 1);
     createWorkbenchBlock(ReinforcedOakLumberObjectID, 3);
-    createWorkbenchBlock(SakuraLumberObjectID, 1);
-    createWorkbenchBlock(RubberLumberObjectID, 1);
     createWorkbenchBlock(ReinforcedRubberLumberObjectID, 1);
-    createWorkbenchBlock(BirchLumberObjectID, 1);
     createWorkbenchBlock(ReinforcedBirchLumberObjectID, 3);
   }
 
@@ -48,11 +44,6 @@ contract InitWorkbenchBlocksSystem is System {
     createSingleInputRecipe(SilverBarObjectID, 8, SilverCubeObjectID, 1);
     createSingleInputRecipe(DiamondObjectID, 8, DiamondCubeObjectID, 1);
     createSingleInputRecipe(NeptuniumBarObjectID, 8, NeptuniumCubeObjectID, 1);
-
-    createSingleInputRecipe(OakLogObjectID, 1, OakLumberObjectID, 4);
-    createSingleInputRecipe(SakuraLogObjectID, 1, SakuraLumberObjectID, 4);
-    createSingleInputRecipe(BirchLogObjectID, 1, BirchLumberObjectID, 4);
-    createSingleInputRecipe(RubberLogObjectID, 1, RubberLumberObjectID, 4);
 
     createDoubleInputRecipe(OakLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedOakLumberObjectID, 4);
     createDoubleInputRecipe(BirchLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedBirchLumberObjectID, 4);

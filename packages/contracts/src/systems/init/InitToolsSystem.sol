@@ -9,7 +9,7 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables
 import { Recipes, RecipesData } from "../../codegen/tables/Recipes.sol";
 
 import { MAX_TOOL_STACKABLE } from "../../Constants.sol";
-import { WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
+import { StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
 import { OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID, SilverBarObjectID, GoldBarObjectID, DiamondObjectID, NeptuniumBarObjectID, StoneObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLogVariations, createRecipeForAllLogVariationsWithInput } from "../../Utils.sol";
@@ -32,10 +32,6 @@ contract InitToolsSystem is System {
 
   // TODO: add durability and damage values
   function initToolObjectTypes() public {
-    createTool(WoodenPickObjectID, 16, 0, 0);
-    createTool(WoodenAxeObjectID, 16, 0, 0);
-    createTool(WoodenWhackerObjectID, 32, 0, 0);
-
     createTool(StonePickObjectID, 36, 0, 0);
     createTool(StoneAxeObjectID, 36, 0, 0);
     createTool(StoneWhackerObjectID, 72, 0, 0);
@@ -55,9 +51,6 @@ contract InitToolsSystem is System {
   }
 
   function initToolRecipes() public {
-    createRecipeForAllLogVariations(4, WoodenPickObjectID, 1);
-    createRecipeForAllLogVariations(4, WoodenAxeObjectID, 1);
-    createRecipeForAllLogVariations(8, WoodenWhackerObjectID, 1);
 
     createRecipeForAllLogVariationsWithInput(4, StoneObjectID, 8, StonePickObjectID, 1);
     createRecipeForAllLogVariationsWithInput(4, StoneObjectID, 8, StoneAxeObjectID, 1);

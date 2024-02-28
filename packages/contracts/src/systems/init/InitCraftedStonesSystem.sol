@@ -7,9 +7,9 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
-import { CobblestoneObjectID, CobblestoneBrickObjectID, StoneObjectID, StoneBrickObjectID, StoneCarvedObjectID, StonePolishedObjectID, StoneShinglesObjectID } from "../../ObjectTypeIds.sol";
+import { CobblestoneBrickObjectID, StoneObjectID, StoneBrickObjectID, StoneCarvedObjectID, StonePolishedObjectID, StoneShinglesObjectID } from "../../ObjectTypeIds.sol";
 import { BasaltObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID } from "../../ObjectTypeIds.sol";
-import { ClayObjectID, ClayBrickObjectID, ClayCarvedObjectID, ClayPolishedObjectID, ClayShinglesObjectID } from "../../ObjectTypeIds.sol";
+import { ClayBrickObjectID, ClayCarvedObjectID, ClayPolishedObjectID, ClayShinglesObjectID } from "../../ObjectTypeIds.sol";
 import { GraniteObjectID, GraniteBrickObjectID, GraniteCarvedObjectID, GraniteShinglesObjectID, GranitePolishedObjectID } from "../../ObjectTypeIds.sol";
 import { QuartziteObjectID, QuartziteBrickObjectID, QuartziteCarvedObjectID, QuartzitePolishedObjectID, QuartziteShinglesObjectID } from "../../ObjectTypeIds.sol";
 import { LimestoneObjectID, LimestoneBrickObjectID, LimestoneCarvedObjectID, LimestonePolishedObjectID, LimestoneShinglesObjectID } from "../../ObjectTypeIds.sol";
@@ -34,7 +34,6 @@ contract InitCraftedStonesSystem is System {
   }
 
   function initCraftedStoneObjectTypes() public {
-    createCraftedBlock(CobblestoneObjectID, 7);
     createCraftedBlock(CobblestoneBrickObjectID, 7);
 
     createCraftedBlock(StoneBrickObjectID, 7);
@@ -47,7 +46,6 @@ contract InitCraftedStonesSystem is System {
     createCraftedBlock(BasaltPolishedObjectID, 11);
     createCraftedBlock(BasaltShinglesObjectID, 11);
 
-    createCraftedBlock(ClayObjectID, 16);
     createCraftedBlock(ClayBrickObjectID, 16);
     createCraftedBlock(ClayCarvedObjectID, 16);
     createCraftedBlock(ClayPolishedObjectID, 16);
@@ -77,7 +75,6 @@ contract InitCraftedStonesSystem is System {
   }
 
   function initCraftedStoneRecipes() public {
-    createSingleInputRecipe(StoneObjectID, 1, CobblestoneObjectID, 4);
     createSingleInputRecipe(CobblestoneObjectID, 4, CobblestoneBrickObjectID, 4);
 
     createSingleInputRecipe(StoneObjectID, 4, StoneBrickObjectID, 4);
@@ -90,7 +87,6 @@ contract InitCraftedStonesSystem is System {
     createSingleInputRecipe(BasaltBrickObjectID, 4, BasaltPolishedObjectID, 4);
     createSingleInputRecipe(BasaltBrickObjectID, 4, BasaltShinglesObjectID, 4);
 
-    createSingleInputRecipe(DirtObjectID, 4, ClayObjectID, 4);
     createSingleInputRecipe(ClayObjectID, 4, ClayBrickObjectID, 4);
     createSingleInputRecipe(ClayBrickObjectID, 4, ClayCarvedObjectID, 4);
     createSingleInputRecipe(ClayBrickObjectID, 4, ClayPolishedObjectID, 4);

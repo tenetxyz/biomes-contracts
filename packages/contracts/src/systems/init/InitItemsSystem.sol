@@ -10,8 +10,6 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID } from "../../ObjectTypeIds.sol";
 import { SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../../ObjectTypeIds.sol";
-import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectTypeIds.sol";
-import { BellflowerObjectID, SakuraLumberObjectID, HempObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe } from "../../Utils.sol";
 
@@ -36,20 +34,6 @@ contract InitItemsSystem is System {
     createItem(GoldBarObjectID, 40);
     createItem(DiamondObjectID, 60);
     createItem(NeptuniumBarObjectID, 80);
-
-    createItem(BlueDyeObjectID, 1);
-    createItem(BrownDyeObjectID, 1);
-    createItem(GreenDyeObjectID, 1);
-    createItem(MagentaDyeObjectID, 1);
-    createItem(OrangeDyeObjectID, 1);
-    createItem(PinkDyeObjectID, 1);
-    createItem(PurpleDyeObjectID, 1);
-    createItem(RedDyeObjectID, 1);
-    createItem(TanDyeObjectID, 1);
-    createItem(WhiteDyeObjectID, 1);
-    createItem(YellowDyeObjectID, 1);
-    createItem(BlackDyeObjectID, 1);
-    createItem(SilverDyeObjectID, 1);
   }
 
   function initItemRecipes() public {
@@ -57,20 +41,5 @@ contract InitItemsSystem is System {
     createSingleInputRecipe(GoldOreObjectID, 4, GoldBarObjectID, 1);
     createSingleInputRecipe(DiamondOreObjectID, 4, DiamondObjectID, 1);
     createSingleInputRecipe(NeptuniumOreObjectID, 4, NeptuniumBarObjectID, 1);
-
-    createSingleInputRecipe(BellflowerObjectID, 10, BlueDyeObjectID, 10);
-    createSingleInputRecipe(SakuraLumberObjectID, 10, BrownDyeObjectID, 10);
-    createSingleInputRecipe(HempObjectID, 10, GreenDyeObjectID, 10);
-    createSingleInputRecipe(DaylilyObjectID, 10, OrangeDyeObjectID, 10);
-    createSingleInputRecipe(AzaleaObjectID, 10, PinkDyeObjectID, 10);
-    createSingleInputRecipe(LilacObjectID, 10, PurpleDyeObjectID, 10);
-    createSingleInputRecipe(RoseObjectID, 10, RedDyeObjectID, 10);
-    createSingleInputRecipe(SandObjectID, 5, TanDyeObjectID, 10);
-    createSingleInputRecipe(CottonBushObjectID, 2, WhiteDyeObjectID, 8);
-    createSingleInputRecipe(DandelionObjectID, 10, YellowDyeObjectID, 10);
-    createSingleInputRecipe(SilverOreObjectID, 1, SilverDyeObjectID, 9);
-    createSingleInputRecipe(NeptuniumOreObjectID, 1, BlackDyeObjectID, 20);
-
-    createDoubleInputRecipe(LilacObjectID, 5, AzaleaObjectID, 5, MagentaDyeObjectID, 10);
   }
 }

@@ -136,6 +136,7 @@ bytes32 constant ReinforcedBirchLumberObjectID = bytes32(keccak256("reinforced-b
 
 // Florae blocks
 bytes32 constant MushroomLeatherBlockObjectID = bytes32(keccak256("mushroom-leather"));
+bytes32 constant CottonObjectID = bytes32(keccak256("cotton"));
 bytes32 constant CottonBlockObjectID = bytes32(keccak256("cotton-block"));
 
 // Florae
