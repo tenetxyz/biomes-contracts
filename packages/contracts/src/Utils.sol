@@ -24,7 +24,9 @@ import { Recipes, RecipesData } from "./codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, GRAVITY_DAMAGE, MAX_PLAYER_STAMINA, MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, BLOCKS_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "./Constants.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "./ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, ChestObjectID } from "./ObjectTypeIds.sol";
+import { OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID, OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "./ObjectTypeIds.sol";
+import { BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "./ObjectTypeIds.sol";
 
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);

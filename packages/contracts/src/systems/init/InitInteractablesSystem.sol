@@ -9,7 +9,7 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables
 import { ChestObjectID, ThermoblasterObjectID, WorkbenchObjectID, DyeomaticObjectID } from "../../ObjectTypeIds.sol";
 import { StoneObjectID, ClayObjectID, SandObjectID } from "../../ObjectTypeIds.sol";
 
-import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLogVariations } from "../../Utils.sol";
+import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLumberVariations, createRecipeForAllLogVariations } from "../../Utils.sol";
 
 contract InitInteractablesSystem is System {
   function createInteractableBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {

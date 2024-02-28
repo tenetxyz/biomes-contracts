@@ -34,6 +34,7 @@ contract InitCraftedStonesSystem is System {
   }
 
   function initCraftedStoneObjectTypes() public {
+    createCraftedBlock(CobblestoneObjectID, 7);
     createCraftedBlock(CobblestoneBrickObjectID, 7);
 
     createCraftedBlock(StoneBrickObjectID, 7);
@@ -46,6 +47,7 @@ contract InitCraftedStonesSystem is System {
     createCraftedBlock(BasaltPolishedObjectID, 11);
     createCraftedBlock(BasaltShinglesObjectID, 11);
 
+    createCraftedBlock(ClayObjectID, 16);
     createCraftedBlock(ClayBrickObjectID, 16);
     createCraftedBlock(ClayCarvedObjectID, 16);
     createCraftedBlock(ClayPolishedObjectID, 16);
@@ -65,9 +67,17 @@ contract InitCraftedStonesSystem is System {
     createCraftedBlock(LimestoneCarvedObjectID, 7);
     createCraftedBlock(LimestonePolishedObjectID, 7);
     createCraftedBlock(LimestoneShinglesObjectID, 7);
+
+    createCraftedBlock(EmberstoneObjectID, 14);
+    createCraftedBlock(MoonstoneObjectID, 17);
+    createCraftedBlock(SunstoneObjectID, 14);
+
+    createCraftedBlock(GlassObjectID, 11);
+    createCraftedBlock(MushroomLeatherBlockObjectID, 8);
   }
 
   function initCraftedStoneRecipes() public {
+    createSingleInputRecipe(StoneObjectID, 1, CobblestoneObjectID, 4);
     createSingleInputRecipe(CobblestoneObjectID, 4, CobblestoneBrickObjectID, 4);
 
     createSingleInputRecipe(StoneObjectID, 4, StoneBrickObjectID, 4);
@@ -80,6 +90,7 @@ contract InitCraftedStonesSystem is System {
     createSingleInputRecipe(BasaltBrickObjectID, 4, BasaltPolishedObjectID, 4);
     createSingleInputRecipe(BasaltBrickObjectID, 4, BasaltShinglesObjectID, 4);
 
+    createSingleInputRecipe(DirtObjectID, 4, ClayObjectID, 4);
     createSingleInputRecipe(ClayObjectID, 4, ClayBrickObjectID, 4);
     createSingleInputRecipe(ClayBrickObjectID, 4, ClayCarvedObjectID, 4);
     createSingleInputRecipe(ClayBrickObjectID, 4, ClayPolishedObjectID, 4);
@@ -101,12 +112,11 @@ contract InitCraftedStonesSystem is System {
     createSingleInputRecipe(LimestoneBrickObjectID, 4, LimestoneShinglesObjectID, 4);
 
     createDoubleInputRecipe(CoalOreObjectID, 4, StoneObjectID, 4, EmberstoneObjectID, 4);
-    createDoubleInputRecipe(SandObjectID, 2, CoalOreObjectID, 1, GlassObjectID, 1);
     createDoubleInputRecipe(CoalOreObjectID, 4, QuartziteObjectID, 4, MoonstoneObjectID, 4);
     createDoubleInputRecipe(CoalOreObjectID, 4, LimestoneObjectID, 4, SunstoneObjectID, 4);
 
-    createSingleInputRecipe(DirtObjectID, 4, ClayObjectID, 4);
-    createSingleInputRecipe(StoneObjectID, 1, CobbleStoneObjectID, 4);
+    createDoubleInputRecipe(SandObjectID, 2, CoalOreObjectID, 1, GlassObjectID, 1);
+
     createSingleInputRecipe(RedMushroomObjectID, 4, MushroomLeatherBlockObjectID, 1);
   }
 }

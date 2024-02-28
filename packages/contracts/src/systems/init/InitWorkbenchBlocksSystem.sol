@@ -41,8 +41,6 @@ contract InitWorkbenchBlocksSystem is System {
     createWorkbenchBlock(ReinforcedRubberLumberObjectID, 1);
     createWorkbenchBlock(BirchLumberObjectID, 1);
     createWorkbenchBlock(ReinforcedBirchLumberObjectID, 3);
-
-    createWorkbenchBlock(MushroomLeatherBlockObjectID, 8);
   }
 
   function initWorkbenchRecipes() public {

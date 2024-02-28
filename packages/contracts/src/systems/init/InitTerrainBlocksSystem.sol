@@ -45,18 +45,11 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(SandObjectID, 2, anyBlockSelector);
     createTerrainBlock(BedrockObjectID, 1000, anyBlockSelector);
 
-    createTerrainBlock(CobblestoneObjectID, 7, anyBlockSelector);
     createTerrainBlock(StoneObjectID, 7, anyBlockSelector);
     createTerrainBlock(BasaltObjectID, 9, anyBlockSelector);
-    createTerrainBlock(ClayObjectID, 16, anyBlockSelector);
-    createTerrainBlock(ClayBrickObjectID, 16, anyBlockSelector);
     createTerrainBlock(GraniteObjectID, 11, anyBlockSelector);
     createTerrainBlock(QuartziteObjectID, 10, anyBlockSelector);
     createTerrainBlock(LimestoneObjectID, 7, anyBlockSelector);
-
-    createTerrainBlock(EmberstoneObjectID, 14, anyBlockSelector);
-    createTerrainBlock(MoonstoneObjectID, 17, anyBlockSelector);
-    createTerrainBlock(SunstoneObjectID, 14, anyBlockSelector);
 
     createTerrainBlock(CottonBlockObjectID, 4, anyBlockSelector);
     createTerrainBlock(LavaObjectID, 2, anyBlockSelector);
