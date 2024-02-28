@@ -46,11 +46,15 @@ function addToInventoryCount(
   require(stackable > 0, "This object type cannot be added to the inventory");
 
   uint16 numInitialObjects = InventoryCount.get(ownerEntityId, objectTypeId);
+  uint16 numInitialFullStacks = numInitialObjects / stackable;
+  bool hasInitialPartialStack = numInitialObjects % stackable != 0;
   uint16 numFinalObjects = numInitialObjects + numObjectsToAdd;
   uint16 numFinalFullStacks = numFinalObjects / stackable;
   bool hasFinalPartialStack = numFinalObjects % stackable != 0;
 
-  uint16 numFinalSlotsUsed = numFinalFullStacks + (hasFinalPartialStack ? 1 : 0);
+  uint16 numInitialSlotsUsed = InventorySlots.get(ownerEntityId);
+  uint16 numFinalSlotsUsedDelta = (numFinalFullStacks + (hasFinalPartialStack ? 1 : 0)) - (numInitialFullStacks + (hasInitialPartialStack ? 1 : 0));
+  uint16 numFinalSlotsUsed = numInitialSlotsUsed + numFinalSlotsUsedDelta;
   if (ownerObjectTypeId == PlayerObjectID) {
     require(numFinalSlotsUsed <= MAX_PLAYER_INVENTORY_SLOTS, "Inventory is full");
   } else if (ownerObjectTypeId == ChestObjectID) {
@@ -67,11 +71,16 @@ function removeFromInventoryCount(bytes32 ownerEntityId, bytes32 objectTypeId, u
   uint8 stackable = ObjectTypeMetadata.getStackable(objectTypeId);
   require(stackable > 0, "This object type cannot be removed from the inventory");
 
+  uint16 numInitialFullStacks = numInitialObjects / stackable;
+  bool hasInitialPartialStack = numInitialObjects % stackable != 0;
+
   uint16 numFinalObjects = numInitialObjects - numObjectsToRemove;
   uint16 numFinalFullStacks = numFinalObjects / stackable;
   bool hasFinalPartialStack = numFinalObjects % stackable != 0;
 
-  uint16 numFinalSlotsUsed = numFinalFullStacks + (hasFinalPartialStack ? 1 : 0);
+  uint16 numInitialSlotsUsed = InventorySlots.get(ownerEntityId);
+  uint16 numFinalSlotsUsedDelta = (numInitialFullStacks + (hasInitialPartialStack ? 1 : 0)) - (numFinalFullStacks + (hasFinalPartialStack ? 1 : 0));
+  uint16 numFinalSlotsUsed = numInitialSlotsUsed - numFinalSlotsUsedDelta;
   if (numFinalSlotsUsed == 0) {
     InventorySlots.deleteRecord(ownerEntityId);
   } else {
