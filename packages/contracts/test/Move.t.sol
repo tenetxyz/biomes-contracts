@@ -80,9 +80,8 @@ contract MoveTest is MudTest, GasReporter {
 
     vm.startPrank(worldDeployer, worldDeployer);
     for (uint i = 0; i < newCoords.length; i++) {
-      if (overTerrain) {
-        assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
-      } else {
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+      if (!overTerrain) {
         bytes32 entityId = getUniqueEntity();
         Position.set(entityId, newCoords[i].x, newCoords[i].y, newCoords[i].z);
         ReversePosition.set(newCoords[i].x, newCoords[i].y, newCoords[i].z, entityId);

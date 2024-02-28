@@ -53,7 +53,8 @@ function addToInventoryCount(
   bool hasFinalPartialStack = numFinalObjects % stackable != 0;
 
   uint16 numInitialSlotsUsed = InventorySlots.get(ownerEntityId);
-  uint16 numFinalSlotsUsedDelta = (numFinalFullStacks + (hasFinalPartialStack ? 1 : 0)) - (numInitialFullStacks + (hasInitialPartialStack ? 1 : 0));
+  uint16 numFinalSlotsUsedDelta = (numFinalFullStacks + (hasFinalPartialStack ? 1 : 0)) -
+    (numInitialFullStacks + (hasInitialPartialStack ? 1 : 0));
   uint16 numFinalSlotsUsed = numInitialSlotsUsed + numFinalSlotsUsedDelta;
   if (ownerObjectTypeId == PlayerObjectID) {
     require(numFinalSlotsUsed <= MAX_PLAYER_INVENTORY_SLOTS, "Inventory is full");
@@ -79,7 +80,8 @@ function removeFromInventoryCount(bytes32 ownerEntityId, bytes32 objectTypeId, u
   bool hasFinalPartialStack = numFinalObjects % stackable != 0;
 
   uint16 numInitialSlotsUsed = InventorySlots.get(ownerEntityId);
-  uint16 numFinalSlotsUsedDelta = (numInitialFullStacks + (hasInitialPartialStack ? 1 : 0)) - (numFinalFullStacks + (hasFinalPartialStack ? 1 : 0));
+  uint16 numFinalSlotsUsedDelta = (numInitialFullStacks + (hasInitialPartialStack ? 1 : 0)) -
+    (numFinalFullStacks + (hasFinalPartialStack ? 1 : 0));
   uint16 numFinalSlotsUsed = numInitialSlotsUsed - numFinalSlotsUsedDelta;
   if (numFinalSlotsUsed == 0) {
     InventorySlots.deleteRecord(ownerEntityId);
@@ -437,7 +439,9 @@ function applyGravity(address player, bytes32 playerEntityId, VoxelCoord memory 
 
     Health.deleteRecord(playerEntityId);
     Stamina.deleteRecord(playerEntityId);
-    Equipped.deleteRecord(playerEntityId);
+    if (Equipped.get(playerEntityId) != bytes32(0)) {
+      Equipped.deleteRecord(playerEntityId);
+    }
 
     PlayerMetadata.deleteRecord(playerEntityId);
     Player.deleteRecord(player);
