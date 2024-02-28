@@ -70,8 +70,8 @@ contract InitCraftedStonesSystem is System {
     createSingleInputRecipe(CobblestoneObjectID, 4, CobblestoneBrickObjectID, 4);
 
     createSingleInputRecipe(StoneObjectID, 4, StoneBrickObjectID, 4);
-    createSingleInputRecipe(StoneBrickObjectID, 4, StoneCarvedObjectID, 4);
-    createSingleInputRecipe(StoneBrickObjectID, 4, StonePolishedObjectID, 4);
+    createSingleInputRecipe(StoneObjectID, 4, StoneCarvedObjectID, 4);
+    createSingleInputRecipe(StoneObjectID, 4, StonePolishedObjectID, 4);
     createSingleInputRecipe(StoneBrickObjectID, 4, StoneShinglesObjectID, 4);
 
     createSingleInputRecipe(BasaltObjectID, 4, BasaltBrickObjectID, 4);
