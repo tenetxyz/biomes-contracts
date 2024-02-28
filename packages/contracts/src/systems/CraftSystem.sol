@@ -52,16 +52,16 @@ contract CraftSystem is System {
           bytes32 ingredientObjectTypeId = ObjectType.get(ingredientEntityIds[j]);
           if (ingredientObjectTypeId == recipeData.inputObjectTypeIds[i]) {
             numInputObjectTypesFound++;
-          }
 
-          // Delete the ingredient from the inventory
-          ObjectType.deleteRecord(ingredientEntityIds[j]);
-          Inventory.deleteRecord(ingredientEntityIds[j]);
-          if (ItemMetadata.get(ingredientEntityIds[j]) != 0) {
-            ItemMetadata.deleteRecord(ingredientEntityIds[j]);
-          }
-          if (Equipped.get(playerEntityId) == ingredientEntityIds[j]) {
-            Equipped.deleteRecord(playerEntityId);
+            // Delete the ingredient from the inventory
+            ObjectType.deleteRecord(ingredientEntityIds[j]);
+            Inventory.deleteRecord(ingredientEntityIds[j]);
+            if (ItemMetadata.get(ingredientEntityIds[j]) != 0) {
+              ItemMetadata.deleteRecord(ingredientEntityIds[j]);
+            }
+            if (Equipped.get(playerEntityId) == ingredientEntityIds[j]) {
+              Equipped.deleteRecord(playerEntityId);
+            }
           }
         }
       }
@@ -69,15 +69,16 @@ contract CraftSystem is System {
       removeFromInventoryCount(playerEntityId, recipeData.inputObjectTypeIds[i], recipeData.inputObjectTypeAmounts[i]);
     }
 
-    // Create the crafted object
-    bytes32 newInventoryEntityId = getUniqueEntity();
-    ObjectType.set(newInventoryEntityId, recipeData.outputObjectTypeId);
-    Inventory.set(newInventoryEntityId, playerEntityId);
-    uint16 durability = ObjectTypeMetadata.getDurability(recipeData.outputObjectTypeId);
-    if (durability > 0) {
-      ItemMetadata.set(newInventoryEntityId, durability);
+    // Create the crafted objects
+    for (uint256 i = 0; i < recipeData.outputObjectTypeAmount; i++) {
+      bytes32 newInventoryEntityId = getUniqueEntity();
+      ObjectType.set(newInventoryEntityId, recipeData.outputObjectTypeId);
+      Inventory.set(newInventoryEntityId, playerEntityId);
+      uint16 durability = ObjectTypeMetadata.getDurability(recipeData.outputObjectTypeId);
+      if (durability > 0) {
+        ItemMetadata.set(newInventoryEntityId, durability);
+      }
     }
-
     addToInventoryCount(
       playerEntityId,
       PlayerObjectID,

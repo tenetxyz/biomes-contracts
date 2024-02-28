@@ -28,7 +28,7 @@ import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, addToInventoryCount } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, DyeomaticObjectID, WorkbenchObjectID, GrassObjectID, OakLogObjectID, OakLumberObjectID, BlueDyeObjectID, BlueOakLumberObjectID, DiamondOreObjectID, DiamondObjectID, WoodenPickObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID } from "../src/ObjectTypeIds.sol";
 
 contract CraftTest is MudTest, GasReporter {
   IWorld private world;
@@ -53,23 +53,417 @@ contract CraftTest is MudTest, GasReporter {
     return world.spawnPlayer(spawnCoord);
   }
 
-  function testHandcraftSingle() public {}
+  function testHandcraftSingleInput() public {
+    vm.startPrank(alice, alice);
 
-  function testHandcraftMultiple() public {}
+    bytes32 playerEntityId = setupPlayer();
 
-  function testHandcraftWithStation() public {}
+    // Init inventory with ingredients
+    bytes32 inputObjectTypeId = OakLogObjectID;
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, inputObjectTypeId);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
 
-  function testCraftInventoryFull() public {}
+    bytes32 outputObjectTypeId = OakLumberObjectID;
+    bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
 
-  function testCraftWithoutPlayer() public {}
+    bytes32[] memory ingredientEntityIds = new bytes32[](1);
+    ingredientEntityIds[0] = newInventoryId;
 
-  function testInvalidRecipe() public {}
+    startGasReport("handcraft single input");
+    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+    endGasReport();
 
-  function testInvalidStation() public {}
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(playerEntityId, outputObjectTypeId) == 4, "Output object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
 
-  function testPlayerTooFarFromStation() public {}
+    vm.stopPrank();
+  }
 
-  function testCraftIngredientHasEquipped() public {}
+  function testHandcraftMultipleInput() public {
+    vm.startPrank(alice, alice);
 
-  function testInvaidIngredients() public {}
+    bytes32 playerEntityId = setupPlayer();
+
+    bytes32[] memory ingredientEntityIds = new bytes32[](10);
+
+    // Init inventory with ingredients
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 inputObjectTypeId1 = LilacObjectID;
+    for (uint8 i = 0; i < 5; i++) {
+      bytes32 newInventoryId = getUniqueEntity();
+      ObjectType.set(newInventoryId, inputObjectTypeId1);
+      Inventory.set(newInventoryId, playerEntityId);
+      ingredientEntityIds[i] = newInventoryId;
+    }
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 5);
+    bytes32 inputObjectTypeId2 = AzaleaObjectID;
+    for (uint8 i = 0; i < 5; i++) {
+      bytes32 newInventoryId = getUniqueEntity();
+      ObjectType.set(newInventoryId, inputObjectTypeId2);
+      Inventory.set(newInventoryId, playerEntityId);
+      ingredientEntityIds[i + 5] = newInventoryId;
+    }
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 5);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 5, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 5, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 outputObjectTypeId = MagentaDyeObjectID;
+    bytes32 recipeId = keccak256(
+      abi.encodePacked(inputObjectTypeId1, uint8(5), inputObjectTypeId2, uint8(5), outputObjectTypeId, uint8(10))
+    );
+
+    startGasReport("handcraft multiple input");
+    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+    endGasReport();
+
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(playerEntityId, outputObjectTypeId) == 10, "Output object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+
+    vm.stopPrank();
+  }
+
+  function testCraftWithStation() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    bytes32[] memory ingredientEntityIds = new bytes32[](2);
+
+    // Init inventory with ingredients
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 inputObjectTypeId1 = OakLumberObjectID;
+    bytes32 newInventoryId1 = getUniqueEntity();
+    ObjectType.set(newInventoryId1, inputObjectTypeId1);
+    Inventory.set(newInventoryId1, playerEntityId);
+    ingredientEntityIds[0] = newInventoryId1;
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+
+    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    bytes32 newInventoryId2 = getUniqueEntity();
+    ObjectType.set(newInventoryId2, inputObjectTypeId2);
+    Inventory.set(newInventoryId2, playerEntityId);
+    ingredientEntityIds[1] = newInventoryId2;
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+
+    // build statin beside player
+    VoxelCoord memory stationCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 stationEntityId = getUniqueEntity();
+    ObjectType.set(stationEntityId, DyeomaticObjectID);
+    Position.set(stationEntityId, stationCoord.x, stationCoord.y, stationCoord.z);
+    ReversePosition.set(stationCoord.x, stationCoord.y, stationCoord.z, stationEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 outputObjectTypeId = BlueOakLumberObjectID;
+    bytes32 recipeId = keccak256(
+      abi.encodePacked(inputObjectTypeId1, uint8(1), inputObjectTypeId2, uint8(1), outputObjectTypeId, uint8(1))
+    );
+
+    startGasReport("craft with station");
+    world.craft(recipeId, ingredientEntityIds, stationEntityId);
+    endGasReport();
+
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(playerEntityId, outputObjectTypeId) == 1, "Output object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+
+    vm.stopPrank();
+  }
+
+  function testInvalidStation() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    bytes32[] memory ingredientEntityIds = new bytes32[](2);
+
+    // Init inventory with ingredients
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 inputObjectTypeId1 = OakLumberObjectID;
+    bytes32 newInventoryId1 = getUniqueEntity();
+    ObjectType.set(newInventoryId1, inputObjectTypeId1);
+    Inventory.set(newInventoryId1, playerEntityId);
+    ingredientEntityIds[0] = newInventoryId1;
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+
+    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    bytes32 newInventoryId2 = getUniqueEntity();
+    ObjectType.set(newInventoryId2, inputObjectTypeId2);
+    Inventory.set(newInventoryId2, playerEntityId);
+    ingredientEntityIds[1] = newInventoryId2;
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+
+    // build statin beside player
+    VoxelCoord memory stationCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
+    bytes32 stationEntityId = getUniqueEntity();
+    ObjectType.set(stationEntityId, WorkbenchObjectID);
+    Position.set(stationEntityId, stationCoord.x, stationCoord.y, stationCoord.z);
+    ReversePosition.set(stationCoord.x, stationCoord.y, stationCoord.z, stationEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 outputObjectTypeId = BlueOakLumberObjectID;
+    bytes32 recipeId = keccak256(
+      abi.encodePacked(inputObjectTypeId1, uint8(1), inputObjectTypeId2, uint8(1), outputObjectTypeId, uint8(1))
+    );
+
+    vm.expectRevert();
+    world.craft(recipeId, ingredientEntityIds, stationEntityId);
+
+    vm.expectRevert();
+    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+
+    vm.stopPrank();
+  }
+
+  function testPlayerTooFarFromStation() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    bytes32[] memory ingredientEntityIds = new bytes32[](2);
+
+    // Init inventory with ingredients
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 inputObjectTypeId1 = OakLumberObjectID;
+    bytes32 newInventoryId1 = getUniqueEntity();
+    ObjectType.set(newInventoryId1, inputObjectTypeId1);
+    Inventory.set(newInventoryId1, playerEntityId);
+    ingredientEntityIds[0] = newInventoryId1;
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+
+    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    bytes32 newInventoryId2 = getUniqueEntity();
+    ObjectType.set(newInventoryId2, inputObjectTypeId2);
+    Inventory.set(newInventoryId2, playerEntityId);
+    ingredientEntityIds[1] = newInventoryId2;
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+
+    // build statin beside player
+    VoxelCoord memory stationCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
+    bytes32 stationEntityId = getUniqueEntity();
+    ObjectType.set(stationEntityId, DyeomaticObjectID);
+    Position.set(stationEntityId, stationCoord.x, stationCoord.y, stationCoord.z);
+    ReversePosition.set(stationCoord.x, stationCoord.y, stationCoord.z, stationEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 outputObjectTypeId = BlueOakLumberObjectID;
+    bytes32 recipeId = keccak256(
+      abi.encodePacked(inputObjectTypeId1, uint8(1), inputObjectTypeId2, uint8(1), outputObjectTypeId, uint8(1))
+    );
+
+    vm.expectRevert();
+    world.craft(recipeId, ingredientEntityIds, stationEntityId);
+
+    vm.stopPrank();
+  }
+
+  function testCraftInventoryFull() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    // Init inventory with ingredients
+    bytes32 inputObjectTypeId = OakLogObjectID;
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, inputObjectTypeId);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+
+    ObjectTypeMetadata.setStackable(GrassObjectID, 1);
+    for (uint i = 0; i < MAX_PLAYER_INVENTORY_SLOTS - 1; i++) {
+      bytes32 inventoryId = getUniqueEntity();
+      ObjectType.set(inventoryId, GrassObjectID);
+      Inventory.set(inventoryId, playerEntityId);
+      addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    }
+    assertTrue(
+      InventoryCount.get(playerEntityId, GrassObjectID) == MAX_PLAYER_INVENTORY_SLOTS - 1,
+      "Inventory count not set properly"
+    );
+    assertTrue(InventorySlots.get(playerEntityId) == MAX_PLAYER_INVENTORY_SLOTS, "Inventory slots not set correctly");
+
+    ObjectTypeMetadata.setStackable(OakLumberObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 outputObjectTypeId = OakLumberObjectID;
+    bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
+
+    bytes32[] memory ingredientEntityIds = new bytes32[](1);
+    ingredientEntityIds[0] = newInventoryId;
+
+    vm.expectRevert();
+    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+
+    vm.stopPrank();
+  }
+
+  function testCraftWithoutPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    // Init inventory with ingredients
+    bytes32 inputObjectTypeId = OakLogObjectID;
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, inputObjectTypeId);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 outputObjectTypeId = OakLumberObjectID;
+    bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
+
+    bytes32[] memory ingredientEntityIds = new bytes32[](1);
+    ingredientEntityIds[0] = newInventoryId;
+
+    vm.stopPrank();
+
+    vm.expectRevert();
+    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+  }
+
+  function testInvalidRecipe() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    // Init inventory with ingredients
+    bytes32 inputObjectTypeId = OakLogObjectID;
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, inputObjectTypeId);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 outputObjectTypeId = DiamondObjectID;
+    bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(1)));
+
+    bytes32[] memory ingredientEntityIds = new bytes32[](1);
+    ingredientEntityIds[0] = newInventoryId;
+
+    vm.expectRevert();
+    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+
+    vm.stopPrank();
+  }
+
+  function testCraftIngredientHasEquipped() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    // Init inventory with ingredients
+    bytes32 inputObjectTypeId = OakLogObjectID;
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, inputObjectTypeId);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    world.equip(newInventoryId);
+    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Item not equipped");
+
+    bytes32 outputObjectTypeId = OakLumberObjectID;
+    bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
+
+    bytes32[] memory ingredientEntityIds = new bytes32[](1);
+    ingredientEntityIds[0] = newInventoryId;
+
+    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+
+    assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Item still equipped");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(playerEntityId, outputObjectTypeId) == 4, "Output object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+
+    vm.stopPrank();
+  }
+
+  function testInvaidIngredients() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    bytes32[] memory ingredientEntityIds = new bytes32[](6);
+
+    // Init inventory with ingredients
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 inputObjectTypeId1 = LilacObjectID;
+    for (uint8 i = 0; i < 3; i++) {
+      bytes32 newInventoryId = getUniqueEntity();
+      ObjectType.set(newInventoryId, inputObjectTypeId1);
+      Inventory.set(newInventoryId, playerEntityId);
+      ingredientEntityIds[i] = newInventoryId;
+    }
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 3);
+    bytes32 inputObjectTypeId2 = AzaleaObjectID;
+    for (uint8 i = 0; i < 3; i++) {
+      bytes32 newInventoryId = getUniqueEntity();
+      ObjectType.set(newInventoryId, inputObjectTypeId2);
+      Inventory.set(newInventoryId, playerEntityId);
+      ingredientEntityIds[i + 3] = newInventoryId;
+    }
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 3);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 3, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 3, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 outputObjectTypeId = MagentaDyeObjectID;
+    bytes32 recipeId = keccak256(
+      abi.encodePacked(inputObjectTypeId1, uint8(5), inputObjectTypeId2, uint8(5), outputObjectTypeId, uint8(10))
+    );
+
+    vm.expectRevert();
+    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+
+    vm.stopPrank();
+  }
 }
