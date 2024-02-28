@@ -52,6 +52,18 @@ contract DropTest is MudTest, GasReporter {
     return world.spawnPlayer(spawnCoord);
   }
 
+  function testDropSingle() public {}
+
+  function testDropMultiple() public {}
+
+  function testMovePickUpDrop() public {}
+
+  function testMoveMultiplePickUpDrop() public {}
+
+  function testGravityPickUpDrop() public {}
+
+  function testGravityFatalPickUpDrop() public {}
+
   function testBuildOnDrops() public {
     vm.startPrank(alice, alice);
 

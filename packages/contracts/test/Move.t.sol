@@ -4,9 +4,12 @@ pragma solidity >=0.8.24;
 import "forge-std/Test.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
+import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
@@ -24,45 +27,282 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord } from "../src/Utils.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID } from "../src/ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, addToInventoryCount } from "../src/Utils.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
+import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 
 contract MoveTest is MudTest, GasReporter {
   IWorld private world;
+  address payable internal worldDeployer;
   address payable internal alice;
+  address payable internal bob;
   VoxelCoord spawnCoord;
 
   function setUp() public override {
     super.setUp();
 
+    // Should match the value in .env during development
+    worldDeployer = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
     alice = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
+    bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
   }
 
   function setupPlayer() public returns (bytes32) {
     spawnCoord = VoxelCoord(197, 27, 203);
+    assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
     return world.spawnPlayer(spawnCoord);
   }
 
-  function testMine() public {
+  function testMoveMultipleBlocks(uint8 numBlocksToMove, bool overTerrain) internal {
     vm.startPrank(alice, alice);
 
-    setupPlayer();
+    bytes32 playerEntityId = setupPlayer();
 
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    for (uint i = 0; i < newCoords.length; i++) {
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
 
-    startGasReport("move to new entity");
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
     world.move(newCoords);
-    endGasReport();
+    uint32 oneBlockMoveStaminaCost = staminaBefore - Stamina.getStamina(playerEntityId);
 
     vm.roll(block.number + 1);
 
-    startGasReport("move");
-    newCoords[0] = spawnCoord;
+    VoxelCoord memory agentCoord = newCoords[0];
+
+    newCoords = new VoxelCoord[](numBlocksToMove);
+    for (uint8 i = 0; i < numBlocksToMove; i++) {
+      newCoords[i] = VoxelCoord(agentCoord.x, agentCoord.y, agentCoord.z + int32(int(uint(i))) + 1);
+    }
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    for (uint i = 0; i < newCoords.length; i++) {
+      if (overTerrain) {
+        assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+      } else {
+        bytes32 entityId = getUniqueEntity();
+        Position.set(entityId, newCoords[i].x, newCoords[i].y, newCoords[i].z);
+        ReversePosition.set(newCoords[i].x, newCoords[i].y, newCoords[i].z, entityId);
+        ObjectType.set(entityId, AirObjectID);
+      }
+    }
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    staminaBefore = Stamina.getStamina(playerEntityId);
+
+    startGasReport(
+      string.concat("move ", Strings.toString(numBlocksToMove), " blocks ", overTerrain ? "terrain" : "non-terrain")
+    );
     world.move(newCoords);
     endGasReport();
+
+    assertTrue(Player.get(alice) == playerEntityId, "Player entity id is not correct");
+    assertTrue(
+      PlayerMetadata.getLastMoveBlock(playerEntityId) == block.number,
+      "Player last move block is not correct"
+    );
+    assertTrue(
+      PlayerMetadata.getNumMovesInBlock(playerEntityId) == numBlocksToMove,
+      "Player move count is not correct"
+    );
+    assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player object type is not correct");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), newCoords[numBlocksToMove - 1]),
+      "Player did not move to new coords"
+    );
+    assertTrue(
+      ReversePosition.get(
+        newCoords[numBlocksToMove - 1].x,
+        newCoords[numBlocksToMove - 1].y,
+        newCoords[numBlocksToMove - 1].z
+      ) == playerEntityId,
+      "Reverse position is not correct"
+    );
+    for (uint i = 0; i < newCoords.length - 1; i++) {
+      bytes32 oldEntityId = ReversePosition.get(newCoords[i].x, newCoords[i].y, newCoords[i].z);
+      assertTrue(oldEntityId != bytes32(0), "Old entity id is not correct");
+      assertTrue(ObjectType.get(oldEntityId) == AirObjectID, "Old entity object type is not correct");
+      assertTrue(
+        voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(oldEntityId)), newCoords[i]),
+        "Old entity did not move to old coords"
+      );
+    }
+    bytes32 oldEntityId = ReversePosition.get(agentCoord.x, agentCoord.y, agentCoord.z);
+    assertTrue(oldEntityId != bytes32(0), "Old entity id is not correct");
+    assertTrue(ObjectType.get(oldEntityId) == AirObjectID, "Old entity object type is not correct");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(oldEntityId)), agentCoord),
+      "Old entity did not move to old coords"
+    );
+    uint32 newStamina = Stamina.getStamina(playerEntityId);
+    uint32 fiveBlockMoveStaminaCost = staminaBefore - newStamina;
+    assertTrue(newStamina < staminaBefore, "Stamina not decremented");
+    if (numBlocksToMove > 1) {
+      assertTrue(
+        fiveBlockMoveStaminaCost > oneBlockMoveStaminaCost * numBlocksToMove,
+        "Stamina cost for multiple not more than one block move"
+      );
+    }
+    assertTrue(Stamina.getLastUpdateBlock(playerEntityId) == block.number - 1, "Stamina last update block not set");
+
+    vm.stopPrank();
+  }
+
+  function testMoveOneBlockTerrain() public {
+    testMoveMultipleBlocks(1, true);
+  }
+
+  function testMoveOneBlockNonTerrain() public {
+    testMoveMultipleBlocks(1, false);
+  }
+
+  function testMoveFiveBlocksTerrain() public {
+    testMoveMultipleBlocks(5, true);
+  }
+
+  function testMoveFiveBlocksNonTerrain() public {
+    testMoveMultipleBlocks(5, false);
+  }
+
+  function testMoveTenBlocksTerrain() public {
+    testMoveMultipleBlocks(10, true);
+  }
+
+  function testMoveTenBlocksNonTerrain() public {
+    testMoveMultipleBlocks(10, false);
+  }
+
+  function testMoveWithoutPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    for (uint i = 0; i < newCoords.length; i++) {
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
+    vm.stopPrank();
+
+    vm.expectRevert();
+    world.move(newCoords);
+  }
+
+  function testMoveInValidCoords() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 3);
+    for (uint i = 0; i < newCoords.length; i++) {
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
+
+    vm.expectRevert();
+    world.move(newCoords);
+
+    vm.stopPrank();
+  }
+
+  function testMoveOneBlockInventoryFull() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ObjectTypeMetadata.setStackable(GrassObjectID, 1);
+    bytes32 inventoryId;
+    for (uint i = 0; i < MAX_PLAYER_INVENTORY_SLOTS; i++) {
+      inventoryId = getUniqueEntity();
+      ObjectType.set(inventoryId, GrassObjectID);
+      Inventory.set(inventoryId, playerEntityId);
+      addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    }
+    assertTrue(
+      InventoryCount.get(playerEntityId, GrassObjectID) == MAX_PLAYER_INVENTORY_SLOTS,
+      "Inventory count not set properly"
+    );
+    assertTrue(InventorySlots.get(playerEntityId) == MAX_PLAYER_INVENTORY_SLOTS, "Inventory slots not set correctly");
+    vm.stopPrank();
+
+    vm.startPrank(alice, alice);
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    for (uint i = 0; i < newCoords.length; i++) {
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
+
+    startGasReport("move one block terrain w/ full inventory");
+    world.move(newCoords);
+    endGasReport();
+
+    vm.stopPrank();
+  }
+
+  function testMoveNotEnoughStamina() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    for (uint i = 0; i < newCoords.length; i++) {
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    Stamina.setStamina(playerEntityId, 0);
+    Stamina.setLastUpdateBlock(playerEntityId, block.number);
+    vm.stopPrank();
+
+    vm.expectRevert();
+    world.move(newCoords);
+
+    vm.stopPrank();
+  }
+
+  function testMoveRegenHealthAndStamina() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    Stamina.setStamina(playerEntityId, 1);
+    Stamina.setLastUpdateBlock(playerEntityId, block.number);
+
+    Health.setHealth(playerEntityId, 1);
+    Health.setLastUpdateBlock(playerEntityId, block.number);
+    vm.stopPrank();
+
+    vm.startPrank(alice, alice);
+
+    uint256 newBlockNumber = block.number + BLOCKS_BEFORE_INCREASE_STAMINA + BLOCKS_BEFORE_INCREASE_HEALTH + 1;
+    vm.roll(newBlockNumber);
+
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+    uint32 healthBefore = Health.getHealth(playerEntityId);
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    for (uint i = 0; i < newCoords.length; i++) {
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
+
+    startGasReport("move one block terrain w/ health and stamina regen");
+    world.move(newCoords);
+    endGasReport();
+
+    assertTrue(Stamina.getStamina(playerEntityId) > staminaBefore, "Stamina not regened");
+    assertTrue(Stamina.getLastUpdateBlock(playerEntityId) == newBlockNumber, "Stamina last update block not set");
+    assertTrue(Health.getHealth(playerEntityId) > healthBefore, "Health not regened");
+    assertTrue(Health.getLastUpdateBlock(playerEntityId) == newBlockNumber, "Health last update block not set");
 
     vm.stopPrank();
   }

@@ -63,6 +63,9 @@ importers:
         specifier: link:../../../mud/packages/world-modules
         version: link:../../../mud/packages/world-modules
     devDependencies:
+      '@openzeppelin/contracts':
+        specifier: ^4.9.1
+        version: 4.9.5
       '@types/node':
         specifier: ^18.15.11
         version: 18.19.18
@@ -223,7 +226,6 @@ packages:
 
   /@openzeppelin/contracts@4.9.5:
     resolution: {integrity: sha512-ZK+W5mVhRppff9BE6YdR8CC52C8zAvsVAiWhEtQ5+oNxFE6h1WdeWo+FJSF8KKvtxxVYZ7MTP/5KoVpAU3aSWg==}
-    dev: false
 
   /@solidity-parser/parser@0.16.2:
     resolution: {integrity: sha512-PI9NfoA3P8XK2VBkK5oIfRgKDsicwDZfkVq9ZTBCQYGOP1N2owgY2dyLGyU5/J/hQs8KRk55kdmvTLjy3Mu3vg==}

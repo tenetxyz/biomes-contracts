@@ -49,9 +49,6 @@ contract MoveSystem is System {
   ) internal returns (bool) {
     require(inSurroundingCube(oldCoord, 1, newCoord), "MoveSystem: new coord is not in surrounding cube of old coord");
 
-    bytes32 oldEntityId = ReversePosition.get(oldCoord.x, oldCoord.y, oldCoord.z);
-    require(oldEntityId != bytes32(0), "MoveSystem: no entity at old coord");
-
     bytes32 newEntityId = ReversePosition.get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
@@ -83,8 +80,8 @@ contract MoveSystem is System {
     ReversePosition.set(oldCoord.x, oldCoord.y, oldCoord.z, newEntityId);
     Position.set(newEntityId, oldCoord.x, oldCoord.y, oldCoord.z);
 
-    Position.set(oldEntityId, newCoord.x, newCoord.y, newCoord.z);
-    ReversePosition.set(newCoord.x, newCoord.y, newCoord.z, oldEntityId);
+    Position.set(playerEntityId, newCoord.x, newCoord.y, newCoord.z);
+    ReversePosition.set(newCoord.x, newCoord.y, newCoord.z, playerEntityId);
 
     uint32 numMovesInBlock = PlayerMetadata.getNumMovesInBlock(playerEntityId);
     if (PlayerMetadata.getLastMoveBlock(playerEntityId) != block.number) {
