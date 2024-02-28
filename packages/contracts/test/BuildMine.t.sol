@@ -28,7 +28,7 @@ import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../src/ObjectTypeIds.sol";
 
-contract PlayerTest is MudTest, GasReporter {
+contract BuildMineTest is MudTest, GasReporter {
   IWorld private world;
   address payable internal alice;
   VoxelCoord spawnCoord;

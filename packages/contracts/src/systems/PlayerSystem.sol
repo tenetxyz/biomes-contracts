@@ -15,7 +15,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, regenHealth, regenStamina, useEquipped } from "../Utils.sol";
+import { positionDataToVoxelCoord, regenHealth, regenStamina, useEquipped, getTerrainObjectTypeId } from "../Utils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 // TODO: update to actual spawn area
@@ -37,6 +37,8 @@ contract PlayerSystem is System {
 
     bytes32 entityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     if (entityId == bytes32(0)) {
+      require(getTerrainObjectTypeId(spawnCoord) == AirObjectID, "PlayerSystem: cannot spawn on terrain non-air block");
+
       // Create new entity
       entityId = getUniqueEntity();
       Position.set(entityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
@@ -49,7 +51,6 @@ contract PlayerSystem is System {
     ObjectType.set(entityId, PlayerObjectID);
     Player.set(newPlayer, entityId);
 
-    PlayerMetadata.set(entityId, block.number, 0);
     Health.set(entityId, block.number, MAX_PLAYER_HEALTH);
     Stamina.set(entityId, block.number, MAX_PLAYER_STAMINA);
 

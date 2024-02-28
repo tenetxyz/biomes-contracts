@@ -23,17 +23,21 @@ import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { voxelCoordsAreEqual } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
+import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../src/ObjectTypeIds.sol";
 
 contract PlayerTest is MudTest, GasReporter {
   IWorld private world;
   address payable internal alice;
+  address payable internal bob;
 
   function setUp() public override {
     super.setUp();
 
     alice = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
+    bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
   }
 
@@ -41,6 +45,8 @@ contract PlayerTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     VoxelCoord memory spawnCoord = VoxelCoord(197, 27, 203);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(spawnCoord);
+    assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
 
     startGasReport("spawn player");
     bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
@@ -48,9 +54,73 @@ contract PlayerTest is MudTest, GasReporter {
 
     assertTrue(playerEntityId != bytes32(0), "Player entity not found");
     assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player object not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), spawnCoord),
+      "Player position not set"
+    );
+    assertTrue(
+      ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z) == playerEntityId,
+      "Reverse position not set"
+    );
     assertTrue(Player.get(alice) == playerEntityId, "Player entity not found in player table");
     assertTrue(Health.getHealth(playerEntityId) == MAX_PLAYER_HEALTH, "Player health not set");
     assertTrue(Stamina.getStamina(playerEntityId) == MAX_PLAYER_STAMINA, "Player stamina not set");
+
+    // Try spawning another player with same user, should fail
+    VoxelCoord memory spawnCoord2 = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    terrainObjectTypeId = world.getTerrainBlock(spawnCoord2);
+    assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
+
+    vm.expectRevert();
+    world.spawnPlayer(spawnCoord2);
+
+    vm.stopPrank();
+
+    vm.startPrank(bob, bob);
+
+    bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
+    assertTrue(playerEntityId2 != bytes32(0) && playerEntityId2 != playerEntityId, "Player entity not found");
+    assertTrue(ObjectType.get(playerEntityId2) == PlayerObjectID, "Player object not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId2)), spawnCoord2),
+      "Player position not set"
+    );
+    assertTrue(
+      ReversePosition.get(spawnCoord2.x, spawnCoord2.y, spawnCoord2.z) == playerEntityId2,
+      "Reverse position not set"
+    );
+    assertTrue(Player.get(bob) == playerEntityId2, "Player entity not found in player table");
+    assertTrue(Health.getHealth(playerEntityId2) == MAX_PLAYER_HEALTH, "Player health not set");
+    assertTrue(Stamina.getStamina(playerEntityId2) == MAX_PLAYER_STAMINA, "Player stamina not set");
+
+    vm.stopPrank();
+  }
+
+  function testSpawnPlayerInvalidCoord() public {
+    vm.startPrank(alice, alice);
+
+    // Invalid terrain coord
+    VoxelCoord memory spawnCoord = VoxelCoord(197, 26, 203);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(spawnCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+
+    vm.expectRevert();
+    world.spawnPlayer(spawnCoord);
+
+    spawnCoord = VoxelCoord(197, 27, 203);
+    terrainObjectTypeId = world.getTerrainBlock(spawnCoord);
+    assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
+
+    world.spawnPlayer(spawnCoord);
+
+    vm.stopPrank();
+
+    vm.startPrank(bob, bob);
+
+    vm.expectRevert();
+    world.spawnPlayer(spawnCoord);
+
+    // TODO: Add test for spawn coord not in spawn area
 
     vm.stopPrank();
   }
