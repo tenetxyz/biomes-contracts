@@ -7,7 +7,6 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
-import { GoldCubeObjectID, SilverCubeObjectID, DiamondCubeObjectID, NeptuniumCubeObjectID, ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID, MushroomLeatherBlockObjectID } from "../../ObjectTypeIds.sol";
 import { SilverOreObjectID, GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLogVariations } from "../../Utils.sol";
@@ -28,25 +27,17 @@ contract InitWorkbenchBlocksSystem is System {
     );
   }
 
-  function initWorkbenchObjectTypes() public {
+  function initWorkbenchTwoObjectTypes() public {
     createWorkbenchBlock(GoldCubeObjectID, 320);
     createWorkbenchBlock(SilverCubeObjectID, 288);
     createWorkbenchBlock(DiamondCubeObjectID, 480);
     createWorkbenchBlock(NeptuniumCubeObjectID, 640);
-
-    createWorkbenchBlock(ReinforcedOakLumberObjectID, 3);
-    createWorkbenchBlock(ReinforcedRubberLumberObjectID, 1);
-    createWorkbenchBlock(ReinforcedBirchLumberObjectID, 3);
   }
 
-  function initWorkbenchRecipes() public {
+  function initWorkbenchTwoRecipes() public {
     createSingleInputRecipe(GoldBarObjectID, 8, GoldCubeObjectID, 1);
     createSingleInputRecipe(SilverBarObjectID, 8, SilverCubeObjectID, 1);
     createSingleInputRecipe(DiamondObjectID, 8, DiamondCubeObjectID, 1);
     createSingleInputRecipe(NeptuniumBarObjectID, 8, NeptuniumCubeObjectID, 1);
-
-    createDoubleInputRecipe(OakLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedOakLumberObjectID, 4);
-    createDoubleInputRecipe(BirchLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedBirchLumberObjectID, 4);
-    createDoubleInputRecipe(RubberLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedRubberLumberObjectID, 4);
   }
 }

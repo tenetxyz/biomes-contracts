@@ -8,13 +8,15 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../../codegen/tables/Recipes.sol";
 
-import { MAX_TOOL_STACKABLE } from "../../Constants.sol";
-import { StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
+import { MAX_TOOL_STACKABLE, MAX_BLOCK_STACKABLE } from "../../Constants.sol";
+import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
 import { OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID, SilverBarObjectID, GoldBarObjectID, DiamondObjectID, NeptuniumBarObjectID, StoneObjectID } from "../../ObjectTypeIds.sol";
+
+import { ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID, OakLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLogVariations, createRecipeForAllLogVariationsWithInput } from "../../Utils.sol";
 
-contract InitToolsSystem is System {
+contract InitWorkbenchSystem is System {
   function createTool(bytes32 toolObjectTypeId, uint16 mass, uint16 durability, uint16 damage) internal {
     ObjectTypeMetadata.set(
       toolObjectTypeId,
@@ -30,8 +32,23 @@ contract InitToolsSystem is System {
     );
   }
 
+  function createBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {
+    ObjectTypeMetadata.set(
+      terrainBlockObjectTypeId,
+      ObjectTypeMetadataData({
+        isPlayer: false,
+        isBlock: true,
+        mass: mass,
+        stackable: MAX_BLOCK_STACKABLE,
+        durability: 0,
+        damage: 0,
+        occurence: bytes4(0)
+      })
+    );
+  }
+
   // TODO: add durability and damage values
-  function initToolObjectTypes() public {
+  function initWorkbenchObjectTypes() public {
     createTool(StonePickObjectID, 36, 0, 0);
     createTool(StoneAxeObjectID, 36, 0, 0);
     createTool(StoneWhackerObjectID, 72, 0, 0);
@@ -48,9 +65,13 @@ contract InitToolsSystem is System {
 
     createTool(NeptuniumPickObjectID, 336, 0, 0);
     createTool(NeptuniumAxeObjectID, 336, 0, 0);
+
+    createBlock(ReinforcedOakLumberObjectID, 3);
+    createBlock(ReinforcedRubberLumberObjectID, 1);
+    createBlock(ReinforcedBirchLumberObjectID, 3);
   }
 
-  function initToolRecipes() public {
+  function initWorkbenchRecipes() public {
 
     createRecipeForAllLogVariationsWithInput(4, StoneObjectID, 8, StonePickObjectID, 1);
     createRecipeForAllLogVariationsWithInput(4, StoneObjectID, 8, StoneAxeObjectID, 1);
@@ -68,5 +89,9 @@ contract InitToolsSystem is System {
 
     createRecipeForAllLogVariationsWithInput(4, NeptuniumBarObjectID, 4, NeptuniumPickObjectID, 1);
     createRecipeForAllLogVariationsWithInput(4, NeptuniumBarObjectID, 4, NeptuniumAxeObjectID, 1);
+
+    createDoubleInputRecipe(OakLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedOakLumberObjectID, 4);
+    createDoubleInputRecipe(BirchLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedBirchLumberObjectID, 4);
+    createDoubleInputRecipe(RubberLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedRubberLumberObjectID, 4);
   }
 }

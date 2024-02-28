@@ -25,6 +25,7 @@ contract PostDeploy is Script {
     IWorld(worldAddress).initInteractableObjectTypes();
     IWorld(worldAddress).initWorkbenchObjectTypes();
     IWorld(worldAddress).initDyedObjectTypes();
+    IWorld(worldAddress).initHandcraftedObjectTypes();
 
     IWorld(worldAddress).initItemObjectTypes();
     IWorld(worldAddress).initToolObjectTypes();
@@ -33,6 +34,7 @@ contract PostDeploy is Script {
     IWorld(worldAddress).initInteractablesRecipes();
     IWorld(worldAddress).initWorkbenchRecipes();
     IWorld(worldAddress).initDyedRecipes();
+    IWorld(worldAddress).initHandcrafedRecipes();
 
     IWorld(worldAddress).initItemRecipes();
     IWorld(worldAddress).initToolRecipes();
