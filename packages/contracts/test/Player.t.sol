@@ -30,12 +30,15 @@ import { AirObjectID, PlayerObjectID } from "../src/ObjectTypeIds.sol";
 
 contract PlayerTest is MudTest, GasReporter {
   IWorld private world;
+  address payable internal worldDeployer;
   address payable internal alice;
   address payable internal bob;
 
   function setUp() public override {
     super.setUp();
 
+    // Should match the value in .env during development
+    worldDeployer = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
     alice = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
     bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
