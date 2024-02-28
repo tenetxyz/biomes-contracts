@@ -10,6 +10,7 @@ import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { SilverOreObjectID, GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLogVariations } from "../../Utils.sol";
+import { GoldCubeObjectID, SilverCubeObjectID, DiamondCubeObjectID, NeptuniumCubeObjectID } from "../../ObjectTypeIds.sol";
 
 contract InitWorkbenchBlocksSystem is System {
   function createWorkbenchBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {

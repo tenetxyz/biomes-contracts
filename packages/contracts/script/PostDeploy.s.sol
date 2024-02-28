@@ -28,7 +28,6 @@ contract PostDeploy is Script {
     IWorld(worldAddress).initHandcraftedObjectTypes();
 
     IWorld(worldAddress).initItemObjectTypes();
-    IWorld(worldAddress).initToolObjectTypes();
 
     IWorld(worldAddress).initCraftedStoneRecipes();
     IWorld(worldAddress).initInteractablesRecipes();
@@ -37,7 +36,6 @@ contract PostDeploy is Script {
     IWorld(worldAddress).initHandcrafedRecipes();
 
     IWorld(worldAddress).initItemRecipes();
-    IWorld(worldAddress).initToolRecipes();
 
     vm.stopBroadcast();
   }
