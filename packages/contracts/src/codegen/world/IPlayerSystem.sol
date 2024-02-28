@@ -14,5 +14,5 @@ interface IPlayerSystem {
 
   function activatePlayer(bytes32 playerEntityId) external;
 
-  function hitPlayer(bytes32 hitEntityId) external;
+  function hit(address hitPlayer) external;
 }

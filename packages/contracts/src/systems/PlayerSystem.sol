@@ -63,10 +63,12 @@ contract PlayerSystem is System {
     regenStamina(playerEntityId);
   }
 
-  function hitPlayer(bytes32 hitEntityId) public {
+  function hit(address hitPlayer) public {
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "PlayerSystem: player does not exist");
-    require(ObjectType.get(hitEntityId) == PlayerObjectID, "PlayerSystem: hit entity is not a player");
+    bytes32 hitEntityId = Player.get(hitPlayer);
+    require(hitEntityId != bytes32(0), "PlayerSystem: hit player does not exist");
+    require(playerEntityId != hitEntityId, "PlayerSystem: player cannot hit itself");
 
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
     VoxelCoord memory hitCoord = positionDataToVoxelCoord(Position.get(hitEntityId));
@@ -87,10 +89,9 @@ contract PlayerSystem is System {
     // Try spending all the stamina
     uint32 staminaSpend = staminaRequired > currentStamina ? currentStamina : staminaRequired;
 
-
     bytes32 equippedEntityId = Equipped.get(playerEntityId);
     uint32 receiverDamage = PLAYER_HAND_DAMAGE;
-    if(equippedEntityId != bytes32(0)){
+    if (equippedEntityId != bytes32(0)) {
       receiverDamage = ObjectTypeMetadata.getDamage(ObjectType.get(equippedEntityId));
     }
 
@@ -102,13 +103,14 @@ contract PlayerSystem is System {
 
     // Update stamina and health
     Stamina.setStamina(playerEntityId, currentStamina - staminaSpend);
-    uint16 currentHealth = Health.getHealth(playerEntityId);
+
+    uint16 currentHealth = Health.getHealth(hitEntityId);
     // TODO: check overflow?
     uint16 newHealth = currentHealth > uint16(receiverDamage) ? currentHealth - uint16(receiverDamage) : 0;
     Health.setHealth(hitEntityId, newHealth);
 
     if (newHealth == 0) {
-      despawnPlayer(_msgSender(), hitEntityId);
+      despawnPlayer(hitPlayer, hitEntityId);
     }
   }
 }
