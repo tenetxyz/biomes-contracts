@@ -15,7 +15,7 @@ import { OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID,
 import { ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID, OakLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
-import { createSingleInputWithStationRecipe , createDoubleInputWithStationRecipe, createRecipeForAllLogVariationsWithInputStation } from "../../Utils.sol";
+import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe, createRecipeForAllLogVariationsWithInputStation } from "../../Utils.sol";
 
 contract InitWorkbenchSystem is System {
   function createTool(bytes32 toolObjectTypeId, uint16 mass, uint16 durability, uint16 damage) internal {
@@ -73,7 +73,6 @@ contract InitWorkbenchSystem is System {
   }
 
   function initWorkbenchRecipes() public {
-
     createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, StoneObjectID, 8, StonePickObjectID, 1);
     createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, StoneObjectID, 8, StoneAxeObjectID, 1);
     createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 2, StoneObjectID, 4, StoneWhackerObjectID, 1);
@@ -88,11 +87,49 @@ contract InitWorkbenchSystem is System {
     createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, DiamondObjectID, 4, DiamondPickObjectID, 1);
     createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, DiamondObjectID, 4, DiamondAxeObjectID, 1);
 
-    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, NeptuniumBarObjectID, 4, NeptuniumPickObjectID, 1);
-    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, NeptuniumBarObjectID, 4, NeptuniumAxeObjectID, 1);
+    createRecipeForAllLogVariationsWithInputStation(
+      WorkbenchObjectID,
+      4,
+      NeptuniumBarObjectID,
+      4,
+      NeptuniumPickObjectID,
+      1
+    );
+    createRecipeForAllLogVariationsWithInputStation(
+      WorkbenchObjectID,
+      4,
+      NeptuniumBarObjectID,
+      4,
+      NeptuniumAxeObjectID,
+      1
+    );
 
-    createDoubleInputWithStationRecipe(WorkbenchObjectID, OakLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedOakLumberObjectID, 4);
-    createDoubleInputWithStationRecipe(WorkbenchObjectID, BirchLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedBirchLumberObjectID, 4);
-    createDoubleInputWithStationRecipe(WorkbenchObjectID, RubberLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedRubberLumberObjectID, 4);
+    createDoubleInputWithStationRecipe(
+      WorkbenchObjectID,
+      OakLumberObjectID,
+      4,
+      SilverOreObjectID,
+      1,
+      ReinforcedOakLumberObjectID,
+      4
+    );
+    createDoubleInputWithStationRecipe(
+      WorkbenchObjectID,
+      BirchLumberObjectID,
+      4,
+      SilverOreObjectID,
+      1,
+      ReinforcedBirchLumberObjectID,
+      4
+    );
+    createDoubleInputWithStationRecipe(
+      WorkbenchObjectID,
+      RubberLumberObjectID,
+      4,
+      SilverOreObjectID,
+      1,
+      ReinforcedRubberLumberObjectID,
+      4
+    );
   }
 }

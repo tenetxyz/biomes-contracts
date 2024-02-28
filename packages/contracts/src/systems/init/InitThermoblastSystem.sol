@@ -137,9 +137,33 @@ contract InitThermoblastSystem is System {
     createSingleInputWithStationRecipe(ThermoblasterObjectID, LimestoneBrickObjectID, 4, LimestonePolishedObjectID, 4);
     createSingleInputWithStationRecipe(ThermoblasterObjectID, LimestoneBrickObjectID, 4, LimestoneShinglesObjectID, 4);
 
-    createDoubleInputWithStationRecipe(ThermoblasterObjectID, CoalOreObjectID, 4, StoneObjectID, 4, EmberstoneObjectID, 4);
-    createDoubleInputWithStationRecipe(ThermoblasterObjectID, CoalOreObjectID, 4, QuartziteObjectID, 4, MoonstoneObjectID, 4);
-    createDoubleInputWithStationRecipe(ThermoblasterObjectID, CoalOreObjectID, 4, LimestoneObjectID, 4, SunstoneObjectID, 4);
+    createDoubleInputWithStationRecipe(
+      ThermoblasterObjectID,
+      CoalOreObjectID,
+      4,
+      StoneObjectID,
+      4,
+      EmberstoneObjectID,
+      4
+    );
+    createDoubleInputWithStationRecipe(
+      ThermoblasterObjectID,
+      CoalOreObjectID,
+      4,
+      QuartziteObjectID,
+      4,
+      MoonstoneObjectID,
+      4
+    );
+    createDoubleInputWithStationRecipe(
+      ThermoblasterObjectID,
+      CoalOreObjectID,
+      4,
+      LimestoneObjectID,
+      4,
+      SunstoneObjectID,
+      4
+    );
 
     createDoubleInputWithStationRecipe(ThermoblasterObjectID, SandObjectID, 2, CoalOreObjectID, 1, GlassObjectID, 1);
 

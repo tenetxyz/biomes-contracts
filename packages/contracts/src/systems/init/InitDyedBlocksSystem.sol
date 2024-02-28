@@ -77,46 +77,294 @@ contract InitDyedBlocksSystem is System {
   }
 
   function initDyedRecipes() public {
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, BlueDyeObjectID, 1, BlueOakLumberObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, BrownDyeObjectID, 1, BrownOakLumberObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, GreenDyeObjectID, 1, GreenOakLumberObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, MagentaDyeObjectID, 1, MagentaOakLumberObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, OrangeDyeObjectID, 1, OrangeOakLumberObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, PinkDyeObjectID, 1, PinkOakLumberObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, PurpleDyeObjectID, 1, PurpleOakLumberObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, RedDyeObjectID, 1, RedOakLumberObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, TanDyeObjectID, 1, TanOakLumberObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, WhiteDyeObjectID, 1, WhiteOakLumberObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, YellowDyeObjectID, 1, YellowOakLumberObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, BlackDyeObjectID, 1, BlackOakLumberObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, OakLumberObjectID, 1, SilverDyeObjectID, 1, SilverOakLumberObjectID, 1);
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      BlueDyeObjectID,
+      1,
+      BlueOakLumberObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      BrownDyeObjectID,
+      1,
+      BrownOakLumberObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      GreenDyeObjectID,
+      1,
+      GreenOakLumberObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      MagentaDyeObjectID,
+      1,
+      MagentaOakLumberObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      OrangeDyeObjectID,
+      1,
+      OrangeOakLumberObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      PinkDyeObjectID,
+      1,
+      PinkOakLumberObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      PurpleDyeObjectID,
+      1,
+      PurpleOakLumberObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      RedDyeObjectID,
+      1,
+      RedOakLumberObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      TanDyeObjectID,
+      1,
+      TanOakLumberObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      WhiteDyeObjectID,
+      1,
+      WhiteOakLumberObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      YellowDyeObjectID,
+      1,
+      YellowOakLumberObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      BlackDyeObjectID,
+      1,
+      BlackOakLumberObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      OakLumberObjectID,
+      1,
+      SilverDyeObjectID,
+      1,
+      SilverOakLumberObjectID,
+      1
+    );
 
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, BlueDyeObjectID, 1, BlueCottonBlockObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, BrownDyeObjectID, 1, BrownCottonBlockObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, GreenDyeObjectID, 1, GreenCottonBlockObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, MagentaDyeObjectID, 1, MagentaCottonBlockObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, OrangeDyeObjectID, 1, OrangeCottonBlockObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, PinkDyeObjectID, 1, PinkCottonBlockObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, PurpleDyeObjectID, 1, PurpleCottonBlockObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, RedDyeObjectID, 1, RedCottonBlockObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, TanDyeObjectID, 1, TanCottonBlockObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, WhiteDyeObjectID, 1, WhiteCottonBlockObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, YellowDyeObjectID, 1, YellowCottonBlockObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, BlackDyeObjectID, 1, BlackCottonBlockObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, CottonBlockObjectID, 1, SilverDyeObjectID, 1, SilverCottonBlockObjectID, 1);
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      BlueDyeObjectID,
+      1,
+      BlueCottonBlockObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      BrownDyeObjectID,
+      1,
+      BrownCottonBlockObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      GreenDyeObjectID,
+      1,
+      GreenCottonBlockObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      MagentaDyeObjectID,
+      1,
+      MagentaCottonBlockObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      OrangeDyeObjectID,
+      1,
+      OrangeCottonBlockObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      PinkDyeObjectID,
+      1,
+      PinkCottonBlockObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      PurpleDyeObjectID,
+      1,
+      PurpleCottonBlockObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      RedDyeObjectID,
+      1,
+      RedCottonBlockObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      TanDyeObjectID,
+      1,
+      TanCottonBlockObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      WhiteDyeObjectID,
+      1,
+      WhiteCottonBlockObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      YellowDyeObjectID,
+      1,
+      YellowCottonBlockObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      BlackDyeObjectID,
+      1,
+      BlackCottonBlockObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      CottonBlockObjectID,
+      1,
+      SilverDyeObjectID,
+      1,
+      SilverCottonBlockObjectID,
+      1
+    );
 
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, BlueDyeObjectID, 1, BlueGlassObjectID, 1);
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, BrownDyeObjectID, 1, BrownGlassObjectID, 1);
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, GreenDyeObjectID, 1, GreenGlassObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, MagentaDyeObjectID, 1, MagentaGlassObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, OrangeDyeObjectID, 1, OrangeGlassObjectID, 1);
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      GlassObjectID,
+      1,
+      MagentaDyeObjectID,
+      1,
+      MagentaGlassObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      GlassObjectID,
+      1,
+      OrangeDyeObjectID,
+      1,
+      OrangeGlassObjectID,
+      1
+    );
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, PinkDyeObjectID, 1, PinkGlassObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, PurpleDyeObjectID, 1, PurpleGlassObjectID, 1);
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      GlassObjectID,
+      1,
+      PurpleDyeObjectID,
+      1,
+      PurpleGlassObjectID,
+      1
+    );
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, RedDyeObjectID, 1, RedGlassObjectID, 1);
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, TanDyeObjectID, 1, TanGlassObjectID, 1);
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, WhiteDyeObjectID, 1, WhiteGlassObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, YellowDyeObjectID, 1, YellowGlassObjectID, 1);
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      GlassObjectID,
+      1,
+      YellowDyeObjectID,
+      1,
+      YellowGlassObjectID,
+      1
+    );
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, BlackDyeObjectID, 1, BlackGlassObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, SilverDyeObjectID, 1, SilverGlassObjectID, 1);
+    createDoubleInputWithStationRecipe(
+      DyeomaticObjectID,
+      GlassObjectID,
+      1,
+      SilverDyeObjectID,
+      1,
+      SilverGlassObjectID,
+      1
+    );
   }
 }
