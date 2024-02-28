@@ -13,6 +13,7 @@ import { ClayObjectID, ClayBrickObjectID, ClayCarvedObjectID, ClayPolishedObject
 import { GraniteObjectID, GraniteBrickObjectID, GraniteCarvedObjectID, GraniteShinglesObjectID, GranitePolishedObjectID } from "../../ObjectTypeIds.sol";
 import { QuartziteObjectID, QuartziteBrickObjectID, QuartziteCarvedObjectID, QuartzitePolishedObjectID, QuartziteShinglesObjectID } from "../../ObjectTypeIds.sol";
 import { LimestoneObjectID, LimestoneBrickObjectID, LimestoneCarvedObjectID, LimestonePolishedObjectID, LimestoneShinglesObjectID } from "../../ObjectTypeIds.sol";
+import { EmberstoneObjectID, SunstoneObjectID, MoonstoneObjectID, GlassObjectID, SandObjectID, DirtObjectID, CoalOreObjectID, MushroomLeatherBlockObjectID, RedMushroomObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe } from "../../Utils.sol";
 
@@ -98,5 +99,14 @@ contract InitCraftedStonesSystem is System {
     createSingleInputRecipe(LimestoneBrickObjectID, 4, LimestoneCarvedObjectID, 4);
     createSingleInputRecipe(LimestoneBrickObjectID, 4, LimestonePolishedObjectID, 4);
     createSingleInputRecipe(LimestoneBrickObjectID, 4, LimestoneShinglesObjectID, 4);
+
+    createDoubleInputRecipe(CoalOreObjectID, 4, StoneObjectID, 4, EmberstoneObjectID, 4);
+    createDoubleInputRecipe(SandObjectID, 2, CoalOreObjectID, 1, GlassObjectID, 1);
+    createDoubleInputRecipe(CoalOreObjectID, 4, QuartziteObjectID, 4, MoonstoneObjectID, 4);
+    createDoubleInputRecipe(CoalOreObjectID, 4, LimestoneObjectID, 4, SunstoneObjectID, 4);
+
+    createSingleInputRecipe(DirtObjectID, 4, ClayObjectID, 4);
+    createSingleInputRecipe(StoneObjectID, 1, CobbleStoneObjectID, 4);
+    createSingleInputRecipe(RedMushroomObjectID, 4, MushroomLeatherBlockObjectID, 1);
   }
 }
