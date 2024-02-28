@@ -109,4 +109,10 @@ contract GravityTest is MudTest, GasReporter {
   }
 
   function testMineGravityFatal() public {}
+
+  function testMoveGravitySingle() public {}
+
+  function testMoveGravityMultiple() public {}
+
+  function testMoveGravityFatal() public {}
 }
