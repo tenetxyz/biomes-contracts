@@ -315,6 +315,53 @@ function createRecipeForAllLogVariationsWithInput(
   );
 }
 
+function createRecipeForAllLogVariationsWithInputStation(
+  bytes32 stationObjectTypeId,
+  uint8 logObjectTypeAmount,
+  bytes32 inputObjectTypeId,
+  uint8 inputObjectTypeAmount,
+  bytes32 outputObjectTypeId,
+  uint8 outputObjectTypeAmount
+) {
+  createDoubleInputWithStationRecipe(
+    stationObjectTypeId,
+    inputObjectTypeId,
+    inputObjectTypeAmount,
+    OakLogObjectID,
+    logObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createDoubleInputWithStationRecipe(
+    stationObjectTypeId,
+    inputObjectTypeId,
+    inputObjectTypeAmount,
+    SakuraLogObjectID,
+    logObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createDoubleInputWithStationRecipe(
+    stationObjectTypeId,
+    inputObjectTypeId,
+    inputObjectTypeAmount,
+    RubberLogObjectID,
+    logObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createDoubleInputWithStationRecipe(
+    stationObjectTypeId,
+    inputObjectTypeId,
+    inputObjectTypeAmount,
+    BirchLogObjectID,
+    logObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+}
+
+
 function createRecipeForAllLumberVariations(
   uint8 lumberObjectTypeAmount,
   bytes32 outputObjectTypeId,

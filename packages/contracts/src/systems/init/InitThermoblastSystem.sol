@@ -19,8 +19,8 @@ import { GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObject
 import { SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../../ObjectTypeIds.sol";
 import { GoldCubeObjectID, SilverCubeObjectID, DiamondCubeObjectID, NeptuniumCubeObjectID } from "../../ObjectTypeIds.sol";
 
-
-import { createSingleInputRecipe, createDoubleInputRecipe } from "../../Utils.sol";
+import { ThermoblasterObjectID } from "../../ObjectTypeIds.sol";
+import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../Utils.sol";
 
 contract InitThermoblastSystem is System {
   function createBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {
@@ -105,54 +105,54 @@ contract InitThermoblastSystem is System {
   }
 
   function initThermoblastRecipes() public {
-    createSingleInputRecipe(CobblestoneObjectID, 4, CobblestoneBrickObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, CobblestoneObjectID, 4, CobblestoneBrickObjectID, 4);
 
-    createSingleInputRecipe(StoneObjectID, 4, StoneBrickObjectID, 4);
-    createSingleInputRecipe(StoneObjectID, 4, StoneCarvedObjectID, 4);
-    createSingleInputRecipe(StoneObjectID, 4, StonePolishedObjectID, 4);
-    createSingleInputRecipe(StoneBrickObjectID, 4, StoneShinglesObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, StoneObjectID, 4, StoneBrickObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, StoneObjectID, 4, StoneCarvedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, StoneObjectID, 4, StonePolishedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, StoneBrickObjectID, 4, StoneShinglesObjectID, 4);
 
-    createSingleInputRecipe(BasaltObjectID, 4, BasaltBrickObjectID, 4);
-    createSingleInputRecipe(BasaltBrickObjectID, 4, BasaltCarvedObjectID, 4);
-    createSingleInputRecipe(BasaltBrickObjectID, 4, BasaltPolishedObjectID, 4);
-    createSingleInputRecipe(BasaltBrickObjectID, 4, BasaltShinglesObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, BasaltObjectID, 4, BasaltBrickObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, BasaltBrickObjectID, 4, BasaltCarvedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, BasaltBrickObjectID, 4, BasaltPolishedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, BasaltBrickObjectID, 4, BasaltShinglesObjectID, 4);
 
-    createSingleInputRecipe(ClayObjectID, 4, ClayBrickObjectID, 4);
-    createSingleInputRecipe(ClayBrickObjectID, 4, ClayCarvedObjectID, 4);
-    createSingleInputRecipe(ClayBrickObjectID, 4, ClayPolishedObjectID, 4);
-    createSingleInputRecipe(ClayBrickObjectID, 4, ClayShinglesObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, ClayObjectID, 4, ClayBrickObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, ClayBrickObjectID, 4, ClayCarvedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, ClayBrickObjectID, 4, ClayPolishedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, ClayBrickObjectID, 4, ClayShinglesObjectID, 4);
 
-    createSingleInputRecipe(GraniteObjectID, 4, GraniteBrickObjectID, 4);
-    createSingleInputRecipe(GraniteBrickObjectID, 4, GraniteCarvedObjectID, 4);
-    createSingleInputRecipe(GraniteBrickObjectID, 4, GraniteShinglesObjectID, 4);
-    createSingleInputRecipe(GraniteBrickObjectID, 4, GranitePolishedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, GraniteObjectID, 4, GraniteBrickObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, GraniteBrickObjectID, 4, GraniteCarvedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, GraniteBrickObjectID, 4, GraniteShinglesObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, GraniteBrickObjectID, 4, GranitePolishedObjectID, 4);
 
-    createSingleInputRecipe(QuartziteObjectID, 4, QuartziteBrickObjectID, 4);
-    createSingleInputRecipe(QuartziteBrickObjectID, 4, QuartziteCarvedObjectID, 4);
-    createSingleInputRecipe(QuartziteBrickObjectID, 4, QuartzitePolishedObjectID, 4);
-    createSingleInputRecipe(QuartziteBrickObjectID, 4, QuartziteShinglesObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, QuartziteObjectID, 4, QuartziteBrickObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, QuartziteBrickObjectID, 4, QuartziteCarvedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, QuartziteBrickObjectID, 4, QuartzitePolishedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, QuartziteBrickObjectID, 4, QuartziteShinglesObjectID, 4);
 
-    createSingleInputRecipe(LimestoneObjectID, 4, LimestoneBrickObjectID, 4);
-    createSingleInputRecipe(LimestoneBrickObjectID, 4, LimestoneCarvedObjectID, 4);
-    createSingleInputRecipe(LimestoneBrickObjectID, 4, LimestonePolishedObjectID, 4);
-    createSingleInputRecipe(LimestoneBrickObjectID, 4, LimestoneShinglesObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, LimestoneObjectID, 4, LimestoneBrickObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, LimestoneBrickObjectID, 4, LimestoneCarvedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, LimestoneBrickObjectID, 4, LimestonePolishedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, LimestoneBrickObjectID, 4, LimestoneShinglesObjectID, 4);
 
-    createDoubleInputRecipe(CoalOreObjectID, 4, StoneObjectID, 4, EmberstoneObjectID, 4);
-    createDoubleInputRecipe(CoalOreObjectID, 4, QuartziteObjectID, 4, MoonstoneObjectID, 4);
-    createDoubleInputRecipe(CoalOreObjectID, 4, LimestoneObjectID, 4, SunstoneObjectID, 4);
+    createDoubleInputWithStationRecipe(ThermoblasterObjectID, CoalOreObjectID, 4, StoneObjectID, 4, EmberstoneObjectID, 4);
+    createDoubleInputWithStationRecipe(ThermoblasterObjectID, CoalOreObjectID, 4, QuartziteObjectID, 4, MoonstoneObjectID, 4);
+    createDoubleInputWithStationRecipe(ThermoblasterObjectID, CoalOreObjectID, 4, LimestoneObjectID, 4, SunstoneObjectID, 4);
 
-    createDoubleInputRecipe(SandObjectID, 2, CoalOreObjectID, 1, GlassObjectID, 1);
+    createDoubleInputWithStationRecipe(ThermoblasterObjectID, SandObjectID, 2, CoalOreObjectID, 1, GlassObjectID, 1);
 
-    createSingleInputRecipe(RedMushroomObjectID, 4, MushroomLeatherBlockObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, RedMushroomObjectID, 4, MushroomLeatherBlockObjectID, 1);
 
-    createSingleInputRecipe(SilverOreObjectID, 4, SilverBarObjectID, 1);
-    createSingleInputRecipe(GoldOreObjectID, 4, GoldBarObjectID, 1);
-    createSingleInputRecipe(DiamondOreObjectID, 4, DiamondObjectID, 1);
-    createSingleInputRecipe(NeptuniumOreObjectID, 4, NeptuniumBarObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, SilverOreObjectID, 4, SilverBarObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, GoldOreObjectID, 4, GoldBarObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, DiamondOreObjectID, 4, DiamondObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, NeptuniumOreObjectID, 4, NeptuniumBarObjectID, 1);
 
-    createSingleInputRecipe(GoldBarObjectID, 8, GoldCubeObjectID, 1);
-    createSingleInputRecipe(SilverBarObjectID, 8, SilverCubeObjectID, 1);
-    createSingleInputRecipe(DiamondObjectID, 8, DiamondCubeObjectID, 1);
-    createSingleInputRecipe(NeptuniumBarObjectID, 8, NeptuniumCubeObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, GoldBarObjectID, 8, GoldCubeObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, SilverBarObjectID, 8, SilverCubeObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, DiamondObjectID, 8, DiamondCubeObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, NeptuniumBarObjectID, 8, NeptuniumCubeObjectID, 1);
   }
 }

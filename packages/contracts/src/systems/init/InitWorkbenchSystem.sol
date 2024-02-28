@@ -13,8 +13,9 @@ import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObj
 import { OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID, SilverBarObjectID, GoldBarObjectID, DiamondObjectID, NeptuniumBarObjectID, StoneObjectID } from "../../ObjectTypeIds.sol";
 
 import { ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID, OakLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
+import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
-import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLogVariations, createRecipeForAllLogVariationsWithInput } from "../../Utils.sol";
+import { createSingleInputWithStationRecipe , createDoubleInputWithStationRecipe, createRecipeForAllLogVariationsWithInputStation } from "../../Utils.sol";
 
 contract InitWorkbenchSystem is System {
   function createTool(bytes32 toolObjectTypeId, uint16 mass, uint16 durability, uint16 damage) internal {
@@ -73,25 +74,25 @@ contract InitWorkbenchSystem is System {
 
   function initWorkbenchRecipes() public {
 
-    createRecipeForAllLogVariationsWithInput(4, StoneObjectID, 8, StonePickObjectID, 1);
-    createRecipeForAllLogVariationsWithInput(4, StoneObjectID, 8, StoneAxeObjectID, 1);
-    createRecipeForAllLogVariationsWithInput(2, StoneObjectID, 4, StoneWhackerObjectID, 1);
+    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, StoneObjectID, 8, StonePickObjectID, 1);
+    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, StoneObjectID, 8, StoneAxeObjectID, 1);
+    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 2, StoneObjectID, 4, StoneWhackerObjectID, 1);
 
-    createRecipeForAllLogVariationsWithInput(4, SilverBarObjectID, 4, SilverPickObjectID, 1);
-    createRecipeForAllLogVariationsWithInput(4, SilverBarObjectID, 4, SilverAxeObjectID, 1);
-    createSingleInputRecipe(SilverBarObjectID, 6, SilverWhackerObjectID, 1);
+    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, SilverBarObjectID, 4, SilverPickObjectID, 1);
+    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, SilverBarObjectID, 4, SilverAxeObjectID, 1);
+    createSingleInputWithStationRecipe(WorkbenchObjectID, SilverBarObjectID, 6, SilverWhackerObjectID, 1);
 
-    createRecipeForAllLogVariationsWithInput(4, GoldBarObjectID, 4, GoldPickObjectID, 1);
-    createRecipeForAllLogVariationsWithInput(4, GoldBarObjectID, 4, GoldAxeObjectID, 1);
+    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, GoldBarObjectID, 4, GoldPickObjectID, 1);
+    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, GoldBarObjectID, 4, GoldAxeObjectID, 1);
 
-    createRecipeForAllLogVariationsWithInput(4, DiamondObjectID, 4, DiamondPickObjectID, 1);
-    createRecipeForAllLogVariationsWithInput(4, DiamondObjectID, 4, DiamondAxeObjectID, 1);
+    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, DiamondObjectID, 4, DiamondPickObjectID, 1);
+    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, DiamondObjectID, 4, DiamondAxeObjectID, 1);
 
-    createRecipeForAllLogVariationsWithInput(4, NeptuniumBarObjectID, 4, NeptuniumPickObjectID, 1);
-    createRecipeForAllLogVariationsWithInput(4, NeptuniumBarObjectID, 4, NeptuniumAxeObjectID, 1);
+    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, NeptuniumBarObjectID, 4, NeptuniumPickObjectID, 1);
+    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, NeptuniumBarObjectID, 4, NeptuniumAxeObjectID, 1);
 
-    createDoubleInputRecipe(OakLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedOakLumberObjectID, 4);
-    createDoubleInputRecipe(BirchLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedBirchLumberObjectID, 4);
-    createDoubleInputRecipe(RubberLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedRubberLumberObjectID, 4);
+    createDoubleInputWithStationRecipe(WorkbenchObjectID, OakLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedOakLumberObjectID, 4);
+    createDoubleInputWithStationRecipe(WorkbenchObjectID, BirchLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedBirchLumberObjectID, 4);
+    createDoubleInputWithStationRecipe(WorkbenchObjectID, RubberLumberObjectID, 4, SilverOreObjectID, 1, ReinforcedRubberLumberObjectID, 4);
   }
 }
