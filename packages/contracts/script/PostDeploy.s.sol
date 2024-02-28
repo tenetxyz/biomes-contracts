@@ -19,25 +19,19 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     IWorld(worldAddress).initPlayerObjectTypes();
-
     IWorld(worldAddress).initTerrainBlockObjectTypes();
-    IWorld(worldAddress).initCraftedStoneObjectTypes();
+
+    IWorld(worldAddress).initThermoblastObjectTypes();
     IWorld(worldAddress).initInteractableObjectTypes();
     IWorld(worldAddress).initWorkbenchObjectTypes();
     IWorld(worldAddress).initDyedObjectTypes();
     IWorld(worldAddress).initHandcraftedObjectTypes();
 
-    IWorld(worldAddress).initItemObjectTypes();
-    IWorld(worldAddress).initToolObjectTypes();
-
-    IWorld(worldAddress).initCraftedStoneRecipes();
+    IWorld(worldAddress).initThermoblastRecipes();
     IWorld(worldAddress).initInteractablesRecipes();
     IWorld(worldAddress).initWorkbenchRecipes();
     IWorld(worldAddress).initDyedRecipes();
     IWorld(worldAddress).initHandcrafedRecipes();
-
-    IWorld(worldAddress).initItemRecipes();
-    IWorld(worldAddress).initToolRecipes();
 
     vm.stopBroadcast();
   }
