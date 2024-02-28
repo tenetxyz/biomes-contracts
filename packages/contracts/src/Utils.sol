@@ -304,6 +304,30 @@ function createRecipeForAllLogVariationsWithInput(
   );
 }
 
+function createRecipeForAllLumberVariations(
+  uint8 lumberObjectTypeAmount,
+  bytes32 outputObjectTypeId,
+  uint8 outputObjectTypeAmount
+) {
+  createSingleInputRecipe(OakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(SakuraLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(RubberLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(BirchLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(BlueOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(BrownOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(GreenOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(MagentaOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(OrangeOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(PinkOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(PurpleOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(RedOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(TanOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(WhiteOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(YellowOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(BlackOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputRecipe(SilverOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+}
+
 function applyGravity(address player, bytes32 playerEntityId, VoxelCoord memory coord) returns (bool) {
   VoxelCoord memory newCoord = VoxelCoord(coord.x, coord.y - 1, coord.z);
 

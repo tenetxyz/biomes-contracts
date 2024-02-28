@@ -35,7 +35,7 @@ contract InitInteractablesSystem is System {
   }
 
   function initInteractablesRecipes() public {
-    createRecipeForAllLogVariations(8, ChestObjectID, 1);
+    createRecipeForAllLumberVariations(8, ChestObjectID, 1);
     createSingleInputRecipe(StoneObjectID, 9, ThermoblasterObjectID, 1);
     createRecipeForAllLogVariations(5, WorkbenchObjectID, 1);
     createDoubleInputRecipe(ClayObjectID, 4, SandObjectID, 2, DyeomaticObjectID, 1);
