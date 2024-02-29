@@ -135,6 +135,32 @@ contract BuildTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testBuildNonAir() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+    assertTrue(inventoryId != bytes32(0), "Inventory entity not found");
+    assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
+    assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(buildCoord) != AirObjectID, "Terrain block is not air");
+
+    vm.expectRevert();
+    world.build(inventoryId, buildCoord);
+
+    vm.stopPrank();
+  }
+
   function testBuildNonBlock() public {
     vm.startPrank(alice, alice);
 

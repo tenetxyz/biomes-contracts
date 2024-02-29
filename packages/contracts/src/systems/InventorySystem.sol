@@ -109,7 +109,9 @@ contract InventorySystem is System {
     bytes32 inventoryEntityId
   ) internal {
     require(Inventory.get(inventoryEntityId) == srcEntityId, "InventorySystem: entity does not own inventory item");
-    require(Equipped.get(srcEntityId) != inventoryEntityId, "InventorySystem: cannot transfer equipped item");
+    if (Equipped.get(srcEntityId) == inventoryEntityId) {
+      Equipped.deleteRecord(srcEntityId);
+    }
     Inventory.set(inventoryEntityId, dstEntityId);
 
     bytes32 inventoryObjectTypeId = ObjectType.get(inventoryEntityId);

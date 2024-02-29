@@ -192,6 +192,23 @@ contract MoveTest is MudTest, GasReporter {
     world.move(newCoords);
   }
 
+  function testMoveNonAir() public {
+     vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
+    for (uint i = 0; i < newCoords.length; i++) {
+      assertTrue(world.getTerrainBlock(newCoords[i]) != AirObjectID, "Terrain block is not air");
+    }
+
+    vm.expectRevert();
+    world.move(newCoords);
+
+    vm.stopPrank();
+  }
+
   function testMoveInValidCoords() public {
     vm.startPrank(alice, alice);
 

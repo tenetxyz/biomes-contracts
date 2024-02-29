@@ -28,7 +28,7 @@ import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH, GRAVITY_DAMAGE } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 
 contract DropTest is MudTest, GasReporter {
@@ -53,17 +53,551 @@ contract DropTest is MudTest, GasReporter {
     return world.spawnPlayer(spawnCoord);
   }
 
-  function testDropSingle() public {}
+  function testDropSingleTerrain() public {
+    vm.startPrank(alice, alice);
 
-  function testDropMultiple() public {}
+    bytes32 playerEntityId = setupPlayer();
 
-  function testMovePickUpDrop() public {}
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, GrassObjectID);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
-  function testMoveMultiplePickUpDrop() public {}
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
 
-  function testGravityPickUpDrop() public {}
+    bytes32[] memory inventoryEntityIds = new bytes32[](1);
+    inventoryEntityIds[0] = newInventoryId;
 
-  function testGravityFatalPickUpDrop() public {}
+    startGasReport("drop single terrain");
+    world.drop(inventoryEntityIds, dropCoord);
+    endGasReport();
+
+    bytes32 airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
+    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
+    assertTrue(Inventory.get(newInventoryId) == airEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
+
+    vm.stopPrank();
+  }
+
+  function testDropSingleNonTerrain() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, GrassObjectID);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
+
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    bytes32 airEntityId = getUniqueEntity();
+    Position.set(airEntityId, dropCoord.x, dropCoord.y, dropCoord.z);
+    ReversePosition.set(dropCoord.x, dropCoord.y, dropCoord.z, airEntityId);
+    ObjectType.set(airEntityId, AirObjectID);
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](1);
+    inventoryEntityIds[0] = newInventoryId;
+
+    startGasReport("drop single non-terrain");
+    world.drop(inventoryEntityIds, dropCoord);
+    endGasReport();
+
+    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
+    assertTrue(Inventory.get(newInventoryId) == airEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
+
+    vm.stopPrank();
+  }
+
+  function testDropMultipleTerrain() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId1 = getUniqueEntity();
+    ObjectType.set(newInventoryId1, GrassObjectID);
+    Inventory.set(newInventoryId1, playerEntityId);
+    bytes32 newInventoryId2 = getUniqueEntity();
+    ObjectType.set(newInventoryId2, GrassObjectID);
+    Inventory.set(newInventoryId2, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+    bytes32 newInventoryId3 = getUniqueEntity();
+    ObjectType.set(newInventoryId3, DiamondOreObjectID);
+    Inventory.set(newInventoryId3, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
+
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](3);
+    inventoryEntityIds[0] = newInventoryId1;
+    inventoryEntityIds[1] = newInventoryId2;
+    inventoryEntityIds[2] = newInventoryId3;
+
+    startGasReport("drop multiple terrain");
+    world.drop(inventoryEntityIds, dropCoord);
+    endGasReport();
+
+    bytes32 airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
+    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
+    assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
+
+    vm.stopPrank();
+  }
+
+  function testDropMultipleNonTerrain() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId1 = getUniqueEntity();
+    ObjectType.set(newInventoryId1, GrassObjectID);
+    Inventory.set(newInventoryId1, playerEntityId);
+    bytes32 newInventoryId2 = getUniqueEntity();
+    ObjectType.set(newInventoryId2, GrassObjectID);
+    Inventory.set(newInventoryId2, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+    bytes32 newInventoryId3 = getUniqueEntity();
+    ObjectType.set(newInventoryId3, DiamondOreObjectID);
+    Inventory.set(newInventoryId3, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
+
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    bytes32 airEntityId = getUniqueEntity();
+    Position.set(airEntityId, dropCoord.x, dropCoord.y, dropCoord.z);
+    ReversePosition.set(dropCoord.x, dropCoord.y, dropCoord.z, airEntityId);
+    ObjectType.set(airEntityId, AirObjectID);
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
+
+    assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](3);
+    inventoryEntityIds[0] = newInventoryId1;
+    inventoryEntityIds[1] = newInventoryId2;
+    inventoryEntityIds[2] = newInventoryId3;
+
+    startGasReport("drop multiple non-terrain");
+    world.drop(inventoryEntityIds, dropCoord);
+    endGasReport();
+
+    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
+    assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
+
+    vm.stopPrank();
+  }
+
+  function testDropEquipped() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, WoodenPickObjectID);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
+    uint16 durability = 10;
+    ItemMetadata.set(newInventoryId, durability);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
+
+    world.equip(newInventoryId);
+    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
+
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](1);
+    inventoryEntityIds[0] = newInventoryId;
+
+    world.drop(inventoryEntityIds, dropCoord);
+
+    assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped still set");
+    assertTrue(ItemMetadata.get(newInventoryId) == durability, "Durability changed");
+
+    bytes32 airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
+    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
+    assertTrue(Inventory.get(newInventoryId) == airEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, WoodenPickObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
+
+    vm.stopPrank();
+  }
+
+  function testMovePickUpDrop() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId1 = getUniqueEntity();
+    ObjectType.set(newInventoryId1, GrassObjectID);
+    Inventory.set(newInventoryId1, playerEntityId);
+    bytes32 newInventoryId2 = getUniqueEntity();
+    ObjectType.set(newInventoryId2, GrassObjectID);
+    Inventory.set(newInventoryId2, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+    bytes32 newInventoryId3 = getUniqueEntity();
+    ObjectType.set(newInventoryId3, DiamondOreObjectID);
+    Inventory.set(newInventoryId3, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
+
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](3);
+    inventoryEntityIds[0] = newInventoryId1;
+    inventoryEntityIds[1] = newInventoryId2;
+    inventoryEntityIds[2] = newInventoryId3;
+
+    world.drop(inventoryEntityIds, dropCoord);
+
+    bytes32 airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
+    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
+    assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = dropCoord;
+
+    startGasReport("move pick up multiple drops");
+    world.move(newCoords);
+    endGasReport();
+
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), dropCoord),
+      "Player did not move to new coords"
+    );
+    assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
+
+    vm.stopPrank();
+  }
+
+  function testMoveMultiplePickUpDrop() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId1 = getUniqueEntity();
+    ObjectType.set(newInventoryId1, GrassObjectID);
+    Inventory.set(newInventoryId1, playerEntityId);
+    bytes32 newInventoryId2 = getUniqueEntity();
+    ObjectType.set(newInventoryId2, GrassObjectID);
+    Inventory.set(newInventoryId2, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+    bytes32 newInventoryId3 = getUniqueEntity();
+    ObjectType.set(newInventoryId3, DiamondOreObjectID);
+    Inventory.set(newInventoryId3, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
+
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](3);
+    inventoryEntityIds[0] = newInventoryId1;
+    inventoryEntityIds[1] = newInventoryId2;
+    inventoryEntityIds[2] = newInventoryId3;
+
+    world.drop(inventoryEntityIds, dropCoord);
+
+    bytes32 airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
+    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
+    assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](3);
+    newCoords[0] = dropCoord;
+    newCoords[1] = VoxelCoord(dropCoord.x, dropCoord.y, dropCoord.z + 1);
+    newCoords[2] = VoxelCoord(dropCoord.x, dropCoord.y, dropCoord.z + 2);
+
+    world.move(newCoords);
+
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), newCoords[2]),
+      "Player did not move to new coords"
+    );
+    assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
+
+    vm.stopPrank();
+  }
+
+  function testGravityPickUpDrop() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+
+    bytes32 newInventoryId = world.mine(terrainObjectTypeId, mineCoord);
+
+    assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
+
+    VoxelCoord memory dropCoord = mineCoord;
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](1);
+    inventoryEntityIds[0] = newInventoryId;
+
+    world.drop(inventoryEntityIds, dropCoord);
+    bytes32 airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
+    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
+    assertTrue(Inventory.get(newInventoryId) == airEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
+    for (uint i = 0; i < newCoords.length; i++) {
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
+
+    world.move(newCoords);
+
+    assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
+
+    vm.stopPrank();
+  }
+
+  function testGravityFatalPickUpDrop() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory mineCoord2 = VoxelCoord(spawnCoord.x, spawnCoord.y - 2, spawnCoord.z + 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord2);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+
+    bytes32 newInventoryId1 = world.mine(terrainObjectTypeId, mineCoord2);
+
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
+    bytes32 terrainObjectTypeId2 = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId2 != AirObjectID, "Terrain block is air");
+
+    bytes32 newInventoryId2 = world.mine(terrainObjectTypeId2, mineCoord);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId3 = getUniqueEntity();
+    ObjectType.set(newInventoryId3, DiamondOreObjectID);
+    Inventory.set(newInventoryId3, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
+    Health.setHealth(playerEntityId, GRAVITY_DAMAGE + 1);
+    Health.setLastUpdateBlock(playerEntityId, block.number);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId2) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slots not set correctly");
+
+    VoxelCoord memory dropCoord = mineCoord;
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](2);
+    inventoryEntityIds[0] = newInventoryId1;
+    inventoryEntityIds[1] = newInventoryId2;
+
+    world.drop(inventoryEntityIds, dropCoord);
+    bytes32 airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
+    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
+    assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, terrainObjectTypeId) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, terrainObjectTypeId2) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId2) == 0, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
+    for (uint i = 0; i < newCoords.length; i++) {
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
+
+    world.move(newCoords);
+
+    assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
+    assertTrue(PlayerMetadata.getNumMovesInBlock(playerEntityId) == 0, "Player move count not reset");
+    assertTrue(ObjectType.get(playerEntityId) == AirObjectID, "Player object not removed");
+    assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
+    assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
+
+    // All 3 blocks should be on the air object at mineCoord2
+    bytes32 airEntityId2 = ReversePosition.get(mineCoord2.x, mineCoord2.y, mineCoord2.z);
+    assertTrue(airEntityId2 != bytes32(0), "Dropped entity not set");
+    assertTrue(ObjectType.get(airEntityId2) == AirObjectID, "Dropped object not set");
+    assertTrue(Inventory.get(newInventoryId1) == airEntityId2, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == airEntityId2, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == airEntityId2, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId2, terrainObjectTypeId) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId2, terrainObjectTypeId2) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId2, DiamondOreObjectID) == 1, "Inventory count not set properly");
+
+    vm.stopPrank();
+
+    vm.startPrank(bob, bob);
+
+    playerEntityId = setupPlayer();
+
+    // move the player to the same location as the dropped items
+    world.move(newCoords);
+
+    // player should have picked up all the items
+    assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId2) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slots not set correctly");
+
+    vm.stopPrank();
+  }
+
+  function testDropNonAir() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, GrassObjectID);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
+
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(dropCoord) != AirObjectID, "Terrain block is air");
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](1);
+    inventoryEntityIds[0] = newInventoryId;
+
+    vm.expectRevert();
+    world.drop(inventoryEntityIds, dropCoord);
+
+    vm.stopPrank();
+  }
 
   function testBuildOnDrops() public {
     vm.startPrank(alice, alice);
@@ -99,6 +633,61 @@ contract DropTest is MudTest, GasReporter {
 
     vm.expectRevert();
     world.build(inventoryId, buildCoord);
+
+    vm.stopPrank();
+  }
+
+  function testDropWithoutPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, GrassObjectID);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
+
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](1);
+    inventoryEntityIds[0] = newInventoryId;
+    vm.stopPrank();
+
+    vm.expectRevert();
+    world.drop(inventoryEntityIds, dropCoord);
+  }
+
+  function testDropTooFar() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, GrassObjectID);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
+
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 2);
+    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](1);
+    inventoryEntityIds[0] = newInventoryId;
+
+    vm.expectRevert();
+    world.drop(inventoryEntityIds, dropCoord);
 
     vm.stopPrank();
   }
