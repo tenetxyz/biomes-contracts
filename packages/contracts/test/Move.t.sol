@@ -193,7 +193,7 @@ contract MoveTest is MudTest, GasReporter {
   }
 
   function testMoveNonAir() public {
-     vm.startPrank(alice, alice);
+    vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 

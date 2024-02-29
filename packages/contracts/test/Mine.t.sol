@@ -195,11 +195,7 @@ contract MineTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    VoxelCoord memory mineCoord = VoxelCoord(
-      spawnCoord.x,
-      spawnCoord.y - 1,
-      spawnCoord.z - 1
-    );
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
