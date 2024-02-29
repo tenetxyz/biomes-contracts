@@ -25,7 +25,7 @@ bytes32 constant NeptuniumAxeObjectID = bytes32(keccak256("neptunium-axe"));
 
 // Items
 bytes32 constant GoldBarObjectID = bytes32(keccak256("gold-bar"));
-bytes32 constant SilverBarObjectID = bytes32(keccak256("silver-ore"));
+bytes32 constant SilverBarObjectID = bytes32(keccak256("silver-bar"));
 bytes32 constant NeptuniumBarObjectID = bytes32(keccak256("neptunium-bar"));
 bytes32 constant DiamondObjectID = bytes32(keccak256("diamond"));
 // Dyes
@@ -142,7 +142,6 @@ bytes32 constant CottonBlockObjectID = bytes32(keccak256("cotton-block"));
 bytes32 constant HempObjectID = bytes32(keccak256("hemp"));
 bytes32 constant LilacObjectID = bytes32(keccak256("lilac"));
 bytes32 constant DandelionObjectID = bytes32(keccak256("dandelion"));
-bytes32 constant MuckshroomObjectID = bytes32(keccak256("muckshroom"));
 bytes32 constant RedMushroomObjectID = bytes32(keccak256("red-mushroom"));
 bytes32 constant BellflowerObjectID = bytes32(keccak256("bellflower"));
 bytes32 constant CottonBushObjectID = bytes32(keccak256("cotton-bush"));
