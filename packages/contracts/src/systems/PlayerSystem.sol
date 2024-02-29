@@ -107,7 +107,6 @@ contract PlayerSystem is System {
     Stamina.setStamina(playerEntityId, currentStamina - staminaSpend);
 
     uint16 currentHealth = Health.getHealth(hitEntityId);
-    // TODO: check overflow?
     uint16 newHealth = currentHealth > uint16(receiverDamage) ? currentHealth - uint16(receiverDamage) : 0;
     Health.setHealth(hitEntityId, newHealth);
 

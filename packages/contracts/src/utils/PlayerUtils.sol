@@ -27,7 +27,6 @@ function regenHealth(bytes32 entityId) {
   }
 
   // Calculate the new health
-  // TODO: check overflow?
   uint16 numAddHealth = uint16((blocksSinceLastUpdate / BLOCKS_BEFORE_INCREASE_HEALTH) * HEALTH_INCREASE_RATE);
   uint16 newHealth = healthData.health + numAddHealth;
   if (newHealth > MAX_PLAYER_HEALTH) {
@@ -51,7 +50,6 @@ function regenStamina(bytes32 entityId) {
   }
 
   // Calculate the new stamina
-  // TODO: check overflow?
   uint32 numAddStamina = uint32((blocksSinceLastUpdate / BLOCKS_BEFORE_INCREASE_STAMINA) * STAMINA_INCREASE_RATE);
   uint32 newStamina = staminaData.stamina + numAddStamina;
   if (newStamina > MAX_PLAYER_STAMINA) {
