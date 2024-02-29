@@ -18,7 +18,10 @@ import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { applyGravity, getTerrainObjectTypeId, positionDataToVoxelCoord, addToInventoryCount, removeFromInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
+import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { applyGravity } from "../utils/GravityUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract MoveSystem is System {

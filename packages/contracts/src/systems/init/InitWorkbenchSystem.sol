@@ -15,7 +15,7 @@ import { OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID,
 import { ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID, OakLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
-import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe, createRecipeForAllLogVariationsWithInputStation } from "../../Utils.sol";
+import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe, createRecipeForAllLogVariationsWithInputStation } from "../../utils/RecipeUtils.sol";
 
 contract InitWorkbenchSystem is System {
   function createTool(bytes32 toolObjectTypeId, uint16 mass, uint16 durability, uint16 damage) internal {

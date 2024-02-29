@@ -16,7 +16,9 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, regenHealth, regenStamina, useEquipped, getTerrainObjectTypeId, despawnPlayer } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { useEquipped } from "../utils/InventoryUtils.sol";
+import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 // TODO: update to actual spawn area

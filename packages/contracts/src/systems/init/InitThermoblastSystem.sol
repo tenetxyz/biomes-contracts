@@ -20,7 +20,7 @@ import { SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObj
 import { GoldCubeObjectID, SilverCubeObjectID, DiamondCubeObjectID, NeptuniumCubeObjectID } from "../../ObjectTypeIds.sol";
 
 import { ThermoblasterObjectID } from "../../ObjectTypeIds.sol";
-import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../Utils.sol";
+import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitThermoblastSystem is System {
   function createBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {

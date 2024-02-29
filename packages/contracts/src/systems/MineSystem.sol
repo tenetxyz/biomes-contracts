@@ -18,7 +18,10 @@ import { Inventory } from "../codegen/tables/Inventory.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { applyGravity, getTerrainObjectTypeId, positionDataToVoxelCoord, addToInventoryCount, regenHealth, regenStamina, useEquipped } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
+import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { applyGravity } from "../utils/GravityUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract MineSystem is System {

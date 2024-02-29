@@ -21,7 +21,8 @@ import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
-import { getTerrainObjectTypeId, positionDataToVoxelCoord, addToInventoryCount, removeFromInventoryCount } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract InventorySystem is System {

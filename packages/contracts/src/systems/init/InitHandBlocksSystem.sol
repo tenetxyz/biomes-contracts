@@ -16,7 +16,7 @@ import { BellflowerObjectID, SakuraLumberObjectID, HempObjectID, LilacObjectID, 
 import { DirtObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "../../ObjectTypeIds.sol";
 
 import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE } from "../../Constants.sol";
-import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLogVariations, createRecipeForAllLogVariationsWithInput } from "../../Utils.sol";
+import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLogVariations, createRecipeForAllLogVariationsWithInput } from "../../utils/RecipeUtils.sol";
 
 contract InitHandBlocksSystem is System {
   function createHandcraftedBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {

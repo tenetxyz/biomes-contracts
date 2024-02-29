@@ -26,7 +26,8 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord, addToInventoryCount } from "../src/Utils.sol";
+import { positionDataToVoxelCoord } from "../src/Utils.sol";
+import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { GRAVITY_DAMAGE, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, WoodenPickObjectID, DiamondOreObjectID } from "../src/ObjectTypeIds.sol";
 
