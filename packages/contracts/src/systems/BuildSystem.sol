@@ -18,7 +18,9 @@ import { Inventory, InventoryTableId } from "../codegen/tables/Inventory.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { getTerrainObjectTypeId, positionDataToVoxelCoord, removeFromInventoryCount, regenHealth, regenStamina } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
+import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract BuildSystem is System {
@@ -54,6 +56,9 @@ contract BuildSystem is System {
       (bytes memory staticData, PackedCounter encodedLengths, bytes memory dynamicData) = Inventory.encode(entityId);
       bytes32[] memory inventoryEntityIds = getKeysWithValue(InventoryTableId, staticData, encodedLengths, dynamicData);
       require(inventoryEntityIds.length == 0, "BuildSystem: Cannot build where there are dropped objects");
+
+      ObjectType.deleteRecord(entityId);
+      Position.deleteRecord(entityId);
     }
 
     Inventory.deleteRecord(inventoryEntityId);

@@ -21,7 +21,8 @@ import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
-import { getTerrainObjectTypeId, positionDataToVoxelCoord, addToInventoryCount, removeFromInventoryCount } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract InventorySystem is System {
@@ -84,21 +85,19 @@ contract InventorySystem is System {
 
     bytes32 srcObjectTypeId = ObjectType.get(srcEntityId);
     bytes32 dstObjectTypeId = ObjectType.get(dstEntityId);
-    require(holdsInventory(srcObjectTypeId), "InventorySystem: invalid source");
-    require(holdsInventory(dstObjectTypeId), "InventorySystem: invalid destination");
     if (srcObjectTypeId == PlayerObjectID) {
       require(playerEntityId == srcEntityId, "InventorySystem: player does not own inventory item");
+      require(dstObjectTypeId == ChestObjectID, "InventorySystem: cannot transfer to non-chest");
     } else if (dstObjectTypeId == PlayerObjectID) {
       require(playerEntityId == dstEntityId, "InventorySystem: player does not own destination inventory");
+      require(srcObjectTypeId == ChestObjectID, "InventorySystem: cannot transfer from non-chest");
+    } else {
+      revert("InventorySystem: invalid transfer operation");
     }
 
     for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
       transferInventoryItem(srcEntityId, dstEntityId, dstObjectTypeId, inventoryEntityIds[i]);
     }
-  }
-
-  function holdsInventory(bytes32 objectTypeId) internal pure returns (bool) {
-    return objectTypeId == PlayerObjectID || objectTypeId == ChestObjectID;
   }
 
   function transferInventoryItem(
@@ -108,7 +107,9 @@ contract InventorySystem is System {
     bytes32 inventoryEntityId
   ) internal {
     require(Inventory.get(inventoryEntityId) == srcEntityId, "InventorySystem: entity does not own inventory item");
-    require(Equipped.get(srcEntityId) != inventoryEntityId, "InventorySystem: cannot transfer equipped item");
+    if (Equipped.get(srcEntityId) == inventoryEntityId) {
+      Equipped.deleteRecord(srcEntityId);
+    }
     Inventory.set(inventoryEntityId, dstEntityId);
 
     bytes32 inventoryObjectTypeId = ObjectType.get(inventoryEntityId);

@@ -26,7 +26,8 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord, addToInventoryCount } from "../src/Utils.sol";
+import { positionDataToVoxelCoord } from "../src/Utils.sol";
+import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 
@@ -104,7 +105,12 @@ contract MineTest is MudTest, GasReporter {
     endGasReport();
 
     bytes32 mineEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
-    assertTrue(mineEntityId == bytes32(0), "Mine entity not found");
+    assertTrue(mineEntityId != bytes32(0), "Mine entity not found");
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Object not mined");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(mineEntityId)), buildCoord),
+      "Mine position not set"
+    );
     assertTrue(inventoryId != bytes32(0), "Inventory entity not found");
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
@@ -194,11 +200,7 @@ contract MineTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    VoxelCoord memory mineCoord = VoxelCoord(
-      spawnCoord.x,
-      spawnCoord.y - 1,
-      spawnCoord.z - 1
-    );
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 

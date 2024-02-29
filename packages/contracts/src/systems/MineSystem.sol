@@ -18,7 +18,10 @@ import { Inventory } from "../codegen/tables/Inventory.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { applyGravity, getTerrainObjectTypeId, positionDataToVoxelCoord, addToInventoryCount, regenHealth, regenStamina, useEquipped } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { applyGravity } from "../utils/GravityUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract MineSystem is System {
@@ -54,18 +57,20 @@ contract MineSystem is System {
       // Create new entity
       entityId = getUniqueEntity();
       ObjectType.set(entityId, objectTypeId);
-
-      // Make the position here air
-      bytes32 airEntityId = getUniqueEntity();
-      ObjectType.set(airEntityId, AirObjectID);
-      Position.set(airEntityId, coord.x, coord.y, coord.z);
-      ReversePosition.set(coord.x, coord.y, coord.z, airEntityId);
     } else {
       require(ObjectType.get(entityId) == objectTypeId, "MineSystem: invalid block type");
 
       Position.deleteRecord(entityId);
       ReversePosition.deleteRecord(coord.x, coord.y, coord.z);
     }
+    // Make the new position air
+    bytes32 airEntityId = getUniqueEntity();
+    ObjectType.set(airEntityId, AirObjectID);
+    Position.set(airEntityId, coord.x, coord.y, coord.z);
+    ReversePosition.set(coord.x, coord.y, coord.z, airEntityId);
+
+    // transfer existing inventory to the air entity, if any
+    transferAllInventoryEntities(entityId, airEntityId, AirObjectID);
 
     Inventory.set(entityId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, objectTypeId, 1);

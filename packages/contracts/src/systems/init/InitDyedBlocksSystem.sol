@@ -14,7 +14,7 @@ import { GlassObjectID, BlueGlassObjectID, BrownGlassObjectID, GreenGlassObjectI
 import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectTypeIds.sol";
 
 import { DyeomaticObjectID } from "../../ObjectTypeIds.sol";
-import { createDoubleInputWithStationRecipe } from "../../Utils.sol";
+import { createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitDyedBlocksSystem is System {
   function createDyedBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {

@@ -26,7 +26,8 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord, addToInventoryCount } from "../src/Utils.sol";
+import { positionDataToVoxelCoord } from "../src/Utils.sol";
+import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 
@@ -130,6 +131,32 @@ contract BuildTest is MudTest, GasReporter {
     assertTrue(Inventory.get(inventoryId) == bytes32(0), "Inventory still set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 0, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    vm.stopPrank();
+  }
+
+  function testBuildNonAir() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+    assertTrue(inventoryId != bytes32(0), "Inventory entity not found");
+    assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
+    assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(buildCoord) != AirObjectID, "Terrain block is not air");
+
+    vm.expectRevert();
+    world.build(inventoryId, buildCoord);
 
     vm.stopPrank();
   }
