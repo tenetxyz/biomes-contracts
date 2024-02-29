@@ -56,6 +56,9 @@ contract BuildSystem is System {
       (bytes memory staticData, PackedCounter encodedLengths, bytes memory dynamicData) = Inventory.encode(entityId);
       bytes32[] memory inventoryEntityIds = getKeysWithValue(InventoryTableId, staticData, encodedLengths, dynamicData);
       require(inventoryEntityIds.length == 0, "BuildSystem: Cannot build where there are dropped objects");
+
+      ObjectType.deleteRecord(entityId);
+      Position.deleteRecord(entityId);
     }
 
     Inventory.deleteRecord(inventoryEntityId);

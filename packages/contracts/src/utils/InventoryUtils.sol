@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { getKeysWithValue } from "@latticexyz/world-modules/src/modules/keyswithvalue/getKeysWithValue.sol";
+import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
+
 import { Inventory, InventoryTableId } from "../codegen/tables/Inventory.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
@@ -89,5 +92,16 @@ function useEquipped(bytes32 entityId) {
         ItemMetadata.set(inventoryEntityId, numUsesLeft - 1);
       }
     } // 0 = unlimited uses
+  }
+}
+
+function transferAllInventoryEntities(bytes32 fromEntityId, bytes32 toEntityId, bytes32 toObjectTypeId) {
+  (bytes memory staticData, PackedCounter encodedLengths, bytes memory dynamicData) = Inventory.encode(fromEntityId);
+  bytes32[] memory fromInventoryEntityIds = getKeysWithValue(InventoryTableId, staticData, encodedLengths, dynamicData);
+  for (uint256 i = 0; i < fromInventoryEntityIds.length; i++) {
+    bytes32 inventoryObjectTypeId = ObjectType.get(fromInventoryEntityIds[i]);
+    addToInventoryCount(toEntityId, toObjectTypeId, inventoryObjectTypeId, 1);
+    removeFromInventoryCount(fromEntityId, inventoryObjectTypeId, 1);
+    Inventory.set(fromInventoryEntityIds[i], toEntityId);
   }
 }

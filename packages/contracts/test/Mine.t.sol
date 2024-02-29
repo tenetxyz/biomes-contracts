@@ -105,7 +105,12 @@ contract MineTest is MudTest, GasReporter {
     endGasReport();
 
     bytes32 mineEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
-    assertTrue(mineEntityId == bytes32(0), "Mine entity not found");
+    assertTrue(mineEntityId != bytes32(0), "Mine entity not found");
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Object not mined");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(mineEntityId)), buildCoord),
+      "Mine position not set"
+    );
     assertTrue(inventoryId != bytes32(0), "Inventory entity not found");
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");

@@ -19,7 +19,7 @@ import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
-import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
+import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { applyGravity } from "../utils/GravityUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
@@ -64,19 +64,7 @@ contract MoveSystem is System {
       require(ObjectType.get(newEntityId) == AirObjectID, "MoveSystem: cannot move to non-air block");
 
       // Transfer any dropped items
-      (bytes memory staticData, PackedCounter encodedLengths, bytes memory dynamicData) = Inventory.encode(newEntityId);
-      bytes32[] memory droppedInventoryEntityIds = getKeysWithValue(
-        InventoryTableId,
-        staticData,
-        encodedLengths,
-        dynamicData
-      );
-      for (uint256 i = 0; i < droppedInventoryEntityIds.length; i++) {
-        bytes32 droppedObjectTypeId = ObjectType.get(droppedInventoryEntityIds[i]);
-        addToInventoryCount(playerEntityId, PlayerObjectID, droppedObjectTypeId, 1);
-        removeFromInventoryCount(newEntityId, droppedObjectTypeId, 1);
-        Inventory.set(droppedInventoryEntityIds[i], playerEntityId);
-      }
+      transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
     }
 
     // Swap entity ids

@@ -16,7 +16,7 @@ import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { GRAVITY_DAMAGE } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { getTerrainObjectTypeId } from "../Utils.sol";
-import { addToInventoryCount, removeFromInventoryCount } from "./InventoryUtils.sol";
+import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "./InventoryUtils.sol";
 import { despawnPlayer } from "./PlayerUtils.sol";
 
 function applyGravity(address player, bytes32 playerEntityId, VoxelCoord memory coord) returns (bool) {
@@ -38,19 +38,7 @@ function applyGravity(address player, bytes32 playerEntityId, VoxelCoord memory 
     }
 
     // Transfer any dropped items
-    (bytes memory staticData, PackedCounter encodedLengths, bytes memory dynamicData) = Inventory.encode(newEntityId);
-    bytes32[] memory droppedInventoryEntityIds = getKeysWithValue(
-      InventoryTableId,
-      staticData,
-      encodedLengths,
-      dynamicData
-    );
-    for (uint256 i = 0; i < droppedInventoryEntityIds.length; i++) {
-      bytes32 droppedObjectTypeId = ObjectType.get(droppedInventoryEntityIds[i]);
-      addToInventoryCount(playerEntityId, PlayerObjectID, droppedObjectTypeId, 1);
-      removeFromInventoryCount(newEntityId, droppedObjectTypeId, 1);
-      Inventory.set(droppedInventoryEntityIds[i], playerEntityId);
-    }
+    transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
   }
 
   // Swap entity ids
