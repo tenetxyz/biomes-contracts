@@ -10,7 +10,7 @@ import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { AirObjectID, SnowObjectID, AsphaltObjectID, BasaltObjectID, ClayBrickObjectID, SandObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, SoilObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID } from "../../ObjectTypeIds.sol";
 import { CoalOreObjectID, GoldOreObjectID, SilverOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID, CottonBlockObjectID } from "../../ObjectTypeIds.sol";
 import { OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../../ObjectTypeIds.sol";
-import { HempObjectID, LilacObjectID, DandelionObjectID, MuckshroomObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, MossGrassObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID } from "../../ObjectTypeIds.sol";
+import { HempObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, MossGrassObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID } from "../../ObjectTypeIds.sol";
 
 contract InitTerrainBlocksSystem is System {
   function createTerrainBlock(bytes32 terrainBlockObjectTypeId, uint16 mass, bytes4 terrainSelector) internal {
@@ -57,7 +57,6 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(HempObjectID, 1, anyBlockSelector);
     createTerrainBlock(LilacObjectID, 1, anyBlockSelector);
     createTerrainBlock(DandelionObjectID, 1, anyBlockSelector);
-    createTerrainBlock(MuckshroomObjectID, 1, anyBlockSelector);
     createTerrainBlock(RedMushroomObjectID, 1, anyBlockSelector);
     createTerrainBlock(BellflowerObjectID, 1, anyBlockSelector);
     createTerrainBlock(CottonBushObjectID, 1, anyBlockSelector);
