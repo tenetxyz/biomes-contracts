@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "exports": {
     "./mud.config": "./dist/mud.config.js",
-    "./worlds.json": "./worlds.json"
+    "./worlds.json": "./worlds.json",
+    "./out/IWorld.sol/IWorld.abi.json": "./out/IWorld.sol/IWorld.abi.json"
   },
   "scripts": {
     "build": "mud build && pnpm run build:js",
