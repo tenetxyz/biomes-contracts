@@ -1,6 +1,5 @@
 {
   "name": "everlonxyz",
-  "private": true,
   "scripts": {
     "build": "pnpm recursive run build",
     "dev": "mprocs",
