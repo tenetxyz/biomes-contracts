@@ -19,7 +19,7 @@ import { getTerrainObjectTypeId } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "./InventoryUtils.sol";
 import { despawnPlayer } from "./PlayerUtils.sol";
 
-function applyGravity(address player, bytes32 playerEntityId, VoxelCoord memory coord) returns (bool) {
+function applyGravity(bytes32 playerEntityId, VoxelCoord memory coord) returns (bool) {
   VoxelCoord memory newCoord = VoxelCoord(coord.x, coord.y - 1, coord.z);
 
   bytes32 newEntityId = ReversePosition.get(newCoord.x, newCoord.y, newCoord.z);
@@ -53,11 +53,11 @@ function applyGravity(address player, bytes32 playerEntityId, VoxelCoord memory 
   Health.setHealth(playerEntityId, newHealth);
 
   if (newHealth == 0) {
-    despawnPlayer(player, playerEntityId);
+    despawnPlayer(playerEntityId);
     return true;
   }
 
   // Recursively apply gravity until the player is on the ground or dead
-  applyGravity(player, playerEntityId, newCoord);
+  applyGravity(playerEntityId, newCoord);
   return true;
 }

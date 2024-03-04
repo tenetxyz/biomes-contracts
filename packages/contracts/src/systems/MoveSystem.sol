@@ -107,7 +107,7 @@ contract MoveSystem is System {
     VoxelCoord memory belowCoord = VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z);
     bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
     if (belowEntityId == bytes32(0) || ObjectType.get(belowEntityId) == AirObjectID) {
-      return applyGravity(_msgSender(), playerEntityId, newCoord);
+      return applyGravity(playerEntityId, newCoord);
     }
     return false;
   }

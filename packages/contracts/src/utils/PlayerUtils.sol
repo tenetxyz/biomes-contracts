@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { Player } from "../codegen/tables/Player.sol";
+import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
@@ -59,7 +60,7 @@ function regenStamina(bytes32 entityId) {
   Stamina.set(entityId, StaminaData({ stamina: newStamina, lastUpdateBlock: block.number }));
 }
 
-function despawnPlayer(address player, bytes32 playerEntityId) {
+function despawnPlayer(bytes32 playerEntityId) {
   // Note: Inventory is already attached to the entity id, which means it'll be
   // attached to air, ie it's a "dropped" item
   ObjectType.set(playerEntityId, AirObjectID);
@@ -71,5 +72,7 @@ function despawnPlayer(address player, bytes32 playerEntityId) {
   }
 
   PlayerMetadata.deleteRecord(playerEntityId);
+  address player = ReversePlayer.get(playerEntityId);
   Player.deleteRecord(player);
+  ReversePlayer.deleteRecord(playerEntityId);
 }

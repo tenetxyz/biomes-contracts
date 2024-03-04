@@ -53,6 +53,14 @@ export default mudConfig({
         entityId: "bytes32",
       },
     },
+    ReversePlayer: {
+      keySchema: {
+        entityId: "bytes32",
+      },
+      valueSchema: {
+        player: "address",
+      },
+    },
     PlayerMetadata: {
       keySchema: {
         entityId: "bytes32",

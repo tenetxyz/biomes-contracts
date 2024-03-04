@@ -11,6 +11,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
+import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
@@ -101,6 +102,7 @@ contract MoveTest is MudTest, GasReporter {
     endGasReport();
 
     assertTrue(Player.get(alice) == playerEntityId, "Player entity id is not correct");
+    assertTrue(ReversePlayer.get(playerEntityId) == alice, "Reverse player is not correct");
     assertTrue(
       PlayerMetadata.getLastMoveBlock(playerEntityId) == block.number,
       "Player last move block is not correct"

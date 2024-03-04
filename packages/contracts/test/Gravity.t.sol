@@ -10,6 +10,7 @@ import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
+import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
@@ -137,7 +138,11 @@ contract GravityTest is MudTest, GasReporter {
       ObjectType.set(entityId, AirObjectID);
     }
     vm.stopPrank();
-    vm.startPrank(alice, alice);
+    vm.startPrank(bob, bob);
+
+    VoxelCoord memory spawnCoord2 = VoxelCoord(198, 27, 203);
+    assertTrue(world.getTerrainBlock(spawnCoord2) == AirObjectID, "Terrain block is not air");
+    bytes32 playerEntity2 = world.spawnPlayer(spawnCoord2);
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
     bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
@@ -150,9 +155,13 @@ contract GravityTest is MudTest, GasReporter {
     endGasReport();
 
     assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
+    assertTrue(ReversePlayer.get(playerEntityId) == address(0), "Player not removed from world");
     assertTrue(ObjectType.get(playerEntityId) == AirObjectID, "Player object not removed");
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
+
+    assertTrue(Player.get(bob) == playerEntity2, "Player removed from world");
+    assertTrue(ReversePlayer.get(playerEntity2) == bob, "Player removed from world");
 
     vm.stopPrank();
   }
@@ -312,6 +321,7 @@ contract GravityTest is MudTest, GasReporter {
     endGasReport();
 
     assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
+    assertTrue(ReversePlayer.get(playerEntityId) == address(0), "Player not removed from world");
     assertTrue(PlayerMetadata.getNumMovesInBlock(playerEntityId) == 0, "Player move count not reset");
     assertTrue(ObjectType.get(playerEntityId) == AirObjectID, "Player object not removed");
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
@@ -350,6 +360,7 @@ contract GravityTest is MudTest, GasReporter {
 
     assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not removed");
     assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
+    assertTrue(ReversePlayer.get(playerEntityId) == address(0), "Player not removed from world");
     assertTrue(PlayerMetadata.getNumMovesInBlock(playerEntityId) == 0, "Player move count not reset");
     assertTrue(ObjectType.get(playerEntityId) == AirObjectID, "Player object not removed");
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");

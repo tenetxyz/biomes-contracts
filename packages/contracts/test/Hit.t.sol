@@ -10,6 +10,7 @@ import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
+import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
@@ -247,6 +248,7 @@ contract HitTest is MudTest, GasReporter {
 
     assertTrue(Equipped.get(playerEntityId2) == bytes32(0), "Equipped not removed");
     assertTrue(Player.get(bob) == bytes32(0), "Player not removed from world");
+    assertTrue(ReversePlayer.get(playerEntityId2) == address(0), "Player not removed from world");
     assertTrue(ObjectType.get(playerEntityId2) == AirObjectID, "Player object not removed");
     assertTrue(Health.getHealth(playerEntityId2) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId2) == 0, "Player stamina not reduced to 0");

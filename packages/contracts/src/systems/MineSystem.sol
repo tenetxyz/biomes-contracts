@@ -79,7 +79,7 @@ contract MineSystem is System {
     VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);
     bytes32 aboveEntityId = ReversePosition.get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
     if (aboveEntityId != bytes32(0) && ObjectType.get(aboveEntityId) == PlayerObjectID) {
-      applyGravity(_msgSender(), aboveEntityId, aboveCoord);
+      applyGravity(aboveEntityId, aboveCoord);
     }
 
     return entityId;

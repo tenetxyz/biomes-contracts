@@ -8,6 +8,7 @@ import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
+import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
@@ -66,6 +67,7 @@ contract PlayerTest is MudTest, GasReporter {
       "Reverse position not set"
     );
     assertTrue(Player.get(alice) == playerEntityId, "Player entity not found in player table");
+    assertTrue(ReversePlayer.get(playerEntityId) == alice, "Reverse player is not correct");
     assertTrue(Health.getHealth(playerEntityId) == MAX_PLAYER_HEALTH, "Player health not set");
     assertTrue(Stamina.getStamina(playerEntityId) == MAX_PLAYER_STAMINA, "Player stamina not set");
 
@@ -93,6 +95,7 @@ contract PlayerTest is MudTest, GasReporter {
       "Reverse position not set"
     );
     assertTrue(Player.get(bob) == playerEntityId2, "Player entity not found in player table");
+    assertTrue(ReversePlayer.get(playerEntityId2) == bob, "Reverse player is not correct");
     assertTrue(Health.getHealth(playerEntityId2) == MAX_PLAYER_HEALTH, "Player health not set");
     assertTrue(Stamina.getStamina(playerEntityId2) == MAX_PLAYER_STAMINA, "Player stamina not set");
 

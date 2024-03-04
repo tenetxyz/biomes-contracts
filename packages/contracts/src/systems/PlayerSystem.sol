@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { Player } from "../codegen/tables/Player.sol";
+import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -53,6 +54,7 @@ contract PlayerSystem is System {
     // Set object type to player
     ObjectType.set(entityId, PlayerObjectID);
     Player.set(newPlayer, entityId);
+    ReversePlayer.set(entityId, newPlayer);
 
     Health.set(entityId, block.number, MAX_PLAYER_HEALTH);
     Stamina.set(entityId, block.number, MAX_PLAYER_STAMINA);
@@ -111,7 +113,7 @@ contract PlayerSystem is System {
     Health.setHealth(hitEntityId, newHealth);
 
     if (newHealth == 0) {
-      despawnPlayer(hitPlayer, hitEntityId);
+      despawnPlayer(hitEntityId);
     }
   }
 }
