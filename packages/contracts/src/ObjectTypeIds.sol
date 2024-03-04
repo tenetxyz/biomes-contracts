@@ -139,7 +139,7 @@ bytes32 constant MushroomLeatherBlockObjectID = bytes32(keccak256("mushroom-leat
 bytes32 constant CottonBlockObjectID = bytes32(keccak256("cotton-block"));
 
 // Florae
-bytes32 constant HempObjectID = bytes32(keccak256("hemp"));
+bytes32 constant CactusObjectID = bytes32(keccak256("cactus"));
 bytes32 constant LilacObjectID = bytes32(keccak256("lilac"));
 bytes32 constant DandelionObjectID = bytes32(keccak256("dandelion"));
 bytes32 constant RedMushroomObjectID = bytes32(keccak256("red-mushroom"));

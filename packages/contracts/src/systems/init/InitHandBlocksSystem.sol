@@ -12,7 +12,7 @@ import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID
 import { ClayObjectID, StoneObjectID, CobblestoneObjectID, CottonBlockObjectID } from "../../ObjectTypeIds.sol";
 import { WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "../../ObjectTypeIds.sol";
 import { OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
-import { BellflowerObjectID, SakuraLumberObjectID, HempObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "../../ObjectTypeIds.sol";
+import { BellflowerObjectID, SakuraLumberObjectID, CactusObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "../../ObjectTypeIds.sol";
 import { DirtObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "../../ObjectTypeIds.sol";
 
 import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE } from "../../Constants.sol";
@@ -101,7 +101,7 @@ contract InitHandBlocksSystem is System {
 
     createSingleInputRecipe(BellflowerObjectID, 10, BlueDyeObjectID, 10);
     createSingleInputRecipe(SakuraLumberObjectID, 10, BrownDyeObjectID, 10);
-    createSingleInputRecipe(HempObjectID, 10, GreenDyeObjectID, 10);
+    createSingleInputRecipe(CactusObjectID, 4, GreenDyeObjectID, 10);
     createSingleInputRecipe(DaylilyObjectID, 10, OrangeDyeObjectID, 10);
     createSingleInputRecipe(AzaleaObjectID, 10, PinkDyeObjectID, 10);
     createSingleInputRecipe(LilacObjectID, 10, PurpleDyeObjectID, 10);
