@@ -5,6 +5,7 @@ import { IWorld } from "../../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
+import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
 import { ChestObjectID, ThermoblasterObjectID, WorkbenchObjectID, DyeomaticObjectID } from "../../ObjectTypeIds.sol";
 import { StoneObjectID, ClayObjectID, SandObjectID } from "../../ObjectTypeIds.sol";
@@ -35,7 +36,7 @@ contract InitInteractablesSystem is System {
   }
 
   function initInteractablesRecipes() public {
-    createRecipeForAllLumberVariations(8, ChestObjectID, 1);
+    createRecipeForAllLumberVariationsWithInputStation(WorkbenchObjectID, 8, ChestObjectID, 1);   
     createSingleInputRecipe(StoneObjectID, 9, ThermoblasterObjectID, 1);
     createRecipeForAllLogVariations(5, WorkbenchObjectID, 1);
     createDoubleInputRecipe(ClayObjectID, 4, SandObjectID, 2, DyeomaticObjectID, 1);
