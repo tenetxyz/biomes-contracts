@@ -10,7 +10,7 @@ import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 import { ChestObjectID, ThermoblasterObjectID, WorkbenchObjectID, DyeomaticObjectID } from "../../ObjectTypeIds.sol";
 import { StoneObjectID, ClayObjectID, SandObjectID } from "../../ObjectTypeIds.sol";
 
-import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLumberVariations, createRecipeForAllLogVariations } from "../../utils/RecipeUtils.sol";
+import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLumberVariations, createRecipeForAllLogVariations, createRecipeForAllLumberVariationsWithInputStation } from "../../utils/RecipeUtils.sol";
 
 contract InitInteractablesSystem is System {
   function createInteractableBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {
@@ -36,7 +36,7 @@ contract InitInteractablesSystem is System {
   }
 
   function initInteractablesRecipes() public {
-    createRecipeForAllLumberVariationsWithInputStation(WorkbenchObjectID, 8, ChestObjectID, 1);   
+    createRecipeForAllLumberVariationsWithInputStation(WorkbenchObjectID, 8, ChestObjectID, 1);
     createSingleInputRecipe(StoneObjectID, 9, ThermoblasterObjectID, 1);
     createRecipeForAllLogVariations(5, WorkbenchObjectID, 1);
     createDoubleInputRecipe(ClayObjectID, 4, SandObjectID, 2, DyeomaticObjectID, 1);
