@@ -29,16 +29,16 @@ contract InitInteractablesSystem is System {
   }
 
   function initInteractableObjectTypes() public {
-    createInteractableBlock(ChestObjectID, 24);
-    createInteractableBlock(ThermoblasterObjectID, 30);
-    createInteractableBlock(WorkbenchObjectID, 30);
-    createInteractableBlock(DyeomaticObjectID, 30);
+    createInteractableBlock(ChestObjectID, 8);
+    createInteractableBlock(ThermoblasterObjectID, 63);
+    createInteractableBlock(WorkbenchObjectID, 20);
+    createInteractableBlock(DyeomaticObjectID, 72);
   }
 
   function initInteractablesRecipes() public {
     createRecipeForAllLumberVariationsWithInputStation(WorkbenchObjectID, 8, ChestObjectID, 1);   
-    createSingleInputRecipe(StoneObjectID, 9, ThermoblasterObjectID, 1);
     createRecipeForAllLogVariations(5, WorkbenchObjectID, 1);
-    createDoubleInputRecipe(ClayObjectID, 4, SandObjectID, 2, DyeomaticObjectID, 1);
+    createSingleInputRecipe(StoneObjectID, 9, ThermoblasterObjectID, 1);
+    createDoubleInputRecipe(ClayObjectID, 4, SandObjectID, 4, DyeomaticObjectID, 1);
   }
 }
