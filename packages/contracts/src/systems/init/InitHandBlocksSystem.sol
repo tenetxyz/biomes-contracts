@@ -83,7 +83,7 @@ contract InitHandBlocksSystem is System {
     createHandcraftedItem(BlackDyeObjectID, 1);
     createHandcraftedItem(SilverDyeObjectID, 1);
 
-    createHandcraftedTool(WoodenPickObjectID, 16, 0, 0);
+    createHandcraftedTool(WoodenPickObjectID, 16, 50, 80);
     createHandcraftedTool(WoodenAxeObjectID, 16, 0, 0);
     createHandcraftedTool(WoodenWhackerObjectID, 32, 0, 0);
 
