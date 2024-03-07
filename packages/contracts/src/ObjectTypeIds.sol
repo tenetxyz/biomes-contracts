@@ -187,15 +187,11 @@ bytes32 constant BlackCottonBlockObjectID = bytes32(keccak256("black-cotton-bloc
 bytes32 constant SilverCottonBlockObjectID = bytes32(keccak256("silver-cotton-block"));
 
 bytes32 constant BlueGlassObjectID = bytes32(keccak256("blue-glass"));
-bytes32 constant BrownGlassObjectID = bytes32(keccak256("brown-glass"));
 bytes32 constant GreenGlassObjectID = bytes32(keccak256("green-glass"));
-bytes32 constant MagentaGlassObjectID = bytes32(keccak256("magenta-glass"));
 bytes32 constant OrangeGlassObjectID = bytes32(keccak256("orange-glass"));
 bytes32 constant PinkGlassObjectID = bytes32(keccak256("pink-glass"));
 bytes32 constant PurpleGlassObjectID = bytes32(keccak256("purple-glass"));
 bytes32 constant RedGlassObjectID = bytes32(keccak256("red-glass"));
-bytes32 constant TanGlassObjectID = bytes32(keccak256("tan-glass"));
 bytes32 constant WhiteGlassObjectID = bytes32(keccak256("white-glass"));
 bytes32 constant YellowGlassObjectID = bytes32(keccak256("yellow-glass"));
 bytes32 constant BlackGlassObjectID = bytes32(keccak256("black-glass"));
-bytes32 constant SilverGlassObjectID = bytes32(keccak256("silver-glass"));

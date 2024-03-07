@@ -73,8 +73,8 @@ contract InitThermoblastSystem is System {
 
     createBlock(GraniteBrickObjectID, 11);
     createBlock(GraniteCarvedObjectID, 11);
-    createBlock(GraniteShinglesObjectID, 11);
     createBlock(GranitePolishedObjectID, 11);
+    createBlock(GraniteShinglesObjectID, 11);
 
     createBlock(QuartziteBrickObjectID, 10);
     createBlock(QuartziteCarvedObjectID, 10);
@@ -98,8 +98,8 @@ contract InitThermoblastSystem is System {
     createItem(DiamondObjectID, 60);
     createItem(NeptuniumBarObjectID, 80);
 
-    createBlock(GoldCubeObjectID, 320);
     createBlock(SilverCubeObjectID, 288);
+    createBlock(GoldCubeObjectID, 320);
     createBlock(DiamondCubeObjectID, 480);
     createBlock(NeptuniumCubeObjectID, 640);
   }
