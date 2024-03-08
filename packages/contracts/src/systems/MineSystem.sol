@@ -52,7 +52,7 @@ contract MineSystem is System {
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(coord) == objectTypeId, "MineSystem: block type does not match with terrain type");
+      require(getTerrainObjectTypeId(objectTypeId, coord) == objectTypeId, "MineSystem: block type does not match with terrain type");
 
       // Create new entity
       entityId = getUniqueEntity();

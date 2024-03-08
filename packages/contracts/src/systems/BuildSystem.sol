@@ -49,7 +49,7 @@ contract BuildSystem is System {
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(coord) == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
+      require(getTerrainObjectTypeId(AirObjectID, coord) == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
     } else {
       require(ObjectType.get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
 

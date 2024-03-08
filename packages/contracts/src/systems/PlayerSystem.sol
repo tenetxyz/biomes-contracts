@@ -41,7 +41,7 @@ contract PlayerSystem is System {
 
     bytes32 entityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     if (entityId == bytes32(0)) {
-      require(getTerrainObjectTypeId(spawnCoord) == AirObjectID, "PlayerSystem: cannot spawn on terrain non-air block");
+      require(getTerrainObjectTypeId(AirObjectID, spawnCoord) == AirObjectID, "PlayerSystem: cannot spawn on terrain non-air block");
 
       // Create new entity
       entityId = getUniqueEntity();

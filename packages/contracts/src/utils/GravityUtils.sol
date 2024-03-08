@@ -25,7 +25,7 @@ function applyGravity(bytes32 playerEntityId, VoxelCoord memory coord) returns (
   bytes32 newEntityId = ReversePosition.get(newCoord.x, newCoord.y, newCoord.z);
   if (newEntityId == bytes32(0)) {
     // Check terrain block type
-    if (getTerrainObjectTypeId(newCoord) != AirObjectID) {
+    if (getTerrainObjectTypeId(AirObjectID, newCoord) != AirObjectID) {
       return false;
     }
 

@@ -30,50 +30,52 @@ contract InitTerrainBlocksSystem is System {
 
   function initTerrainBlockObjectTypes() public {
     // TODO: replace any block selector with the one for the block to save gas
-    bytes4 anyBlockSelector = IWorld(_world()).getTerrainBlock.selector;
+    bytes4 terrainBlocksSelector = IWorld(_world()).TerrainBlocks.selector;
+    bytes4 treeSelector = IWorld(_world()).Trees.selector;
+    bytes4 floraSelector = IWorld(_world()).Flora.selector;
+    bytes4 oresSelector = IWorld(_world()).Ores.selector;
 
-    createTerrainBlock(AirObjectID, 0, anyBlockSelector);
-    createTerrainBlock(GrassObjectID, 4, anyBlockSelector);
-    createTerrainBlock(MuckGrassObjectID, 4, anyBlockSelector);
-    createTerrainBlock(DirtObjectID, 4, anyBlockSelector);
-    createTerrainBlock(MuckDirtObjectID, 4, anyBlockSelector);
-    createTerrainBlock(MossBlockObjectID, 4, anyBlockSelector);
-    createTerrainBlock(GravelObjectID, 5, anyBlockSelector);
-    createTerrainBlock(SandObjectID, 2, anyBlockSelector);
-    createTerrainBlock(BedrockObjectID, 1000, anyBlockSelector);
+    createTerrainBlock(AirObjectID, 0, IWorld(_world()).Air.selector);
+    createTerrainBlock(GrassObjectID, 4, terrainBlocksSelector);
+    createTerrainBlock(MuckGrassObjectID, 4, terrainBlocksSelector);
+    createTerrainBlock(DirtObjectID, 4, terrainBlocksSelector);
+    createTerrainBlock(MuckDirtObjectID, 4, terrainBlocksSelector);
+    createTerrainBlock(MossBlockObjectID, 4, terrainBlocksSelector);
+    createTerrainBlock(GravelObjectID, 5, terrainBlocksSelector);
+    createTerrainBlock(SandObjectID, 2, terrainBlocksSelector);
+    createTerrainBlock(BedrockObjectID, 1000, terrainBlocksSelector);
 
-    createTerrainBlock(StoneObjectID, 7, anyBlockSelector);
-    createTerrainBlock(BasaltObjectID, 9, anyBlockSelector);
-    createTerrainBlock(GraniteObjectID, 11, anyBlockSelector);
-    createTerrainBlock(QuartziteObjectID, 10, anyBlockSelector);
-    createTerrainBlock(LimestoneObjectID, 7, anyBlockSelector);
+    createTerrainBlock(StoneObjectID, 7, terrainBlocksSelector);
+    createTerrainBlock(BasaltObjectID, 9, terrainBlocksSelector);
+    createTerrainBlock(GraniteObjectID, 11, terrainBlocksSelector);
+    createTerrainBlock(QuartziteObjectID, 10, terrainBlocksSelector);
+    createTerrainBlock(LimestoneObjectID, 7, terrainBlocksSelector);
 
-    createTerrainBlock(CottonBlockObjectID, 1, anyBlockSelector);
-    createTerrainBlock(CactusObjectID, 1, anyBlockSelector);
-    createTerrainBlock(LilacObjectID, 1, anyBlockSelector);
-    createTerrainBlock(DandelionObjectID, 1, anyBlockSelector);
-    createTerrainBlock(RedMushroomObjectID, 1, anyBlockSelector);
-    createTerrainBlock(BellflowerObjectID, 1, anyBlockSelector);
-    createTerrainBlock(CottonBushObjectID, 1, anyBlockSelector);
-    createTerrainBlock(MossGrassObjectID, 1, anyBlockSelector);
-    createTerrainBlock(SwitchGrassObjectID, 1, anyBlockSelector);
-    createTerrainBlock(DaylilyObjectID, 1, anyBlockSelector);
-    createTerrainBlock(AzaleaObjectID, 1, anyBlockSelector);
-    createTerrainBlock(RoseObjectID, 1, anyBlockSelector);
+    createTerrainBlock(CactusObjectID, 1, floraSelector);
+    createTerrainBlock(LilacObjectID, 1, floraSelector);
+    createTerrainBlock(DandelionObjectID, 1, floraSelector);
+    createTerrainBlock(RedMushroomObjectID, 1, floraSelector);
+    createTerrainBlock(BellflowerObjectID, 1, floraSelector);
+    createTerrainBlock(CottonBushObjectID, 1, floraSelector);
+    createTerrainBlock(MossGrassObjectID, 1, floraSelector);
+    createTerrainBlock(SwitchGrassObjectID, 1, floraSelector);
+    createTerrainBlock(DaylilyObjectID, 1, floraSelector);
+    createTerrainBlock(AzaleaObjectID, 1, floraSelector);
+    createTerrainBlock(RoseObjectID, 1, floraSelector);
 
-    createTerrainBlock(OakLogObjectID, 4, anyBlockSelector);
-    createTerrainBlock(BirchLogObjectID, 4, anyBlockSelector);
-    createTerrainBlock(SakuraLogObjectID, 4, anyBlockSelector);
-    createTerrainBlock(RubberLogObjectID, 4, anyBlockSelector);
-    createTerrainBlock(OakLeafObjectID, 1, anyBlockSelector);
-    createTerrainBlock(BirchLeafObjectID, 1, anyBlockSelector);
-    createTerrainBlock(SakuraLeafObjectID, 1, anyBlockSelector);
-    createTerrainBlock(RubberLeafObjectID, 1, anyBlockSelector);
+    createTerrainBlock(OakLogObjectID, 4, treeSelector);
+    createTerrainBlock(BirchLogObjectID, 4, treeSelector);
+    createTerrainBlock(SakuraLogObjectID, 4, treeSelector);
+    createTerrainBlock(RubberLogObjectID, 4, treeSelector);
+    createTerrainBlock(OakLeafObjectID, 1, treeSelector);
+    createTerrainBlock(BirchLeafObjectID, 1, treeSelector);
+    createTerrainBlock(SakuraLeafObjectID, 1, treeSelector);
+    createTerrainBlock(RubberLeafObjectID, 1, treeSelector);
 
-    createTerrainBlock(CoalOreObjectID, 7, anyBlockSelector);
-    createTerrainBlock(GoldOreObjectID, 10, anyBlockSelector);
-    createTerrainBlock(SilverOreObjectID, 9, anyBlockSelector);
-    createTerrainBlock(DiamondOreObjectID, 15, anyBlockSelector);
-    createTerrainBlock(NeptuniumOreObjectID, 20, anyBlockSelector);
+    createTerrainBlock(CoalOreObjectID, 7, oresSelector);
+    createTerrainBlock(GoldOreObjectID, 10, oresSelector);
+    createTerrainBlock(SilverOreObjectID, 9, oresSelector);
+    createTerrainBlock(DiamondOreObjectID, 15, oresSelector);
+    createTerrainBlock(NeptuniumOreObjectID, 20, oresSelector);
   }
 }
