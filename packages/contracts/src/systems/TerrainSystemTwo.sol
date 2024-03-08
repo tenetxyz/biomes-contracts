@@ -807,4 +807,44 @@ contract TerrainSystem is System {
     }
     return bytes32(0);
   }
+
+  function TerrainBlocks(
+    int32 x,
+    int32 y,
+    int32 z,
+    int32 height,
+    uint8 biome,
+    int32 distanceFromHeight
+  ) internal view returns (bytes32) {
+    if (y >= height) return bytes32(0);
+
+    if (y < -120) return BedrockObjectID;
+
+    if (distanceFromHeight <= 3) {
+      if (distanceFromHeight == 1) {
+        if (biome == uint8(Biome.Plains)) return GrassObjectID;
+        else if (biome == uint8(Biome.Swamp)) return MuckGrassObjectID;
+      }
+      if (biome == uint8(Biome.Mountains)) return BasaltObjectID;
+      else if (biome == uint8(Biome.Mountains2)) return LimestoneObjectID;
+      else if (biome == uint8(Biome.Mountains3)) return QuartziteObjectID;
+      else if (biome == uint8(Biome.Mountains4)) return GraniteObjectID;
+      else if (biome == uint8(Biome.Forest)) return MossObjectID;
+      else if (biome == uint8(Biome.Desert)) return SandObjectID;
+    }
+
+    if (biome == uint8(Biome.Mountains) || biome == uint8(Biome.Mountains2) || 
+        biome == uint8(Biome.Mountains3) || biome == uint8(Biome.Mountains4)) {
+      return StoneObjectID;
+    } else if (biome == uint8(Biome.Forest) || biome == uint8(Biome.Plains)) {
+      return DirtObjectID;
+    } else if (biome == uint8(Biome.Swamp)) {
+      return MuckDirtObjectID;
+    } else if (biome == uint8(Biome.Desert)) {
+      return GravelObjectID;
+    }
+
+    return bytes32(0);
+  }
+
 }
