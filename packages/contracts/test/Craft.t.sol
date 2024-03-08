@@ -50,7 +50,7 @@ contract CraftTest is MudTest, GasReporter {
   }
 
   function setupPlayer() public returns (bytes32) {
-    spawnCoord = VoxelCoord(197, 27, 203);
+    spawnCoord = VoxelCoord(142, -62, -30);
     assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
     return world.spawnPlayer(spawnCoord);
   }
@@ -123,7 +123,7 @@ contract CraftTest is MudTest, GasReporter {
 
     bytes32 outputObjectTypeId = MagentaDyeObjectID;
     bytes32 recipeId = keccak256(
-      abi.encodePacked(inputObjectTypeId1, uint8(5), inputObjectTypeId2, uint8(5), outputObjectTypeId, uint8(10))
+      abi.encodePacked(inputObjectTypeId2, uint8(5), inputObjectTypeId1, uint8(5), outputObjectTypeId, uint8(10))
     );
 
     startGasReport("handcraft multiple input");

@@ -50,7 +50,7 @@ contract GravityTest is MudTest, GasReporter {
   }
 
   function setupPlayer() public returns (bytes32) {
-    spawnCoord = VoxelCoord(197, 27, 203);
+    spawnCoord = VoxelCoord(142, -62, -30);
     assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
     return world.spawnPlayer(spawnCoord);
   }
@@ -140,7 +140,7 @@ contract GravityTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(bob, bob);
 
-    VoxelCoord memory spawnCoord2 = VoxelCoord(198, 27, 203);
+    VoxelCoord memory spawnCoord2 = VoxelCoord(142, -62, -31);
     assertTrue(world.getTerrainBlock(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntity2 = world.spawnPlayer(spawnCoord2);
 

@@ -34,9 +34,9 @@ contract PlayerSystem is System {
     require(Player.get(newPlayer) == bytes32(0), "PlayerSystem: player already exists");
 
     // Check spawn coord is within spawn area
-    require(spawnCoord.x >= SPAWN_LOW_X && spawnCoord.x <= SPAWN_HIGH_X, "PlayerSystem: x coord out of bounds");
-    require(spawnCoord.z >= SPAWN_LOW_Z && spawnCoord.z <= SPAWN_HIGH_Z, "PlayerSystem: z coord out of bounds");
     // TODO: update to actual spawn area
+    // require(spawnCoord.x >= SPAWN_LOW_X && spawnCoord.x <= SPAWN_HIGH_X, "PlayerSystem: x coord out of bounds");
+    // require(spawnCoord.z >= SPAWN_LOW_Z && spawnCoord.z <= SPAWN_HIGH_Z, "PlayerSystem: z coord out of bounds");
     // require(spawnCoord.y == 0, "PlayerSystem: y coord out of bounds");
 
     bytes32 entityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);

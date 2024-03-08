@@ -48,7 +48,7 @@ contract PlayerTest is MudTest, GasReporter {
   function testSpawnPlayer() public {
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory spawnCoord = VoxelCoord(197, 27, 203);
+    VoxelCoord memory spawnCoord = VoxelCoord(142, -62, -30);
     bytes32 terrainObjectTypeId = world.getTerrainBlock(spawnCoord);
     assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
 
@@ -106,14 +106,14 @@ contract PlayerTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     // Invalid terrain coord
-    VoxelCoord memory spawnCoord = VoxelCoord(197, 26, 203);
+    VoxelCoord memory spawnCoord = VoxelCoord(149, -59, 17);
     bytes32 terrainObjectTypeId = world.getTerrainBlock(spawnCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     vm.expectRevert();
     world.spawnPlayer(spawnCoord);
 
-    spawnCoord = VoxelCoord(197, 27, 203);
+    spawnCoord = VoxelCoord(142, -62, -30);
     terrainObjectTypeId = world.getTerrainBlock(spawnCoord);
     assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
 

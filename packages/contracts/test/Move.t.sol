@@ -51,7 +51,7 @@ contract MoveTest is MudTest, GasReporter {
   }
 
   function setupPlayer() public returns (bytes32) {
-    spawnCoord = VoxelCoord(197, 27, 203);
+    spawnCoord = VoxelCoord(142, -62, -30);
     assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
     return world.spawnPlayer(spawnCoord);
   }

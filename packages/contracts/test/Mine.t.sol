@@ -50,7 +50,7 @@ contract MineTest is MudTest, GasReporter {
   }
 
   function setupPlayer() public returns (bytes32) {
-    spawnCoord = VoxelCoord(197, 27, 203);
+    spawnCoord = VoxelCoord(142, -62, -30);
     assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
     return world.spawnPlayer(spawnCoord);
   }
@@ -166,6 +166,8 @@ contract MineTest is MudTest, GasReporter {
 
   function testMineWithoutPlayer() public {
     vm.startPrank(alice, alice);
+
+    spawnCoord = VoxelCoord(142, -62, -30);
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
