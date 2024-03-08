@@ -6,7 +6,7 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import { ABDKMath64x64 as Math } from "@everlonxyz/utils/src/libraries/ABDKMath64x64.sol";
 import { Perlin } from "@everlonxyz/utils/src/libraries/Perlin.sol";
 
-import { AirObjectID, SnowObjectID, AsphaltObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, SoilObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, MossGrassObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../ObjectTypeIds.sol";
+import { BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, AsphaltObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, SoilObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, MossGrassObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../ObjectTypeIds.sol";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../Constants.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { floorDiv } from "@everlonxyz/utils/src/MathUtils.sol";
@@ -28,9 +28,11 @@ int128 constant _0_51 = 9407839477591871324; // 0.51 * 2**64
 int128 constant _0_55 = 10145709240540253388; // 0.55 * 2**64
 int128 constant _0_6 = 11068046444225730969; // 0.6 * 2**64
 int128 constant _0_75 = 13835058055282163712; // 0.75 * 2**64
+int128 constant _0_917 = 16915664315591659520; // 0.917 * 2**64
 int128 constant _0_8 = 14757395258967641292; // 0.8 * 2**64
 int128 constant _0_9 = 16602069666338596454; // 0.9 * 2**64
 int128 constant _1 = 2 ** 64;
+int128 constant _1_5 = 27670116110564327424;
 int128 constant _2 = 2 * 2 ** 64;
 int128 constant _3 = 3 * 2 ** 64;
 int128 constant _4 = 4 * 2 ** 64;
@@ -39,181 +41,68 @@ int128 constant _10 = 10 * 2 ** 64;
 int128 constant _16 = 16 * 2 ** 64;
 
 contract TerrainSystem is System {
-  function getTerrainBlock(VoxelCoord memory coord) public view returns (bytes32) {
-    int128[4] memory biome = getBiome(coord.x, coord.z);
-    int32 height = getHeight(coord.x, coord.z);
-    return getTerrainBlock(coord.x, coord.y, coord.z, height, biome);
-  }
 
-  function getTerrainBlock(
-    int32 x,
-    int32 y,
-    int32 z,
-    int32 height,
-    int128[4] memory biomeValues
-  ) internal view returns (bytes32) {
-    bytes32 objectTypeId;
+  //////////////////////////////////////////////////////////////////////////////////////
+  // Biomes
+  //////////////////////////////////////////////////////////////////////////////////////
 
-    uint8 biome = getMaxBiome(biomeValues);
-    int32 distanceFromHeight = height - y;
-
-    objectTypeId = Structure(x, y, z, height, biome, distanceFromHeight);
-    if (objectTypeId != bytes32(0)) return objectTypeId;
-
-    objectTypeId = TopBlocks(x, y, z, height, biome, distanceFromHeight);
-    if (objectTypeId != bytes32(0)) return objectTypeId;
-
-    objectTypeId = MiddleDecorations(x, y, z, height, biome, distanceFromHeight);
-    if (objectTypeId != bytes32(0)) return objectTypeId;
-
-    objectTypeId = MiddleBlocks(x, y, z, height, biome, distanceFromHeight);
-    if (objectTypeId != bytes32(0)) return objectTypeId;
-
-    objectTypeId = BottomBlocks(x, y, z, height, biome, distanceFromHeight);
-    if (objectTypeId != bytes32(0)) return objectTypeId;
-
-    objectTypeId = Air(y, height);
-    if (objectTypeId != bytes32(0)) return objectTypeId;
-
-    return AirObjectID;
-  }
-
-  function getHeight(int32 x, int32 z) internal view returns (int32) {
-    // Compute perlin height
-    int128 perlin999 = Perlin.noise2d(x - 550, z + 550, 149, 64);
-    int128 continentalHeight = continentalness(perlin999);
-    int128 terrainHeight = Math.mul(perlin999, _10);
-    int128 perlin49 = Perlin.noise2d(x, z, 49, 64);
-    terrainHeight = Math.add(terrainHeight, Math.mul(perlin49, _5));
-    terrainHeight = Math.add(terrainHeight, Perlin.noise2d(x, z, 13, 64));
-    terrainHeight = Math.div(terrainHeight, _16);
-
-    // Compute biome height
-    // int128 height = Math.mul(biome[uint256(Biome.Mountains)], mountains(terrainHeight));
-    // height = Math.add(height, Math.mul(biome[uint256(Biome.Desert)], desert(terrainHeight)));
-    // height = Math.add(height, Math.mul(biome[uint256(Biome.Forest)], forest(terrainHeight)));
-    // height = Math.add(height, Math.mul(biome[uint256(Biome.Savanna)], savanna(terrainHeight)));
-    // height = Math.div(height, Math.add(Math.add(Math.add(Math.add(biome[0], biome[1]), biome[2]), biome[3]), _1));
-    int128 height = terrainHeight;
-    height = Math.add(continentalHeight, Math.div(height, _2));
-
-    // Create valleys
-    // int128 valley = valleys(
-    //   Math.div(Math.add(Math.mul(Perlin.noise2d(x, z, 333, 64), _2), perlin49), _3)
-    // );
-    // height = Math.mul(height, valley);
-
-    // Scale height
-    return int32(Math.muli(height, 256) - 70);
+  function getBiomeVector(Biome biome) internal pure returns (Tuple memory) {
+    if (biome == Biome.Mountains) return Tuple(_0, _0, _1);
+    if (biome == Biome.Mountains2) return Tuple(_1, _0, _1);
+    if (biome == Biome.Mountains3) return Tuple(_0, _1, _1);
+    if (biome == Biome.Mountains4) return Tuple(_1, _1, _1);
+    if (biome == Biome.Swamp) return Tuple(_0, _0, _0);
+    if (biome == Biome.Plains) return Tuple(_1, _0, _0);
+    if (biome == Biome.Forest) return Tuple(_0, _1, _0);
+    if (biome == Biome.Desert) return Tuple(_1, _1, _0);
+    revert("unknown biome");
   }
 
   function getBiome(int32 x, int32 z) internal view returns (int128[4] memory) {
-    int128 heat = Perlin.noise2d(x + 222, z + 222, 111, 64);
-    int128 humidity = Perlin.noise(z, x, 999, 83, 64);
+    int128 heat = Perlin.noise2d(x + 222, z + 222, 666, 64);
+    int128 humidity = Perlin.noise(z, x, 999, 555, 64);
+    int128 elev = Perlin.noise(x, z, 999, 444, 64);
 
-    Tuple memory biomeVector = Tuple(humidity, heat);
-    int128[4] memory biome;
+    Tuple memory biomeVector = Tuple(humidity, heat, elev);
+    int128[8] memory biome;
 
     biome[uint256(Biome.Mountains)] = pos(
-      Math.mul(Math.sub(_0_75, euclidean(biomeVector, getBiomeVector(Biome.Mountains))), _2)
+      Math.mul(Math.sub(_0_917, euclidean(biomeVector, getBiomeVector(Biome.Mountains))), _2)
     );
 
-    biome[uint256(Biome.Desert)] = pos(
-      Math.mul(Math.sub(_0_75, euclidean(biomeVector, getBiomeVector(Biome.Desert))), _2)
+    biome[uint256(Biome.Mountains2)] = pos(
+      Math.mul(Math.sub(_0_917, euclidean(biomeVector, getBiomeVector(Biome.Mountains2))), _2)
+    );
+
+    biome[uint256(Biome.Mountains3)] = pos(
+      Math.mul(Math.sub(_0_917, euclidean(biomeVector, getBiomeVector(Biome.Mountains3))), _2)
+    );
+
+    biome[uint256(Biome.Mountains4)] = pos(
+      Math.mul(Math.sub(_0_917, euclidean(biomeVector, getBiomeVector(Biome.Mountains4))), _2)
+    );
+
+    biome[uint256(Biome.Swamp)] = pos(
+      Math.mul(Math.sub(_0_917, euclidean(biomeVector, getBiomeVector(Biome.Swamp))), _2)
+    );
+
+    biome[uint256(Biome.Plains)] = pos(
+      Math.mul(Math.sub(_0_917, euclidean(biomeVector, getBiomeVector(Biome.Plains))), _2)
     );
 
     biome[uint256(Biome.Forest)] = pos(
-      Math.mul(Math.sub(_0_75, euclidean(biomeVector, getBiomeVector(Biome.Forest))), _2)
+      Math.mul(Math.sub(_0_917, euclidean(biomeVector, getBiomeVector(Biome.Forest))), _2)
     );
 
-    biome[uint256(Biome.Savanna)] = pos(
-      Math.mul(Math.sub(_0_75, euclidean(biomeVector, getBiomeVector(Biome.Savanna))), _2)
+    biome[uint256(Biome.Desert)] = pos(
+      Math.mul(Math.sub(_0_917, euclidean(biomeVector, getBiomeVector(Biome.Desert))), _2)
     );
 
     return biome;
   }
 
-  function getMaxBiome(int128[4] memory biomeValues) internal pure returns (uint8 biome) {
-    int128 maxBiome;
-    for (uint256 i; i < biomeValues.length; i++) {
-      if (biomeValues[i] > maxBiome) {
-        maxBiome = biomeValues[i];
-        biome = uint8(i);
-      }
-    }
-  }
-
-  function getBiomeVector(Biome biome) internal pure returns (Tuple memory) {
-    if (biome == Biome.Mountains) return Tuple(_0, _0);
-    if (biome == Biome.Desert) return Tuple(_0, _1);
-    if (biome == Biome.Forest) return Tuple(_1, _0);
-    if (biome == Biome.Savanna) return Tuple(_1, _1);
-    revert("unknown biome");
-  }
-
-  function getCoordHash(int32 x, int32 z) internal pure returns (uint16) {
-    uint256 hash = uint256(keccak256(abi.encode(x, z)));
-    return uint16(hash % 1024);
-  }
-
-  function getChunkCoord(int32 x, int32 z) internal pure returns (int32, int32) {
-    return (floorDiv(x, STRUCTURE_CHUNK), floorDiv(z, STRUCTURE_CHUNK));
-  }
-
-  function getChunkOffsetAndHeight(
-    int32 x,
-    int32 y,
-    int32 z
-  ) internal view returns (int32 height, VoxelCoord memory offset) {
-    (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
-    int32 chunkCenterX = chunkX * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
-    int32 chunkCenterZ = chunkZ * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
-    int128[4] memory biome = getBiome(chunkCenterX, chunkCenterZ);
-    height = getHeight(chunkCenterX, chunkCenterZ);
-    offset = VoxelCoord(x - chunkX * STRUCTURE_CHUNK, y - height, z - chunkZ * STRUCTURE_CHUNK);
-  }
-
-  function getBiomeHash(int32 x, int32 y, uint8 biome) internal pure returns (uint16) {
-    return getCoordHash(floorDiv(x, 300) + floorDiv(y, 300), int32(uint32(biome)));
-  }
-
-  function getChunkHash(int32 x, int32 z) {
-    (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
-    return getCoordHash(chunkX, chunkZ);
-  }
-
-  function getChunkHash2(int32 x, int32 z) {
-    (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
-    return getCoordHash(chunkX + 50, chunkZ + 50);
-  }
-
   //////////////////////////////////////////////////////////////////////////////////////
-  // Utils
-  //////////////////////////////////////////////////////////////////////////////////////
-
-  // return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
-  function euclidean(Tuple memory a, Tuple memory b) internal pure returns (int128) {
-    return Math.sqrt(Math.add(Math.pow(Math.sub(a.x, b.x), 2), Math.pow(Math.sub(a.y, b.y), 2)));
-  }
-
-  function euclideanVec(int128[] memory a, int128[] memory b) internal pure returns (int128) {
-    return euclidean(Tuple(a[0], a[1]), Tuple(b[0], b[1]));
-  }
-
-  function euclideanRaw(int128 a0, int128 a1, int128 b0, int128 b1) internal pure returns (int128) {
-    return euclidean(Tuple(a0, a1), Tuple(b0, b1));
-  }
-
-  function pos(int128 x) internal pure returns (int128) {
-    return x < 0 ? int128(0) : x;
-  }
-
-  function coordEq(VoxelCoord memory a, uint8[3] memory b) internal pure returns (bool) {
-    return a.x == int32(uint32(b[0])) && a.y == int32(uint32(b[1])) && a.z == int32(uint32(b[2]));
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////
-  // Spline functions
+  // Heights
   //////////////////////////////////////////////////////////////////////////////////////
 
   function applySpline(int128 x, Tuple[] memory splines) internal view returns (int128) {
@@ -244,271 +133,155 @@ contract TerrainSystem is System {
     return applySpline(x, splines);
   }
 
-  function desert(int128 x) internal view returns (int128) {
-    Tuple[] memory splines = new Tuple[](2);
+  function mountains2(int128 x) internal view returns (int128) {
+    Tuple[] memory splines = new Tuple[](4);
     splines[0] = Tuple(_0, _0);
-    splines[1] = Tuple(_1, _0_4);
+    splines[1] = Tuple(_0_3, _0_3);
+    splines[2] = Tuple(_0_6, _1_5);
+    splines[3] = Tuple(_1, _3);
     return applySpline(x, splines);
   }
 
-  function forest(int128 x) internal view returns (int128) {
-    Tuple[] memory splines = new Tuple[](2);
+  function mountains3(int128 x) internal view returns (int128) {
+    Tuple[] memory splines = new Tuple[](4);
     splines[0] = Tuple(_0, _0);
-    splines[1] = Tuple(_1, _0_5);
+    splines[1] = Tuple(_0_3, _0_2);
+    splines[2] = Tuple(_0_6, _1);
+    splines[3] = Tuple(_1, _2);
     return applySpline(x, splines);
   }
 
-  function savanna(int128 x) internal view returns (int128) {
+  function mountains4(int128 x) internal view returns (int128) {
+    Tuple[] memory splines = new Tuple[](4);
+    splines[0] = Tuple(_0, _0);
+    splines[1] = Tuple(_0_3, _0_1);
+    splines[2] = Tuple(_0_6, _0_5);
+    splines[3] = Tuple(_1, _1);
+    return applySpline(x, splines);
+  }
+
+  function flat(int128 x) internal view returns (int128) {
     Tuple[] memory splines = new Tuple[](2);
     splines[0] = Tuple(_0, _0);
-    splines[1] = Tuple(_1, _0_4);
+    splines[1] = Tuple(_1, _0);
     return applySpline(x, splines);
+  }
+
+  function flat2(int128 x) internal view returns (int128) {
+    Tuple[] memory splines = new Tuple[](2);
+    splines[0] = Tuple(_0, _0);
+    splines[1] = Tuple(_1, _0_1);
+    return applySpline(x, splines);
+  }
+
+  function flat3(int128 x) internal view returns (int128) {
+    Tuple[] memory splines = new Tuple[](2);
+    splines[0] = Tuple(_0, _0);
+    splines[1] = Tuple(_1, _0_2);
+    return applySpline(x, splines);
+  }
+
+  function flat4(int128 x) internal view returns (int128) {
+    Tuple[] memory splines = new Tuple[](2);
+    splines[0] = Tuple(_0, _0);
+    splines[1] = Tuple(_1, _0_3);
+    return applySpline(x, splines);
+  }
+
+  function getHeight(int32 x, int32 z) internal view returns (int32) {
+    // Compute perlin height
+    int128 perlin999 = Perlin.noise2d(x - 550, z + 550, 999, 64);
+    int128 terrainHeight = Math.mul(perlin999, _10);
+    int128 perlin49 = Perlin.noise2d(x, z, 49, 64);
+    terrainHeight = Math.add(terrainHeight, Math.mul(perlin49, _5));
+    terrainHeight = Math.add(terrainHeight, Perlin.noise2d(x, z, 13, 64));
+    terrainHeight = Math.div(terrainHeight, _16);
+
+    // Compute biome height
+    int128 height = Math.mul(biome[uint256(Biome.Mountains)], mountains(terrainHeight));
+    height = Math.add(height, Math.mul(biome[uint256(Biome.Mountains2)], mountains2(terrainHeight)));
+    height = Math.add(height, Math.mul(biome[uint256(Biome.Mountains3)], mountains3(terrainHeight)));
+    height = Math.add(height, Math.mul(biome[uint256(Biome.Mountains4)], mountains4(terrainHeight)));
+    height = Math.add(height, Math.mul(biome[uint256(Biome.Swamp)], flat(terrainHeight)));
+    height = Math.add(height, Math.mul(biome[uint256(Biome.Desert)], flat2(terrainHeight)));
+    height = Math.add(height, Math.mul(biome[uint256(Biome.Plains)], flat3(terrainHeight)));
+    height = Math.add(height, Math.mul(biome[uint256(Biome.Forest)], flat4(terrainHeight)));
+
+    height = Math.div(height, Math.add(Math.add(Math.add(Math.add(Math.add(Math.add(Math.add(Math.add(biome[0], biome[1]), biome[2]), biome[3]), biome[4]), biome[5]), biome[6]), biome[7]), _1));
+
+    // Scale height
+    return int32(Math.muli(height, 256) - 70);
   }
 
   //////////////////////////////////////////////////////////////////////////////////////
-  // Block occurrence functions
+  // Utils
   //////////////////////////////////////////////////////////////////////////////////////
-  function Air(int32 y, int32 height) internal pure returns (bytes32) {
-    if (y < height) return bytes32(0);
 
-    return AirObjectID;
+  // return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
+  function euclidean(Tuple memory a, Tuple memory b) internal pure returns (int128) {
+    return Math.sqrt(Math.add(Math.pow(Math.sub(a.x, b.x), 2), Math.pow(Math.sub(a.y, b.y), 2)));
   }
 
-  function TopPatches(
-    int32 x,
-    int32 y,
-    int32 z,
-    int32 height,
-    uint8 biome,
-    int32 distanceFromHeight
-  ) internal view returns (bytes32) {
-    if (distanceFromHeight != 1) return bytes32(0);
+  function euclideanVec(int128[] memory a, int128[] memory b) internal pure returns (int128) {
+    return euclidean(Tuple(a[0], a[1]), Tuple(b[0], b[1]));
+  }
 
+  function euclideanRaw(int128 a0, int128 a1, int128 b0, int128 b1) internal pure returns (int128) {
+    return euclidean(Tuple(a0, a1), Tuple(b0, b1));
+  }
+
+  function pos(int128 x) internal pure returns (int128) {
+    return x < 0 ? int128(0) : x;
+  }
+
+  function coordEq(VoxelCoord memory a, uint8[3] memory b) internal pure returns (bool) {
+    return a.x == int32(uint32(b[0])) && a.y == int32(uint32(b[1])) && a.z == int32(uint32(b[2]));
+  }
+
+  function getChunkHash(int32 x, int32 z) internal returns (uint16) {
     (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
-    uint16 hash = getCoordHash(chunkX, chunkZ);
-
-    if (hash >= 50) return bytes32(0);
-
-    if (biome == uint8(Biome.Mountains)) {
-      return AsphaltObjectID;
-    } else if (biome == uint8(Biome.Desert)) {
-      return BasaltObjectID;
-    } else if (biome == uint8(Biome.Forest)) {
-      return ClayBrickObjectID;
-    } else if (biome == uint8(Biome.Savanna)) {
-      return CottonBlockObjectID;
-    }
-
-    return bytes32(0);
+    return getCoordHash(chunkX, chunkZ);
   }
 
-  function TopBlocks(
-    int32 x,
-    int32 y,
-    int32 z,
-    int32 height,
-    uint8 biome,
-    int32 distanceFromHeight
-  ) internal view returns (bytes32) {
-    if (y >= height) return bytes32(0);
-
-    if (y <= 30) return bytes32(0);
-
-    if (y > 70) {
-      return SnowObjectID;
-    }
-
-    bytes32 patchBlock = TopPatches(x, y, z, height, biome, distanceFromHeight);
-    if (patchBlock != bytes32(0)) return patchBlock;
-
-    if (biome == uint8(Biome.Mountains)) {
-      if (distanceFromHeight <= 3) {
-        return StoneObjectID;
-      } else {
-        return EmberstoneObjectID;
-      }
-    } else if (biome == uint8(Biome.Desert)) {
-      if (distanceFromHeight <= 3) {
-        return CobblestoneObjectID;
-      } else {
-        return MoonstoneObjectID;
-      }
-    } else if (biome == uint8(Biome.Forest)) {
-      if (distanceFromHeight <= 3) {
-        return GraniteObjectID;
-      } else {
-        return QuartziteObjectID;
-      }
-    } else if (biome == uint8(Biome.Savanna)) {
-      if (distanceFromHeight <= 3) {
-        return LimestoneObjectID;
-      } else {
-        return SunstoneObjectID;
-      }
-    }
-
-    return bytes32(0);
+  function getChunkHash2(int32 x, int32 z) internal returns (uint16) {
+    (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
+    return getCoordHash(chunkX + 50, chunkZ + 50);
   }
 
-  function MiddleBlocks(
-    int32 x,
-    int32 y,
-    int32 z,
-    int32 height,
-    uint8 biome,
-    int32 distanceFromHeight
-  ) internal view returns (bytes32) {
-    if (y >= height) return bytes32(0);
-
-    if (y > 30 || y < 5) return bytes32(0);
-
-    if (distanceFromHeight <= 3) {
-      if (distanceFromHeight == 1) {
-        if (biome == uint8(Biome.Mountains)) {
-          return MuckGrassObjectID;
-        } else if (biome == uint8(Biome.Desert)) {
-          return MuckGrassObjectID;
-        } else if (biome == uint8(Biome.Forest)) {
-          return GrassObjectID;
-        }
-      }
-      if (biome == uint8(Biome.Savanna)) {
-        return MossBlockObjectID;
-      }
-    }
-
-    uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, x + z);
-    if (hash1 > 10 && hash1 <= 60 && hash2 > 10 && hash2 <= 60) {
-      if (biome == uint8(Biome.Mountains)) {
-        return CoalOreObjectID;
-      } else if (biome == uint8(Biome.Desert)) {
-        return NeptuniumOreObjectID;
-      } else if (biome == uint8(Biome.Forest)) {
-        return SilverOreObjectID;
-      } else if (biome == uint8(Biome.Savanna)) {
-        return GoldOreObjectID;
-      }
-    }
-
-    if (biome == uint8(Biome.Mountains) || biome == uint8(Biome.Desert)) {
-      return MuckDirtObjectID;
-    } else {
-      return DirtObjectID;
-    }
+  function getBiomeHash(int32 x, int32 y, uint8 biome) internal pure returns (uint16) {
+    return getCoordHash(floorDiv(x, 300) + floorDiv(y, 300), int32(uint32(biome)));
   }
 
-  function BottomBlocks(
+  function getChunkOffsetAndHeight(
     int32 x,
     int32 y,
-    int32 z,
-    int32 height,
-    uint8 biome,
-    int32 distanceFromHeight
-  ) internal view returns (bytes32) {
-    if (y >= height) return bytes32(0);
-
-    if (y >= 5) return bytes32(0);
-
-    if (y < -60) {
-      return BedrockObjectID;
-    }
-
-    if (y < -50) {
-      return LavaObjectID;
-    }
-
-    if (y >= 0) {
-      return SoilObjectID;
-    }
-    if (y == -1) {
-      return GravelObjectID;
-    }
-
-    uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, x + z);
-    if (hash1 <= 10 || hash1 > 50) {
-      if (hash1 <= 10 && hash2 <= 10) {
-        return DiamondOreObjectID;
-      }
-    } else {
-      if (hash2 > 10 && hash2 <= 50) {
-        if (biome == uint8(Biome.Mountains)) {
-          return CoalOreObjectID;
-        } else if (biome == uint8(Biome.Desert)) {
-          return NeptuniumOreObjectID;
-        } else if (biome == uint8(Biome.Forest)) {
-          return SilverOreObjectID;
-        } else if (biome == uint8(Biome.Savanna)) {
-          return GoldOreObjectID;
-        }
-      }
-    }
-
-    return ClayObjectID;
+    int32 z
+  ) internal view returns (int32 height, VoxelCoord memory offset) {
+    (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
+    int32 chunkCenterX = chunkX * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
+    int32 chunkCenterZ = chunkZ * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
+    int128[4] memory biome = getBiome(chunkCenterX, chunkCenterZ);
+    height = getHeight(chunkCenterX, chunkCenterZ);
+    offset = VoxelCoord(x - chunkX * STRUCTURE_CHUNK, y - height, z - chunkZ * STRUCTURE_CHUNK);
   }
 
-  function MiddleDecorations(
-    int32 x,
-    int32 y,
-    int32 z,
-    int32 height,
-    uint8 biome,
-    int32 distanceFromHeight
-  ) internal view returns (bytes32) {
-    if (y > 30 || y < 5) return bytes32(0);
-
-    if (y != height) return bytes32(0);
-
-    uint16 hash1 = getCoordHash(x, z);
-
-    if (biome == uint8(Biome.Mountains)) {
-      if (hash1 < 10) {
-        return CottonBushObjectID;
-      }
-    } else if (biome == uint8(Biome.Desert)) {
-      if (hash1 < 10) {
-        return CottonBushObjectID;
-      }
-    } else if (biome == uint8(Biome.Forest)) {
-      if (hash1 < 10) {
-        return MossGrassObjectID;
-      } else if (hash1 < 25) {
-        return SwitchGrassObjectID;
-      }
-    } else if (biome == uint8(Biome.Savanna)) {}
-
-    return bytes32(0);
+  function getCoordHash(int32 x, int32 z) internal pure returns (uint16) {
+    uint256 hash = uint256(keccak256(abi.encode(x, z)));
+    return uint16(hash % 1024);
   }
 
-  function Structure(
-    int32 x,
-    int32 y,
-    int32 z,
-    int32 height,
-    uint8 biome,
-    int32 distanceFromHeight
-  ) internal view returns (bytes32) {
-    if (y < height) return bytes32(0);
+  function getChunkCoord(int32 x, int32 z) internal pure returns (int32, int32) {
+    return (floorDiv(x, STRUCTURE_CHUNK), floorDiv(z, STRUCTURE_CHUNK));
+  }
 
-    (int32 chunkHeight, VoxelCoord memory chunkOffset) = getChunkOffsetAndHeight(x, y, z);
-    if (chunkHeight > 30 || chunkHeight < 5) return bytes32(0);
-
-    uint16 hash = getChunkHash(x, z);
-    if (hash >= 100) return bytes32(0);
-
-    bytes32 structObjectTypeId = bytes32(0);
-    if (biome == uint8(Biome.Mountains)) {
-      structObjectTypeId = RubberTree(chunkOffset);
-    } else if (biome == uint8(Biome.Desert)) {
-      structObjectTypeId = SakuraTree(chunkOffset);
-    } else if (biome == uint8(Biome.Forest)) {
-      structObjectTypeId = OakTree(chunkOffset);
-    } else if (biome == uint8(Biome.Savanna)) {
-      structObjectTypeId = BirchTree(chunkOffset);
+  function getMaxBiome(int128[8] memory biomeValues) internal pure returns (uint8 biome) {
+    int128 maxBiome;
+    for (uint256 i; i < biomeValues.length; i++) {
+      if (biomeValues[i] > maxBiome) {
+        maxBiome = biomeValues[i];
+        biome = uint8(i);
+      }
     }
-
-    return structObjectTypeId;
   }
 
   //////////////////////////////////////////////////////////////////////////////////////
@@ -614,4 +387,464 @@ contract TerrainSystem is System {
 
     return bytes32(0);
   }
+
+  //////////////////////////////////////////////////////////////////////////////////////
+  // Get Terrain
+  //////////////////////////////////////////////////////////////////////////////////////
+
+  function getTerrainBlock(VoxelCoord memory coord) public view returns (bytes32) {
+    int128[4] memory biome = getBiome(coord.x, coord.z);
+    int32 height = getHeight(coord.x, coord.z);
+    return getTerrainBlock(coord.x, coord.y, coord.z, height, biome);
+  }
+
+  function getTerrainBlock(
+    int32 x,
+    int32 y,
+    int32 z,
+    int32 height,
+    int128[8] memory biomeValues
+  ) internal view returns (bytes32) {
+    bytes32 objectTypeId;
+
+    uint8 biome = getMaxBiome(biomeValues);
+    int32 distanceFromHeight = height - y;
+
+    objectTypeId = Trees(x, y, z, height, biome, distanceFromHeight);
+    if (objectTypeId != bytes32(0)) return objectTypeId;
+
+    objectTypeId = Flora(x, y, z, height, biome, distanceFromHeight);
+    if (objectTypeId != bytes32(0)) return objectTypeId;
+
+    objectTypeId = TerrainBlocks(x, y, z, height, biome, distanceFromHeight);
+    if (objectTypeId != bytes32(0)) return objectTypeId;
+
+    objectTypeId = Ores(x, y, z, height, biome, distanceFromHeight);
+    if (objectTypeId != bytes32(0)) return objectTypeId;
+
+    objectTypeId = Air(y, height);
+    if (objectTypeId != bytes32(0)) return objectTypeId;
+
+    return AirObjectID;
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////
+  // Occurences
+  //////////////////////////////////////////////////////////////////////////////////////
+
+  function Air(int32 y, int32 height) internal pure returns (bytes32) {
+    if (y < height) return bytes32(0);
+
+    return AirObjectID;
+  }
+
+  function Structure(
+    int32 x,
+    int32 y,
+    int32 z,
+    int32 height,
+    uint8 biome,
+    int32 distanceFromHeight
+  ) internal view returns (bytes32) {
+    if (y < height) return bytes32(0);
+
+    (int32 chunkHeight, VoxelCoord memory chunkOffset) = getChunkOffsetAndHeight(x, y, z);
+    uint16 hash = getChunkHash(x, z);
+    bytes32 structObjectTypeId = bytes32(0);
+
+    if (biome == uint8(Biome.Swamp)) {
+      if (hash >= 80) return bytes32(0);
+        structObjectTypeId = SakuraTree(chunkOffset);
+    } else if (biome == uint8(Biome.Plains)) {
+      if (hash >= 20) return bytes32(0);
+        structObjectTypeId = OakTree(chunkOffset);
+    } else if (biome == uint8(Biome.Forest)) {
+      if (hash >= 800) return bytes32(0);
+      if (hash < 200) {
+        structObjectTypeId = RubberTree(chunkOffset);
+      } else if (hash >= 200 && hash < 400) {
+        structObjectTypeId = BirchTree(chunkOffset);
+      } else {
+        structObjectTypeId = OakTree(chunkOffset);
+      }
+    }
+
+    return structObjectTypeId;
+  }
+
+  function Flora(
+    int32 x,
+    int32 y,
+    int32 z,
+    int32 height,
+    uint8 biome
+  ) internal view returns (bytes32) {
+    if (y != height) return bytes32(0);
+
+    uint16 hash1 = getCoordHash(x, z); 
+    uint16 hash2 = getChunkHash2(x, z);
+
+    if (biome == uint8(Biome.Swamp)) {
+      if (hash2 >= 40) return bytes32(0);
+      return CottonBushObjectID;
+    } else if (biome == uint8(Biome.Desert)) {
+      if (hash1 < 8) {
+        return CactusObjectID;
+      }
+    } else if (biome == uint8(Biome.Plains)) {
+      if (hash1 < 4) {
+        return BellflowerObjectID; 
+      } else if (hash1 >= 4 && hash1 < 8) {
+        return DandelionObjectID;
+      } else if (hash1 >= 8 && hash1 < 12) {
+        return DaylilyObjectID;
+      } else if (hash1 >= 12 && hash1 < 16) {
+        return RedMushroomObjectID; 
+      } else if (hash1 >= 16 && hash1 < 20) {
+        return LilacObjectID; 
+      } else if (hash1 >= 20 && hash1 < 24) {
+        return RoseObjectID; 
+      } else if (hash1 >= 24 && hash1 < 28) {
+        return AzaleaObjectID; 
+      }
+    }
+
+    return bytes32(0);
+  }
+
+  function Ores(
+    int32 x,
+    int32 y,
+    int32 z,
+    int32 height,
+    uint8 biome,
+    int32 distanceFromHeight
+  ) internal view returns (bytes32) {
+    if (y >= height) return bytes32(0);
+
+    // Checking biome conditions and distance from height for ore generation
+    if (
+      y < -20 &&
+      biome != uint8(Biome.Mountains) &&
+      biome != uint8(Biome.Mountains2) &&
+      biome != uint8(Biome.Mountains3) &&
+      biome != uint8(Biome.Mountains4)
+    ) {
+      if (distanceFromHeight >= 10 && distanceFromHeight <= 20) {
+        if (biome == uint8(Biome.Desert)) {
+          return oreRegion1Desert(x, y, z);
+        } else {
+          return oreRegion1(x, y, z);
+        }
+      } else if (distanceFromHeight > 20 && distanceFromHeight <= 40) {
+        if (biome == uint8(Biome.Desert)) {
+          return oreRegion2Desert(x, y, z);
+        } else {
+          return oreRegion2(x, y, z);
+        }
+      } else if (distanceFromHeight > 40) {
+        if (biome == uint8(Biome.Desert)) {
+          return oreRegion3Desert(x, y, z);
+        } else {
+          return oreRegion3(x, y, z);
+        }
+      }
+    } else if (
+      biome == uint8(Biome.Mountains) ||
+      biome == uint8(Biome.Mountains2) ||
+      biome == uint8(Biome.Mountains3) ||
+      biome == uint8(Biome.Mountains4)
+    ) {
+      if (y > -20 && y <= 30) {
+        return oreRegion1Mount(x, y, z);
+      } else if (y > 30 && y <= 80) {
+        return oreRegion2Mount(x, y, z);
+      } else if (y > 80) {
+        return oreRegion3Mount(x, y, z);
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion1(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 1: Coal is Abundant, Silver is Rare
+    if (hash1 <= 15 || hash1 > 45) {
+      if (hash1 <= 10 && hash2 <= 10) {
+        return SilverOreObjectID; 
+      }
+    } else {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion1Desert(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 1: Coal is Abundant, Silver is Rare, Boost Gold Lightly
+    if (hash1 <= 15 || hash1 > 45) {
+      if (hash1 <= 10 && hash2 <= 10) {
+        return SilverOreObjectID;
+      } else if (hash1 <= 15 && hash2 <= 15) {
+        return GoldOreObjectID;
+      }
+    } else {
+      if (hash2 > 0 && hash2 <= 10) {
+        return CoalOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion1Mount(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 1: Coal is Abundant, Silver is Rare But Boosted
+    if (hash1 <= 15 || hash1 > 45) {
+      if (hash1 <= 15 && hash2 <= 15) {
+        return SilverOreObjectID;
+      }
+    } else {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion2(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 2: Coal and Silver Equally Abundant, Gold is Rare, Diamond is Even More Rare
+    if (hash1 <= 25) {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    } else if (hash1 > 25 && hash1 <= 50) {
+      if (hash2 > 15 && hash2 <= 30) {
+        return SilverOreObjectID;
+      }
+    } else if (hash1 > 45 && hash1 <= 60) {
+      if (hash2 > 30 && hash2 <= 40) {
+        return GoldOreObjectID;
+      } else if (hash2 > 40 && hash2 <= 45) {
+        return DiamondOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion2Desert(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 2: Coal and Silver Equally Abundant, Gold is Rare But Boosted, Diamond is Even More Rare
+    if (hash1 <= 25) {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    } else if (hash1 > 25 && hash1 <= 50) {
+      if (hash2 > 15 && hash2 <= 30) {
+        return SilverOreObjectID;
+      } else if (hash2 > 30 && hash2 <= 45) {
+        return GoldOreObjectID;
+      }
+    } else if (hash1 > 45 && hash1 <= 60) {
+      if (hash2 > 45 && hash2 <= 50) {
+        return DiamondOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion2Mount(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 2: Coal and Silver Equally Abundant, Gold is Rare, Diamond is Even More Rare but Boosted
+    if (hash1 <= 25) {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    } else if (hash1 > 25 && hash1 <= 50) {
+      if (hash2 > 15 && hash2 <= 30) {
+        return SilverOreObjectID;
+      }
+    } else if (hash1 > 45 && hash1 <= 60) {
+      if (hash2 > 30 && hash2 <= 40) {
+        return GoldOrerObjectID;
+      } else if (hash2 > 40 && hash2 <= 55) {
+        return DiamondOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion3(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 3: Coal, Silver, and Gold Equally Abundant, Diamond is Rare, Neptunium is Even More Rare
+    if (hash1 <= 25) {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    } else if (hash1 > 25 && hash1 <= 50) {
+      if (hash2 > 15 && hash2 <= 30) {
+        return SilverOreObjectID;
+      }
+    } else if (hash1 > 50 && hash1 <= 75) {
+      if (hash2 > 30 && hash2 <= 45) {
+        return GoldOreObjectID;
+      }
+    } else if (hash1 > 75 && hash1 <= 90) {
+      if (hash2 > 45 && hash2 <= 55) {
+        return DiamondOreObjectID;
+      } else if (hash2 > 55 && hash2 <= 60) {
+        return NeptuniumOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion3Desert(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 3: Coal, Silver, and Gold Equally Abundant But Boosted Even More, Diamond is Rare, Neptunium is Even More Rare
+    if (hash1 <= 25) {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    } else if (hash1 > 25 && hash1 <= 50) {
+      if (hash2 > 15 && hash2 <= 30) {
+        return SilverOreObjectID;
+      }
+    } else if (hash1 > 50 && hash1 <= 75) {
+      if (hash2 > 30 && hash2 <= 55) {
+        return GoldOreObjectID;
+      }
+    } else if (hash1 > 75 && hash1 <= 90) {
+      if (hash2 > 55 && hash2 <= 65) {
+        return DiamondOreObjectID;
+      } else if (hash2 > 65 && hash2 <= 70) {
+        return NeptuniumOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion3Mount(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 3: Coal, Silver, and Gold Equally Abundant, Diamond is Rare, Neptunium is Even More Rare
+    if (hash1 <= 25) {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    } else if (hash1 > 25 && hash1 <= 50) {
+      if (hash2 > 15 && hash2 <= 30) {
+        return SilverOreObjectID;
+      }
+    } else if (hash1 > 50 && hash1 <= 75) {
+      if (hash2 > 30 && hash2 <= 45) {
+        return GoldOreObjectID;
+      }
+    } else if (hash1 > 75 && hash1 <= 90) {
+      if (hash2 > 45 && hash2 <= 55) {
+        return DiamondOreObjectID;
+      } else if (hash2 > 55 && hash2 <= 70) {
+        return NeptuniumOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function TerrainBlocks(
+    int32 x,
+    int32 y,
+    int32 z,
+    int32 height,
+    uint8 biome,
+    int32 distanceFromHeight
+  ) internal view returns (bytes32) {
+    if (y >= height) return bytes32(0);
+
+    if (y < -120) return BedrockObjectID;
+
+    if (distanceFromHeight <= 3) {
+      if (distanceFromHeight == 1) {
+        if (biome == uint8(Biome.Plains)) return GrassObjectID;
+        else if (biome == uint8(Biome.Swamp)) return MuckGrassObjectID;
+      }
+      if (biome == uint8(Biome.Mountains)) return BasaltObjectID;
+      else if (biome == uint8(Biome.Mountains2)) return LimestoneObjectID;
+      else if (biome == uint8(Biome.Mountains3)) return QuartziteObjectID;
+      else if (biome == uint8(Biome.Mountains4)) return GraniteObjectID;
+      else if (biome == uint8(Biome.Forest)) return MossObjectID;
+      else if (biome == uint8(Biome.Desert)) return SandObjectID;
+    }
+
+    if (biome == uint8(Biome.Mountains) || biome == uint8(Biome.Mountains2) || 
+        biome == uint8(Biome.Mountains3) || biome == uint8(Biome.Mountains4)) {
+      return StoneObjectID;
+    } else if (biome == uint8(Biome.Forest) || biome == uint8(Biome.Plains)) {
+      return DirtObjectID;
+    } else if (biome == uint8(Biome.Swamp)) {
+      return MuckDirtObjectID;
+    } else if (biome == uint8(Biome.Desert)) {
+      return GravelObjectID;
+    }
+
+    return bytes32(0);
+  }
+
 }
