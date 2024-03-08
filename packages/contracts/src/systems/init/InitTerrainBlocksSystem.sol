@@ -38,10 +38,7 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(DirtObjectID, 4, anyBlockSelector);
     createTerrainBlock(MuckDirtObjectID, 4, anyBlockSelector);
     createTerrainBlock(MossBlockObjectID, 4, anyBlockSelector);
-    createTerrainBlock(SnowObjectID, 1, anyBlockSelector);
     createTerrainBlock(GravelObjectID, 5, anyBlockSelector);
-    createTerrainBlock(AsphaltObjectID, 8, anyBlockSelector);
-    createTerrainBlock(SoilObjectID, 3, anyBlockSelector);
     createTerrainBlock(SandObjectID, 2, anyBlockSelector);
     createTerrainBlock(BedrockObjectID, 1000, anyBlockSelector);
 
@@ -52,8 +49,6 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(LimestoneObjectID, 7, anyBlockSelector);
 
     createTerrainBlock(CottonBlockObjectID, 1, anyBlockSelector);
-    createTerrainBlock(LavaObjectID, 2, anyBlockSelector);
-
     createTerrainBlock(CactusObjectID, 1, anyBlockSelector);
     createTerrainBlock(LilacObjectID, 1, anyBlockSelector);
     createTerrainBlock(DandelionObjectID, 1, anyBlockSelector);

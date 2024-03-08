@@ -23,9 +23,13 @@ uint256 constant MAX_CHEST_INVENTORY_SLOTS = 12;
 // Terrain
 enum Biome {
   Mountains,
-  Desert,
+  Mountains2,
+  Mountains3,
+  Mountains4,
+  Swamp,
+  Plains,
   Forest,
-  Savanna
+  Desert
 }
 
 int32 constant STRUCTURE_CHUNK = 5;

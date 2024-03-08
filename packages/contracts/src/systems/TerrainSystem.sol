@@ -177,6 +177,16 @@ contract TerrainSystem is System {
     return getCoordHash(floorDiv(x, 300) + floorDiv(y, 300), int32(uint32(biome)));
   }
 
+  function getChunkHash(int32 x, int32 z) {
+    (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
+    return getCoordHash(chunkX, chunkZ);
+  }
+
+  function getChunkHash2(int32 x, int32 z) {
+    (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
+    return getCoordHash(chunkX + 50, chunkZ + 50);
+  }
+
   //////////////////////////////////////////////////////////////////////////////////////
   // Utils
   //////////////////////////////////////////////////////////////////////////////////////
@@ -225,13 +235,6 @@ contract TerrainSystem is System {
     return Perlin.lerp(t, points[0].y, points[1].y);
   }
 
-  function continentalness(int128 x) internal view returns (int128) {
-    Tuple[] memory splines = new Tuple[](2);
-    splines[0] = Tuple(_0, _0);
-    splines[1] = Tuple(_1, _0_3);
-    return applySpline(x, splines);
-  }
-
   function mountains(int128 x) internal view returns (int128) {
     Tuple[] memory splines = new Tuple[](4);
     splines[0] = Tuple(_0, _0);
@@ -259,19 +262,6 @@ contract TerrainSystem is System {
     Tuple[] memory splines = new Tuple[](2);
     splines[0] = Tuple(_0, _0);
     splines[1] = Tuple(_1, _0_4);
-    return applySpline(x, splines);
-  }
-
-  function valleys(int128 x) internal view returns (int128) {
-    Tuple[] memory splines = new Tuple[](8);
-    splines[0] = Tuple(_0, _1);
-    splines[1] = Tuple(_0_45, _1);
-    splines[2] = Tuple(_0_49, _0_9);
-    splines[3] = Tuple(_0_499, _0_8);
-    splines[4] = Tuple(_0_501, _0_8);
-    splines[5] = Tuple(_0_51, _0_9);
-    splines[6] = Tuple(_0_55, _1);
-    splines[7] = Tuple(_1, _1);
     return applySpline(x, splines);
   }
 
@@ -504,8 +494,7 @@ contract TerrainSystem is System {
     (int32 chunkHeight, VoxelCoord memory chunkOffset) = getChunkOffsetAndHeight(x, y, z);
     if (chunkHeight > 30 || chunkHeight < 5) return bytes32(0);
 
-    (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
-    uint16 hash = getCoordHash(chunkX, chunkZ);
+    uint16 hash = getChunkHash(x, z);
     if (hash >= 100) return bytes32(0);
 
     bytes32 structObjectTypeId = bytes32(0);
