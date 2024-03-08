@@ -6,7 +6,7 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import { ABDKMath64x64 as Math } from "@everlonxyz/utils/src/libraries/ABDKMath64x64.sol";
 import { Perlin } from "@everlonxyz/utils/src/libraries/Perlin.sol";
 
-import { BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, AsphaltObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, SoilObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, MossGrassObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../ObjectTypeIds.sol";
+import { SandObjectID, MossObjectID, BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, AsphaltObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, SoilObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, MossGrassObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../ObjectTypeIds.sol";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../Constants.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { floorDiv } from "@everlonxyz/utils/src/MathUtils.sol";
@@ -17,6 +17,8 @@ struct Tuple {
 }
 
 int128 constant _0 = 0; // 0 * 2**64
+int128 constant _0_1 = 1844674407370955264; // 0.1 * 2**64
+int128 constant _0_2 = 3689348814741910528; // 0.2 * 2**64
 int128 constant _0_3 = 5534023222112865484; // 0.3 * 2**64
 int128 constant _0_4 = 7378697629483820646; // 0.4 * 2**64
 int128 constant _0_45 = 8301034833169298227; // 0.45 * 2**64
@@ -58,7 +60,7 @@ contract TerrainSystem is System {
     revert("unknown biome");
   }
 
-  function getBiome(int32 x, int32 z) internal view returns (int128[4] memory) {
+  function getBiome(int32 x, int32 z) internal view returns (int128[8] memory) {
     int128 heat = Perlin.noise2d(x + 222, z + 222, 666, 64);
     int128 humidity = Perlin.noise(z, x, 999, 555, 64);
     int128 elev = Perlin.noise(x, z, 999, 444, 64);
@@ -197,6 +199,8 @@ contract TerrainSystem is System {
     terrainHeight = Math.add(terrainHeight, Perlin.noise2d(x, z, 13, 64));
     terrainHeight = Math.div(terrainHeight, _16);
 
+    int128[8] memory biome = getBiome(coord.x, coord.z);
+
     // Compute biome height
     int128 height = Math.mul(biome[uint256(Biome.Mountains)], mountains(terrainHeight));
     height = Math.add(height, Math.mul(biome[uint256(Biome.Mountains2)], mountains2(terrainHeight)));
@@ -260,7 +264,7 @@ contract TerrainSystem is System {
     (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
     int32 chunkCenterX = chunkX * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
     int32 chunkCenterZ = chunkZ * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
-    int128[4] memory biome = getBiome(chunkCenterX, chunkCenterZ);
+    int128[8] memory biome = getBiome(chunkCenterX, chunkCenterZ);
     height = getHeight(chunkCenterX, chunkCenterZ);
     offset = VoxelCoord(x - chunkX * STRUCTURE_CHUNK, y - height, z - chunkZ * STRUCTURE_CHUNK);
   }
@@ -393,7 +397,7 @@ contract TerrainSystem is System {
   //////////////////////////////////////////////////////////////////////////////////////
 
   function getTerrainBlock(VoxelCoord memory coord) public view returns (bytes32) {
-    int128[4] memory biome = getBiome(coord.x, coord.z);
+    int128[8] memory biome = getBiome(coord.x, coord.z);
     int32 height = getHeight(coord.x, coord.z);
     return getTerrainBlock(coord.x, coord.y, coord.z, height, biome);
   }
@@ -438,7 +442,7 @@ contract TerrainSystem is System {
     return AirObjectID;
   }
 
-  function Structure(
+  function Trees(
     int32 x,
     int32 y,
     int32 z,
@@ -707,7 +711,7 @@ contract TerrainSystem is System {
       }
     } else if (hash1 > 45 && hash1 <= 60) {
       if (hash2 > 30 && hash2 <= 40) {
-        return GoldOrerObjectID;
+        return GoldOreObjectID;
       } else if (hash2 > 40 && hash2 <= 55) {
         return DiamondOreObjectID;
       }
