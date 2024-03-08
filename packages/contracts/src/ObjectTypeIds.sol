@@ -12,7 +12,7 @@ bytes32 constant WoodenAxeObjectID = bytes32(keccak256("wooden-axe"));
 bytes32 constant WoodenWhackerObjectID = bytes32(keccak256("wooden-whacker"));
 bytes32 constant StonePickObjectID = bytes32(keccak256("stone-pick"));
 bytes32 constant StoneAxeObjectID = bytes32(keccak256("stone-axe"));
-bytes32 constant StoneWhackerObjectID = bytes32(keccak256("stone-pick"));
+bytes32 constant StoneWhackerObjectID = bytes32(keccak256("stone-whacker"));
 bytes32 constant SilverPickObjectID = bytes32(keccak256("silver-pick"));
 bytes32 constant SilverAxeObjectID = bytes32(keccak256("silver-axe"));
 bytes32 constant SilverWhackerObjectID = bytes32(keccak256("silver-whacker"));
@@ -61,6 +61,9 @@ bytes32 constant BedrockObjectID = bytes32(keccak256("bedrock"));
 
 bytes32 constant CobblestoneObjectID = bytes32(keccak256("cobblestone"));
 bytes32 constant CobblestoneBrickObjectID = bytes32(keccak256("cobblestone-brick"));
+bytes32 constant CobblestoneCarvedObjectID = bytes32(keccak256("cobblestone-carved"));
+bytes32 constant CobblestonePolishedObjectID = bytes32(keccak256("cobblestone-polished"));
+bytes32 constant CobblestoneShinglesObjectID = bytes32(keccak256("cobblestone-shingles"));
 
 bytes32 constant StoneObjectID = bytes32(keccak256("stone"));
 bytes32 constant StoneBrickObjectID = bytes32(keccak256("stone-brick"));

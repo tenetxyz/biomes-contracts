@@ -8,7 +8,8 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
-import { CobblestoneObjectID, CobblestoneBrickObjectID, StoneObjectID, StoneBrickObjectID, StoneCarvedObjectID, StonePolishedObjectID, StoneShinglesObjectID } from "../../ObjectTypeIds.sol";
+import { CobblestoneObjectID, CobblestoneBrickObjectID, CobblestoneCarvedObjectID, CobblestonePolishedObjectID, CobblestoneShinglesObjectID } from "../../ObjectTypeIds.sol";
+import { StoneObjectID, StoneBrickObjectID, StoneCarvedObjectID, StonePolishedObjectID, StoneShinglesObjectID } from "../../ObjectTypeIds.sol";
 import { BasaltObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID } from "../../ObjectTypeIds.sol";
 import { ClayObjectID, ClayBrickObjectID, ClayCarvedObjectID, ClayPolishedObjectID, ClayShinglesObjectID } from "../../ObjectTypeIds.sol";
 import { GraniteObjectID, GraniteBrickObjectID, GraniteCarvedObjectID, GraniteShinglesObjectID, GranitePolishedObjectID } from "../../ObjectTypeIds.sol";
@@ -55,6 +56,9 @@ contract InitThermoblastSystem is System {
 
   function initThermoblastObjectTypes() public {
     createBlock(CobblestoneBrickObjectID, 7);
+    createBlock(CobblestoneCarvedObjectID, 7);
+    createBlock(CobblestonePolishedObjectID, 7);
+    createBlock(CobblestoneShinglesObjectID, 7);
 
     createBlock(StoneBrickObjectID, 7);
     createBlock(StoneCarvedObjectID, 7);
@@ -106,6 +110,9 @@ contract InitThermoblastSystem is System {
 
   function initThermoblastRecipes() public {
     createSingleInputWithStationRecipe(ThermoblasterObjectID, CobblestoneObjectID, 4, CobblestoneBrickObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, CobblestoneBrickObjectID, 4, CobblestoneCarvedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, CobblestoneBrickObjectID, 4, CobblestonePolishedObjectID, 4);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, CobblestoneBrickObjectID, 4, CobblestoneShinglesObjectID, 4);
 
     createSingleInputWithStationRecipe(ThermoblasterObjectID, StoneObjectID, 4, StoneBrickObjectID, 4);
     createSingleInputWithStationRecipe(ThermoblasterObjectID, StoneObjectID, 4, StoneCarvedObjectID, 4);
