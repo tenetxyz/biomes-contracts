@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+int32 constant SPAWN_LOW_X = 139;
+int32 constant SPAWN_HIGH_X = 159;
+int32 constant SPAWN_LOW_Z = -34;
+int32 constant SPAWN_HIGH_Z = -14;
+int32 constant SPAWN_GROUND_Y = -62;
+
 uint16 constant MAX_PLAYER_HEALTH = 100;
 uint32 constant MAX_PLAYER_STAMINA = 200000;
 

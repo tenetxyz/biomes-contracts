@@ -22,9 +22,13 @@ import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../Constants.sol";
 
 contract BuildSystem is System {
   function build(bytes32 inventoryEntityId, VoxelCoord memory coord) public {
+    require(coord.x < SPAWN_LOW_X || coord.x > SPAWN_HIGH_X, "BuildSystem: cannot build at spawn area");
+    require(coord.z < SPAWN_LOW_Z || coord.z > SPAWN_HIGH_Z, "BuildSystem: cannot build at spawn area");
+
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "BuildSystem: player does not exist");
     require(
@@ -49,7 +53,10 @@ contract BuildSystem is System {
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(AirObjectID, coord) == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
+      require(
+        getTerrainObjectTypeId(AirObjectID, coord) == AirObjectID,
+        "BuildSystem: cannot build on terrain non-air block"
+      );
     } else {
       require(ObjectType.get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
 

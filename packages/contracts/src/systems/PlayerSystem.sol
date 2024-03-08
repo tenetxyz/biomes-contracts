@@ -21,12 +21,7 @@ import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
-
-// TODO: update to actual spawn area
-int32 constant SPAWN_LOW_X = 0;
-int32 constant SPAWN_HIGH_X = 300;
-int32 constant SPAWN_LOW_Z = 0;
-int32 constant SPAWN_HIGH_Z = 300;
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../Constants.sol";
 
 contract PlayerSystem is System {
   function spawnPlayer(VoxelCoord memory spawnCoord) public returns (bytes32) {
@@ -34,14 +29,16 @@ contract PlayerSystem is System {
     require(Player.get(newPlayer) == bytes32(0), "PlayerSystem: player already exists");
 
     // Check spawn coord is within spawn area
-    // TODO: update to actual spawn area
-    // require(spawnCoord.x >= SPAWN_LOW_X && spawnCoord.x <= SPAWN_HIGH_X, "PlayerSystem: x coord out of bounds");
-    // require(spawnCoord.z >= SPAWN_LOW_Z && spawnCoord.z <= SPAWN_HIGH_Z, "PlayerSystem: z coord out of bounds");
-    // require(spawnCoord.y == 0, "PlayerSystem: y coord out of bounds");
+    require(spawnCoord.x >= SPAWN_LOW_X && spawnCoord.x <= SPAWN_HIGH_X, "PlayerSystem: x coord outside of spawn area");
+    require(spawnCoord.z >= SPAWN_LOW_Z && spawnCoord.z <= SPAWN_HIGH_Z, "PlayerSystem: z coord outside of spawn area");
+    require(spawnCoord.y - 1 == SPAWN_GROUND_Y, "PlayerSystem: y coord is not at spawn ground level");
 
     bytes32 entityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     if (entityId == bytes32(0)) {
-      require(getTerrainObjectTypeId(AirObjectID, spawnCoord) == AirObjectID, "PlayerSystem: cannot spawn on terrain non-air block");
+      require(
+        getTerrainObjectTypeId(AirObjectID, spawnCoord) == AirObjectID,
+        "PlayerSystem: cannot spawn on terrain non-air block"
+      );
 
       // Create new entity
       entityId = getUniqueEntity();
@@ -76,6 +73,9 @@ contract PlayerSystem is System {
 
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
     VoxelCoord memory hitCoord = positionDataToVoxelCoord(Position.get(hitEntityId));
+    require(hitCoord.x < SPAWN_LOW_X || hitCoord.x > SPAWN_HIGH_X, "PlayerSystem: cannot hit at spawn area");
+    require(hitCoord.z < SPAWN_LOW_Z || hitCoord.z > SPAWN_HIGH_Z, "PlayerSystem: cannot hit at spawn area");
+
     require(
       inSurroundingCube(playerCoord, 1, hitCoord),
       "PlayerSystem: hit entity is not in surrounding cube of player"

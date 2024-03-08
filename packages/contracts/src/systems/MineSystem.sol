@@ -23,9 +23,13 @@ import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { applyGravity } from "../utils/GravityUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../Constants.sol";
 
 contract MineSystem is System {
   function mine(bytes32 objectTypeId, VoxelCoord memory coord) public returns (bytes32) {
+    require(coord.x < SPAWN_LOW_X || coord.x > SPAWN_HIGH_X, "MineSystem: cannot mine at spawn area");
+    require(coord.z < SPAWN_LOW_Z || coord.z > SPAWN_HIGH_Z, "MineSystem: cannot mine at spawn area");
+
     require(ObjectTypeMetadata.getIsBlock(objectTypeId), "MineSystem: object type is not a block");
     require(objectTypeId != AirObjectID, "MineSystem: cannot mine air");
 
@@ -52,7 +56,10 @@ contract MineSystem is System {
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(objectTypeId, coord) == objectTypeId, "MineSystem: block type does not match with terrain type");
+      require(
+        getTerrainObjectTypeId(objectTypeId, coord) == objectTypeId,
+        "MineSystem: block type does not match with terrain type"
+      );
 
       // Create new entity
       entityId = getUniqueEntity();

@@ -28,6 +28,7 @@ import { voxelCoordsAreEqual } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../src/ObjectTypeIds.sol";
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
 contract PlayerTest is MudTest, GasReporter {
   IWorld private world;
@@ -126,7 +127,19 @@ contract PlayerTest is MudTest, GasReporter {
     vm.expectRevert();
     world.spawnPlayer(spawnCoord);
 
-    // TODO: Add test for spawn coord not in spawn area
+    vm.stopPrank();
+  }
+
+  function testSpawnPlayerOutsideSpawn() public {
+    vm.startPrank(alice, alice);
+
+    // Invalid terrain coord
+    VoxelCoord memory spawnCoord = VoxelCoord(SPAWN_HIGH_X + 1, SPAWN_GROUND_Y, SPAWN_HIGH_Z + 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(spawnCoord);
+    assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
+
+    vm.expectRevert();
+    world.spawnPlayer(spawnCoord);
 
     vm.stopPrank();
   }
