@@ -6,7 +6,7 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import { ABDKMath64x64 as Math } from "@everlonxyz/utils/src/libraries/ABDKMath64x64.sol";
 import { Perlin } from "@everlonxyz/utils/src/libraries/Perlin.sol";
 
-import { SandObjectID, MossObjectID, BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, AsphaltObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, SoilObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, MossGrassObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../ObjectTypeIds.sol";
+import { SandObjectID, BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, AsphaltObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, SoilObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, MossGrassObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../ObjectTypeIds.sol";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../Constants.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { floorDiv } from "@everlonxyz/utils/src/MathUtils.sol";
@@ -14,6 +14,13 @@ import { floorDiv } from "@everlonxyz/utils/src/MathUtils.sol";
 struct Tuple {
   int128 x;
   int128 y;
+}
+
+struct PerlinTuple {
+  int128 humidity;
+  int128 heat;
+  int128 elev;
+
 }
 
 int128 constant _0 = 0; // 0 * 2**64
@@ -48,15 +55,15 @@ contract TerrainSystem is System {
   // Biomes
   //////////////////////////////////////////////////////////////////////////////////////
 
-  function getBiomeVector(Biome biome) internal pure returns (Tuple memory) {
-    if (biome == Biome.Mountains) return Tuple(_0, _0, _1);
-    if (biome == Biome.Mountains2) return Tuple(_1, _0, _1);
-    if (biome == Biome.Mountains3) return Tuple(_0, _1, _1);
-    if (biome == Biome.Mountains4) return Tuple(_1, _1, _1);
-    if (biome == Biome.Swamp) return Tuple(_0, _0, _0);
-    if (biome == Biome.Plains) return Tuple(_1, _0, _0);
-    if (biome == Biome.Forest) return Tuple(_0, _1, _0);
-    if (biome == Biome.Desert) return Tuple(_1, _1, _0);
+  function getBiomeVector(Biome biome) internal pure returns (PerlinTuple memory) {
+    if (biome == Biome.Mountains) return PerlinTuple(_0, _0, _1);
+    if (biome == Biome.Mountains2) return PerlinTuple(_1, _0, _1);
+    if (biome == Biome.Mountains3) return PerlinTuple(_0, _1, _1);
+    if (biome == Biome.Mountains4) return PerlinTuple(_1, _1, _1);
+    if (biome == Biome.Swamp) return PerlinTuple(_0, _0, _0);
+    if (biome == Biome.Plains) return PerlinTuple(_1, _0, _0);
+    if (biome == Biome.Forest) return PerlinTuple(_0, _1, _0);
+    if (biome == Biome.Desert) return PerlinTuple(_1, _1, _0);
     revert("unknown biome");
   }
 
@@ -65,7 +72,7 @@ contract TerrainSystem is System {
     int128 humidity = Perlin.noise(z, x, 999, 555, 64);
     int128 elev = Perlin.noise(x, z, 999, 444, 64);
 
-    Tuple memory biomeVector = Tuple(humidity, heat, elev);
+    PerlinTuple memory biomeVector = PerlinTuple(humidity, heat, elev);
     int128[8] memory biome;
 
     biome[uint256(Biome.Mountains)] = pos(
@@ -199,7 +206,7 @@ contract TerrainSystem is System {
     terrainHeight = Math.add(terrainHeight, Perlin.noise2d(x, z, 13, 64));
     terrainHeight = Math.div(terrainHeight, _16);
 
-    int128[8] memory biome = getBiome(coord.x, coord.z);
+    int128[8] memory biome = getBiome(x, z);
 
     // Compute biome height
     int128 height = Math.mul(biome[uint256(Biome.Mountains)], mountains(terrainHeight));
@@ -222,17 +229,24 @@ contract TerrainSystem is System {
   //////////////////////////////////////////////////////////////////////////////////////
 
   // return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
-  function euclidean(Tuple memory a, Tuple memory b) internal pure returns (int128) {
-    return Math.sqrt(Math.add(Math.pow(Math.sub(a.x, b.x), 2), Math.pow(Math.sub(a.y, b.y), 2)));
+  // function euclidean2D(Tuple memory a, Tuple memory b) internal pure returns (int128) {
+  //   return Math.sqrt(Math.add(Math.pow(Math.sub(a.x, b.x), 2), Math.pow(Math.sub(a.y, b.y), 2)));
+  // }
+
+  function euclidean(PerlinTuple memory a, PerlinTuple memory b) internal pure returns (int128) {
+    int128 dx = Math.sub(a.humidity, b.humidity);
+    int128 dy = Math.sub(a.heat, b.heat);
+    int128 dz = Math.sub(a.elev, b.elev); // Difference in the z dimension
+    return Math.sqrt(Math.add(Math.add(Math.pow(dx, 2), Math.pow(dy, 2)), Math.pow(dz, 2)));
   }
 
-  function euclideanVec(int128[] memory a, int128[] memory b) internal pure returns (int128) {
-    return euclidean(Tuple(a[0], a[1]), Tuple(b[0], b[1]));
-  }
+  // function euclideanVec(int128[] memory a, int128[] memory b, int128[] memory c) internal pure returns (int128) {
+  //   return euclidean(PerlinTuple(a[0], a[1]), PerlinTuple(b[0], b[1]), PerlinTuple(c[0], c[1]));
+  // }
 
-  function euclideanRaw(int128 a0, int128 a1, int128 b0, int128 b1) internal pure returns (int128) {
-    return euclidean(Tuple(a0, a1), Tuple(b0, b1));
-  }
+  // function euclideanRaw(int128 a0, int128 a1, int128 b0, int128 b1, int128 c0, int128 c1) internal pure returns (int128) {
+  //   return euclidean(PerlinTuple(a0, a1), PerlinTuple(b0, b1), PerlinTuple(c0, c1));
+  // }
 
   function pos(int128 x) internal pure returns (int128) {
     return x < 0 ? int128(0) : x;
@@ -242,12 +256,12 @@ contract TerrainSystem is System {
     return a.x == int32(uint32(b[0])) && a.y == int32(uint32(b[1])) && a.z == int32(uint32(b[2]));
   }
 
-  function getChunkHash(int32 x, int32 z) internal returns (uint16) {
+  function getChunkHash(int32 x, int32 z) internal view returns (uint16) {
     (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
     return getCoordHash(chunkX, chunkZ);
   }
 
-  function getChunkHash2(int32 x, int32 z) internal returns (uint16) {
+  function getChunkHash2(int32 x, int32 z) internal view returns (uint16) {
     (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
     return getCoordHash(chunkX + 50, chunkZ + 50);
   }
@@ -417,7 +431,7 @@ contract TerrainSystem is System {
     objectTypeId = Trees(x, y, z, height, biome, distanceFromHeight);
     if (objectTypeId != bytes32(0)) return objectTypeId;
 
-    objectTypeId = Flora(x, y, z, height, biome, distanceFromHeight);
+    objectTypeId = Flora(x, y, z, height, biome);
     if (objectTypeId != bytes32(0)) return objectTypeId;
 
     objectTypeId = TerrainBlocks(x, y, z, height, biome, distanceFromHeight);
@@ -833,7 +847,7 @@ contract TerrainSystem is System {
       else if (biome == uint8(Biome.Mountains2)) return LimestoneObjectID;
       else if (biome == uint8(Biome.Mountains3)) return QuartziteObjectID;
       else if (biome == uint8(Biome.Mountains4)) return GraniteObjectID;
-      else if (biome == uint8(Biome.Forest)) return MossObjectID;
+      else if (biome == uint8(Biome.Forest)) return MossBlockObjectID;
       else if (biome == uint8(Biome.Desert)) return SandObjectID;
     }
 
