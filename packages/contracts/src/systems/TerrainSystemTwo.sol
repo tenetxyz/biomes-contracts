@@ -274,7 +274,7 @@ contract TerrainSystem is System {
     return (floorDiv(x, STRUCTURE_CHUNK), floorDiv(z, STRUCTURE_CHUNK));
   }
 
-  function getMaxBiome(int128[4] memory biomeValues) internal pure returns (uint8 biome) {
+  function getMaxBiome(int128[8] memory biomeValues) internal pure returns (uint8 biome) {
     int128 maxBiome;
     for (uint256 i; i < biomeValues.length; i++) {
       if (biomeValues[i] > maxBiome) {
@@ -403,7 +403,7 @@ contract TerrainSystem is System {
     int32 y,
     int32 z,
     int32 height,
-    int128[4] memory biomeValues
+    int128[8] memory biomeValues
   ) internal view returns (bytes32) {
     bytes32 objectTypeId;
 
@@ -509,6 +509,60 @@ contract TerrainSystem is System {
       }
     }
 
+    return bytes32(0);
+  }
+
+  function Ores(
+    int32 x,
+    int32 y,
+    int32 z,
+    int32 height,
+    uint8 biome,
+    int32 distanceFromHeight
+  ) internal view returns (bytes32) {
+    if (y >= height) return bytes32(0);
+
+    // Checking biome conditions and distance from height for ore generation
+    if (
+      y < -20 &&
+      biome != uint8(Biome.Mountains) &&
+      biome != uint8(Biome.Mountains2) &&
+      biome != uint8(Biome.Mountains3) &&
+      biome != uint8(Biome.Mountains4)
+    ) {
+      if (distanceFromHeight >= 10 && distanceFromHeight <= 20) {
+        if (biome == uint8(Biome.Desert)) {
+          return oreRegion1Desert(x, y, z);
+        } else {
+          return oreRegion1(x, y, z);
+        }
+      } else if (distanceFromHeight > 20 && distanceFromHeight <= 40) {
+        if (biome == uint8(Biome.Desert)) {
+          return oreRegion2Desert(x, y, z);
+        } else {
+          return oreRegion2(x, y, z);
+        }
+      } else if (distanceFromHeight > 40) {
+        if (biome == uint8(Biome.Desert)) {
+          return oreRegion3Desert(x, y, z);
+        } else {
+          return oreRegion3(x, y, z);
+        }
+      }
+    } else if (
+      biome == uint8(Biome.Mountains) ||
+      biome == uint8(Biome.Mountains2) ||
+      biome == uint8(Biome.Mountains3) ||
+      biome == uint8(Biome.Mountains4)
+    ) {
+      if (y > -20 && y <= 30) {
+        return oreRegion1Mount(x, y, z);
+      } else if (y > 30 && y <= 80) {
+        return oreRegion2Mount(x, y, z);
+      } else if (y > 80) {
+        return oreRegion3Mount(x, y, z);
+      }
+    }
     return bytes32(0);
   }
 
@@ -753,5 +807,4 @@ contract TerrainSystem is System {
     }
     return bytes32(0);
   }
-
 }
