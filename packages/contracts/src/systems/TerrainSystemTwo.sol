@@ -6,7 +6,7 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import { ABDKMath64x64 as Math } from "@everlonxyz/utils/src/libraries/ABDKMath64x64.sol";
 import { Perlin } from "@everlonxyz/utils/src/libraries/Perlin.sol";
 
-import { AirObjectID, SnowObjectID, AsphaltObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, SoilObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, MossGrassObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../ObjectTypeIds.sol";
+import { BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, AsphaltObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, SoilObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, MossGrassObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../ObjectTypeIds.sol";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../Constants.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { floorDiv } from "@everlonxyz/utils/src/MathUtils.sol";
@@ -467,5 +467,46 @@ contract TerrainSystem is System {
 
     return structObjectTypeId;
   }
+
+  function Flora(
+    int32 x,
+    int32 y,
+    int32 z,
+    int32 height,
+    uint8 biome
+  ) internal view returns (bytes32) {
+    if (y != height) return bytes32(0);
+
+    uint16 hash1 = getCoordHash(x, z); 
+    uint16 hash2 = getChunkHash2(x, z);
+
+    if (biome == uint8(Biome.Swamp)) {
+      if (hash2 >= 40) return bytes32(0);
+      return CottonBushObjectID;
+    } else if (biome == uint8(Biome.Desert)) {
+      if (hash1 < 8) {
+        return CactusObjectID;
+      }
+    } else if (biome == uint8(Biome.Plains)) {
+      if (hash1 < 4) {
+        return BellflowerObjectID; 
+      } else if (hash1 >= 4 && hash1 < 8) {
+        return DandelionObjectID;
+      } else if (hash1 >= 8 && hash1 < 12) {
+        return DaylilyObjectID;
+      } else if (hash1 >= 12 && hash1 < 16) {
+        return RedMushroomObjectID; 
+      } else if (hash1 >= 16 && hash1 < 20) {
+        return LilacObjectID; 
+      } else if (hash1 >= 20 && hash1 < 24) {
+        return RoseObjectID; 
+      } else if (hash1 >= 24 && hash1 < 28) {
+        return AzaleaObjectID; 
+      }
+    }
+
+    return bytes32(0);
+  }
+
 
 }
