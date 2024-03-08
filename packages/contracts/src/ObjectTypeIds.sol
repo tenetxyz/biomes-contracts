@@ -61,6 +61,9 @@ bytes32 constant BedrockObjectID = bytes32(keccak256("bedrock"));
 
 bytes32 constant CobblestoneObjectID = bytes32(keccak256("cobblestone"));
 bytes32 constant CobblestoneBrickObjectID = bytes32(keccak256("cobblestone-brick"));
+bytes32 constant CobblestoneCarvedObjectID = bytes32(keccak256("cobblestone-carved"));
+bytes32 constant CobblestonePolishedObjectID = bytes32(keccak256("cobblestone-polished"));
+bytes32 constant CobblestoneShinglesObjectID = bytes32(keccak256("cobblestone-shingles"));
 
 bytes32 constant StoneObjectID = bytes32(keccak256("stone"));
 bytes32 constant StoneBrickObjectID = bytes32(keccak256("stone-brick"));
