@@ -95,7 +95,7 @@ contract InitHandBlocksSystem is System {
 
   function initHandcrafedRecipes() public {
     createSingleInputRecipe(StoneObjectID, 1, CobblestoneObjectID, 4);
-    createSingleInputRecipe(DirtObjectID, 4, ClayObjectID, 4);
+    createSingleInputRecipe(DirtObjectID, 4, ClayObjectID, 1);
 
     createSingleInputRecipe(CottonBushObjectID, 4, CottonBlockObjectID, 1);
 

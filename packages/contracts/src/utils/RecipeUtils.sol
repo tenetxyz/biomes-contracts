@@ -69,16 +69,27 @@ function createDoubleInputWithStationRecipe(
   inputObjectTypeAmounts[1] = inputObjectTypeAmount2;
 
   // Form recipe id from input and output object type ids
-  bytes32 recipeId = keccak256(
-    abi.encodePacked(
-      inputObjectTypeId1,
-      inputObjectTypeAmount1,
-      inputObjectTypeId2,
-      inputObjectTypeAmount2,
-      outputObjectTypeId,
-      outputObjectTypeAmount
+  bytes32 recipeId = inputObjectTypeId1 < inputObjectTypeId2
+    ? keccak256(
+      abi.encodePacked(
+        inputObjectTypeId1,
+        inputObjectTypeAmount1,
+        inputObjectTypeId2,
+        inputObjectTypeAmount2,
+        outputObjectTypeId,
+        outputObjectTypeAmount
+      )
     )
-  );
+    : keccak256(
+      abi.encodePacked(
+        inputObjectTypeId2,
+        inputObjectTypeAmount2,
+        inputObjectTypeId1,
+        inputObjectTypeAmount1,
+        outputObjectTypeId,
+        outputObjectTypeAmount
+      )
+    );
   Recipes.set(
     recipeId,
     RecipesData({
@@ -232,28 +243,129 @@ function createRecipeForAllLumberVariations(
   createSingleInputRecipe(SilverOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
 }
 
-
 function createRecipeForAllLumberVariationsWithInputStation(
   bytes32 stationObjectTypeId,
   uint8 lumberObjectTypeAmount,
   bytes32 outputObjectTypeId,
   uint8 outputObjectTypeAmount
 ) {
-  createSingleInputWithStationRecipe(stationObjectTypeId, OakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, SakuraLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, RubberLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, BirchLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, BlueOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, BrownOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, GreenOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, MagentaOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, OrangeOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, PinkOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, PurpleOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, RedOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, TanOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, WhiteOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, YellowOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, BlackOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
-  createSingleInputWithStationRecipe(stationObjectTypeId, SilverOakLumberObjectID, lumberObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount);
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    OakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    SakuraLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    RubberLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    BirchLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    BlueOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    BrownOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    GreenOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    MagentaOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    OrangeOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    PinkOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    PurpleOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    RedOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    TanOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    WhiteOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    YellowOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    BlackOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
+  createSingleInputWithStationRecipe(
+    stationObjectTypeId,
+    SilverOakLumberObjectID,
+    lumberObjectTypeAmount,
+    outputObjectTypeId,
+    outputObjectTypeAmount
+  );
 }

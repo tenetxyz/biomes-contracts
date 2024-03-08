@@ -10,7 +10,7 @@ import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 
 import { OakLumberObjectID, BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "../../ObjectTypeIds.sol";
 import { CottonBlockObjectID, BlueCottonBlockObjectID, BrownCottonBlockObjectID, GreenCottonBlockObjectID, MagentaCottonBlockObjectID, OrangeCottonBlockObjectID, PinkCottonBlockObjectID, PurpleCottonBlockObjectID, RedCottonBlockObjectID, TanCottonBlockObjectID, WhiteCottonBlockObjectID, YellowCottonBlockObjectID, BlackCottonBlockObjectID, SilverCottonBlockObjectID } from "../../ObjectTypeIds.sol";
-import { GlassObjectID, BlueGlassObjectID, BrownGlassObjectID, GreenGlassObjectID, MagentaGlassObjectID, OrangeGlassObjectID, PinkGlassObjectID, PurpleGlassObjectID, RedGlassObjectID, TanGlassObjectID, WhiteGlassObjectID, YellowGlassObjectID, BlackGlassObjectID, SilverGlassObjectID } from "../../ObjectTypeIds.sol";
+import { GlassObjectID, BlueGlassObjectID, GreenGlassObjectID, OrangeGlassObjectID, PinkGlassObjectID, PurpleGlassObjectID, RedGlassObjectID, WhiteGlassObjectID, YellowGlassObjectID, BlackGlassObjectID } from "../../ObjectTypeIds.sol";
 import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectTypeIds.sol";
 
 import { DyeomaticObjectID } from "../../ObjectTypeIds.sol";
@@ -62,18 +62,14 @@ contract InitDyedBlocksSystem is System {
     createDyedBlock(SilverCottonBlockObjectID, 5);
 
     createDyedBlock(BlueGlassObjectID, 5);
-    createDyedBlock(BrownGlassObjectID, 5);
     createDyedBlock(GreenGlassObjectID, 5);
-    createDyedBlock(MagentaGlassObjectID, 5);
     createDyedBlock(OrangeGlassObjectID, 5);
     createDyedBlock(PinkGlassObjectID, 5);
     createDyedBlock(PurpleGlassObjectID, 5);
     createDyedBlock(RedGlassObjectID, 5);
-    createDyedBlock(TanGlassObjectID, 5);
     createDyedBlock(WhiteGlassObjectID, 5);
     createDyedBlock(YellowGlassObjectID, 5);
     createDyedBlock(BlackGlassObjectID, 5);
-    createDyedBlock(SilverGlassObjectID, 5);
   }
 
   function initDyedRecipes() public {
@@ -314,17 +310,7 @@ contract InitDyedBlocksSystem is System {
     );
 
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, BlueDyeObjectID, 1, BlueGlassObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, BrownDyeObjectID, 1, BrownGlassObjectID, 1);
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, GreenDyeObjectID, 1, GreenGlassObjectID, 1);
-    createDoubleInputWithStationRecipe(
-      DyeomaticObjectID,
-      GlassObjectID,
-      1,
-      MagentaDyeObjectID,
-      1,
-      MagentaGlassObjectID,
-      1
-    );
     createDoubleInputWithStationRecipe(
       DyeomaticObjectID,
       GlassObjectID,
@@ -345,7 +331,6 @@ contract InitDyedBlocksSystem is System {
       1
     );
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, RedDyeObjectID, 1, RedGlassObjectID, 1);
-    createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, TanDyeObjectID, 1, TanGlassObjectID, 1);
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, WhiteDyeObjectID, 1, WhiteGlassObjectID, 1);
     createDoubleInputWithStationRecipe(
       DyeomaticObjectID,
@@ -357,14 +342,5 @@ contract InitDyedBlocksSystem is System {
       1
     );
     createDoubleInputWithStationRecipe(DyeomaticObjectID, GlassObjectID, 1, BlackDyeObjectID, 1, BlackGlassObjectID, 1);
-    createDoubleInputWithStationRecipe(
-      DyeomaticObjectID,
-      GlassObjectID,
-      1,
-      SilverDyeObjectID,
-      1,
-      SilverGlassObjectID,
-      1
-    );
   }
 }
