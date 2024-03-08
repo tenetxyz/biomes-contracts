@@ -389,7 +389,7 @@ contract TerrainSystem is System {
   }
 
   //////////////////////////////////////////////////////////////////////////////////////
-  // Occurence
+  // Get Terrain
   //////////////////////////////////////////////////////////////////////////////////////
 
   function getTerrainBlock(VoxelCoord memory coord) public view returns (bytes32) {
@@ -427,6 +427,10 @@ contract TerrainSystem is System {
 
     return AirObjectID;
   }
+
+  //////////////////////////////////////////////////////////////////////////////////////
+  // Occurences
+  //////////////////////////////////////////////////////////////////////////////////////
 
   function Air(int32 y, int32 height) internal pure returns (bytes32) {
     if (y < height) return bytes32(0);
@@ -508,5 +512,246 @@ contract TerrainSystem is System {
     return bytes32(0);
   }
 
+  function oreRegion1(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 1: Coal is Abundant, Silver is Rare
+    if (hash1 <= 15 || hash1 > 45) {
+      if (hash1 <= 10 && hash2 <= 10) {
+        return SilverOreObjectID; 
+      }
+    } else {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion1Desert(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 1: Coal is Abundant, Silver is Rare, Boost Gold Lightly
+    if (hash1 <= 15 || hash1 > 45) {
+      if (hash1 <= 10 && hash2 <= 10) {
+        return SilverOreObjectID;
+      } else if (hash1 <= 15 && hash2 <= 15) {
+        return GoldOreObjectID;
+      }
+    } else {
+      if (hash2 > 0 && hash2 <= 10) {
+        return CoalOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion1Mount(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 1: Coal is Abundant, Silver is Rare But Boosted
+    if (hash1 <= 15 || hash1 > 45) {
+      if (hash1 <= 15 && hash2 <= 15) {
+        return SilverOreObjectID;
+      }
+    } else {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion2(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 2: Coal and Silver Equally Abundant, Gold is Rare, Diamond is Even More Rare
+    if (hash1 <= 25) {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    } else if (hash1 > 25 && hash1 <= 50) {
+      if (hash2 > 15 && hash2 <= 30) {
+        return SilverOreObjectID;
+      }
+    } else if (hash1 > 45 && hash1 <= 60) {
+      if (hash2 > 30 && hash2 <= 40) {
+        return GoldOreObjectID;
+      } else if (hash2 > 40 && hash2 <= 45) {
+        return DiamondOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion2Desert(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 2: Coal and Silver Equally Abundant, Gold is Rare But Boosted, Diamond is Even More Rare
+    if (hash1 <= 25) {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    } else if (hash1 > 25 && hash1 <= 50) {
+      if (hash2 > 15 && hash2 <= 30) {
+        return SilverOreObjectID;
+      } else if (hash2 > 30 && hash2 <= 45) {
+        return GoldOreObjectID;
+      }
+    } else if (hash1 > 45 && hash1 <= 60) {
+      if (hash2 > 45 && hash2 <= 50) {
+        return DiamondOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion2Mount(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 2: Coal and Silver Equally Abundant, Gold is Rare, Diamond is Even More Rare but Boosted
+    if (hash1 <= 25) {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    } else if (hash1 > 25 && hash1 <= 50) {
+      if (hash2 > 15 && hash2 <= 30) {
+        return SilverOreObjectID;
+      }
+    } else if (hash1 > 45 && hash1 <= 60) {
+      if (hash2 > 30 && hash2 <= 40) {
+        return GoldOrerObjectID;
+      } else if (hash2 > 40 && hash2 <= 55) {
+        return DiamondOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion3(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 3: Coal, Silver, and Gold Equally Abundant, Diamond is Rare, Neptunium is Even More Rare
+    if (hash1 <= 25) {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    } else if (hash1 > 25 && hash1 <= 50) {
+      if (hash2 > 15 && hash2 <= 30) {
+        return SilverOreObjectID;
+      }
+    } else if (hash1 > 50 && hash1 <= 75) {
+      if (hash2 > 30 && hash2 <= 45) {
+        return GoldOreObjectID;
+      }
+    } else if (hash1 > 75 && hash1 <= 90) {
+      if (hash2 > 45 && hash2 <= 55) {
+        return DiamondOreObjectID;
+      } else if (hash2 > 55 && hash2 <= 60) {
+        return NeptuniumOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion3Desert(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 3: Coal, Silver, and Gold Equally Abundant But Boosted Even More, Diamond is Rare, Neptunium is Even More Rare
+    if (hash1 <= 25) {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    } else if (hash1 > 25 && hash1 <= 50) {
+      if (hash2 > 15 && hash2 <= 30) {
+        return SilverOreObjectID;
+      }
+    } else if (hash1 > 50 && hash1 <= 75) {
+      if (hash2 > 30 && hash2 <= 55) {
+        return GoldOreObjectID;
+      }
+    } else if (hash1 > 75 && hash1 <= 90) {
+      if (hash2 > 55 && hash2 <= 65) {
+        return DiamondOreObjectID;
+      } else if (hash2 > 65 && hash2 <= 70) {
+        return NeptuniumOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
+
+  function oreRegion3Mount(
+    int32 x,
+    int32 y,
+    int32 z
+  ) internal view returns (bytes32) {
+    uint16 hash1 = getCoordHash(x, z);
+    uint16 hash2 = getCoordHash(y, x + z);
+
+    // REGION 3: Coal, Silver, and Gold Equally Abundant, Diamond is Rare, Neptunium is Even More Rare
+    if (hash1 <= 25) {
+      if (hash2 > 0 && hash2 <= 15) {
+        return CoalOreObjectID;
+      }
+    } else if (hash1 > 25 && hash1 <= 50) {
+      if (hash2 > 15 && hash2 <= 30) {
+        return SilverOreObjectID;
+      }
+    } else if (hash1 > 50 && hash1 <= 75) {
+      if (hash2 > 30 && hash2 <= 45) {
+        return GoldOreObjectID;
+      }
+    } else if (hash1 > 75 && hash1 <= 90) {
+      if (hash2 > 45 && hash2 <= 55) {
+        return DiamondOreObjectID;
+      } else if (hash2 > 55 && hash2 <= 70) {
+        return NeptuniumOreObjectID;
+      }
+    }
+    return bytes32(0);
+  }
 
 }
