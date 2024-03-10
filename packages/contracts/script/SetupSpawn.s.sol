@@ -42,7 +42,7 @@ contract SetupSpawn is Script {
 
   function adminSetObject(bytes32 objectTypeId, VoxelCoord memory coord) internal {
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
-    if (entityId != bytes32(0)) {
+    if (entityId == bytes32(0)) {
       entityId = getUniqueEntity();
     }
     if (ObjectType.get(entityId) == objectTypeId) {
