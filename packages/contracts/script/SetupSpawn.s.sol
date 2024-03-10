@@ -12,7 +12,7 @@ import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
-import { StoneObjectID } from "../src/ObjectTypeIds.sol";
+import { StoneObjectID, BasaltCarvedObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
 contract SetupSpawn is Script {
@@ -29,7 +29,11 @@ contract SetupSpawn is Script {
     // Create 20 x 20 platform of stone
     for (int32 x = SPAWN_LOW_X; x <= SPAWN_HIGH_X; x++) {
       for (int32 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
-        adminSetObject(StoneObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
+        if (x == SPAWN_LOW_X || x == SPAWN_HIGH_X || z == SPAWN_LOW_Z || z == SPAWN_HIGH_Z) {
+          adminSetObject(BasaltCarvedObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
+        } else {
+          adminSetObject(StoneObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
+        }
       }
     }
 
@@ -37,9 +41,16 @@ contract SetupSpawn is Script {
   }
 
   function adminSetObject(bytes32 objectTypeId, VoxelCoord memory coord) internal {
-    bytes32 newEntityId = getUniqueEntity();
-    ObjectType.set(newEntityId, objectTypeId);
-    Position.set(newEntityId, coord.x, coord.y, coord.z);
-    ReversePosition.set(coord.x, coord.y, coord.z, newEntityId);
+    bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
+    if (entityId != bytes32(0)) {
+      entityId = getUniqueEntity();
+    }
+    if (ObjectType.get(entityId) == objectTypeId) {
+      // no-op
+      return;
+    }
+    ObjectType.set(entityId, objectTypeId);
+    Position.set(entityId, coord.x, coord.y, coord.z);
+    ReversePosition.set(coord.x, coord.y, coord.z, entityId);
   }
 }
