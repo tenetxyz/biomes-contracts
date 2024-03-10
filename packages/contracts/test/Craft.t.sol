@@ -31,6 +31,7 @@ import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DyeomaticObjectID, WorkbenchObjectID, GrassObjectID, OakLogObjectID, OakLumberObjectID, BlueDyeObjectID, BlueOakLumberObjectID, DiamondOreObjectID, DiamondObjectID, WoodenPickObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID } from "../src/ObjectTypeIds.sol";
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
 contract CraftTest is MudTest, GasReporter {
   IWorld private world;
@@ -50,9 +51,18 @@ contract CraftTest is MudTest, GasReporter {
   }
 
   function setupPlayer() public returns (bytes32) {
-    spawnCoord = VoxelCoord(142, -62, -30);
+    spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
     assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
-    return world.spawnPlayer(spawnCoord);
+    bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
+
+    // move player outside spawn
+    VoxelCoord[] memory path = new VoxelCoord[](1);
+    path[0] = VoxelCoord(spawnCoord.x - 1, spawnCoord.y, spawnCoord.z - 1);
+    world.move(path);
+
+    spawnCoord = path[0];
+
+    return playerEntityId;
   }
 
   function testHandcraftSingleInput() public {
@@ -232,10 +242,10 @@ contract CraftTest is MudTest, GasReporter {
       abi.encodePacked(inputObjectTypeId1, uint8(1), inputObjectTypeId2, uint8(1), outputObjectTypeId, uint8(1))
     );
 
-    vm.expectRevert();
+    vm.expectRevert("CraftSystem: wrong station");
     world.craft(recipeId, ingredientEntityIds, stationEntityId);
 
-    vm.expectRevert();
+    vm.expectRevert("CraftSystem: wrong station");
     world.craft(recipeId, ingredientEntityIds, bytes32(0));
 
     vm.stopPrank();
@@ -282,7 +292,7 @@ contract CraftTest is MudTest, GasReporter {
       abi.encodePacked(inputObjectTypeId1, uint8(1), inputObjectTypeId2, uint8(1), outputObjectTypeId, uint8(1))
     );
 
-    vm.expectRevert();
+    vm.expectRevert("CraftSystem: player is too far from the station");
     world.craft(recipeId, ingredientEntityIds, stationEntityId);
 
     vm.stopPrank();
@@ -326,7 +336,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32[] memory ingredientEntityIds = new bytes32[](1);
     ingredientEntityIds[0] = newInventoryId;
 
-    vm.expectRevert();
+    vm.expectRevert("Inventory is full");
     world.craft(recipeId, ingredientEntityIds, bytes32(0));
 
     vm.stopPrank();
@@ -357,7 +367,7 @@ contract CraftTest is MudTest, GasReporter {
 
     vm.stopPrank();
 
-    vm.expectRevert();
+    vm.expectRevert("CraftSystem: player does not exist");
     world.craft(recipeId, ingredientEntityIds, bytes32(0));
   }
 
@@ -384,7 +394,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32[] memory ingredientEntityIds = new bytes32[](1);
     ingredientEntityIds[0] = newInventoryId;
 
-    vm.expectRevert();
+    vm.expectRevert("CraftSystem: recipe not found");
     world.craft(recipeId, ingredientEntityIds, bytes32(0));
 
     vm.stopPrank();
@@ -460,10 +470,10 @@ contract CraftTest is MudTest, GasReporter {
 
     bytes32 outputObjectTypeId = MagentaDyeObjectID;
     bytes32 recipeId = keccak256(
-      abi.encodePacked(inputObjectTypeId1, uint8(5), inputObjectTypeId2, uint8(5), outputObjectTypeId, uint8(10))
+      abi.encodePacked(inputObjectTypeId2, uint8(5), inputObjectTypeId1, uint8(5), outputObjectTypeId, uint8(10))
     );
 
-    vm.expectRevert();
+    vm.expectRevert("CraftSystem: not enough ingredients");
     world.craft(recipeId, ingredientEntityIds, bytes32(0));
 
     vm.stopPrank();

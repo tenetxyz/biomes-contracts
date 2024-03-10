@@ -20,8 +20,9 @@ import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
+import { applyGravity } from "../utils/GravityUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
-import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../Constants.sol";
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
 
 contract PlayerSystem is System {
   function spawnPlayer(VoxelCoord memory spawnCoord) public returns (bytes32) {
@@ -29,9 +30,13 @@ contract PlayerSystem is System {
     require(Player.get(newPlayer) == bytes32(0), "PlayerSystem: player already exists");
 
     // Check spawn coord is within spawn area
-    require(spawnCoord.x >= SPAWN_LOW_X && spawnCoord.x <= SPAWN_HIGH_X, "PlayerSystem: x coord outside of spawn area");
-    require(spawnCoord.z >= SPAWN_LOW_Z && spawnCoord.z <= SPAWN_HIGH_Z, "PlayerSystem: z coord outside of spawn area");
-    require(spawnCoord.y - 1 == SPAWN_GROUND_Y, "PlayerSystem: y coord is not at spawn ground level");
+    require(
+      spawnCoord.x >= SPAWN_LOW_X &&
+        spawnCoord.x <= SPAWN_HIGH_X &&
+        spawnCoord.z >= SPAWN_LOW_Z &&
+        spawnCoord.z <= SPAWN_HIGH_Z,
+      "PlayerSystem: coord outside of spawn area"
+    );
 
     bytes32 entityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     if (entityId == bytes32(0)) {
@@ -56,6 +61,13 @@ contract PlayerSystem is System {
     Health.set(entityId, block.number, MAX_PLAYER_HEALTH);
     Stamina.set(entityId, block.number, MAX_PLAYER_STAMINA);
 
+    // We let the user pick a y coord, so we need to apply gravity
+    VoxelCoord memory belowCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
+    bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
+    if (belowEntityId == bytes32(0) || ObjectType.get(belowEntityId) == AirObjectID) {
+      require(!applyGravity(entityId, spawnCoord), "PlayerSystem: cannot spawn player with gravity");
+    }
+
     return entityId;
   }
 
@@ -73,9 +85,11 @@ contract PlayerSystem is System {
 
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
     VoxelCoord memory hitCoord = positionDataToVoxelCoord(Position.get(hitEntityId));
-    require(hitCoord.x < SPAWN_LOW_X || hitCoord.x > SPAWN_HIGH_X, "PlayerSystem: cannot hit at spawn area");
-    require(hitCoord.z < SPAWN_LOW_Z || hitCoord.z > SPAWN_HIGH_Z, "PlayerSystem: cannot hit at spawn area");
-
+    require(
+      (hitCoord.x < SPAWN_LOW_X || hitCoord.x > SPAWN_HIGH_X) ||
+        (hitCoord.z < SPAWN_LOW_Z || hitCoord.z > SPAWN_HIGH_Z),
+      "PlayerSystem: cannot hit at spawn area"
+    );
     require(
       inSurroundingCube(playerCoord, 1, hitCoord),
       "PlayerSystem: hit entity is not in surrounding cube of player"

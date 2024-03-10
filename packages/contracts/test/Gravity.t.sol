@@ -31,6 +31,7 @@ import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { GRAVITY_DAMAGE, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, WoodenPickObjectID, DiamondOreObjectID } from "../src/ObjectTypeIds.sol";
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
 contract GravityTest is MudTest, GasReporter {
   IWorld private world;
@@ -50,9 +51,18 @@ contract GravityTest is MudTest, GasReporter {
   }
 
   function setupPlayer() public returns (bytes32) {
-    spawnCoord = VoxelCoord(142, -62, -30);
+    spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
     assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
-    return world.spawnPlayer(spawnCoord);
+    bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
+
+    // move player outside spawn
+    VoxelCoord[] memory path = new VoxelCoord[](1);
+    path[0] = VoxelCoord(spawnCoord.x - 1, spawnCoord.y, spawnCoord.z - 1);
+    world.move(path);
+
+    spawnCoord = path[0];
+
+    return playerEntityId;
   }
 
   function testMineGravitySingle() public {
@@ -140,7 +150,7 @@ contract GravityTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(bob, bob);
 
-    VoxelCoord memory spawnCoord2 = VoxelCoord(142, -62, -31);
+    VoxelCoord memory spawnCoord2 = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z + 1);
     assertTrue(world.getTerrainBlock(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntity2 = world.spawnPlayer(spawnCoord2);
 

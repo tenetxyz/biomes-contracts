@@ -32,6 +32,7 @@ import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
 contract MoveTest is MudTest, GasReporter {
   IWorld private world;
@@ -51,9 +52,17 @@ contract MoveTest is MudTest, GasReporter {
   }
 
   function setupPlayer() public returns (bytes32) {
-    spawnCoord = VoxelCoord(142, -62, -30);
+    spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
     assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
-    return world.spawnPlayer(spawnCoord);
+    bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
+
+    // move player outside spawn
+    // VoxelCoord[] memory path = new VoxelCoord[](1);
+    // path[0] = VoxelCoord(spawnCoord.x - 1, spawnCoord.y, spawnCoord.z - 1);
+    // world.move(path);
+    // spawnCoord = path[0];
+
+    return playerEntityId;
   }
 
   function testMoveMultipleBlocks(uint8 numBlocksToMove, bool overTerrain) internal {
@@ -190,7 +199,7 @@ contract MoveTest is MudTest, GasReporter {
     }
     vm.stopPrank();
 
-    vm.expectRevert();
+    vm.expectRevert("MoveSystem: player does not exist");
     world.move(newCoords);
   }
 
@@ -205,7 +214,7 @@ contract MoveTest is MudTest, GasReporter {
       assertTrue(world.getTerrainBlock(newCoords[i]) != AirObjectID, "Terrain block is not air");
     }
 
-    vm.expectRevert();
+    vm.expectRevert("MoveSystem: cannot move to non-air block");
     world.move(newCoords);
 
     vm.stopPrank();
@@ -223,7 +232,7 @@ contract MoveTest is MudTest, GasReporter {
       assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
     }
 
-    vm.expectRevert();
+    vm.expectRevert("MoveSystem: new coord is not in surrounding cube of old coord");
     world.move(newCoords);
 
     vm.stopPrank();
@@ -280,8 +289,9 @@ contract MoveTest is MudTest, GasReporter {
     Stamina.setStamina(playerEntityId, 0);
     Stamina.setLastUpdateBlock(playerEntityId, block.number);
     vm.stopPrank();
+    vm.startPrank(alice, alice);
 
-    vm.expectRevert();
+    vm.expectRevert("MoveSystem: not enough stamina");
     world.move(newCoords);
 
     vm.stopPrank();

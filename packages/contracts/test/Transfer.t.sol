@@ -31,6 +31,7 @@ import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH, GRAVITY_DAMAGE } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID, BlueDyeObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
 contract TransferTest is MudTest, GasReporter {
   IWorld private world;
@@ -49,9 +50,18 @@ contract TransferTest is MudTest, GasReporter {
   }
 
   function setupPlayer() public returns (bytes32) {
-    spawnCoord = VoxelCoord(142, -62, -30);
+    spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
     assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
-    return world.spawnPlayer(spawnCoord);
+    bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
+
+    // move player outside spawn
+    VoxelCoord[] memory path = new VoxelCoord[](1);
+    path[0] = VoxelCoord(spawnCoord.x - 1, spawnCoord.y, spawnCoord.z - 1);
+    world.move(path);
+
+    spawnCoord = path[0];
+
+    return playerEntityId;
   }
 
   function testTransferToChest() public {
@@ -211,7 +221,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert();
+    vm.expectRevert("Inventory is full");
     world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
 
     vm.stopPrank();
@@ -365,7 +375,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(bob, bob);
 
-    vm.expectRevert();
+    vm.expectRevert("Inventory is full");
     world.transfer(chestEntityId, playerEntityId2, inventoryEntityIds);
 
     vm.stopPrank();
@@ -397,7 +407,7 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
 
     // build chest beside player
-    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
     bytes32 chestEntityId = getUniqueEntity();
     ObjectType.set(chestEntityId, ChestObjectID);
     Position.set(chestEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
@@ -422,7 +432,7 @@ contract TransferTest is MudTest, GasReporter {
 
     vm.startPrank(bob, bob);
 
-    VoxelCoord memory spawnCoord2 = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z + 1);
+    VoxelCoord memory spawnCoord2 = VoxelCoord(chestCoord.x + 1, chestCoord.y, chestCoord.z);
     assertTrue(world.getTerrainBlock(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
 
@@ -492,7 +502,7 @@ contract TransferTest is MudTest, GasReporter {
 
     vm.startPrank(alice, alice);
 
-    vm.expectRevert();
+    vm.expectRevert("InventorySystem: cannot transfer to non-chest");
     world.transfer(playerEntityId, playerEntityId2, inventoryEntityIds);
 
     vm.stopPrank();
@@ -533,7 +543,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert();
+    vm.expectRevert("InventorySystem: destination out of range");
     world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
 
     vm.stopPrank();
@@ -573,7 +583,7 @@ contract TransferTest is MudTest, GasReporter {
 
     vm.stopPrank();
 
-    vm.expectRevert();
+    vm.expectRevert("InventorySystem: player does not exist");
     world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
   }
 
@@ -612,7 +622,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert();
+    vm.expectRevert("InventorySystem: cannot transfer to self");
     world.transfer(playerEntityId, playerEntityId, inventoryEntityIds);
 
     vm.stopPrank();
@@ -656,7 +666,7 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(Inventory.get(newInventoryId1) == chestEntityId, "Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == chestEntityId, "Inventory not set");
 
-    vm.expectRevert();
+    vm.expectRevert("InventorySystem: entity does not own inventory item");
     world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
 
     vm.stopPrank();

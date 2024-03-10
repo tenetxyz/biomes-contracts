@@ -31,6 +31,7 @@ import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH, GRAVITY_DAMAGE } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
 contract DropTest is MudTest, GasReporter {
   IWorld private world;
@@ -49,9 +50,18 @@ contract DropTest is MudTest, GasReporter {
   }
 
   function setupPlayer() public returns (bytes32) {
-    spawnCoord = VoxelCoord(142, -62, -30);
+    spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
     assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
-    return world.spawnPlayer(spawnCoord);
+    bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
+
+    // move player outside spawn
+    VoxelCoord[] memory path = new VoxelCoord[](1);
+    path[0] = VoxelCoord(spawnCoord.x - 1, spawnCoord.y, spawnCoord.z - 1);
+    world.move(path);
+
+    spawnCoord = path[0];
+
+    return playerEntityId;
   }
 
   function testDropSingleTerrain() public {
@@ -357,6 +367,50 @@ contract DropTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testMovePickUpDropFullInventory() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ObjectTypeMetadata.setStackable(GrassObjectID, 1);
+    for (uint i = 0; i < MAX_PLAYER_INVENTORY_SLOTS; i++) {
+      bytes32 inventoryId = getUniqueEntity();
+      ObjectType.set(inventoryId, GrassObjectID);
+      Inventory.set(inventoryId, playerEntityId);
+      addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    }
+    assertTrue(
+      InventoryCount.get(playerEntityId, GrassObjectID) == MAX_PLAYER_INVENTORY_SLOTS,
+      "Inventory count not set properly"
+    );
+    assertTrue(InventorySlots.get(playerEntityId) == MAX_PLAYER_INVENTORY_SLOTS, "Inventory slots not set correctly");
+
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+
+    bytes32 airEntityId = getUniqueEntity();
+    Position.set(airEntityId, dropCoord.x, dropCoord.y, dropCoord.z);
+    ReversePosition.set(dropCoord.x, dropCoord.y, dropCoord.z, airEntityId);
+    ObjectType.set(airEntityId, AirObjectID);
+    bytes32 droppedEntityId = getUniqueEntity();
+    ObjectType.set(droppedEntityId, GrassObjectID);
+    Inventory.set(droppedEntityId, airEntityId);
+    addToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 1);
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    vm.stopPrank();
+
+    vm.startPrank(alice, alice);
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = dropCoord;
+
+    vm.expectRevert("Inventory is full");
+    world.move(newCoords);
+
+    vm.stopPrank();
+  }
+
   function testMoveMultiplePickUpDrop() public {
     vm.startPrank(alice, alice);
 
@@ -433,7 +487,7 @@ contract DropTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
@@ -478,13 +532,13 @@ contract DropTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    VoxelCoord memory mineCoord2 = VoxelCoord(spawnCoord.x, spawnCoord.y - 2, spawnCoord.z + 1);
+    VoxelCoord memory mineCoord2 = VoxelCoord(spawnCoord.x, spawnCoord.y - 2, spawnCoord.z - 1);
     bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord2);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     bytes32 newInventoryId1 = world.mine(terrainObjectTypeId, mineCoord2);
 
-    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     bytes32 terrainObjectTypeId2 = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId2 != AirObjectID, "Terrain block is air");
 
@@ -595,7 +649,7 @@ contract DropTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](1);
     inventoryEntityIds[0] = newInventoryId;
 
-    vm.expectRevert();
+    vm.expectRevert("InventorySystem: cannot drop on non-air block");
     world.drop(inventoryEntityIds, dropCoord);
 
     vm.stopPrank();
@@ -621,6 +675,7 @@ contract DropTest is MudTest, GasReporter {
 
     bytes32[] memory dropEntityIds = new bytes32[](1);
     dropEntityIds[0] = inventoryId;
+    VoxelCoord memory dropCoord = mineCoord;
     world.drop(dropEntityIds, mineCoord);
 
     assertTrue(Inventory.get(inventoryId) == airEntityId, "Inventory not unset");
@@ -630,11 +685,13 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(airEntityId, terrainObjectTypeId) == 1, "Inventory count not unset");
     assertTrue(InventorySlots.get(airEntityId) == 1, "Inventory slot not unset");
 
-    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
-    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+    mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 2);
+    terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+    inventoryId = world.mine(terrainObjectTypeId, mineCoord);
 
-    vm.expectRevert();
-    world.build(inventoryId, buildCoord);
+    vm.expectRevert("BuildSystem: Cannot build where there are dropped objects");
+    world.build(inventoryId, dropCoord);
 
     vm.stopPrank();
   }
@@ -662,7 +719,7 @@ contract DropTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId;
     vm.stopPrank();
 
-    vm.expectRevert();
+    vm.expectRevert("InventorySystem: player does not exist");
     world.drop(inventoryEntityIds, dropCoord);
   }
 
@@ -688,7 +745,7 @@ contract DropTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](1);
     inventoryEntityIds[0] = newInventoryId;
 
-    vm.expectRevert();
+    vm.expectRevert("Inventory: player is too far from the drop coord");
     world.drop(inventoryEntityIds, dropCoord);
 
     vm.stopPrank();

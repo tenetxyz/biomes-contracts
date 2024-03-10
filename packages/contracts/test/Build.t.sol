@@ -31,6 +31,7 @@ import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
 contract BuildTest is MudTest, GasReporter {
   IWorld private world;
@@ -49,9 +50,18 @@ contract BuildTest is MudTest, GasReporter {
   }
 
   function setupPlayer() public returns (bytes32) {
-    spawnCoord = VoxelCoord(142, -62, -30);
+    spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
     assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
-    return world.spawnPlayer(spawnCoord);
+    bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
+
+    // move player outside spawn
+    VoxelCoord[] memory path = new VoxelCoord[](1);
+    path[0] = VoxelCoord(spawnCoord.x - 1, spawnCoord.y, spawnCoord.z - 1);
+    world.move(path);
+
+    spawnCoord = path[0];
+
+    return playerEntityId;
   }
 
   function testBuildTerrain() public {
@@ -136,6 +146,38 @@ contract BuildTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testBuildInsideSpawn() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId1 = getUniqueEntity();
+    ObjectType.set(newInventoryId1, GrassObjectID);
+    Inventory.set(newInventoryId1, playerEntityId);
+    bytes32 newInventoryId2 = getUniqueEntity();
+    ObjectType.set(newInventoryId2, GrassObjectID);
+    Inventory.set(newInventoryId2, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory buildCoord = VoxelCoord(SPAWN_LOW_X + 1, SPAWN_GROUND_Y, SPAWN_LOW_Z);
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+
+    vm.expectRevert("BuildSystem: cannot build at spawn area");
+    world.build(newInventoryId1, buildCoord);
+
+    buildCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z + 1);
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+
+    vm.expectRevert("BuildSystem: cannot build at spawn area");
+    world.build(newInventoryId2, buildCoord);
+
+    vm.stopPrank();
+  }
+
   function testBuildNonAir() public {
     vm.startPrank(alice, alice);
 
@@ -153,10 +195,10 @@ contract BuildTest is MudTest, GasReporter {
 
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
 
-    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x - 1, spawnCoord.y - 1, spawnCoord.z);
     assertTrue(world.getTerrainBlock(buildCoord) != AirObjectID, "Terrain block is not air");
 
-    vm.expectRevert();
+    vm.expectRevert("BuildSystem: cannot build on terrain non-air block");
     world.build(inventoryId, buildCoord);
 
     vm.stopPrank();
@@ -181,7 +223,7 @@ contract BuildTest is MudTest, GasReporter {
     VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
 
-    vm.expectRevert();
+    vm.expectRevert("BuildSystem: object type is not a block");
     world.build(newInventoryId, buildCoord);
 
     vm.stopPrank();
@@ -202,7 +244,7 @@ contract BuildTest is MudTest, GasReporter {
 
     vm.stopPrank();
 
-    vm.expectRevert();
+    vm.expectRevert("BuildSystem: player does not exist");
     world.build(inventoryId, buildCoord);
 
     vm.stopPrank();
@@ -219,13 +261,13 @@ contract BuildTest is MudTest, GasReporter {
     bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
 
     VoxelCoord memory buildCoord = VoxelCoord(
-      spawnCoord.x,
+      spawnCoord.x - (MAX_PLAYER_BUILD_MINE_HALF_WIDTH + 5),
       spawnCoord.y,
-      spawnCoord.z + MAX_PLAYER_BUILD_MINE_HALF_WIDTH + 1
+      spawnCoord.z
     );
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
 
-    vm.expectRevert();
+    vm.expectRevert("BuildSystem: player is too far from the block");
     world.build(inventoryId, buildCoord);
 
     vm.stopPrank();
@@ -247,7 +289,7 @@ contract BuildTest is MudTest, GasReporter {
     inventoryId = bytes32(uint256(inventoryId) + 1);
     assertTrue(Inventory.get(inventoryId) == bytes32(0), "Inventory entity found");
 
-    vm.expectRevert();
+    vm.expectRevert("BuildSystem: inventory entity does not belong to the player");
     world.build(inventoryId, buildCoord);
 
     vm.stopPrank();

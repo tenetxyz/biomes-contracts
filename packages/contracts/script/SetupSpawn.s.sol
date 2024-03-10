@@ -13,7 +13,7 @@ import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { StoneObjectID } from "../src/ObjectTypeIds.sol";
-import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../src/Constants.sol";
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
 contract SetupSpawn is Script {
   function run(address worldAddress) external {
@@ -29,7 +29,7 @@ contract SetupSpawn is Script {
     // Create 20 x 20 platform of stone
     for (int32 x = SPAWN_LOW_X; x <= SPAWN_HIGH_X; x++) {
       for (int32 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
-        adminSetObject(StoneObjectID, VoxelCoord(x, -62, z));
+        adminSetObject(StoneObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
       }
     }
 
