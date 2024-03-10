@@ -24,7 +24,7 @@ ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000
 ResourceId constant ItemMetadataTableId = _tableId;
 
 FieldLayout constant _fieldLayout = FieldLayout.wrap(
-  0x0002010002000000000000000000000000000000000000000000000000000000
+  0x0004010004000000000000000000000000000000000000000000000000000000
 );
 
 library ItemMetadata {
@@ -53,7 +53,7 @@ library ItemMetadata {
    */
   function getValueSchema() internal pure returns (Schema) {
     SchemaType[] memory _valueSchema = new SchemaType[](1);
-    _valueSchema[0] = SchemaType.UINT16;
+    _valueSchema[0] = SchemaType.UINT32;
 
     return SchemaLib.encode(_valueSchema);
   }
@@ -93,51 +93,51 @@ library ItemMetadata {
   /**
    * @notice Get numUsesLeft.
    */
-  function getNumUsesLeft(bytes32 entityId) internal view returns (uint16 numUsesLeft) {
+  function getNumUsesLeft(bytes32 entityId) internal view returns (uint32 numUsesLeft) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint16(bytes2(_blob)));
+    return (uint32(bytes4(_blob)));
   }
 
   /**
    * @notice Get numUsesLeft.
    */
-  function _getNumUsesLeft(bytes32 entityId) internal view returns (uint16 numUsesLeft) {
+  function _getNumUsesLeft(bytes32 entityId) internal view returns (uint32 numUsesLeft) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint16(bytes2(_blob)));
+    return (uint32(bytes4(_blob)));
   }
 
   /**
    * @notice Get numUsesLeft.
    */
-  function get(bytes32 entityId) internal view returns (uint16 numUsesLeft) {
+  function get(bytes32 entityId) internal view returns (uint32 numUsesLeft) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint16(bytes2(_blob)));
+    return (uint32(bytes4(_blob)));
   }
 
   /**
    * @notice Get numUsesLeft.
    */
-  function _get(bytes32 entityId) internal view returns (uint16 numUsesLeft) {
+  function _get(bytes32 entityId) internal view returns (uint32 numUsesLeft) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint16(bytes2(_blob)));
+    return (uint32(bytes4(_blob)));
   }
 
   /**
    * @notice Set numUsesLeft.
    */
-  function setNumUsesLeft(bytes32 entityId, uint16 numUsesLeft) internal {
+  function setNumUsesLeft(bytes32 entityId, uint32 numUsesLeft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -147,7 +147,7 @@ library ItemMetadata {
   /**
    * @notice Set numUsesLeft.
    */
-  function _setNumUsesLeft(bytes32 entityId, uint16 numUsesLeft) internal {
+  function _setNumUsesLeft(bytes32 entityId, uint32 numUsesLeft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -157,7 +157,7 @@ library ItemMetadata {
   /**
    * @notice Set numUsesLeft.
    */
-  function set(bytes32 entityId, uint16 numUsesLeft) internal {
+  function set(bytes32 entityId, uint32 numUsesLeft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -167,7 +167,7 @@ library ItemMetadata {
   /**
    * @notice Set numUsesLeft.
    */
-  function _set(bytes32 entityId, uint16 numUsesLeft) internal {
+  function _set(bytes32 entityId, uint32 numUsesLeft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -198,7 +198,7 @@ library ItemMetadata {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint16 numUsesLeft) internal pure returns (bytes memory) {
+  function encodeStatic(uint32 numUsesLeft) internal pure returns (bytes memory) {
     return abi.encodePacked(numUsesLeft);
   }
 
@@ -208,7 +208,7 @@ library ItemMetadata {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(uint16 numUsesLeft) internal pure returns (bytes memory, PackedCounter, bytes memory) {
+  function encode(uint32 numUsesLeft) internal pure returns (bytes memory, PackedCounter, bytes memory) {
     bytes memory _staticData = encodeStatic(numUsesLeft);
 
     PackedCounter _encodedLengths;

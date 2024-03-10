@@ -301,7 +301,7 @@ contract MineTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint16 durability = 10;
+    uint32 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     vm.stopPrank();
@@ -339,7 +339,7 @@ contract MineTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint16 durability = 1;
+    uint32 durability = 1;
     ItemMetadata.set(newInventoryId, durability);
     vm.stopPrank();
 
@@ -384,7 +384,8 @@ contract MineTest is MudTest, GasReporter {
 
     vm.startPrank(alice, alice);
 
-    uint256 newBlockNumber = block.number + BLOCKS_BEFORE_INCREASE_STAMINA + BLOCKS_BEFORE_INCREASE_HEALTH + 1;
+    uint256 newBlockNumber = block.number +
+      ((BLOCKS_BEFORE_INCREASE_STAMINA + BLOCKS_BEFORE_INCREASE_HEALTH + 1) * 100);
     vm.roll(newBlockNumber);
 
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);

@@ -132,7 +132,7 @@ contract HitTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint16 durability = 10;
+    uint32 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     uint16 equippedDamage = 50;

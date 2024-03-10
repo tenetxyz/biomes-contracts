@@ -20,6 +20,7 @@ contract InitPlayersSystem is System {
         stackable: 0,
         durability: 0,
         damage: 0,
+        hardness: 0,
         occurence: bytes4(0)
       })
     );

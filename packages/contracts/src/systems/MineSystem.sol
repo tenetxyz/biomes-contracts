@@ -10,6 +10,7 @@ import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
@@ -24,6 +25,7 @@ import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { applyGravity } from "../utils/GravityUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
+import { isPick, isAxe, isWoodLog, isStone } from "../utils/ObjectTypeUtils.sol";
 
 contract MineSystem is System {
   function mine(bytes32 objectTypeId, VoxelCoord memory coord) public returns (bytes32) {
@@ -48,9 +50,24 @@ contract MineSystem is System {
     regenStamina(playerEntityId);
     useEquipped(playerEntityId);
 
+    bytes32 equippedEntityId = Equipped.get(playerEntityId);
+    uint32 equippedToolDamage = 1;
+    if (equippedEntityId != bytes32(0)) {
+      bytes32 equippedObjectTypeId = ObjectType.get(equippedEntityId);
+      equippedToolDamage = ObjectTypeMetadata.getDamage(equippedObjectTypeId);
+      if (isPick(equippedObjectTypeId) && isStone(objectTypeId)) {
+        equippedToolDamage *= 2;
+      }
+      if (isAxe(equippedObjectTypeId) && isWoodLog(objectTypeId)) {
+        equippedToolDamage *= 2;
+      }
+    }
+
     // Spend stamina for mining
     uint32 currentStamina = Stamina.getStamina(playerEntityId);
-    uint32 staminaRequired = ObjectTypeMetadata.getMass(objectTypeId) * 5;
+    uint32 staminaRequired = (ObjectTypeMetadata.getMass(objectTypeId) *
+      ObjectTypeMetadata.getHardness(objectTypeId) *
+      1000) / equippedToolDamage;
     require(currentStamina >= staminaRequired, "MineSystem: not enough stamina");
     Stamina.setStamina(playerEntityId, currentStamina - staminaRequired);
 

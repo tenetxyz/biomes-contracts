@@ -24,7 +24,7 @@ import { ThermoblasterObjectID } from "../../ObjectTypeIds.sol";
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitThermoblastSystem is System {
-  function createBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {
+  function createBlock(bytes32 terrainBlockObjectTypeId, uint16 mass, uint16 hardness) internal {
     ObjectTypeMetadata.set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
@@ -34,6 +34,7 @@ contract InitThermoblastSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
         damage: 0,
+        hardness: hardness,
         occurence: bytes4(0)
       })
     );
@@ -49,70 +50,89 @@ contract InitThermoblastSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
         damage: 0,
+        hardness: 0,
         occurence: bytes4(0)
       })
     );
   }
 
   function initThermoblastObjectTypes() public {
-    createBlock(CobblestoneBrickObjectID, 7);
-    createBlock(CobblestoneCarvedObjectID, 7);
-    createBlock(CobblestonePolishedObjectID, 7);
-    createBlock(CobblestoneShinglesObjectID, 7);
+    createBlock(CobblestoneBrickObjectID, 7, 12);
+    createBlock(CobblestoneCarvedObjectID, 7, 12);
+    createBlock(CobblestonePolishedObjectID, 7, 12);
+    createBlock(CobblestoneShinglesObjectID, 7, 12);
 
-    createBlock(StoneBrickObjectID, 7);
-    createBlock(StoneCarvedObjectID, 7);
-    createBlock(StonePolishedObjectID, 7);
-    createBlock(StoneShinglesObjectID, 7);
+    createBlock(StoneBrickObjectID, 7, 12);
+    createBlock(StoneCarvedObjectID, 7, 12);
+    createBlock(StonePolishedObjectID, 7, 12);
+    createBlock(StoneShinglesObjectID, 7, 12);
 
-    createBlock(BasaltBrickObjectID, 10);
-    createBlock(BasaltCarvedObjectID, 11);
-    createBlock(BasaltPolishedObjectID, 11);
-    createBlock(BasaltShinglesObjectID, 11);
+    createBlock(BasaltBrickObjectID, 10, 12);
+    createBlock(BasaltCarvedObjectID, 11, 12);
+    createBlock(BasaltPolishedObjectID, 11, 12);
+    createBlock(BasaltShinglesObjectID, 11, 12);
 
-    createBlock(ClayBrickObjectID, 16);
-    createBlock(ClayCarvedObjectID, 16);
-    createBlock(ClayPolishedObjectID, 16);
-    createBlock(ClayShinglesObjectID, 16);
+    createBlock(ClayBrickObjectID, 16, 12);
+    createBlock(ClayCarvedObjectID, 16, 12);
+    createBlock(ClayPolishedObjectID, 16, 12);
+    createBlock(ClayShinglesObjectID, 16, 12);
 
-    createBlock(GraniteBrickObjectID, 11);
-    createBlock(GraniteCarvedObjectID, 11);
-    createBlock(GranitePolishedObjectID, 11);
-    createBlock(GraniteShinglesObjectID, 11);
+    createBlock(GraniteBrickObjectID, 11, 12);
+    createBlock(GraniteCarvedObjectID, 11, 12);
+    createBlock(GranitePolishedObjectID, 11, 12);
+    createBlock(GraniteShinglesObjectID, 11, 12);
 
-    createBlock(QuartziteBrickObjectID, 10);
-    createBlock(QuartziteCarvedObjectID, 10);
-    createBlock(QuartzitePolishedObjectID, 10);
-    createBlock(QuartziteShinglesObjectID, 10);
+    createBlock(QuartziteBrickObjectID, 10, 12);
+    createBlock(QuartziteCarvedObjectID, 10, 12);
+    createBlock(QuartzitePolishedObjectID, 10, 12);
+    createBlock(QuartziteShinglesObjectID, 10, 12);
 
-    createBlock(LimestoneBrickObjectID, 7);
-    createBlock(LimestoneCarvedObjectID, 7);
-    createBlock(LimestonePolishedObjectID, 7);
-    createBlock(LimestoneShinglesObjectID, 7);
+    createBlock(LimestoneBrickObjectID, 7, 12);
+    createBlock(LimestoneCarvedObjectID, 7, 12);
+    createBlock(LimestonePolishedObjectID, 7, 12);
+    createBlock(LimestoneShinglesObjectID, 7, 12);
 
-    createBlock(EmberstoneObjectID, 14);
-    createBlock(MoonstoneObjectID, 17);
-    createBlock(SunstoneObjectID, 14);
+    createBlock(EmberstoneObjectID, 14, 1);
+    createBlock(MoonstoneObjectID, 17, 1);
+    createBlock(SunstoneObjectID, 14, 1);
 
-    createBlock(GlassObjectID, 11);
-    createBlock(MushroomLeatherBlockObjectID, 8);
+    createBlock(GlassObjectID, 11, 1);
+    createBlock(MushroomLeatherBlockObjectID, 8, 1);
 
     createItem(SilverBarObjectID, 36);
     createItem(GoldBarObjectID, 40);
     createItem(DiamondObjectID, 60);
     createItem(NeptuniumBarObjectID, 80);
 
-    createBlock(SilverCubeObjectID, 288);
-    createBlock(GoldCubeObjectID, 320);
-    createBlock(DiamondCubeObjectID, 480);
-    createBlock(NeptuniumCubeObjectID, 640);
+    createBlock(SilverCubeObjectID, 288, 16);
+    createBlock(GoldCubeObjectID, 320, 20);
+    createBlock(DiamondCubeObjectID, 480, 24);
+    createBlock(NeptuniumCubeObjectID, 640, 28);
   }
 
   function initThermoblastRecipes() public {
     createSingleInputWithStationRecipe(ThermoblasterObjectID, CobblestoneObjectID, 4, CobblestoneBrickObjectID, 4);
-    createSingleInputWithStationRecipe(ThermoblasterObjectID, CobblestoneBrickObjectID, 4, CobblestoneCarvedObjectID, 4);
-    createSingleInputWithStationRecipe(ThermoblasterObjectID, CobblestoneBrickObjectID, 4, CobblestonePolishedObjectID, 4);
-    createSingleInputWithStationRecipe(ThermoblasterObjectID, CobblestoneBrickObjectID, 4, CobblestoneShinglesObjectID, 4);
+    createSingleInputWithStationRecipe(
+      ThermoblasterObjectID,
+      CobblestoneBrickObjectID,
+      4,
+      CobblestoneCarvedObjectID,
+      4
+    );
+    createSingleInputWithStationRecipe(
+      ThermoblasterObjectID,
+      CobblestoneBrickObjectID,
+      4,
+      CobblestonePolishedObjectID,
+      4
+    );
+    createSingleInputWithStationRecipe(
+      ThermoblasterObjectID,
+      CobblestoneBrickObjectID,
+      4,
+      CobblestoneShinglesObjectID,
+      4
+    );
 
     createSingleInputWithStationRecipe(ThermoblasterObjectID, StoneObjectID, 4, StoneBrickObjectID, 4);
     createSingleInputWithStationRecipe(ThermoblasterObjectID, StoneObjectID, 4, StoneCarvedObjectID, 4);

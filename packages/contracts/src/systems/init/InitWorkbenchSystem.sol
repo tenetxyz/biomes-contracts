@@ -18,7 +18,7 @@ import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe, createRecipeForAllLogVariationsWithInputStation } from "../../utils/RecipeUtils.sol";
 
 contract InitWorkbenchSystem is System {
-  function createTool(bytes32 toolObjectTypeId, uint16 mass, uint16 durability, uint16 damage) internal {
+  function createTool(bytes32 toolObjectTypeId, uint16 mass, uint32 durability, uint16 damage) internal {
     ObjectTypeMetadata.set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
@@ -28,12 +28,13 @@ contract InitWorkbenchSystem is System {
         stackable: MAX_TOOL_STACKABLE,
         durability: durability,
         damage: damage,
+        hardness: 0,
         occurence: bytes4(0)
       })
     );
   }
 
-  function createBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {
+  function createBlock(bytes32 terrainBlockObjectTypeId, uint16 mass, uint16 hardness) internal {
     ObjectTypeMetadata.set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
@@ -43,33 +44,33 @@ contract InitWorkbenchSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
         damage: 0,
+        hardness: hardness,
         occurence: bytes4(0)
       })
     );
   }
 
-  // TODO: add durability and damage values
   function initWorkbenchObjectTypes() public {
-    createTool(StonePickObjectID, 36, 0, 0);
-    createTool(StoneAxeObjectID, 36, 0, 0);
-    createTool(StoneWhackerObjectID, 72, 0, 0);
+    createTool(StonePickObjectID, 36, 900, 120);
+    createTool(StoneAxeObjectID, 36, 900, 120);
+    createTool(StoneWhackerObjectID, 72, 10, 120);
 
-    createTool(SilverPickObjectID, 160, 0, 0);
-    createTool(SilverAxeObjectID, 160, 0, 0);
-    createTool(SilverWhackerObjectID, 216, 0, 0);
+    createTool(SilverPickObjectID, 160, 3600, 160);
+    createTool(SilverAxeObjectID, 160, 3600, 160);
+    createTool(SilverWhackerObjectID, 216, 15, 160);
 
-    createTool(GoldPickObjectID, 176, 0, 0);
-    createTool(GoldAxeObjectID, 176, 0, 0);
+    createTool(GoldPickObjectID, 176, 14400, 200);
+    createTool(GoldAxeObjectID, 176, 14400, 200);
 
-    createTool(DiamondPickObjectID, 196, 0, 0);
-    createTool(DiamondAxeObjectID, 196, 0, 0);
+    createTool(DiamondPickObjectID, 196, 57600, 230);
+    createTool(DiamondAxeObjectID, 196, 57600, 240);
 
-    createTool(NeptuniumPickObjectID, 336, 0, 0);
-    createTool(NeptuniumAxeObjectID, 336, 0, 0);
+    createTool(NeptuniumPickObjectID, 336, 230400, 280);
+    createTool(NeptuniumAxeObjectID, 336, 230400, 280);
 
-    createBlock(ReinforcedOakLumberObjectID, 3);
-    createBlock(ReinforcedRubberLumberObjectID, 1);
-    createBlock(ReinforcedBirchLumberObjectID, 3);
+    createBlock(ReinforcedOakLumberObjectID, 3, 8);
+    createBlock(ReinforcedRubberLumberObjectID, 1, 8);
+    createBlock(ReinforcedBirchLumberObjectID, 3, 8);
   }
 
   function initWorkbenchRecipes() public {

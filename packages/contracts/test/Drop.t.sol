@@ -263,7 +263,7 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint16 durability = 10;
+    uint32 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     vm.stopPrank();
     vm.startPrank(alice, alice);

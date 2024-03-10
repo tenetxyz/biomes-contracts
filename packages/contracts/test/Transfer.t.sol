@@ -136,7 +136,7 @@ contract TransferTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
     inventoryEntityIds[1] = newInventoryId2;
-    uint16 durability = 10;
+    uint32 durability = 10;
     ItemMetadata.set(newInventoryId2, durability);
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");

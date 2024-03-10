@@ -27,6 +27,7 @@ contract InitDyedBlocksSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
         damage: 0,
+        hardness: 1,
         occurence: bytes4(0)
       })
     );

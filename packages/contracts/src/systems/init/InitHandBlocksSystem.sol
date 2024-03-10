@@ -19,7 +19,7 @@ import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE } from "../../Constants.sol";
 import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLogVariations, createRecipeForAllLogVariationsWithInput } from "../../utils/RecipeUtils.sol";
 
 contract InitHandBlocksSystem is System {
-  function createHandcraftedBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {
+  function createHandcraftedBlock(bytes32 terrainBlockObjectTypeId, uint16 mass, uint16 hardness) internal {
     ObjectTypeMetadata.set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
@@ -29,12 +29,13 @@ contract InitHandBlocksSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
         damage: 0,
+        hardness: hardness,
         occurence: bytes4(0)
       })
     );
   }
 
-  function createHandcraftedTool(bytes32 toolObjectTypeId, uint16 mass, uint16 durability, uint16 damage) internal {
+  function createHandcraftedTool(bytes32 toolObjectTypeId, uint16 mass, uint32 durability, uint16 damage) internal {
     ObjectTypeMetadata.set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
@@ -44,6 +45,7 @@ contract InitHandBlocksSystem is System {
         stackable: MAX_TOOL_STACKABLE,
         durability: durability,
         damage: damage,
+        hardness: 0,
         occurence: bytes4(0)
       })
     );
@@ -59,15 +61,16 @@ contract InitHandBlocksSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
         damage: 0,
+        hardness: 0,
         occurence: bytes4(0)
       })
     );
   }
 
   function initHandcraftedObjectTypes() public {
-    createHandcraftedBlock(CobblestoneObjectID, 2);
-    createHandcraftedBlock(ClayObjectID, 16);
-    createHandcraftedBlock(CottonBlockObjectID, 4);
+    createHandcraftedBlock(CobblestoneObjectID, 2, 1);
+    createHandcraftedBlock(ClayObjectID, 16, 1);
+    createHandcraftedBlock(CottonBlockObjectID, 4, 1);
 
     createHandcraftedItem(BlueDyeObjectID, 1);
     createHandcraftedItem(BrownDyeObjectID, 1);
@@ -84,13 +87,13 @@ contract InitHandBlocksSystem is System {
     createHandcraftedItem(SilverDyeObjectID, 1);
 
     createHandcraftedTool(WoodenPickObjectID, 16, 50, 80);
-    createHandcraftedTool(WoodenAxeObjectID, 16, 0, 0);
-    createHandcraftedTool(WoodenWhackerObjectID, 32, 0, 0);
+    createHandcraftedTool(WoodenAxeObjectID, 16, 50, 80);
+    createHandcraftedTool(WoodenWhackerObjectID, 32, 10, 100);
 
-    createHandcraftedBlock(OakLumberObjectID, 1);
-    createHandcraftedBlock(SakuraLumberObjectID, 1);
-    createHandcraftedBlock(RubberLumberObjectID, 1);
-    createHandcraftedBlock(BirchLumberObjectID, 1);
+    createHandcraftedBlock(OakLumberObjectID, 1, 1);
+    createHandcraftedBlock(SakuraLumberObjectID, 1, 1);
+    createHandcraftedBlock(RubberLumberObjectID, 1, 1);
+    createHandcraftedBlock(BirchLumberObjectID, 1, 1);
   }
 
   function initHandcrafedRecipes() public {
