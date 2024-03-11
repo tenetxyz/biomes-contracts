@@ -71,17 +71,17 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(QuartziteObjectID, 10, terrainSystemAddress, terrainBlocksSelector);
     createTerrainBlock(LimestoneObjectID, 7, terrainSystemAddress, terrainBlocksSelector);
 
-    createTerrainBlock(CactusObjectID, 1, terrainSystemAddress, treeSelector);
-    createTerrainBlock(LilacObjectID, 1, terrainSystemAddress, treeSelector);
-    createTerrainBlock(DandelionObjectID, 1, terrainSystemAddress, treeSelector);
-    createTerrainBlock(RedMushroomObjectID, 1, terrainSystemAddress, treeSelector);
-    createTerrainBlock(BellflowerObjectID, 1, terrainSystemAddress, treeSelector);
-    createTerrainBlock(CottonBushObjectID, 1, terrainSystemAddress, treeSelector);
-    createTerrainBlock(MossGrassObjectID, 1, terrainSystemAddress, treeSelector);
-    createTerrainBlock(SwitchGrassObjectID, 1, terrainSystemAddress, treeSelector);
-    createTerrainBlock(DaylilyObjectID, 1, terrainSystemAddress, treeSelector);
-    createTerrainBlock(AzaleaObjectID, 1, terrainSystemAddress, treeSelector);
-    createTerrainBlock(RoseObjectID, 1, terrainSystemAddress, treeSelector);
+    createTerrainBlock(CactusObjectID, 1, terrainSystemAddress, floraSelector);
+    createTerrainBlock(LilacObjectID, 1, terrainSystemAddress, floraSelector);
+    createTerrainBlock(DandelionObjectID, 1, terrainSystemAddress, floraSelector);
+    createTerrainBlock(RedMushroomObjectID, 1, terrainSystemAddress, floraSelector);
+    createTerrainBlock(BellflowerObjectID, 1, terrainSystemAddress, floraSelector);
+    createTerrainBlock(CottonBushObjectID, 1, terrainSystemAddress, floraSelector);
+    createTerrainBlock(MossGrassObjectID, 1, terrainSystemAddress, floraSelector);
+    createTerrainBlock(SwitchGrassObjectID, 1, terrainSystemAddress, floraSelector);
+    createTerrainBlock(DaylilyObjectID, 1, terrainSystemAddress, floraSelector);
+    createTerrainBlock(AzaleaObjectID, 1, terrainSystemAddress, floraSelector);
+    createTerrainBlock(RoseObjectID, 1, terrainSystemAddress, floraSelector);
 
     createTerrainBlock(OakLogObjectID, 4, terrainSystemAddress, treeSelector);
     createTerrainBlock(BirchLogObjectID, 4, terrainSystemAddress, treeSelector);
