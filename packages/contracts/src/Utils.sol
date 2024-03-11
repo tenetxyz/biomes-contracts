@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { SystemSwitch } from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
 import { ITerrainSystem } from "./codegen/world/ITerrainSystem.sol";
 
 import { Position, PositionData } from "./codegen/tables/Position.sol";
@@ -14,7 +13,10 @@ function positionDataToVoxelCoord(PositionData memory coord) pure returns (Voxel
 }
 
 function getTerrainObjectTypeId(bytes32 objectTypeId, VoxelCoord memory coord) returns (bytes32) {
-  bytes4 terrainSelector = ObjectTypeMetadata.getOccurence(objectTypeId);
-  require(terrainSelector != bytes4(0), "ObjectTypeMetadata: object type not found");
-  return abi.decode(SystemSwitch.call(abi.encodeWithSelector(terrainSelector, (coord))), (bytes32));
+  address terrainAddress = ObjectTypeMetadata.getOccurenceAddress(objectTypeId);
+  bytes4 terrainSelector = ObjectTypeMetadata.getOccurenceSelector(objectTypeId);
+  // require(terrainAddress != address(0) && terrainSelector != bytes4(0), "ObjectTypeMetadata: object type not found");
+  (bool success, bytes memory returnData) = terrainAddress.staticcall(abi.encodeWithSelector(terrainSelector, coord));
+  require(success, "getTerrainObjectTypeId: call failed");
+  return abi.decode(returnData, (bytes32));
 }

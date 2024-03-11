@@ -15,7 +15,8 @@ export default mudConfig({
         damage: "uint16",
         durability: "uint32",
         hardness: "uint16",
-        occurence: "bytes4",
+        occurenceAddress: "address",
+        occurenceSelector: "bytes4",
       },
     },
     ObjectType: {

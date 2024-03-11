@@ -30,7 +30,8 @@ contract InitHandBlocksSystem is System {
         durability: 0,
         damage: 0,
         hardness: hardness,
-        occurence: bytes4(0)
+        occurenceAddress: address(0),
+        occurenceSelector: bytes4(0)
       })
     );
   }
@@ -46,7 +47,8 @@ contract InitHandBlocksSystem is System {
         durability: durability,
         damage: damage,
         hardness: 0,
-        occurence: bytes4(0)
+        occurenceAddress: address(0),
+        occurenceSelector: bytes4(0)
       })
     );
   }
@@ -62,7 +64,8 @@ contract InitHandBlocksSystem is System {
         durability: 0,
         damage: 0,
         hardness: 0,
-        occurence: bytes4(0)
+        occurenceAddress: address(0),
+        occurenceSelector: bytes4(0)
       })
     );
   }
