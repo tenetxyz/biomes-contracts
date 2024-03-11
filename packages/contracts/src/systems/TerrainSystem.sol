@@ -411,7 +411,15 @@ contract TerrainSystem is System {
   //////////////////////////////////////////////////////////////////////////////////////
 
   function Air(VoxelCoord memory coord) public view returns (bytes32) {
+    int128[8] memory biomeValues = getBiome(coord.x, coord.z);
     int32 height = getHeight(coord.x, coord.z);
+    // if (coord.y < height) return bytes32(0);
+
+    uint8 biome = getMaxBiome(biomeValues);
+    int32 distanceFromHeight = height - coord.y;
+
+    if (Trees(coord.x, coord.y, coord.z, height, biome, distanceFromHeight) != bytes32(0)) return bytes32(0);
+    if (Flora(coord.x, coord.y, coord.z, height, biome) != bytes32(0)) return bytes32(0);
 
     return Air(coord.y, height);
   }
