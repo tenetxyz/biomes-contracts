@@ -16,7 +16,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Inventory } from "../codegen/tables/Inventory.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
-import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
+import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
@@ -50,7 +50,7 @@ contract MineSystem is System {
     useEquipped(playerEntityId);
 
     bytes32 equippedEntityId = Equipped.get(playerEntityId);
-    uint32 equippedToolDamage = 1;
+    uint32 equippedToolDamage = PLAYER_HAND_DAMAGE;
     if (equippedEntityId != bytes32(0)) {
       bytes32 equippedObjectTypeId = ObjectType.get(equippedEntityId);
       equippedToolDamage = ObjectTypeMetadata.getDamage(equippedObjectTypeId);
