@@ -22,7 +22,7 @@ import { Inventory, InventoryTableId } from "../codegen/tables/Inventory.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MIN_BLOCKS_TO_LOGOFF_AFTER_HIT, MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { applyGravity } from "../utils/GravityUtils.sol";
@@ -83,7 +83,7 @@ contract PlayerSystem is System {
     VoxelCoord memory coord = positionDataToVoxelCoord(Position.get(playerEntityId));
     require(ReversePosition.get(coord.x, coord.y, coord.z) != playerEntityId, "PlayerSystem: player already logged in");
 
-    VoxelCoord memory lastKnownCoord = positionDataToVoxelCoord(LastKnownPosition.get(playerEntityId));
+    VoxelCoord memory lastKnownCoord = lastKnownPositionDataToVoxelCoord(LastKnownPosition.get(playerEntityId));
     require(
       respawnCoord.x >= lastKnownCoord.x - MAX_PLAYER_RESPAWN_HALF_WIDTH &&
         respawnCoord.x <= lastKnownCoord.x + MAX_PLAYER_RESPAWN_HALF_WIDTH &&
@@ -116,6 +116,13 @@ contract PlayerSystem is System {
     // Reset update blocks to current block
     Health.setLastUpdateBlock(playerEntityId, block.number);
     Stamina.setLastUpdateBlock(playerEntityId, block.number);
+
+    // We let the user pick a y coord, so we need to apply gravity
+    VoxelCoord memory belowCoord = VoxelCoord(respawnCoord.x, respawnCoord.y - 1, respawnCoord.z);
+    bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
+    if (belowEntityId == bytes32(0) || ObjectType.get(belowEntityId) == AirObjectID) {
+      require(!applyGravity(playerEntityId, respawnCoord), "PlayerSystem: cannot respawn player with gravity");
+    }
   }
 
   function logoffPlayer() public {
