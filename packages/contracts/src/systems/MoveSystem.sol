@@ -7,7 +7,7 @@ import { getKeysWithValue } from "@latticexyz/world-modules/src/modules/keyswith
 import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
-import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
+import { PlayerMetadata, PlayerMetadataData } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
@@ -77,11 +77,11 @@ contract MoveSystem is System {
     uint32 numMovesInBlock = PlayerMetadata.getNumMovesInBlock(playerEntityId);
     if (PlayerMetadata.getLastMoveBlock(playerEntityId) != block.number) {
       numMovesInBlock = 1;
-      PlayerMetadata.set(playerEntityId, block.number, numMovesInBlock);
+      PlayerMetadata.setLastMoveBlock(playerEntityId, block.number);
     } else {
       numMovesInBlock += 1;
-      PlayerMetadata.setNumMovesInBlock(playerEntityId, numMovesInBlock);
     }
+    PlayerMetadata.setNumMovesInBlock(playerEntityId, numMovesInBlock);
 
     // Inventory mass
     uint32 inventoryTotalMass = 0;

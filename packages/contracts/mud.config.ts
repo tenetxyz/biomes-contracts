@@ -47,6 +47,16 @@ export default mudConfig({
         entityId: "bytes32",
       },
     },
+    LastKnownPosition: {
+      keySchema: {
+        entityId: "bytes32",
+      },
+      valueSchema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+    },
     Player: {
       keySchema: {
         player: "address",
@@ -69,6 +79,7 @@ export default mudConfig({
       },
       valueSchema: {
         lastMoveBlock: "uint256",
+        lastHitBlock: "uint256",
         numMovesInBlock: "uint32",
       },
     },

@@ -18,7 +18,10 @@ uint16 constant GRAVITY_DAMAGE = 100;
 uint16 constant PLAYER_HAND_DAMAGE = 20;
 uint16 constant HIT_STAMINA_COST = 250;
 
+uint8 constant MIN_BLOCKS_TO_LOGOFF_AFTER_HIT = 60; // 1 minute if 1 block == 1 second
+
 int32 constant MAX_PLAYER_BUILD_MINE_HALF_WIDTH = 5;
+int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 5;
 
 uint8 constant MAX_BLOCK_STACKABLE = 99;
 uint8 constant MAX_TOOL_STACKABLE = 1;

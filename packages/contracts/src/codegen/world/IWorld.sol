@@ -7,6 +7,7 @@ import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.
 
 import { IBuildSystem } from "./IBuildSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
+import { IHitSystem } from "./IHitSystem.sol";
 import { IInitDyedBlocksSystem } from "./IInitDyedBlocksSystem.sol";
 import { IInitHandBlocksSystem } from "./IInitHandBlocksSystem.sol";
 import { IInitInteractablesSystem } from "./IInitInteractablesSystem.sol";
@@ -32,6 +33,7 @@ interface IWorld is
   IBaseWorld,
   IBuildSystem,
   ICraftSystem,
+  IHitSystem,
   IInitDyedBlocksSystem,
   IInitHandBlocksSystem,
   IInitInteractablesSystem,
