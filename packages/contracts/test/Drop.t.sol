@@ -750,4 +750,114 @@ contract DropTest is MudTest, GasReporter {
 
     vm.stopPrank();
   }
+
+  function testLoginPickUpDrops() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    world.logoffPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 airEntityId = getUniqueEntity();
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    Position.set(airEntityId, dropCoord.x, dropCoord.y, dropCoord.z);
+    ReversePosition.set(dropCoord.x, dropCoord.y, dropCoord.z, airEntityId);
+    ObjectType.set(airEntityId, AirObjectID);
+
+    bytes32 newInventoryId1 = getUniqueEntity();
+    ObjectType.set(newInventoryId1, GrassObjectID);
+    Inventory.set(newInventoryId1, airEntityId);
+    bytes32 newInventoryId2 = getUniqueEntity();
+    ObjectType.set(newInventoryId2, GrassObjectID);
+    Inventory.set(newInventoryId2, airEntityId);
+    addToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 2);
+    bytes32 newInventoryId3 = getUniqueEntity();
+    ObjectType.set(newInventoryId3, DiamondOreObjectID);
+    Inventory.set(newInventoryId3, airEntityId);
+    addToInventoryCount(airEntityId, AirObjectID, DiamondOreObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+
+    VoxelCoord memory respawnCoord = dropCoord;
+    world.loginPlayer(respawnCoord);
+
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), respawnCoord),
+      "Player position not set"
+    );
+    assertTrue(
+      ReversePosition.get(respawnCoord.x, respawnCoord.y, respawnCoord.z) == playerEntityId,
+      "Reverse position not set"
+    );
+    assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
+
+    vm.stopPrank();
+  }
+
+  function testLoginPickUpDropsFullInventory() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    world.logoffPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 airEntityId = getUniqueEntity();
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    Position.set(airEntityId, dropCoord.x, dropCoord.y, dropCoord.z);
+    ReversePosition.set(dropCoord.x, dropCoord.y, dropCoord.z, airEntityId);
+    ObjectType.set(airEntityId, AirObjectID);
+
+    ObjectTypeMetadata.setStackable(GrassObjectID, 1);
+
+    for (uint i = 0; i < MAX_PLAYER_INVENTORY_SLOTS; i++) {
+      bytes32 inventoryId = getUniqueEntity();
+      ObjectType.set(inventoryId, GrassObjectID);
+      Inventory.set(inventoryId, playerEntityId);
+      addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    }
+    assertTrue(
+      InventoryCount.get(playerEntityId, GrassObjectID) == MAX_PLAYER_INVENTORY_SLOTS,
+      "Inventory count not set properly"
+    );
+    assertTrue(InventorySlots.get(playerEntityId) == MAX_PLAYER_INVENTORY_SLOTS, "Inventory slots not set correctly");
+
+    bytes32 newInventoryId1 = getUniqueEntity();
+    ObjectType.set(newInventoryId1, GrassObjectID);
+    Inventory.set(newInventoryId1, airEntityId);
+    bytes32 newInventoryId2 = getUniqueEntity();
+    ObjectType.set(newInventoryId2, GrassObjectID);
+    Inventory.set(newInventoryId2, airEntityId);
+    addToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 2);
+    bytes32 newInventoryId3 = getUniqueEntity();
+    ObjectType.set(newInventoryId3, DiamondOreObjectID);
+    Inventory.set(newInventoryId3, airEntityId);
+    addToInventoryCount(airEntityId, AirObjectID, DiamondOreObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
+    assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+
+    VoxelCoord memory respawnCoord = dropCoord;
+
+    vm.expectRevert("Inventory is full");
+    world.loginPlayer(respawnCoord);
+
+    vm.stopPrank();
+  }
 }
