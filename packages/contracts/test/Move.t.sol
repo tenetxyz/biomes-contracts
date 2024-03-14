@@ -335,4 +335,21 @@ contract MoveTest is MudTest, GasReporter {
 
     vm.stopPrank();
   }
+
+  function testMoveWithLoggedOffPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    for (uint i = 0; i < newCoords.length; i++) {
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
+
+    world.logoffPlayer();
+
+    vm.expectRevert("MoveSystem: player isn't logged in");
+    world.move(newCoords);
+  }
 }

@@ -146,7 +146,7 @@ contract LoginLogoff is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("PlayerSystem: player needs to wait before logging off as they were recently hit");
+    vm.expectRevert("LoginSystem: player needs to wait before logging off as they were recently hit");
     world.logoffPlayer();
 
     vm.stopPrank();
@@ -158,7 +158,7 @@ contract LoginLogoff is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
     vm.stopPrank();
 
-    vm.expectRevert("PlayerSystem: player does not exist");
+    vm.expectRevert("LoginSystem: player does not exist");
     world.logoffPlayer();
   }
 
@@ -169,7 +169,7 @@ contract LoginLogoff is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("PlayerSystem: player isn't logged in");
+    vm.expectRevert("LoginSystem: player isn't logged in");
     world.logoffPlayer();
 
     vm.stopPrank();
@@ -223,7 +223,7 @@ contract LoginLogoff is MudTest, GasReporter {
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     vm.stopPrank();
 
-    vm.expectRevert("PlayerSystem: player does not exist");
+    vm.expectRevert("LoginSystem: player does not exist");
     world.loginPlayer(respawnCoord);
 
     vm.stopPrank();
@@ -234,7 +234,7 @@ contract LoginLogoff is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    vm.expectRevert("PlayerSystem: player already logged in");
+    vm.expectRevert("LoginSystem: player already logged in");
     world.loginPlayer(spawnCoord);
 
     world.logoffPlayer();
@@ -242,7 +242,7 @@ contract LoginLogoff is MudTest, GasReporter {
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     world.loginPlayer(respawnCoord);
 
-    vm.expectRevert("PlayerSystem: player already logged in");
+    vm.expectRevert("LoginSystem: player already logged in");
     world.loginPlayer(respawnCoord);
 
     vm.stopPrank();
@@ -258,7 +258,7 @@ contract LoginLogoff is MudTest, GasReporter {
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
     assertTrue(world.getTerrainBlock(respawnCoord) != AirObjectID, "Terrain block is air");
 
-    vm.expectRevert("PlayerSystem: cannot respawn on terrain non-air block");
+    vm.expectRevert("LoginSystem: cannot respawn on terrain non-air block");
     world.loginPlayer(respawnCoord);
 
     vm.stopPrank();
@@ -278,7 +278,7 @@ contract LoginLogoff is MudTest, GasReporter {
     );
     assertTrue(world.getTerrainBlock(respawnCoord) == AirObjectID, "Terrain block is not air");
 
-    vm.expectRevert("PlayerSystem: respawn coord too far from last known position");
+    vm.expectRevert("LoginSystem: respawn coord too far from last known position");
     world.loginPlayer(respawnCoord);
 
     vm.stopPrank();
@@ -294,7 +294,7 @@ contract LoginLogoff is MudTest, GasReporter {
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
     assertTrue(world.getTerrainBlock(respawnCoord) == AirObjectID, "Terrain block is not air");
 
-    vm.expectRevert("PlayerSystem: cannot respawn player with gravity");
+    vm.expectRevert("LoginSystem: cannot respawn player with gravity");
     world.loginPlayer(respawnCoord);
 
     vm.stopPrank();

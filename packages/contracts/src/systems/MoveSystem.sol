@@ -13,21 +13,21 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Inventory, InventoryTableId } from "../codegen/tables/Inventory.sol";
+import { Inventory } from "../codegen/tables/Inventory.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId, applyGravity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { applyGravity } from "../utils/GravityUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 
 contract MoveSystem is System {
   function move(VoxelCoord[] memory newCoords) public {
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "MoveSystem: player does not exist");
+    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "MoveSystem: player isn't logged in");
 
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
@@ -89,7 +89,12 @@ contract MoveSystem is System {
       (bytes memory staticData, PackedCounter encodedLengths, bytes memory dynamicData) = Inventory.encode(
         playerEntityId
       );
-      bytes32[] memory inventoryEntityIds = getKeysWithValue(InventoryTableId, staticData, encodedLengths, dynamicData);
+      bytes32[] memory inventoryEntityIds = getKeysWithValue(
+        Inventory._tableId,
+        staticData,
+        encodedLengths,
+        dynamicData
+      );
       for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
         bytes32 inventoryObjectTypeId = ObjectType.get(inventoryEntityIds[i]);
         inventoryTotalMass += ObjectTypeMetadata.getMass(inventoryObjectTypeId);
@@ -107,7 +112,7 @@ contract MoveSystem is System {
     VoxelCoord memory belowCoord = VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z);
     bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
     if (belowEntityId == bytes32(0) || ObjectType.get(belowEntityId) == AirObjectID) {
-      return applyGravity(playerEntityId, newCoord);
+      return applyGravity(address(this), playerEntityId, newCoord);
     }
     return false;
   }

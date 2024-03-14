@@ -340,41 +340,13 @@ contract GravityTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testEquippedGravityFatal() public {
+  function testDirectCallGravity() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
-    vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
-    Inventory.set(newInventoryId, playerEntityId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
-    ItemMetadata.set(newInventoryId, durability);
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-
-    Health.setHealth(playerEntityId, 1);
-    Health.setLastUpdateBlock(playerEntityId, block.number);
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    world.equip(newInventoryId);
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
-
-    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
-    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
-    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-
-    world.mine(terrainObjectTypeId, mineCoord);
-
-    assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not removed");
-    assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
-    assertTrue(ReversePlayer.get(playerEntityId) == address(0), "Player not removed from world");
-    assertTrue(PlayerMetadata.getNumMovesInBlock(playerEntityId) == 0, "Player move count not reset");
-    assertTrue(ObjectType.get(playerEntityId) == AirObjectID, "Player object not removed");
-    assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
-    assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
+    vm.expectRevert();
+    world.applyGravity(playerEntityId, spawnCoord);
 
     vm.stopPrank();
   }

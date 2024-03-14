@@ -7,14 +7,11 @@ import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 
 /**
  * @title IPlayerSystem
+ * @author MUD (https://mud.dev) by Lattice (https://lattice.xyz)
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IPlayerSystem {
   function spawnPlayer(VoxelCoord memory spawnCoord) external returns (bytes32);
-
-  function loginPlayer(VoxelCoord memory respawnCoord) external;
-
-  function logoffPlayer() external;
 
   function activatePlayer(bytes32 playerEntityId) external;
 }

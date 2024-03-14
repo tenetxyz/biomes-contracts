@@ -13,7 +13,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Inventory, InventoryTableId } from "../codegen/tables/Inventory.sol";
+import { Inventory } from "../codegen/tables/Inventory.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
@@ -36,6 +36,7 @@ contract BuildSystem is System {
       Inventory.get(inventoryEntityId) == playerEntityId,
       "BuildSystem: inventory entity does not belong to the player"
     );
+    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "BuildSystem: player isn't logged in");
 
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
@@ -62,7 +63,12 @@ contract BuildSystem is System {
       require(ObjectType.get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
 
       (bytes memory staticData, PackedCounter encodedLengths, bytes memory dynamicData) = Inventory.encode(entityId);
-      bytes32[] memory inventoryEntityIds = getKeysWithValue(InventoryTableId, staticData, encodedLengths, dynamicData);
+      bytes32[] memory inventoryEntityIds = getKeysWithValue(
+        Inventory._tableId,
+        staticData,
+        encodedLengths,
+        dynamicData
+      );
       require(inventoryEntityIds.length == 0, "BuildSystem: Cannot build where there are dropped objects");
 
       ObjectType.deleteRecord(entityId);

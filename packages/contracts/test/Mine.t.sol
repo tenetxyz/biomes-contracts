@@ -291,80 +291,6 @@ contract MineTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testMineWithEquipped() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
-    Inventory.set(newInventoryId, playerEntityId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
-    ItemMetadata.set(newInventoryId, durability);
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    world.equip(newInventoryId);
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
-
-    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
-    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
-    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-
-    startGasReport("mine terrain w/ equipped");
-    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
-    endGasReport();
-
-    assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
-    assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
-    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
-    assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 1, "Inventory count not set for pickaxe");
-    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
-    assertTrue(ItemMetadata.get(newInventoryId) == durability - 1, "Item metadata not set");
-
-    vm.stopPrank();
-  }
-
-  function testMineWithEquippedZeroDurability() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
-    Inventory.set(newInventoryId, playerEntityId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 1;
-    ItemMetadata.set(newInventoryId, durability);
-    vm.stopPrank();
-
-    vm.startPrank(alice, alice);
-
-    world.equip(newInventoryId);
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
-
-    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
-    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
-    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-
-    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
-
-    assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
-    assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
-    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
-    assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 0, "Inventory count not set");
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped set");
-    assertTrue(ItemMetadata.get(newInventoryId) == 0, "Item metadata not set");
-
-    vm.stopPrank();
-  }
-
   function testMineRegenHealthAndStamina() public {
     vm.startPrank(alice, alice);
 
@@ -399,6 +325,23 @@ contract MineTest is MudTest, GasReporter {
     assertTrue(Stamina.getLastUpdateBlock(playerEntityId) == newBlockNumber, "Stamina last update block not set");
     assertTrue(Health.getHealth(playerEntityId) > healthBefore, "Health not regened");
     assertTrue(Health.getLastUpdateBlock(playerEntityId) == newBlockNumber, "Health last update block not set");
+
+    vm.stopPrank();
+  }
+
+  function testMineWithLoggedOffPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory mineCoord = VoxelCoord(SPAWN_LOW_X - 1, SPAWN_GROUND_Y - 1, SPAWN_LOW_Z - 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+
+    world.logoffPlayer();
+
+    vm.expectRevert("MineSystem: player isn't logged in");
+    world.mine(terrainObjectTypeId, mineCoord);
 
     vm.stopPrank();
   }

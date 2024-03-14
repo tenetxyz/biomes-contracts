@@ -400,42 +400,6 @@ contract CraftTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testCraftIngredientHasEquipped() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    // Init inventory with ingredients
-    bytes32 inputObjectTypeId = OakLogObjectID;
-    vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, inputObjectTypeId);
-    Inventory.set(newInventoryId, playerEntityId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
-    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    world.equip(newInventoryId);
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Item not equipped");
-
-    bytes32 outputObjectTypeId = OakLumberObjectID;
-    bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
-
-    bytes32[] memory ingredientEntityIds = new bytes32[](1);
-    ingredientEntityIds[0] = newInventoryId;
-
-    world.craft(recipeId, ingredientEntityIds, bytes32(0));
-
-    assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Item still equipped");
-    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 0, "Input object not removed from inventory");
-    assertTrue(InventoryCount.get(playerEntityId, outputObjectTypeId) == 4, "Output object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-
-    vm.stopPrank();
-  }
-
   function testInvaidIngredients() public {
     vm.startPrank(alice, alice);
 
@@ -477,5 +441,34 @@ contract CraftTest is MudTest, GasReporter {
     world.craft(recipeId, ingredientEntityIds, bytes32(0));
 
     vm.stopPrank();
+  }
+
+  function testCraftWithLoggedOffPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    // Init inventory with ingredients
+    bytes32 inputObjectTypeId = OakLogObjectID;
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, inputObjectTypeId);
+    Inventory.set(newInventoryId, playerEntityId);
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 outputObjectTypeId = OakLumberObjectID;
+    bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
+
+    bytes32[] memory ingredientEntityIds = new bytes32[](1);
+    ingredientEntityIds[0] = newInventoryId;
+
+    world.logoffPlayer();
+
+    vm.expectRevert("CraftSystem: player isn't logged in");
+    world.craft(recipeId, ingredientEntityIds, bytes32(0));
   }
 }

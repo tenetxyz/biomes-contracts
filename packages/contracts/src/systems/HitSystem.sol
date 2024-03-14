@@ -26,22 +26,21 @@ import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constan
 contract HitSystem is System {
   function hit(address hitPlayer) public {
     bytes32 playerEntityId = Player.get(_msgSender());
-    require(playerEntityId != bytes32(0), "PlayerSystem: player does not exist");
+    require(playerEntityId != bytes32(0), "HitSystem: player does not exist");
+    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "HitSystem: player isn't logged in");
     bytes32 hitEntityId = Player.get(hitPlayer);
-    require(hitEntityId != bytes32(0), "PlayerSystem: hit player does not exist");
-    require(playerEntityId != hitEntityId, "PlayerSystem: player cannot hit itself");
+    require(hitEntityId != bytes32(0), "HitSystem: hit player does not exist");
+    require(playerEntityId != hitEntityId, "HitSystem: player cannot hit itself");
+    require(!PlayerMetadata.getIsLoggedOff(hitEntityId), "HitSystem: hit player isn't logged in");
 
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
     VoxelCoord memory hitCoord = positionDataToVoxelCoord(Position.get(hitEntityId));
     require(
       (hitCoord.x < SPAWN_LOW_X || hitCoord.x > SPAWN_HIGH_X) ||
         (hitCoord.z < SPAWN_LOW_Z || hitCoord.z > SPAWN_HIGH_Z),
-      "PlayerSystem: cannot hit at spawn area"
+      "HitSystem: cannot hit at spawn area"
     );
-    require(
-      inSurroundingCube(playerCoord, 1, hitCoord),
-      "PlayerSystem: hit entity is not in surrounding cube of player"
-    );
+    require(inSurroundingCube(playerCoord, 1, hitCoord), "HitSystem: hit entity is not in surrounding cube of player");
 
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
@@ -49,7 +48,7 @@ contract HitSystem is System {
 
     // Calculate stamina and health reduction
     uint32 currentStamina = Stamina.getStamina(playerEntityId);
-    require(currentStamina > 0, "PlayerSystem: player has no stamina");
+    require(currentStamina > 0, "HitSystem: player has no stamina");
     uint32 staminaRequired = HIT_STAMINA_COST;
 
     // Try spending all the stamina
@@ -65,7 +64,7 @@ contract HitSystem is System {
     if (staminaSpend < staminaRequired) {
       receiverDamage = (staminaSpend * receiverDamage) / HIT_STAMINA_COST;
     }
-    require(receiverDamage > 0, "PlayerSystem: damage is 0");
+    require(receiverDamage > 0, "HitSystem: damage is 0");
 
     // Update stamina and health
     Stamina.setStamina(playerEntityId, currentStamina - staminaSpend);

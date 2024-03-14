@@ -105,66 +105,6 @@ contract HitTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testHitWithEquipped() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    bytes32 playerEntityId2 = setupPlayer2(1);
-    vm.startPrank(alice, alice);
-
-    uint16 player1HealthBefore = Health.getHealth(playerEntityId);
-    uint32 player1StaminaBefore = Stamina.getStamina(playerEntityId);
-
-    uint16 player2HealthBefore = Health.getHealth(playerEntityId2);
-    uint32 player2StaminaBefore = Stamina.getStamina(playerEntityId2);
-
-    world.hit(bob);
-
-    assertTrue(Health.getHealth(playerEntityId) == player1HealthBefore, "Player 1 health changed");
-    assertTrue(Health.getHealth(playerEntityId2) < player2HealthBefore, "Player 2 health did not decrease");
-
-    assertTrue(Stamina.getStamina(playerEntityId) < player1StaminaBefore, "Player 1 stamina did not decrease");
-    assertTrue(Stamina.getStamina(playerEntityId2) == player2StaminaBefore, "Player 2 stamina changed");
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
-    Inventory.set(newInventoryId, playerEntityId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
-    ItemMetadata.set(newInventoryId, durability);
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    uint16 equippedDamage = 50;
-    ObjectTypeMetadata.setDamage(WoodenPickObjectID, equippedDamage);
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    world.equip(newInventoryId);
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
-
-    player1HealthBefore = Health.getHealth(playerEntityId);
-    player1StaminaBefore = Stamina.getStamina(playerEntityId);
-
-    player2HealthBefore = Health.getHealth(playerEntityId2);
-    player2StaminaBefore = Stamina.getStamina(playerEntityId2);
-
-    startGasReport("hit player with equipped");
-    world.hit(bob);
-    endGasReport();
-
-    assertTrue(Health.getHealth(playerEntityId) == player1HealthBefore, "Player 1 health changed");
-    assertTrue(
-      Health.getHealth(playerEntityId2) == player2HealthBefore - equippedDamage,
-      "Player 2 health did not decrease"
-    );
-
-    assertTrue(Stamina.getStamina(playerEntityId) < player1StaminaBefore, "Player 1 stamina did not decrease");
-    assertTrue(Stamina.getStamina(playerEntityId2) == player2StaminaBefore, "Player 2 stamina changed");
-
-    vm.stopPrank();
-  }
-
   function testHitNonPlayer() public {
     vm.startPrank(alice, alice);
 
@@ -172,7 +112,7 @@ contract HitTest is MudTest, GasReporter {
 
     assertTrue(Player.get(bob) == bytes32(0), "Player already exists");
 
-    vm.expectRevert("PlayerSystem: hit player does not exist");
+    vm.expectRevert("HitSystem: hit player does not exist");
     world.hit(bob);
 
     vm.stopPrank();
@@ -187,7 +127,7 @@ contract HitTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
     vm.stopPrank();
 
-    vm.expectRevert("PlayerSystem: player does not exist");
+    vm.expectRevert("HitSystem: player does not exist");
     world.hit(bob);
 
     vm.stopPrank();
@@ -198,7 +138,7 @@ contract HitTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    vm.expectRevert("PlayerSystem: player cannot hit itself");
+    vm.expectRevert("HitSystem: player cannot hit itself");
     world.hit(alice);
 
     vm.stopPrank();
@@ -212,7 +152,7 @@ contract HitTest is MudTest, GasReporter {
     bytes32 playerEntityId2 = setupPlayer2(2);
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("PlayerSystem: hit entity is not in surrounding cube of player");
+    vm.expectRevert("HitSystem: hit entity is not in surrounding cube of player");
     world.hit(bob);
 
     vm.stopPrank();
@@ -231,7 +171,7 @@ contract HitTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("PlayerSystem: cannot hit at spawn area");
+    vm.expectRevert("HitSystem: cannot hit at spawn area");
     world.hit(bob);
 
     vm.stopPrank();
@@ -251,7 +191,7 @@ contract HitTest is MudTest, GasReporter {
 
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("PlayerSystem: player has no stamina");
+    vm.expectRevert("HitSystem: player has no stamina");
     world.hit(bob);
 
     vm.stopPrank();
@@ -322,6 +262,32 @@ contract HitTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) > player1HealthBefore, "Player 1 health not changed");
     assertTrue(Health.getHealth(playerEntityId2) < player2HealthBefore, "Player 2 health did not decrease");
     assertTrue(Stamina.getStamina(playerEntityId2) == player2StaminaBefore, "Player 2 stamina changed");
+
+    vm.stopPrank();
+  }
+
+  function testHitWithLoggedOffPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    bytes32 playerEntityId2 = setupPlayer2(1);
+    vm.startPrank(alice, alice);
+
+    world.logoffPlayer();
+
+    vm.expectRevert("HitSystem: player isn't logged in");
+    world.hit(bob);
+
+    world.loginPlayer(spawnCoord);
+
+    vm.startPrank(bob, bob);
+    world.logoffPlayer();
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    vm.expectRevert("HitSystem: hit player isn't logged in");
+    world.hit(bob);
 
     vm.stopPrank();
   }

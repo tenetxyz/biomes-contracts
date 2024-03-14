@@ -116,63 +116,6 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testTransferEquippedToChest() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    bytes32[] memory inventoryEntityIds = new bytes32[](2);
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = GrassObjectID;
-    bytes32 newInventoryId1 = getUniqueEntity();
-    ObjectType.set(newInventoryId1, inputObjectTypeId1);
-    Inventory.set(newInventoryId1, playerEntityId);
-    inventoryEntityIds[0] = newInventoryId1;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
-
-    bytes32 inputObjectTypeId2 = WoodenPickObjectID;
-    bytes32 newInventoryId2 = getUniqueEntity();
-    ObjectType.set(newInventoryId2, inputObjectTypeId2);
-    Inventory.set(newInventoryId2, playerEntityId);
-    inventoryEntityIds[1] = newInventoryId2;
-    uint32 durability = 10;
-    ItemMetadata.set(newInventoryId2, durability);
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
-    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
-
-    // build chest beside player
-    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
-    bytes32 chestEntityId = getUniqueEntity();
-    ObjectType.set(chestEntityId, ChestObjectID);
-    Position.set(chestEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
-    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, chestEntityId);
-
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    world.equip(newInventoryId2);
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId2, "Equipped not set");
-
-    world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
-
-    assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not removed");
-    assertTrue(ItemMetadata.get(newInventoryId2) == durability, "Item metadata not set");
-    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
-    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
-
-    assertTrue(Inventory.get(newInventoryId1) == chestEntityId, "Inventory not set");
-    assertTrue(Inventory.get(newInventoryId2) == chestEntityId, "Inventory not set");
-    assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not removed from inventory");
-    assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId2) == 1, "Input object not removed from inventory");
-    assertTrue(InventorySlots.get(chestEntityId) == 2, "Inventory slot not set");
-
-    vm.stopPrank();
-  }
-
   function testTransferToChestWithFullInventory() public {
     vm.startPrank(alice, alice);
 
@@ -667,6 +610,48 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(Inventory.get(newInventoryId2) == chestEntityId, "Inventory not set");
 
     vm.expectRevert("InventorySystem: entity does not own inventory item");
+    world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
+
+    vm.stopPrank();
+  }
+
+  function testTransferWithLoggedOffPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](2);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 inputObjectTypeId1 = GrassObjectID;
+    bytes32 newInventoryId1 = getUniqueEntity();
+    ObjectType.set(newInventoryId1, inputObjectTypeId1);
+    Inventory.set(newInventoryId1, playerEntityId);
+    inventoryEntityIds[0] = newInventoryId1;
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+
+    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    bytes32 newInventoryId2 = getUniqueEntity();
+    ObjectType.set(newInventoryId2, inputObjectTypeId2);
+    Inventory.set(newInventoryId2, playerEntityId);
+    inventoryEntityIds[1] = newInventoryId2;
+    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+
+    // build chest beside player
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 chestEntityId = getUniqueEntity();
+    ObjectType.set(chestEntityId, ChestObjectID);
+    Position.set(chestEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, chestEntityId);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    world.logoffPlayer();
+
+    vm.expectRevert("InventorySystem: player isn't logged in");
     world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
 
     vm.stopPrank();

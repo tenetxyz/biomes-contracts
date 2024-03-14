@@ -366,4 +366,25 @@ contract BuildTest is MudTest, GasReporter {
 
     vm.stopPrank();
   }
+
+  function testBuildWithLoggedOffPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+
+    world.logoffPlayer();
+
+    vm.expectRevert("BuildSystem: player isn't logged in");
+    world.build(inventoryId, buildCoord);
+
+    vm.stopPrank();
+  }
 }
