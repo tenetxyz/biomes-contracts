@@ -18,7 +18,7 @@ import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe, createRecipeForAllLogVariationsWithInputStation } from "../../utils/RecipeUtils.sol";
 
 contract InitWorkbenchSystem is System {
-  function createTool(bytes32 toolObjectTypeId, uint16 mass, uint32 durability, uint16 damage) internal {
+  function createTool(bytes32 toolObjectTypeId, uint16 mass, uint24 durability, uint16 damage) internal {
     ObjectTypeMetadata.set(
       toolObjectTypeId,
       ObjectTypeMetadataData({

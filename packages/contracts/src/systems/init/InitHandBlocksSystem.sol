@@ -36,7 +36,7 @@ contract InitHandBlocksSystem is System {
     );
   }
 
-  function createHandcraftedTool(bytes32 toolObjectTypeId, uint16 mass, uint32 durability, uint16 damage) internal {
+  function createHandcraftedTool(bytes32 toolObjectTypeId, uint16 mass, uint24 durability, uint16 damage) internal {
     ObjectTypeMetadata.set(
       toolObjectTypeId,
       ObjectTypeMetadataData({

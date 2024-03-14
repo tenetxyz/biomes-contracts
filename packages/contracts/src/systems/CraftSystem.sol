@@ -76,7 +76,7 @@ contract CraftSystem is System {
       bytes32 newInventoryEntityId = getUniqueEntity();
       ObjectType.set(newInventoryEntityId, recipeData.outputObjectTypeId);
       Inventory.set(newInventoryEntityId, playerEntityId);
-      uint32 durability = ObjectTypeMetadata.getDurability(recipeData.outputObjectTypeId);
+      uint24 durability = ObjectTypeMetadata.getDurability(recipeData.outputObjectTypeId);
       if (durability > 0) {
         ItemMetadata.set(newInventoryEntityId, durability);
       }

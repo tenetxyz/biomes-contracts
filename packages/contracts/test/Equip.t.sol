@@ -89,7 +89,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
+    uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     vm.stopPrank();
@@ -113,7 +113,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
+    uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     vm.stopPrank();
@@ -142,7 +142,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId2);
     addToInventoryCount(playerEntityId2, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
+    uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId2) == 1, "Inventory slot not set");
     vm.stopPrank();
@@ -164,7 +164,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
+    uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     vm.stopPrank();
@@ -202,7 +202,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 1;
+    uint24 durability = 1;
     ItemMetadata.set(newInventoryId, durability);
     vm.stopPrank();
 
@@ -274,7 +274,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
+    uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     vm.stopPrank();
     vm.startPrank(alice, alice);
@@ -317,7 +317,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
+    uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
 
@@ -373,7 +373,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
+    uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     uint16 equippedDamage = 50;
@@ -426,7 +426,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
     inventoryEntityIds[1] = newInventoryId2;
-    uint32 durability = 10;
+    uint24 durability = 10;
     ItemMetadata.set(newInventoryId2, durability);
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
@@ -473,7 +473,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
+    uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     vm.stopPrank();
@@ -492,7 +492,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
+    uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     vm.stopPrank();
@@ -516,7 +516,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
+    uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     vm.stopPrank();
@@ -542,7 +542,7 @@ contract EquipTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint32 durability = 10;
+    uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     vm.stopPrank();

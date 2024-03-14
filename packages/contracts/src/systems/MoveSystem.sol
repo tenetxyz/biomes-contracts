@@ -74,7 +74,7 @@ contract MoveSystem is System {
     Position.set(playerEntityId, newCoord.x, newCoord.y, newCoord.z);
     ReversePosition.set(newCoord.x, newCoord.y, newCoord.z, playerEntityId);
 
-    uint32 numMovesInBlock = PlayerMetadata.getNumMovesInBlock(playerEntityId);
+    uint16 numMovesInBlock = PlayerMetadata.getNumMovesInBlock(playerEntityId);
     if (PlayerMetadata.getLastMoveBlock(playerEntityId) != block.number) {
       numMovesInBlock = 1;
       PlayerMetadata.setLastMoveBlock(playerEntityId, block.number);

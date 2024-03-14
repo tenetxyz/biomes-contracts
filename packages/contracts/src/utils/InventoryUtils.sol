@@ -79,7 +79,7 @@ function removeFromInventoryCount(bytes32 ownerEntityId, bytes32 objectTypeId, u
 function useEquipped(bytes32 entityId) {
   bytes32 inventoryEntityId = Equipped.get(entityId);
   if (inventoryEntityId != bytes32(0)) {
-    uint32 numUsesLeft = ItemMetadata.get(inventoryEntityId);
+    uint24 numUsesLeft = ItemMetadata.get(inventoryEntityId);
     if (numUsesLeft > 0) {
       if (numUsesLeft == 1) {
         // Destroy equipped item

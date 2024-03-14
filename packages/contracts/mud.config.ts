@@ -13,7 +13,7 @@ export default mudConfig({
         mass: "uint16",
         stackable: "uint8",
         damage: "uint16",
-        durability: "uint32",
+        durability: "uint24",
         hardness: "uint16",
         occurenceAddress: "address",
         occurenceSelector: "bytes4",
@@ -81,7 +81,7 @@ export default mudConfig({
         isLoggedOff: "bool",
         lastMoveBlock: "uint256",
         lastHitBlock: "uint256",
-        numMovesInBlock: "uint32",
+        numMovesInBlock: "uint16",
       },
     },
     Inventory: {
@@ -97,7 +97,7 @@ export default mudConfig({
         entityId: "bytes32",
       },
       valueSchema: {
-        numUsesLeft: "uint32",
+        numUsesLeft: "uint24",
       },
     },
     InventorySlots: {

@@ -22,7 +22,7 @@ struct ObjectTypeMetadataData {
   uint16 mass;
   uint8 stackable;
   uint16 damage;
-  uint32 durability;
+  uint24 durability;
   uint16 hardness;
   address occurenceAddress;
   bytes4 occurenceSelector;
@@ -33,12 +33,12 @@ library ObjectTypeMetadata {
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004f626a656374547970654d6574616461);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0025090001010201020402140400000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0024090001010201020302140400000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bool, bool, uint16, uint8, uint16, uint32, uint16, address, bytes4)
-  Schema constant _valueSchema = Schema.wrap(0x0025090060600100010301614300000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bool, bool, uint16, uint8, uint16, uint24, uint16, address, bytes4)
+  Schema constant _valueSchema = Schema.wrap(0x0024090060600100010201614300000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -293,29 +293,29 @@ library ObjectTypeMetadata {
   /**
    * @notice Get durability.
    */
-  function getDurability(bytes32 objectTypeId) internal view returns (uint32 durability) {
+  function getDurability(bytes32 objectTypeId) internal view returns (uint24 durability) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
-    return (uint32(bytes4(_blob)));
+    return (uint24(bytes3(_blob)));
   }
 
   /**
    * @notice Get durability.
    */
-  function _getDurability(bytes32 objectTypeId) internal view returns (uint32 durability) {
+  function _getDurability(bytes32 objectTypeId) internal view returns (uint24 durability) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
-    return (uint32(bytes4(_blob)));
+    return (uint24(bytes3(_blob)));
   }
 
   /**
    * @notice Set durability.
    */
-  function setDurability(bytes32 objectTypeId, uint32 durability) internal {
+  function setDurability(bytes32 objectTypeId, uint24 durability) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
@@ -325,7 +325,7 @@ library ObjectTypeMetadata {
   /**
    * @notice Set durability.
    */
-  function _setDurability(bytes32 objectTypeId, uint32 durability) internal {
+  function _setDurability(bytes32 objectTypeId, uint24 durability) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
@@ -498,7 +498,7 @@ library ObjectTypeMetadata {
     uint16 mass,
     uint8 stackable,
     uint16 damage,
-    uint32 durability,
+    uint24 durability,
     uint16 hardness,
     address occurenceAddress,
     bytes4 occurenceSelector
@@ -534,7 +534,7 @@ library ObjectTypeMetadata {
     uint16 mass,
     uint8 stackable,
     uint16 damage,
-    uint32 durability,
+    uint24 durability,
     uint16 hardness,
     address occurenceAddress,
     bytes4 occurenceSelector
@@ -624,7 +624,7 @@ library ObjectTypeMetadata {
       uint16 mass,
       uint8 stackable,
       uint16 damage,
-      uint32 durability,
+      uint24 durability,
       uint16 hardness,
       address occurenceAddress,
       bytes4 occurenceSelector
@@ -640,13 +640,13 @@ library ObjectTypeMetadata {
 
     damage = (uint16(Bytes.getBytes2(_blob, 5)));
 
-    durability = (uint32(Bytes.getBytes4(_blob, 7)));
+    durability = (uint24(Bytes.getBytes3(_blob, 7)));
 
-    hardness = (uint16(Bytes.getBytes2(_blob, 11)));
+    hardness = (uint16(Bytes.getBytes2(_blob, 10)));
 
-    occurenceAddress = (address(Bytes.getBytes20(_blob, 13)));
+    occurenceAddress = (address(Bytes.getBytes20(_blob, 12)));
 
-    occurenceSelector = (Bytes.getBytes4(_blob, 33));
+    occurenceSelector = (Bytes.getBytes4(_blob, 32));
   }
 
   /**
@@ -703,7 +703,7 @@ library ObjectTypeMetadata {
     uint16 mass,
     uint8 stackable,
     uint16 damage,
-    uint32 durability,
+    uint24 durability,
     uint16 hardness,
     address occurenceAddress,
     bytes4 occurenceSelector
@@ -734,7 +734,7 @@ library ObjectTypeMetadata {
     uint16 mass,
     uint8 stackable,
     uint16 damage,
-    uint32 durability,
+    uint24 durability,
     uint16 hardness,
     address occurenceAddress,
     bytes4 occurenceSelector
