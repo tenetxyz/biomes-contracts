@@ -6,10 +6,12 @@ pragma solidity >=0.8.24;
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 
 /**
- * @title IMoveSystem
+ * @title ILoginSystem
  * @author MUD (https://mud.dev) by Lattice (https://lattice.xyz)
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
-interface IMoveSystem {
-  function move(VoxelCoord[] memory newCoords) external;
+interface ILoginSystem {
+  function loginPlayer(VoxelCoord memory respawnCoord) external;
+
+  function logoffPlayer() external;
 }

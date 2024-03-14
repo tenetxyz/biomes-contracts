@@ -18,10 +18,9 @@ import { Inventory } from "../codegen/tables/Inventory.sol";
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId, applyGravity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { applyGravity } from "../utils/GravityUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
 import { isPick, isAxe, isWoodLog, isStone } from "../utils/ObjectTypeUtils.sol";
@@ -37,6 +36,7 @@ contract MineSystem is System {
 
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "MineSystem: player does not exist");
+    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "MineSystem: player isn't logged in");
     require(
       inSurroundingCube(
         positionDataToVoxelCoord(Position.get(playerEntityId)),
@@ -103,7 +103,7 @@ contract MineSystem is System {
     VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);
     bytes32 aboveEntityId = ReversePosition.get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
     if (aboveEntityId != bytes32(0) && ObjectType.get(aboveEntityId) == PlayerObjectID) {
-      applyGravity(aboveEntityId, aboveCoord);
+      applyGravity(address(this), aboveEntityId, aboveCoord);
     }
 
     return entityId;

@@ -13,7 +13,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Inventory, InventoryTableId } from "../codegen/tables/Inventory.sol";
+import { Inventory } from "../codegen/tables/Inventory.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
@@ -29,6 +29,7 @@ contract InventorySystem is System {
   function equip(bytes32 inventoryEntityId) public {
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "InventorySystem: player does not exist");
+    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "InventorySystem: player isn't logged in");
 
     require(Inventory.get(inventoryEntityId) == playerEntityId, "InventorySystem: entity does not own inventory item");
 
@@ -38,6 +39,7 @@ contract InventorySystem is System {
   function unequip() public {
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "InventorySystem: player does not exist");
+    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "InventorySystem: player isn't logged in");
 
     Equipped.deleteRecord(playerEntityId);
   }
@@ -45,6 +47,7 @@ contract InventorySystem is System {
   function drop(bytes32[] memory inventoryEntityIds, VoxelCoord memory coord) public {
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "InventorySystem: player does not exist");
+    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "InventorySystem: player isn't logged in");
     require(
       inSurroundingCube(positionDataToVoxelCoord(Position.get(playerEntityId)), 1, coord),
       "Inventory: player is too far from the drop coord"
@@ -75,6 +78,7 @@ contract InventorySystem is System {
   function transfer(bytes32 srcEntityId, bytes32 dstEntityId, bytes32[] memory inventoryEntityIds) public {
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "InventorySystem: player does not exist");
+    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "InventorySystem: player isn't logged in");
 
     require(dstEntityId != srcEntityId, "InventorySystem: cannot transfer to self");
     require(

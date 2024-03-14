@@ -47,6 +47,16 @@ export default mudConfig({
         entityId: "bytes32",
       },
     },
+    LastKnownPosition: {
+      keySchema: {
+        entityId: "bytes32",
+      },
+      valueSchema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+    },
     Player: {
       keySchema: {
         player: "address",
@@ -68,7 +78,9 @@ export default mudConfig({
         entityId: "bytes32",
       },
       valueSchema: {
+        isLoggedOff: "bool",
         lastMoveBlock: "uint256",
+        lastHitBlock: "uint256",
         numMovesInBlock: "uint32",
       },
     },
@@ -142,6 +154,13 @@ export default mudConfig({
         inputObjectTypeIds: "bytes32[]",
         inputObjectTypeAmounts: "uint8[]",
       },
+    },
+  },
+  systems: {
+    GravitySystem: {
+      name: "GravitySystem",
+      openAccess: false,
+      accessList: [],
     },
   },
   modules: [
