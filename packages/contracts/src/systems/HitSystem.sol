@@ -42,6 +42,9 @@ contract HitSystem is System {
     );
     require(inSurroundingCube(playerCoord, 1, hitCoord), "HitSystem: hit entity is not in surrounding cube of player");
 
+    regenHealth(hitEntityId);
+    regenStamina(hitEntityId);
+
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
     useEquipped(playerEntityId);

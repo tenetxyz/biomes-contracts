@@ -261,7 +261,7 @@ contract HitTest is MudTest, GasReporter {
 
     assertTrue(Health.getHealth(playerEntityId) > player1HealthBefore, "Player 1 health not changed");
     assertTrue(Health.getHealth(playerEntityId2) < player2HealthBefore, "Player 2 health did not decrease");
-    assertTrue(Stamina.getStamina(playerEntityId2) == player2StaminaBefore, "Player 2 stamina changed");
+    assertTrue(Stamina.getStamina(playerEntityId2) >= player2StaminaBefore, "Player 2 stamina not changed");
 
     vm.stopPrank();
   }
