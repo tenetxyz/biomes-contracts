@@ -97,6 +97,14 @@ contract MoveTest is MudTest, GasReporter {
         Position.set(entityId, newCoords[i].x, newCoords[i].y, newCoords[i].z);
         ReversePosition.set(newCoords[i].x, newCoords[i].y, newCoords[i].z, entityId);
         ObjectType.set(entityId, AirObjectID);
+
+        // set block below to non-air
+        VoxelCoord memory belowCoord = VoxelCoord(newCoords[i].x, newCoords[i].y - 1, newCoords[i].z);
+        assertTrue(world.getTerrainBlock(belowCoord) != AirObjectID, "Terrain block is air");
+        bytes32 belowEntityId = getUniqueEntity();
+        Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
+        ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
+        ObjectType.set(belowEntityId, GrassObjectID);
       }
     }
     vm.stopPrank();

@@ -11,5 +11,5 @@ import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IGravitySystem {
-  function applyGravity(bytes32 playerEntityId, VoxelCoord memory coord) external returns (bool);
+  function runGravity(bytes32 playerEntityId, VoxelCoord memory coord) external returns (bool);
 }

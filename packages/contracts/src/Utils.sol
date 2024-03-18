@@ -34,8 +34,8 @@ function getTerrainObjectTypeId(bytes32 objectTypeId, VoxelCoord memory coord) v
   return abi.decode(returnData, (bytes32));
 }
 
-function applyGravity(address caller, bytes32 playerEntityId, VoxelCoord memory coord) returns (bool) {
-  bytes memory callData = abi.encodeCall(IGravitySystem.applyGravity, (playerEntityId, coord));
+function callGravity(bytes32 playerEntityId, VoxelCoord memory coord) returns (bool) {
+  bytes memory callData = abi.encodeCall(IGravitySystem.runGravity, (playerEntityId, coord));
   (ResourceId systemId, bytes4 systemFunctionSelector) = FunctionSelectors.get(bytes4(callData));
   (address systemAddress, ) = Systems._get(systemId);
 

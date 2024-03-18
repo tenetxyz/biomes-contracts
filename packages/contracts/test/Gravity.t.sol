@@ -346,7 +346,7 @@ contract GravityTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     vm.expectRevert();
-    world.applyGravity(playerEntityId, spawnCoord);
+    world.runGravity(playerEntityId, spawnCoord);
 
     vm.stopPrank();
   }
