@@ -28,50 +28,10 @@ import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.s
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
 
-contract PlayerSystem is System {
-  function spawnPlayer(VoxelCoord memory spawnCoord) public returns (bytes32) {
-    address newPlayer = _msgSender();
-    require(Player.get(newPlayer) == bytes32(0), "PlayerSystem: player already exists");
-
-    // Check spawn coord is within spawn area
-    require(
-      spawnCoord.x >= SPAWN_LOW_X &&
-        spawnCoord.x <= SPAWN_HIGH_X &&
-        spawnCoord.z >= SPAWN_LOW_Z &&
-        spawnCoord.z <= SPAWN_HIGH_Z,
-      "PlayerSystem: coord outside of spawn area"
-    );
-
-    bytes32 entityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    if (entityId == bytes32(0)) {
-      require(
-        getTerrainObjectTypeId(AirObjectID, spawnCoord) == AirObjectID,
-        "PlayerSystem: cannot spawn on terrain non-air block"
-      );
-
-      // Create new entity
-      entityId = getUniqueEntity();
-      Position.set(entityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
-      ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, entityId);
-    } else {
-      require(ObjectType.get(entityId) == AirObjectID, "PlayerSystem: spawn coord is not air");
-    }
-
-    // Set object type to player
-    ObjectType.set(entityId, PlayerObjectID);
-    Player.set(newPlayer, entityId);
-    ReversePlayer.set(entityId, newPlayer);
-
-    Health.set(entityId, block.number, MAX_PLAYER_HEALTH);
-    Stamina.set(entityId, block.number, MAX_PLAYER_STAMINA);
-
-    // We let the user pick a y coord, so we need to apply gravity
-    VoxelCoord memory belowCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
-    bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
-    if (belowEntityId == bytes32(0) || ObjectType.get(belowEntityId) == AirObjectID) {
-      require(!applyGravity(address(this), entityId, spawnCoord), "PlayerSystem: cannot spawn player with gravity");
-    }
-
-    return entityId;
+contract ActivateSystem is System {
+  function activatePlayer(bytes32 playerEntityId) public {
+    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "ActivateSystem: player isn't logged in");
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId);
   }
 }

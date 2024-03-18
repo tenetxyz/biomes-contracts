@@ -34,7 +34,7 @@ import { MIN_BLOCKS_TO_LOGOFF_AFTER_HIT, MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAY
 import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
-contract LoginLogoff is MudTest, GasReporter {
+contract LogoffTest is MudTest, GasReporter {
   IWorld private world;
   address payable internal worldDeployer;
   address payable internal alice;
@@ -146,7 +146,7 @@ contract LoginLogoff is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("LoginSystem: player needs to wait before logging off as they were recently hit");
+    vm.expectRevert("LogoffSystem: player needs to wait before logging off as they were recently hit");
     world.logoffPlayer();
 
     vm.stopPrank();
@@ -158,7 +158,7 @@ contract LoginLogoff is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
     vm.stopPrank();
 
-    vm.expectRevert("LoginSystem: player does not exist");
+    vm.expectRevert("LogoffSystem: player does not exist");
     world.logoffPlayer();
   }
 
@@ -169,133 +169,8 @@ contract LoginLogoff is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("LoginSystem: player isn't logged in");
+    vm.expectRevert("LogoffSystem: player isn't logged in");
     world.logoffPlayer();
-
-    vm.stopPrank();
-  }
-
-  function testLogin() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    Health.setHealth(playerEntityId, 1);
-    Stamina.setStamina(playerEntityId, 1);
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    uint16 healthBefore = Health.getHealth(playerEntityId);
-    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
-
-    world.logoffPlayer();
-
-    VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
-
-    startGasReport("login");
-    world.loginPlayer(respawnCoord);
-    endGasReport();
-
-    assertTrue(
-      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), respawnCoord),
-      "Player position not set"
-    );
-    assertTrue(
-      ReversePosition.get(respawnCoord.x, respawnCoord.y, respawnCoord.z) == playerEntityId,
-      "Reverse position not set"
-    );
-    assertTrue(Health.getHealth(playerEntityId) == healthBefore, "Health not set");
-    assertTrue(Stamina.getStamina(playerEntityId) == staminaBefore, "Stamina not set");
-    assertTrue(Health.getLastUpdateBlock(playerEntityId) == block.number, "Health last update block not set");
-    assertTrue(Stamina.getLastUpdateBlock(playerEntityId) == block.number, "Stamina last update block not set");
-
-    vm.stopPrank();
-  }
-
-  function testLoginWithoutPlayer() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    world.logoffPlayer();
-
-    VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    vm.stopPrank();
-
-    vm.expectRevert("LoginSystem: player does not exist");
-    world.loginPlayer(respawnCoord);
-
-    vm.stopPrank();
-  }
-
-  function testLoginAlreadyLoggedIn() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    vm.expectRevert("LoginSystem: player already logged in");
-    world.loginPlayer(spawnCoord);
-
-    world.logoffPlayer();
-
-    VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    world.loginPlayer(respawnCoord);
-
-    vm.expectRevert("LoginSystem: player already logged in");
-    world.loginPlayer(respawnCoord);
-
-    vm.stopPrank();
-  }
-
-  function testLoginInvalidRespawnCoordNotAir() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    world.logoffPlayer();
-
-    VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
-    assertTrue(world.getTerrainBlock(respawnCoord) != AirObjectID, "Terrain block is air");
-
-    vm.expectRevert("LoginSystem: cannot respawn on terrain non-air block");
-    world.loginPlayer(respawnCoord);
-
-    vm.stopPrank();
-  }
-
-  function testLoginInvalidRespawnCoordTooFar() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    world.logoffPlayer();
-
-    VoxelCoord memory respawnCoord = VoxelCoord(
-      spawnCoord.x,
-      spawnCoord.y,
-      spawnCoord.z + (MAX_PLAYER_RESPAWN_HALF_WIDTH + 1)
-    );
-    assertTrue(world.getTerrainBlock(respawnCoord) == AirObjectID, "Terrain block is not air");
-
-    vm.expectRevert("LoginSystem: respawn coord too far from last known position");
-    world.loginPlayer(respawnCoord);
-
-    vm.stopPrank();
-  }
-
-  function testLoginInvalidRespawnCoordGravity() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    world.logoffPlayer();
-
-    VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
-    assertTrue(world.getTerrainBlock(respawnCoord) == AirObjectID, "Terrain block is not air");
-
-    vm.expectRevert("LoginSystem: cannot respawn player with gravity");
-    world.loginPlayer(respawnCoord);
 
     vm.stopPrank();
   }

@@ -103,33 +103,6 @@ contract EquipTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testUnequip() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
-    Inventory.set(newInventoryId, playerEntityId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint24 durability = 10;
-    ItemMetadata.set(newInventoryId, durability);
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    world.equip(newInventoryId);
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
-
-    startGasReport("equip");
-    world.unequip();
-    endGasReport();
-    assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not unset");
-
-    vm.stopPrank();
-  }
-
   function testEquipNotOwned() public {
     vm.startPrank(alice, alice);
 
@@ -148,7 +121,7 @@ contract EquipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("InventorySystem: entity does not own inventory item");
+    vm.expectRevert("EquipSystem: Entity does not own inventory item");
     world.equip(newInventoryId);
 
     vm.stopPrank();
@@ -478,7 +451,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     vm.stopPrank();
 
-    vm.expectRevert("InventorySystem: player does not exist");
+    vm.expectRevert("EquipSystem: player does not exist");
     world.equip(newInventoryId);
   }
 
@@ -500,61 +473,8 @@ contract EquipTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("InventorySystem: player isn't logged in");
+    vm.expectRevert("EquipSystem: player isn't logged in");
     world.equip(newInventoryId);
-
-    vm.stopPrank();
-  }
-
-  function testUnequipWithoutPlayer() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
-    Inventory.set(newInventoryId, playerEntityId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint24 durability = 10;
-    ItemMetadata.set(newInventoryId, durability);
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    world.equip(newInventoryId);
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
-    vm.stopPrank();
-
-    vm.expectRevert("InventorySystem: player does not exist");
-    world.unequip();
-
-    vm.stopPrank();
-  }
-
-  function testUnequipWithoutLoggedOffPlayer() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
-    Inventory.set(newInventoryId, playerEntityId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint24 durability = 10;
-    ItemMetadata.set(newInventoryId, durability);
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    world.equip(newInventoryId);
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
-
-    world.logoffPlayer();
-
-    vm.expectRevert("InventorySystem: player isn't logged in");
-    world.unequip();
 
     vm.stopPrank();
   }

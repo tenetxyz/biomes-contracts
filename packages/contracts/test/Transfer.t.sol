@@ -445,7 +445,7 @@ contract TransferTest is MudTest, GasReporter {
 
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("InventorySystem: cannot transfer to non-chest");
+    vm.expectRevert("TransferSystem: cannot transfer to non-chest");
     world.transfer(playerEntityId, playerEntityId2, inventoryEntityIds);
 
     vm.stopPrank();
@@ -486,7 +486,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("InventorySystem: destination out of range");
+    vm.expectRevert("TransferSystem: destination out of range");
     world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
 
     vm.stopPrank();
@@ -526,7 +526,7 @@ contract TransferTest is MudTest, GasReporter {
 
     vm.stopPrank();
 
-    vm.expectRevert("InventorySystem: player does not exist");
+    vm.expectRevert("TransferSystem: player does not exist");
     world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
   }
 
@@ -565,7 +565,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("InventorySystem: cannot transfer to self");
+    vm.expectRevert("TransferSystem: cannot transfer to self");
     world.transfer(playerEntityId, playerEntityId, inventoryEntityIds);
 
     vm.stopPrank();
@@ -609,7 +609,7 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(Inventory.get(newInventoryId1) == chestEntityId, "Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == chestEntityId, "Inventory not set");
 
-    vm.expectRevert("InventorySystem: entity does not own inventory item");
+    vm.expectRevert("Entity does not own inventory item");
     world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
 
     vm.stopPrank();
@@ -651,7 +651,7 @@ contract TransferTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("InventorySystem: player isn't logged in");
+    vm.expectRevert("TransferSystem: player isn't logged in");
     world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
 
     vm.stopPrank();

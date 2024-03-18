@@ -79,26 +79,4 @@ contract LoginSystem is System {
       );
     }
   }
-
-  function logoffPlayer() public {
-    bytes32 playerEntityId = Player.get(_msgSender());
-    require(playerEntityId != bytes32(0), "LoginSystem: player does not exist");
-    uint256 lastHitBlock = PlayerMetadata.getLastHitBlock(playerEntityId);
-    require(
-      block.number - lastHitBlock > MIN_BLOCKS_TO_LOGOFF_AFTER_HIT,
-      "LoginSystem: player needs to wait before logging off as they were recently hit"
-    );
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "LoginSystem: player isn't logged in");
-
-    VoxelCoord memory coord = positionDataToVoxelCoord(Position.get(playerEntityId));
-    LastKnownPosition.set(playerEntityId, coord.x, coord.y, coord.z);
-    Position.deleteRecord(playerEntityId);
-    PlayerMetadata.setIsLoggedOff(playerEntityId, true);
-
-    // Create air entity at this position
-    bytes32 airEntityId = getUniqueEntity();
-    ObjectType.set(airEntityId, AirObjectID);
-    Position.set(airEntityId, coord.x, coord.y, coord.z);
-    ReversePosition.set(coord.x, coord.y, coord.z, airEntityId);
-  }
 }

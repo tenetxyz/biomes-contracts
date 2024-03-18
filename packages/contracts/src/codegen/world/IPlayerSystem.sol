@@ -12,6 +12,4 @@ import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
  */
 interface IPlayerSystem {
   function spawnPlayer(VoxelCoord memory spawnCoord) external returns (bytes32);
-
-  function activatePlayer(bytes32 playerEntityId) external;
 }

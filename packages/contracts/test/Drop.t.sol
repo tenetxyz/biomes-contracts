@@ -606,7 +606,7 @@ contract DropTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](1);
     inventoryEntityIds[0] = newInventoryId;
 
-    vm.expectRevert("InventorySystem: cannot drop on non-air block");
+    vm.expectRevert("DropSystem: cannot drop on non-air block");
     world.drop(inventoryEntityIds, dropCoord);
 
     vm.stopPrank();
@@ -676,7 +676,7 @@ contract DropTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId;
     vm.stopPrank();
 
-    vm.expectRevert("InventorySystem: player does not exist");
+    vm.expectRevert("DropSystem: player does not exist");
     world.drop(inventoryEntityIds, dropCoord);
   }
 
@@ -702,7 +702,7 @@ contract DropTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](1);
     inventoryEntityIds[0] = newInventoryId;
 
-    vm.expectRevert("Inventory: player is too far from the drop coord");
+    vm.expectRevert("DropSystem: player is too far from the drop coord");
     world.drop(inventoryEntityIds, dropCoord);
 
     vm.stopPrank();
@@ -842,7 +842,7 @@ contract DropTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("InventorySystem: player isn't logged in");
+    vm.expectRevert("DropSystem: player isn't logged in");
     world.drop(inventoryEntityIds, dropCoord);
   }
 }

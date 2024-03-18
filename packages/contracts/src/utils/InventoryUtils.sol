@@ -110,3 +110,20 @@ function transferAllInventoryEntities(bytes32 fromEntityId, bytes32 toEntityId, 
     Inventory.set(fromInventoryEntityIds[i], toEntityId);
   }
 }
+
+function transferInventoryItem(
+  bytes32 srcEntityId,
+  bytes32 dstEntityId,
+  bytes32 dstObjectTypeId,
+  bytes32 inventoryEntityId
+) {
+  require(Inventory.get(inventoryEntityId) == srcEntityId, "Entity does not own inventory item");
+  if (Equipped.get(srcEntityId) == inventoryEntityId) {
+    Equipped.deleteRecord(srcEntityId);
+  }
+  Inventory.set(inventoryEntityId, dstEntityId);
+
+  bytes32 inventoryObjectTypeId = ObjectType.get(inventoryEntityId);
+  removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);
+  addToInventoryCount(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
+}
