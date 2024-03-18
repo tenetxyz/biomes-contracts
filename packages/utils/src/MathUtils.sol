@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+function absInt32(int32 a) pure returns (int32) {
+  return a < 0 ? -a : a;
+}
+
 // Divide with rounding down like Math.floor(a/b), not rounding towards zero
 function floorDiv(int32 a, int32 b) pure returns (int32) {
   require(b != 0, "Division by zero");

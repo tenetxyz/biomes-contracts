@@ -23,46 +23,32 @@ import { applyGravity } from "../utils/GravityUtils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
+import { absInt32 } from "@everlonxyz/utils/src/MathUtils.sol";
 
-contract MoveSystem is System {
-  function move(VoxelCoord[] memory newCoords) public {
+contract TeleportSystem is System {
+  function teleport(VoxelCoord memory newCoord) public {
     bytes32 playerEntityId = Player.get(_msgSender());
-    require(playerEntityId != bytes32(0), "MoveSystem: player does not exist");
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "MoveSystem: player isn't logged in");
+    require(playerEntityId != bytes32(0), "TeleportSystem: player does not exist");
+    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "TeleportSystem: player isn't logged in");
 
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
 
-    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
-    VoxelCoord memory oldCoord = playerCoord;
-    for (uint256 i = 0; i < newCoords.length; i++) {
-      VoxelCoord memory newCoord = newCoords[i];
-      bool gravityRan = move(playerEntityId, oldCoord, newCoord);
-      if (gravityRan) {
-        // then, the player is now at a new coord we don't know about, so we just break
-        break;
-      }
-      oldCoord = newCoord;
-    }
-  }
-
-  function move(
-    bytes32 playerEntityId,
-    VoxelCoord memory oldCoord,
-    VoxelCoord memory newCoord
-  ) internal returns (bool) {
-    require(inSurroundingCube(oldCoord, 1, newCoord), "MoveSystem: new coord is not in surrounding cube of old coord");
+    VoxelCoord memory oldCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
 
     bytes32 newEntityId = ReversePosition.get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(AirObjectID, newCoord) == AirObjectID, "MoveSystem: cannot move to non-air block");
+      require(
+        getTerrainObjectTypeId(AirObjectID, newCoord) == AirObjectID,
+        "TeleportSystem: cannot teleport to non-air block"
+      );
 
       // Create new entity
       newEntityId = getUniqueEntity();
       ObjectType.set(newEntityId, AirObjectID);
     } else {
-      require(ObjectType.get(newEntityId) == AirObjectID, "MoveSystem: cannot move to non-air block");
+      require(ObjectType.get(newEntityId) == AirObjectID, "TeleportSystem: cannot teleport to non-air block");
 
       // Transfer any dropped items
       transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
@@ -75,12 +61,17 @@ contract MoveSystem is System {
     Position.set(playerEntityId, newCoord.x, newCoord.y, newCoord.z);
     ReversePosition.set(newCoord.x, newCoord.y, newCoord.z, playerEntityId);
 
+    int32 xDelta = newCoord.x - oldCoord.x;
+    int32 yDelta = newCoord.y - oldCoord.y;
+    int32 zDelta = newCoord.z - oldCoord.z;
+    uint32 numDeltaPositions = uint32(absInt32(xDelta) + absInt32(yDelta) + absInt32(zDelta));
+
     uint32 numMovesInBlock = PlayerMetadata.getNumMovesInBlock(playerEntityId);
     if (PlayerMetadata.getLastMoveBlock(playerEntityId) != block.number) {
-      numMovesInBlock = 1;
+      numMovesInBlock = numDeltaPositions;
       PlayerMetadata.setLastMoveBlock(playerEntityId, block.number);
     } else {
-      numMovesInBlock += 1;
+      numMovesInBlock += numDeltaPositions;
     }
     PlayerMetadata.setNumMovesInBlock(playerEntityId, numMovesInBlock);
 
@@ -107,14 +98,13 @@ contract MoveSystem is System {
     staminaRequired = staminaRequired * (numMovesInBlock ** 2);
 
     uint32 currentStamina = Stamina.getStamina(playerEntityId);
-    require(currentStamina >= staminaRequired, "MoveSystem: not enough stamina");
+    require(currentStamina >= staminaRequired, "TeleportSystem: not enough stamina");
     Stamina.setStamina(playerEntityId, currentStamina - staminaRequired);
 
     VoxelCoord memory belowCoord = VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z);
     bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
     if (belowEntityId == bytes32(0) || ObjectType.get(belowEntityId) == AirObjectID) {
-      return applyGravity(playerEntityId, newCoord);
+      applyGravity(playerEntityId, newCoord);
     }
-    return false;
   }
 }

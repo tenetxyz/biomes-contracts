@@ -393,9 +393,8 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(airEntityId, inputObjectTypeId2) == 1, "Input object not removed from inventory");
     assertTrue(InventorySlots.get(airEntityId) == 2, "Inventory slot not set");
 
-    VoxelCoord[] memory moveCoords = new VoxelCoord[](1);
-    moveCoords[0] = chestCoord;
-    world.move(moveCoords);
+    VoxelCoord memory moveCoord = chestCoord;
+    world.teleport(moveCoord);
 
     assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 1, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId2) == 1, "Input object not removed from inventory");

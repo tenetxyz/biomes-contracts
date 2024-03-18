@@ -34,7 +34,7 @@ import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
-contract MoveTest is MudTest, GasReporter {
+contract TeleportTest is MudTest, GasReporter {
   IWorld private world;
   address payable internal worldDeployer;
   address payable internal alice;
@@ -65,47 +65,39 @@ contract MoveTest is MudTest, GasReporter {
     return playerEntityId;
   }
 
-  function testMoveMultipleBlocks(uint8 numBlocksToMove, bool overTerrain) internal {
+  function testTeleportMultipleBlocks(uint8 numBlocksToTeleport, bool overTerrain) internal {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
-    }
+    VoxelCoord memory newCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");
 
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
-    world.move(newCoords);
-    uint32 oneBlockMoveStaminaCost = staminaBefore - Stamina.getStamina(playerEntityId);
+    world.teleport(newCoord);
+    uint32 oneBlockTeleportStaminaCost = staminaBefore - Stamina.getStamina(playerEntityId);
 
     vm.roll(block.number + 1);
 
-    VoxelCoord memory agentCoord = newCoords[0];
+    VoxelCoord memory agentCoord = newCoord;
 
-    newCoords = new VoxelCoord[](numBlocksToMove);
-    for (uint8 i = 0; i < numBlocksToMove; i++) {
-      newCoords[i] = VoxelCoord(agentCoord.x, agentCoord.y, agentCoord.z + int32(int(uint(i))) + 1);
-    }
+    newCoord = VoxelCoord(agentCoord.x, agentCoord.y, agentCoord.z + int32(int(uint(numBlocksToTeleport))));
 
     vm.startPrank(worldDeployer, worldDeployer);
-    for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
-      if (!overTerrain) {
-        bytes32 entityId = getUniqueEntity();
-        Position.set(entityId, newCoords[i].x, newCoords[i].y, newCoords[i].z);
-        ReversePosition.set(newCoords[i].x, newCoords[i].y, newCoords[i].z, entityId);
-        ObjectType.set(entityId, AirObjectID);
+    assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");
+    if (!overTerrain) {
+      bytes32 entityId = getUniqueEntity();
+      Position.set(entityId, newCoord.x, newCoord.y, newCoord.z);
+      ReversePosition.set(newCoord.x, newCoord.y, newCoord.z, entityId);
+      ObjectType.set(entityId, AirObjectID);
 
-        // set block below to non-air
-        VoxelCoord memory belowCoord = VoxelCoord(newCoords[i].x, newCoords[i].y - 1, newCoords[i].z);
-        assertTrue(world.getTerrainBlock(belowCoord) != AirObjectID, "Terrain block is air");
-        bytes32 belowEntityId = getUniqueEntity();
-        Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
-        ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
-        ObjectType.set(belowEntityId, GrassObjectID);
-      }
+      // set block below to non-air
+      VoxelCoord memory belowCoord = VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z);
+      assertTrue(world.getTerrainBlock(belowCoord) != AirObjectID, "Terrain block is air");
+      bytes32 belowEntityId = getUniqueEntity();
+      Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
+      ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
+      ObjectType.set(belowEntityId, GrassObjectID);
     }
     vm.stopPrank();
     vm.startPrank(alice, alice);
@@ -113,9 +105,14 @@ contract MoveTest is MudTest, GasReporter {
     staminaBefore = Stamina.getStamina(playerEntityId);
 
     startGasReport(
-      string.concat("move ", Strings.toString(numBlocksToMove), " blocks ", overTerrain ? "terrain" : "non-terrain")
+      string.concat(
+        "teleport ",
+        Strings.toString(numBlocksToTeleport),
+        " blocks ",
+        overTerrain ? "terrain" : "non-terrain"
+      )
     );
-    world.move(newCoords);
+    world.teleport(newCoord);
     endGasReport();
 
     assertTrue(Player.get(alice) == playerEntityId, "Player entity id is not correct");
@@ -125,32 +122,26 @@ contract MoveTest is MudTest, GasReporter {
       "Player last move block is not correct"
     );
     assertTrue(
-      PlayerMetadata.getNumMovesInBlock(playerEntityId) == numBlocksToMove,
+      PlayerMetadata.getNumMovesInBlock(playerEntityId) == numBlocksToTeleport,
       "Player move count is not correct"
     );
     assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player object type is not correct");
     assertTrue(
-      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), newCoords[numBlocksToMove - 1]),
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), newCoord),
       "Player did not move to new coords"
     );
     assertTrue(
-      ReversePosition.get(
-        newCoords[numBlocksToMove - 1].x,
-        newCoords[numBlocksToMove - 1].y,
-        newCoords[numBlocksToMove - 1].z
-      ) == playerEntityId,
+      ReversePosition.get(newCoord.x, newCoord.y, newCoord.z) == playerEntityId,
       "Reverse position is not correct"
     );
-    for (uint i = 0; i < newCoords.length - 1; i++) {
-      bytes32 oldEntityId = ReversePosition.get(newCoords[i].x, newCoords[i].y, newCoords[i].z);
-      assertTrue(oldEntityId != bytes32(0), "Old entity id is not correct");
-      assertTrue(ObjectType.get(oldEntityId) == AirObjectID, "Old entity object type is not correct");
-      assertTrue(
-        voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(oldEntityId)), newCoords[i]),
-        "Old entity did not move to old coords"
-      );
-    }
-    bytes32 oldEntityId = ReversePosition.get(agentCoord.x, agentCoord.y, agentCoord.z);
+    bytes32 oldEntityId = ReversePosition.get(newCoord.x, newCoord.y, newCoord.z);
+    assertTrue(oldEntityId != bytes32(0), "Old entity id is not correct");
+    assertTrue(ObjectType.get(oldEntityId) == PlayerObjectID, "Old entity object type is not correct");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(oldEntityId)), newCoord),
+      "Old entity did not move to old coords"
+    );
+    oldEntityId = ReversePosition.get(agentCoord.x, agentCoord.y, agentCoord.z);
     assertTrue(oldEntityId != bytes32(0), "Old entity id is not correct");
     assertTrue(ObjectType.get(oldEntityId) == AirObjectID, "Old entity object type is not correct");
     assertTrue(
@@ -158,11 +149,11 @@ contract MoveTest is MudTest, GasReporter {
       "Old entity did not move to old coords"
     );
     uint32 newStamina = Stamina.getStamina(playerEntityId);
-    uint32 blockMoveStaminaCost = staminaBefore - newStamina;
+    uint32 blockTeleportStaminaCost = staminaBefore - newStamina;
     assertTrue(newStamina < staminaBefore, "Stamina not decremented");
-    if (numBlocksToMove > 1) {
+    if (numBlocksToTeleport > 1) {
       assertTrue(
-        blockMoveStaminaCost > oneBlockMoveStaminaCost * numBlocksToMove,
+        blockTeleportStaminaCost > oneBlockTeleportStaminaCost * numBlocksToTeleport,
         "Stamina cost for multiple not more than one block move"
       );
     }
@@ -171,82 +162,58 @@ contract MoveTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testMoveOneBlockTerrain() public {
-    testMoveMultipleBlocks(1, true);
+  function testTeleportOneBlockTerrain() public {
+    testTeleportMultipleBlocks(1, true);
   }
 
-  function testMoveOneBlockNonTerrain() public {
-    testMoveMultipleBlocks(1, false);
+  function testTeleportOneBlockNonTerrain() public {
+    testTeleportMultipleBlocks(1, false);
   }
 
-  function testMoveFiveBlocksTerrain() public {
-    testMoveMultipleBlocks(5, true);
+  function testTeleportFiveBlocksTerrain() public {
+    testTeleportMultipleBlocks(5, true);
   }
 
-  function testMoveFiveBlocksNonTerrain() public {
-    testMoveMultipleBlocks(5, false);
+  function testTeleportFiveBlocksNonTerrain() public {
+    testTeleportMultipleBlocks(5, false);
   }
 
-  function testMoveTenBlocksTerrain() public {
-    testMoveMultipleBlocks(10, true);
+  function testTeleportTenBlocksTerrain() public {
+    testTeleportMultipleBlocks(10, true);
   }
 
-  function testMoveTenBlocksNonTerrain() public {
-    testMoveMultipleBlocks(10, false);
+  function testTeleportTenBlocksNonTerrain() public {
+    testTeleportMultipleBlocks(10, false);
   }
 
-  function testMoveWithoutPlayer() public {
+  function testTeleportWithoutPlayer() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
-    }
+    VoxelCoord memory newCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");
     vm.stopPrank();
 
-    vm.expectRevert("MoveSystem: player does not exist");
-    world.move(newCoords);
+    vm.expectRevert("TeleportSystem: player does not exist");
+    world.teleport(newCoord);
   }
 
-  function testMoveNonAir() public {
+  function testTeleportNonAir() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
-    for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) != AirObjectID, "Terrain block is not air");
-    }
+    VoxelCoord memory newCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(newCoord) != AirObjectID, "Terrain block is not air");
 
-    vm.expectRevert("MoveSystem: cannot move to non-air block");
-    world.move(newCoords);
+    vm.expectRevert("TeleportSystem: cannot teleport to non-air block");
+    world.teleport(newCoord);
 
     vm.stopPrank();
   }
 
-  function testMoveInValidCoords() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 3);
-    for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
-    }
-
-    vm.expectRevert("MoveSystem: new coord is not in surrounding cube of old coord");
-    world.move(newCoords);
-
-    vm.stopPrank();
-  }
-
-  function testMoveOneBlockInventoryFull() public {
+  function testTeleportOneBlockInventoryFull() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
@@ -269,29 +236,23 @@ contract MoveTest is MudTest, GasReporter {
 
     vm.startPrank(alice, alice);
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
-    }
+    VoxelCoord memory newCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");
 
-    startGasReport("move one block terrain w/ full inventory");
-    world.move(newCoords);
+    startGasReport("teleport one block terrain w/ full inventory");
+    world.teleport(newCoord);
     endGasReport();
 
     vm.stopPrank();
   }
 
-  function testMoveNotEnoughStamina() public {
+  function testTeleportNotEnoughStamina() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
-    }
+    VoxelCoord memory newCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");
 
     vm.startPrank(worldDeployer, worldDeployer);
     Stamina.setStamina(playerEntityId, 0);
@@ -299,13 +260,13 @@ contract MoveTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("MoveSystem: not enough stamina");
-    world.move(newCoords);
+    vm.expectRevert("TeleportSystem: not enough stamina");
+    world.teleport(newCoord);
 
     vm.stopPrank();
   }
 
-  function testMoveRegenHealthAndStamina() public {
+  function testTeleportRegenHealthAndStamina() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
@@ -326,14 +287,11 @@ contract MoveTest is MudTest, GasReporter {
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
     uint32 healthBefore = Health.getHealth(playerEntityId);
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
-    }
+    VoxelCoord memory newCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");
 
-    startGasReport("move one block terrain w/ health and stamina regen");
-    world.move(newCoords);
+    startGasReport("teleport one block terrain w/ health and stamina regen");
+    world.teleport(newCoord);
     endGasReport();
 
     assertTrue(Stamina.getStamina(playerEntityId) > staminaBefore, "Stamina not regened");
@@ -344,20 +302,17 @@ contract MoveTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testMoveWithLoggedOffPlayer() public {
+  function testTeleportWithLoggedOffPlayer() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
-    }
+    VoxelCoord memory newCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");
 
     world.logoffPlayer();
 
-    vm.expectRevert("MoveSystem: player isn't logged in");
-    world.move(newCoords);
+    vm.expectRevert("TeleportSystem: player isn't logged in");
+    world.teleport(newCoord);
   }
 }

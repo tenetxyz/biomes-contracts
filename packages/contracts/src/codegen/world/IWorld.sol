@@ -24,6 +24,7 @@ import { ILogoffSystem } from "./ILogoffSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
+import { ITeleportSystem } from "./ITeleportSystem.sol";
 import { ITerrainHelperSystem } from "./ITerrainHelperSystem.sol";
 import { ITerrainOreSystem } from "./ITerrainOreSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
@@ -58,6 +59,7 @@ interface IWorld is
   IMineSystem,
   IMoveSystem,
   IPlayerSystem,
+  ITeleportSystem,
   ITerrainHelperSystem,
   ITerrainOreSystem,
   ITerrainSystem,

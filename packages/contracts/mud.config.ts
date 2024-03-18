@@ -81,7 +81,7 @@ export default mudConfig({
         isLoggedOff: "bool",
         lastMoveBlock: "uint256",
         lastHitBlock: "uint256",
-        numMovesInBlock: "uint16",
+        numMovesInBlock: "uint32",
       },
     },
     Inventory: {
