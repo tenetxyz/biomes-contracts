@@ -96,7 +96,8 @@ contract TeleportSystem is System {
     uint32 staminaRequired = ObjectTypeMetadata.getMass(PlayerObjectID);
     staminaRequired += inventoryTotalMass / 50;
     staminaRequired = staminaRequired * (numMovesInBlock ** 2);
-    staminaRequired /= 100;
+    staminaRequired = staminaRequired / 100;
+
 
     uint32 currentStamina = Stamina.getStamina(playerEntityId);
     require(currentStamina >= staminaRequired, "TeleportSystem: not enough stamina");
