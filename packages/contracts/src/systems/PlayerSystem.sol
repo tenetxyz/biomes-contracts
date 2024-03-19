@@ -78,6 +78,7 @@ contract PlayerSystem is System {
   function changePlayerOwner(address newOwner) public {
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "PlayerSystem: player does not exist");
+    require(Player.get(newOwner) == bytes32(0), "PlayerSystem: new owner already has a player");
     Player.deleteRecord(_msgSender());
     Player.set(newOwner, playerEntityId);
     ReversePlayer.set(playerEntityId, newOwner);
