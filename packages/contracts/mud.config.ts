@@ -1,13 +1,11 @@
-import { mudConfig } from "@latticexyz/world/register";
-import { resolveTableId } from "@latticexyz/config";
+import { defineWorld } from "@latticexyz/world";
+import { resolveTableId } from "@latticexyz/config/library";
 
-export default mudConfig({
+export default defineWorld({
   tables: {
     ObjectTypeMetadata: {
-      keySchema: {
+      schema: {
         objectTypeId: "bytes32",
-      },
-      valueSchema: {
         isPlayer: "bool",
         isBlock: "bool",
         mass: "uint16",
@@ -18,142 +16,128 @@ export default mudConfig({
         occurenceAddress: "address",
         occurenceSelector: "bytes4",
       },
+      key: ["objectTypeId"],
     },
     ObjectType: {
-      keySchema: {
+      schema: {
         entityId: "bytes32",
-      },
-      valueSchema: {
         objectTypeId: "bytes32",
       },
+      key: ["entityId"],
     },
     Position: {
-      keySchema: {
+      schema: {
         entityId: "bytes32",
-      },
-      valueSchema: {
         x: "int32",
         y: "int32",
         z: "int32",
       },
+      key: ["entityId"],
     },
     ReversePosition: {
-      keySchema: {
+      schema: {
         x: "int32",
         y: "int32",
         z: "int32",
-      },
-      valueSchema: {
         entityId: "bytes32",
       },
+      key: ["x", "y", "z"],
     },
     LastKnownPosition: {
-      keySchema: {
+      schema: {
         entityId: "bytes32",
-      },
-      valueSchema: {
         x: "int32",
         y: "int32",
         z: "int32",
       },
+      key: ["entityId"],
     },
     Player: {
-      keySchema: {
+      schema: {
         player: "address",
-      },
-      valueSchema: {
         entityId: "bytes32",
       },
+      key: ["player"],
     },
     ReversePlayer: {
-      keySchema: {
+      schema: {
         entityId: "bytes32",
-      },
-      valueSchema: {
         player: "address",
       },
+      key: ["entityId"],
     },
     PlayerMetadata: {
-      keySchema: {
+      schema: {
         entityId: "bytes32",
-      },
-      valueSchema: {
         isLoggedOff: "bool",
         lastMoveBlock: "uint256",
         lastHitBlock: "uint256",
         numMovesInBlock: "uint32",
       },
+      key: ["entityId"],
     },
     Inventory: {
-      keySchema: {
+      schema: {
         entityId: "bytes32",
-      },
-      valueSchema: {
         ownerEntityId: "bytes32",
       },
+      key: ["entityId"],
     },
     ItemMetadata: {
-      keySchema: {
+      schema: {
         entityId: "bytes32",
-      },
-      valueSchema: {
         numUsesLeft: "uint24",
       },
+      key: ["entityId"],
     },
     InventorySlots: {
-      keySchema: {
+      schema: {
         ownerEntityId: "bytes32",
-      },
-      valueSchema: {
         numSlotsUsed: "uint16",
       },
+      key: ["ownerEntityId"],
     },
     InventoryCount: {
-      keySchema: {
+      schema: {
         ownerEntityId: "bytes32",
         objectTypeId: "bytes32",
-      },
-      valueSchema: {
         count: "uint16",
       },
+      key: ["ownerEntityId", "objectTypeId"],
     },
     Equipped: {
-      keySchema: {
+      schema: {
         entityId: "bytes32",
-      },
-      valueSchema: {
         inventoryEntityId: "bytes32",
       },
+      key: ["entityId"],
     },
     Health: {
-      keySchema: {
+      schema: {
         entityId: "bytes32",
-      },
-      valueSchema: {
         lastUpdateBlock: "uint256",
         health: "uint16",
       },
+      key: ["entityId"],
     },
     Stamina: {
-      keySchema: {
+      schema: {
         entityId: "bytes32",
-      },
-      valueSchema: {
         lastUpdateBlock: "uint256",
         stamina: "uint32",
       },
+      key: ["entityId"],
     },
     Recipes: {
-      keySchema: {
+      schema: {
         recipeId: "bytes32",
-      },
-      valueSchema: {
         stationObjectTypeId: "bytes32",
         outputObjectTypeId: "bytes32",
         outputObjectTypeAmount: "uint8",
         inputObjectTypeIds: "bytes32[]",
         inputObjectTypeAmounts: "uint8[]",
       },
+      key: ["recipeId"],
     },
   },
   systems: {

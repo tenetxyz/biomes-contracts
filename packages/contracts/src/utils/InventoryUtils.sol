@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { getKeysWithValue } from "@latticexyz/world-modules/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
+import { EncodedLengths } from "@latticexyz/store/src/EncodedLengths.sol";
 
 import { Inventory } from "../codegen/tables/Inventory.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -96,7 +96,7 @@ function useEquipped(bytes32 entityId) {
 }
 
 function transferAllInventoryEntities(bytes32 fromEntityId, bytes32 toEntityId, bytes32 toObjectTypeId) {
-  (bytes memory staticData, PackedCounter encodedLengths, bytes memory dynamicData) = Inventory.encode(fromEntityId);
+  (bytes memory staticData, EncodedLengths encodedLengths, bytes memory dynamicData) = Inventory.encode(fromEntityId);
   bytes32[] memory fromInventoryEntityIds = getKeysWithValue(
     Inventory._tableId,
     staticData,

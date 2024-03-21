@@ -13,7 +13,7 @@ import { SliceLib } from "@latticexyz/store/src/Slice.sol";
 import { EncodeArray } from "@latticexyz/store/src/tightcoder/EncodeArray.sol";
 import { FieldLayout } from "@latticexyz/store/src/FieldLayout.sol";
 import { Schema } from "@latticexyz/store/src/Schema.sol";
-import { PackedCounter, PackedCounterLib } from "@latticexyz/store/src/PackedCounter.sol";
+import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 struct RecipesData {
@@ -529,7 +529,7 @@ library Recipes {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
-    (bytes memory _staticData, PackedCounter _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
       _tableId,
       _keyTuple,
       _fieldLayout
@@ -544,7 +544,7 @@ library Recipes {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
-    (bytes memory _staticData, PackedCounter _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
       _tableId,
       _keyTuple,
       _fieldLayout
@@ -565,7 +565,7 @@ library Recipes {
   ) internal {
     bytes memory _staticData = encodeStatic(stationObjectTypeId, outputObjectTypeId, outputObjectTypeAmount);
 
-    PackedCounter _encodedLengths = encodeLengths(inputObjectTypeIds, inputObjectTypeAmounts);
+    EncodedLengths _encodedLengths = encodeLengths(inputObjectTypeIds, inputObjectTypeAmounts);
     bytes memory _dynamicData = encodeDynamic(inputObjectTypeIds, inputObjectTypeAmounts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
@@ -587,7 +587,7 @@ library Recipes {
   ) internal {
     bytes memory _staticData = encodeStatic(stationObjectTypeId, outputObjectTypeId, outputObjectTypeAmount);
 
-    PackedCounter _encodedLengths = encodeLengths(inputObjectTypeIds, inputObjectTypeAmounts);
+    EncodedLengths _encodedLengths = encodeLengths(inputObjectTypeIds, inputObjectTypeAmounts);
     bytes memory _dynamicData = encodeDynamic(inputObjectTypeIds, inputObjectTypeAmounts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
@@ -606,7 +606,7 @@ library Recipes {
       _table.outputObjectTypeAmount
     );
 
-    PackedCounter _encodedLengths = encodeLengths(_table.inputObjectTypeIds, _table.inputObjectTypeAmounts);
+    EncodedLengths _encodedLengths = encodeLengths(_table.inputObjectTypeIds, _table.inputObjectTypeAmounts);
     bytes memory _dynamicData = encodeDynamic(_table.inputObjectTypeIds, _table.inputObjectTypeAmounts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
@@ -625,7 +625,7 @@ library Recipes {
       _table.outputObjectTypeAmount
     );
 
-    PackedCounter _encodedLengths = encodeLengths(_table.inputObjectTypeIds, _table.inputObjectTypeAmounts);
+    EncodedLengths _encodedLengths = encodeLengths(_table.inputObjectTypeIds, _table.inputObjectTypeAmounts);
     bytes memory _dynamicData = encodeDynamic(_table.inputObjectTypeIds, _table.inputObjectTypeAmounts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
@@ -651,7 +651,7 @@ library Recipes {
    * @notice Decode the tightly packed blob of dynamic data using the encoded lengths.
    */
   function decodeDynamic(
-    PackedCounter _encodedLengths,
+    EncodedLengths _encodedLengths,
     bytes memory _blob
   ) internal pure returns (bytes32[] memory inputObjectTypeIds, uint8[] memory inputObjectTypeAmounts) {
     uint256 _start;
@@ -676,7 +676,7 @@ library Recipes {
    */
   function decode(
     bytes memory _staticData,
-    PackedCounter _encodedLengths,
+    EncodedLengths _encodedLengths,
     bytes memory _dynamicData
   ) internal pure returns (RecipesData memory _table) {
     (_table.stationObjectTypeId, _table.outputObjectTypeId, _table.outputObjectTypeAmount) = decodeStatic(_staticData);
@@ -723,10 +723,10 @@ library Recipes {
   function encodeLengths(
     bytes32[] memory inputObjectTypeIds,
     uint8[] memory inputObjectTypeAmounts
-  ) internal pure returns (PackedCounter _encodedLengths) {
+  ) internal pure returns (EncodedLengths _encodedLengths) {
     // Lengths are effectively checked during copy by 2**40 bytes exceeding gas limits
     unchecked {
-      _encodedLengths = PackedCounterLib.pack(inputObjectTypeIds.length * 32, inputObjectTypeAmounts.length * 1);
+      _encodedLengths = EncodedLengthsLib.pack(inputObjectTypeIds.length * 32, inputObjectTypeAmounts.length * 1);
     }
   }
 
@@ -753,10 +753,10 @@ library Recipes {
     uint8 outputObjectTypeAmount,
     bytes32[] memory inputObjectTypeIds,
     uint8[] memory inputObjectTypeAmounts
-  ) internal pure returns (bytes memory, PackedCounter, bytes memory) {
+  ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(stationObjectTypeId, outputObjectTypeId, outputObjectTypeAmount);
 
-    PackedCounter _encodedLengths = encodeLengths(inputObjectTypeIds, inputObjectTypeAmounts);
+    EncodedLengths _encodedLengths = encodeLengths(inputObjectTypeIds, inputObjectTypeAmounts);
     bytes memory _dynamicData = encodeDynamic(inputObjectTypeIds, inputObjectTypeAmounts);
 
     return (_staticData, _encodedLengths, _dynamicData);
