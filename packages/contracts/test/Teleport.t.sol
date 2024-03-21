@@ -33,6 +33,7 @@ import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
+import { absInt32 } from "@everlonxyz/utils/src/MathUtils.sol";
 
 contract TeleportTest is MudTest, GasReporter {
   IWorld private world;
@@ -65,12 +66,12 @@ contract TeleportTest is MudTest, GasReporter {
     return playerEntityId;
   }
 
-  function testTeleportMultipleBlocks(uint8 numBlocksToTeleport, bool overTerrain) internal {
+  function testTeleportMultipleBlocks(VoxelCoord memory teleportCoord, bool overTerrain) internal {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
-    VoxelCoord memory newCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    VoxelCoord memory newCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
     assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");
 
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
@@ -81,7 +82,12 @@ contract TeleportTest is MudTest, GasReporter {
 
     VoxelCoord memory agentCoord = newCoord;
 
-    newCoord = VoxelCoord(agentCoord.x, agentCoord.y, agentCoord.z + int32(int(uint(numBlocksToTeleport))));
+    uint32 numBlocksToTeleport = uint32(
+      absInt32(newCoord.x - teleportCoord.x) +
+        absInt32(newCoord.y - teleportCoord.y) +
+        absInt32(newCoord.z - teleportCoord.z)
+    );
+    newCoord = VoxelCoord(teleportCoord.x, teleportCoord.y, teleportCoord.z);
 
     vm.startPrank(worldDeployer, worldDeployer);
     assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");
@@ -151,7 +157,7 @@ contract TeleportTest is MudTest, GasReporter {
     uint32 newStamina = Stamina.getStamina(playerEntityId);
     uint32 blockTeleportStaminaCost = staminaBefore - newStamina;
     assertTrue(newStamina < staminaBefore, "Stamina not decremented");
-    if (numBlocksToTeleport > 1) {
+    if (numBlocksToTeleport > 10) {
       assertTrue(
         blockTeleportStaminaCost > oneBlockTeleportStaminaCost * numBlocksToTeleport,
         "Stamina cost for multiple not more than one block move"
@@ -163,27 +169,35 @@ contract TeleportTest is MudTest, GasReporter {
   }
 
   function testTeleportOneBlockTerrain() public {
-    testTeleportMultipleBlocks(1, true);
+    testTeleportMultipleBlocks(VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z - 2), true);
   }
 
   function testTeleportOneBlockNonTerrain() public {
-    testTeleportMultipleBlocks(1, false);
-  }
-
-  function testTeleportFiveBlocksTerrain() public {
-    testTeleportMultipleBlocks(5, true);
-  }
-
-  function testTeleportFiveBlocksNonTerrain() public {
-    testTeleportMultipleBlocks(5, false);
+    testTeleportMultipleBlocks(VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z - 2), true);
   }
 
   function testTeleportTenBlocksTerrain() public {
-    testTeleportMultipleBlocks(10, true);
+    testTeleportMultipleBlocks(VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y - 1, SPAWN_LOW_Z - 10), true);
   }
 
   function testTeleportTenBlocksNonTerrain() public {
-    testTeleportMultipleBlocks(10, false);
+    testTeleportMultipleBlocks(VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y - 1, SPAWN_LOW_Z - 10), false);
+  }
+
+  function testTeleportFiftyBlocksTerrain() public {
+    testTeleportMultipleBlocks(VoxelCoord(SPAWN_LOW_X + 1, SPAWN_GROUND_Y - 2, SPAWN_LOW_Z - 48), true);
+  }
+
+  function testTeleportFiftyBlocksNonTerrain() public {
+    testTeleportMultipleBlocks(VoxelCoord(SPAWN_LOW_X + 1, SPAWN_GROUND_Y - 2, SPAWN_LOW_Z - 48), false);
+  }
+
+  function testTeleportHundredBlocksTerrain() public {
+    testTeleportMultipleBlocks(VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z - 101), true);
+  }
+
+  function testTeleportHundredBlocksNonTerrain() public {
+    testTeleportMultipleBlocks(VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z - 101), false);
   }
 
   function testTeleportWithoutPlayer() public {
