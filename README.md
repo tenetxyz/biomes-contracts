@@ -26,6 +26,7 @@ development/
 
 - Note: We've forked MUD so we can modify some of the packages. This repo depends on our fork of MUD.
 
-3. In our mud fork, run pnpm install (to install all dependencies)
-4. In our mud fork, run pnpm build (to build all packages)
-5. `pnpm install`
+3. `git checkout fork-changes`
+4. In our mud fork, run `pnpm install` (to install all dependencies)
+5. In our mud fork, run `pnpm build` (to build all packages)
+6. `pnpm install`
