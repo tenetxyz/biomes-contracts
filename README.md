@@ -20,7 +20,7 @@ pnpm run dev
 
 ```
 development/
-   biomesaw-contracts/
+   biomes-contracts/
    mud/
 ```
 
