@@ -71,7 +71,7 @@ export default defineWorld({
         entityId: "bytes32",
         isLoggedOff: "bool",
         lastMoveBlock: "uint256",
-        lastHitBlock: "uint256",
+        lastHitTime: "uint256",
         numMovesInBlock: "uint32",
       },
       key: ["entityId"],
@@ -115,7 +115,7 @@ export default defineWorld({
     Health: {
       schema: {
         entityId: "bytes32",
-        lastUpdateBlock: "uint256",
+        lastUpdatedTime: "uint256",
         health: "uint16",
       },
       key: ["entityId"],
@@ -123,7 +123,7 @@ export default defineWorld({
     Stamina: {
       schema: {
         entityId: "bytes32",
-        lastUpdateBlock: "uint256",
+        lastUpdatedTime: "uint256",
         stamina: "uint32",
       },
       key: ["entityId"],

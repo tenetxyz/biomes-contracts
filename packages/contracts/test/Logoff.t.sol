@@ -30,7 +30,7 @@ import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord } from "../src/Utils.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
-import { MIN_BLOCKS_TO_LOGOFF_AFTER_HIT, MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
+import { MIN_TIME_TO_LOGOFF_AFTER_HIT, MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
@@ -112,11 +112,11 @@ contract LogoffTest is MudTest, GasReporter {
     bytes32 playerEntityId2 = setupPlayer2(1);
     vm.startPrank(bob, bob);
     world.hit(alice);
-    assertTrue(PlayerMetadata.getLastHitBlock(playerEntityId) == block.number, "Last hit block not set");
-    assertTrue(PlayerMetadata.getLastHitBlock(playerEntityId2) != block.number, "Last hit block set");
+    assertTrue(PlayerMetadata.getLastHitTime(playerEntityId) == block.timestamp, "Last hit block not set");
+    assertTrue(PlayerMetadata.getLastHitTime(playerEntityId2) != block.timestamp, "Last hit block set");
     vm.stopPrank();
     vm.startPrank(alice, alice);
-    vm.roll(block.number + MIN_BLOCKS_TO_LOGOFF_AFTER_HIT + 1);
+    vm.warp(block.timestamp + MIN_TIME_TO_LOGOFF_AFTER_HIT + 1);
     world.logoffPlayer();
 
     assertTrue(

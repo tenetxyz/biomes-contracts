@@ -10,15 +10,15 @@ int32 constant SPAWN_GROUND_Y = -62;
 uint16 constant MAX_PLAYER_HEALTH = 1000;
 uint32 constant MAX_PLAYER_STAMINA = 120000;
 
-uint32 constant BLOCKS_BEFORE_INCREASE_STAMINA = 60; // 1 minute if 1 block == 1 second
+uint32 constant TIME_BEFORE_INCREASE_STAMINA = 1 minutes;
 uint32 constant STAMINA_INCREASE_RATE = 1000;
-uint16 constant BLOCKS_BEFORE_INCREASE_HEALTH = 60; // 1 minute if 1 block == 1 second
+uint16 constant TIME_BEFORE_INCREASE_HEALTH = 1 minutes;
 uint16 constant HEALTH_INCREASE_RATE = 20;
 uint16 constant GRAVITY_DAMAGE = 100;
 uint16 constant PLAYER_HAND_DAMAGE = 20;
 uint16 constant HIT_STAMINA_COST = 250;
 
-uint8 constant MIN_BLOCKS_TO_LOGOFF_AFTER_HIT = 60; // 1 minute if 1 block == 1 second
+uint256 constant MIN_TIME_TO_LOGOFF_AFTER_HIT = 1 minutes;
 
 int32 constant MAX_PLAYER_BUILD_MINE_HALF_WIDTH = 5;
 int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 5;

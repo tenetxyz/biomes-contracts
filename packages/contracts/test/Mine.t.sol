@@ -29,7 +29,7 @@ import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, BLOCKS_BEFORE_INCREASE_STAMINA, BLOCKS_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
@@ -89,7 +89,7 @@ contract MineTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     assertTrue(Stamina.getStamina(playerEntityId) < staminaBefore, "Stamina not decremented");
-    assertTrue(Stamina.getLastUpdateBlock(playerEntityId) == block.number, "Stamina last update block not set");
+    assertTrue(Stamina.getLastUpdatedTime(playerEntityId) == block.timestamp, "Stamina last update time not set");
 
     vm.stopPrank();
   }
@@ -128,7 +128,7 @@ contract MineTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     assertTrue(Stamina.getStamina(playerEntityId) < staminaBefore, "Stamina not decremented");
-    assertTrue(Stamina.getLastUpdateBlock(playerEntityId) == block.number - 1, "Stamina last update block not set");
+    assertTrue(Stamina.getLastUpdatedTime(playerEntityId) == block.timestamp, "Stamina last update time not set");
 
     vm.stopPrank();
   }
@@ -239,7 +239,7 @@ contract MineTest is MudTest, GasReporter {
 
     vm.startPrank(worldDeployer, worldDeployer);
     Stamina.setStamina(playerEntityId, 0);
-    Stamina.setLastUpdateBlock(playerEntityId, block.number);
+    Stamina.setLastUpdatedTime(playerEntityId, block.timestamp);
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
@@ -302,17 +302,16 @@ contract MineTest is MudTest, GasReporter {
 
     vm.startPrank(worldDeployer, worldDeployer);
     Stamina.setStamina(playerEntityId, 1);
-    Stamina.setLastUpdateBlock(playerEntityId, block.number);
+    Stamina.setLastUpdatedTime(playerEntityId, block.timestamp);
 
     Health.setHealth(playerEntityId, 1);
-    Health.setLastUpdateBlock(playerEntityId, block.number);
+    Health.setLastUpdatedTime(playerEntityId, block.timestamp);
     vm.stopPrank();
 
     vm.startPrank(alice, alice);
 
-    uint256 newBlockNumber = block.number +
-      ((BLOCKS_BEFORE_INCREASE_STAMINA + BLOCKS_BEFORE_INCREASE_HEALTH + 1) * 100);
-    vm.roll(newBlockNumber);
+    uint256 newBlockTime = block.timestamp + ((TIME_BEFORE_INCREASE_STAMINA + TIME_BEFORE_INCREASE_HEALTH + 1) * 100);
+    vm.warp(newBlockTime);
 
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
     uint32 healthBefore = Health.getHealth(playerEntityId);
@@ -322,9 +321,9 @@ contract MineTest is MudTest, GasReporter {
     endGasReport();
 
     assertTrue(Stamina.getStamina(playerEntityId) > staminaBefore, "Stamina not regened");
-    assertTrue(Stamina.getLastUpdateBlock(playerEntityId) == newBlockNumber, "Stamina last update block not set");
+    assertTrue(Stamina.getLastUpdatedTime(playerEntityId) == newBlockTime, "Stamina last update time not set");
     assertTrue(Health.getHealth(playerEntityId) > healthBefore, "Health not regened");
-    assertTrue(Health.getLastUpdateBlock(playerEntityId) == newBlockNumber, "Health last update block not set");
+    assertTrue(Health.getLastUpdatedTime(playerEntityId) == newBlockTime, "Health last update time not set");
 
     vm.stopPrank();
   }

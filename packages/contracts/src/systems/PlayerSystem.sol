@@ -19,7 +19,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Inventory } from "../codegen/tables/Inventory.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
-import { MIN_BLOCKS_TO_LOGOFF_AFTER_HIT, MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
+import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getTerrainObjectTypeId, callGravity } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
@@ -61,8 +61,8 @@ contract PlayerSystem is System {
     Player.set(newPlayer, entityId);
     ReversePlayer.set(entityId, newPlayer);
 
-    Health.set(entityId, block.number, MAX_PLAYER_HEALTH);
-    Stamina.set(entityId, block.number, MAX_PLAYER_STAMINA);
+    Health.set(entityId, block.timestamp, MAX_PLAYER_HEALTH);
+    Stamina.set(entityId, block.timestamp, MAX_PLAYER_STAMINA);
 
     // We let the user pick a y coord, so we need to apply gravity
     VoxelCoord memory belowCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);

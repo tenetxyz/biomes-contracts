@@ -79,7 +79,7 @@ contract HitSystem is System {
     if (newHealth == 0) {
       despawnPlayer(hitEntityId);
     } else {
-      PlayerMetadata.setLastHitBlock(hitEntityId, block.number);
+      PlayerMetadata.setLastHitTime(hitEntityId, block.timestamp);
     }
   }
 }

@@ -17,7 +17,7 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 struct HealthData {
-  uint256 lastUpdateBlock;
+  uint256 lastUpdatedTime;
   uint16 health;
 }
 
@@ -48,7 +48,7 @@ library Health {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](2);
-    fieldNames[0] = "lastUpdateBlock";
+    fieldNames[0] = "lastUpdatedTime";
     fieldNames[1] = "health";
   }
 
@@ -67,9 +67,9 @@ library Health {
   }
 
   /**
-   * @notice Get lastUpdateBlock.
+   * @notice Get lastUpdatedTime.
    */
-  function getLastUpdateBlock(bytes32 entityId) internal view returns (uint256 lastUpdateBlock) {
+  function getLastUpdatedTime(bytes32 entityId) internal view returns (uint256 lastUpdatedTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -78,9 +78,9 @@ library Health {
   }
 
   /**
-   * @notice Get lastUpdateBlock.
+   * @notice Get lastUpdatedTime.
    */
-  function _getLastUpdateBlock(bytes32 entityId) internal view returns (uint256 lastUpdateBlock) {
+  function _getLastUpdatedTime(bytes32 entityId) internal view returns (uint256 lastUpdatedTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -89,23 +89,23 @@ library Health {
   }
 
   /**
-   * @notice Set lastUpdateBlock.
+   * @notice Set lastUpdatedTime.
    */
-  function setLastUpdateBlock(bytes32 entityId, uint256 lastUpdateBlock) internal {
+  function setLastUpdatedTime(bytes32 entityId, uint256 lastUpdatedTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastUpdateBlock)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastUpdatedTime)), _fieldLayout);
   }
 
   /**
-   * @notice Set lastUpdateBlock.
+   * @notice Set lastUpdatedTime.
    */
-  function _setLastUpdateBlock(bytes32 entityId, uint256 lastUpdateBlock) internal {
+  function _setLastUpdatedTime(bytes32 entityId, uint256 lastUpdatedTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastUpdateBlock)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastUpdatedTime)), _fieldLayout);
   }
 
   /**
@@ -183,8 +183,8 @@ library Health {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 entityId, uint256 lastUpdateBlock, uint16 health) internal {
-    bytes memory _staticData = encodeStatic(lastUpdateBlock, health);
+  function set(bytes32 entityId, uint256 lastUpdatedTime, uint16 health) internal {
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, health);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -198,8 +198,8 @@ library Health {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 entityId, uint256 lastUpdateBlock, uint16 health) internal {
-    bytes memory _staticData = encodeStatic(lastUpdateBlock, health);
+  function _set(bytes32 entityId, uint256 lastUpdatedTime, uint16 health) internal {
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, health);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -214,7 +214,7 @@ library Health {
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 entityId, HealthData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.lastUpdateBlock, _table.health);
+    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.health);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -229,7 +229,7 @@ library Health {
    * @notice Set the full data using the data struct.
    */
   function _set(bytes32 entityId, HealthData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.lastUpdateBlock, _table.health);
+    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.health);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -243,8 +243,8 @@ library Health {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (uint256 lastUpdateBlock, uint16 health) {
-    lastUpdateBlock = (uint256(Bytes.getBytes32(_blob, 0)));
+  function decodeStatic(bytes memory _blob) internal pure returns (uint256 lastUpdatedTime, uint16 health) {
+    lastUpdatedTime = (uint256(Bytes.getBytes32(_blob, 0)));
 
     health = (uint16(Bytes.getBytes2(_blob, 32)));
   }
@@ -260,7 +260,7 @@ library Health {
     EncodedLengths,
     bytes memory
   ) internal pure returns (HealthData memory _table) {
-    (_table.lastUpdateBlock, _table.health) = decodeStatic(_staticData);
+    (_table.lastUpdatedTime, _table.health) = decodeStatic(_staticData);
   }
 
   /**
@@ -287,8 +287,8 @@ library Health {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint256 lastUpdateBlock, uint16 health) internal pure returns (bytes memory) {
-    return abi.encodePacked(lastUpdateBlock, health);
+  function encodeStatic(uint256 lastUpdatedTime, uint16 health) internal pure returns (bytes memory) {
+    return abi.encodePacked(lastUpdatedTime, health);
   }
 
   /**
@@ -298,10 +298,10 @@ library Health {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
-    uint256 lastUpdateBlock,
+    uint256 lastUpdatedTime,
     uint16 health
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(lastUpdateBlock, health);
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, health);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

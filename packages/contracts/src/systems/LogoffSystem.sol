@@ -19,7 +19,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Inventory } from "../codegen/tables/Inventory.sol";
 
 import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
-import { MIN_BLOCKS_TO_LOGOFF_AFTER_HIT, MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
+import { MIN_TIME_TO_LOGOFF_AFTER_HIT, MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
@@ -31,9 +31,9 @@ contract LogoffSystem is System {
   function logoffPlayer() public {
     bytes32 playerEntityId = Player.get(_msgSender());
     require(playerEntityId != bytes32(0), "LogoffSystem: player does not exist");
-    uint256 lastHitBlock = PlayerMetadata.getLastHitBlock(playerEntityId);
+    uint256 lastHitTime = PlayerMetadata.getLastHitTime(playerEntityId);
     require(
-      block.number - lastHitBlock > MIN_BLOCKS_TO_LOGOFF_AFTER_HIT,
+      block.timestamp - lastHitTime > MIN_TIME_TO_LOGOFF_AFTER_HIT,
       "LogoffSystem: player needs to wait before logging off as they were recently hit"
     );
     require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "LogoffSystem: player isn't logged in");
