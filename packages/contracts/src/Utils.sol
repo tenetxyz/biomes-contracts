@@ -15,7 +15,7 @@ import { Position, PositionData } from "./codegen/tables/Position.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
 import { ObjectTypeMetadata } from "./codegen/tables/ObjectTypeMetadata.sol";
 
-import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);

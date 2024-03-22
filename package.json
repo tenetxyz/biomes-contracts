@@ -1,5 +1,5 @@
 {
-  "name": "everlonxyz",
+  "name": "biomesaw",
   "scripts": {
     "build": "pnpm recursive run build",
     "dev": "mprocs",

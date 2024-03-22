@@ -12,7 +12,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Health, HealthData } from "../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
 
-import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GRAVITY_DAMAGE } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { applyGravity } from "../utils/GravityUtils.sol";

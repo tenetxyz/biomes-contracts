@@ -14,7 +14,7 @@ import { Health, HealthData } from "../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
-import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GRAVITY_DAMAGE } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { getTerrainObjectTypeId } from "../Utils.sol";

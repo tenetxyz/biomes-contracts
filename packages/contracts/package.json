@@ -1,5 +1,5 @@
 {
-  "name": "@everlonxyz/contracts",
+  "name": "@biomesaw/contracts",
   "version": "0.0.0",
   "exports": {
     "./mud.config": "./dist/mud.config.js",
@@ -21,7 +21,7 @@
     "setup:spawn": "./runForgeScript.bash script/SetupSpawn.s.sol"
   },
   "dependencies": {
-    "@everlonxyz/utils": "workspace:*",
+    "@biomesaw/utils": "workspace:*",
     "@latticexyz/cli": "link:../../../mud/packages/cli",
     "@latticexyz/config": "link:../../../mud/packages/config",
     "@latticexyz/schema-type": "link:../../../mud/packages/schema-type",

@@ -16,14 +16,14 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Inventory } from "../codegen/tables/Inventory.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
-import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
 import { applyGravity } from "../utils/GravityUtils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube } from "@everlonxyz/utils/src/VoxelCoordUtils.sol";
-import { absInt32 } from "@everlonxyz/utils/src/MathUtils.sol";
+import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { absInt32 } from "@biomesaw/utils/src/MathUtils.sol";
 
 contract TeleportSystem is System {
   function teleport(VoxelCoord memory newCoord) public {

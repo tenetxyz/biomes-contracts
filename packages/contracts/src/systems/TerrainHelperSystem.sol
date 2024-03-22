@@ -8,7 +8,7 @@ import { SystemSwitch } from "@latticexyz/world-modules/src/utils/SystemSwitch.s
 import { ITerrainSystem } from "../codegen/world/ITerrainSystem.sol";
 import { ITerrainOreSystem } from "../codegen/world/ITerrainOreSystem.sol";
 
-import { VoxelCoord } from "@everlonxyz/utils/src/Types.sol";
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID } from "../ObjectTypeIds.sol";
 
 contract TerrainHelperSystem is System {
