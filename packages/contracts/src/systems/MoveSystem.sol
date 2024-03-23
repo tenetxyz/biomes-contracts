@@ -110,6 +110,12 @@ contract MoveSystem is System {
     require(currentStamina >= staminaRequired, "MoveSystem: not enough stamina");
     Stamina.setStamina(playerEntityId, currentStamina - staminaRequired);
 
+    VoxelCoord memory aboveCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
+    bytes32 aboveEntityId = ReversePosition.get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+    if (aboveEntityId != bytes32(0) && ObjectType.get(aboveEntityId) == PlayerObjectID) {
+      applyGravity(aboveEntityId, aboveCoord);
+    }
+
     VoxelCoord memory belowCoord = VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z);
     bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
     if (belowEntityId == bytes32(0) || ObjectType.get(belowEntityId) == AirObjectID) {

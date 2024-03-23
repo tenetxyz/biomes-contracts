@@ -19,8 +19,9 @@ import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
 import { useEquipped } from "../utils/InventoryUtils.sol";
+import { applyGravity } from "../utils/GravityUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { inSurroundingCube, voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
 
 contract HitSystem is System {
@@ -78,6 +79,11 @@ contract HitSystem is System {
 
     if (newHealth == 0) {
       despawnPlayer(hitEntityId);
+
+      VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
+      if (voxelCoordsAreEqual(belowCoord, hitCoord)) {
+        applyGravity(playerEntityId, playerCoord);
+      }
     } else {
       PlayerMetadata.setLastHitTime(hitEntityId, block.timestamp);
     }

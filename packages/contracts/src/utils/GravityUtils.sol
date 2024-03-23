@@ -57,10 +57,18 @@ function applyGravity(bytes32 playerEntityId, VoxelCoord memory coord) returns (
 
   if (newHealth == 0) {
     despawnPlayer(playerEntityId);
-    return true;
   }
 
-  // Recursively apply gravity until the player is on the ground or dead
-  applyGravity(playerEntityId, newCoord);
+  // Check if entity above player is another player, if so we need to apply gravity to that player
+  bytes32 aboveEntityId = ReversePosition.get(coord.x, coord.y + 1, coord.z);
+  if (aboveEntityId != bytes32(0) && ObjectType.get(aboveEntityId) == PlayerObjectID) {
+    applyGravity(aboveEntityId, VoxelCoord(coord.x, coord.y + 1, coord.z));
+  }
+
+  if (newHealth > 0) {
+    // Recursively apply gravity until the player is on the ground or dead
+    applyGravity(playerEntityId, newCoord);
+  }
+
   return true;
 }
