@@ -12,6 +12,4 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
  */
 interface IPlayerSystem {
   function spawnPlayer(VoxelCoord memory spawnCoord) external returns (bytes32);
-
-  function changePlayerOwner(address newOwner) external;
 }
