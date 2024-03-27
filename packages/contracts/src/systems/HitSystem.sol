@@ -17,9 +17,8 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity } from "../Utils.sol";
 import { useEquipped } from "../utils/InventoryUtils.sol";
-import { applyGravity } from "../utils/GravityUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube, voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
@@ -48,7 +47,7 @@ contract HitSystem is System {
 
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
-    useEquipped(playerEntityId);
+    useEquipped(playerEntityId, Equipped.get(playerEntityId));
 
     // Calculate stamina and health reduction
     uint32 currentStamina = Stamina.getStamina(playerEntityId);
@@ -82,7 +81,7 @@ contract HitSystem is System {
 
       VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
       if (voxelCoordsAreEqual(belowCoord, hitCoord)) {
-        applyGravity(playerEntityId, playerCoord);
+        callGravity(playerEntityId, playerCoord);
       }
     } else {
       PlayerMetadata.setLastHitTime(hitEntityId, block.timestamp);

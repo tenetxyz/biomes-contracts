@@ -19,6 +19,7 @@ import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../src/codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../src/codegen/tables/Stamina.sol";
 import { Inventory } from "../src/codegen/tables/Inventory.sol";
+import { ReverseInventory } from "../src/codegen/tables/ReverseInventory.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
@@ -32,6 +33,7 @@ import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
+import { reverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract BuildTest is MudTest, GasReporter {
   IWorld private world;
@@ -75,6 +77,7 @@ contract BuildTest is MudTest, GasReporter {
     bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
     assertTrue(inventoryId != bytes32(0), "Inventory entity not found");
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
+    assertTrue(reverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
@@ -98,6 +101,7 @@ contract BuildTest is MudTest, GasReporter {
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Object not built");
     assertTrue(Stamina.getStamina(playerEntityId) == staminaBefore, "Stamina consumed");
     assertTrue(Inventory.get(inventoryId) == bytes32(0), "Inventory still set");
+    assertTrue(!reverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 0, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
@@ -115,6 +119,7 @@ contract BuildTest is MudTest, GasReporter {
     bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
     assertTrue(inventoryId != bytes32(0), "Inventory entity not found");
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
+    assertTrue(reverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
@@ -140,6 +145,7 @@ contract BuildTest is MudTest, GasReporter {
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Object not built");
     assertTrue(Stamina.getStamina(playerEntityId) == staminaBefore, "Stamina consumed");
     assertTrue(Inventory.get(inventoryId) == bytes32(0), "Inventory still set");
+    assertTrue(!reverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 0, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
@@ -155,9 +161,11 @@ contract BuildTest is MudTest, GasReporter {
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, GrassObjectID);
     Inventory.set(newInventoryId1, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId1);
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, GrassObjectID);
     Inventory.set(newInventoryId2, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId2);
     addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     vm.stopPrank();
@@ -189,6 +197,7 @@ contract BuildTest is MudTest, GasReporter {
     bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
     assertTrue(inventoryId != bytes32(0), "Inventory entity not found");
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
+    assertTrue(reverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
@@ -213,6 +222,7 @@ contract BuildTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
@@ -288,6 +298,7 @@ contract BuildTest is MudTest, GasReporter {
 
     inventoryId = bytes32(uint256(inventoryId) + 1);
     assertTrue(Inventory.get(inventoryId) == bytes32(0), "Inventory entity found");
+    assertTrue(!reverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
 
     vm.expectRevert("BuildSystem: inventory entity does not belong to the player");
     world.build(inventoryId, buildCoord);
@@ -307,6 +318,7 @@ contract BuildTest is MudTest, GasReporter {
       inventoryId = getUniqueEntity();
       ObjectType.set(inventoryId, GrassObjectID);
       Inventory.set(inventoryId, playerEntityId);
+      ReverseInventory.push(playerEntityId, inventoryId);
       addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     }
     assertTrue(

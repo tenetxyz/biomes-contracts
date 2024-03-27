@@ -19,6 +19,7 @@ import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../src/codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../src/codegen/tables/Stamina.sol";
 import { Inventory } from "../src/codegen/tables/Inventory.sol";
+import { ReverseInventory } from "../src/codegen/tables/ReverseInventory.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
@@ -32,6 +33,7 @@ import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
+import { reverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract MineTest is MudTest, GasReporter {
   IWorld private world;
@@ -85,6 +87,7 @@ contract MineTest is MudTest, GasReporter {
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Object not mined");
     assertTrue(inventoryId != bytes32(0), "Inventory entity not found");
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
+    assertTrue(reverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
@@ -124,6 +127,7 @@ contract MineTest is MudTest, GasReporter {
     );
     assertTrue(inventoryId != bytes32(0), "Inventory entity not found");
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
+    assertTrue(reverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
@@ -264,6 +268,7 @@ contract MineTest is MudTest, GasReporter {
       bytes32 inventoryId = getUniqueEntity();
       ObjectType.set(inventoryId, terrainObjectTypeId);
       Inventory.set(inventoryId, playerEntityId);
+      ReverseInventory.push(playerEntityId, inventoryId);
       addToInventoryCount(playerEntityId, PlayerObjectID, terrainObjectTypeId, 1);
     }
     assertTrue(
@@ -341,6 +346,21 @@ contract MineTest is MudTest, GasReporter {
 
     vm.expectRevert("MineSystem: player isn't logged in");
     world.mine(terrainObjectTypeId, mineCoord);
+
+    vm.stopPrank();
+  }
+
+  function testDirectCallMineHelper() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
+    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+
+    vm.expectRevert();
+    world.spendStaminaForMining(playerEntityId, terrainObjectTypeId, bytes32(0));
 
     vm.stopPrank();
   }

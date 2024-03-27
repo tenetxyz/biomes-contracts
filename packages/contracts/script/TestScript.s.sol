@@ -9,6 +9,7 @@ import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { Inventory } from "../src/codegen/tables/Inventory.sol";
+import { ReverseInventory } from "../src/codegen/tables/ReverseInventory.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { Health } from "../src/codegen/tables/Health.sol";
@@ -68,6 +69,7 @@ contract TestScript is Script {
     // bytes32 newInventoryId = getUniqueEntity();
     // ObjectType.set(newInventoryId, inputObjectTypeId);
     // Inventory.set(newInventoryId, playerEntityId);
+    // ReverseInventory.push(playerEntityId, newInventoryId);
     // addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
     // ItemMetadata.set(newInventoryId, 50);
     // console.logBytes32(newInventoryId);

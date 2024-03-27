@@ -21,6 +21,7 @@ import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
 import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
 import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
+import { IMineHelperSystem } from "./IMineHelperSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
@@ -56,6 +57,7 @@ interface IWorld is
   IInitWorkbenchSystem,
   ILoginSystem,
   ILogoffSystem,
+  IMineHelperSystem,
   IMineSystem,
   IMoveSystem,
   IPlayerSystem,

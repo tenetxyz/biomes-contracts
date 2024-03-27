@@ -3,8 +3,6 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
-import { getKeysWithValue } from "@latticexyz/world-modules/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { EncodedLengths } from "@latticexyz/store/src/EncodedLengths.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
@@ -14,12 +12,13 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Inventory } from "../codegen/tables/Inventory.sol";
+import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
-import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
+import { removeFromInventoryCount, removeEntityIdFromReverseInventory } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
@@ -62,20 +61,15 @@ contract BuildSystem is System {
     } else {
       require(ObjectType.get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
 
-      (bytes memory staticData, EncodedLengths encodedLengths, bytes memory dynamicData) = Inventory.encode(entityId);
-      bytes32[] memory inventoryEntityIds = getKeysWithValue(
-        Inventory._tableId,
-        staticData,
-        encodedLengths,
-        dynamicData
-      );
-      require(inventoryEntityIds.length == 0, "BuildSystem: Cannot build where there are dropped objects");
+      bytes32[] memory droppedEntityIds = ReverseInventory.get(entityId);
+      require(droppedEntityIds.length == 0, "BuildSystem: Cannot build where there are dropped objects");
 
       ObjectType.deleteRecord(entityId);
       Position.deleteRecord(entityId);
     }
 
     Inventory.deleteRecord(inventoryEntityId);
+    removeEntityIdFromReverseInventory(playerEntityId, inventoryEntityId);
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
 
     Position.set(inventoryEntityId, coord.x, coord.y, coord.z);

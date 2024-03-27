@@ -34,9 +34,7 @@ contract InitThermoblastSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
         damage: 0,
-        hardness: hardness,
-        occurenceAddress: address(0),
-        occurenceSelector: bytes4(0)
+        hardness: hardness
       })
     );
   }
@@ -51,9 +49,7 @@ contract InitThermoblastSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
         damage: 0,
-        hardness: 0,
-        occurenceAddress: address(0),
-        occurenceSelector: bytes4(0)
+        hardness: 0
       })
     );
   }

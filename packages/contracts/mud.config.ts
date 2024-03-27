@@ -13,6 +13,12 @@ export default defineWorld({
         damage: "uint16",
         durability: "uint24",
         hardness: "uint16",
+      },
+      key: ["objectTypeId"],
+    },
+    TerrainMetadata: {
+      schema: {
+        objectTypeId: "bytes32",
         occurenceAddress: "address",
         occurenceSelector: "bytes4",
       },
@@ -83,6 +89,13 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
+    ReverseInventory: {
+      schema: {
+        ownerEntityId: "bytes32",
+        entityIds: "bytes32[]",
+      },
+      key: ["ownerEntityId"],
+    },
     ItemMetadata: {
       schema: {
         entityId: "bytes32",
@@ -146,17 +159,17 @@ export default defineWorld({
       openAccess: false,
       accessList: [],
     },
+    MineHelperSystem: {
+      name: "MineHelperSystem",
+      openAccess: false,
+      accessList: [],
+    },
   },
   modules: [
     {
       name: "UniqueEntityModule",
       root: true,
       args: [],
-    },
-    {
-      name: "KeysWithValueModule",
-      root: true,
-      args: [resolveTableId("Inventory")],
     },
   ],
 });

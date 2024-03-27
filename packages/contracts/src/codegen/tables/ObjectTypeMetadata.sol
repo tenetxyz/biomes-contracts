@@ -24,8 +24,6 @@ struct ObjectTypeMetadataData {
   uint16 damage;
   uint24 durability;
   uint16 hardness;
-  address occurenceAddress;
-  bytes4 occurenceSelector;
 }
 
 library ObjectTypeMetadata {
@@ -33,12 +31,12 @@ library ObjectTypeMetadata {
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004f626a656374547970654d6574616461);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0024090001010201020302140400000000000000000000000000000000000000);
+    FieldLayout.wrap(0x000c070001010201020302000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bool, bool, uint16, uint8, uint16, uint24, uint16, address, bytes4)
-  Schema constant _valueSchema = Schema.wrap(0x0024090060600100010201614300000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bool, bool, uint16, uint8, uint16, uint24, uint16)
+  Schema constant _valueSchema = Schema.wrap(0x000c070060600100010201000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -54,7 +52,7 @@ library ObjectTypeMetadata {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](9);
+    fieldNames = new string[](7);
     fieldNames[0] = "isPlayer";
     fieldNames[1] = "isBlock";
     fieldNames[2] = "mass";
@@ -62,8 +60,6 @@ library ObjectTypeMetadata {
     fieldNames[4] = "damage";
     fieldNames[5] = "durability";
     fieldNames[6] = "hardness";
-    fieldNames[7] = "occurenceAddress";
-    fieldNames[8] = "occurenceSelector";
   }
 
   /**
@@ -375,90 +371,6 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Get occurenceAddress.
-   */
-  function getOccurenceAddress(bytes32 objectTypeId) internal view returns (address occurenceAddress) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = objectTypeId;
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 7, _fieldLayout);
-    return (address(bytes20(_blob)));
-  }
-
-  /**
-   * @notice Get occurenceAddress.
-   */
-  function _getOccurenceAddress(bytes32 objectTypeId) internal view returns (address occurenceAddress) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = objectTypeId;
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 7, _fieldLayout);
-    return (address(bytes20(_blob)));
-  }
-
-  /**
-   * @notice Set occurenceAddress.
-   */
-  function setOccurenceAddress(bytes32 objectTypeId, address occurenceAddress) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = objectTypeId;
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((occurenceAddress)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set occurenceAddress.
-   */
-  function _setOccurenceAddress(bytes32 objectTypeId, address occurenceAddress) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = objectTypeId;
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((occurenceAddress)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get occurenceSelector.
-   */
-  function getOccurenceSelector(bytes32 objectTypeId) internal view returns (bytes4 occurenceSelector) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = objectTypeId;
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 8, _fieldLayout);
-    return (bytes4(_blob));
-  }
-
-  /**
-   * @notice Get occurenceSelector.
-   */
-  function _getOccurenceSelector(bytes32 objectTypeId) internal view returns (bytes4 occurenceSelector) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = objectTypeId;
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 8, _fieldLayout);
-    return (bytes4(_blob));
-  }
-
-  /**
-   * @notice Set occurenceSelector.
-   */
-  function setOccurenceSelector(bytes32 objectTypeId, bytes4 occurenceSelector) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = objectTypeId;
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((occurenceSelector)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set occurenceSelector.
-   */
-  function _setOccurenceSelector(bytes32 objectTypeId, bytes4 occurenceSelector) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = objectTypeId;
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((occurenceSelector)), _fieldLayout);
-  }
-
-  /**
    * @notice Get the full data.
    */
   function get(bytes32 objectTypeId) internal view returns (ObjectTypeMetadataData memory _table) {
@@ -499,21 +411,9 @@ library ObjectTypeMetadata {
     uint8 stackable,
     uint16 damage,
     uint24 durability,
-    uint16 hardness,
-    address occurenceAddress,
-    bytes4 occurenceSelector
+    uint16 hardness
   ) internal {
-    bytes memory _staticData = encodeStatic(
-      isPlayer,
-      isBlock,
-      mass,
-      stackable,
-      damage,
-      durability,
-      hardness,
-      occurenceAddress,
-      occurenceSelector
-    );
+    bytes memory _staticData = encodeStatic(isPlayer, isBlock, mass, stackable, damage, durability, hardness);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -535,21 +435,9 @@ library ObjectTypeMetadata {
     uint8 stackable,
     uint16 damage,
     uint24 durability,
-    uint16 hardness,
-    address occurenceAddress,
-    bytes4 occurenceSelector
+    uint16 hardness
   ) internal {
-    bytes memory _staticData = encodeStatic(
-      isPlayer,
-      isBlock,
-      mass,
-      stackable,
-      damage,
-      durability,
-      hardness,
-      occurenceAddress,
-      occurenceSelector
-    );
+    bytes memory _staticData = encodeStatic(isPlayer, isBlock, mass, stackable, damage, durability, hardness);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -571,9 +459,7 @@ library ObjectTypeMetadata {
       _table.stackable,
       _table.damage,
       _table.durability,
-      _table.hardness,
-      _table.occurenceAddress,
-      _table.occurenceSelector
+      _table.hardness
     );
 
     EncodedLengths _encodedLengths;
@@ -596,9 +482,7 @@ library ObjectTypeMetadata {
       _table.stackable,
       _table.damage,
       _table.durability,
-      _table.hardness,
-      _table.occurenceAddress,
-      _table.occurenceSelector
+      _table.hardness
     );
 
     EncodedLengths _encodedLengths;
@@ -625,9 +509,7 @@ library ObjectTypeMetadata {
       uint8 stackable,
       uint16 damage,
       uint24 durability,
-      uint16 hardness,
-      address occurenceAddress,
-      bytes4 occurenceSelector
+      uint16 hardness
     )
   {
     isPlayer = (_toBool(uint8(Bytes.getBytes1(_blob, 0))));
@@ -643,10 +525,6 @@ library ObjectTypeMetadata {
     durability = (uint24(Bytes.getBytes3(_blob, 7)));
 
     hardness = (uint16(Bytes.getBytes2(_blob, 10)));
-
-    occurenceAddress = (address(Bytes.getBytes20(_blob, 12)));
-
-    occurenceSelector = (Bytes.getBytes4(_blob, 32));
   }
 
   /**
@@ -667,9 +545,7 @@ library ObjectTypeMetadata {
       _table.stackable,
       _table.damage,
       _table.durability,
-      _table.hardness,
-      _table.occurenceAddress,
-      _table.occurenceSelector
+      _table.hardness
     ) = decodeStatic(_staticData);
   }
 
@@ -704,22 +580,9 @@ library ObjectTypeMetadata {
     uint8 stackable,
     uint16 damage,
     uint24 durability,
-    uint16 hardness,
-    address occurenceAddress,
-    bytes4 occurenceSelector
+    uint16 hardness
   ) internal pure returns (bytes memory) {
-    return
-      abi.encodePacked(
-        isPlayer,
-        isBlock,
-        mass,
-        stackable,
-        damage,
-        durability,
-        hardness,
-        occurenceAddress,
-        occurenceSelector
-      );
+    return abi.encodePacked(isPlayer, isBlock, mass, stackable, damage, durability, hardness);
   }
 
   /**
@@ -735,21 +598,9 @@ library ObjectTypeMetadata {
     uint8 stackable,
     uint16 damage,
     uint24 durability,
-    uint16 hardness,
-    address occurenceAddress,
-    bytes4 occurenceSelector
+    uint16 hardness
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(
-      isPlayer,
-      isBlock,
-      mass,
-      stackable,
-      damage,
-      durability,
-      hardness,
-      occurenceAddress,
-      occurenceSelector
-    );
+    bytes memory _staticData = encodeStatic(isPlayer, isBlock, mass, stackable, damage, durability, hardness);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

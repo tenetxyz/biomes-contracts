@@ -8,6 +8,7 @@ import { FunctionSelectors } from "@latticexyz/world/src/codegen/tables/Function
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
+import { TerrainMetadata, TerrainMetadataData } from "../../codegen/tables/TerrainMetadata.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { AirObjectID, SnowObjectID, AsphaltObjectID, BasaltObjectID, ClayBrickObjectID, SandObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, SoilObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID } from "../../ObjectTypeIds.sol";
@@ -31,10 +32,13 @@ contract InitTerrainBlocksSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
         damage: 0,
-        hardness: 1,
-        occurenceAddress: systemAddress,
-        occurenceSelector: terrainSelector
+        hardness: 1
       })
+    );
+
+    TerrainMetadata.set(
+      terrainBlockObjectTypeId,
+      TerrainMetadataData({ occurenceAddress: systemAddress, occurenceSelector: terrainSelector })
     );
   }
 

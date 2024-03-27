@@ -3,22 +3,23 @@ pragma solidity >=0.8.24;
 
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { IMoveSystem } from "../codegen/world/IMoveSystem.sol";
+import { IMineHelperSystem } from "../codegen/world/IMineHelperSystem.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Inventory } from "../codegen/tables/Inventory.sol";
+import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity, callInternalSystem } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
@@ -47,28 +48,12 @@ contract MineSystem is System {
     );
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
-    useEquipped(playerEntityId);
-
     bytes32 equippedEntityId = Equipped.get(playerEntityId);
-    uint32 equippedToolDamage = PLAYER_HAND_DAMAGE;
-    if (equippedEntityId != bytes32(0)) {
-      bytes32 equippedObjectTypeId = ObjectType.get(equippedEntityId);
-      equippedToolDamage = ObjectTypeMetadata.getDamage(equippedObjectTypeId);
-      if (isPick(equippedObjectTypeId) && isStone(objectTypeId)) {
-        equippedToolDamage *= 2;
-      }
-      if (isAxe(equippedObjectTypeId) && isWoodLog(objectTypeId)) {
-        equippedToolDamage *= 2;
-      }
-    }
+    callInternalSystem(
+      abi.encodeCall(IMineHelperSystem.spendStaminaForMining, (playerEntityId, objectTypeId, equippedEntityId))
+    );
 
-    // Spend stamina for mining
-    uint32 currentStamina = Stamina.getStamina(playerEntityId);
-    uint32 staminaRequired = (ObjectTypeMetadata.getMass(objectTypeId) *
-      ObjectTypeMetadata.getHardness(objectTypeId) *
-      1000) / equippedToolDamage;
-    require(currentStamina >= staminaRequired, "MineSystem: not enough stamina");
-    Stamina.setStamina(playerEntityId, currentStamina - staminaRequired);
+    useEquipped(playerEntityId, equippedEntityId);
 
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
@@ -97,6 +82,7 @@ contract MineSystem is System {
     transferAllInventoryEntities(entityId, airEntityId, AirObjectID);
 
     Inventory.set(entityId, playerEntityId);
+    ReverseInventory.push(playerEntityId, entityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, objectTypeId, 1);
 
     // Apply gravity

@@ -23,9 +23,7 @@ contract InitInteractablesSystem is System {
         stackable: 1,
         durability: 0,
         damage: 0,
-        hardness: 1,
-        occurenceAddress: address(0),
-        occurenceSelector: bytes4(0)
+        hardness: 1
       })
     );
   }

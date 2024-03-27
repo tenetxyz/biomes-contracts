@@ -19,6 +19,7 @@ import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../src/codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../src/codegen/tables/Stamina.sol";
 import { Inventory } from "../src/codegen/tables/Inventory.sol";
+import { ReverseInventory } from "../src/codegen/tables/ReverseInventory.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
@@ -32,6 +33,7 @@ import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { GRAVITY_DAMAGE, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, WoodenPickObjectID, DiamondOreObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
+import { reverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract GravityTest is MudTest, GasReporter {
   IWorld private world;

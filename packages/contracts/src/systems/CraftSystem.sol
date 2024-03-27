@@ -3,7 +3,6 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
-import { getKeysWithValue } from "@latticexyz/world-modules/src/modules/keyswithvalue/getKeysWithValue.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
@@ -13,6 +12,7 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Inventory } from "../codegen/tables/Inventory.sol";
+import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
@@ -21,7 +21,7 @@ import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
-import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
+import { addToInventoryCount, removeFromInventoryCount, removeEntityIdFromReverseInventory } from "../utils/InventoryUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract CraftSystem is System {
@@ -57,6 +57,7 @@ contract CraftSystem is System {
             // Delete the ingredient from the inventory
             ObjectType.deleteRecord(ingredientEntityIds[j]);
             Inventory.deleteRecord(ingredientEntityIds[j]);
+            removeEntityIdFromReverseInventory(playerEntityId, ingredientEntityIds[j]);
             if (ItemMetadata.get(ingredientEntityIds[j]) != 0) {
               ItemMetadata.deleteRecord(ingredientEntityIds[j]);
             }
@@ -75,6 +76,7 @@ contract CraftSystem is System {
       bytes32 newInventoryEntityId = getUniqueEntity();
       ObjectType.set(newInventoryEntityId, recipeData.outputObjectTypeId);
       Inventory.set(newInventoryEntityId, playerEntityId);
+      ReverseInventory.push(playerEntityId, newInventoryEntityId);
       uint24 durability = ObjectTypeMetadata.getDurability(recipeData.outputObjectTypeId);
       if (durability > 0) {
         ItemMetadata.set(newInventoryEntityId, durability);

@@ -19,6 +19,7 @@ import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../src/codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../src/codegen/tables/Stamina.sol";
 import { Inventory } from "../src/codegen/tables/Inventory.sol";
+import { ReverseInventory } from "../src/codegen/tables/ReverseInventory.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
@@ -32,6 +33,7 @@ import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, GrassObjectID, ChestObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, OakLumberObjectID, OakLogObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
+import { reverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract EquipTest is MudTest, GasReporter {
   IWorld private world;
@@ -88,6 +90,7 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
@@ -114,6 +117,7 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId2);
+    ReverseInventory.push(playerEntityId2, newInventoryId);
     addToInventoryCount(playerEntityId2, PlayerObjectID, WoodenPickObjectID, 1);
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
@@ -136,6 +140,7 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
@@ -155,6 +160,7 @@ contract EquipTest is MudTest, GasReporter {
     endGasReport();
 
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
+    assertTrue(reverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 1, "Inventory count not set for pickaxe");
@@ -174,6 +180,7 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
     uint24 durability = 1;
     ItemMetadata.set(newInventoryId, durability);
@@ -191,12 +198,15 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
 
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
+    assertTrue(reverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 0, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped set");
     assertTrue(ItemMetadata.get(newInventoryId) == 0, "Item metadata not set");
+    assertTrue(Inventory.get(newInventoryId) == bytes32(0), "Inventory not set");
+    assertTrue(!reverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
 
     vm.stopPrank();
   }
@@ -212,6 +222,7 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, inputObjectTypeId);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
@@ -246,12 +257,14 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
+    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
@@ -273,6 +286,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
     assertTrue(Inventory.get(newInventoryId) == airEntityId, "Inventory not set properly");
+    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, WoodenPickObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 0, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
@@ -289,6 +303,7 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
@@ -345,6 +360,7 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
@@ -391,6 +407,7 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId1);
     inventoryEntityIds[0] = newInventoryId1;
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
@@ -398,6 +415,8 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId2);
+    ReverseInventory.push(playerEntityId, newInventoryId2);
     inventoryEntityIds[1] = newInventoryId2;
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId2, durability);
@@ -428,7 +447,9 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
     assertTrue(Inventory.get(newInventoryId1) == chestEntityId, "Inventory not set");
+    assertTrue(reverseInventoryHasItem(chestEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == chestEntityId, "Inventory not set");
+    assertTrue(reverseInventoryHasItem(chestEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId2) == 1, "Input object not removed from inventory");
     assertTrue(InventorySlots.get(chestEntityId) == 2, "Inventory slot not set");
@@ -445,6 +466,7 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
@@ -464,6 +486,7 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);

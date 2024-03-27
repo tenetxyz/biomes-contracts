@@ -19,6 +19,7 @@ import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../src/codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../src/codegen/tables/Stamina.sol";
 import { Inventory } from "../src/codegen/tables/Inventory.sol";
+import { ReverseInventory } from "../src/codegen/tables/ReverseInventory.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
@@ -32,6 +33,7 @@ import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DyeomaticObjectID, WorkbenchObjectID, GrassObjectID, OakLogObjectID, OakLumberObjectID, BlueDyeObjectID, BlueOakLumberObjectID, DiamondOreObjectID, DiamondObjectID, WoodenPickObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
+import { reverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract CraftTest is MudTest, GasReporter {
   IWorld private world;
@@ -76,6 +78,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, inputObjectTypeId);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
@@ -113,6 +116,7 @@ contract CraftTest is MudTest, GasReporter {
       bytes32 newInventoryId = getUniqueEntity();
       ObjectType.set(newInventoryId, inputObjectTypeId1);
       Inventory.set(newInventoryId, playerEntityId);
+      ReverseInventory.push(playerEntityId, newInventoryId);
       ingredientEntityIds[i] = newInventoryId;
     }
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 5);
@@ -121,6 +125,7 @@ contract CraftTest is MudTest, GasReporter {
       bytes32 newInventoryId = getUniqueEntity();
       ObjectType.set(newInventoryId, inputObjectTypeId2);
       Inventory.set(newInventoryId, playerEntityId);
+      ReverseInventory.push(playerEntityId, newInventoryId);
       ingredientEntityIds[i + 5] = newInventoryId;
     }
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 5);
@@ -161,6 +166,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId1);
     ingredientEntityIds[0] = newInventoryId1;
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
@@ -168,6 +174,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId2);
     ingredientEntityIds[1] = newInventoryId2;
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
@@ -214,6 +221,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId1);
     ingredientEntityIds[0] = newInventoryId1;
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
@@ -221,6 +229,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId2);
     ingredientEntityIds[1] = newInventoryId2;
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
@@ -264,6 +273,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId1);
     ingredientEntityIds[0] = newInventoryId1;
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
@@ -271,6 +281,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId2);
     ingredientEntityIds[1] = newInventoryId2;
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
@@ -309,6 +320,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, inputObjectTypeId);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
@@ -318,6 +330,7 @@ contract CraftTest is MudTest, GasReporter {
       bytes32 inventoryId = getUniqueEntity();
       ObjectType.set(inventoryId, GrassObjectID);
       Inventory.set(inventoryId, playerEntityId);
+      ReverseInventory.push(playerEntityId, inventoryId);
       addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     }
     assertTrue(
@@ -353,6 +366,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, inputObjectTypeId);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
@@ -382,6 +396,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, inputObjectTypeId);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
@@ -414,6 +429,7 @@ contract CraftTest is MudTest, GasReporter {
       bytes32 newInventoryId = getUniqueEntity();
       ObjectType.set(newInventoryId, inputObjectTypeId1);
       Inventory.set(newInventoryId, playerEntityId);
+      ReverseInventory.push(playerEntityId, newInventoryId);
       ingredientEntityIds[i] = newInventoryId;
     }
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 3);
@@ -422,6 +438,7 @@ contract CraftTest is MudTest, GasReporter {
       bytes32 newInventoryId = getUniqueEntity();
       ObjectType.set(newInventoryId, inputObjectTypeId2);
       Inventory.set(newInventoryId, playerEntityId);
+      ReverseInventory.push(playerEntityId, newInventoryId);
       ingredientEntityIds[i + 3] = newInventoryId;
     }
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 3);
@@ -454,6 +471,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, inputObjectTypeId);
     Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
     addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");

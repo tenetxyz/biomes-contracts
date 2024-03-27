@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { getKeysWithValue } from "@latticexyz/world-modules/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { EncodedLengths } from "@latticexyz/store/src/EncodedLengths.sol";
-
 import { Inventory } from "../codegen/tables/Inventory.sol";
+import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { InventorySlots } from "../codegen/tables/InventorySlots.sol";
@@ -76,8 +74,7 @@ function removeFromInventoryCount(bytes32 ownerEntityId, bytes32 objectTypeId, u
   }
 }
 
-function useEquipped(bytes32 entityId) {
-  bytes32 inventoryEntityId = Equipped.get(entityId);
+function useEquipped(bytes32 entityId, bytes32 inventoryEntityId) {
   if (inventoryEntityId != bytes32(0)) {
     uint24 numUsesLeft = ItemMetadata.get(inventoryEntityId);
     if (numUsesLeft > 0) {
@@ -87,6 +84,7 @@ function useEquipped(bytes32 entityId) {
         ItemMetadata.deleteRecord(inventoryEntityId);
         Inventory.deleteRecord(inventoryEntityId);
         Equipped.deleteRecord(entityId);
+        removeEntityIdFromReverseInventory(entityId, inventoryEntityId);
         ObjectType.deleteRecord(inventoryEntityId);
       } else {
         ItemMetadata.set(inventoryEntityId, numUsesLeft - 1);
@@ -95,20 +93,33 @@ function useEquipped(bytes32 entityId) {
   }
 }
 
+function removeEntityIdFromReverseInventory(bytes32 ownerEntityId, bytes32 removeInventoryEntityId) {
+  bytes32[] memory inventoryEntityIds = ReverseInventory.get(ownerEntityId);
+  bytes32[] memory newInventoryEntityIds = new bytes32[](inventoryEntityIds.length - 1);
+  uint256 j = 0;
+  for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
+    if (inventoryEntityIds[i] != removeInventoryEntityId) {
+      newInventoryEntityIds[j] = inventoryEntityIds[i];
+      j++;
+    }
+  }
+  if (newInventoryEntityIds.length == 0) {
+    ReverseInventory.deleteRecord(ownerEntityId);
+  } else {
+    ReverseInventory.set(ownerEntityId, newInventoryEntityIds);
+  }
+}
+
 function transferAllInventoryEntities(bytes32 fromEntityId, bytes32 toEntityId, bytes32 toObjectTypeId) {
-  (bytes memory staticData, EncodedLengths encodedLengths, bytes memory dynamicData) = Inventory.encode(fromEntityId);
-  bytes32[] memory fromInventoryEntityIds = getKeysWithValue(
-    Inventory._tableId,
-    staticData,
-    encodedLengths,
-    dynamicData
-  );
+  bytes32[] memory fromInventoryEntityIds = ReverseInventory.get(fromEntityId);
   for (uint256 i = 0; i < fromInventoryEntityIds.length; i++) {
     bytes32 inventoryObjectTypeId = ObjectType.get(fromInventoryEntityIds[i]);
     addToInventoryCount(toEntityId, toObjectTypeId, inventoryObjectTypeId, 1);
     removeFromInventoryCount(fromEntityId, inventoryObjectTypeId, 1);
     Inventory.set(fromInventoryEntityIds[i], toEntityId);
+    ReverseInventory.push(toEntityId, fromInventoryEntityIds[i]);
   }
+  ReverseInventory.deleteRecord(fromEntityId);
 }
 
 function transferInventoryItem(
@@ -122,6 +133,8 @@ function transferInventoryItem(
     Equipped.deleteRecord(srcEntityId);
   }
   Inventory.set(inventoryEntityId, dstEntityId);
+  ReverseInventory.push(dstEntityId, inventoryEntityId);
+  removeEntityIdFromReverseInventory(srcEntityId, inventoryEntityId);
 
   bytes32 inventoryObjectTypeId = ObjectType.get(inventoryEntityId);
   removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);

@@ -29,9 +29,7 @@ contract InitHandBlocksSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
         damage: 0,
-        hardness: hardness,
-        occurenceAddress: address(0),
-        occurenceSelector: bytes4(0)
+        hardness: hardness
       })
     );
   }
@@ -46,9 +44,7 @@ contract InitHandBlocksSystem is System {
         stackable: MAX_TOOL_STACKABLE,
         durability: durability,
         damage: damage,
-        hardness: 0,
-        occurenceAddress: address(0),
-        occurenceSelector: bytes4(0)
+        hardness: 0
       })
     );
   }
@@ -63,9 +59,7 @@ contract InitHandBlocksSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
         damage: 0,
-        hardness: 0,
-        occurenceAddress: address(0),
-        occurenceSelector: bytes4(0)
+        hardness: 0
       })
     );
   }
