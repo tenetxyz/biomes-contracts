@@ -39,7 +39,7 @@ function callGravity(bytes32 playerEntityId, VoxelCoord memory coord) returns (b
   return abi.decode(returnData, (bool));
 }
 
-function callInternalSystem(bytes memory callData) returns (bytes memory returnData) {
+function callInternalSystem(bytes memory callData) returns (bytes memory) {
   (ResourceId systemId, bytes4 systemFunctionSelector) = FunctionSelectors.get(bytes4(callData));
   (address systemAddress, ) = Systems._get(systemId);
 

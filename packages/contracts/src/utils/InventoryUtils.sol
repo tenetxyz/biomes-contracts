@@ -119,7 +119,9 @@ function transferAllInventoryEntities(bytes32 fromEntityId, bytes32 toEntityId, 
     Inventory.set(fromInventoryEntityIds[i], toEntityId);
     ReverseInventory.push(toEntityId, fromInventoryEntityIds[i]);
   }
-  ReverseInventory.deleteRecord(fromEntityId);
+  if (fromInventoryEntityIds.length > 0) {
+    ReverseInventory.deleteRecord(fromEntityId);
+  }
 }
 
 function transferInventoryItem(
