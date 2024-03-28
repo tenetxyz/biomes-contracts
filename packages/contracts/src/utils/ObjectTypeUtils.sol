@@ -14,7 +14,7 @@ import { OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID,
 import { WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "../ObjectTypeIds.sol";
 import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../ObjectTypeIds.sol";
 
-function isPick(bytes32 objectTypeId) returns (bool) {
+function isPick(bytes32 objectTypeId) pure returns (bool) {
   return
     objectTypeId == WoodenAxeObjectID ||
     objectTypeId == StonePickObjectID ||
@@ -24,7 +24,7 @@ function isPick(bytes32 objectTypeId) returns (bool) {
     objectTypeId == DiamondPickObjectID;
 }
 
-function isAxe(bytes32 objectTypeId) returns (bool) {
+function isAxe(bytes32 objectTypeId) pure returns (bool) {
   return
     objectTypeId == WoodenAxeObjectID ||
     objectTypeId == StoneAxeObjectID ||
@@ -34,7 +34,7 @@ function isAxe(bytes32 objectTypeId) returns (bool) {
     objectTypeId == DiamondAxeObjectID;
 }
 
-function isWoodLog(bytes32 objectTypeId) returns (bool) {
+function isWoodLog(bytes32 objectTypeId) pure returns (bool) {
   return
     objectTypeId == OakLogObjectID ||
     objectTypeId == SakuraLogObjectID ||
@@ -42,7 +42,7 @@ function isWoodLog(bytes32 objectTypeId) returns (bool) {
     objectTypeId == RubberLogObjectID;
 }
 
-function isStone(bytes32 objectTypeId) returns (bool) {
+function isStone(bytes32 objectTypeId) pure returns (bool) {
   return
     objectTypeId == StoneObjectID ||
     objectTypeId == CobblestoneObjectID ||
