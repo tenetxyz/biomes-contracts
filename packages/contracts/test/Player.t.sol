@@ -30,7 +30,7 @@ import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
-import { reverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
+import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract PlayerTest is MudTest, GasReporter {
   IWorld private world;

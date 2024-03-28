@@ -25,16 +25,16 @@ import { absInt32 } from "@biomesaw/utils/src/MathUtils.sol";
 
 contract TeleportSystem is System {
   function teleport(VoxelCoord memory newCoord) public {
-    bytes32 playerEntityId = Player.get(_msgSender());
+    bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "TeleportSystem: player does not exist");
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "TeleportSystem: player isn't logged in");
+    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "TeleportSystem: player isn't logged in");
 
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
 
-    VoxelCoord memory oldCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
+    VoxelCoord memory oldCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
 
-    bytes32 newEntityId = ReversePosition.get(newCoord.x, newCoord.y, newCoord.z);
+    bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
       require(
@@ -44,46 +44,46 @@ contract TeleportSystem is System {
 
       // Create new entity
       newEntityId = getUniqueEntity();
-      ObjectType.set(newEntityId, AirObjectID);
+      ObjectType._set(newEntityId, AirObjectID);
     } else {
-      require(ObjectType.get(newEntityId) == AirObjectID, "TeleportSystem: cannot teleport to non-air block");
+      require(ObjectType._get(newEntityId) == AirObjectID, "TeleportSystem: cannot teleport to non-air block");
 
       // Transfer any dropped items
       transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
     }
 
     // Swap entity ids
-    ReversePosition.set(oldCoord.x, oldCoord.y, oldCoord.z, newEntityId);
-    Position.set(newEntityId, oldCoord.x, oldCoord.y, oldCoord.z);
+    ReversePosition._set(oldCoord.x, oldCoord.y, oldCoord.z, newEntityId);
+    Position._set(newEntityId, oldCoord.x, oldCoord.y, oldCoord.z);
 
-    Position.set(playerEntityId, newCoord.x, newCoord.y, newCoord.z);
-    ReversePosition.set(newCoord.x, newCoord.y, newCoord.z, playerEntityId);
+    Position._set(playerEntityId, newCoord.x, newCoord.y, newCoord.z);
+    ReversePosition._set(newCoord.x, newCoord.y, newCoord.z, playerEntityId);
 
     int32 xDelta = newCoord.x - oldCoord.x;
     int32 yDelta = newCoord.y - oldCoord.y;
     int32 zDelta = newCoord.z - oldCoord.z;
     uint32 numDeltaPositions = uint32(absInt32(xDelta) + absInt32(yDelta) + absInt32(zDelta));
 
-    uint32 numMovesInBlock = PlayerMetadata.getNumMovesInBlock(playerEntityId);
-    if (PlayerMetadata.getLastMoveBlock(playerEntityId) != block.number) {
+    uint32 numMovesInBlock = PlayerMetadata._getNumMovesInBlock(playerEntityId);
+    if (PlayerMetadata._getLastMoveBlock(playerEntityId) != block.number) {
       numMovesInBlock = numDeltaPositions;
-      PlayerMetadata.setLastMoveBlock(playerEntityId, block.number);
+      PlayerMetadata._setLastMoveBlock(playerEntityId, block.number);
     } else {
       numMovesInBlock += numDeltaPositions;
     }
-    PlayerMetadata.setNumMovesInBlock(playerEntityId, numMovesInBlock);
+    PlayerMetadata._setNumMovesInBlock(playerEntityId, numMovesInBlock);
 
     // Inventory mass
     uint32 inventoryTotalMass = 0;
     {
-      bytes32[] memory inventoryEntityIds = ReverseInventory.get(playerEntityId);
+      bytes32[] memory inventoryEntityIds = ReverseInventory._get(playerEntityId);
       for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
-        bytes32 inventoryObjectTypeId = ObjectType.get(inventoryEntityIds[i]);
-        inventoryTotalMass += ObjectTypeMetadata.getMass(inventoryObjectTypeId);
+        bytes32 inventoryObjectTypeId = ObjectType._get(inventoryEntityIds[i]);
+        inventoryTotalMass += ObjectTypeMetadata._getMass(inventoryObjectTypeId);
       }
     }
 
-    uint32 staminaRequired = ObjectTypeMetadata.getMass(PlayerObjectID);
+    uint32 staminaRequired = ObjectTypeMetadata._getMass(PlayerObjectID);
     staminaRequired += inventoryTotalMass / 50;
     staminaRequired = staminaRequired * (numMovesInBlock ** 2);
     staminaRequired = staminaRequired / 100;
@@ -91,21 +91,21 @@ contract TeleportSystem is System {
       staminaRequired = 1;
     }
 
-    uint32 currentStamina = Stamina.getStamina(playerEntityId);
+    uint32 currentStamina = Stamina._getStamina(playerEntityId);
     require(currentStamina >= staminaRequired, "TeleportSystem: not enough stamina");
-    Stamina.setStamina(playerEntityId, currentStamina - staminaRequired);
+    Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
 
     {
       VoxelCoord memory aboveCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
-      bytes32 aboveEntityId = ReversePosition.get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-      if (aboveEntityId != bytes32(0) && ObjectType.get(aboveEntityId) == PlayerObjectID) {
+      bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+      if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
         callGravity(aboveEntityId, aboveCoord);
       }
     }
 
     VoxelCoord memory belowCoord = VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z);
-    bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
-    if (belowEntityId == bytes32(0) || ObjectType.get(belowEntityId) == AirObjectID) {
+    bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
+    if (belowEntityId == bytes32(0) || ObjectType._get(belowEntityId) == AirObjectID) {
       callGravity(playerEntityId, newCoord);
     }
   }

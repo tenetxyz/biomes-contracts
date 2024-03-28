@@ -20,7 +20,7 @@ import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLog
 
 contract InitHandBlocksSystem is System {
   function createHandcraftedBlock(bytes32 terrainBlockObjectTypeId, uint16 mass, uint16 hardness) internal {
-    ObjectTypeMetadata.set(
+    ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isPlayer: false,
@@ -35,7 +35,7 @@ contract InitHandBlocksSystem is System {
   }
 
   function createHandcraftedTool(bytes32 toolObjectTypeId, uint16 mass, uint24 durability, uint16 damage) internal {
-    ObjectTypeMetadata.set(
+    ObjectTypeMetadata._set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
         isPlayer: false,
@@ -50,7 +50,7 @@ contract InitHandBlocksSystem is System {
   }
 
   function createHandcraftedItem(bytes32 itemObjectTypeId, uint16 mass) internal {
-    ObjectTypeMetadata.set(
+    ObjectTypeMetadata._set(
       itemObjectTypeId,
       ObjectTypeMetadataData({
         isPlayer: false,

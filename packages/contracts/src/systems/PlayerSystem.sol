@@ -29,7 +29,7 @@ import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constan
 contract PlayerSystem is System {
   function spawnPlayer(VoxelCoord memory spawnCoord) public returns (bytes32) {
     address newPlayer = _msgSender();
-    require(Player.get(newPlayer) == bytes32(0), "PlayerSystem: player already exists");
+    require(Player._get(newPlayer) == bytes32(0), "PlayerSystem: player already exists");
 
     // Check spawn coord is within spawn area
     require(
@@ -40,7 +40,7 @@ contract PlayerSystem is System {
       "PlayerSystem: coord outside of spawn area"
     );
 
-    bytes32 entityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
+    bytes32 entityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     if (entityId == bytes32(0)) {
       require(
         getTerrainObjectTypeId(AirObjectID, spawnCoord) == AirObjectID,
@@ -49,24 +49,24 @@ contract PlayerSystem is System {
 
       // Create new entity
       entityId = getUniqueEntity();
-      Position.set(entityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
-      ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, entityId);
+      Position._set(entityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+      ReversePosition._set(spawnCoord.x, spawnCoord.y, spawnCoord.z, entityId);
     } else {
-      require(ObjectType.get(entityId) == AirObjectID, "PlayerSystem: spawn coord is not air");
+      require(ObjectType._get(entityId) == AirObjectID, "PlayerSystem: spawn coord is not air");
     }
 
     // Set object type to player
-    ObjectType.set(entityId, PlayerObjectID);
-    Player.set(newPlayer, entityId);
-    ReversePlayer.set(entityId, newPlayer);
+    ObjectType._set(entityId, PlayerObjectID);
+    Player._set(newPlayer, entityId);
+    ReversePlayer._set(entityId, newPlayer);
 
-    Health.set(entityId, block.timestamp, MAX_PLAYER_HEALTH);
-    Stamina.set(entityId, block.timestamp, MAX_PLAYER_STAMINA);
+    Health._set(entityId, block.timestamp, MAX_PLAYER_HEALTH);
+    Stamina._set(entityId, block.timestamp, MAX_PLAYER_STAMINA);
 
     // We let the user pick a y coord, so we need to apply gravity
     VoxelCoord memory belowCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
-    bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
-    if (belowEntityId == bytes32(0) || ObjectType.get(belowEntityId) == AirObjectID) {
+    bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
+    if (belowEntityId == bytes32(0) || ObjectType._get(belowEntityId) == AirObjectID) {
       require(!callGravity(entityId, spawnCoord), "PlayerSystem: cannot spawn player with gravity");
     }
 
@@ -74,11 +74,11 @@ contract PlayerSystem is System {
   }
 
   // function changePlayerOwner(address newOwner) public {
-  //   bytes32 playerEntityId = Player.get(_msgSender());
+  //   bytes32 playerEntityId = Player._get(_msgSender());
   //   require(playerEntityId != bytes32(0), "PlayerSystem: player does not exist");
-  //   require(Player.get(newOwner) == bytes32(0), "PlayerSystem: new owner already has a player");
-  //   Player.deleteRecord(_msgSender());
-  //   Player.set(newOwner, playerEntityId);
-  //   ReversePlayer.set(playerEntityId, newOwner);
+  //   require(Player._get(newOwner) == bytes32(0), "PlayerSystem: new owner already has a player");
+  //   Player._deleteRecord(_msgSender());
+  //   Player._set(newOwner, playerEntityId);
+  //   ReversePlayer._set(playerEntityId, newOwner);
   // }
 }

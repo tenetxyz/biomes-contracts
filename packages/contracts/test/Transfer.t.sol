@@ -29,11 +29,10 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
-import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, GRAVITY_DAMAGE } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID, BlueDyeObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
-import { reverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
+import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract TransferTest is MudTest, GasReporter {
   IWorld private world;
@@ -80,7 +79,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId1, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId1);
     inventoryEntityIds[0] = newInventoryId1;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     bytes32 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
@@ -88,7 +87,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
     inventoryEntityIds[1] = newInventoryId2;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
@@ -112,9 +111,9 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
     assertTrue(Inventory.get(newInventoryId1) == chestEntityId, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(chestEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(chestEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == chestEntityId, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(chestEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(chestEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId2) == 1, "Input object not removed from inventory");
     assertTrue(InventorySlots.get(chestEntityId) == 2, "Inventory slot not set");
@@ -136,7 +135,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId1, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId1);
     inventoryEntityIds[0] = newInventoryId1;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     bytes32 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
@@ -145,7 +144,7 @@ contract TransferTest is MudTest, GasReporter {
     ReverseInventory.push(playerEntityId, newInventoryId2);
     ReverseInventory.push(playerEntityId, newInventoryId2);
     inventoryEntityIds[1] = newInventoryId2;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
@@ -163,7 +162,7 @@ contract TransferTest is MudTest, GasReporter {
       ObjectType.set(inventoryId, DiamondOreObjectID);
       Inventory.set(inventoryId, chestEntityId);
       ReverseInventory.push(chestEntityId, inventoryId);
-      addToInventoryCount(chestEntityId, ChestObjectID, DiamondOreObjectID, 1);
+      testAddToInventoryCount(chestEntityId, ChestObjectID, DiamondOreObjectID, 1);
     }
     assertTrue(
       InventoryCount.get(chestEntityId, DiamondOreObjectID) == MAX_CHEST_INVENTORY_SLOTS - 1,
@@ -194,7 +193,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId1, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId1);
     inventoryEntityIds[0] = newInventoryId1;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     bytes32 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
@@ -202,7 +201,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
     inventoryEntityIds[1] = newInventoryId2;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
@@ -224,9 +223,9 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
     assertTrue(Inventory.get(newInventoryId1) == chestEntityId, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(chestEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(chestEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == chestEntityId, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(chestEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(chestEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId2) == 1, "Input object not removed from inventory");
     assertTrue(InventorySlots.get(chestEntityId) == 2, "Inventory slot not set");
@@ -252,9 +251,9 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId2) == 2, "Inventory slot not set");
 
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId2, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(playerEntityId2, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId2, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId2, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(playerEntityId2, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId2, newInventoryId2), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
     assertTrue(InventorySlots.get(chestEntityId) == 0, "Inventory slot not set");
@@ -276,7 +275,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId1, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId1);
     inventoryEntityIds[0] = newInventoryId1;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     bytes32 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
@@ -284,7 +283,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
     inventoryEntityIds[1] = newInventoryId2;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
@@ -306,9 +305,9 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
     assertTrue(Inventory.get(newInventoryId1) == chestEntityId, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(chestEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(chestEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == chestEntityId, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(chestEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(chestEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId2) == 1, "Input object not removed from inventory");
     assertTrue(InventorySlots.get(chestEntityId) == 2, "Inventory slot not set");
@@ -329,7 +328,7 @@ contract TransferTest is MudTest, GasReporter {
       ObjectType.set(inventoryId, GrassObjectID);
       Inventory.set(inventoryId, playerEntityId2);
       ReverseInventory.push(playerEntityId2, inventoryId);
-      addToInventoryCount(playerEntityId2, PlayerObjectID, GrassObjectID, 1);
+      testAddToInventoryCount(playerEntityId2, PlayerObjectID, GrassObjectID, 1);
     }
     assertTrue(
       InventoryCount.get(playerEntityId2, GrassObjectID) == MAX_PLAYER_INVENTORY_SLOTS,
@@ -359,7 +358,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId1, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId1);
     inventoryEntityIds[0] = newInventoryId1;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     bytes32 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
@@ -367,7 +366,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
     inventoryEntityIds[1] = newInventoryId2;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
@@ -389,9 +388,9 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
     assertTrue(Inventory.get(newInventoryId1) == chestEntityId, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(chestEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(chestEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == chestEntityId, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(chestEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(chestEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId2) == 1, "Input object not removed from inventory");
     assertTrue(InventorySlots.get(chestEntityId) == 2, "Inventory slot not set");
@@ -426,9 +425,9 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId2) == 3, "Inventory slot not set");
 
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId2, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(playerEntityId2, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId2, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId2, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(playerEntityId2, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId2, newInventoryId2), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(airEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
     assertTrue(InventorySlots.get(airEntityId) == 0, "Inventory slot not set");
@@ -450,7 +449,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId1, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId1);
     inventoryEntityIds[0] = newInventoryId1;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     bytes32 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
@@ -458,7 +457,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
     inventoryEntityIds[1] = newInventoryId2;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
@@ -493,7 +492,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId1, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId1);
     inventoryEntityIds[0] = newInventoryId1;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     bytes32 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
@@ -501,7 +500,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
     inventoryEntityIds[1] = newInventoryId2;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
@@ -536,7 +535,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId1, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId1);
     inventoryEntityIds[0] = newInventoryId1;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     bytes32 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
@@ -544,7 +543,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
     inventoryEntityIds[1] = newInventoryId2;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
@@ -576,7 +575,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId1, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId1);
     inventoryEntityIds[0] = newInventoryId1;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     bytes32 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
@@ -584,7 +583,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
     inventoryEntityIds[1] = newInventoryId2;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
@@ -626,7 +625,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId1, chestEntityId);
     ReverseInventory.push(chestEntityId, newInventoryId1);
     inventoryEntityIds[0] = newInventoryId1;
-    addToInventoryCount(chestEntityId, ChestObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(chestEntityId, ChestObjectID, inputObjectTypeId1, 1);
 
     bytes32 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
@@ -634,7 +633,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId2, chestEntityId);
     ReverseInventory.push(chestEntityId, newInventoryId2);
     inventoryEntityIds[1] = newInventoryId2;
-    addToInventoryCount(chestEntityId, ChestObjectID, inputObjectTypeId2, 1);
+    testAddToInventoryCount(chestEntityId, ChestObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(chestEntityId) == 2, "Inventory slot not set");
@@ -643,9 +642,9 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     assertTrue(Inventory.get(newInventoryId1) == chestEntityId, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(chestEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(chestEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == chestEntityId, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(chestEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(chestEntityId, newInventoryId2), "Reverse Inventory not set");
 
     vm.expectRevert("Entity does not own inventory item");
     world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
@@ -667,7 +666,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId1, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId1);
     inventoryEntityIds[0] = newInventoryId1;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     bytes32 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
@@ -675,7 +674,7 @@ contract TransferTest is MudTest, GasReporter {
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
     inventoryEntityIds[1] = newInventoryId2;
-    addToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");

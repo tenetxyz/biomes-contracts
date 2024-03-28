@@ -23,7 +23,7 @@ contract InitTerrainBlocksSystem is System {
     address systemAddress,
     bytes4 terrainSelector
   ) internal {
-    ObjectTypeMetadata.set(
+    ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isPlayer: false,
@@ -36,7 +36,7 @@ contract InitTerrainBlocksSystem is System {
       })
     );
 
-    TerrainMetadata.set(
+    TerrainMetadata._set(
       terrainBlockObjectTypeId,
       TerrainMetadataData({ occurenceAddress: systemAddress, occurenceSelector: terrainSelector })
     );
@@ -45,19 +45,19 @@ contract InitTerrainBlocksSystem is System {
   function initTerrainBlockObjectTypes() public {
     // TODO: replace any block selector with the one for the block to save gas
     bytes4 terrainBlocksWorldSelector = IWorld(_world()).TerrainBlocks.selector;
-    ResourceId terrainSystemId = FunctionSelectors.getSystemId(terrainBlocksWorldSelector);
-    bytes4 terrainBlocksSelector = FunctionSelectors.getSystemFunctionSelector(terrainBlocksWorldSelector);
-    address terrainSystemAddress = Systems.getSystem(terrainSystemId);
+    ResourceId terrainSystemId = FunctionSelectors._getSystemId(terrainBlocksWorldSelector);
+    bytes4 terrainBlocksSelector = FunctionSelectors._getSystemFunctionSelector(terrainBlocksWorldSelector);
+    address terrainSystemAddress = Systems._getSystem(terrainSystemId);
 
     bytes4 treeWorldSelector = IWorld(_world()).Trees.selector;
-    bytes4 treeSelector = FunctionSelectors.getSystemFunctionSelector(treeWorldSelector);
+    bytes4 treeSelector = FunctionSelectors._getSystemFunctionSelector(treeWorldSelector);
     bytes4 floraWorldSelector = IWorld(_world()).Flora.selector;
-    bytes4 floraSelector = FunctionSelectors.getSystemFunctionSelector(floraWorldSelector);
+    bytes4 floraSelector = FunctionSelectors._getSystemFunctionSelector(floraWorldSelector);
 
     bytes4 oresWorldSelector = IWorld(_world()).Ores.selector;
-    ResourceId terrainOreSystemId = FunctionSelectors.getSystemId(oresWorldSelector);
-    address terrainOreSystemAddress = Systems.getSystem(terrainOreSystemId);
-    bytes4 oresSelector = FunctionSelectors.getSystemFunctionSelector(oresWorldSelector);
+    ResourceId terrainOreSystemId = FunctionSelectors._getSystemId(oresWorldSelector);
+    address terrainOreSystemAddress = Systems._getSystem(terrainOreSystemId);
+    bytes4 oresSelector = FunctionSelectors._getSystemFunctionSelector(oresWorldSelector);
 
     createTerrainBlock(AirObjectID, 0, terrainSystemAddress, IWorld(_world()).Air.selector);
     createTerrainBlock(GrassObjectID, 4, terrainSystemAddress, terrainBlocksSelector);

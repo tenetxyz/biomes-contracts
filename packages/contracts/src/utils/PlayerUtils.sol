@@ -15,9 +15,9 @@ import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, ST
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 
 function regenHealth(bytes32 entityId) {
-  HealthData memory healthData = Health.get(entityId);
+  HealthData memory healthData = Health._get(entityId);
   if (healthData.health >= MAX_PLAYER_HEALTH && healthData.lastUpdatedTime != block.timestamp) {
-    Health.setLastUpdatedTime(entityId, block.timestamp);
+    Health._setLastUpdatedTime(entityId, block.timestamp);
     return;
   }
 
@@ -34,13 +34,13 @@ function regenHealth(bytes32 entityId) {
     newHealth = MAX_PLAYER_HEALTH;
   }
 
-  Health.set(entityId, HealthData({ health: newHealth, lastUpdatedTime: block.timestamp }));
+  Health._set(entityId, HealthData({ health: newHealth, lastUpdatedTime: block.timestamp }));
 }
 
 function regenStamina(bytes32 entityId) {
-  StaminaData memory staminaData = Stamina.get(entityId);
+  StaminaData memory staminaData = Stamina._get(entityId);
   if (staminaData.stamina >= MAX_PLAYER_STAMINA && staminaData.lastUpdatedTime != block.timestamp) {
-    Stamina.setLastUpdatedTime(entityId, block.timestamp);
+    Stamina._setLastUpdatedTime(entityId, block.timestamp);
     return;
   }
 
@@ -57,22 +57,22 @@ function regenStamina(bytes32 entityId) {
     newStamina = MAX_PLAYER_STAMINA;
   }
 
-  Stamina.set(entityId, StaminaData({ stamina: newStamina, lastUpdatedTime: block.timestamp }));
+  Stamina._set(entityId, StaminaData({ stamina: newStamina, lastUpdatedTime: block.timestamp }));
 }
 
 function despawnPlayer(bytes32 playerEntityId) {
   // Note: Inventory is already attached to the entity id, which means it'll be
   // attached to air, ie it's a "dropped" item
-  ObjectType.set(playerEntityId, AirObjectID);
+  ObjectType._set(playerEntityId, AirObjectID);
 
-  Health.deleteRecord(playerEntityId);
-  Stamina.deleteRecord(playerEntityId);
-  if (Equipped.get(playerEntityId) != bytes32(0)) {
-    Equipped.deleteRecord(playerEntityId);
+  Health._deleteRecord(playerEntityId);
+  Stamina._deleteRecord(playerEntityId);
+  if (Equipped._get(playerEntityId) != bytes32(0)) {
+    Equipped._deleteRecord(playerEntityId);
   }
 
-  PlayerMetadata.deleteRecord(playerEntityId);
-  address player = ReversePlayer.get(playerEntityId);
-  Player.deleteRecord(player);
-  ReversePlayer.deleteRecord(playerEntityId);
+  PlayerMetadata._deleteRecord(playerEntityId);
+  address player = ReversePlayer._get(playerEntityId);
+  Player._deleteRecord(player);
+  ReversePlayer._deleteRecord(playerEntityId);
 }

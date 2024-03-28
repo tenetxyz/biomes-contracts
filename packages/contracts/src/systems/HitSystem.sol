@@ -25,16 +25,16 @@ import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constan
 
 contract HitSystem is System {
   function hit(address hitPlayer) public {
-    bytes32 playerEntityId = Player.get(_msgSender());
+    bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "HitSystem: player does not exist");
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "HitSystem: player isn't logged in");
-    bytes32 hitEntityId = Player.get(hitPlayer);
+    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "HitSystem: player isn't logged in");
+    bytes32 hitEntityId = Player._get(hitPlayer);
     require(hitEntityId != bytes32(0), "HitSystem: hit player does not exist");
     require(playerEntityId != hitEntityId, "HitSystem: player cannot hit itself");
-    require(!PlayerMetadata.getIsLoggedOff(hitEntityId), "HitSystem: hit player isn't logged in");
+    require(!PlayerMetadata._getIsLoggedOff(hitEntityId), "HitSystem: hit player isn't logged in");
 
-    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
-    VoxelCoord memory hitCoord = positionDataToVoxelCoord(Position.get(hitEntityId));
+    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+    VoxelCoord memory hitCoord = positionDataToVoxelCoord(Position._get(hitEntityId));
     require(
       (hitCoord.x < SPAWN_LOW_X || hitCoord.x > SPAWN_HIGH_X) ||
         (hitCoord.z < SPAWN_LOW_Z || hitCoord.z > SPAWN_HIGH_Z),
@@ -47,20 +47,20 @@ contract HitSystem is System {
 
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
-    useEquipped(playerEntityId, Equipped.get(playerEntityId));
+    useEquipped(playerEntityId, Equipped._get(playerEntityId));
 
     // Calculate stamina and health reduction
-    uint32 currentStamina = Stamina.getStamina(playerEntityId);
+    uint32 currentStamina = Stamina._getStamina(playerEntityId);
     require(currentStamina > 0, "HitSystem: player has no stamina");
     uint32 staminaRequired = HIT_STAMINA_COST;
 
     // Try spending all the stamina
     uint32 staminaSpend = staminaRequired > currentStamina ? currentStamina : staminaRequired;
 
-    bytes32 equippedEntityId = Equipped.get(playerEntityId);
+    bytes32 equippedEntityId = Equipped._get(playerEntityId);
     uint32 receiverDamage = PLAYER_HAND_DAMAGE;
     if (equippedEntityId != bytes32(0)) {
-      receiverDamage = ObjectTypeMetadata.getDamage(ObjectType.get(equippedEntityId));
+      receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
     }
 
     // Update damage to be the actual damage done
@@ -70,11 +70,11 @@ contract HitSystem is System {
     require(receiverDamage > 0, "HitSystem: damage is 0");
 
     // Update stamina and health
-    Stamina.setStamina(playerEntityId, currentStamina - staminaSpend);
+    Stamina._setStamina(playerEntityId, currentStamina - staminaSpend);
 
-    uint16 currentHealth = Health.getHealth(hitEntityId);
+    uint16 currentHealth = Health._getHealth(hitEntityId);
     uint16 newHealth = currentHealth > uint16(receiverDamage) ? currentHealth - uint16(receiverDamage) : 0;
-    Health.setHealth(hitEntityId, newHealth);
+    Health._setHealth(hitEntityId, newHealth);
 
     if (newHealth == 0) {
       despawnPlayer(hitEntityId);
@@ -84,7 +84,7 @@ contract HitSystem is System {
         callGravity(playerEntityId, playerCoord);
       }
     } else {
-      PlayerMetadata.setLastHitTime(hitEntityId, block.timestamp);
+      PlayerMetadata._setLastHitTime(hitEntityId, block.timestamp);
     }
   }
 }

@@ -18,7 +18,7 @@ import { createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol"
 
 contract InitDyedBlocksSystem is System {
   function createDyedBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {
-    ObjectTypeMetadata.set(
+    ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isPlayer: false,

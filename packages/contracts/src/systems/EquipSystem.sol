@@ -25,12 +25,12 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract EquipSystem is System {
   function equip(bytes32 inventoryEntityId) public {
-    bytes32 playerEntityId = Player.get(_msgSender());
+    bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "EquipSystem: player does not exist");
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "EquipSystem: player isn't logged in");
+    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "EquipSystem: player isn't logged in");
 
-    require(Inventory.get(inventoryEntityId) == playerEntityId, "EquipSystem: Entity does not own inventory item");
+    require(Inventory._get(inventoryEntityId) == playerEntityId, "EquipSystem: Entity does not own inventory item");
 
-    Equipped.set(playerEntityId, inventoryEntityId);
+    Equipped._set(playerEntityId, inventoryEntityId);
   }
 }

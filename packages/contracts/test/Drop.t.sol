@@ -29,11 +29,10 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
-import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, GRAVITY_DAMAGE } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
-import { reverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
+import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract DropTest is MudTest, GasReporter {
   IWorld private world;
@@ -76,11 +75,11 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, GrassObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
@@ -98,7 +97,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
     assertTrue(Inventory.get(newInventoryId) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
@@ -116,9 +115,9 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, GrassObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
@@ -141,7 +140,7 @@ contract DropTest is MudTest, GasReporter {
 
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
     assertTrue(Inventory.get(newInventoryId) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
@@ -163,20 +162,20 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId2, GrassObjectID);
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
-    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
     bytes32 newInventoryId3 = getUniqueEntity();
     ObjectType.set(newInventoryId3, DiamondOreObjectID);
     Inventory.set(newInventoryId3, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId3);
-    addToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
@@ -197,11 +196,11 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
     assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
@@ -225,12 +224,12 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId2, GrassObjectID);
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
-    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
     bytes32 newInventoryId3 = getUniqueEntity();
     ObjectType.set(newInventoryId3, DiamondOreObjectID);
     Inventory.set(newInventoryId3, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId3);
-    addToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
     assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
@@ -242,11 +241,11 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
 
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
@@ -265,11 +264,11 @@ contract DropTest is MudTest, GasReporter {
 
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
     assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
@@ -293,20 +292,20 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId2, GrassObjectID);
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
-    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
     bytes32 newInventoryId3 = getUniqueEntity();
     ObjectType.set(newInventoryId3, DiamondOreObjectID);
     Inventory.set(newInventoryId3, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId3);
-    addToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
@@ -325,11 +324,11 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
     assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
@@ -348,11 +347,11 @@ contract DropTest is MudTest, GasReporter {
       "Player did not move to new coords"
     );
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
@@ -374,7 +373,7 @@ contract DropTest is MudTest, GasReporter {
       ObjectType.set(inventoryId, GrassObjectID);
       Inventory.set(inventoryId, playerEntityId);
       ReverseInventory.push(playerEntityId, inventoryId);
-      addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+      testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     }
     assertTrue(
       InventoryCount.get(playerEntityId, GrassObjectID) == MAX_PLAYER_INVENTORY_SLOTS,
@@ -393,7 +392,7 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(droppedEntityId, GrassObjectID);
     Inventory.set(droppedEntityId, airEntityId);
     ReverseInventory.push(airEntityId, droppedEntityId);
-    addToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 1);
+    testAddToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 1);
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     vm.stopPrank();
 
@@ -422,20 +421,20 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId2, GrassObjectID);
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
-    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
     bytes32 newInventoryId3 = getUniqueEntity();
     ObjectType.set(newInventoryId3, DiamondOreObjectID);
     Inventory.set(newInventoryId3, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId3);
-    addToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
@@ -454,11 +453,11 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
     assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
@@ -477,11 +476,11 @@ contract DropTest is MudTest, GasReporter {
       "Player did not move to new coords"
     );
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
@@ -505,20 +504,20 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId2, GrassObjectID);
     Inventory.set(newInventoryId2, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId2);
-    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
     bytes32 newInventoryId3 = getUniqueEntity();
     ObjectType.set(newInventoryId3, DiamondOreObjectID);
     Inventory.set(newInventoryId3, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId3);
-    addToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
@@ -537,11 +536,11 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
     assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
@@ -559,11 +558,11 @@ contract DropTest is MudTest, GasReporter {
       "Player did not move to new coords"
     );
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
@@ -585,7 +584,7 @@ contract DropTest is MudTest, GasReporter {
       ObjectType.set(inventoryId, GrassObjectID);
       Inventory.set(inventoryId, playerEntityId);
       ReverseInventory.push(playerEntityId, inventoryId);
-      addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+      testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     }
     assertTrue(
       InventoryCount.get(playerEntityId, GrassObjectID) == MAX_PLAYER_INVENTORY_SLOTS,
@@ -604,7 +603,7 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(droppedEntityId, GrassObjectID);
     Inventory.set(droppedEntityId, airEntityId);
     ReverseInventory.push(airEntityId, droppedEntityId);
-    addToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 1);
+    testAddToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 1);
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     vm.stopPrank();
 
@@ -630,7 +629,7 @@ contract DropTest is MudTest, GasReporter {
     bytes32 newInventoryId = world.mine(terrainObjectTypeId, mineCoord);
 
     assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
@@ -644,7 +643,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
     assertTrue(Inventory.get(newInventoryId) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
@@ -655,7 +654,7 @@ contract DropTest is MudTest, GasReporter {
     world.teleport(newCoord);
 
     assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
@@ -685,18 +684,18 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId3, DiamondOreObjectID);
     Inventory.set(newInventoryId3, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId3);
-    addToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
     Health.setHealth(playerEntityId, GRAVITY_DAMAGE + 1);
     Health.setLastUpdatedTime(playerEntityId, block.timestamp);
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId2) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
@@ -713,9 +712,9 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
     assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, terrainObjectTypeId) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId, terrainObjectTypeId2) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 0, "Inventory count not set properly");
@@ -739,11 +738,11 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(airEntityId2 != bytes32(0), "Dropped entity not set");
     assertTrue(ObjectType.get(airEntityId2) == AirObjectID, "Dropped object not set");
     assertTrue(Inventory.get(newInventoryId1) == airEntityId2, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId2, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId2, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == airEntityId2, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId2, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId2, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == airEntityId2, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId2, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId2, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId2, terrainObjectTypeId) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId2, terrainObjectTypeId2) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId2, DiamondOreObjectID) == 1, "Inventory count not set properly");
@@ -759,11 +758,11 @@ contract DropTest is MudTest, GasReporter {
 
     // player should have picked up all the items
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId2) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
@@ -782,11 +781,11 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, GrassObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
@@ -812,7 +811,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
     bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
-    assertTrue(reverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
@@ -827,7 +826,7 @@ contract DropTest is MudTest, GasReporter {
     world.drop(dropEntityIds, mineCoord);
 
     assertTrue(Inventory.get(inventoryId) == airEntityId, "Inventory not unset");
-    assertTrue(reverseInventoryHasItem(airEntityId, inventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, inventoryId), "Reverse Inventory not set");
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not unset");
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 0, "Inventory count not unset");
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not unset");
@@ -855,11 +854,11 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, GrassObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
@@ -884,11 +883,11 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, GrassObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
@@ -926,20 +925,20 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId2, GrassObjectID);
     Inventory.set(newInventoryId2, airEntityId);
     ReverseInventory.push(airEntityId, newInventoryId2);
-    addToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 2);
+    testAddToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 2);
     bytes32 newInventoryId3 = getUniqueEntity();
     ObjectType.set(newInventoryId3, DiamondOreObjectID);
     Inventory.set(newInventoryId3, airEntityId);
     ReverseInventory.push(airEntityId, newInventoryId3);
-    addToInventoryCount(airEntityId, AirObjectID, DiamondOreObjectID, 1);
+    testAddToInventoryCount(airEntityId, AirObjectID, DiamondOreObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
 
@@ -955,11 +954,11 @@ contract DropTest is MudTest, GasReporter {
       "Reverse position not set"
     );
     assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
@@ -989,7 +988,7 @@ contract DropTest is MudTest, GasReporter {
       ObjectType.set(inventoryId, GrassObjectID);
       Inventory.set(inventoryId, playerEntityId);
       ReverseInventory.push(playerEntityId, inventoryId);
-      addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+      testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     }
     assertTrue(
       InventoryCount.get(playerEntityId, GrassObjectID) == MAX_PLAYER_INVENTORY_SLOTS,
@@ -1005,20 +1004,20 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId2, GrassObjectID);
     Inventory.set(newInventoryId2, airEntityId);
     ReverseInventory.push(airEntityId, newInventoryId2);
-    addToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 2);
+    testAddToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 2);
     bytes32 newInventoryId3 = getUniqueEntity();
     ObjectType.set(newInventoryId3, DiamondOreObjectID);
     Inventory.set(newInventoryId3, airEntityId);
     ReverseInventory.push(airEntityId, newInventoryId3);
-    addToInventoryCount(airEntityId, AirObjectID, DiamondOreObjectID, 1);
+    testAddToInventoryCount(airEntityId, AirObjectID, DiamondOreObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
     assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
 
@@ -1040,11 +1039,11 @@ contract DropTest is MudTest, GasReporter {
     ObjectType.set(newInventoryId, GrassObjectID);
     Inventory.set(newInventoryId, playerEntityId);
     ReverseInventory.push(playerEntityId, newInventoryId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
-    assertTrue(reverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 

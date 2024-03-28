@@ -25,7 +25,7 @@ import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe 
 
 contract InitThermoblastSystem is System {
   function createBlock(bytes32 terrainBlockObjectTypeId, uint16 mass, uint16 hardness) internal {
-    ObjectTypeMetadata.set(
+    ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isPlayer: false,
@@ -40,7 +40,7 @@ contract InitThermoblastSystem is System {
   }
 
   function createItem(bytes32 itemObjectTypeId, uint16 mass) internal {
-    ObjectTypeMetadata.set(
+    ObjectTypeMetadata._set(
       itemObjectTypeId,
       ObjectTypeMetadataData({
         isPlayer: false,

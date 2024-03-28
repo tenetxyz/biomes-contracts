@@ -26,19 +26,19 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract CraftSystem is System {
   function craft(bytes32 recipeId, bytes32[] memory ingredientEntityIds, bytes32 stationEntityId) public {
-    bytes32 playerEntityId = Player.get(_msgSender());
+    bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "CraftSystem: player does not exist");
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "CraftSystem: player isn't logged in");
+    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "CraftSystem: player isn't logged in");
 
-    RecipesData memory recipeData = Recipes.get(recipeId);
+    RecipesData memory recipeData = Recipes._get(recipeId);
     require(recipeData.inputObjectTypeIds.length > 0, "CraftSystem: recipe not found");
     if (recipeData.stationObjectTypeId != bytes32(0)) {
-      require(ObjectType.get(stationEntityId) == recipeData.stationObjectTypeId, "CraftSystem: wrong station");
+      require(ObjectType._get(stationEntityId) == recipeData.stationObjectTypeId, "CraftSystem: wrong station");
       require(
         inSurroundingCube(
-          positionDataToVoxelCoord(Position.get(stationEntityId)),
+          positionDataToVoxelCoord(Position._get(stationEntityId)),
           1,
-          positionDataToVoxelCoord(Position.get(playerEntityId))
+          positionDataToVoxelCoord(Position._get(playerEntityId))
         ),
         "CraftSystem: player is too far from the station"
       );
@@ -49,20 +49,20 @@ contract CraftSystem is System {
     for (uint256 i = 0; i < recipeData.inputObjectTypeIds.length; i++) {
       uint256 numInputObjectTypesFound = 0;
       for (uint256 j = 0; j < ingredientEntityIds.length; j++) {
-        if (Inventory.get(ingredientEntityIds[j]) == playerEntityId) {
-          bytes32 ingredientObjectTypeId = ObjectType.get(ingredientEntityIds[j]);
+        if (Inventory._get(ingredientEntityIds[j]) == playerEntityId) {
+          bytes32 ingredientObjectTypeId = ObjectType._get(ingredientEntityIds[j]);
           if (ingredientObjectTypeId == recipeData.inputObjectTypeIds[i]) {
             numInputObjectTypesFound++;
 
             // Delete the ingredient from the inventory
-            ObjectType.deleteRecord(ingredientEntityIds[j]);
-            Inventory.deleteRecord(ingredientEntityIds[j]);
+            ObjectType._deleteRecord(ingredientEntityIds[j]);
+            Inventory._deleteRecord(ingredientEntityIds[j]);
             removeEntityIdFromReverseInventory(playerEntityId, ingredientEntityIds[j]);
-            if (ItemMetadata.get(ingredientEntityIds[j]) != 0) {
-              ItemMetadata.deleteRecord(ingredientEntityIds[j]);
+            if (ItemMetadata._get(ingredientEntityIds[j]) != 0) {
+              ItemMetadata._deleteRecord(ingredientEntityIds[j]);
             }
-            if (Equipped.get(playerEntityId) == ingredientEntityIds[j]) {
-              Equipped.deleteRecord(playerEntityId);
+            if (Equipped._get(playerEntityId) == ingredientEntityIds[j]) {
+              Equipped._deleteRecord(playerEntityId);
             }
           }
         }
@@ -74,12 +74,12 @@ contract CraftSystem is System {
     // Create the crafted objects
     for (uint256 i = 0; i < recipeData.outputObjectTypeAmount; i++) {
       bytes32 newInventoryEntityId = getUniqueEntity();
-      ObjectType.set(newInventoryEntityId, recipeData.outputObjectTypeId);
-      Inventory.set(newInventoryEntityId, playerEntityId);
-      ReverseInventory.push(playerEntityId, newInventoryEntityId);
-      uint24 durability = ObjectTypeMetadata.getDurability(recipeData.outputObjectTypeId);
+      ObjectType._set(newInventoryEntityId, recipeData.outputObjectTypeId);
+      Inventory._set(newInventoryEntityId, playerEntityId);
+      ReverseInventory._push(playerEntityId, newInventoryEntityId);
+      uint24 durability = ObjectTypeMetadata._getDurability(recipeData.outputObjectTypeId);
       if (durability > 0) {
-        ItemMetadata.set(newInventoryEntityId, durability);
+        ItemMetadata._set(newInventoryEntityId, durability);
       }
     }
     addToInventoryCount(

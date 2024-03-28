@@ -11,7 +11,7 @@ import { PlayerObjectID } from "../../ObjectTypeIds.sol";
 contract InitPlayersSystem is System {
   function initPlayerObjectTypes() public {
     // Players
-    ObjectTypeMetadata.set(
+    ObjectTypeMetadata._set(
       PlayerObjectID,
       ObjectTypeMetadataData({
         isPlayer: true,

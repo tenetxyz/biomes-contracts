@@ -30,11 +30,10 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord } from "../src/Utils.sol";
-import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { MIN_TIME_TO_LOGOFF_AFTER_HIT, MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
-import { reverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
+import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract LogoffTest is MudTest, GasReporter {
   IWorld private world;

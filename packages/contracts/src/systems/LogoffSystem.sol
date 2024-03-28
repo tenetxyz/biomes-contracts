@@ -28,24 +28,24 @@ import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constan
 
 contract LogoffSystem is System {
   function logoffPlayer() public {
-    bytes32 playerEntityId = Player.get(_msgSender());
+    bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "LogoffSystem: player does not exist");
-    uint256 lastHitTime = PlayerMetadata.getLastHitTime(playerEntityId);
+    uint256 lastHitTime = PlayerMetadata._getLastHitTime(playerEntityId);
     require(
       block.timestamp - lastHitTime > MIN_TIME_TO_LOGOFF_AFTER_HIT,
       "LogoffSystem: player needs to wait before logging off as they were recently hit"
     );
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "LogoffSystem: player isn't logged in");
+    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "LogoffSystem: player isn't logged in");
 
-    VoxelCoord memory coord = positionDataToVoxelCoord(Position.get(playerEntityId));
-    LastKnownPosition.set(playerEntityId, coord.x, coord.y, coord.z);
-    Position.deleteRecord(playerEntityId);
-    PlayerMetadata.setIsLoggedOff(playerEntityId, true);
+    VoxelCoord memory coord = positionDataToVoxelCoord(Position._get(playerEntityId));
+    LastKnownPosition._set(playerEntityId, coord.x, coord.y, coord.z);
+    Position._deleteRecord(playerEntityId);
+    PlayerMetadata._setIsLoggedOff(playerEntityId, true);
 
     // Create air entity at this position
     bytes32 airEntityId = getUniqueEntity();
-    ObjectType.set(airEntityId, AirObjectID);
-    Position.set(airEntityId, coord.x, coord.y, coord.z);
-    ReversePosition.set(coord.x, coord.y, coord.z, airEntityId);
+    ObjectType._set(airEntityId, AirObjectID);
+    Position._set(airEntityId, coord.x, coord.y, coord.z);
+    ReversePosition._set(coord.x, coord.y, coord.z, airEntityId);
   }
 }

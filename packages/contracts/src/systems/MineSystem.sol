@@ -32,15 +32,15 @@ contract MineSystem is System {
       (coord.x < SPAWN_LOW_X || coord.x > SPAWN_HIGH_X) || (coord.z < SPAWN_LOW_Z || coord.z > SPAWN_HIGH_Z),
       "MineSystem: cannot mine at spawn area"
     );
-    require(ObjectTypeMetadata.getIsBlock(objectTypeId), "MineSystem: object type is not a block");
+    require(ObjectTypeMetadata._getIsBlock(objectTypeId), "MineSystem: object type is not a block");
     require(objectTypeId != AirObjectID, "MineSystem: cannot mine air");
 
-    bytes32 playerEntityId = Player.get(_msgSender());
+    bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "MineSystem: player does not exist");
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "MineSystem: player isn't logged in");
+    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "MineSystem: player isn't logged in");
     require(
       inSurroundingCube(
-        positionDataToVoxelCoord(Position.get(playerEntityId)),
+        positionDataToVoxelCoord(Position._get(playerEntityId)),
         MAX_PLAYER_BUILD_MINE_HALF_WIDTH,
         coord
       ),
@@ -48,14 +48,14 @@ contract MineSystem is System {
     );
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
-    bytes32 equippedEntityId = Equipped.get(playerEntityId);
+    bytes32 equippedEntityId = Equipped._get(playerEntityId);
     callInternalSystem(
       abi.encodeCall(IMineHelperSystem.spendStaminaForMining, (playerEntityId, objectTypeId, equippedEntityId))
     );
 
     useEquipped(playerEntityId, equippedEntityId);
 
-    bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
+    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
       require(
@@ -65,30 +65,30 @@ contract MineSystem is System {
 
       // Create new entity
       entityId = getUniqueEntity();
-      ObjectType.set(entityId, objectTypeId);
+      ObjectType._set(entityId, objectTypeId);
     } else {
-      require(ObjectType.get(entityId) == objectTypeId, "MineSystem: invalid block type");
+      require(ObjectType._get(entityId) == objectTypeId, "MineSystem: invalid block type");
 
-      Position.deleteRecord(entityId);
-      ReversePosition.deleteRecord(coord.x, coord.y, coord.z);
+      Position._deleteRecord(entityId);
+      ReversePosition._deleteRecord(coord.x, coord.y, coord.z);
     }
     // Make the new position air
     bytes32 airEntityId = getUniqueEntity();
-    ObjectType.set(airEntityId, AirObjectID);
-    Position.set(airEntityId, coord.x, coord.y, coord.z);
-    ReversePosition.set(coord.x, coord.y, coord.z, airEntityId);
+    ObjectType._set(airEntityId, AirObjectID);
+    Position._set(airEntityId, coord.x, coord.y, coord.z);
+    ReversePosition._set(coord.x, coord.y, coord.z, airEntityId);
 
     // transfer existing inventory to the air entity, if any
     transferAllInventoryEntities(entityId, airEntityId, AirObjectID);
 
-    Inventory.set(entityId, playerEntityId);
-    ReverseInventory.push(playerEntityId, entityId);
+    Inventory._set(entityId, playerEntityId);
+    ReverseInventory._push(playerEntityId, entityId);
     addToInventoryCount(playerEntityId, PlayerObjectID, objectTypeId, 1);
 
     // Apply gravity
     VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);
-    bytes32 aboveEntityId = ReversePosition.get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-    if (aboveEntityId != bytes32(0) && ObjectType.get(aboveEntityId) == PlayerObjectID) {
+    bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+    if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
       callGravity(aboveEntityId, aboveCoord);
     }
 

@@ -22,10 +22,10 @@ import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol
 
 contract UnequipSystem is System {
   function unequip() public {
-    bytes32 playerEntityId = Player.get(_msgSender());
+    bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "UnequipSystem: player does not exist");
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "UnequipSystem: player isn't logged in");
+    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "UnequipSystem: player isn't logged in");
 
-    Equipped.deleteRecord(playerEntityId);
+    Equipped._deleteRecord(playerEntityId);
   }
 }

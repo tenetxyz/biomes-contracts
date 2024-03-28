@@ -14,7 +14,7 @@ import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLum
 
 contract InitInteractablesSystem is System {
   function createInteractableBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {
-    ObjectTypeMetadata.set(
+    ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isPlayer: false,

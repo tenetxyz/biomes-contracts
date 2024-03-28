@@ -28,7 +28,7 @@ import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constan
 
 contract ActivateSystem is System {
   function activatePlayer(bytes32 playerEntityId) public {
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "ActivateSystem: player isn't logged in");
+    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "ActivateSystem: player isn't logged in");
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
   }

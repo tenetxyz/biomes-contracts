@@ -23,7 +23,7 @@ contract GravitySystem is System {
   function runGravity(bytes32 playerEntityId, VoxelCoord memory coord) public returns (bool) {
     VoxelCoord memory newCoord = VoxelCoord(coord.x, coord.y - 1, coord.z);
 
-    bytes32 newEntityId = ReversePosition.get(newCoord.x, newCoord.y, newCoord.z);
+    bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
       if (getTerrainObjectTypeId(AirObjectID, newCoord) != AirObjectID) {
@@ -32,9 +32,9 @@ contract GravitySystem is System {
 
       // Create new entity
       newEntityId = getUniqueEntity();
-      ObjectType.set(newEntityId, AirObjectID);
+      ObjectType._set(newEntityId, AirObjectID);
     } else {
-      if (ObjectType.get(newEntityId) != AirObjectID) {
+      if (ObjectType._get(newEntityId) != AirObjectID) {
         return false;
       }
 
@@ -43,23 +43,23 @@ contract GravitySystem is System {
     }
 
     // Swap entity ids
-    ReversePosition.set(coord.x, coord.y, coord.z, newEntityId);
-    Position.set(newEntityId, coord.x, coord.y, coord.z);
+    ReversePosition._set(coord.x, coord.y, coord.z, newEntityId);
+    Position._set(newEntityId, coord.x, coord.y, coord.z);
 
-    Position.set(playerEntityId, newCoord.x, newCoord.y, newCoord.z);
-    ReversePosition.set(newCoord.x, newCoord.y, newCoord.z, playerEntityId);
+    Position._set(playerEntityId, newCoord.x, newCoord.y, newCoord.z);
+    ReversePosition._set(newCoord.x, newCoord.y, newCoord.z, playerEntityId);
 
-    uint16 currentHealth = Health.getHealth(playerEntityId);
+    uint16 currentHealth = Health._getHealth(playerEntityId);
     uint16 newHealth = currentHealth > GRAVITY_DAMAGE ? currentHealth - GRAVITY_DAMAGE : 0;
-    Health.setHealth(playerEntityId, newHealth);
+    Health._setHealth(playerEntityId, newHealth);
 
     if (newHealth == 0) {
       despawnPlayer(playerEntityId);
     }
 
     // Check if entity above player is another player, if so we need to apply gravity to that player
-    bytes32 aboveEntityId = ReversePosition.get(coord.x, coord.y + 1, coord.z);
-    if (aboveEntityId != bytes32(0) && ObjectType.get(aboveEntityId) == PlayerObjectID) {
+    bytes32 aboveEntityId = ReversePosition._get(coord.x, coord.y + 1, coord.z);
+    if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
       runGravity(aboveEntityId, VoxelCoord(coord.x, coord.y + 1, coord.z));
     }
 

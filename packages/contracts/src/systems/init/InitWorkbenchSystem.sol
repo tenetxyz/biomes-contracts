@@ -19,7 +19,7 @@ import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe,
 
 contract InitWorkbenchSystem is System {
   function createTool(bytes32 toolObjectTypeId, uint16 mass, uint24 durability, uint16 damage) internal {
-    ObjectTypeMetadata.set(
+    ObjectTypeMetadata._set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
         isPlayer: false,
@@ -34,7 +34,7 @@ contract InitWorkbenchSystem is System {
   }
 
   function createBlock(bytes32 terrainBlockObjectTypeId, uint16 mass, uint16 hardness) internal {
-    ObjectTypeMetadata.set(
+    ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isPlayer: false,

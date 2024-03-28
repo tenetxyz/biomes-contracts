@@ -25,22 +25,22 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract TransferSystem is System {
   function transfer(bytes32 srcEntityId, bytes32 dstEntityId, bytes32[] memory inventoryEntityIds) public {
-    bytes32 playerEntityId = Player.get(_msgSender());
+    bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "TransferSystem: player does not exist");
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "TransferSystem: player isn't logged in");
+    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "TransferSystem: player isn't logged in");
 
     require(dstEntityId != srcEntityId, "TransferSystem: cannot transfer to self");
     require(
       inSurroundingCube(
-        positionDataToVoxelCoord(Position.get(srcEntityId)),
+        positionDataToVoxelCoord(Position._get(srcEntityId)),
         1,
-        positionDataToVoxelCoord(Position.get(dstEntityId))
+        positionDataToVoxelCoord(Position._get(dstEntityId))
       ),
       "TransferSystem: destination out of range"
     );
 
-    bytes32 srcObjectTypeId = ObjectType.get(srcEntityId);
-    bytes32 dstObjectTypeId = ObjectType.get(dstEntityId);
+    bytes32 srcObjectTypeId = ObjectType._get(srcEntityId);
+    bytes32 dstObjectTypeId = ObjectType._get(dstEntityId);
     if (srcObjectTypeId == PlayerObjectID) {
       require(playerEntityId == srcEntityId, "TransferSystem: player does not own inventory item");
       require(dstObjectTypeId == ChestObjectID, "TransferSystem: cannot transfer to non-chest");

@@ -31,8 +31,8 @@ contract MineHelperSystem is System {
   function spendStaminaForMining(bytes32 playerEntityId, bytes32 mineObjectTypeId, bytes32 equippedEntityId) public {
     uint32 equippedToolDamage = PLAYER_HAND_DAMAGE;
     if (equippedEntityId != bytes32(0)) {
-      bytes32 equippedObjectTypeId = ObjectType.get(equippedEntityId);
-      equippedToolDamage = ObjectTypeMetadata.getDamage(equippedObjectTypeId);
+      bytes32 equippedObjectTypeId = ObjectType._get(equippedEntityId);
+      equippedToolDamage = ObjectTypeMetadata._getDamage(equippedObjectTypeId);
       if (isPick(equippedObjectTypeId) && isStone(mineObjectTypeId)) {
         equippedToolDamage *= 2;
       }
@@ -41,11 +41,11 @@ contract MineHelperSystem is System {
       }
     }
     // Spend stamina for mining
-    uint32 currentStamina = Stamina.getStamina(playerEntityId);
-    uint32 staminaRequired = (ObjectTypeMetadata.getMass(mineObjectTypeId) *
-      ObjectTypeMetadata.getHardness(mineObjectTypeId) *
+    uint32 currentStamina = Stamina._getStamina(playerEntityId);
+    uint32 staminaRequired = (ObjectTypeMetadata._getMass(mineObjectTypeId) *
+      ObjectTypeMetadata._getHardness(mineObjectTypeId) *
       1000) / equippedToolDamage;
     require(currentStamina >= staminaRequired, "MineSystem: not enough stamina");
-    Stamina.setStamina(playerEntityId, currentStamina - staminaRequired);
+    Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
   }
 }

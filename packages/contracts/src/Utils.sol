@@ -26,8 +26,8 @@ function lastKnownPositionDataToVoxelCoord(LastKnownPositionData memory coord) p
 }
 
 function getTerrainObjectTypeId(bytes32 objectTypeId, VoxelCoord memory coord) view returns (bytes32) {
-  address terrainAddress = TerrainMetadata.getOccurenceAddress(objectTypeId);
-  bytes4 terrainSelector = TerrainMetadata.getOccurenceSelector(objectTypeId);
+  address terrainAddress = TerrainMetadata._getOccurenceAddress(objectTypeId);
+  bytes4 terrainSelector = TerrainMetadata._getOccurenceSelector(objectTypeId);
   (bool success, bytes memory returnData) = terrainAddress.staticcall(abi.encodeWithSelector(terrainSelector, coord));
   require(success, "getTerrainObjectTypeId: call failed");
   return abi.decode(returnData, (bytes32));
@@ -40,7 +40,7 @@ function callGravity(bytes32 playerEntityId, VoxelCoord memory coord) returns (b
 }
 
 function callInternalSystem(bytes memory callData) returns (bytes memory) {
-  (ResourceId systemId, bytes4 systemFunctionSelector) = FunctionSelectors.get(bytes4(callData));
+  (ResourceId systemId, bytes4 systemFunctionSelector) = FunctionSelectors._get(bytes4(callData));
   (address systemAddress, ) = Systems._get(systemId);
 
   (bool success, bytes memory returnData) = WorldContextProviderLib.delegatecallWithContext({

@@ -25,26 +25,26 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract DropSystem is System {
   function drop(bytes32[] memory inventoryEntityIds, VoxelCoord memory coord) public {
-    bytes32 playerEntityId = Player.get(_msgSender());
+    bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "DropSystem: player does not exist");
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "DropSystem: player isn't logged in");
+    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "DropSystem: player isn't logged in");
     require(
-      inSurroundingCube(positionDataToVoxelCoord(Position.get(playerEntityId)), 1, coord),
+      inSurroundingCube(positionDataToVoxelCoord(Position._get(playerEntityId)), 1, coord),
       "DropSystem: player is too far from the drop coord"
     );
 
-    bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
+    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
       require(getTerrainObjectTypeId(AirObjectID, coord) == AirObjectID, "DropSystem: cannot drop on non-air block");
 
       // Create new entity
       entityId = getUniqueEntity();
-      ObjectType.set(entityId, AirObjectID);
-      Position.set(entityId, coord.x, coord.y, coord.z);
-      ReversePosition.set(coord.x, coord.y, coord.z, entityId);
+      ObjectType._set(entityId, AirObjectID);
+      Position._set(entityId, coord.x, coord.y, coord.z);
+      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
     } else {
-      require(ObjectType.get(entityId) == AirObjectID, "DropSystem: cannot drop on non-air block");
+      require(ObjectType._get(entityId) == AirObjectID, "DropSystem: cannot drop on non-air block");
     }
 
     for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
