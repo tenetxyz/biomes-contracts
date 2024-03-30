@@ -102,7 +102,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    startGasReport("transfer to chest");
+    startGasReport("transfer to chest: 2 objects");
     world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
     endGasReport();
 
@@ -117,6 +117,54 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId2) == 1, "Input object not removed from inventory");
     assertTrue(InventorySlots.get(chestEntityId) == 2, "Inventory slot not set");
+
+    vm.stopPrank();
+  }
+
+  function testTransferAlotToChest() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](99);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 inputObjectTypeId = GrassObjectID;
+    for (uint i = 0; i < 99; i++) {
+      bytes32 newInventoryId = getUniqueEntity();
+      ObjectType.set(newInventoryId, inputObjectTypeId);
+      Inventory.set(newInventoryId, playerEntityId);
+      ReverseInventory.push(playerEntityId, newInventoryId);
+      inventoryEntityIds[i] = newInventoryId;
+    }
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 99);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 99, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+
+    // build chest beside player
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 chestEntityId = getUniqueEntity();
+    ObjectType.set(chestEntityId, ChestObjectID);
+    Position.set(chestEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, chestEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    startGasReport("transfer to chest 99 objects");
+    world.transfer(playerEntityId, chestEntityId, inventoryEntityIds);
+    endGasReport();
+
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 0, "Input object not removed from inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    for (uint i = 0; i < 99; i++) {
+      bytes32 newInventoryId = inventoryEntityIds[i];
+      assertTrue(Inventory.get(newInventoryId) == chestEntityId, "Inventory not set");
+      assertTrue(testReverseInventoryHasItem(chestEntityId, newInventoryId), "Reverse Inventory not set");
+    }
+    assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId) == 99, "Input object not removed from inventory");
+    assertTrue(InventorySlots.get(chestEntityId) == 1, "Inventory slot not set");
 
     vm.stopPrank();
   }
