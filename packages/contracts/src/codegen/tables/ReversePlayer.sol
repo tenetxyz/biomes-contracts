@@ -61,6 +61,13 @@ library ReversePlayer {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get player.
    */
   function getPlayer(bytes32 entityId) internal view returns (address player) {
@@ -79,6 +86,17 @@ library ReversePlayer {
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (address(bytes20(_blob)));
+  }
+
+  /**
+   * @notice Get player (using the specified store).
+   */
+  function getPlayer(IStore _store, bytes32 entityId) internal view returns (address player) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -105,6 +123,17 @@ library ReversePlayer {
   }
 
   /**
+   * @notice Get player (using the specified store).
+   */
+  function get(IStore _store, bytes32 entityId) internal view returns (address player) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (address(bytes20(_blob)));
+  }
+
+  /**
    * @notice Set player.
    */
   function setPlayer(bytes32 entityId, address player) internal {
@@ -122,6 +151,16 @@ library ReversePlayer {
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((player)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set player (using the specified store).
+   */
+  function setPlayer(IStore _store, bytes32 entityId, address player) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((player)), _fieldLayout);
   }
 
   /**
@@ -145,6 +184,16 @@ library ReversePlayer {
   }
 
   /**
+   * @notice Set player (using the specified store).
+   */
+  function set(IStore _store, bytes32 entityId, address player) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((player)), _fieldLayout);
+  }
+
+  /**
    * @notice Delete all data for given keys.
    */
   function deleteRecord(bytes32 entityId) internal {
@@ -162,6 +211,16 @@ library ReversePlayer {
     _keyTuple[0] = entityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

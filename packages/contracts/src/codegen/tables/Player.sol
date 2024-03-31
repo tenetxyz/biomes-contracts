@@ -61,6 +61,13 @@ library Player {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get entityId.
    */
   function getEntityId(address player) internal view returns (bytes32 entityId) {
@@ -79,6 +86,17 @@ library Player {
     _keyTuple[0] = bytes32(uint256(uint160(player)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
+   * @notice Get entityId (using the specified store).
+   */
+  function getEntityId(IStore _store, address player) internal view returns (bytes32 entityId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(player)));
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (bytes32(_blob));
   }
 
@@ -105,6 +123,17 @@ library Player {
   }
 
   /**
+   * @notice Get entityId (using the specified store).
+   */
+  function get(IStore _store, address player) internal view returns (bytes32 entityId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(player)));
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
    * @notice Set entityId.
    */
   function setEntityId(address player, bytes32 entityId) internal {
@@ -122,6 +151,16 @@ library Player {
     _keyTuple[0] = bytes32(uint256(uint160(player)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityId)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set entityId (using the specified store).
+   */
+  function setEntityId(IStore _store, address player, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(player)));
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityId)), _fieldLayout);
   }
 
   /**
@@ -145,6 +184,16 @@ library Player {
   }
 
   /**
+   * @notice Set entityId (using the specified store).
+   */
+  function set(IStore _store, address player, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(player)));
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityId)), _fieldLayout);
+  }
+
+  /**
    * @notice Delete all data for given keys.
    */
   function deleteRecord(address player) internal {
@@ -162,6 +211,16 @@ library Player {
     _keyTuple[0] = bytes32(uint256(uint160(player)));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, address player) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(player)));
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

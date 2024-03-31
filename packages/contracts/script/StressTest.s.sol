@@ -41,7 +41,7 @@ contract StressTest is Script {
 
     IWorld world = IWorld(worldAddress);
 
-    address[] memory players = new address[](40);
+    address[] memory players = new address[](100);
     // Fill up players with 20 pseudo-random addresses
     for (uint i = 0; i < players.length; i++) {
       // Generate a pseudo-random hash by combining the current timestamp, sender address, and a nonce
@@ -55,9 +55,9 @@ contract StressTest is Script {
     // for (uint i = 0; i < players.length; i++) {
     //   bytes32 entityId = getUniqueEntity();
     //   VoxelCoord memory playerCoord = VoxelCoord(
-    //     SPAWN_LOW_X + (i >= 20 ? int32(1) : int32(0)),
+    //     SPAWN_LOW_X + int32(int(i / 20)),
     //     SPAWN_GROUND_Y + 1,
-    //     SPAWN_LOW_Z + (i >= 20 ? int32(int(i - 20)) : int32(int(i)))
+    //     SPAWN_LOW_Z + int32(int(i - (20 * (i / 20))))
     //   );
     //   Position.set(entityId, playerCoord.x, playerCoord.y, playerCoord.z);
     //   ReversePosition.set(playerCoord.x, playerCoord.y, playerCoord.z, entityId);

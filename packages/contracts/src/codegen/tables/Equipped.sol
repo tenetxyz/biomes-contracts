@@ -61,6 +61,13 @@ library Equipped {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get inventoryEntityId.
    */
   function getInventoryEntityId(bytes32 entityId) internal view returns (bytes32 inventoryEntityId) {
@@ -79,6 +86,17 @@ library Equipped {
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
+   * @notice Get inventoryEntityId (using the specified store).
+   */
+  function getInventoryEntityId(IStore _store, bytes32 entityId) internal view returns (bytes32 inventoryEntityId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (bytes32(_blob));
   }
 
@@ -105,6 +123,17 @@ library Equipped {
   }
 
   /**
+   * @notice Get inventoryEntityId (using the specified store).
+   */
+  function get(IStore _store, bytes32 entityId) internal view returns (bytes32 inventoryEntityId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
    * @notice Set inventoryEntityId.
    */
   function setInventoryEntityId(bytes32 entityId, bytes32 inventoryEntityId) internal {
@@ -122,6 +151,16 @@ library Equipped {
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((inventoryEntityId)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set inventoryEntityId (using the specified store).
+   */
+  function setInventoryEntityId(IStore _store, bytes32 entityId, bytes32 inventoryEntityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((inventoryEntityId)), _fieldLayout);
   }
 
   /**
@@ -145,6 +184,16 @@ library Equipped {
   }
 
   /**
+   * @notice Set inventoryEntityId (using the specified store).
+   */
+  function set(IStore _store, bytes32 entityId, bytes32 inventoryEntityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((inventoryEntityId)), _fieldLayout);
+  }
+
+  /**
    * @notice Delete all data for given keys.
    */
   function deleteRecord(bytes32 entityId) internal {
@@ -162,6 +211,16 @@ library Equipped {
     _keyTuple[0] = entityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

@@ -67,6 +67,13 @@ library Stamina {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get lastUpdatedTime.
    */
   function getLastUpdatedTime(bytes32 entityId) internal view returns (uint256 lastUpdatedTime) {
@@ -89,6 +96,17 @@ library Stamina {
   }
 
   /**
+   * @notice Get lastUpdatedTime (using the specified store).
+   */
+  function getLastUpdatedTime(IStore _store, bytes32 entityId) internal view returns (uint256 lastUpdatedTime) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
    * @notice Set lastUpdatedTime.
    */
   function setLastUpdatedTime(bytes32 entityId, uint256 lastUpdatedTime) internal {
@@ -106,6 +124,16 @@ library Stamina {
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastUpdatedTime)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set lastUpdatedTime (using the specified store).
+   */
+  function setLastUpdatedTime(IStore _store, bytes32 entityId, uint256 lastUpdatedTime) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastUpdatedTime)), _fieldLayout);
   }
 
   /**
@@ -131,6 +159,17 @@ library Stamina {
   }
 
   /**
+   * @notice Get stamina (using the specified store).
+   */
+  function getStamina(IStore _store, bytes32 entityId) internal view returns (uint32 stamina) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (uint32(bytes4(_blob)));
+  }
+
+  /**
    * @notice Set stamina.
    */
   function setStamina(bytes32 entityId, uint32 stamina) internal {
@@ -148,6 +187,16 @@ library Stamina {
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((stamina)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set stamina (using the specified store).
+   */
+  function setStamina(IStore _store, bytes32 entityId, uint32 stamina) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((stamina)), _fieldLayout);
   }
 
   /**
@@ -173,6 +222,21 @@ library Stamina {
     _keyTuple[0] = entityId;
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Get the full data (using the specified store).
+   */
+  function get(IStore _store, bytes32 entityId) internal view returns (StaminaData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
       _tableId,
       _keyTuple,
       _fieldLayout
@@ -211,6 +275,21 @@ library Stamina {
   }
 
   /**
+   * @notice Set the full data using individual values (using the specified store).
+   */
+  function set(IStore _store, bytes32 entityId, uint256 lastUpdatedTime, uint32 stamina) internal {
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, stamina);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 entityId, StaminaData memory _table) internal {
@@ -238,6 +317,21 @@ library Stamina {
     _keyTuple[0] = entityId;
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Set the full data using the data struct (using the specified store).
+   */
+  function set(IStore _store, bytes32 entityId, StaminaData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.stamina);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
 
   /**
@@ -281,6 +375,16 @@ library Stamina {
     _keyTuple[0] = entityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

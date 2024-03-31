@@ -14,6 +14,9 @@ export default defineWorld({
         hardness: "uint16",
       },
       key: ["objectTypeId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     TerrainMetadata: {
       schema: {
@@ -22,6 +25,9 @@ export default defineWorld({
         occurenceSelector: "bytes4",
       },
       key: ["objectTypeId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     ObjectType: {
       schema: {
@@ -29,6 +35,9 @@ export default defineWorld({
         objectTypeId: "bytes32",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     Position: {
       schema: {
@@ -38,6 +47,9 @@ export default defineWorld({
         z: "int32",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     ReversePosition: {
       schema: {
@@ -47,6 +59,9 @@ export default defineWorld({
         entityId: "bytes32",
       },
       key: ["x", "y", "z"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     LastKnownPosition: {
       schema: {
@@ -56,6 +71,9 @@ export default defineWorld({
         z: "int32",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     Player: {
       schema: {
@@ -63,6 +81,9 @@ export default defineWorld({
         entityId: "bytes32",
       },
       key: ["player"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     ReversePlayer: {
       schema: {
@@ -70,6 +91,9 @@ export default defineWorld({
         player: "address",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     PlayerMetadata: {
       schema: {
@@ -80,6 +104,9 @@ export default defineWorld({
         numMovesInBlock: "uint32",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     Inventory: {
       schema: {
@@ -87,6 +114,9 @@ export default defineWorld({
         ownerEntityId: "bytes32",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     ReverseInventory: {
       schema: {
@@ -94,6 +124,9 @@ export default defineWorld({
         entityIds: "bytes32[]",
       },
       key: ["ownerEntityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     ItemMetadata: {
       schema: {
@@ -101,6 +134,9 @@ export default defineWorld({
         numUsesLeft: "uint24",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     InventorySlots: {
       schema: {
@@ -108,6 +144,9 @@ export default defineWorld({
         numSlotsUsed: "uint16",
       },
       key: ["ownerEntityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     InventoryCount: {
       schema: {
@@ -116,6 +155,9 @@ export default defineWorld({
         count: "uint16",
       },
       key: ["ownerEntityId", "objectTypeId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     Equipped: {
       schema: {
@@ -123,6 +165,9 @@ export default defineWorld({
         inventoryEntityId: "bytes32",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     Health: {
       schema: {
@@ -131,6 +176,9 @@ export default defineWorld({
         health: "uint16",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     Stamina: {
       schema: {
@@ -139,6 +187,9 @@ export default defineWorld({
         stamina: "uint32",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     Recipes: {
       schema: {
@@ -150,6 +201,9 @@ export default defineWorld({
         inputObjectTypeAmounts: "uint8[]",
       },
       key: ["recipeId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
   },
   systems: {

@@ -77,6 +77,13 @@ library ObjectTypeMetadata {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get isPlayer.
    */
   function getIsPlayer(bytes32 objectTypeId) internal view returns (bool isPlayer) {
@@ -99,6 +106,17 @@ library ObjectTypeMetadata {
   }
 
   /**
+   * @notice Get isPlayer (using the specified store).
+   */
+  function getIsPlayer(IStore _store, bytes32 objectTypeId) internal view returns (bool isPlayer) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (_toBool(uint8(bytes1(_blob))));
+  }
+
+  /**
    * @notice Set isPlayer.
    */
   function setIsPlayer(bytes32 objectTypeId, bool isPlayer) internal {
@@ -116,6 +134,16 @@ library ObjectTypeMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isPlayer)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set isPlayer (using the specified store).
+   */
+  function setIsPlayer(IStore _store, bytes32 objectTypeId, bool isPlayer) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isPlayer)), _fieldLayout);
   }
 
   /**
@@ -141,6 +169,17 @@ library ObjectTypeMetadata {
   }
 
   /**
+   * @notice Get isBlock (using the specified store).
+   */
+  function getIsBlock(IStore _store, bytes32 objectTypeId) internal view returns (bool isBlock) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (_toBool(uint8(bytes1(_blob))));
+  }
+
+  /**
    * @notice Set isBlock.
    */
   function setIsBlock(bytes32 objectTypeId, bool isBlock) internal {
@@ -158,6 +197,16 @@ library ObjectTypeMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((isBlock)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set isBlock (using the specified store).
+   */
+  function setIsBlock(IStore _store, bytes32 objectTypeId, bool isBlock) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((isBlock)), _fieldLayout);
   }
 
   /**
@@ -183,6 +232,17 @@ library ObjectTypeMetadata {
   }
 
   /**
+   * @notice Get mass (using the specified store).
+   */
+  function getMass(IStore _store, bytes32 objectTypeId) internal view returns (uint16 mass) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint16(bytes2(_blob)));
+  }
+
+  /**
    * @notice Set mass.
    */
   function setMass(bytes32 objectTypeId, uint16 mass) internal {
@@ -200,6 +260,16 @@ library ObjectTypeMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((mass)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set mass (using the specified store).
+   */
+  function setMass(IStore _store, bytes32 objectTypeId, uint16 mass) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((mass)), _fieldLayout);
   }
 
   /**
@@ -225,6 +295,17 @@ library ObjectTypeMetadata {
   }
 
   /**
+   * @notice Get stackable (using the specified store).
+   */
+  function getStackable(IStore _store, bytes32 objectTypeId) internal view returns (uint8 stackable) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    return (uint8(bytes1(_blob)));
+  }
+
+  /**
    * @notice Set stackable.
    */
   function setStackable(bytes32 objectTypeId, uint8 stackable) internal {
@@ -242,6 +323,16 @@ library ObjectTypeMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((stackable)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set stackable (using the specified store).
+   */
+  function setStackable(IStore _store, bytes32 objectTypeId, uint8 stackable) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((stackable)), _fieldLayout);
   }
 
   /**
@@ -267,6 +358,17 @@ library ObjectTypeMetadata {
   }
 
   /**
+   * @notice Get damage (using the specified store).
+   */
+  function getDamage(IStore _store, bytes32 objectTypeId) internal view returns (uint16 damage) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    return (uint16(bytes2(_blob)));
+  }
+
+  /**
    * @notice Set damage.
    */
   function setDamage(bytes32 objectTypeId, uint16 damage) internal {
@@ -284,6 +386,16 @@ library ObjectTypeMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((damage)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set damage (using the specified store).
+   */
+  function setDamage(IStore _store, bytes32 objectTypeId, uint16 damage) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((damage)), _fieldLayout);
   }
 
   /**
@@ -309,6 +421,17 @@ library ObjectTypeMetadata {
   }
 
   /**
+   * @notice Get durability (using the specified store).
+   */
+  function getDurability(IStore _store, bytes32 objectTypeId) internal view returns (uint24 durability) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    return (uint24(bytes3(_blob)));
+  }
+
+  /**
    * @notice Set durability.
    */
   function setDurability(bytes32 objectTypeId, uint24 durability) internal {
@@ -326,6 +449,16 @@ library ObjectTypeMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((durability)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set durability (using the specified store).
+   */
+  function setDurability(IStore _store, bytes32 objectTypeId, uint24 durability) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((durability)), _fieldLayout);
   }
 
   /**
@@ -351,6 +484,17 @@ library ObjectTypeMetadata {
   }
 
   /**
+   * @notice Get hardness (using the specified store).
+   */
+  function getHardness(IStore _store, bytes32 objectTypeId) internal view returns (uint16 hardness) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 6, _fieldLayout);
+    return (uint16(bytes2(_blob)));
+  }
+
+  /**
    * @notice Set hardness.
    */
   function setHardness(bytes32 objectTypeId, uint16 hardness) internal {
@@ -368,6 +512,16 @@ library ObjectTypeMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((hardness)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set hardness (using the specified store).
+   */
+  function setHardness(IStore _store, bytes32 objectTypeId, uint16 hardness) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((hardness)), _fieldLayout);
   }
 
   /**
@@ -393,6 +547,21 @@ library ObjectTypeMetadata {
     _keyTuple[0] = objectTypeId;
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Get the full data (using the specified store).
+   */
+  function get(IStore _store, bytes32 objectTypeId) internal view returns (ObjectTypeMetadataData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
       _tableId,
       _keyTuple,
       _fieldLayout
@@ -449,6 +618,31 @@ library ObjectTypeMetadata {
   }
 
   /**
+   * @notice Set the full data using individual values (using the specified store).
+   */
+  function set(
+    IStore _store,
+    bytes32 objectTypeId,
+    bool isPlayer,
+    bool isBlock,
+    uint16 mass,
+    uint8 stackable,
+    uint16 damage,
+    uint24 durability,
+    uint16 hardness
+  ) internal {
+    bytes memory _staticData = encodeStatic(isPlayer, isBlock, mass, stackable, damage, durability, hardness);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 objectTypeId, ObjectTypeMetadataData memory _table) internal {
@@ -492,6 +686,29 @@ library ObjectTypeMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Set the full data using the data struct (using the specified store).
+   */
+  function set(IStore _store, bytes32 objectTypeId, ObjectTypeMetadataData memory _table) internal {
+    bytes memory _staticData = encodeStatic(
+      _table.isPlayer,
+      _table.isBlock,
+      _table.mass,
+      _table.stackable,
+      _table.damage,
+      _table.durability,
+      _table.hardness
+    );
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
 
   /**
@@ -567,6 +784,16 @@ library ObjectTypeMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, bytes32 objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

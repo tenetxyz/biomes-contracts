@@ -67,6 +67,13 @@ library TerrainMetadata {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get occurenceAddress.
    */
   function getOccurenceAddress(bytes32 objectTypeId) internal view returns (address occurenceAddress) {
@@ -89,6 +96,17 @@ library TerrainMetadata {
   }
 
   /**
+   * @notice Get occurenceAddress (using the specified store).
+   */
+  function getOccurenceAddress(IStore _store, bytes32 objectTypeId) internal view returns (address occurenceAddress) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (address(bytes20(_blob)));
+  }
+
+  /**
    * @notice Set occurenceAddress.
    */
   function setOccurenceAddress(bytes32 objectTypeId, address occurenceAddress) internal {
@@ -106,6 +124,16 @@ library TerrainMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((occurenceAddress)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set occurenceAddress (using the specified store).
+   */
+  function setOccurenceAddress(IStore _store, bytes32 objectTypeId, address occurenceAddress) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((occurenceAddress)), _fieldLayout);
   }
 
   /**
@@ -131,6 +159,17 @@ library TerrainMetadata {
   }
 
   /**
+   * @notice Get occurenceSelector (using the specified store).
+   */
+  function getOccurenceSelector(IStore _store, bytes32 objectTypeId) internal view returns (bytes4 occurenceSelector) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (bytes4(_blob));
+  }
+
+  /**
    * @notice Set occurenceSelector.
    */
   function setOccurenceSelector(bytes32 objectTypeId, bytes4 occurenceSelector) internal {
@@ -148,6 +187,16 @@ library TerrainMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((occurenceSelector)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set occurenceSelector (using the specified store).
+   */
+  function setOccurenceSelector(IStore _store, bytes32 objectTypeId, bytes4 occurenceSelector) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((occurenceSelector)), _fieldLayout);
   }
 
   /**
@@ -173,6 +222,21 @@ library TerrainMetadata {
     _keyTuple[0] = objectTypeId;
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Get the full data (using the specified store).
+   */
+  function get(IStore _store, bytes32 objectTypeId) internal view returns (TerrainMetadataData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
       _tableId,
       _keyTuple,
       _fieldLayout
@@ -211,6 +275,21 @@ library TerrainMetadata {
   }
 
   /**
+   * @notice Set the full data using individual values (using the specified store).
+   */
+  function set(IStore _store, bytes32 objectTypeId, address occurenceAddress, bytes4 occurenceSelector) internal {
+    bytes memory _staticData = encodeStatic(occurenceAddress, occurenceSelector);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 objectTypeId, TerrainMetadataData memory _table) internal {
@@ -238,6 +317,21 @@ library TerrainMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Set the full data using the data struct (using the specified store).
+   */
+  function set(IStore _store, bytes32 objectTypeId, TerrainMetadataData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.occurenceAddress, _table.occurenceSelector);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
 
   /**
@@ -281,6 +375,16 @@ library TerrainMetadata {
     _keyTuple[0] = objectTypeId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, bytes32 objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

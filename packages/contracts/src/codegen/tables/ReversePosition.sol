@@ -63,6 +63,13 @@ library ReversePosition {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get entityId.
    */
   function getEntityId(int32 x, int32 y, int32 z) internal view returns (bytes32 entityId) {
@@ -85,6 +92,19 @@ library ReversePosition {
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
+   * @notice Get entityId (using the specified store).
+   */
+  function getEntityId(IStore _store, int32 x, int32 y, int32 z) internal view returns (bytes32 entityId) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (bytes32(_blob));
   }
 
@@ -115,6 +135,19 @@ library ReversePosition {
   }
 
   /**
+   * @notice Get entityId (using the specified store).
+   */
+  function get(IStore _store, int32 x, int32 y, int32 z) internal view returns (bytes32 entityId) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
    * @notice Set entityId.
    */
   function setEntityId(int32 x, int32 y, int32 z, bytes32 entityId) internal {
@@ -136,6 +169,18 @@ library ReversePosition {
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityId)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set entityId (using the specified store).
+   */
+  function setEntityId(IStore _store, int32 x, int32 y, int32 z, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityId)), _fieldLayout);
   }
 
   /**
@@ -163,6 +208,18 @@ library ReversePosition {
   }
 
   /**
+   * @notice Set entityId (using the specified store).
+   */
+  function set(IStore _store, int32 x, int32 y, int32 z, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityId)), _fieldLayout);
+  }
+
+  /**
    * @notice Delete all data for given keys.
    */
   function deleteRecord(int32 x, int32 y, int32 z) internal {
@@ -184,6 +241,18 @@ library ReversePosition {
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, int32 x, int32 y, int32 z) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

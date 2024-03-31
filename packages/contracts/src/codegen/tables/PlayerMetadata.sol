@@ -71,6 +71,13 @@ library PlayerMetadata {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get isLoggedOff.
    */
   function getIsLoggedOff(bytes32 entityId) internal view returns (bool isLoggedOff) {
@@ -93,6 +100,17 @@ library PlayerMetadata {
   }
 
   /**
+   * @notice Get isLoggedOff (using the specified store).
+   */
+  function getIsLoggedOff(IStore _store, bytes32 entityId) internal view returns (bool isLoggedOff) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (_toBool(uint8(bytes1(_blob))));
+  }
+
+  /**
    * @notice Set isLoggedOff.
    */
   function setIsLoggedOff(bytes32 entityId, bool isLoggedOff) internal {
@@ -110,6 +128,16 @@ library PlayerMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isLoggedOff)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set isLoggedOff (using the specified store).
+   */
+  function setIsLoggedOff(IStore _store, bytes32 entityId, bool isLoggedOff) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isLoggedOff)), _fieldLayout);
   }
 
   /**
@@ -135,6 +163,17 @@ library PlayerMetadata {
   }
 
   /**
+   * @notice Get lastMoveBlock (using the specified store).
+   */
+  function getLastMoveBlock(IStore _store, bytes32 entityId) internal view returns (uint256 lastMoveBlock) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
    * @notice Set lastMoveBlock.
    */
   function setLastMoveBlock(bytes32 entityId, uint256 lastMoveBlock) internal {
@@ -152,6 +191,16 @@ library PlayerMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((lastMoveBlock)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set lastMoveBlock (using the specified store).
+   */
+  function setLastMoveBlock(IStore _store, bytes32 entityId, uint256 lastMoveBlock) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((lastMoveBlock)), _fieldLayout);
   }
 
   /**
@@ -177,6 +226,17 @@ library PlayerMetadata {
   }
 
   /**
+   * @notice Get lastHitTime (using the specified store).
+   */
+  function getLastHitTime(IStore _store, bytes32 entityId) internal view returns (uint256 lastHitTime) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
    * @notice Set lastHitTime.
    */
   function setLastHitTime(bytes32 entityId, uint256 lastHitTime) internal {
@@ -194,6 +254,16 @@ library PlayerMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((lastHitTime)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set lastHitTime (using the specified store).
+   */
+  function setLastHitTime(IStore _store, bytes32 entityId, uint256 lastHitTime) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((lastHitTime)), _fieldLayout);
   }
 
   /**
@@ -219,6 +289,17 @@ library PlayerMetadata {
   }
 
   /**
+   * @notice Get numMovesInBlock (using the specified store).
+   */
+  function getNumMovesInBlock(IStore _store, bytes32 entityId) internal view returns (uint32 numMovesInBlock) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    return (uint32(bytes4(_blob)));
+  }
+
+  /**
    * @notice Set numMovesInBlock.
    */
   function setNumMovesInBlock(bytes32 entityId, uint32 numMovesInBlock) internal {
@@ -236,6 +317,16 @@ library PlayerMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((numMovesInBlock)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set numMovesInBlock (using the specified store).
+   */
+  function setNumMovesInBlock(IStore _store, bytes32 entityId, uint32 numMovesInBlock) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((numMovesInBlock)), _fieldLayout);
   }
 
   /**
@@ -261,6 +352,21 @@ library PlayerMetadata {
     _keyTuple[0] = entityId;
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Get the full data (using the specified store).
+   */
+  function get(IStore _store, bytes32 entityId) internal view returns (PlayerMetadataData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
       _tableId,
       _keyTuple,
       _fieldLayout
@@ -311,6 +417,28 @@ library PlayerMetadata {
   }
 
   /**
+   * @notice Set the full data using individual values (using the specified store).
+   */
+  function set(
+    IStore _store,
+    bytes32 entityId,
+    bool isLoggedOff,
+    uint256 lastMoveBlock,
+    uint256 lastHitTime,
+    uint32 numMovesInBlock
+  ) internal {
+    bytes memory _staticData = encodeStatic(isLoggedOff, lastMoveBlock, lastHitTime, numMovesInBlock);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 entityId, PlayerMetadataData memory _table) internal {
@@ -348,6 +476,26 @@ library PlayerMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Set the full data using the data struct (using the specified store).
+   */
+  function set(IStore _store, bytes32 entityId, PlayerMetadataData memory _table) internal {
+    bytes memory _staticData = encodeStatic(
+      _table.isLoggedOff,
+      _table.lastMoveBlock,
+      _table.lastHitTime,
+      _table.numMovesInBlock
+    );
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
 
   /**
@@ -397,6 +545,16 @@ library PlayerMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

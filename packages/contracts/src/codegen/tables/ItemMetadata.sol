@@ -61,6 +61,13 @@ library ItemMetadata {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get numUsesLeft.
    */
   function getNumUsesLeft(bytes32 entityId) internal view returns (uint24 numUsesLeft) {
@@ -79,6 +86,17 @@ library ItemMetadata {
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (uint24(bytes3(_blob)));
+  }
+
+  /**
+   * @notice Get numUsesLeft (using the specified store).
+   */
+  function getNumUsesLeft(IStore _store, bytes32 entityId) internal view returns (uint24 numUsesLeft) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint24(bytes3(_blob)));
   }
 
@@ -105,6 +123,17 @@ library ItemMetadata {
   }
 
   /**
+   * @notice Get numUsesLeft (using the specified store).
+   */
+  function get(IStore _store, bytes32 entityId) internal view returns (uint24 numUsesLeft) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (uint24(bytes3(_blob)));
+  }
+
+  /**
    * @notice Set numUsesLeft.
    */
   function setNumUsesLeft(bytes32 entityId, uint24 numUsesLeft) internal {
@@ -122,6 +151,16 @@ library ItemMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numUsesLeft)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set numUsesLeft (using the specified store).
+   */
+  function setNumUsesLeft(IStore _store, bytes32 entityId, uint24 numUsesLeft) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numUsesLeft)), _fieldLayout);
   }
 
   /**
@@ -145,6 +184,16 @@ library ItemMetadata {
   }
 
   /**
+   * @notice Set numUsesLeft (using the specified store).
+   */
+  function set(IStore _store, bytes32 entityId, uint24 numUsesLeft) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numUsesLeft)), _fieldLayout);
+  }
+
+  /**
    * @notice Delete all data for given keys.
    */
   function deleteRecord(bytes32 entityId) internal {
@@ -162,6 +211,16 @@ library ItemMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

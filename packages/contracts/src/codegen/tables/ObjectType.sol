@@ -61,6 +61,13 @@ library ObjectType {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get objectTypeId.
    */
   function getObjectTypeId(bytes32 entityId) internal view returns (bytes32 objectTypeId) {
@@ -79,6 +86,17 @@ library ObjectType {
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
+   * @notice Get objectTypeId (using the specified store).
+   */
+  function getObjectTypeId(IStore _store, bytes32 entityId) internal view returns (bytes32 objectTypeId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (bytes32(_blob));
   }
 
@@ -105,6 +123,17 @@ library ObjectType {
   }
 
   /**
+   * @notice Get objectTypeId (using the specified store).
+   */
+  function get(IStore _store, bytes32 entityId) internal view returns (bytes32 objectTypeId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
    * @notice Set objectTypeId.
    */
   function setObjectTypeId(bytes32 entityId, bytes32 objectTypeId) internal {
@@ -122,6 +151,16 @@ library ObjectType {
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set objectTypeId (using the specified store).
+   */
+  function setObjectTypeId(IStore _store, bytes32 entityId, bytes32 objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
   }
 
   /**
@@ -145,6 +184,16 @@ library ObjectType {
   }
 
   /**
+   * @notice Set objectTypeId (using the specified store).
+   */
+  function set(IStore _store, bytes32 entityId, bytes32 objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
+  }
+
+  /**
    * @notice Delete all data for given keys.
    */
   function deleteRecord(bytes32 entityId) internal {
@@ -162,6 +211,16 @@ library ObjectType {
     _keyTuple[0] = entityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**
