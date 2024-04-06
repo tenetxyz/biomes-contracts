@@ -13,6 +13,7 @@ import { GoldCubeObjectID, SilverCubeObjectID, DiamondCubeObjectID, NeptuniumCub
 import { OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID, OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../ObjectTypeIds.sol";
 import { WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "../ObjectTypeIds.sol";
 import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../ObjectTypeIds.sol";
+import { BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "../ObjectTypeIds.sol";
 
 function isPick(bytes32 objectTypeId) pure returns (bool) {
   return
@@ -34,12 +35,33 @@ function isAxe(bytes32 objectTypeId) pure returns (bool) {
     objectTypeId == DiamondAxeObjectID;
 }
 
-function isWoodLog(bytes32 objectTypeId) pure returns (bool) {
+function isLog(bytes32 objectTypeId) pure returns (bool) {
   return
     objectTypeId == OakLogObjectID ||
     objectTypeId == SakuraLogObjectID ||
     objectTypeId == BirchLogObjectID ||
     objectTypeId == RubberLogObjectID;
+}
+
+function isLumber(bytes32 objectTypeId) pure returns (bool) {
+  return
+    objectTypeId == OakLumberObjectID ||
+    objectTypeId == SakuraLumberObjectID ||
+    objectTypeId == RubberLumberObjectID ||
+    objectTypeId == BirchLumberObjectID ||
+    objectTypeId == BlueOakLumberObjectID ||
+    objectTypeId == BrownOakLumberObjectID ||
+    objectTypeId == GreenOakLumberObjectID ||
+    objectTypeId == MagentaOakLumberObjectID ||
+    objectTypeId == OrangeOakLumberObjectID ||
+    objectTypeId == PinkOakLumberObjectID ||
+    objectTypeId == PurpleOakLumberObjectID ||
+    objectTypeId == RedOakLumberObjectID ||
+    objectTypeId == TanOakLumberObjectID ||
+    objectTypeId == WhiteOakLumberObjectID ||
+    objectTypeId == YellowOakLumberObjectID ||
+    objectTypeId == BlackOakLumberObjectID ||
+    objectTypeId == SilverOakLumberObjectID;
 }
 
 function isStone(bytes32 objectTypeId) pure returns (bool) {

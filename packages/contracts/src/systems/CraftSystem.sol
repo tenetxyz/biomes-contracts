@@ -19,9 +19,10 @@ import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, removeEntityIdFromReverseInventory } from "../utils/InventoryUtils.sol";
+import { isLog, isLumber } from "../utils/ObjectTypeUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract CraftSystem is System {
@@ -51,7 +52,11 @@ contract CraftSystem is System {
       for (uint256 j = 0; j < ingredientEntityIds.length; j++) {
         if (Inventory._get(ingredientEntityIds[j]) == playerEntityId) {
           bytes32 ingredientObjectTypeId = ObjectType._get(ingredientEntityIds[j]);
-          if (ingredientObjectTypeId == recipeData.inputObjectTypeIds[i]) {
+          if (
+            ingredientObjectTypeId == recipeData.inputObjectTypeIds[i] ||
+            (recipeData.inputObjectTypeIds[i] == AnyLogObjectID && isLog(ingredientObjectTypeId)) ||
+            (recipeData.inputObjectTypeIds[i] == AnyLumberObjectID && isLumber(ingredientObjectTypeId))
+          ) {
             numInputObjectTypesFound++;
 
             // Delete the ingredient from the inventory
@@ -64,11 +69,13 @@ contract CraftSystem is System {
             if (Equipped._get(playerEntityId) == ingredientEntityIds[j]) {
               Equipped._deleteRecord(playerEntityId);
             }
+
+            // Note: this can't be moved out of the loop because of the object variants (ie log/lumber)
+            removeFromInventoryCount(playerEntityId, ingredientObjectTypeId, 1);
           }
         }
       }
       require(numInputObjectTypesFound == recipeData.inputObjectTypeAmounts[i], "CraftSystem: not enough ingredients");
-      removeFromInventoryCount(playerEntityId, recipeData.inputObjectTypeIds[i], recipeData.inputObjectTypeAmounts[i]);
     }
 
     // Create the crafted objects

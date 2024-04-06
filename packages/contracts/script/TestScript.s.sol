@@ -98,28 +98,28 @@ contract TestScript is Script {
     // world.drop(ingredientEntityIds, VoxelCoord(146, -63, -46));
     // console.logBytes32(newInventoryId);
 
-    bytes32 newInventoryId = 0x00000000000000000000000000000000000000000000000000000000000001e2;
+    // bytes32 newInventoryId = 0x00000000000000000000000000000000000000000000000000000000000001e2;
     // world.equip(newInventoryId);
     // world.unequip();
 
-    bytes32 outputObjectTypeId = OakLumberObjectID;
-    bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
+    // bytes32 outputObjectTypeId = OakLumberObjectID;
+    // bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
 
-    bytes32[] memory ingredientEntityIds = new bytes32[](1);
-    ingredientEntityIds[0] = newInventoryId;
+    // bytes32[] memory ingredientEntityIds = new bytes32[](1);
+    // ingredientEntityIds[0] = newInventoryId;
 
-    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+    // world.craft(recipeId, ingredientEntityIds, bytes32(0));
 
-    bytes32[] memory ownedInventoryEntityIds = ReverseInventory.get(playerEntityId);
-    bytes32[] memory inventoryEntityIds = new bytes32[](1);
-    for (uint i = 0; i < ownedInventoryEntityIds.length; i++) {
-      if (ObjectType.get(ownedInventoryEntityIds[i]) == OakLumberObjectID) {
-        inventoryEntityIds[0] = ownedInventoryEntityIds[i];
-        break;
-      }
-    }
-    // bytes32 inventoryEntityId = world.mine(GrassObjectID, VoxelCoord(149, -63, -38));
-    // console.logBytes32(inventoryEntityId);
+    // bytes32[] memory ownedInventoryEntityIds = ReverseInventory.get(playerEntityId);
+    // bytes32[] memory inventoryEntityIds = new bytes32[](1);
+    // for (uint i = 0; i < ownedInventoryEntityIds.length; i++) {
+    //   if (ObjectType.get(ownedInventoryEntityIds[i]) == OakLumberObjectID) {
+    //     inventoryEntityIds[0] = ownedInventoryEntityIds[i];
+    //     break;
+    //   }
+    // }
+    bytes32 inventoryEntityId = world.mine(GrassObjectID, VoxelCoord(148, -63, -38));
+    console.logBytes32(inventoryEntityId);
     // inventoryEntityIds[0] = 0x00000000000000000000000000000000000000000000000000000000000001d2;
     // world.drop(inventoryEntityIds, VoxelCoord(149, -63, -38));
     // world.teleport(VoxelCoord(148, -63, -50));
@@ -127,10 +127,10 @@ contract TestScript is Script {
     // inventoryEntityIds[0] = 0x00000000000000000000000000000000000000000000000000000000000001be;
     // world.drop(inventoryEntityIds, VoxelCoord(150, -62, -39));
     // world.teleport(VoxelCoord(150, -62, -39));
-    bytes32 dstEntityId = 0x00000000000000000000000000000000000000000000000000000000000001da;
-    world.transfer(playerEntityId, dstEntityId, inventoryEntityIds);
+    // bytes32 dstEntityId = 0x00000000000000000000000000000000000000000000000000000000000001da;
+    // world.transfer(playerEntityId, dstEntityId, inventoryEntityIds);
 
-    world.mine(ChestObjectID, VoxelCoord(149, -63, -57));
+    // world.mine(ChestObjectID, VoxelCoord(149, -63, -57));
     // bytes32 inventoryEntityId = 0x00000000000000000000000000000000000000000000000000000000000001bc;
     // world.build(inventoryEntityId, VoxelCoord(150, -62, -38));
     // world.hit(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);

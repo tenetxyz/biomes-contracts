@@ -30,7 +30,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DyeomaticObjectID, WorkbenchObjectID, GrassObjectID, OakLogObjectID, OakLumberObjectID, BlueDyeObjectID, BlueOakLumberObjectID, DiamondOreObjectID, DiamondObjectID, WoodenPickObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, AnyLogObjectID, DyeomaticObjectID, WorkbenchObjectID, GrassObjectID, OakLogObjectID, SakuraLogObjectID, OakLumberObjectID, BlueDyeObjectID, BlueOakLumberObjectID, DiamondOreObjectID, DiamondObjectID, WoodenPickObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
@@ -147,6 +147,53 @@ contract CraftTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId, outputObjectTypeId) == 10, "Output object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+
+    vm.stopPrank();
+  }
+
+  function testHandcraftMultipleInputVariations() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    bytes32[] memory ingredientEntityIds = new bytes32[](4);
+
+    // Init inventory with ingredients
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 inputObjectTypeId1 = OakLogObjectID;
+    for (uint8 i = 0; i < 1; i++) {
+      bytes32 newInventoryId = getUniqueEntity();
+      ObjectType.set(newInventoryId, inputObjectTypeId1);
+      Inventory.set(newInventoryId, playerEntityId);
+      ReverseInventory.push(playerEntityId, newInventoryId);
+      ingredientEntityIds[i] = newInventoryId;
+    }
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    bytes32 inputObjectTypeId2 = SakuraLogObjectID;
+    for (uint8 i = 0; i < 3; i++) {
+      bytes32 newInventoryId = getUniqueEntity();
+      ObjectType.set(newInventoryId, inputObjectTypeId2);
+      Inventory.set(newInventoryId, playerEntityId);
+      ReverseInventory.push(playerEntityId, newInventoryId);
+      ingredientEntityIds[i + 1] = newInventoryId;
+    }
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 3);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 3, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 outputObjectTypeId = WoodenPickObjectID;
+    bytes32 recipeId = keccak256(abi.encodePacked(AnyLogObjectID, uint8(4), outputObjectTypeId, uint8(1)));
+
+    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(playerEntityId, outputObjectTypeId) == 1, "Output object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
 
     vm.stopPrank();

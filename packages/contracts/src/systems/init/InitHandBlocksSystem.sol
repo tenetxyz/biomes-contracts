@@ -10,13 +10,13 @@ import { Recipes, RecipesData } from "../../codegen/tables/Recipes.sol";
 
 import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectTypeIds.sol";
 import { ClayObjectID, StoneObjectID, CobblestoneObjectID, CottonBlockObjectID } from "../../ObjectTypeIds.sol";
-import { WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "../../ObjectTypeIds.sol";
+import { AnyLogObjectID, WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "../../ObjectTypeIds.sol";
 import { OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
 import { BellflowerObjectID, SakuraLumberObjectID, CactusObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "../../ObjectTypeIds.sol";
 import { DirtObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "../../ObjectTypeIds.sol";
 
 import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE } from "../../Constants.sol";
-import { createSingleInputRecipe, createDoubleInputRecipe, createRecipeForAllLogVariations, createRecipeForAllLogVariationsWithInput } from "../../utils/RecipeUtils.sol";
+import { createSingleInputRecipe, createDoubleInputRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitHandBlocksSystem is System {
   function createHandcraftedBlock(bytes32 terrainBlockObjectTypeId, uint16 mass, uint16 hardness) internal {
@@ -113,9 +113,9 @@ contract InitHandBlocksSystem is System {
     createSingleInputRecipe(NeptuniumOreObjectID, 1, BlackDyeObjectID, 20);
     createDoubleInputRecipe(LilacObjectID, 5, AzaleaObjectID, 5, MagentaDyeObjectID, 10);
 
-    createRecipeForAllLogVariations(4, WoodenPickObjectID, 1);
-    createRecipeForAllLogVariations(4, WoodenAxeObjectID, 1);
-    createRecipeForAllLogVariations(8, WoodenWhackerObjectID, 1);
+    createSingleInputRecipe(AnyLogObjectID, 4, WoodenPickObjectID, 1);
+    createSingleInputRecipe(AnyLogObjectID, 4, WoodenAxeObjectID, 1);
+    createSingleInputRecipe(AnyLogObjectID, 8, WoodenWhackerObjectID, 1);
 
     createSingleInputRecipe(OakLogObjectID, 1, OakLumberObjectID, 4);
     createSingleInputRecipe(SakuraLogObjectID, 1, SakuraLumberObjectID, 4);

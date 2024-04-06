@@ -10,12 +10,12 @@ import { Recipes, RecipesData } from "../../codegen/tables/Recipes.sol";
 
 import { MAX_TOOL_STACKABLE, MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
-import { OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID, SilverBarObjectID, GoldBarObjectID, DiamondObjectID, NeptuniumBarObjectID, StoneObjectID } from "../../ObjectTypeIds.sol";
+import { AnyLogObjectID, OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID, SilverBarObjectID, GoldBarObjectID, DiamondObjectID, NeptuniumBarObjectID, StoneObjectID } from "../../ObjectTypeIds.sol";
 
 import { ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID, OakLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
-import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe, createRecipeForAllLogVariationsWithInputStation } from "../../utils/RecipeUtils.sol";
+import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitWorkbenchSystem is System {
   function createTool(bytes32 toolObjectTypeId, uint16 mass, uint24 durability, uint16 damage) internal {
@@ -72,30 +72,56 @@ contract InitWorkbenchSystem is System {
   }
 
   function initWorkbenchRecipes() public {
-    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, StoneObjectID, 8, StonePickObjectID, 1);
-    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, StoneObjectID, 8, StoneAxeObjectID, 1);
-    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 2, StoneObjectID, 4, StoneWhackerObjectID, 1);
+    createDoubleInputWithStationRecipe(WorkbenchObjectID, AnyLogObjectID, 4, StoneObjectID, 8, StonePickObjectID, 1);
+    createDoubleInputWithStationRecipe(WorkbenchObjectID, AnyLogObjectID, 4, StoneObjectID, 8, StoneAxeObjectID, 1);
+    createDoubleInputWithStationRecipe(WorkbenchObjectID, AnyLogObjectID, 2, StoneObjectID, 4, StoneWhackerObjectID, 1);
 
-    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, SilverBarObjectID, 4, SilverPickObjectID, 1);
-    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, SilverBarObjectID, 4, SilverAxeObjectID, 1);
+    createDoubleInputWithStationRecipe(
+      WorkbenchObjectID,
+      AnyLogObjectID,
+      4,
+      SilverBarObjectID,
+      4,
+      SilverPickObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      WorkbenchObjectID,
+      AnyLogObjectID,
+      4,
+      SilverBarObjectID,
+      4,
+      SilverAxeObjectID,
+      1
+    );
     createSingleInputWithStationRecipe(WorkbenchObjectID, SilverBarObjectID, 6, SilverWhackerObjectID, 1);
 
-    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, GoldBarObjectID, 4, GoldPickObjectID, 1);
-    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, GoldBarObjectID, 4, GoldAxeObjectID, 1);
+    createDoubleInputWithStationRecipe(WorkbenchObjectID, AnyLogObjectID, 4, GoldBarObjectID, 4, GoldPickObjectID, 1);
+    createDoubleInputWithStationRecipe(WorkbenchObjectID, AnyLogObjectID, 4, GoldBarObjectID, 4, GoldAxeObjectID, 1);
 
-    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, DiamondObjectID, 4, DiamondPickObjectID, 1);
-    createRecipeForAllLogVariationsWithInputStation(WorkbenchObjectID, 4, DiamondObjectID, 4, DiamondAxeObjectID, 1);
-
-    createRecipeForAllLogVariationsWithInputStation(
+    createDoubleInputWithStationRecipe(
       WorkbenchObjectID,
+      AnyLogObjectID,
+      4,
+      DiamondObjectID,
+      4,
+      DiamondPickObjectID,
+      1
+    );
+    createDoubleInputWithStationRecipe(WorkbenchObjectID, AnyLogObjectID, 4, DiamondObjectID, 4, DiamondAxeObjectID, 1);
+
+    createDoubleInputWithStationRecipe(
+      WorkbenchObjectID,
+      AnyLogObjectID,
       4,
       NeptuniumBarObjectID,
       4,
       NeptuniumPickObjectID,
       1
     );
-    createRecipeForAllLogVariationsWithInputStation(
+    createDoubleInputWithStationRecipe(
       WorkbenchObjectID,
+      AnyLogObjectID,
       4,
       NeptuniumBarObjectID,
       4,

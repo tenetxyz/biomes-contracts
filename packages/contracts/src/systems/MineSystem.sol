@@ -24,7 +24,7 @@ import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
-import { isPick, isAxe, isWoodLog, isStone } from "../utils/ObjectTypeUtils.sol";
+import { isPick, isAxe, isLog, isStone } from "../utils/ObjectTypeUtils.sol";
 
 contract MineSystem is System {
   function mine(bytes32 objectTypeId, VoxelCoord memory coord) public returns (bytes32) {

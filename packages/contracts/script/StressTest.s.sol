@@ -42,7 +42,7 @@ contract StressTest is Script {
     IWorld world = IWorld(worldAddress);
 
     address[] memory players = new address[](100);
-    // Fill up players with 20 pseudo-random addresses
+    // Fill up players with pseudo-random addresses
     for (uint i = 0; i < players.length; i++) {
       // Generate a pseudo-random hash by combining the current timestamp, sender address, and a nonce
       // bytes32 hash = keccak256(abi.encodePacked(block.timestamp, msg.sender, i));
@@ -51,48 +51,51 @@ contract StressTest is Script {
       players[i] = address(uint160(uint256(hash)));
     }
 
+    int32 spawnZLength = SPAWN_HIGH_Z - SPAWN_LOW_Z;
+    int32 spawnXLength = SPAWN_HIGH_X - SPAWN_LOW_X;
+
     // call spawn player
-    // for (uint i = 0; i < players.length; i++) {
-    //   bytes32 entityId = getUniqueEntity();
-    //   VoxelCoord memory playerCoord = VoxelCoord(
-    //     SPAWN_LOW_X + int32(int(i / 20)),
-    //     SPAWN_GROUND_Y + 1,
-    //     SPAWN_LOW_Z + int32(int(i - (20 * (i / 20))))
-    //   );
-    //   Position.set(entityId, playerCoord.x, playerCoord.y, playerCoord.z);
-    //   ReversePosition.set(playerCoord.x, playerCoord.y, playerCoord.z, entityId);
-    //   ObjectType.set(entityId, PlayerObjectID);
-    //   Player.set(players[i], entityId);
-    //   ReversePlayer.set(entityId, players[i]);
-    //   Health.set(entityId, block.timestamp, MAX_PLAYER_HEALTH);
-    //   Stamina.set(entityId, block.timestamp, MAX_PLAYER_STAMINA);
-    // }
+    for (uint i = 0; i < players.length; i++) {
+      bytes32 entityId = getUniqueEntity();
+      VoxelCoord memory playerCoord = VoxelCoord(
+        SPAWN_LOW_X + int32(int(i)) / spawnZLength,
+        SPAWN_GROUND_Y + 1,
+        SPAWN_LOW_Z + (int32(int(i)) - (spawnZLength * (int32(int(i)) / spawnZLength)))
+      );
+      Position.set(entityId, playerCoord.x, playerCoord.y, playerCoord.z);
+      ReversePosition.set(playerCoord.x, playerCoord.y, playerCoord.z, entityId);
+      ObjectType.set(entityId, PlayerObjectID);
+      Player.set(players[i], entityId);
+      ReversePlayer.set(entityId, players[i]);
+      Health.set(entityId, block.timestamp, MAX_PLAYER_HEALTH);
+      Stamina.set(entityId, block.timestamp, MAX_PLAYER_STAMINA);
+    }
 
     // teleport players
-    for (uint i = 0; i < players.length; i++) {
-      address player = players[i];
-      bytes32 playerEntityId = Player.get(player);
-      VoxelCoord memory oldCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
-      VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y, oldCoord.z - 20);
+    // for (uint i = 0; i < players.length; i++) {
+    //   address player = players[i];
+    //   bytes32 playerEntityId = Player.get(player);
+    //   VoxelCoord memory oldCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
+    //   VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y, oldCoord.z - 20);
 
-      bytes32 newEntityId = getUniqueEntity();
-      ObjectType.set(newEntityId, AirObjectID);
+    //   bytes32 newEntityId = getUniqueEntity();
+    //   ObjectType.set(newEntityId, AirObjectID);
 
-      ReversePosition.set(oldCoord.x, oldCoord.y, oldCoord.z, newEntityId);
-      Position.set(newEntityId, oldCoord.x, oldCoord.y, oldCoord.z);
+    //   ReversePosition.set(oldCoord.x, oldCoord.y, oldCoord.z, newEntityId);
+    //   Position.set(newEntityId, oldCoord.x, oldCoord.y, oldCoord.z);
 
-      Position.set(playerEntityId, newCoord.x, newCoord.y, newCoord.z);
-      ReversePosition.set(newCoord.x, newCoord.y, newCoord.z, playerEntityId);
+    //   Position.set(playerEntityId, newCoord.x, newCoord.y, newCoord.z);
+    //   ReversePosition.set(newCoord.x, newCoord.y, newCoord.z, playerEntityId);
 
-      uint32 currentStamina = Stamina.getStamina(playerEntityId);
-      Stamina.setStamina(playerEntityId, currentStamina - 150);
+    //   uint32 currentStamina = Stamina.getStamina(playerEntityId);
+    //   Stamina.setStamina(playerEntityId, currentStamina - 150);
 
-      // VoxelCoord memory belowCoord = VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z);
-      // bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
-      // if (belowEntityId == bytes32(0) || ObjectType.get(belowEntityId) == AirObjectID) {
-      //   callGravity(playerEntityId, newCoord);
-      // }
-    }
+    // VoxelCoord memory belowCoord = VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z);
+    // bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
+    // if (belowEntityId == bytes32(0) || ObjectType.get(belowEntityId) == AirObjectID) {
+    //   callGravity(playerEntityId, newCoord);
+    // }
+    // }
 
     vm.stopBroadcast();
   }

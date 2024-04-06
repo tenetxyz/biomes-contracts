@@ -198,3 +198,7 @@ bytes32 constant RedGlassObjectID = bytes32(keccak256("red-glass"));
 bytes32 constant WhiteGlassObjectID = bytes32(keccak256("white-glass"));
 bytes32 constant YellowGlassObjectID = bytes32(keccak256("yellow-glass"));
 bytes32 constant BlackGlassObjectID = bytes32(keccak256("black-glass"));
+
+// Used for Recipes only
+bytes32 constant AnyLogObjectID = bytes32(keccak256("any-log"));
+bytes32 constant AnyLumberObjectID = bytes32(keccak256("any-lumber"));

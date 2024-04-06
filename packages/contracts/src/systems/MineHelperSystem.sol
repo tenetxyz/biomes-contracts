@@ -24,7 +24,7 @@ import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
-import { isPick, isAxe, isWoodLog, isStone } from "../utils/ObjectTypeUtils.sol";
+import { isPick, isAxe, isLog, isStone } from "../utils/ObjectTypeUtils.sol";
 
 // We extract some logic out of the MineSystem due to contract size limitations
 contract MineHelperSystem is System {
@@ -36,7 +36,7 @@ contract MineHelperSystem is System {
       if (isPick(equippedObjectTypeId) && isStone(mineObjectTypeId)) {
         equippedToolDamage *= 2;
       }
-      if (isAxe(equippedObjectTypeId) && isWoodLog(mineObjectTypeId)) {
+      if (isAxe(equippedObjectTypeId) && isLog(mineObjectTypeId)) {
         equippedToolDamage *= 2;
       }
     }
