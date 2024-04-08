@@ -30,14 +30,6 @@ function getObjectType(address worldAddress, bytes32 entityId) view returns (byt
   return ObjectType.get(IStore(worldAddress), entityId);
 }
 
-function getIsPlayer(address worldAddress, bytes32 objectTypeId) view returns (bool) {
-  return ObjectTypeMetadata.getIsPlayer(IStore(worldAddress), objectTypeId);
-}
-
-function getIsBlock(address worldAddress, bytes32 objectTypeId) view returns (bool) {
-  return ObjectTypeMetadata.getIsBlock(IStore(worldAddress), objectTypeId);
-}
-
 function getMass(address worldAddress, bytes32 objectTypeId) view returns (uint16) {
   return ObjectTypeMetadata.getMass(IStore(worldAddress), objectTypeId);
 }
