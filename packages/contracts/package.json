@@ -1,13 +1,14 @@
 {
   "name": "@biomesaw/contracts",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "exports": {
     "./mud.config": "./dist/mud.config.js",
     "./worlds.json": "./worlds.json",
-    "./out/IWorld.sol/IWorld.abi.json": "./out/IWorld.sol/IWorld.abi.json"
+    "./IWorld.abi.json": "./IWorld.abi.json"
   },
   "scripts": {
-    "build": "mud build && pnpm run build:js",
+    "build": "mud build && pnpm run build:js && pnpm run cp-abi",
+    "cp-abi": "cp out/IWorld.sol/IWorld.abi.json IWorld.abi.json",
     "build:js": "tsup",
     "clean": "forge clean && rimraf src/codegen",
     "deploy:local": "pnpm run build && mud deploy",
