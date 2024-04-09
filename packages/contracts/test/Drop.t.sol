@@ -32,6 +32,7 @@ import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, GRAVITY_DAMAGE } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
+import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract DropTest is MudTest, GasReporter {
@@ -1056,6 +1057,33 @@ contract DropTest is MudTest, GasReporter {
     world.logoffPlayer();
 
     vm.expectRevert("DropSystem: player isn't logged in");
+    world.drop(inventoryEntityIds, dropCoord);
+  }
+
+  function testDropOutsideWorldBorder() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = getUniqueEntity();
+    ObjectType.set(newInventoryId, GrassObjectID);
+    Inventory.set(newInventoryId, playerEntityId);
+    ReverseInventory.push(playerEntityId, newInventoryId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
+
+    VoxelCoord memory dropCoord = VoxelCoord(WORLD_BORDER_LOW_X - 1, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z);
+
+    bytes32[] memory inventoryEntityIds = new bytes32[](1);
+    inventoryEntityIds[0] = newInventoryId;
+
+    vm.expectRevert("DropSystem: cannot drop outside world border");
     world.drop(inventoryEntityIds, dropCoord);
   }
 }

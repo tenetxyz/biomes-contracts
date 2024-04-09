@@ -24,7 +24,6 @@ import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getTerrain
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
 
 contract ActivateSystem is System {
   function activatePlayer(bytes32 playerEntityId) public {

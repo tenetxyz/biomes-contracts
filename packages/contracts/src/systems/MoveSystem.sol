@@ -17,7 +17,7 @@ import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity, inWorldBorder } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
@@ -49,6 +49,7 @@ contract MoveSystem is System {
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
   ) internal returns (bool) {
+    require(inWorldBorder(newCoord), "MoveSystem: cannot move outside world border");
     require(inSurroundingCube(oldCoord, 1, newCoord), "MoveSystem: new coord is not in surrounding cube of old coord");
 
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);

@@ -17,11 +17,10 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity, inSpawnArea } from "../Utils.sol";
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube, voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
 
 contract HitSystem is System {
   function hit(address hitPlayer) public {
@@ -35,11 +34,7 @@ contract HitSystem is System {
 
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     VoxelCoord memory hitCoord = positionDataToVoxelCoord(Position._get(hitEntityId));
-    require(
-      (hitCoord.x < SPAWN_LOW_X || hitCoord.x > SPAWN_HIGH_X) ||
-        (hitCoord.z < SPAWN_LOW_Z || hitCoord.z > SPAWN_HIGH_Z),
-      "HitSystem: cannot hit at spawn area"
-    );
+    require(!inSpawnArea(hitCoord), "HitSystem: cannot hit at spawn area");
     require(inSurroundingCube(playerCoord, 1, hitCoord), "HitSystem: hit entity is not in surrounding cube of player");
 
     regenHealth(hitEntityId);

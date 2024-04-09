@@ -23,7 +23,6 @@ import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity } from ".
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
 import { isPick, isAxe, isLog, isStone } from "../utils/ObjectTypeUtils.sol";
 
 // We extract some logic out of the MineSystem due to contract size limitations

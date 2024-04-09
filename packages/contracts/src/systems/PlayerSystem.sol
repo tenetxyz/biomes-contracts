@@ -20,25 +20,17 @@ import { Inventory } from "../codegen/tables/Inventory.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getTerrainObjectTypeId, callGravity } from "../Utils.sol";
+import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getTerrainObjectTypeId, callGravity, inWorldBorder, inSpawnArea } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
 
 contract PlayerSystem is System {
   function spawnPlayer(VoxelCoord memory spawnCoord) public returns (bytes32) {
     address newPlayer = _msgSender();
     require(Player._get(newPlayer) == bytes32(0), "PlayerSystem: player already exists");
-
-    // Check spawn coord is within spawn area
-    require(
-      spawnCoord.x >= SPAWN_LOW_X &&
-        spawnCoord.x <= SPAWN_HIGH_X &&
-        spawnCoord.z >= SPAWN_LOW_Z &&
-        spawnCoord.z <= SPAWN_HIGH_Z,
-      "PlayerSystem: coord outside of spawn area"
-    );
+    require(inWorldBorder(spawnCoord), "PlayerSystem: cannot spawn outside world border");
+    require(inSpawnArea(spawnCoord), "PlayerSystem: cannot spawn outside spawn area");
 
     bytes32 entityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     if (entityId == bytes32(0)) {

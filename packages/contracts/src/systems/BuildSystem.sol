@@ -17,18 +17,15 @@ import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId, inSpawnArea, inWorldBorder } from "../Utils.sol";
 import { removeFromInventoryCount, removeEntityIdFromReverseInventory } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
 
 contract BuildSystem is System {
   function build(bytes32 inventoryEntityId, VoxelCoord memory coord) public {
-    require(
-      (coord.x < SPAWN_LOW_X || coord.x > SPAWN_HIGH_X) || (coord.z < SPAWN_LOW_Z || coord.z > SPAWN_HIGH_Z),
-      "BuildSystem: cannot build at spawn area"
-    );
+    require(inWorldBorder(coord), "BuildSystem: cannot build outside world border");
+    require(!inSpawnArea(coord), "BuildSystem: cannot build at spawn area");
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "BuildSystem: player does not exist");
     require(

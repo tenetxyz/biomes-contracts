@@ -33,6 +33,7 @@ import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
+import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract MoveTest is MudTest, GasReporter {
@@ -234,14 +235,28 @@ contract MoveTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    VoxelCoord[] memory newCoords = new VoxelCoord[](2);
     newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 3);
+    newCoords[1] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 3);
     for (uint i = 0; i < newCoords.length; i++) {
       assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
     }
 
     vm.expectRevert("MoveSystem: new coord is not in surrounding cube of old coord");
+    world.move(newCoords);
+
+    vm.stopPrank();
+  }
+
+  function testMoveOutsideWorldBorder() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(WORLD_BORDER_LOW_X - 1, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z);
+
+    vm.expectRevert("MoveSystem: cannot move outside world border");
     world.move(newCoords);
 
     vm.stopPrank();

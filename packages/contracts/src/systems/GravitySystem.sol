@@ -15,13 +15,16 @@ import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GRAVITY_DAMAGE } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
-import { getTerrainObjectTypeId } from "../Utils.sol";
+import { getTerrainObjectTypeId, inWorldBorder } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { despawnPlayer } from "../utils/PlayerUtils.sol";
 
 contract GravitySystem is System {
   function runGravity(bytes32 playerEntityId, VoxelCoord memory coord) public returns (bool) {
     VoxelCoord memory newCoord = VoxelCoord(coord.x, coord.y - 1, coord.z);
+    if (!inWorldBorder(newCoord)) {
+      return false;
+    }
 
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {

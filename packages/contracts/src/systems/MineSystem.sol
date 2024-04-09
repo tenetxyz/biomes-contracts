@@ -19,19 +19,16 @@ import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity, callInternalSystem } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity, callInternalSystem, inWorldBorder, inSpawnArea } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "../Constants.sol";
 import { isPick, isAxe, isLog, isStone } from "../utils/ObjectTypeUtils.sol";
 
 contract MineSystem is System {
   function mine(bytes32 objectTypeId, VoxelCoord memory coord) public returns (bytes32) {
-    require(
-      (coord.x < SPAWN_LOW_X || coord.x > SPAWN_HIGH_X) || (coord.z < SPAWN_LOW_Z || coord.z > SPAWN_HIGH_Z),
-      "MineSystem: cannot mine at spawn area"
-    );
+    require(inWorldBorder(coord), "MineSystem: cannot mine outside world border");
+    require(!inSpawnArea(coord), "MineSystem: cannot mine at spawn area");
     require(ObjectTypeMetadata._getIsBlock(objectTypeId), "MineSystem: object type is not a block");
     require(objectTypeId != AirObjectID, "MineSystem: cannot mine air");
 

@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+int32 constant WORLD_BORDER_LOW_X = -2000;
+int32 constant WORLD_BORDER_LOW_Y = -150;
+int32 constant WORLD_BORDER_LOW_Z = -2000;
+
+int32 constant WORLD_BORDER_HIGH_X = 2000;
+int32 constant WORLD_BORDER_HIGH_Y = 250;
+int32 constant WORLD_BORDER_HIGH_Z = 2000;
+
 int32 constant SPAWN_LOW_X = 139;
 int32 constant SPAWN_HIGH_X = 159;
 int32 constant SPAWN_LOW_Z = -34;

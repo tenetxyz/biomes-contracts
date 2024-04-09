@@ -19,12 +19,13 @@ import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId, inWorldBorder } from "../Utils.sol";
 import { transferInventoryItem } from "../utils/InventoryUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract DropSystem is System {
   function drop(bytes32[] memory inventoryEntityIds, VoxelCoord memory coord) public {
+    require(inWorldBorder(coord), "DropSystem: cannot drop outside world border");
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "DropSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "DropSystem: player isn't logged in");

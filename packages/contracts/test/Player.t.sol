@@ -30,6 +30,7 @@ import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
+import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract PlayerTest is MudTest, GasReporter {
@@ -140,7 +141,18 @@ contract PlayerTest is MudTest, GasReporter {
     bytes32 terrainObjectTypeId = world.getTerrainBlock(spawnCoord);
     assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
 
-    vm.expectRevert("PlayerSystem: coord outside of spawn area");
+    vm.expectRevert("PlayerSystem: cannot spawn outside spawn area");
+    world.spawnPlayer(spawnCoord);
+
+    vm.stopPrank();
+  }
+
+  function testSpawnPlayerOutsideWorldBorder() public {
+    vm.startPrank(alice, alice);
+
+    // Invalid terrain coord
+    VoxelCoord memory spawnCoord = VoxelCoord(WORLD_BORDER_LOW_X - 1, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z);
+    vm.expectRevert("PlayerSystem: cannot spawn outside world border");
     world.spawnPlayer(spawnCoord);
 
     vm.stopPrank();
