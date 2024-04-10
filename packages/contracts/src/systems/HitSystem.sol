@@ -74,9 +74,10 @@ contract HitSystem is System {
     if (newHealth == 0) {
       despawnPlayer(hitEntityId);
 
-      VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
-      if (voxelCoordsAreEqual(belowCoord, hitCoord)) {
-        callGravity(playerEntityId, playerCoord);
+      VoxelCoord memory aboveCoord = VoxelCoord(hitCoord.x, hitCoord.y + 1, hitCoord.z);
+      bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+      if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+        callGravity(aboveEntityId, aboveCoord);
       }
     } else {
       PlayerMetadata._setLastHitTime(hitEntityId, block.timestamp);

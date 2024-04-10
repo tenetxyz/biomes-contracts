@@ -32,37 +32,42 @@ contract PlayerSystem is System {
     require(inWorldBorder(spawnCoord), "PlayerSystem: cannot spawn outside world border");
     require(inSpawnArea(spawnCoord), "PlayerSystem: cannot spawn outside spawn area");
 
-    bytes32 entityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    if (entityId == bytes32(0)) {
+    bytes32 existingEntityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
+    bytes32 playerEntityId = getUniqueEntity();
+    if (existingEntityId == bytes32(0)) {
       require(
         getTerrainObjectTypeId(AirObjectID, spawnCoord) == AirObjectID,
         "PlayerSystem: cannot spawn on terrain non-air block"
       );
-
-      // Create new entity
-      entityId = getUniqueEntity();
-      Position._set(entityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
-      ReversePosition._set(spawnCoord.x, spawnCoord.y, spawnCoord.z, entityId);
     } else {
-      require(ObjectType._get(entityId) == AirObjectID, "PlayerSystem: spawn coord is not air");
+      require(ObjectType._get(existingEntityId) == AirObjectID, "PlayerSystem: spawn coord is not air");
+
+      // Transfer any dropped items
+      transferAllInventoryEntities(existingEntityId, playerEntityId, PlayerObjectID);
+
+      ObjectType._deleteRecord(existingEntityId);
+      Position._deleteRecord(existingEntityId);
     }
+    // Create new entity
+    Position._set(playerEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+    ReversePosition._set(spawnCoord.x, spawnCoord.y, spawnCoord.z, playerEntityId);
 
     // Set object type to player
-    ObjectType._set(entityId, PlayerObjectID);
-    Player._set(newPlayer, entityId);
-    ReversePlayer._set(entityId, newPlayer);
+    ObjectType._set(playerEntityId, PlayerObjectID);
+    Player._set(newPlayer, playerEntityId);
+    ReversePlayer._set(playerEntityId, newPlayer);
 
-    Health._set(entityId, block.timestamp, MAX_PLAYER_HEALTH);
-    Stamina._set(entityId, block.timestamp, MAX_PLAYER_STAMINA);
+    Health._set(playerEntityId, block.timestamp, MAX_PLAYER_HEALTH);
+    Stamina._set(playerEntityId, block.timestamp, MAX_PLAYER_STAMINA);
 
     // We let the user pick a y coord, so we need to apply gravity
     VoxelCoord memory belowCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
     bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
     if (belowEntityId == bytes32(0) || ObjectType._get(belowEntityId) == AirObjectID) {
-      require(!callGravity(entityId, spawnCoord), "PlayerSystem: cannot spawn player with gravity");
+      require(!callGravity(playerEntityId, spawnCoord), "PlayerSystem: cannot spawn player with gravity");
     }
 
-    return entityId;
+    return playerEntityId;
   }
 
   // function changePlayerOwner(address newOwner) public {

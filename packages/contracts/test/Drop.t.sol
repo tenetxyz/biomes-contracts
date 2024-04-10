@@ -968,6 +968,65 @@ contract DropTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testSpawnPickUpDrops() public {
+    vm.startPrank(worldDeployer, worldDeployer);
+    spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
+
+    bytes32 airEntityId = getUniqueEntity();
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z);
+    Position.set(airEntityId, dropCoord.x, dropCoord.y, dropCoord.z);
+    ReversePosition.set(dropCoord.x, dropCoord.y, dropCoord.z, airEntityId);
+    ObjectType.set(airEntityId, AirObjectID);
+
+    bytes32 newInventoryId1 = getUniqueEntity();
+    ObjectType.set(newInventoryId1, GrassObjectID);
+    Inventory.set(newInventoryId1, airEntityId);
+    ReverseInventory.push(airEntityId, newInventoryId1);
+    bytes32 newInventoryId2 = getUniqueEntity();
+    ObjectType.set(newInventoryId2, GrassObjectID);
+    Inventory.set(newInventoryId2, airEntityId);
+    ReverseInventory.push(airEntityId, newInventoryId2);
+    testAddToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 2);
+    bytes32 newInventoryId3 = getUniqueEntity();
+    ObjectType.set(newInventoryId3, DiamondOreObjectID);
+    Inventory.set(newInventoryId3, airEntityId);
+    ReverseInventory.push(airEntityId, newInventoryId3);
+    testAddToInventoryCount(airEntityId, AirObjectID, DiamondOreObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(Inventory.get(newInventoryId1) == airEntityId, "Inventory not set properly");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(Inventory.get(newInventoryId2) == airEntityId, "Inventory not set properly");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(Inventory.get(newInventoryId3) == airEntityId, "Inventory not set properly");
+    assertTrue(testReverseInventoryHasItem(airEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+
+    bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
+
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), spawnCoord),
+      "Player position not set"
+    );
+    assertTrue(
+      ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z) == playerEntityId,
+      "Reverse position not set"
+    );
+    assertTrue(Inventory.get(newInventoryId1) == playerEntityId, "Inventory not set properly");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId1), "Reverse Inventory not set");
+    assertTrue(Inventory.get(newInventoryId2) == playerEntityId, "Inventory not set properly");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId2), "Reverse Inventory not set");
+    assertTrue(Inventory.get(newInventoryId3) == playerEntityId, "Inventory not set properly");
+    assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId3), "Reverse Inventory not set");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
+
+    vm.stopPrank();
+  }
+
   function testLoginPickUpDropsFullInventory() public {
     vm.startPrank(alice, alice);
 
