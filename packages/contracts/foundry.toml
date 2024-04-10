@@ -25,5 +25,5 @@ fs_permissions = [{ access = "read", path = "./"}]
 [profile.lattice-testnet]
 eth_rpc_url = "https://follower.testnet-chain.linfra.xyz"
 
-[profile.everlon-testnet]
-eth_rpc_url = "https://test-grid.everlon.xyz"
+[profile.biomes-testnet]
+eth_rpc_url = "https://testnet.biomes.aw"
