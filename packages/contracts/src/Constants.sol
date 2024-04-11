@@ -34,7 +34,7 @@ int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 5;
 uint8 constant MAX_BLOCK_STACKABLE = 99;
 uint8 constant MAX_TOOL_STACKABLE = 1;
 
-uint256 constant MAX_PLAYER_INVENTORY_SLOTS = 35;
+uint256 constant MAX_PLAYER_INVENTORY_SLOTS = 36;
 uint256 constant MAX_CHEST_INVENTORY_SLOTS = 12;
 
 // Terrain
