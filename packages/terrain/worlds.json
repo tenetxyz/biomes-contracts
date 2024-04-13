@@ -2,7 +2,11 @@
   "1337": {
     "address": "0x83930294006eeb282dd25fd28e306564195e16fb"
   },
+  "17069": {
+    "address": "0x30278468c1e24c5ce8516f9a7ab78afbdfc88a5f",
+    "blockNumber": 427897
+  },
   "31337": {
-    "address": "0x6489403db54c25dd81669742734945ddfc0eae13"
+    "address": "0x445af24d4bc822d7e1ecc0c8861b09819588a4ba"
   }
 }

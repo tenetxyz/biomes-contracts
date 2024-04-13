@@ -13,5 +13,9 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 interface ITerrainSystem {
   function setTerrainObjectTypeId(VoxelCoord memory coord, bytes32 objectTypeId) external;
 
+  function setTerrainObjectTypeIds(VoxelCoord[] memory coords, bytes32 objectTypeId) external;
+
+  function setTerrainObjectTypeIds(VoxelCoord[] memory coords, bytes32[] memory objectTypeIds) external;
+
   function getTerrainObjectTypeId(address worldAddress, VoxelCoord memory coord) external view returns (bytes32);
 }

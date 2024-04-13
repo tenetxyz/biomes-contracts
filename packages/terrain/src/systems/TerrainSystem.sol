@@ -10,6 +10,18 @@ contract TerrainSystem is System {
     Terrain.set(_msgSender(), coord.x, coord.y, coord.z, objectTypeId);
   }
 
+  function setTerrainObjectTypeIds(VoxelCoord[] memory coords, bytes32 objectTypeId) public {
+    for (uint i = 0; i < coords.length; i++) {
+      Terrain.set(_msgSender(), coords[i].x, coords[i].y, coords[i].z, objectTypeId);
+    }
+  }
+
+  function setTerrainObjectTypeIds(VoxelCoord[] memory coords, bytes32[] memory objectTypeIds) public {
+    for (uint i = 0; i < coords.length; i++) {
+      Terrain.set(_msgSender(), coords[i].x, coords[i].y, coords[i].z, objectTypeIds[i]);
+    }
+  }
+
   function getTerrainObjectTypeId(address worldAddress, VoxelCoord memory coord) public view returns (bytes32) {
     return Terrain.get(worldAddress, coord.x, coord.y, coord.z);
   }

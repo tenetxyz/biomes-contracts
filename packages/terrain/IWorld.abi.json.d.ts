@@ -1171,6 +1171,76 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "setTerrainObjectTypeIds",
+    "inputs": [
+      {
+        "name": "coords",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      },
+      {
+        "name": "objectTypeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setTerrainObjectTypeIds",
+    "inputs": [
+      {
+        "name": "coords",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      },
+      {
+        "name": "objectTypeIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "spliceDynamicData",
     "inputs": [
       {
