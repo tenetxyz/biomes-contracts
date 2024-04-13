@@ -36,7 +36,7 @@ contract PlayerSystem is System {
     bytes32 playerEntityId = getUniqueEntity();
     if (existingEntityId == bytes32(0)) {
       require(
-        getTerrainObjectTypeId(AirObjectID, spawnCoord) == AirObjectID,
+        getTerrainObjectTypeId(_world(), spawnCoord) == AirObjectID,
         "PlayerSystem: cannot spawn on terrain non-air block"
       );
     } else {

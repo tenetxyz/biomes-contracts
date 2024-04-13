@@ -29,7 +29,7 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord } from "../src/Utils.sol";
+import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
@@ -55,7 +55,7 @@ contract LoginTest is MudTest, GasReporter {
 
   function setupPlayer() public returns (bytes32) {
     spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
-    assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, spawnCoord) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
 
     // move player outside spawn
@@ -148,7 +148,7 @@ contract LoginTest is MudTest, GasReporter {
     world.logoffPlayer();
 
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
-    assertTrue(world.getTerrainBlock(respawnCoord) != AirObjectID, "Terrain block is air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, respawnCoord) != AirObjectID, "Terrain block is air");
 
     vm.expectRevert("LoginSystem: cannot respawn on terrain non-air block");
     world.loginPlayer(respawnCoord);
@@ -168,7 +168,7 @@ contract LoginTest is MudTest, GasReporter {
       spawnCoord.y,
       spawnCoord.z + (MAX_PLAYER_RESPAWN_HALF_WIDTH + 1)
     );
-    assertTrue(world.getTerrainBlock(respawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, respawnCoord) == AirObjectID, "Terrain block is not air");
 
     vm.expectRevert("LoginSystem: respawn coord too far from last known position");
     world.loginPlayer(respawnCoord);
@@ -199,7 +199,7 @@ contract LoginTest is MudTest, GasReporter {
     world.logoffPlayer();
 
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
-    assertTrue(world.getTerrainBlock(respawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, respawnCoord) == AirObjectID, "Terrain block is not air");
 
     vm.expectRevert("LoginSystem: cannot respawn player with gravity");
     world.loginPlayer(respawnCoord);

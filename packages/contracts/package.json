@@ -10,8 +10,9 @@
     "build": "mud build && pnpm run build:js && pnpm run cp-abi",
     "cp-abi": "cp out/IWorld.sol/IWorld.abi.json IWorld.abi.json",
     "build:js": "tsup",
+    "cp-terrain:local": "node ../scripts/setAddress.js 31337 ../terrain/worlds.json src/Constants.sol TERRAIN_WORLD_ADDRESS",
     "clean": "forge clean && rimraf src/codegen",
-    "deploy:local": "pnpm run build && mud deploy",
+    "deploy:local": "pnpm run cp-terrain:local && pnpm run build && mud deploy",
     "deploy:testnet": "pnpm run build && mud deploy --profile=biomes-testnet",
     "dev": "pnpm run build:js && pnpm mud dev-contracts",
     "lint": "pnpm run prettier && pnpm run solhint",
@@ -23,6 +24,7 @@
   },
   "dependencies": {
     "@biomesaw/utils": "workspace:*",
+    "@biomesaw/terrain": "workspace:*",
     "@latticexyz/cli": "link:../../../mud/packages/cli",
     "@latticexyz/config": "link:../../../mud/packages/config",
     "@latticexyz/schema-type": "link:../../../mud/packages/schema-type",

@@ -39,7 +39,7 @@ contract TeleportSystem is System {
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
       require(
-        getTerrainObjectTypeId(AirObjectID, newCoord) == AirObjectID,
+        getTerrainObjectTypeId(_world(), newCoord) == AirObjectID,
         "TeleportSystem: cannot teleport to non-air block"
       );
 

@@ -55,7 +55,7 @@ contract MoveSystem is System {
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(AirObjectID, newCoord) == AirObjectID, "MoveSystem: cannot move to non-air block");
+      require(getTerrainObjectTypeId(_world(), newCoord) == AirObjectID, "MoveSystem: cannot move to non-air block");
 
       // Create new entity
       newEntityId = getUniqueEntity();

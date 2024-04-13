@@ -56,7 +56,7 @@ contract MineSystem is System {
     if (entityId == bytes32(0)) {
       // Check terrain block type
       require(
-        getTerrainObjectTypeId(objectTypeId, coord) == objectTypeId,
+        getTerrainObjectTypeId(_world(), coord) == objectTypeId,
         "MineSystem: block type does not match with terrain type"
       );
 

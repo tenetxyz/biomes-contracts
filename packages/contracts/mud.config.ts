@@ -18,17 +18,6 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    TerrainMetadata: {
-      schema: {
-        objectTypeId: "bytes32",
-        occurenceAddress: "address",
-        occurenceSelector: "bytes4",
-      },
-      key: ["objectTypeId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
     ObjectType: {
       schema: {
         entityId: "bytes32",

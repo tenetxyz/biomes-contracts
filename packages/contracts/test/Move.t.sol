@@ -29,7 +29,7 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord } from "../src/Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
@@ -55,7 +55,7 @@ contract MoveTest is MudTest, GasReporter {
 
   function setupPlayer() public returns (bytes32) {
     spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
-    assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, spawnCoord) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
 
     // move player outside spawn
@@ -75,7 +75,7 @@ contract MoveTest is MudTest, GasReporter {
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
     newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
     for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+      assertTrue(getTerrainObjectTypeId(worldAddress, newCoords[i]) == AirObjectID, "Terrain block is not air");
     }
 
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
@@ -93,7 +93,7 @@ contract MoveTest is MudTest, GasReporter {
 
     vm.startPrank(worldDeployer, worldDeployer);
     for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+      assertTrue(getTerrainObjectTypeId(worldAddress, newCoords[i]) == AirObjectID, "Terrain block is not air");
       if (!overTerrain) {
         bytes32 entityId = getUniqueEntity();
         Position.set(entityId, newCoords[i].x, newCoords[i].y, newCoords[i].z);
@@ -102,7 +102,7 @@ contract MoveTest is MudTest, GasReporter {
 
         // set block below to non-air
         VoxelCoord memory belowCoord = VoxelCoord(newCoords[i].x, newCoords[i].y - 1, newCoords[i].z);
-        assertTrue(world.getTerrainBlock(belowCoord) != AirObjectID, "Terrain block is air");
+        assertTrue(getTerrainObjectTypeId(worldAddress, belowCoord) != AirObjectID, "Terrain block is air");
         bytes32 belowEntityId = getUniqueEntity();
         Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
         ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
@@ -205,7 +205,7 @@ contract MoveTest is MudTest, GasReporter {
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
     newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
     for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+      assertTrue(getTerrainObjectTypeId(worldAddress, newCoords[i]) == AirObjectID, "Terrain block is not air");
     }
     vm.stopPrank();
 
@@ -221,7 +221,7 @@ contract MoveTest is MudTest, GasReporter {
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
     newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
     for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) != AirObjectID, "Terrain block is not air");
+      assertTrue(getTerrainObjectTypeId(worldAddress, newCoords[i]) != AirObjectID, "Terrain block is not air");
     }
 
     vm.expectRevert("MoveSystem: cannot move to non-air block");
@@ -239,7 +239,7 @@ contract MoveTest is MudTest, GasReporter {
     newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
     newCoords[1] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 3);
     for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+      assertTrue(getTerrainObjectTypeId(worldAddress, newCoords[i]) == AirObjectID, "Terrain block is not air");
     }
 
     vm.expectRevert("MoveSystem: new coord is not in surrounding cube of old coord");
@@ -289,7 +289,7 @@ contract MoveTest is MudTest, GasReporter {
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
     newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
     for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+      assertTrue(getTerrainObjectTypeId(worldAddress, newCoords[i]) == AirObjectID, "Terrain block is not air");
     }
 
     startGasReport("move one block terrain w/ full inventory");
@@ -307,7 +307,7 @@ contract MoveTest is MudTest, GasReporter {
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
     newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
     for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+      assertTrue(getTerrainObjectTypeId(worldAddress, newCoords[i]) == AirObjectID, "Terrain block is not air");
     }
 
     vm.startPrank(worldDeployer, worldDeployer);
@@ -346,7 +346,7 @@ contract MoveTest is MudTest, GasReporter {
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
     newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
     for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+      assertTrue(getTerrainObjectTypeId(worldAddress, newCoords[i]) == AirObjectID, "Terrain block is not air");
     }
 
     startGasReport("move one block terrain w/ health and stamina regen");
@@ -369,7 +369,7 @@ contract MoveTest is MudTest, GasReporter {
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
     newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
     for (uint i = 0; i < newCoords.length; i++) {
-      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+      assertTrue(getTerrainObjectTypeId(worldAddress, newCoords[i]) == AirObjectID, "Terrain block is not air");
     }
 
     world.logoffPlayer();

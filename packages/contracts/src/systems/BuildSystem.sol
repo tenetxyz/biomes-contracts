@@ -52,7 +52,7 @@ contract BuildSystem is System {
     if (entityId == bytes32(0)) {
       // Check terrain block type
       require(
-        getTerrainObjectTypeId(AirObjectID, coord) == AirObjectID,
+        getTerrainObjectTypeId(_world(), coord) == AirObjectID,
         "BuildSystem: cannot build on terrain non-air block"
       );
     } else {

@@ -28,7 +28,7 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord } from "../src/Utils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, GRAVITY_DAMAGE } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
@@ -53,7 +53,7 @@ contract DropTest is MudTest, GasReporter {
 
   function setupPlayer() public returns (bytes32) {
     spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
-    assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, spawnCoord) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
 
     // move player outside spawn
@@ -85,7 +85,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32[] memory inventoryEntityIds = new bytes32[](1);
     inventoryEntityIds[0] = newInventoryId;
@@ -123,7 +123,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
     bytes32 airEntityId = getUniqueEntity();
     Position.set(airEntityId, dropCoord.x, dropCoord.y, dropCoord.z);
     ReversePosition.set(dropCoord.x, dropCoord.y, dropCoord.z, airEntityId);
@@ -182,7 +182,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32[] memory inventoryEntityIds = new bytes32[](3);
     inventoryEntityIds[0] = newInventoryId1;
@@ -233,7 +233,7 @@ contract DropTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, DiamondOreObjectID, 1);
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
     bytes32 airEntityId = getUniqueEntity();
     Position.set(airEntityId, dropCoord.x, dropCoord.y, dropCoord.z);
     ReversePosition.set(dropCoord.x, dropCoord.y, dropCoord.z, airEntityId);
@@ -312,7 +312,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32[] memory inventoryEntityIds = new bytes32[](3);
     inventoryEntityIds[0] = newInventoryId1;
@@ -383,7 +383,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == MAX_PLAYER_INVENTORY_SLOTS, "Inventory slots not set correctly");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32 airEntityId = getUniqueEntity();
     Position.set(airEntityId, dropCoord.x, dropCoord.y, dropCoord.z);
@@ -441,7 +441,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32[] memory inventoryEntityIds = new bytes32[](3);
     inventoryEntityIds[0] = newInventoryId1;
@@ -524,7 +524,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slots not set correctly");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32[] memory inventoryEntityIds = new bytes32[](3);
     inventoryEntityIds[0] = newInventoryId1;
@@ -594,7 +594,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == MAX_PLAYER_INVENTORY_SLOTS, "Inventory slots not set correctly");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32 airEntityId = getUniqueEntity();
     Position.set(airEntityId, dropCoord.x, dropCoord.y, dropCoord.z);
@@ -624,7 +624,7 @@ contract DropTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
-    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    bytes32 terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     bytes32 newInventoryId = world.mine(terrainObjectTypeId, mineCoord);
@@ -650,7 +650,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slots not set correctly");
 
     VoxelCoord memory newCoord = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
-    assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, newCoord) == AirObjectID, "Terrain block is not air");
 
     world.teleport(newCoord);
 
@@ -669,13 +669,13 @@ contract DropTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     VoxelCoord memory mineCoord2 = VoxelCoord(spawnCoord.x, spawnCoord.y - 2, spawnCoord.z - 1);
-    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord2);
+    bytes32 terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, mineCoord2);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     bytes32 newInventoryId1 = world.mine(terrainObjectTypeId, mineCoord2);
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
-    bytes32 terrainObjectTypeId2 = world.getTerrainBlock(mineCoord);
+    bytes32 terrainObjectTypeId2 = getTerrainObjectTypeId(worldAddress, mineCoord);
     assertTrue(terrainObjectTypeId2 != AirObjectID, "Terrain block is air");
 
     bytes32 newInventoryId2 = world.mine(terrainObjectTypeId2, mineCoord);
@@ -723,7 +723,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
     VoxelCoord memory newCoord = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
-    assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, newCoord) == AirObjectID, "Terrain block is not air");
 
     world.teleport(newCoord);
 
@@ -791,7 +791,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
-    assertTrue(world.getTerrainBlock(dropCoord) != AirObjectID, "Terrain block is air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) != AirObjectID, "Terrain block is air");
 
     bytes32[] memory inventoryEntityIds = new bytes32[](1);
     inventoryEntityIds[0] = newInventoryId;
@@ -808,7 +808,7 @@ contract DropTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
-    bytes32 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    bytes32 terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
     bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
@@ -835,7 +835,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(airEntityId) == 1, "Inventory slot not unset");
 
     mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 2);
-    terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
     inventoryId = world.mine(terrainObjectTypeId, mineCoord);
 
@@ -864,7 +864,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32[] memory inventoryEntityIds = new bytes32[](1);
     inventoryEntityIds[0] = newInventoryId;
@@ -893,7 +893,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 2);
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32[] memory inventoryEntityIds = new bytes32[](1);
     inventoryEntityIds[0] = newInventoryId;
@@ -1108,7 +1108,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32[] memory inventoryEntityIds = new bytes32[](1);
     inventoryEntityIds[0] = newInventoryId;

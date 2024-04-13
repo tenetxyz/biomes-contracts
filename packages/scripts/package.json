@@ -1,0 +1,13 @@
+{
+  "name": "@biomesaw/scripts",
+  "version": "0.0.1",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "anvil": "node runAnvil.js"
+  },
+  "dependencies": {
+    "@latticexyz/common": "link:../../../mud/packages/common",
+    "viem": "2.7.12"
+  }
+}

@@ -29,7 +29,7 @@ contract GravitySystem is System {
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
-      if (getTerrainObjectTypeId(AirObjectID, newCoord) != AirObjectID) {
+      if (getTerrainObjectTypeId(_world(), newCoord) != AirObjectID) {
         return false;
       }
 

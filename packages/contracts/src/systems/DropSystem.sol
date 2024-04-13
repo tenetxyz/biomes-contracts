@@ -37,7 +37,7 @@ contract DropSystem is System {
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(AirObjectID, coord) == AirObjectID, "DropSystem: cannot drop on non-air block");
+      require(getTerrainObjectTypeId(_world(), coord) == AirObjectID, "DropSystem: cannot drop on non-air block");
 
       // Create new entity
       entityId = getUniqueEntity();

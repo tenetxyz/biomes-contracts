@@ -45,7 +45,7 @@ contract LoginSystem is System {
     if (respawnEntityId == bytes32(0)) {
       // Check terrain block type
       require(
-        getTerrainObjectTypeId(AirObjectID, respawnCoord) == AirObjectID,
+        getTerrainObjectTypeId(_world(), respawnCoord) == AirObjectID,
         "LoginSystem: cannot respawn on terrain non-air block"
       );
     } else {
