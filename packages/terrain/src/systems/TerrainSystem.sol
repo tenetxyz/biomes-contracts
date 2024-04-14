@@ -11,56 +11,42 @@ import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { ITerrainBlockSystem } from "../codegen/world/ITerrainBlockSystem.sol";
 import { ITerrainOreSystem } from "../codegen/world/ITerrainOreSystem.sol";
-import { AirObjectID } from "../ObjectTypeIds.sol";
+import { NullObjectTypeId, AirObjectID } from "../ObjectTypeIds.sol";
 
 import { staticCallInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 contract TerrainSystem is System {
-  function setTerrainObjectTypeId(VoxelCoord memory coord) public {
-    Terrain.set(_msgSender(), coord.x, coord.y, coord.z, computeTerrainObjectTypeId(coord));
+  function getTerrainObjectTypeId(VoxelCoord memory coord) public view returns (uint8) {
+    uint8 cachedObjectTypeId = Terrain.get(coord.x, coord.y, coord.z);
+    if (cachedObjectTypeId != 0) return cachedObjectTypeId;
+    return computeTerrainObjectTypeId(coord);
   }
 
-  function setTerrainObjectTypeIds(VoxelCoord[] memory coord) public {
-    for (uint i = 0; i < coord.length; i++) {
-      setTerrainObjectTypeId(coord[i]);
-    }
+  function getTerrainObjectTypeIdWithCacheSet(VoxelCoord memory coord) public returns (uint8) {
+    uint8 cachedObjectTypeId = Terrain.get(coord.x, coord.y, coord.z);
+    if (cachedObjectTypeId != NullObjectTypeId) return cachedObjectTypeId;
+    uint8 objectTypeId = computeTerrainObjectTypeId(coord);
+    Terrain.set(coord.x, coord.y, coord.z, objectTypeId);
+    return objectTypeId;
   }
 
-  function setTerrainObjectTypeId() public {
-    // Set an area of 1000 x 500 x 1000
-    for (int32 x = -1000; x < 0; x++) {
-      for (int32 z = -1000; z < 0; z++) {
-        for (int32 y = -150; y < 250; y++) {
-          setTerrainObjectTypeId(VoxelCoord(x, y, z));
-        }
-      }
-    }
-  }
-
-  function getTerrainObjectTypeId(address worldAddress, VoxelCoord memory coord) public view returns (bytes32) {
-    return Terrain.get(worldAddress, coord.x, coord.y, coord.z);
-  }
-
-  function computeTerrainObjectTypeId(VoxelCoord memory coord) public view returns (bytes32) {
-    bytes32 objectTypeId;
-
-    objectTypeId = abi.decode(staticCallInternalSystem(abi.encodeCall(ITerrainBlockSystem.Trees, (coord))), (bytes32));
-    if (objectTypeId != bytes32(0)) return objectTypeId;
-
-    objectTypeId = abi.decode(staticCallInternalSystem(abi.encodeCall(ITerrainBlockSystem.Flora, (coord))), (bytes32));
-    if (objectTypeId != bytes32(0)) return objectTypeId;
-
-    objectTypeId = abi.decode(staticCallInternalSystem(abi.encodeCall(ITerrainOreSystem.Ores, (coord))), (bytes32));
-    if (objectTypeId != bytes32(0)) return objectTypeId;
+  function computeTerrainObjectTypeId(VoxelCoord memory coord) public view returns (uint8) {
+    uint8 objectTypeId;
 
     objectTypeId = abi.decode(
       staticCallInternalSystem(abi.encodeCall(ITerrainBlockSystem.TerrainBlocks, (coord))),
-      (bytes32)
+      (uint8)
     );
-    if (objectTypeId != bytes32(0)) return objectTypeId;
+    if (objectTypeId != NullObjectTypeId) return objectTypeId;
 
-    objectTypeId = abi.decode(staticCallInternalSystem(abi.encodeCall(ITerrainBlockSystem.Air, (coord))), (bytes32));
-    if (objectTypeId != bytes32(0)) return objectTypeId;
+    objectTypeId = abi.decode(staticCallInternalSystem(abi.encodeCall(ITerrainOreSystem.Ores, (coord))), (uint8));
+    if (objectTypeId != NullObjectTypeId) return objectTypeId;
+
+    objectTypeId = abi.decode(
+      staticCallInternalSystem(abi.encodeCall(ITerrainBlockSystem.getTerrainBlock, (coord))),
+      (uint8)
+    );
+    if (objectTypeId != NullObjectTypeId) return objectTypeId;
 
     return AirObjectID;
   }

@@ -3,199 +3,202 @@ pragma solidity >=0.8.24;
 
 // Object Types
 
+// Note: Do not use 0 as an object ID, as it is reserved
+uint8 constant NullObjectTypeId = 0;
+
 // Players
-bytes32 constant PlayerObjectID = bytes32(keccak256("player"));
+uint8 constant PlayerObjectID = 1;
 
 // Tools
-bytes32 constant WoodenPickObjectID = bytes32(keccak256("wooden-pick"));
-bytes32 constant WoodenAxeObjectID = bytes32(keccak256("wooden-axe"));
-bytes32 constant WoodenWhackerObjectID = bytes32(keccak256("wooden-whacker"));
-bytes32 constant StonePickObjectID = bytes32(keccak256("stone-pick"));
-bytes32 constant StoneAxeObjectID = bytes32(keccak256("stone-axe"));
-bytes32 constant StoneWhackerObjectID = bytes32(keccak256("stone-whacker"));
-bytes32 constant SilverPickObjectID = bytes32(keccak256("silver-pick"));
-bytes32 constant SilverAxeObjectID = bytes32(keccak256("silver-axe"));
-bytes32 constant SilverWhackerObjectID = bytes32(keccak256("silver-whacker"));
-bytes32 constant GoldPickObjectID = bytes32(keccak256("gold-pick"));
-bytes32 constant GoldAxeObjectID = bytes32(keccak256("gold-axe"));
-bytes32 constant DiamondPickObjectID = bytes32(keccak256("diamond-pick"));
-bytes32 constant DiamondAxeObjectID = bytes32(keccak256("diamond-axe"));
-bytes32 constant NeptuniumPickObjectID = bytes32(keccak256("neptunium-pick"));
-bytes32 constant NeptuniumAxeObjectID = bytes32(keccak256("neptunium-axe"));
+uint8 constant WoodenPickObjectID = 2;
+uint8 constant WoodenAxeObjectID = 3;
+uint8 constant WoodenWhackerObjectID = 4;
+uint8 constant StonePickObjectID = 5;
+uint8 constant StoneAxeObjectID = 6;
+uint8 constant StoneWhackerObjectID = 7;
+uint8 constant SilverPickObjectID = 8;
+uint8 constant SilverAxeObjectID = 9;
+uint8 constant SilverWhackerObjectID = 10;
+uint8 constant GoldPickObjectID = 11;
+uint8 constant GoldAxeObjectID = 12;
+uint8 constant DiamondPickObjectID = 13;
+uint8 constant DiamondAxeObjectID = 14;
+uint8 constant NeptuniumPickObjectID = 15;
+uint8 constant NeptuniumAxeObjectID = 16;
 
 // Items
-bytes32 constant GoldBarObjectID = bytes32(keccak256("gold-bar"));
-bytes32 constant SilverBarObjectID = bytes32(keccak256("silver-bar"));
-bytes32 constant NeptuniumBarObjectID = bytes32(keccak256("neptunium-bar"));
-bytes32 constant DiamondObjectID = bytes32(keccak256("diamond"));
+uint8 constant GoldBarObjectID = 17;
+uint8 constant SilverBarObjectID = 18;
+uint8 constant NeptuniumBarObjectID = 19;
+uint8 constant DiamondObjectID = 20;
+
 // Dyes
-bytes32 constant BlueDyeObjectID = bytes32(keccak256("blue-dye"));
-bytes32 constant BrownDyeObjectID = bytes32(keccak256("brown-dye"));
-bytes32 constant GreenDyeObjectID = bytes32(keccak256("green-dye"));
-bytes32 constant MagentaDyeObjectID = bytes32(keccak256("magenta-dye"));
-bytes32 constant OrangeDyeObjectID = bytes32(keccak256("orange-dye"));
-bytes32 constant PinkDyeObjectID = bytes32(keccak256("pink-dye"));
-bytes32 constant PurpleDyeObjectID = bytes32(keccak256("purple-dye"));
-bytes32 constant RedDyeObjectID = bytes32(keccak256("red-dye"));
-bytes32 constant TanDyeObjectID = bytes32(keccak256("tan-dye"));
-bytes32 constant WhiteDyeObjectID = bytes32(keccak256("white-dye"));
-bytes32 constant YellowDyeObjectID = bytes32(keccak256("yellow-dye"));
-bytes32 constant BlackDyeObjectID = bytes32(keccak256("black-dye"));
-bytes32 constant SilverDyeObjectID = bytes32(keccak256("silver-dye"));
+uint8 constant BlueDyeObjectID = 21;
+uint8 constant BrownDyeObjectID = 22;
+uint8 constant GreenDyeObjectID = 23;
+uint8 constant MagentaDyeObjectID = 24;
+uint8 constant OrangeDyeObjectID = 25;
+uint8 constant PinkDyeObjectID = 26;
+uint8 constant PurpleDyeObjectID = 27;
+uint8 constant RedDyeObjectID = 28;
+uint8 constant TanDyeObjectID = 29;
+uint8 constant WhiteDyeObjectID = 30;
+uint8 constant YellowDyeObjectID = 31;
+uint8 constant BlackDyeObjectID = 32;
+uint8 constant SilverDyeObjectID = 33;
 
 // Blocks
-bytes32 constant AirObjectID = bytes32(keccak256("air"));
+uint8 constant AirObjectID = 34;
+uint8 constant GrassObjectID = 35;
+uint8 constant MuckGrassObjectID = 36;
+uint8 constant DirtObjectID = 37;
+uint8 constant MuckDirtObjectID = 38;
+uint8 constant MossBlockObjectID = 39;
+uint8 constant SnowObjectID = 40;
+uint8 constant GravelObjectID = 41;
+uint8 constant SandObjectID = 42;
+uint8 constant GlassObjectID = 43;
+uint8 constant BedrockObjectID = 44;
 
-bytes32 constant GrassObjectID = bytes32(keccak256("grass"));
-bytes32 constant MuckGrassObjectID = bytes32(keccak256("muck-grass"));
-bytes32 constant DirtObjectID = bytes32(keccak256("dirt"));
-bytes32 constant MuckDirtObjectID = bytes32(keccak256("muck-dirt"));
-bytes32 constant MossBlockObjectID = bytes32(keccak256("moss"));
-bytes32 constant SnowObjectID = bytes32(keccak256("snow"));
-bytes32 constant GravelObjectID = bytes32(keccak256("gravel"));
-bytes32 constant SandObjectID = bytes32(keccak256("sand"));
-bytes32 constant GlassObjectID = bytes32(keccak256("glass"));
-bytes32 constant BedrockObjectID = bytes32(keccak256("bedrock"));
+uint8 constant CobblestoneObjectID = 45;
+uint8 constant CobblestoneBrickObjectID = 46;
+uint8 constant CobblestoneCarvedObjectID = 47;
+uint8 constant CobblestonePolishedObjectID = 48;
+uint8 constant CobblestoneShinglesObjectID = 49;
 
-bytes32 constant CobblestoneObjectID = bytes32(keccak256("cobblestone"));
-bytes32 constant CobblestoneBrickObjectID = bytes32(keccak256("cobblestone-brick"));
-bytes32 constant CobblestoneCarvedObjectID = bytes32(keccak256("cobblestone-carved"));
-bytes32 constant CobblestonePolishedObjectID = bytes32(keccak256("cobblestone-polished"));
-bytes32 constant CobblestoneShinglesObjectID = bytes32(keccak256("cobblestone-shingles"));
+uint8 constant StoneObjectID = 50;
+uint8 constant StoneBrickObjectID = 51;
+uint8 constant StoneCarvedObjectID = 52;
+uint8 constant StonePolishedObjectID = 53;
+uint8 constant StoneShinglesObjectID = 54;
 
-bytes32 constant StoneObjectID = bytes32(keccak256("stone"));
-bytes32 constant StoneBrickObjectID = bytes32(keccak256("stone-brick"));
-bytes32 constant StoneCarvedObjectID = bytes32(keccak256("stone-carved"));
-bytes32 constant StonePolishedObjectID = bytes32(keccak256("stone-polished"));
-bytes32 constant StoneShinglesObjectID = bytes32(keccak256("stone-shingles"));
+uint8 constant BasaltObjectID = 55;
+uint8 constant BasaltBrickObjectID = 56;
+uint8 constant BasaltCarvedObjectID = 57;
+uint8 constant BasaltPolishedObjectID = 58;
+uint8 constant BasaltShinglesObjectID = 59;
 
-bytes32 constant BasaltObjectID = bytes32(keccak256("basalt"));
-bytes32 constant BasaltBrickObjectID = bytes32(keccak256("basalt-brick"));
-bytes32 constant BasaltCarvedObjectID = bytes32(keccak256("basalt-carved"));
-bytes32 constant BasaltPolishedObjectID = bytes32(keccak256("basalt-polished"));
-bytes32 constant BasaltShinglesObjectID = bytes32(keccak256("basalt-shingles"));
+uint8 constant ClayObjectID = 60;
+uint8 constant ClayBrickObjectID = 61;
+uint8 constant ClayCarvedObjectID = 62;
+uint8 constant ClayPolishedObjectID = 63;
+uint8 constant ClayShinglesObjectID = 64;
 
-bytes32 constant ClayObjectID = bytes32(keccak256("clay"));
-bytes32 constant ClayBrickObjectID = bytes32(keccak256("clay-brick"));
-bytes32 constant ClayCarvedObjectID = bytes32(keccak256("clay-carved"));
-bytes32 constant ClayPolishedObjectID = bytes32(keccak256("clay-polished"));
-bytes32 constant ClayShinglesObjectID = bytes32(keccak256("clay-shingles"));
+uint8 constant GraniteObjectID = 65;
+uint8 constant GraniteBrickObjectID = 66;
+uint8 constant GraniteCarvedObjectID = 67;
+uint8 constant GraniteShinglesObjectID = 68;
+uint8 constant GranitePolishedObjectID = 69;
 
-bytes32 constant GraniteObjectID = bytes32(keccak256("granite"));
-bytes32 constant GraniteBrickObjectID = bytes32(keccak256("granite-brick"));
-bytes32 constant GraniteCarvedObjectID = bytes32(keccak256("granite-carved"));
-bytes32 constant GraniteShinglesObjectID = bytes32(keccak256("granite-shingles"));
-bytes32 constant GranitePolishedObjectID = bytes32(keccak256("granite-polished"));
+uint8 constant QuartziteObjectID = 70;
+uint8 constant QuartziteBrickObjectID = 71;
+uint8 constant QuartziteCarvedObjectID = 72;
+uint8 constant QuartzitePolishedObjectID = 73;
+uint8 constant QuartziteShinglesObjectID = 74;
 
-bytes32 constant QuartziteObjectID = bytes32(keccak256("quartzite"));
-bytes32 constant QuartziteBrickObjectID = bytes32(keccak256("quartzite-brick"));
-bytes32 constant QuartziteCarvedObjectID = bytes32(keccak256("quartzite-carved"));
-bytes32 constant QuartzitePolishedObjectID = bytes32(keccak256("quartzite-polished"));
-bytes32 constant QuartziteShinglesObjectID = bytes32(keccak256("quartzite-shingles"));
-
-bytes32 constant LimestoneObjectID = bytes32(keccak256("limestone"));
-bytes32 constant LimestoneBrickObjectID = bytes32(keccak256("limestone-brick"));
-bytes32 constant LimestoneCarvedObjectID = bytes32(keccak256("limestone-carved"));
-bytes32 constant LimestonePolishedObjectID = bytes32(keccak256("limestone-polished"));
-bytes32 constant LimestoneShinglesObjectID = bytes32(keccak256("limestone-shingles"));
+uint8 constant LimestoneObjectID = 75;
+uint8 constant LimestoneBrickObjectID = 76;
+uint8 constant LimestoneCarvedObjectID = 77;
+uint8 constant LimestonePolishedObjectID = 78;
+uint8 constant LimestoneShinglesObjectID = 79;
 
 // Blocks that glow
-bytes32 constant EmberstoneObjectID = bytes32(keccak256("emberstone"));
-bytes32 constant MoonstoneObjectID = bytes32(keccak256("moonstone"));
-bytes32 constant SunstoneObjectID = bytes32(keccak256("sunstone"));
-bytes32 constant LavaObjectID = bytes32(keccak256("lava"));
+uint8 constant EmberstoneObjectID = 80;
+uint8 constant MoonstoneObjectID = 81;
+uint8 constant SunstoneObjectID = 82;
+uint8 constant LavaObjectID = 83;
 
 // Interactable
-bytes32 constant ChestObjectID = bytes32(keccak256("chest"));
-bytes32 constant ThermoblasterObjectID = bytes32(keccak256("thermoblaster"));
-bytes32 constant WorkbenchObjectID = bytes32(keccak256("workbench"));
-bytes32 constant DyeomaticObjectID = bytes32(keccak256("dye-o-matic"));
+uint8 constant ChestObjectID = 84;
+uint8 constant ThermoblasterObjectID = 85;
+uint8 constant WorkbenchObjectID = 86;
+uint8 constant DyeomaticObjectID = 87;
 
 // Ores and Cubes
-bytes32 constant CoalOreObjectID = bytes32(keccak256("coal-ore"));
-bytes32 constant GoldOreObjectID = bytes32(keccak256("gold-ore"));
-bytes32 constant GoldCubeObjectID = bytes32(keccak256("gold-cube"));
-bytes32 constant SilverOreObjectID = bytes32(keccak256("silver-ore"));
-bytes32 constant SilverCubeObjectID = bytes32(keccak256("silver-cube"));
-bytes32 constant DiamondOreObjectID = bytes32(keccak256("diamond-ore"));
-bytes32 constant DiamondCubeObjectID = bytes32(keccak256("diamond-cube"));
-bytes32 constant NeptuniumOreObjectID = bytes32(keccak256("neptunium-ore"));
-bytes32 constant NeptuniumCubeObjectID = bytes32(keccak256("neptunium-cube"));
+uint8 constant CoalOreObjectID = 88;
+uint8 constant GoldOreObjectID = 89;
+uint8 constant GoldCubeObjectID = 90;
+uint8 constant SilverOreObjectID = 91;
+uint8 constant SilverCubeObjectID = 92;
+uint8 constant DiamondOreObjectID = 93;
+uint8 constant DiamondCubeObjectID = 94;
+uint8 constant NeptuniumOreObjectID = 95;
+uint8 constant NeptuniumCubeObjectID = 96;
 
 // Lumber
-bytes32 constant OakLogObjectID = bytes32(keccak256("oak-log"));
-bytes32 constant OakLumberObjectID = bytes32(keccak256("oak-lumber"));
-bytes32 constant ReinforcedOakLumberObjectID = bytes32(keccak256("reinforced-oak-lumber"));
-bytes32 constant SakuraLogObjectID = bytes32(keccak256("sakura-log"));
-bytes32 constant SakuraLumberObjectID = bytes32(keccak256("sakura-lumber"));
-bytes32 constant RubberLogObjectID = bytes32(keccak256("rubber-log"));
-bytes32 constant RubberLumberObjectID = bytes32(keccak256("rubber-lumber"));
-bytes32 constant ReinforcedRubberLumberObjectID = bytes32(keccak256("reinforced-rubber-lumber"));
-bytes32 constant BirchLogObjectID = bytes32(keccak256("birch-log"));
-bytes32 constant BirchLumberObjectID = bytes32(keccak256("birch-lumber"));
-bytes32 constant ReinforcedBirchLumberObjectID = bytes32(keccak256("reinforced-birch-lumber"));
+uint8 constant OakLogObjectID = 97;
+uint8 constant OakLumberObjectID = 98;
+uint8 constant ReinforcedOakLumberObjectID = 99;
+uint8 constant SakuraLogObjectID = 100;
+uint8 constant SakuraLumberObjectID = 101;
+uint8 constant RubberLogObjectID = 102;
+uint8 constant RubberLumberObjectID = 103;
+uint8 constant ReinforcedRubberLumberObjectID = 104;
+uint8 constant BirchLogObjectID = 105;
+uint8 constant BirchLumberObjectID = 106;
+uint8 constant ReinforcedBirchLumberObjectID = 107;
 
 // Florae blocks
-bytes32 constant MushroomLeatherBlockObjectID = bytes32(keccak256("mushroom-leather"));
-bytes32 constant CottonBlockObjectID = bytes32(keccak256("cotton-block"));
+uint8 constant MushroomLeatherBlockObjectID = 108;
+uint8 constant CottonBlockObjectID = 109;
 
 // Florae
-bytes32 constant CactusObjectID = bytes32(keccak256("cactus"));
-bytes32 constant LilacObjectID = bytes32(keccak256("lilac"));
-bytes32 constant DandelionObjectID = bytes32(keccak256("dandelion"));
-bytes32 constant RedMushroomObjectID = bytes32(keccak256("red-mushroom"));
-bytes32 constant BellflowerObjectID = bytes32(keccak256("bellflower"));
-bytes32 constant CottonBushObjectID = bytes32(keccak256("cotton-bush"));
-bytes32 constant SwitchGrassObjectID = bytes32(keccak256("switch-grass"));
-bytes32 constant DaylilyObjectID = bytes32(keccak256("daylily"));
-bytes32 constant AzaleaObjectID = bytes32(keccak256("azalea"));
-bytes32 constant RoseObjectID = bytes32(keccak256("rose"));
+uint8 constant CactusObjectID = 110;
+uint8 constant LilacObjectID = 111;
+uint8 constant DandelionObjectID = 112;
+uint8 constant RedMushroomObjectID = 113;
+uint8 constant BellflowerObjectID = 114;
+uint8 constant CottonBushObjectID = 115;
+uint8 constant SwitchGrassObjectID = 116;
+uint8 constant DaylilyObjectID = 117;
+uint8 constant AzaleaObjectID = 118;
+uint8 constant RoseObjectID = 119;
 
 // Tree leafs
-bytes32 constant OakLeafObjectID = bytes32(keccak256("oak-leaf"));
-bytes32 constant BirchLeafObjectID = bytes32(keccak256("birch-leaf"));
-bytes32 constant SakuraLeafObjectID = bytes32(keccak256("sakura-leaf"));
-bytes32 constant RubberLeafObjectID = bytes32(keccak256("rubber-leaf"));
+uint8 constant OakLeafObjectID = 120;
+uint8 constant BirchLeafObjectID = 121;
+uint8 constant SakuraLeafObjectID = 122;
+uint8 constant RubberLeafObjectID = 123;
 
 // Colored Blocks
-bytes32 constant BlueOakLumberObjectID = bytes32(keccak256("blue-oak-lumber"));
-bytes32 constant BrownOakLumberObjectID = bytes32(keccak256("brown-oak-lumber"));
-bytes32 constant GreenOakLumberObjectID = bytes32(keccak256("green-oak-lumber"));
-bytes32 constant MagentaOakLumberObjectID = bytes32(keccak256("magenta-oak-lumber"));
-bytes32 constant OrangeOakLumberObjectID = bytes32(keccak256("orange-oak-lumber"));
-bytes32 constant PinkOakLumberObjectID = bytes32(keccak256("pink-oak-lumber"));
-bytes32 constant PurpleOakLumberObjectID = bytes32(keccak256("purple-oak-lumber"));
-bytes32 constant RedOakLumberObjectID = bytes32(keccak256("red-oak-lumber"));
-bytes32 constant TanOakLumberObjectID = bytes32(keccak256("tan-oak-lumber"));
-bytes32 constant WhiteOakLumberObjectID = bytes32(keccak256("white-oak-lumber"));
-bytes32 constant YellowOakLumberObjectID = bytes32(keccak256("yellow-oak-lumber"));
-bytes32 constant BlackOakLumberObjectID = bytes32(keccak256("black-oak-lumber"));
-bytes32 constant SilverOakLumberObjectID = bytes32(keccak256("silver-oak-lumber"));
+uint8 constant BlueOakLumberObjectID = 124;
+uint8 constant BrownOakLumberObjectID = 125;
+uint8 constant GreenOakLumberObjectID = 126;
+uint8 constant MagentaOakLumberObjectID = 127;
+uint8 constant OrangeOakLumberObjectID = 128;
+uint8 constant PinkOakLumberObjectID = 129;
+uint8 constant PurpleOakLumberObjectID = 130;
+uint8 constant RedOakLumberObjectID = 131;
+uint8 constant TanOakLumberObjectID = 132;
+uint8 constant WhiteOakLumberObjectID = 133;
+uint8 constant YellowOakLumberObjectID = 134;
+uint8 constant BlackOakLumberObjectID = 135;
+uint8 constant SilverOakLumberObjectID = 136;
 
-bytes32 constant BlueCottonBlockObjectID = bytes32(keccak256("blue-cotton-block"));
-bytes32 constant BrownCottonBlockObjectID = bytes32(keccak256("brown-cotton-block"));
-bytes32 constant GreenCottonBlockObjectID = bytes32(keccak256("green-cotton-block"));
-bytes32 constant MagentaCottonBlockObjectID = bytes32(keccak256("magenta-cotton-block"));
-bytes32 constant OrangeCottonBlockObjectID = bytes32(keccak256("orange-cotton-block"));
-bytes32 constant PinkCottonBlockObjectID = bytes32(keccak256("pink-cotton-block"));
-bytes32 constant PurpleCottonBlockObjectID = bytes32(keccak256("purple-cotton-block"));
-bytes32 constant RedCottonBlockObjectID = bytes32(keccak256("red-cotton-block"));
-bytes32 constant TanCottonBlockObjectID = bytes32(keccak256("tan-cotton-block"));
-bytes32 constant WhiteCottonBlockObjectID = bytes32(keccak256("white-cotton-block"));
-bytes32 constant YellowCottonBlockObjectID = bytes32(keccak256("yellow-cotton-block"));
-bytes32 constant BlackCottonBlockObjectID = bytes32(keccak256("black-cotton-block"));
-bytes32 constant SilverCottonBlockObjectID = bytes32(keccak256("silver-cotton-block"));
+uint8 constant BlueCottonBlockObjectID = 137;
+uint8 constant BrownCottonBlockObjectID = 138;
+uint8 constant GreenCottonBlockObjectID = 139;
+uint8 constant MagentaCottonBlockObjectID = 140;
+uint8 constant OrangeCottonBlockObjectID = 141;
+uint8 constant PinkCottonBlockObjectID = 142;
+uint8 constant PurpleCottonBlockObjectID = 143;
+uint8 constant RedCottonBlockObjectID = 144;
+uint8 constant TanCottonBlockObjectID = 145;
+uint8 constant WhiteCottonBlockObjectID = 146;
+uint8 constant YellowCottonBlockObjectID = 147;
+uint8 constant BlackCottonBlockObjectID = 148;
+uint8 constant SilverCottonBlockObjectID = 149;
 
-bytes32 constant BlueGlassObjectID = bytes32(keccak256("blue-glass"));
-bytes32 constant GreenGlassObjectID = bytes32(keccak256("green-glass"));
-bytes32 constant OrangeGlassObjectID = bytes32(keccak256("orange-glass"));
-bytes32 constant PinkGlassObjectID = bytes32(keccak256("pink-glass"));
-bytes32 constant PurpleGlassObjectID = bytes32(keccak256("purple-glass"));
-bytes32 constant RedGlassObjectID = bytes32(keccak256("red-glass"));
-bytes32 constant WhiteGlassObjectID = bytes32(keccak256("white-glass"));
-bytes32 constant YellowGlassObjectID = bytes32(keccak256("yellow-glass"));
-bytes32 constant BlackGlassObjectID = bytes32(keccak256("black-glass"));
+uint8 constant BlueGlassObjectID = 150;
+uint8 constant GreenGlassObjectID = 151;
+uint8 constant OrangeGlassObjectID = 152;
+uint8 constant PinkGlassObjectID = 153;
+uint8 constant PurpleGlassObjectID = 154;
+uint8 constant RedGlassObjectID = 155;
+uint8 constant WhiteGlassObjectID = 156;
+uint8 constant YellowGlassObjectID = 157;
+uint8 constant BlackGlassObjectID = 158;
 
 // Used for Recipes only
-bytes32 constant AnyLogObjectID = bytes32(keccak256("any-log"));
-bytes32 constant AnyLumberObjectID = bytes32(keccak256("any-lumber"));
+uint8 constant AnyLogObjectID = 159;
+uint8 constant AnyLumberObjectID = 160;

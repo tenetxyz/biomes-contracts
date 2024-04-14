@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { Inventory } from "../codegen/tables/Inventory.sol";
 import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { InventorySlots } from "../codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
@@ -13,14 +12,15 @@ import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { getObjectTypeStackable } from "./TerrainUtils.sol";
 
 function addToInventoryCount(
   bytes32 ownerEntityId,
-  bytes32 ownerObjectTypeId,
-  bytes32 objectTypeId,
+  uint8 ownerObjectTypeId,
+  uint8 objectTypeId,
   uint16 numObjectsToAdd
 ) {
-  uint8 stackable = ObjectTypeMetadata._getStackable(objectTypeId);
+  uint8 stackable = getObjectTypeStackable(objectTypeId);
   require(stackable > 0, "This object type cannot be added to the inventory");
 
   uint16 numInitialObjects = InventoryCount._get(ownerEntityId, objectTypeId);
@@ -43,11 +43,11 @@ function addToInventoryCount(
   InventoryCount._set(ownerEntityId, objectTypeId, numFinalObjects);
 }
 
-function removeFromInventoryCount(bytes32 ownerEntityId, bytes32 objectTypeId, uint16 numObjectsToRemove) {
+function removeFromInventoryCount(bytes32 ownerEntityId, uint8 objectTypeId, uint16 numObjectsToRemove) {
   uint16 numInitialObjects = InventoryCount._get(ownerEntityId, objectTypeId);
   require(numInitialObjects >= numObjectsToRemove, "Not enough objects in the inventory");
 
-  uint8 stackable = ObjectTypeMetadata._getStackable(objectTypeId);
+  uint8 stackable = getObjectTypeStackable(objectTypeId);
   require(stackable > 0, "This object type cannot be removed from the inventory");
 
   uint16 numInitialFullStacks = numInitialObjects / stackable;
@@ -110,10 +110,10 @@ function removeEntityIdFromReverseInventory(bytes32 ownerEntityId, bytes32 remov
   }
 }
 
-function transferAllInventoryEntities(bytes32 fromEntityId, bytes32 toEntityId, bytes32 toObjectTypeId) {
+function transferAllInventoryEntities(bytes32 fromEntityId, bytes32 toEntityId, uint8 toObjectTypeId) {
   bytes32[] memory fromInventoryEntityIds = ReverseInventory._get(fromEntityId);
   for (uint256 i = 0; i < fromInventoryEntityIds.length; i++) {
-    bytes32 inventoryObjectTypeId = ObjectType._get(fromInventoryEntityIds[i]);
+    uint8 inventoryObjectTypeId = ObjectType._get(fromInventoryEntityIds[i]);
     addToInventoryCount(toEntityId, toObjectTypeId, inventoryObjectTypeId, 1);
     removeFromInventoryCount(fromEntityId, inventoryObjectTypeId, 1);
     Inventory._set(fromInventoryEntityIds[i], toEntityId);
@@ -127,7 +127,7 @@ function transferAllInventoryEntities(bytes32 fromEntityId, bytes32 toEntityId, 
 function transferInventoryItem(
   bytes32 srcEntityId,
   bytes32 dstEntityId,
-  bytes32 dstObjectTypeId,
+  uint8 dstObjectTypeId,
   bytes32 inventoryEntityId
 ) {
   require(Inventory._get(inventoryEntityId) == srcEntityId, "Entity does not own inventory item");
@@ -138,7 +138,7 @@ function transferInventoryItem(
   ReverseInventory._push(dstEntityId, inventoryEntityId);
   removeEntityIdFromReverseInventory(srcEntityId, inventoryEntityId);
 
-  bytes32 inventoryObjectTypeId = ObjectType._get(inventoryEntityId);
+  uint8 inventoryObjectTypeId = ObjectType._get(inventoryEntityId);
   removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);
   addToInventoryCount(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
 }

@@ -6,7 +6,6 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
@@ -20,6 +19,7 @@ import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds
 import { positionDataToVoxelCoord, callGravity, inSpawnArea } from "../Utils.sol";
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
+import { getObjectTypeDamage } from "../utils/TerrainUtils.sol";
 import { inSurroundingCube, voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract HitSystem is System {
@@ -55,7 +55,7 @@ contract HitSystem is System {
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
     uint32 receiverDamage = PLAYER_HAND_DAMAGE;
     if (equippedEntityId != bytes32(0)) {
-      receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
+      receiverDamage = getObjectTypeDamage(ObjectType._get(equippedEntityId));
     }
 
     // Update damage to be the actual damage done

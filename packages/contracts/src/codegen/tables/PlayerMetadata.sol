@@ -20,7 +20,7 @@ struct PlayerMetadataData {
   bool isLoggedOff;
   uint256 lastMoveBlock;
   uint256 lastHitTime;
-  uint32 numMovesInBlock;
+  uint16 numMovesInBlock;
 }
 
 library PlayerMetadata {
@@ -28,12 +28,12 @@ library PlayerMetadata {
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000506c617965724d657461646174610000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0045040001202004000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0043040001202002000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bool, uint256, uint256, uint32)
-  Schema constant _valueSchema = Schema.wrap(0x00450400601f1f03000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bool, uint256, uint256, uint16)
+  Schema constant _valueSchema = Schema.wrap(0x00430400601f1f01000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -269,40 +269,40 @@ library PlayerMetadata {
   /**
    * @notice Get numMovesInBlock.
    */
-  function getNumMovesInBlock(bytes32 entityId) internal view returns (uint32 numMovesInBlock) {
+  function getNumMovesInBlock(bytes32 entityId) internal view returns (uint16 numMovesInBlock) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (uint32(bytes4(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Get numMovesInBlock.
    */
-  function _getNumMovesInBlock(bytes32 entityId) internal view returns (uint32 numMovesInBlock) {
+  function _getNumMovesInBlock(bytes32 entityId) internal view returns (uint16 numMovesInBlock) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (uint32(bytes4(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Get numMovesInBlock (using the specified store).
    */
-  function getNumMovesInBlock(IStore _store, bytes32 entityId) internal view returns (uint32 numMovesInBlock) {
+  function getNumMovesInBlock(IStore _store, bytes32 entityId) internal view returns (uint16 numMovesInBlock) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (uint32(bytes4(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Set numMovesInBlock.
    */
-  function setNumMovesInBlock(bytes32 entityId, uint32 numMovesInBlock) internal {
+  function setNumMovesInBlock(bytes32 entityId, uint16 numMovesInBlock) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -312,7 +312,7 @@ library PlayerMetadata {
   /**
    * @notice Set numMovesInBlock.
    */
-  function _setNumMovesInBlock(bytes32 entityId, uint32 numMovesInBlock) internal {
+  function _setNumMovesInBlock(bytes32 entityId, uint16 numMovesInBlock) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -322,7 +322,7 @@ library PlayerMetadata {
   /**
    * @notice Set numMovesInBlock (using the specified store).
    */
-  function setNumMovesInBlock(IStore _store, bytes32 entityId, uint32 numMovesInBlock) internal {
+  function setNumMovesInBlock(IStore _store, bytes32 entityId, uint16 numMovesInBlock) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -382,7 +382,7 @@ library PlayerMetadata {
     bool isLoggedOff,
     uint256 lastMoveBlock,
     uint256 lastHitTime,
-    uint32 numMovesInBlock
+    uint16 numMovesInBlock
   ) internal {
     bytes memory _staticData = encodeStatic(isLoggedOff, lastMoveBlock, lastHitTime, numMovesInBlock);
 
@@ -403,7 +403,7 @@ library PlayerMetadata {
     bool isLoggedOff,
     uint256 lastMoveBlock,
     uint256 lastHitTime,
-    uint32 numMovesInBlock
+    uint16 numMovesInBlock
   ) internal {
     bytes memory _staticData = encodeStatic(isLoggedOff, lastMoveBlock, lastHitTime, numMovesInBlock);
 
@@ -425,7 +425,7 @@ library PlayerMetadata {
     bool isLoggedOff,
     uint256 lastMoveBlock,
     uint256 lastHitTime,
-    uint32 numMovesInBlock
+    uint16 numMovesInBlock
   ) internal {
     bytes memory _staticData = encodeStatic(isLoggedOff, lastMoveBlock, lastHitTime, numMovesInBlock);
 
@@ -503,14 +503,14 @@ library PlayerMetadata {
    */
   function decodeStatic(
     bytes memory _blob
-  ) internal pure returns (bool isLoggedOff, uint256 lastMoveBlock, uint256 lastHitTime, uint32 numMovesInBlock) {
+  ) internal pure returns (bool isLoggedOff, uint256 lastMoveBlock, uint256 lastHitTime, uint16 numMovesInBlock) {
     isLoggedOff = (_toBool(uint8(Bytes.getBytes1(_blob, 0))));
 
     lastMoveBlock = (uint256(Bytes.getBytes32(_blob, 1)));
 
     lastHitTime = (uint256(Bytes.getBytes32(_blob, 33)));
 
-    numMovesInBlock = (uint32(Bytes.getBytes4(_blob, 65)));
+    numMovesInBlock = (uint16(Bytes.getBytes2(_blob, 65)));
   }
 
   /**
@@ -565,7 +565,7 @@ library PlayerMetadata {
     bool isLoggedOff,
     uint256 lastMoveBlock,
     uint256 lastHitTime,
-    uint32 numMovesInBlock
+    uint16 numMovesInBlock
   ) internal pure returns (bytes memory) {
     return abi.encodePacked(isLoggedOff, lastMoveBlock, lastHitTime, numMovesInBlock);
   }
@@ -580,7 +580,7 @@ library PlayerMetadata {
     bool isLoggedOff,
     uint256 lastMoveBlock,
     uint256 lastHitTime,
-    uint32 numMovesInBlock
+    uint16 numMovesInBlock
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(isLoggedOff, lastMoveBlock, lastHitTime, numMovesInBlock);
 

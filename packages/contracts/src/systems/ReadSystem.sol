@@ -8,6 +8,8 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { OptionalSystemHooks } from "@latticexyz/world/src/codegen/tables/OptionalSystemHooks.sol";
 import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/UserDelegationControl.sol";
 
+import { TERRAIN_WORLD_ADDRESS } from "../Constants.sol";
+
 // Public getters so clients can read the world state
 contract ReadSystem is System {
   function getOptionalSystemHooks(
@@ -23,5 +25,9 @@ contract ReadSystem is System {
     address delegatee
   ) public view returns (ResourceId delegationControlId) {
     return UserDelegationControl.getDelegationControlId(delegator, delegatee);
+  }
+
+  function getTerrainWorldAddress() public pure returns (address) {
+    return TERRAIN_WORLD_ADDRESS;
   }
 }

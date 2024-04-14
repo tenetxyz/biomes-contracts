@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 import { console } from "forge-std/console.sol";
@@ -22,16 +23,20 @@ import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
-import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
+
+import { ObjectTypeMetadata } from "@biomesaw/terrain/src/codegen/tables/ObjectTypeMetadata.sol";
+import { Recipes, RecipesData } from "@biomesaw/terrain/src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
+import { positionDataToVoxelCoord } from "../src/Utils.sol";
+import { getTerrainObjectTypeId } from "../src/utils/TerrainUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
+import { TERRAIN_WORLD_ADDRESS } from "../src/Constants.sol";
 
 contract PlayerTest is MudTest, GasReporter {
   IWorld private world;
@@ -53,7 +58,7 @@ contract PlayerTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     VoxelCoord memory spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
-    bytes32 terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, spawnCoord);
+    uint8 terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord);
     assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
 
     startGasReport("spawn player");
@@ -77,7 +82,7 @@ contract PlayerTest is MudTest, GasReporter {
 
     // Try spawning another player with same user, should fail
     VoxelCoord memory spawnCoord2 = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, spawnCoord2);
+    terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord2);
     assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
 
     vm.expectRevert("PlayerSystem: player already exists");
@@ -111,14 +116,14 @@ contract PlayerTest is MudTest, GasReporter {
 
     // Invalid terrain coord
     VoxelCoord memory spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y - 1, SPAWN_LOW_Z);
-    bytes32 terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, spawnCoord);
+    uint8 terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     vm.expectRevert("PlayerSystem: cannot spawn on terrain non-air block");
     world.spawnPlayer(spawnCoord);
 
     spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
-    terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, spawnCoord);
+    terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord);
     assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
 
     world.spawnPlayer(spawnCoord);
@@ -138,7 +143,7 @@ contract PlayerTest is MudTest, GasReporter {
 
     // Invalid terrain coord
     VoxelCoord memory spawnCoord = VoxelCoord(SPAWN_HIGH_X + 1, SPAWN_GROUND_Y, SPAWN_HIGH_Z + 1);
-    bytes32 terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, spawnCoord);
+    uint8 terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord);
     assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
 
     vm.expectRevert("PlayerSystem: cannot spawn outside spawn area");
@@ -162,7 +167,7 @@ contract PlayerTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     VoxelCoord memory spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y + 2, SPAWN_LOW_Z);
-    bytes32 terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, spawnCoord);
+    uint8 terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord);
     assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
 
     vm.expectRevert("PlayerSystem: cannot spawn player with gravity");

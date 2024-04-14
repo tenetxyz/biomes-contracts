@@ -21,4 +21,6 @@ interface IReadSystem {
     address delegator,
     address delegatee
   ) external view returns (ResourceId delegationControlId);
+
+  function getTerrainWorldAddress() external pure returns (address);
 }

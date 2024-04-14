@@ -6,7 +6,7 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import { ABDKMath64x64 as Math } from "@biomesaw/utils/src/libraries/ABDKMath64x64.sol";
 import { Perlin } from "@biomesaw/utils/src/libraries/Perlin.sol";
 
-import { SandObjectID, BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../ObjectTypeIds.sol";
+import { NullObjectTypeId, SandObjectID, BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../ObjectTypeIds.sol";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../Constants.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { floorDiv } from "@biomesaw/utils/src/MathUtils.sol";
@@ -65,7 +65,7 @@ contract TerrainBlockSystem is System {
     revert("unknown biome");
   }
 
-  function getBiome(int32 x, int32 z) internal view returns (int128[8] memory) {
+  function getBiome(int16 x, int16 z) internal view returns (int128[8] memory) {
     int128 heat = Perlin.noise2d(x + 222, z + 222, 666, 64);
     int128 humidity = Perlin.noise(z, x, 999, 555, 64);
     int128 elev = Perlin.noise(x, z, 999, 444, 64);
@@ -195,7 +195,7 @@ contract TerrainBlockSystem is System {
     return applySpline(x, splines);
   }
 
-  function getHeight(int32 x, int32 z) internal view returns (int32) {
+  function getHeight(int16 x, int16 z) internal view returns (int16) {
     // Compute perlin height
     int128 perlin999 = Perlin.noise2d(x - 550, z + 550, 999, 64);
     int128 terrainHeight = Math.mul(perlin999, _10);
@@ -234,7 +234,7 @@ contract TerrainBlockSystem is System {
     );
 
     // Scale height
-    return int32(Math.muli(height, 256) - 70);
+    return int16(Math.muli(height, 256) - 70);
   }
 
   //////////////////////////////////////////////////////////////////////////////////////
@@ -253,42 +253,42 @@ contract TerrainBlockSystem is System {
   }
 
   function coordEq(VoxelCoord memory a, uint8[3] memory b) internal pure returns (bool) {
-    return a.x == int32(uint32(b[0])) && a.y == int32(uint32(b[1])) && a.z == int32(uint32(b[2]));
+    return a.x == int16(uint16(b[0])) && a.y == int16(uint16(b[1])) && a.z == int16(uint16(b[2]));
   }
 
-  function getChunkHash(int32 x, int32 z) internal view returns (uint16) {
-    (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
+  function getChunkHash(int16 x, int16 z) internal view returns (uint16) {
+    (int16 chunkX, int16 chunkZ) = getChunkCoord(x, z);
     return getCoordHash(chunkX, chunkZ);
   }
 
-  function getChunkHash2(int32 x, int32 z) internal view returns (uint16) {
-    (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
+  function getChunkHash2(int16 x, int16 z) internal view returns (uint16) {
+    (int16 chunkX, int16 chunkZ) = getChunkCoord(x, z);
     return getCoordHash(chunkX + 50, chunkZ + 50);
   }
 
-  function getBiomeHash(int32 x, int32 y, uint8 biome) internal pure returns (uint16) {
-    return getCoordHash(floorDiv(x, 300) + floorDiv(y, 300), int32(uint32(biome)));
+  function getBiomeHash(int16 x, int16 y, uint8 biome) internal pure returns (uint16) {
+    return getCoordHash(floorDiv(x, 300) + floorDiv(y, 300), int16(uint16(biome)));
   }
 
   function getChunkOffsetAndHeight(
-    int32 x,
-    int32 y,
-    int32 z
-  ) internal view returns (int32 height, VoxelCoord memory offset) {
-    (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
-    int32 chunkCenterX = chunkX * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
-    int32 chunkCenterZ = chunkZ * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
+    int16 x,
+    int16 y,
+    int16 z
+  ) internal view returns (int16 height, VoxelCoord memory offset) {
+    (int16 chunkX, int16 chunkZ) = getChunkCoord(x, z);
+    int16 chunkCenterX = chunkX * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
+    int16 chunkCenterZ = chunkZ * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
     int128[8] memory biome = getBiome(chunkCenterX, chunkCenterZ);
     height = getHeight(chunkCenterX, chunkCenterZ);
     offset = VoxelCoord(x - chunkX * STRUCTURE_CHUNK, y - height, z - chunkZ * STRUCTURE_CHUNK);
   }
 
-  function getCoordHash(int32 x, int32 z) internal pure returns (uint16) {
+  function getCoordHash(int16 x, int16 z) internal pure returns (uint16) {
     uint256 hash = uint256(keccak256(abi.encode(x, z)));
     return uint16(hash % 1024);
   }
 
-  function getChunkCoord(int32 x, int32 z) internal pure returns (int32, int32) {
+  function getChunkCoord(int16 x, int16 z) internal pure returns (int16, int16) {
     return (floorDiv(x, STRUCTURE_CHUNK), floorDiv(z, STRUCTURE_CHUNK));
   }
 
@@ -306,7 +306,7 @@ contract TerrainBlockSystem is System {
   // Structures
   //////////////////////////////////////////////////////////////////////////////////////
 
-  function OakTree(VoxelCoord memory offset) internal view returns (bytes32) {
+  function OakTree(VoxelCoord memory offset) internal view returns (uint8) {
     // Trunk
     if (coordEq(offset, [3, 0, 3])) return OakLogObjectID;
     if (coordEq(offset, [3, 1, 3])) return OakLogObjectID;
@@ -328,10 +328,10 @@ contract TerrainBlockSystem is System {
     if (coordEq(offset, [3, 4, 4])) return OakLeafObjectID;
     if (coordEq(offset, [3, 4, 3])) return OakLeafObjectID;
 
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function BirchTree(VoxelCoord memory offset) internal view returns (bytes32) {
+  function BirchTree(VoxelCoord memory offset) internal view returns (uint8) {
     // Trunk
     if (coordEq(offset, [3, 0, 3])) return BirchLogObjectID;
     if (coordEq(offset, [3, 1, 3])) return BirchLogObjectID;
@@ -353,10 +353,10 @@ contract TerrainBlockSystem is System {
     if (coordEq(offset, [3, 4, 4])) return BirchLeafObjectID;
     if (coordEq(offset, [3, 4, 3])) return BirchLeafObjectID;
 
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function SakuraTree(VoxelCoord memory offset) internal view returns (bytes32) {
+  function SakuraTree(VoxelCoord memory offset) internal view returns (uint8) {
     // Trunk
     if (coordEq(offset, [3, 0, 3])) return SakuraLogObjectID;
     if (coordEq(offset, [3, 1, 3])) return SakuraLogObjectID;
@@ -378,10 +378,10 @@ contract TerrainBlockSystem is System {
     if (coordEq(offset, [3, 4, 4])) return SakuraLeafObjectID;
     if (coordEq(offset, [3, 4, 3])) return SakuraLeafObjectID;
 
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function RubberTree(VoxelCoord memory offset) internal view returns (bytes32) {
+  function RubberTree(VoxelCoord memory offset) internal view returns (uint8) {
     // Trunk
     if (coordEq(offset, [3, 0, 3])) return RubberLogObjectID;
     if (coordEq(offset, [3, 1, 3])) return RubberLogObjectID;
@@ -403,65 +403,83 @@ contract TerrainBlockSystem is System {
     if (coordEq(offset, [3, 4, 4])) return RubberLeafObjectID;
     if (coordEq(offset, [3, 4, 3])) return RubberLeafObjectID;
 
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
   //////////////////////////////////////////////////////////////////////////////////////
   // Occurences
   //////////////////////////////////////////////////////////////////////////////////////
 
-  function Air(VoxelCoord memory coord) public view returns (bytes32) {
+  function getTerrainBlock(VoxelCoord memory coord) public view returns (uint8) {
     int128[8] memory biomeValues = getBiome(coord.x, coord.z);
-    int32 height = getHeight(coord.x, coord.z);
-    // if (coord.y < height) return bytes32(0);
-
+    int16 height = getHeight(coord.x, coord.z);
     uint8 biome = getMaxBiome(biomeValues);
-    int32 distanceFromHeight = height - coord.y;
+    int16 distanceFromHeight = height - coord.y;
 
-    if (Trees(coord.x, coord.y, coord.z, height, biome, distanceFromHeight) != bytes32(0)) return bytes32(0);
-    if (Flora(coord.x, coord.y, coord.z, height, biome) != bytes32(0)) return bytes32(0);
+    uint8 objectTypeId;
+
+    objectTypeId = Trees(coord.x, coord.y, coord.z, height, biome, distanceFromHeight);
+    if (objectTypeId != NullObjectTypeId) return objectTypeId;
+    objectTypeId = Flora(coord.x, coord.y, coord.z, height, biome);
+    if (objectTypeId != NullObjectTypeId) return objectTypeId;
+    // objectTypeId = TerrainBlocks(coord.x, coord.y, coord.z, height, biome, distanceFromHeight);
+    // if (objectTypeId != NullObjectTypeId) return objectTypeId;
 
     return Air(coord.y, height);
   }
 
-  function Air(int32 y, int32 height) internal pure returns (bytes32) {
-    if (y < height) return bytes32(0);
+  // function Air(VoxelCoord memory coord) public view returns (uint8) {
+  //   int128[8] memory biomeValues = getBiome(coord.x, coord.z);
+  //   int16 height = getHeight(coord.x, coord.z);
+  //   // if (coord.y < height) return NullObjectTypeId;
+
+  //   uint8 biome = getMaxBiome(biomeValues);
+  //   int16 distanceFromHeight = height - coord.y;
+
+  //   if (Trees(coord.x, coord.y, coord.z, height, biome, distanceFromHeight) != NullObjectTypeId) return NullObjectTypeId;
+  //   if (Flora(coord.x, coord.y, coord.z, height, biome) != NullObjectTypeId) return NullObjectTypeId;
+
+  //   return Air(coord.y, height);
+  // }
+
+  function Air(int16 y, int16 height) internal pure returns (uint8) {
+    if (y < height) return NullObjectTypeId;
 
     return AirObjectID;
   }
 
-  function Trees(VoxelCoord memory coord) public view returns (bytes32) {
+  function Trees(VoxelCoord memory coord) public view returns (uint8) {
     int128[8] memory biomeValues = getBiome(coord.x, coord.z);
-    int32 height = getHeight(coord.x, coord.z);
+    int16 height = getHeight(coord.x, coord.z);
 
     uint8 biome = getMaxBiome(biomeValues);
-    int32 distanceFromHeight = height - coord.y;
+    int16 distanceFromHeight = height - coord.y;
 
     return Trees(coord.x, coord.y, coord.z, height, biome, distanceFromHeight);
   }
 
   function Trees(
-    int32 x,
-    int32 y,
-    int32 z,
-    int32 height,
+    int16 x,
+    int16 y,
+    int16 z,
+    int16 height,
     uint8 biome,
-    int32 distanceFromHeight
-  ) internal view returns (bytes32) {
-    if (y < height) return bytes32(0);
+    int16 distanceFromHeight
+  ) internal view returns (uint8) {
+    if (y < height) return NullObjectTypeId;
 
-    (int32 chunkHeight, VoxelCoord memory chunkOffset) = getChunkOffsetAndHeight(x, y, z);
+    (int16 chunkHeight, VoxelCoord memory chunkOffset) = getChunkOffsetAndHeight(x, y, z);
     uint16 hash = getChunkHash(x, z);
-    bytes32 structObjectTypeId = bytes32(0);
+    uint8 structObjectTypeId = NullObjectTypeId;
 
     if (biome == uint8(Biome.Swamp)) {
-      if (hash >= 80) return bytes32(0);
+      if (hash >= 80) return NullObjectTypeId;
       structObjectTypeId = SakuraTree(chunkOffset);
     } else if (biome == uint8(Biome.Plains)) {
-      if (hash >= 20) return bytes32(0);
+      if (hash >= 20) return NullObjectTypeId;
       structObjectTypeId = OakTree(chunkOffset);
     } else if (biome == uint8(Biome.Forest)) {
-      if (hash >= 800) return bytes32(0);
+      if (hash >= 800) return NullObjectTypeId;
       if (hash < 200) {
         structObjectTypeId = RubberTree(chunkOffset);
       } else if (hash >= 200 && hash < 400) {
@@ -474,23 +492,23 @@ contract TerrainBlockSystem is System {
     return structObjectTypeId;
   }
 
-  function Flora(VoxelCoord memory coord) public view returns (bytes32) {
+  function Flora(VoxelCoord memory coord) public view returns (uint8) {
     int128[8] memory biomeValues = getBiome(coord.x, coord.z);
-    int32 height = getHeight(coord.x, coord.z);
+    int16 height = getHeight(coord.x, coord.z);
 
     uint8 biome = getMaxBiome(biomeValues);
 
     return Flora(coord.x, coord.y, coord.z, height, biome);
   }
 
-  function Flora(int32 x, int32 y, int32 z, int32 height, uint8 biome) internal view returns (bytes32) {
-    if (y != height) return bytes32(0);
+  function Flora(int16 x, int16 y, int16 z, int16 height, uint8 biome) internal view returns (uint8) {
+    if (y != height) return NullObjectTypeId;
 
     uint16 hash1 = getCoordHash(x, z);
     uint16 hash2 = getChunkHash2(x, z);
 
     if (biome == uint8(Biome.Swamp)) {
-      if (hash2 >= 40) return bytes32(0);
+      if (hash2 >= 40) return NullObjectTypeId;
       return CottonBushObjectID;
     } else if (biome == uint8(Biome.Desert)) {
       if (hash1 < 8) {
@@ -514,28 +532,28 @@ contract TerrainBlockSystem is System {
       }
     }
 
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function TerrainBlocks(VoxelCoord memory coord) public view returns (bytes32) {
+  function TerrainBlocks(VoxelCoord memory coord) public view returns (uint8) {
     int128[8] memory biomeValues = getBiome(coord.x, coord.z);
-    int32 height = getHeight(coord.x, coord.z);
+    int16 height = getHeight(coord.x, coord.z);
 
     uint8 biome = getMaxBiome(biomeValues);
-    int32 distanceFromHeight = height - coord.y;
+    int16 distanceFromHeight = height - coord.y;
 
     return TerrainBlocks(coord.x, coord.y, coord.z, height, biome, distanceFromHeight);
   }
 
   function TerrainBlocks(
-    int32 x,
-    int32 y,
-    int32 z,
-    int32 height,
+    int16 x,
+    int16 y,
+    int16 z,
+    int16 height,
     uint8 biome,
-    int32 distanceFromHeight
-  ) internal view returns (bytes32) {
-    if (y >= height) return bytes32(0);
+    int16 distanceFromHeight
+  ) internal view returns (uint8) {
+    if (y >= height) return NullObjectTypeId;
 
     if (y < -120) return BedrockObjectID;
 
@@ -567,6 +585,6 @@ contract TerrainBlockSystem is System {
       return GravelObjectID;
     }
 
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 }

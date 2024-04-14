@@ -7,7 +7,6 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata, PlayerMetadataData } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
@@ -17,8 +16,9 @@ import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity, inWorldBorder } from "../Utils.sol";
+import { positionDataToVoxelCoord, callGravity, inWorldBorder } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { getObjectTypeMass, getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
@@ -55,7 +55,7 @@ contract MoveSystem is System {
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(_world(), newCoord) == AirObjectID, "MoveSystem: cannot move to non-air block");
+      require(getTerrainObjectTypeId(newCoord) == AirObjectID, "MoveSystem: cannot move to non-air block");
 
       // Create new entity
       newEntityId = getUniqueEntity();
@@ -74,7 +74,7 @@ contract MoveSystem is System {
     Position._set(playerEntityId, newCoord.x, newCoord.y, newCoord.z);
     ReversePosition._set(newCoord.x, newCoord.y, newCoord.z, playerEntityId);
 
-    uint32 numMovesInBlock = PlayerMetadata._getNumMovesInBlock(playerEntityId);
+    uint16 numMovesInBlock = PlayerMetadata._getNumMovesInBlock(playerEntityId);
     if (PlayerMetadata._getLastMoveBlock(playerEntityId) != block.number) {
       numMovesInBlock = 1;
       PlayerMetadata._setLastMoveBlock(playerEntityId, block.number);
@@ -87,11 +87,11 @@ contract MoveSystem is System {
     uint32 inventoryTotalMass = 0;
     bytes32[] memory inventoryEntityIds = ReverseInventory._get(playerEntityId);
     for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
-      bytes32 inventoryObjectTypeId = ObjectType._get(inventoryEntityIds[i]);
-      inventoryTotalMass += ObjectTypeMetadata._getMass(inventoryObjectTypeId);
+      uint8 inventoryObjectTypeId = ObjectType._get(inventoryEntityIds[i]);
+      inventoryTotalMass += getObjectTypeMass(inventoryObjectTypeId);
     }
 
-    uint32 staminaRequired = ObjectTypeMetadata._getMass(PlayerObjectID);
+    uint32 staminaRequired = getObjectTypeMass(PlayerObjectID);
     staminaRequired += inventoryTotalMass / 50;
     staminaRequired = staminaRequired * (numMovesInBlock ** 2);
 

@@ -5,26 +5,18 @@ import { IWorld } from "../../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { WorkbenchObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
-import { ChestObjectID, ThermoblasterObjectID, WorkbenchObjectID, DyeomaticObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { AnyLumberObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { ChestObjectID, ThermoblasterObjectID, WorkbenchObjectID, DyeomaticObjectID } from "../../ObjectTypeIds.sol";
+import { AnyLumberObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitInteractablesSystem is System {
-  function createInteractableBlock(bytes32 terrainBlockObjectTypeId, uint16 mass) internal {
+  function createInteractableBlock(uint8 terrainBlockObjectTypeId, uint16 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
-      ObjectTypeMetadataData({
-        isPlayer: false,
-        isBlock: true,
-        mass: mass,
-        stackable: 1,
-        durability: 0,
-        damage: 0,
-        hardness: 1
-      })
+      ObjectTypeMetadataData({ isBlock: true, mass: mass, stackable: 1, durability: 0, damage: 0, hardness: 1 })
     );
   }
 

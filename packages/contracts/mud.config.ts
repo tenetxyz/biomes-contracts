@@ -2,26 +2,10 @@ import { defineWorld } from "@latticexyz/world";
 
 export default defineWorld({
   tables: {
-    ObjectTypeMetadata: {
-      schema: {
-        objectTypeId: "bytes32",
-        isPlayer: "bool",
-        isBlock: "bool",
-        mass: "uint16",
-        stackable: "uint8",
-        damage: "uint16",
-        durability: "uint24",
-        hardness: "uint16",
-      },
-      key: ["objectTypeId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
     ObjectType: {
       schema: {
         entityId: "bytes32",
-        objectTypeId: "bytes32",
+        objectTypeId: "uint8",
       },
       key: ["entityId"],
       codegen: {
@@ -31,9 +15,9 @@ export default defineWorld({
     Position: {
       schema: {
         entityId: "bytes32",
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        x: "int16",
+        y: "int16",
+        z: "int16",
       },
       key: ["entityId"],
       codegen: {
@@ -42,9 +26,9 @@ export default defineWorld({
     },
     ReversePosition: {
       schema: {
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        x: "int16",
+        y: "int16",
+        z: "int16",
         entityId: "bytes32",
       },
       key: ["x", "y", "z"],
@@ -55,9 +39,9 @@ export default defineWorld({
     LastKnownPosition: {
       schema: {
         entityId: "bytes32",
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        x: "int16",
+        y: "int16",
+        z: "int16",
       },
       key: ["entityId"],
       codegen: {
@@ -90,7 +74,7 @@ export default defineWorld({
         isLoggedOff: "bool",
         lastMoveBlock: "uint256",
         lastHitTime: "uint256",
-        numMovesInBlock: "uint32",
+        numMovesInBlock: "uint16",
       },
       key: ["entityId"],
       codegen: {
@@ -140,7 +124,7 @@ export default defineWorld({
     InventoryCount: {
       schema: {
         ownerEntityId: "bytes32",
-        objectTypeId: "bytes32",
+        objectTypeId: "uint8",
         count: "uint16",
       },
       key: ["ownerEntityId", "objectTypeId"],
@@ -176,20 +160,6 @@ export default defineWorld({
         stamina: "uint32",
       },
       key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    Recipes: {
-      schema: {
-        recipeId: "bytes32",
-        stationObjectTypeId: "bytes32",
-        outputObjectTypeId: "bytes32",
-        outputObjectTypeAmount: "uint8",
-        inputObjectTypeIds: "bytes32[]",
-        inputObjectTypeAmounts: "uint8[]",
-      },
-      key: ["recipeId"],
       codegen: {
         storeArgument: true,
       },

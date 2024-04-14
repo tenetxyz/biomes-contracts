@@ -95,18 +95,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "y",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "z",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           }
         ]
       }
@@ -237,18 +237,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "y",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "z",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           }
         ]
       }
@@ -668,6 +668,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "getTerrainWorldAddress",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
     "name": "getUserDelegation",
     "inputs": [
       {
@@ -742,90 +755,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "initDyedObjectTypes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initDyedRecipes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initHandcrafedRecipes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initHandcraftedObjectTypes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initInteractableObjectTypes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initInteractablesRecipes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initPlayerObjectTypes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initTerrainBlockObjectTypes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initThermoblastObjectTypes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initThermoblastRecipes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initWorkbenchObjectTypes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initWorkbenchRecipes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "initialize",
     "inputs": [
       {
@@ -884,18 +813,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "y",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "z",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           }
         ]
       }
@@ -916,8 +845,8 @@ declare const abi: [
     "inputs": [
       {
         "name": "objectTypeId",
-        "type": "bytes32",
-        "internalType": "bytes32"
+        "type": "uint8",
+        "internalType": "uint8"
       },
       {
         "name": "coord",
@@ -926,18 +855,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "y",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "z",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           }
         ]
       }
@@ -962,18 +891,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "y",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "z",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           }
         ]
       }
@@ -1331,18 +1260,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "y",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "z",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           }
         ]
       }
@@ -1522,18 +1451,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "y",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "z",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           }
         ]
       }
@@ -1558,8 +1487,8 @@ declare const abi: [
       },
       {
         "name": "mineObjectTypeId",
-        "type": "bytes32",
-        "internalType": "bytes32"
+        "type": "uint8",
+        "internalType": "uint8"
       },
       {
         "name": "equippedEntityId",
@@ -1660,18 +1589,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "y",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "z",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           }
         ]
       }

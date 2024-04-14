@@ -11,11 +11,11 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface ITerrainBlockSystem {
-  function Air(VoxelCoord memory coord) external view returns (bytes32);
+  function getTerrainBlock(VoxelCoord memory coord) external view returns (uint8);
 
-  function Trees(VoxelCoord memory coord) external view returns (bytes32);
+  function Trees(VoxelCoord memory coord) external view returns (uint8);
 
-  function Flora(VoxelCoord memory coord) external view returns (bytes32);
+  function Flora(VoxelCoord memory coord) external view returns (uint8);
 
-  function TerrainBlocks(VoxelCoord memory coord) external view returns (bytes32);
+  function TerrainBlocks(VoxelCoord memory coord) external view returns (uint8);
 }

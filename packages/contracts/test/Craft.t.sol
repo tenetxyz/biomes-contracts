@@ -2,13 +2,13 @@
 pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
@@ -24,16 +24,20 @@ import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
-import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
+
+import { ObjectTypeMetadata } from "@biomesaw/terrain/src/codegen/tables/ObjectTypeMetadata.sol";
+import { Recipes, RecipesData } from "@biomesaw/terrain/src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
+import { positionDataToVoxelCoord } from "../src/Utils.sol";
+import { getTerrainObjectTypeId } from "../src/utils/TerrainUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, AnyLogObjectID, DyeomaticObjectID, WorkbenchObjectID, GrassObjectID, OakLogObjectID, SakuraLogObjectID, OakLumberObjectID, BlueDyeObjectID, BlueOakLumberObjectID, DiamondOreObjectID, DiamondObjectID, WoodenPickObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
+import { TERRAIN_WORLD_ADDRESS } from "../src/Constants.sol";
 
 contract CraftTest is MudTest, GasReporter {
   IWorld private world;
@@ -54,7 +58,7 @@ contract CraftTest is MudTest, GasReporter {
 
   function setupPlayer() public returns (bytes32) {
     spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
-    assertTrue(getTerrainObjectTypeId(worldAddress, spawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(spawnCoord) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
 
     // move player outside spawn
@@ -73,7 +77,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     // Init inventory with ingredients
-    bytes32 inputObjectTypeId = OakLogObjectID;
+    uint8 inputObjectTypeId = OakLogObjectID;
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, inputObjectTypeId);
@@ -85,7 +89,7 @@ contract CraftTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 outputObjectTypeId = OakLumberObjectID;
+    uint8 outputObjectTypeId = OakLumberObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
 
     bytes32[] memory ingredientEntityIds = new bytes32[](1);
@@ -111,7 +115,7 @@ contract CraftTest is MudTest, GasReporter {
 
     // Init inventory with ingredients
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = LilacObjectID;
+    uint8 inputObjectTypeId1 = LilacObjectID;
     for (uint8 i = 0; i < 5; i++) {
       bytes32 newInventoryId = getUniqueEntity();
       ObjectType.set(newInventoryId, inputObjectTypeId1);
@@ -120,7 +124,7 @@ contract CraftTest is MudTest, GasReporter {
       ingredientEntityIds[i] = newInventoryId;
     }
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 5);
-    bytes32 inputObjectTypeId2 = AzaleaObjectID;
+    uint8 inputObjectTypeId2 = AzaleaObjectID;
     for (uint8 i = 0; i < 5; i++) {
       bytes32 newInventoryId = getUniqueEntity();
       ObjectType.set(newInventoryId, inputObjectTypeId2);
@@ -136,9 +140,9 @@ contract CraftTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 outputObjectTypeId = MagentaDyeObjectID;
+    uint8 outputObjectTypeId = MagentaDyeObjectID;
     bytes32 recipeId = keccak256(
-      abi.encodePacked(inputObjectTypeId2, uint8(5), inputObjectTypeId1, uint8(5), outputObjectTypeId, uint8(10))
+      abi.encodePacked(inputObjectTypeId1, uint8(5), inputObjectTypeId2, uint8(5), outputObjectTypeId, uint8(10))
     );
 
     startGasReport("handcraft multiple input");
@@ -162,7 +166,7 @@ contract CraftTest is MudTest, GasReporter {
 
     // Init inventory with ingredients
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = OakLogObjectID;
+    uint8 inputObjectTypeId1 = OakLogObjectID;
     for (uint8 i = 0; i < 1; i++) {
       bytes32 newInventoryId = getUniqueEntity();
       ObjectType.set(newInventoryId, inputObjectTypeId1);
@@ -171,7 +175,7 @@ contract CraftTest is MudTest, GasReporter {
       ingredientEntityIds[i] = newInventoryId;
     }
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
-    bytes32 inputObjectTypeId2 = SakuraLogObjectID;
+    uint8 inputObjectTypeId2 = SakuraLogObjectID;
     for (uint8 i = 0; i < 3; i++) {
       bytes32 newInventoryId = getUniqueEntity();
       ObjectType.set(newInventoryId, inputObjectTypeId2);
@@ -187,7 +191,7 @@ contract CraftTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 outputObjectTypeId = WoodenPickObjectID;
+    uint8 outputObjectTypeId = WoodenPickObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(AnyLogObjectID, uint8(4), outputObjectTypeId, uint8(1)));
 
     world.craft(recipeId, ingredientEntityIds, bytes32(0));
@@ -209,7 +213,7 @@ contract CraftTest is MudTest, GasReporter {
 
     // Init inventory with ingredients
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = OakLumberObjectID;
+    uint8 inputObjectTypeId1 = OakLumberObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -217,7 +221,7 @@ contract CraftTest is MudTest, GasReporter {
     ingredientEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
@@ -238,9 +242,9 @@ contract CraftTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 outputObjectTypeId = BlueOakLumberObjectID;
+    uint8 outputObjectTypeId = BlueOakLumberObjectID;
     bytes32 recipeId = keccak256(
-      abi.encodePacked(inputObjectTypeId1, uint8(1), inputObjectTypeId2, uint8(1), outputObjectTypeId, uint8(1))
+      abi.encodePacked(inputObjectTypeId2, uint8(1), inputObjectTypeId1, uint8(1), outputObjectTypeId, uint8(1))
     );
 
     startGasReport("craft with station");
@@ -264,7 +268,7 @@ contract CraftTest is MudTest, GasReporter {
 
     // Init inventory with ingredients
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = OakLumberObjectID;
+    uint8 inputObjectTypeId1 = OakLumberObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -272,7 +276,7 @@ contract CraftTest is MudTest, GasReporter {
     ingredientEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
@@ -293,9 +297,9 @@ contract CraftTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 outputObjectTypeId = BlueOakLumberObjectID;
+    uint8 outputObjectTypeId = BlueOakLumberObjectID;
     bytes32 recipeId = keccak256(
-      abi.encodePacked(inputObjectTypeId1, uint8(1), inputObjectTypeId2, uint8(1), outputObjectTypeId, uint8(1))
+      abi.encodePacked(inputObjectTypeId2, uint8(1), inputObjectTypeId1, uint8(1), outputObjectTypeId, uint8(1))
     );
 
     vm.expectRevert("CraftSystem: wrong station");
@@ -316,7 +320,7 @@ contract CraftTest is MudTest, GasReporter {
 
     // Init inventory with ingredients
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = OakLumberObjectID;
+    uint8 inputObjectTypeId1 = OakLumberObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -324,7 +328,7 @@ contract CraftTest is MudTest, GasReporter {
     ingredientEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
@@ -345,9 +349,9 @@ contract CraftTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 outputObjectTypeId = BlueOakLumberObjectID;
+    uint8 outputObjectTypeId = BlueOakLumberObjectID;
     bytes32 recipeId = keccak256(
-      abi.encodePacked(inputObjectTypeId1, uint8(1), inputObjectTypeId2, uint8(1), outputObjectTypeId, uint8(1))
+      abi.encodePacked(inputObjectTypeId2, uint8(1), inputObjectTypeId1, uint8(1), outputObjectTypeId, uint8(1))
     );
 
     vm.expectRevert("CraftSystem: player is too far from the station");
@@ -362,7 +366,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     // Init inventory with ingredients
-    bytes32 inputObjectTypeId = OakLogObjectID;
+    uint8 inputObjectTypeId = OakLogObjectID;
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, inputObjectTypeId);
@@ -372,7 +376,7 @@ contract CraftTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
 
-    ObjectTypeMetadata.setStackable(GrassObjectID, 1);
+    ObjectTypeMetadata.setStackable(IStore(TERRAIN_WORLD_ADDRESS), GrassObjectID, 1);
     for (uint i = 0; i < MAX_PLAYER_INVENTORY_SLOTS - 1; i++) {
       bytes32 inventoryId = getUniqueEntity();
       ObjectType.set(inventoryId, GrassObjectID);
@@ -386,11 +390,11 @@ contract CraftTest is MudTest, GasReporter {
     );
     assertTrue(InventorySlots.get(playerEntityId) == MAX_PLAYER_INVENTORY_SLOTS, "Inventory slots not set correctly");
 
-    ObjectTypeMetadata.setStackable(OakLumberObjectID, 1);
+    ObjectTypeMetadata.setStackable(IStore(TERRAIN_WORLD_ADDRESS), OakLumberObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 outputObjectTypeId = OakLumberObjectID;
+    uint8 outputObjectTypeId = OakLumberObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
 
     bytes32[] memory ingredientEntityIds = new bytes32[](1);
@@ -408,7 +412,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     // Init inventory with ingredients
-    bytes32 inputObjectTypeId = OakLogObjectID;
+    uint8 inputObjectTypeId = OakLogObjectID;
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, inputObjectTypeId);
@@ -420,7 +424,7 @@ contract CraftTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 outputObjectTypeId = OakLumberObjectID;
+    uint8 outputObjectTypeId = OakLumberObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
 
     bytes32[] memory ingredientEntityIds = new bytes32[](1);
@@ -438,7 +442,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     // Init inventory with ingredients
-    bytes32 inputObjectTypeId = OakLogObjectID;
+    uint8 inputObjectTypeId = OakLogObjectID;
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, inputObjectTypeId);
@@ -450,7 +454,7 @@ contract CraftTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 outputObjectTypeId = DiamondObjectID;
+    uint8 outputObjectTypeId = DiamondObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(1)));
 
     bytes32[] memory ingredientEntityIds = new bytes32[](1);
@@ -471,7 +475,7 @@ contract CraftTest is MudTest, GasReporter {
 
     // Init inventory with ingredients
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = LilacObjectID;
+    uint8 inputObjectTypeId1 = LilacObjectID;
     for (uint8 i = 0; i < 3; i++) {
       bytes32 newInventoryId = getUniqueEntity();
       ObjectType.set(newInventoryId, inputObjectTypeId1);
@@ -480,7 +484,7 @@ contract CraftTest is MudTest, GasReporter {
       ingredientEntityIds[i] = newInventoryId;
     }
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 3);
-    bytes32 inputObjectTypeId2 = AzaleaObjectID;
+    uint8 inputObjectTypeId2 = AzaleaObjectID;
     for (uint8 i = 0; i < 3; i++) {
       bytes32 newInventoryId = getUniqueEntity();
       ObjectType.set(newInventoryId, inputObjectTypeId2);
@@ -496,9 +500,9 @@ contract CraftTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 outputObjectTypeId = MagentaDyeObjectID;
+    uint8 outputObjectTypeId = MagentaDyeObjectID;
     bytes32 recipeId = keccak256(
-      abi.encodePacked(inputObjectTypeId2, uint8(5), inputObjectTypeId1, uint8(5), outputObjectTypeId, uint8(10))
+      abi.encodePacked(inputObjectTypeId1, uint8(5), inputObjectTypeId2, uint8(5), outputObjectTypeId, uint8(10))
     );
 
     vm.expectRevert("CraftSystem: not enough ingredients");
@@ -513,7 +517,7 @@ contract CraftTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     // Init inventory with ingredients
-    bytes32 inputObjectTypeId = OakLogObjectID;
+    uint8 inputObjectTypeId = OakLogObjectID;
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, inputObjectTypeId);
@@ -525,7 +529,7 @@ contract CraftTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 outputObjectTypeId = OakLumberObjectID;
+    uint8 outputObjectTypeId = OakLumberObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
 
     bytes32[] memory ingredientEntityIds = new bytes32[](1);

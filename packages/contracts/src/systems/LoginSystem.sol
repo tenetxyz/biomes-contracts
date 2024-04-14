@@ -7,7 +7,6 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
@@ -20,7 +19,8 @@ import { Inventory } from "../codegen/tables/Inventory.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getTerrainObjectTypeId, callGravity, inWorldBorder } from "../Utils.sol";
+import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, callGravity, inWorldBorder } from "../Utils.sol";
+import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
@@ -45,7 +45,7 @@ contract LoginSystem is System {
     if (respawnEntityId == bytes32(0)) {
       // Check terrain block type
       require(
-        getTerrainObjectTypeId(_world(), respawnCoord) == AirObjectID,
+        getTerrainObjectTypeId(respawnCoord) == AirObjectID,
         "LoginSystem: cannot respawn on terrain non-air block"
       );
     } else {

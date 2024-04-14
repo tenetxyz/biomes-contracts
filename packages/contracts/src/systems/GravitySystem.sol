@@ -15,7 +15,8 @@ import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GRAVITY_DAMAGE } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { getTerrainObjectTypeId, inWorldBorder } from "../Utils.sol";
+import { inWorldBorder } from "../Utils.sol";
+import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { despawnPlayer } from "../utils/PlayerUtils.sol";
 
@@ -29,7 +30,7 @@ contract GravitySystem is System {
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
-      if (getTerrainObjectTypeId(_world(), newCoord) != AirObjectID) {
+      if (getTerrainObjectTypeId(newCoord) != AirObjectID) {
         return false;
       }
 

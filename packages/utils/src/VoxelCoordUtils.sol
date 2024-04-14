@@ -9,7 +9,7 @@ function voxelCoordsAreEqual(VoxelCoord memory c1, VoxelCoord memory c2) pure re
 
 function inSurroundingCube(
   VoxelCoord memory cubeCenter,
-  int32 halfWidth,
+  int16 halfWidth,
   VoxelCoord memory checkCoord
 ) pure returns (bool) {
   // Check if checkCoord is within the cube in all three dimensions

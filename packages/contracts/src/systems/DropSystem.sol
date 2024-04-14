@@ -7,7 +7,6 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
@@ -15,11 +14,11 @@ import { Inventory } from "../codegen/tables/Inventory.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
-import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId, inWorldBorder } from "../Utils.sol";
+import { positionDataToVoxelCoord, inWorldBorder } from "../Utils.sol";
+import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { transferInventoryItem } from "../utils/InventoryUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
@@ -37,7 +36,7 @@ contract DropSystem is System {
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(_world(), coord) == AirObjectID, "DropSystem: cannot drop on non-air block");
+      require(getTerrainObjectTypeId(coord) == AirObjectID, "DropSystem: cannot drop on non-air block");
 
       // Create new entity
       entityId = getUniqueEntity();

@@ -3,27 +3,25 @@ pragma solidity >=0.8.24;
 
 import { IWorld } from "../../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../../codegen/tables/Recipes.sol";
 
-import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { ClayObjectID, StoneObjectID, CobblestoneObjectID, CottonBlockObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { AnyLogObjectID, WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { BellflowerObjectID, SakuraLumberObjectID, CactusObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { DirtObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectTypeIds.sol";
+import { ClayObjectID, StoneObjectID, CobblestoneObjectID, CottonBlockObjectID } from "../../ObjectTypeIds.sol";
+import { AnyLogObjectID, WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "../../ObjectTypeIds.sol";
+import { OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
+import { BellflowerObjectID, SakuraLumberObjectID, CactusObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "../../ObjectTypeIds.sol";
+import { DirtObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "../../ObjectTypeIds.sol";
 
 import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE } from "../../Constants.sol";
 import { createSingleInputRecipe, createDoubleInputRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitHandBlocksSystem is System {
-  function createHandcraftedBlock(bytes32 terrainBlockObjectTypeId, uint16 mass, uint16 hardness) internal {
+  function createHandcraftedBlock(uint8 terrainBlockObjectTypeId, uint16 mass, uint16 hardness) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
-        isPlayer: false,
         isBlock: true,
         mass: mass,
         stackable: MAX_BLOCK_STACKABLE,
@@ -34,11 +32,10 @@ contract InitHandBlocksSystem is System {
     );
   }
 
-  function createHandcraftedTool(bytes32 toolObjectTypeId, uint16 mass, uint24 durability, uint16 damage) internal {
+  function createHandcraftedTool(uint8 toolObjectTypeId, uint16 mass, uint24 durability, uint16 damage) internal {
     ObjectTypeMetadata._set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
-        isPlayer: false,
         isBlock: false,
         mass: mass,
         stackable: MAX_TOOL_STACKABLE,
@@ -49,11 +46,10 @@ contract InitHandBlocksSystem is System {
     );
   }
 
-  function createHandcraftedItem(bytes32 itemObjectTypeId, uint16 mass) internal {
+  function createHandcraftedItem(uint8 itemObjectTypeId, uint16 mass) internal {
     ObjectTypeMetadata._set(
       itemObjectTypeId,
       ObjectTypeMetadataData({
-        isPlayer: false,
         isBlock: false,
         mass: mass,
         stackable: MAX_BLOCK_STACKABLE,

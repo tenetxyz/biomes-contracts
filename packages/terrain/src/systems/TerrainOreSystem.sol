@@ -6,7 +6,7 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import { ABDKMath64x64 as Math } from "@biomesaw/utils/src/libraries/ABDKMath64x64.sol";
 import { Perlin } from "@biomesaw/utils/src/libraries/Perlin.sol";
 
-import { SandObjectID, BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../ObjectTypeIds.sol";
+import { NullObjectTypeId, SandObjectID, BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../ObjectTypeIds.sol";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../Constants.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { floorDiv } from "@biomesaw/utils/src/MathUtils.sol";
@@ -65,7 +65,7 @@ contract TerrainOreSystem is System {
     revert("unknown biome");
   }
 
-  function getBiome(int32 x, int32 z) internal view returns (int128[8] memory) {
+  function getBiome(int16 x, int16 z) internal view returns (int128[8] memory) {
     int128 heat = Perlin.noise2d(x + 222, z + 222, 666, 64);
     int128 humidity = Perlin.noise(z, x, 999, 555, 64);
     int128 elev = Perlin.noise(x, z, 999, 444, 64);
@@ -195,7 +195,7 @@ contract TerrainOreSystem is System {
     return applySpline(x, splines);
   }
 
-  function getHeight(int32 x, int32 z) internal view returns (int32) {
+  function getHeight(int16 x, int16 z) internal view returns (int16) {
     // Compute perlin height
     int128 perlin999 = Perlin.noise2d(x - 550, z + 550, 999, 64);
     int128 terrainHeight = Math.mul(perlin999, _10);
@@ -234,7 +234,7 @@ contract TerrainOreSystem is System {
     );
 
     // Scale height
-    return int32(Math.muli(height, 256) - 70);
+    return int16(Math.muli(height, 256) - 70);
   }
 
   //////////////////////////////////////////////////////////////////////////////////////
@@ -253,24 +253,24 @@ contract TerrainOreSystem is System {
   }
 
   function getChunkOffsetAndHeight(
-    int32 x,
-    int32 y,
-    int32 z
-  ) internal view returns (int32 height, VoxelCoord memory offset) {
-    (int32 chunkX, int32 chunkZ) = getChunkCoord(x, z);
-    int32 chunkCenterX = chunkX * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
-    int32 chunkCenterZ = chunkZ * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
+    int16 x,
+    int16 y,
+    int16 z
+  ) internal view returns (int16 height, VoxelCoord memory offset) {
+    (int16 chunkX, int16 chunkZ) = getChunkCoord(x, z);
+    int16 chunkCenterX = chunkX * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
+    int16 chunkCenterZ = chunkZ * STRUCTURE_CHUNK + STRUCTURE_CHUNK_CENTER;
     int128[8] memory biome = getBiome(chunkCenterX, chunkCenterZ);
     height = getHeight(chunkCenterX, chunkCenterZ);
     offset = VoxelCoord(x - chunkX * STRUCTURE_CHUNK, y - height, z - chunkZ * STRUCTURE_CHUNK);
   }
 
-  function getCoordHash(int32 x, int32 z) internal pure returns (uint16) {
+  function getCoordHash(int16 x, int16 z) internal pure returns (uint16) {
     uint256 hash = uint256(keccak256(abi.encode(x, z)));
     return uint16(hash % 1024);
   }
 
-  function getChunkCoord(int32 x, int32 z) internal pure returns (int32, int32) {
+  function getChunkCoord(int16 x, int16 z) internal pure returns (int16, int16) {
     return (floorDiv(x, STRUCTURE_CHUNK), floorDiv(z, STRUCTURE_CHUNK));
   }
 
@@ -288,25 +288,25 @@ contract TerrainOreSystem is System {
   // Occurences
   //////////////////////////////////////////////////////////////////////////////////////
 
-  function Ores(VoxelCoord memory coord) public view returns (bytes32) {
+  function Ores(VoxelCoord memory coord) public view returns (uint8) {
     int128[8] memory biomeValues = getBiome(coord.x, coord.z);
-    int32 height = getHeight(coord.x, coord.z);
+    int16 height = getHeight(coord.x, coord.z);
 
     uint8 biome = getMaxBiome(biomeValues);
-    int32 distanceFromHeight = height - coord.y;
+    int16 distanceFromHeight = height - coord.y;
 
     return Ores(coord.x, coord.y, coord.z, height, biome, distanceFromHeight);
   }
 
   function Ores(
-    int32 x,
-    int32 y,
-    int32 z,
-    int32 height,
+    int16 x,
+    int16 y,
+    int16 z,
+    int16 height,
     uint8 biome,
-    int32 distanceFromHeight
-  ) internal view returns (bytes32) {
-    if (y >= height) return bytes32(0);
+    int16 distanceFromHeight
+  ) internal view returns (uint8) {
+    if (y >= height) return NullObjectTypeId;
 
     // Checking biome conditions and distance from height for ore generation
     if (
@@ -349,10 +349,10 @@ contract TerrainOreSystem is System {
         return oreRegion3Mount(x, y, z);
       }
     }
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function oreRegion1(int32 x, int32 y, int32 z) internal view returns (bytes32) {
+  function oreRegion1(int16 x, int16 y, int16 z) internal view returns (uint8) {
     uint16 hash1 = getCoordHash(x, z);
     uint16 hash2 = getCoordHash(y, x + z);
 
@@ -366,10 +366,10 @@ contract TerrainOreSystem is System {
         return CoalOreObjectID;
       }
     }
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function oreRegion1Desert(int32 x, int32 y, int32 z) internal view returns (bytes32) {
+  function oreRegion1Desert(int16 x, int16 y, int16 z) internal view returns (uint8) {
     uint16 hash1 = getCoordHash(x, z);
     uint16 hash2 = getCoordHash(y, x + z);
 
@@ -385,10 +385,10 @@ contract TerrainOreSystem is System {
         return CoalOreObjectID;
       }
     }
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function oreRegion1Mount(int32 x, int32 y, int32 z) internal view returns (bytes32) {
+  function oreRegion1Mount(int16 x, int16 y, int16 z) internal view returns (uint8) {
     uint16 hash1 = getCoordHash(x, z);
     uint16 hash2 = getCoordHash(y, x + z);
 
@@ -402,10 +402,10 @@ contract TerrainOreSystem is System {
         return CoalOreObjectID;
       }
     }
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function oreRegion2(int32 x, int32 y, int32 z) internal view returns (bytes32) {
+  function oreRegion2(int16 x, int16 y, int16 z) internal view returns (uint8) {
     uint16 hash1 = getCoordHash(x, z);
     uint16 hash2 = getCoordHash(y, x + z);
 
@@ -425,10 +425,10 @@ contract TerrainOreSystem is System {
         return DiamondOreObjectID;
       }
     }
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function oreRegion2Desert(int32 x, int32 y, int32 z) internal view returns (bytes32) {
+  function oreRegion2Desert(int16 x, int16 y, int16 z) internal view returns (uint8) {
     uint16 hash1 = getCoordHash(x, z);
     uint16 hash2 = getCoordHash(y, x + z);
 
@@ -448,10 +448,10 @@ contract TerrainOreSystem is System {
         return DiamondOreObjectID;
       }
     }
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function oreRegion2Mount(int32 x, int32 y, int32 z) internal view returns (bytes32) {
+  function oreRegion2Mount(int16 x, int16 y, int16 z) internal view returns (uint8) {
     uint16 hash1 = getCoordHash(x, z);
     uint16 hash2 = getCoordHash(y, x + z);
 
@@ -471,10 +471,10 @@ contract TerrainOreSystem is System {
         return DiamondOreObjectID;
       }
     }
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function oreRegion3(int32 x, int32 y, int32 z) internal view returns (bytes32) {
+  function oreRegion3(int16 x, int16 y, int16 z) internal view returns (uint8) {
     uint16 hash1 = getCoordHash(x, z);
     uint16 hash2 = getCoordHash(y, x + z);
 
@@ -498,10 +498,10 @@ contract TerrainOreSystem is System {
         return NeptuniumOreObjectID;
       }
     }
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function oreRegion3Desert(int32 x, int32 y, int32 z) internal view returns (bytes32) {
+  function oreRegion3Desert(int16 x, int16 y, int16 z) internal view returns (uint8) {
     uint16 hash1 = getCoordHash(x, z);
     uint16 hash2 = getCoordHash(y, x + z);
 
@@ -525,10 +525,10 @@ contract TerrainOreSystem is System {
         return NeptuniumOreObjectID;
       }
     }
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 
-  function oreRegion3Mount(int32 x, int32 y, int32 z) internal view returns (bytes32) {
+  function oreRegion3Mount(int16 x, int16 y, int16 z) internal view returns (uint8) {
     uint16 hash1 = getCoordHash(x, z);
     uint16 hash2 = getCoordHash(y, x + z);
 
@@ -552,6 +552,6 @@ contract TerrainOreSystem is System {
         return NeptuniumOreObjectID;
       }
     }
-    return bytes32(0);
+    return NullObjectTypeId;
   }
 }

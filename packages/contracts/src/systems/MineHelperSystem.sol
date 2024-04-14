@@ -8,7 +8,6 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
@@ -23,15 +22,16 @@ import { positionDataToVoxelCoord, callGravity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { isPick, isAxe, isLog, isStone } from "../utils/ObjectTypeUtils.sol";
+import { isPick, isAxe, isLog, isStone } from "@biomesaw/terrain/src/utils/ObjectTypeUtils.sol";
+import { getObjectTypeMass, getObjectTypeDamage, getObjectTypeHardness } from "../utils/TerrainUtils.sol";
 
 // We extract some logic out of the MineSystem due to contract size limitations
 contract MineHelperSystem is System {
-  function spendStaminaForMining(bytes32 playerEntityId, bytes32 mineObjectTypeId, bytes32 equippedEntityId) public {
+  function spendStaminaForMining(bytes32 playerEntityId, uint8 mineObjectTypeId, bytes32 equippedEntityId) public {
     uint32 equippedToolDamage = PLAYER_HAND_DAMAGE;
     if (equippedEntityId != bytes32(0)) {
-      bytes32 equippedObjectTypeId = ObjectType._get(equippedEntityId);
-      equippedToolDamage = ObjectTypeMetadata._getDamage(equippedObjectTypeId);
+      uint8 equippedObjectTypeId = ObjectType._get(equippedEntityId);
+      equippedToolDamage = getObjectTypeDamage(equippedObjectTypeId);
       if (isPick(equippedObjectTypeId) && isStone(mineObjectTypeId)) {
         equippedToolDamage *= 2;
       }
@@ -41,9 +41,8 @@ contract MineHelperSystem is System {
     }
     // Spend stamina for mining
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    uint32 staminaRequired = (ObjectTypeMetadata._getMass(mineObjectTypeId) *
-      ObjectTypeMetadata._getHardness(mineObjectTypeId) *
-      1000) / equippedToolDamage;
+    uint32 staminaRequired = (getObjectTypeMass(mineObjectTypeId) * getObjectTypeHardness(mineObjectTypeId) * 1000) /
+      equippedToolDamage;
     require(currentStamina >= staminaRequired, "MineSystem: not enough stamina");
     Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
   }

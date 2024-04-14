@@ -8,7 +8,6 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
@@ -19,18 +18,18 @@ import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity, inWorldBorder, inSpawnArea } from "../Utils.sol";
+import { positionDataToVoxelCoord, callGravity, inWorldBorder, inSpawnArea } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { isPick, isAxe, isLog, isStone } from "../utils/ObjectTypeUtils.sol";
+import { getObjectTypeIsBlock, getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 contract MineSystem is System {
-  function mine(bytes32 objectTypeId, VoxelCoord memory coord) public returns (bytes32) {
+  function mine(uint8 objectTypeId, VoxelCoord memory coord) public returns (bytes32) {
     require(inWorldBorder(coord), "MineSystem: cannot mine outside world border");
     require(!inSpawnArea(coord), "MineSystem: cannot mine at spawn area");
-    require(ObjectTypeMetadata._getIsBlock(objectTypeId), "MineSystem: object type is not a block");
+    require(getObjectTypeIsBlock(objectTypeId), "MineSystem: object type is not a block");
     require(objectTypeId != AirObjectID, "MineSystem: cannot mine air");
 
     bytes32 playerEntityId = Player._get(_msgSender());
@@ -56,10 +55,7 @@ contract MineSystem is System {
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(
-        getTerrainObjectTypeId(_world(), coord) == objectTypeId,
-        "MineSystem: block type does not match with terrain type"
-      );
+      require(getTerrainObjectTypeId(coord) == objectTypeId, "MineSystem: block type does not match with terrain type");
 
       // Create new entity
       entityId = getUniqueEntity();

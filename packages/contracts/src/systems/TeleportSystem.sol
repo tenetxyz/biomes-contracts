@@ -7,7 +7,6 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata, PlayerMetadataData } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
@@ -17,11 +16,12 @@ import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId, callGravity, inWorldBorder } from "../Utils.sol";
+import { positionDataToVoxelCoord, callGravity, inWorldBorder } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { getObjectTypeMass, getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { absInt32 } from "@biomesaw/utils/src/MathUtils.sol";
+import { absInt16 } from "@biomesaw/utils/src/MathUtils.sol";
 
 contract TeleportSystem is System {
   function teleport(VoxelCoord memory newCoord) public {
@@ -38,10 +38,7 @@ contract TeleportSystem is System {
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
-      require(
-        getTerrainObjectTypeId(_world(), newCoord) == AirObjectID,
-        "TeleportSystem: cannot teleport to non-air block"
-      );
+      require(getTerrainObjectTypeId(newCoord) == AirObjectID, "TeleportSystem: cannot teleport to non-air block");
 
       // Create new entity
       newEntityId = getUniqueEntity();
@@ -60,12 +57,12 @@ contract TeleportSystem is System {
     Position._set(playerEntityId, newCoord.x, newCoord.y, newCoord.z);
     ReversePosition._set(newCoord.x, newCoord.y, newCoord.z, playerEntityId);
 
-    int32 xDelta = newCoord.x - oldCoord.x;
-    int32 yDelta = newCoord.y - oldCoord.y;
-    int32 zDelta = newCoord.z - oldCoord.z;
-    uint32 numDeltaPositions = uint32(absInt32(xDelta) + absInt32(yDelta) + absInt32(zDelta));
+    int16 xDelta = newCoord.x - oldCoord.x;
+    int16 yDelta = newCoord.y - oldCoord.y;
+    int16 zDelta = newCoord.z - oldCoord.z;
+    uint16 numDeltaPositions = uint16(absInt16(xDelta) + absInt16(yDelta) + absInt16(zDelta));
 
-    uint32 numMovesInBlock = PlayerMetadata._getNumMovesInBlock(playerEntityId);
+    uint16 numMovesInBlock = PlayerMetadata._getNumMovesInBlock(playerEntityId);
     if (PlayerMetadata._getLastMoveBlock(playerEntityId) != block.number) {
       numMovesInBlock = numDeltaPositions;
       PlayerMetadata._setLastMoveBlock(playerEntityId, block.number);
@@ -79,12 +76,12 @@ contract TeleportSystem is System {
     {
       bytes32[] memory inventoryEntityIds = ReverseInventory._get(playerEntityId);
       for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
-        bytes32 inventoryObjectTypeId = ObjectType._get(inventoryEntityIds[i]);
-        inventoryTotalMass += ObjectTypeMetadata._getMass(inventoryObjectTypeId);
+        uint8 inventoryObjectTypeId = ObjectType._get(inventoryEntityIds[i]);
+        inventoryTotalMass += getObjectTypeMass(inventoryObjectTypeId);
       }
     }
 
-    uint32 staminaRequired = ObjectTypeMetadata._getMass(PlayerObjectID);
+    uint32 staminaRequired = getObjectTypeMass(PlayerObjectID);
     staminaRequired += inventoryTotalMass / 50;
     staminaRequired = staminaRequired * (numMovesInBlock ** 2);
     staminaRequired = staminaRequired / 100;

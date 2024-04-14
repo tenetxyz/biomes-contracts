@@ -2,13 +2,13 @@
 pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
@@ -24,16 +24,20 @@ import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
-import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
+
+import { ObjectTypeMetadata } from "@biomesaw/terrain/src/codegen/tables/ObjectTypeMetadata.sol";
+import { Recipes, RecipesData } from "@biomesaw/terrain/src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
+import { positionDataToVoxelCoord } from "../src/Utils.sol";
+import { getTerrainObjectTypeId } from "../src/utils/TerrainUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, GRAVITY_DAMAGE } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID, BlueDyeObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
+import { TERRAIN_WORLD_ADDRESS } from "../src/Constants.sol";
 
 contract TransferTest is MudTest, GasReporter {
   IWorld private world;
@@ -53,7 +57,7 @@ contract TransferTest is MudTest, GasReporter {
 
   function setupPlayer() public returns (bytes32) {
     spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
-    assertTrue(getTerrainObjectTypeId(worldAddress, spawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(spawnCoord) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
 
     // move player outside spawn
@@ -74,7 +78,7 @@ contract TransferTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](2);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = GrassObjectID;
+    uint8 inputObjectTypeId1 = GrassObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -82,7 +86,7 @@ contract TransferTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
@@ -130,7 +134,7 @@ contract TransferTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](99);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId = GrassObjectID;
+    uint8 inputObjectTypeId = GrassObjectID;
     for (uint i = 0; i < 99; i++) {
       bytes32 newInventoryId = getUniqueEntity();
       ObjectType.set(newInventoryId, inputObjectTypeId);
@@ -178,7 +182,7 @@ contract TransferTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](2);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = GrassObjectID;
+    uint8 inputObjectTypeId1 = GrassObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -186,7 +190,7 @@ contract TransferTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
@@ -205,7 +209,7 @@ contract TransferTest is MudTest, GasReporter {
     Position.set(chestEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
     ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, chestEntityId);
 
-    ObjectTypeMetadata.setStackable(DiamondOreObjectID, 1);
+    ObjectTypeMetadata.setStackable(IStore(TERRAIN_WORLD_ADDRESS), DiamondOreObjectID, 1);
     for (uint i = 0; i < MAX_CHEST_INVENTORY_SLOTS - 1; i++) {
       bytes32 inventoryId = getUniqueEntity();
       ObjectType.set(inventoryId, DiamondOreObjectID);
@@ -236,7 +240,7 @@ contract TransferTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](2);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = GrassObjectID;
+    uint8 inputObjectTypeId1 = GrassObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -244,7 +248,7 @@ contract TransferTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
@@ -284,7 +288,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(bob, bob);
 
     VoxelCoord memory spawnCoord2 = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(getTerrainObjectTypeId(worldAddress, spawnCoord2) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
 
     assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 0, "Input object not removed from inventory");
@@ -318,7 +322,7 @@ contract TransferTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](2);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = GrassObjectID;
+    uint8 inputObjectTypeId1 = GrassObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -326,7 +330,7 @@ contract TransferTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
@@ -366,12 +370,12 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(bob, bob);
 
     VoxelCoord memory spawnCoord2 = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(getTerrainObjectTypeId(worldAddress, spawnCoord2) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
 
     // fill up inventory
     vm.startPrank(worldDeployer, worldDeployer);
-    ObjectTypeMetadata.setStackable(GrassObjectID, 1);
+    ObjectTypeMetadata.setStackable(IStore(TERRAIN_WORLD_ADDRESS), GrassObjectID, 1);
     for (uint i = 0; i < MAX_PLAYER_INVENTORY_SLOTS; i++) {
       bytes32 inventoryId = getUniqueEntity();
       ObjectType.set(inventoryId, GrassObjectID);
@@ -401,7 +405,7 @@ contract TransferTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](2);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = GrassObjectID;
+    uint8 inputObjectTypeId1 = GrassObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -409,7 +413,7 @@ contract TransferTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
@@ -449,7 +453,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(bob, bob);
 
     VoxelCoord memory spawnCoord2 = VoxelCoord(chestCoord.x + 1, chestCoord.y, chestCoord.z);
-    assertTrue(getTerrainObjectTypeId(worldAddress, spawnCoord2) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
 
     assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 0, "Input object not removed from inventory");
@@ -492,7 +496,7 @@ contract TransferTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](2);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = GrassObjectID;
+    uint8 inputObjectTypeId1 = GrassObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -500,7 +504,7 @@ contract TransferTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
@@ -515,7 +519,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(bob, bob);
 
     VoxelCoord memory spawnCoord2 = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(getTerrainObjectTypeId(worldAddress, spawnCoord2) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
     vm.stopPrank();
 
@@ -535,7 +539,7 @@ contract TransferTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](2);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = GrassObjectID;
+    uint8 inputObjectTypeId1 = GrassObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -543,7 +547,7 @@ contract TransferTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
@@ -578,7 +582,7 @@ contract TransferTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](2);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = GrassObjectID;
+    uint8 inputObjectTypeId1 = GrassObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -586,7 +590,7 @@ contract TransferTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
@@ -618,7 +622,7 @@ contract TransferTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](2);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = GrassObjectID;
+    uint8 inputObjectTypeId1 = GrassObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -626,7 +630,7 @@ contract TransferTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);
@@ -668,7 +672,7 @@ contract TransferTest is MudTest, GasReporter {
     Position.set(chestEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
     ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, chestEntityId);
 
-    bytes32 inputObjectTypeId1 = GrassObjectID;
+    uint8 inputObjectTypeId1 = GrassObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, chestEntityId);
@@ -676,7 +680,7 @@ contract TransferTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(chestEntityId, ChestObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, chestEntityId);
@@ -709,7 +713,7 @@ contract TransferTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](2);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = GrassObjectID;
+    uint8 inputObjectTypeId1 = GrassObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -717,7 +721,7 @@ contract TransferTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = BlueDyeObjectID;
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);

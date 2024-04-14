@@ -27,8 +27,8 @@ contract SetupSpawn is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Create 20 x 20 platform of stone
-    for (int32 x = SPAWN_LOW_X; x <= SPAWN_HIGH_X; x++) {
-      for (int32 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
+    for (int16 x = SPAWN_LOW_X; x <= SPAWN_HIGH_X; x++) {
+      for (int16 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
         if (x == SPAWN_LOW_X || x == SPAWN_HIGH_X || z == SPAWN_LOW_Z || z == SPAWN_HIGH_Z) {
           adminSetObject(BasaltCarvedObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
         } else {
@@ -40,7 +40,7 @@ contract SetupSpawn is Script {
     vm.stopBroadcast();
   }
 
-  function adminSetObject(bytes32 objectTypeId, VoxelCoord memory coord) internal {
+  function adminSetObject(uint8 objectTypeId, VoxelCoord memory coord) internal {
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       entityId = getUniqueEntity();

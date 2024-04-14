@@ -11,5 +11,5 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface ITerrainOreSystem {
-  function Ores(VoxelCoord memory coord) external view returns (bytes32);
+  function Ores(VoxelCoord memory coord) external view returns (uint8);
 }

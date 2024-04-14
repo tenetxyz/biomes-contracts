@@ -7,7 +7,6 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
@@ -17,9 +16,10 @@ import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId, inSpawnArea, inWorldBorder } from "../Utils.sol";
+import { positionDataToVoxelCoord, inSpawnArea, inWorldBorder } from "../Utils.sol";
 import { removeFromInventoryCount, removeEntityIdFromReverseInventory } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { getObjectTypeIsBlock, getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract BuildSystem is System {
@@ -37,8 +37,8 @@ contract BuildSystem is System {
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
 
-    bytes32 objectTypeId = ObjectType._get(inventoryEntityId);
-    require(ObjectTypeMetadata._getIsBlock(objectTypeId), "BuildSystem: object type is not a block");
+    uint8 objectTypeId = ObjectType._get(inventoryEntityId);
+    require(getObjectTypeIsBlock(objectTypeId), "BuildSystem: object type is not a block");
     require(
       inSurroundingCube(
         positionDataToVoxelCoord(Position._get(playerEntityId)),
@@ -51,10 +51,7 @@ contract BuildSystem is System {
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(
-        getTerrainObjectTypeId(_world(), coord) == AirObjectID,
-        "BuildSystem: cannot build on terrain non-air block"
-      );
+      require(getTerrainObjectTypeId(coord) == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
     } else {
       require(ObjectType._get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
 

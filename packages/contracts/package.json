@@ -18,8 +18,8 @@
     "lint": "pnpm run prettier && pnpm run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
-    "test": "tsc --noEmit && mud test",
-    "test:verbose": "GAS_REPORTER_ENABLED=true pnpm run test --forgeOptions='-vvv' | pnpm gas-report --stdin",
+    "test": "./runTests.bash",
+    "test:gas": "./runTests.bash --verbose",
     "setup:spawn": "./runForgeScript.bash script/SetupSpawn.s.sol"
   },
   "dependencies": {

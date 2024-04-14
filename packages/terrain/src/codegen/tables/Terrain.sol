@@ -21,23 +21,22 @@ library Terrain {
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000005465727261696e000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0001010001000000000000000000000000000000000000000000000000000000);
 
-  // Hex-encoded key schema of (address, int32, int32, int32)
-  Schema constant _keySchema = Schema.wrap(0x0020040061232323000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bytes32)
-  Schema constant _valueSchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded key schema of (int16, int16, int16)
+  Schema constant _keySchema = Schema.wrap(0x0006030021212100000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint8)
+  Schema constant _valueSchema = Schema.wrap(0x0001010000000000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
    * @return keyNames An array of strings with the names of key fields.
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
-    keyNames = new string[](4);
-    keyNames[0] = "worldAddress";
-    keyNames[1] = "x";
-    keyNames[2] = "y";
-    keyNames[3] = "z";
+    keyNames = new string[](3);
+    keyNames[0] = "x";
+    keyNames[1] = "y";
+    keyNames[2] = "z";
   }
 
   /**
@@ -73,118 +72,89 @@ library Terrain {
   /**
    * @notice Get objectTypeId.
    */
-  function getObjectTypeId(
-    address worldAddress,
-    int32 x,
-    int32 y,
-    int32 z
-  ) internal view returns (bytes32 objectTypeId) {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function getObjectTypeId(int16 x, int16 y, int16 z) internal view returns (uint8 objectTypeId) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return (uint8(bytes1(_blob)));
   }
 
   /**
    * @notice Get objectTypeId.
    */
-  function _getObjectTypeId(
-    address worldAddress,
-    int32 x,
-    int32 y,
-    int32 z
-  ) internal view returns (bytes32 objectTypeId) {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function _getObjectTypeId(int16 x, int16 y, int16 z) internal view returns (uint8 objectTypeId) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return (uint8(bytes1(_blob)));
   }
 
   /**
    * @notice Get objectTypeId (using the specified store).
    */
-  function getObjectTypeId(
-    IStore _store,
-    address worldAddress,
-    int32 x,
-    int32 y,
-    int32 z
-  ) internal view returns (bytes32 objectTypeId) {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function getObjectTypeId(IStore _store, int16 x, int16 y, int16 z) internal view returns (uint8 objectTypeId) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return (uint8(bytes1(_blob)));
   }
 
   /**
    * @notice Get objectTypeId.
    */
-  function get(address worldAddress, int32 x, int32 y, int32 z) internal view returns (bytes32 objectTypeId) {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function get(int16 x, int16 y, int16 z) internal view returns (uint8 objectTypeId) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return (uint8(bytes1(_blob)));
   }
 
   /**
    * @notice Get objectTypeId.
    */
-  function _get(address worldAddress, int32 x, int32 y, int32 z) internal view returns (bytes32 objectTypeId) {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function _get(int16 x, int16 y, int16 z) internal view returns (uint8 objectTypeId) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return (uint8(bytes1(_blob)));
   }
 
   /**
    * @notice Get objectTypeId (using the specified store).
    */
-  function get(
-    IStore _store,
-    address worldAddress,
-    int32 x,
-    int32 y,
-    int32 z
-  ) internal view returns (bytes32 objectTypeId) {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function get(IStore _store, int16 x, int16 y, int16 z) internal view returns (uint8 objectTypeId) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return (uint8(bytes1(_blob)));
   }
 
   /**
    * @notice Set objectTypeId.
    */
-  function setObjectTypeId(address worldAddress, int32 x, int32 y, int32 z, bytes32 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function setObjectTypeId(int16 x, int16 y, int16 z, uint8 objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
   }
@@ -192,12 +162,11 @@ library Terrain {
   /**
    * @notice Set objectTypeId.
    */
-  function _setObjectTypeId(address worldAddress, int32 x, int32 y, int32 z, bytes32 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function _setObjectTypeId(int16 x, int16 y, int16 z, uint8 objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
   }
@@ -205,19 +174,11 @@ library Terrain {
   /**
    * @notice Set objectTypeId (using the specified store).
    */
-  function setObjectTypeId(
-    IStore _store,
-    address worldAddress,
-    int32 x,
-    int32 y,
-    int32 z,
-    bytes32 objectTypeId
-  ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function setObjectTypeId(IStore _store, int16 x, int16 y, int16 z, uint8 objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
   }
@@ -225,12 +186,11 @@ library Terrain {
   /**
    * @notice Set objectTypeId.
    */
-  function set(address worldAddress, int32 x, int32 y, int32 z, bytes32 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function set(int16 x, int16 y, int16 z, uint8 objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
   }
@@ -238,12 +198,11 @@ library Terrain {
   /**
    * @notice Set objectTypeId.
    */
-  function _set(address worldAddress, int32 x, int32 y, int32 z, bytes32 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function _set(int16 x, int16 y, int16 z, uint8 objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
   }
@@ -251,12 +210,11 @@ library Terrain {
   /**
    * @notice Set objectTypeId (using the specified store).
    */
-  function set(IStore _store, address worldAddress, int32 x, int32 y, int32 z, bytes32 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function set(IStore _store, int16 x, int16 y, int16 z, uint8 objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
   }
@@ -264,12 +222,11 @@ library Terrain {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(address worldAddress, int32 x, int32 y, int32 z) internal {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function deleteRecord(int16 x, int16 y, int16 z) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -277,12 +234,11 @@ library Terrain {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(address worldAddress, int32 x, int32 y, int32 z) internal {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function _deleteRecord(int16 x, int16 y, int16 z) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -290,12 +246,11 @@ library Terrain {
   /**
    * @notice Delete all data for given keys (using the specified store).
    */
-  function deleteRecord(IStore _store, address worldAddress, int32 x, int32 y, int32 z) internal {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function deleteRecord(IStore _store, int16 x, int16 y, int16 z) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     _store.deleteRecord(_tableId, _keyTuple);
   }
@@ -304,7 +259,7 @@ library Terrain {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(bytes32 objectTypeId) internal pure returns (bytes memory) {
+  function encodeStatic(uint8 objectTypeId) internal pure returns (bytes memory) {
     return abi.encodePacked(objectTypeId);
   }
 
@@ -314,7 +269,7 @@ library Terrain {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(bytes32 objectTypeId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+  function encode(uint8 objectTypeId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(objectTypeId);
 
     EncodedLengths _encodedLengths;
@@ -326,12 +281,11 @@ library Terrain {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(address worldAddress, int32 x, int32 y, int32 z) internal pure returns (bytes32[] memory) {
-    bytes32[] memory _keyTuple = new bytes32[](4);
-    _keyTuple[0] = bytes32(uint256(uint160(worldAddress)));
-    _keyTuple[1] = bytes32(uint256(int256(x)));
-    _keyTuple[2] = bytes32(uint256(int256(y)));
-    _keyTuple[3] = bytes32(uint256(int256(z)));
+  function encodeKeyTuple(int16 x, int16 y, int16 z) internal pure returns (bytes32[] memory) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     return _keyTuple;
   }

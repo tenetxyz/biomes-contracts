@@ -2,13 +2,13 @@
 pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
@@ -24,16 +24,20 @@ import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
-import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
+
+import { ObjectTypeMetadata } from "@biomesaw/terrain/src/codegen/tables/ObjectTypeMetadata.sol";
+import { Recipes, RecipesData } from "@biomesaw/terrain/src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
+import { positionDataToVoxelCoord } from "../src/Utils.sol";
+import { getTerrainObjectTypeId } from "../src/utils/TerrainUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
 import { AirObjectID, GrassObjectID, ChestObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, OakLumberObjectID, OakLogObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
+import { TERRAIN_WORLD_ADDRESS } from "../src/Constants.sol";
 
 contract EquipTest is MudTest, GasReporter {
   IWorld private world;
@@ -54,7 +58,7 @@ contract EquipTest is MudTest, GasReporter {
 
   function setupPlayer() public returns (bytes32) {
     spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
-    assertTrue(getTerrainObjectTypeId(worldAddress, spawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(spawnCoord) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
 
     // move player outside spawn
@@ -67,10 +71,10 @@ contract EquipTest is MudTest, GasReporter {
     return playerEntityId;
   }
 
-  function setupPlayer2(int32 zOffset) public returns (bytes32) {
+  function setupPlayer2(int16 zOffset) public returns (bytes32) {
     vm.startPrank(bob, bob);
     VoxelCoord memory spawnCoord2 = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z + zOffset);
-    assertTrue(getTerrainObjectTypeId(worldAddress, spawnCoord2) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
 
     VoxelCoord[] memory path = new VoxelCoord[](1);
@@ -152,7 +156,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
-    bytes32 terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, mineCoord);
+    uint8 terrainObjectTypeId = getTerrainObjectTypeId(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     startGasReport("mine terrain w/ equipped");
@@ -192,7 +196,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
-    bytes32 terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, mineCoord);
+    uint8 terrainObjectTypeId = getTerrainObjectTypeId(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
@@ -217,7 +221,7 @@ contract EquipTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     // Init inventory with ingredients
-    bytes32 inputObjectTypeId = OakLogObjectID;
+    uint8 inputObjectTypeId = OakLogObjectID;
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, inputObjectTypeId);
@@ -232,7 +236,7 @@ contract EquipTest is MudTest, GasReporter {
     world.equip(newInventoryId);
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Item not equipped");
 
-    bytes32 outputObjectTypeId = OakLumberObjectID;
+    uint8 outputObjectTypeId = OakLumberObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
 
     bytes32[] memory ingredientEntityIds = new bytes32[](1);
@@ -272,7 +276,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(getTerrainObjectTypeId(worldAddress, dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(getTerrainObjectTypeId(dropCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32[] memory inventoryEntityIds = new bytes32[](1);
     inventoryEntityIds[0] = newInventoryId;
@@ -318,7 +322,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
-    bytes32 terrainObjectTypeId = getTerrainObjectTypeId(worldAddress, mineCoord);
+    uint8 terrainObjectTypeId = getTerrainObjectTypeId(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     world.mine(terrainObjectTypeId, mineCoord);
@@ -366,7 +370,7 @@ contract EquipTest is MudTest, GasReporter {
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     uint16 equippedDamage = 50;
-    ObjectTypeMetadata.setDamage(WoodenPickObjectID, equippedDamage);
+    ObjectTypeMetadata.setDamage(IStore(TERRAIN_WORLD_ADDRESS), WoodenPickObjectID, equippedDamage);
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
@@ -403,7 +407,7 @@ contract EquipTest is MudTest, GasReporter {
     bytes32[] memory inventoryEntityIds = new bytes32[](2);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 inputObjectTypeId1 = GrassObjectID;
+    uint8 inputObjectTypeId1 = GrassObjectID;
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, inputObjectTypeId1);
     Inventory.set(newInventoryId1, playerEntityId);
@@ -411,7 +415,7 @@ contract EquipTest is MudTest, GasReporter {
     inventoryEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
-    bytes32 inputObjectTypeId2 = WoodenPickObjectID;
+    uint8 inputObjectTypeId2 = WoodenPickObjectID;
     bytes32 newInventoryId2 = getUniqueEntity();
     ObjectType.set(newInventoryId2, inputObjectTypeId2);
     Inventory.set(newInventoryId2, playerEntityId);

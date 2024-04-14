@@ -67,7 +67,7 @@ contract TestScript is Script {
     // world.teleport(VoxelCoord(149, -62, -37));
 
     bytes32 playerEntityId = Player.get(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
-    // bytes32 inputObjectTypeId = GrassObjectID;
+    // uint8 inputObjectTypeId = GrassObjectID;
     // for (uint i = 0; i < 99; i++) {
     //   bytes32 newInventoryId = getUniqueEntity();
     //   ObjectType.set(newInventoryId, inputObjectTypeId);
@@ -82,7 +82,7 @@ contract TestScript is Script {
     // ReverseInventory.push(playerEntityId, newInventoryId1);
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
 
-    bytes32 inputObjectTypeId = OakLogObjectID;
+    uint8 inputObjectTypeId = OakLogObjectID;
     // bytes32 newInventoryId = getUniqueEntity();
     // ObjectType.set(newInventoryId, inputObjectTypeId);
     // Inventory.set(newInventoryId, playerEntityId);
@@ -102,7 +102,7 @@ contract TestScript is Script {
     // world.equip(newInventoryId);
     // world.unequip();
 
-    // bytes32 outputObjectTypeId = OakLumberObjectID;
+    // uint8 outputObjectTypeId = OakLumberObjectID;
     // bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
 
     // bytes32[] memory ingredientEntityIds = new bytes32[](1);

@@ -9,20 +9,19 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables
 import { Recipes, RecipesData } from "../../codegen/tables/Recipes.sol";
 
 import { MAX_TOOL_STACKABLE, MAX_BLOCK_STACKABLE } from "../../Constants.sol";
-import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { AnyLogObjectID, OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID, SilverBarObjectID, GoldBarObjectID, DiamondObjectID, NeptuniumBarObjectID, StoneObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
+import { AnyLogObjectID, OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID, SilverBarObjectID, GoldBarObjectID, DiamondObjectID, NeptuniumBarObjectID, StoneObjectID } from "../../ObjectTypeIds.sol";
 
-import { ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID, OakLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { WorkbenchObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID, OakLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
+import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitWorkbenchSystem is System {
-  function createTool(bytes32 toolObjectTypeId, uint16 mass, uint24 durability, uint16 damage) internal {
+  function createTool(uint8 toolObjectTypeId, uint16 mass, uint24 durability, uint16 damage) internal {
     ObjectTypeMetadata._set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
-        isPlayer: false,
         isBlock: false,
         mass: mass,
         stackable: MAX_TOOL_STACKABLE,
@@ -33,11 +32,10 @@ contract InitWorkbenchSystem is System {
     );
   }
 
-  function createBlock(bytes32 terrainBlockObjectTypeId, uint16 mass, uint16 hardness) internal {
+  function createBlock(uint8 terrainBlockObjectTypeId, uint16 mass, uint16 hardness) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
-        isPlayer: false,
         isBlock: true,
         mass: mass,
         stackable: MAX_BLOCK_STACKABLE,

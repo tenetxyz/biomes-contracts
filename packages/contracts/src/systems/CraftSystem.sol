@@ -7,7 +7,6 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
@@ -16,13 +15,14 @@ import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
-import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
+import { RecipesData } from "@biomesaw/terrain/src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { AirObjectID, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { NullObjectTypeId, AirObjectID, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
+import { getObjectTypeDurability, getRecipe } from "../utils/TerrainUtils.sol";
 import { addToInventoryCount, removeFromInventoryCount, removeEntityIdFromReverseInventory } from "../utils/InventoryUtils.sol";
-import { isLog, isLumber } from "../utils/ObjectTypeUtils.sol";
+import { isLog, isLumber } from "@biomesaw/terrain/src/utils/ObjectTypeUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract CraftSystem is System {
@@ -31,9 +31,9 @@ contract CraftSystem is System {
     require(playerEntityId != bytes32(0), "CraftSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "CraftSystem: player isn't logged in");
 
-    RecipesData memory recipeData = Recipes._get(recipeId);
+    RecipesData memory recipeData = getRecipe(recipeId);
     require(recipeData.inputObjectTypeIds.length > 0, "CraftSystem: recipe not found");
-    if (recipeData.stationObjectTypeId != bytes32(0)) {
+    if (recipeData.stationObjectTypeId != NullObjectTypeId) {
       require(ObjectType._get(stationEntityId) == recipeData.stationObjectTypeId, "CraftSystem: wrong station");
       require(
         inSurroundingCube(
@@ -51,7 +51,7 @@ contract CraftSystem is System {
       uint256 numInputObjectTypesFound = 0;
       for (uint256 j = 0; j < ingredientEntityIds.length; j++) {
         if (Inventory._get(ingredientEntityIds[j]) == playerEntityId) {
-          bytes32 ingredientObjectTypeId = ObjectType._get(ingredientEntityIds[j]);
+          uint8 ingredientObjectTypeId = ObjectType._get(ingredientEntityIds[j]);
           if (
             ingredientObjectTypeId == recipeData.inputObjectTypeIds[i] ||
             (recipeData.inputObjectTypeIds[i] == AnyLogObjectID && isLog(ingredientObjectTypeId)) ||
@@ -84,7 +84,7 @@ contract CraftSystem is System {
       ObjectType._set(newInventoryEntityId, recipeData.outputObjectTypeId);
       Inventory._set(newInventoryEntityId, playerEntityId);
       ReverseInventory._push(playerEntityId, newInventoryEntityId);
-      uint24 durability = ObjectTypeMetadata._getDurability(recipeData.outputObjectTypeId);
+      uint24 durability = getObjectTypeDurability(recipeData.outputObjectTypeId);
       if (durability > 0) {
         ItemMetadata._set(newInventoryEntityId, durability);
       }
