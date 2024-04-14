@@ -13,7 +13,7 @@ for arg in "$@"
 do
   if [ "$arg" = "--prod" ]; then
     echo "Running in prod mode"
-    rpcUrl="https://follower.testnet-chain.linfra.xyz"
+    rpcUrl="https://testnet.biomes.aw"
     chainId="1337"
     break  # Exit the loop once the --prod flag is found
   fi

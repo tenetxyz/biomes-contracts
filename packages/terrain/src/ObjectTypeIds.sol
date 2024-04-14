@@ -87,8 +87,8 @@ uint8 constant ClayShinglesObjectID = 64;
 uint8 constant GraniteObjectID = 65;
 uint8 constant GraniteBrickObjectID = 66;
 uint8 constant GraniteCarvedObjectID = 67;
-uint8 constant GraniteShinglesObjectID = 68;
-uint8 constant GranitePolishedObjectID = 69;
+uint8 constant GranitePolishedObjectID = 68;
+uint8 constant GraniteShinglesObjectID = 69;
 
 uint8 constant QuartziteObjectID = 70;
 uint8 constant QuartziteBrickObjectID = 71;
