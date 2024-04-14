@@ -18,7 +18,7 @@ import { Inventory } from "../codegen/tables/Inventory.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, callGravity, inWorldBorder, inSpawnArea } from "../Utils.sol";
 import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
@@ -35,7 +35,11 @@ contract PlayerSystem is System {
     bytes32 existingEntityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     bytes32 playerEntityId = getUniqueEntity();
     if (existingEntityId == bytes32(0)) {
-      require(getTerrainObjectTypeId(spawnCoord) == AirObjectID, "PlayerSystem: cannot spawn on terrain non-air block");
+      uint8 terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord);
+      require(
+        terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
+        "PlayerSystem: cannot spawn on terrain non-air block"
+      );
     } else {
       require(ObjectType._get(existingEntityId) == AirObjectID, "PlayerSystem: spawn coord is not air");
 

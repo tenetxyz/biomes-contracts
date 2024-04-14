@@ -15,7 +15,7 @@ import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, callGravity, inWorldBorder } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
@@ -38,7 +38,11 @@ contract TeleportSystem is System {
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(newCoord) == AirObjectID, "TeleportSystem: cannot teleport to non-air block");
+      uint8 terrainObjectTypeId = getTerrainObjectTypeId(newCoord);
+      require(
+        terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
+        "TeleportSystem: cannot teleport to non-air block"
+      );
 
       // Create new entity
       newEntityId = getUniqueEntity();

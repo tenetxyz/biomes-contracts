@@ -17,7 +17,7 @@ import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, callGravity, inWorldBorder, inSpawnArea } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
@@ -31,6 +31,7 @@ contract MineSystem is System {
     require(!inSpawnArea(coord), "MineSystem: cannot mine at spawn area");
     require(getObjectTypeIsBlock(objectTypeId), "MineSystem: object type is not a block");
     require(objectTypeId != AirObjectID, "MineSystem: cannot mine air");
+    require(objectTypeId != WaterObjectID, "MineSystem: cannot mine water");
 
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "MineSystem: player does not exist");

@@ -15,7 +15,7 @@ import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, inSpawnArea, inWorldBorder } from "../Utils.sol";
 import { removeFromInventoryCount, removeEntityIdFromReverseInventory } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
@@ -51,9 +51,12 @@ contract BuildSystem is System {
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(coord) == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
+      uint8 terrainObjectTypeId = getTerrainObjectTypeId(coord);
+      require(terrainObjectTypeId == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
+      require(terrainObjectTypeId != WaterObjectID, "BuildSystem: cannot build on water block");
     } else {
       require(ObjectType._get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
+      require(getTerrainObjectTypeId(coord) != WaterObjectID, "BuildSystem: cannot build on water block");
 
       bytes32[] memory droppedEntityIds = ReverseInventory._get(entityId);
       require(droppedEntityIds.length == 0, "BuildSystem: Cannot build where there are dropped objects");
