@@ -1,5 +1,5 @@
 {
-  "name": "@biomesaw/contracts",
+  "name": "@biomesaw/world",
   "version": "0.0.2",
   "exports": {
     "./mud.config": "./dist/mud.config.js",
