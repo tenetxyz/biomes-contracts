@@ -12,7 +12,7 @@ import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { StoneObjectID, BasaltCarvedObjectID } from "../src/ObjectTypeIds.sol";
+import { StoneObjectID, BasaltCarvedObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 
 contract SetupSpawn is Script {

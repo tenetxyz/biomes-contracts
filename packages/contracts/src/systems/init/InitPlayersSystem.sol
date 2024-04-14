@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
-import { PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 
 contract InitPlayersSystem is System {
   function initPlayerObjectTypes() public {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-address constant TERRAIN_WORLD_ADDRESS = 0x6489403Db54c25dD81669742734945Ddfc0eae13;
+address constant TERRAIN_WORLD_ADDRESS = 0x52D5383eF7f4368bf01ee6e32C1752E07E09666b;
 
 int32 constant WORLD_BORDER_LOW_X = -2000;
 int32 constant WORLD_BORDER_LOW_Y = -150;
@@ -38,18 +38,3 @@ uint8 constant MAX_TOOL_STACKABLE = 1;
 
 uint256 constant MAX_PLAYER_INVENTORY_SLOTS = 36;
 uint256 constant MAX_CHEST_INVENTORY_SLOTS = 12;
-
-// Terrain
-enum Biome {
-  Mountains,
-  Mountains2,
-  Mountains3,
-  Mountains4,
-  Swamp,
-  Plains,
-  Forest,
-  Desert
-}
-
-int32 constant STRUCTURE_CHUNK = 5;
-int32 constant STRUCTURE_CHUNK_CENTER = STRUCTURE_CHUNK / 2 + 1;
