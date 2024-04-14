@@ -1,0 +1,44 @@
+{
+  "name": "@biomesaw/terrain",
+  "version": "0.0.1",
+  "exports": {
+    "./mud.config": "./dist/mud.config.js",
+    "./worlds.json": "./worlds.json",
+    "./IWorld.abi.json": "./IWorld.abi.json"
+  },
+  "scripts": {
+    "build": "mud build && pnpm run build:js && pnpm run cp-abi",
+    "cp-abi": "cp out/IWorld.sol/IWorld.abi.json IWorld.abi.json",
+    "build:js": "tsup",
+    "clean": "forge clean && rimraf src/codegen",
+    "deploy:local": "pnpm run build && mud deploy",
+    "deploy:testnet": "pnpm run build && mud deploy --profile=lattice-testnet",
+    "dev": "pnpm run build:js && pnpm mud dev-contracts",
+    "lint": "pnpm run prettier && pnpm run solhint",
+    "prettier": "prettier --write 'src/**/*.sol'",
+    "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
+    "test": "tsc --noEmit && mud test"
+  },
+  "dependencies": {
+    "@biomesaw/utils": "workspace:*",
+    "@latticexyz/cli": "link:../../../mud/packages/cli",
+    "@latticexyz/config": "link:../../../mud/packages/config",
+    "@latticexyz/schema-type": "link:../../../mud/packages/schema-type",
+    "@latticexyz/store": "link:../../../mud/packages/store",
+    "@latticexyz/world": "link:../../../mud/packages/world",
+    "@latticexyz/world-modules": "link:../../../mud/packages/world-modules",
+    "@latticexyz/gas-report": "link:../../../mud/packages/gas-report"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "ds-test": "https://github.com/dapphub/ds-test.git#e282159d5170298eb2455a6c05280ab5a73a4ef0",
+    "forge-std": "https://github.com/foundry-rs/forge-std.git#74cfb77e308dd188d2f58864aaf44963ae6b88b1",
+    "@openzeppelin/contracts": "^4.9.6",
+    "prettier": "^2.6.2",
+    "prettier-plugin-solidity": "1.1.3",
+    "solhint": "^3.3.7",
+    "solhint-config-mud": "2.0.0-next.17",
+    "solhint-plugin-mud": "2.0.0-next.17",
+    "tsup": "^7.2.0"
+  }
+}
