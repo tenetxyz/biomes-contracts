@@ -30,7 +30,11 @@ function staticCallInternalSystem(bytes memory callData) view returns (bytes mem
   (address systemAddress, ) = Systems._get(systemId);
 
   (bool success, bytes memory returnData) = systemAddress.staticcall(
-    Bytes.setBytes4(callData, 0, systemFunctionSelector)
+    WorldContextProviderLib.appendContext({
+      callData: Bytes.setBytes4(callData, 0, systemFunctionSelector),
+      msgSender: WorldContextConsumerLib._msgSender(),
+      msgValue: 0
+    })
   );
 
   if (!success) revertWithBytes(returnData);
