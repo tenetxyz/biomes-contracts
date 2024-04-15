@@ -36,7 +36,7 @@ contract BuildSystem is System {
 
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
 
-    regenHealth(playerEntityId, playerCoord);
+    regenHealth(playerEntityId);
     regenStamina(playerEntityId, playerCoord);
 
     uint8 objectTypeId = ObjectType._get(inventoryEntityId);

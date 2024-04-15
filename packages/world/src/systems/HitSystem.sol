@@ -37,10 +37,10 @@ contract HitSystem is System {
     require(!inSpawnArea(hitCoord), "HitSystem: cannot hit at spawn area");
     require(inSurroundingCube(playerCoord, 1, hitCoord), "HitSystem: hit entity is not in surrounding cube of player");
 
-    regenHealth(hitEntityId, hitCoord);
+    regenHealth(hitEntityId);
     regenStamina(hitEntityId, hitCoord);
 
-    regenHealth(playerEntityId, playerCoord);
+    regenHealth(playerEntityId);
     regenStamina(playerEntityId, playerCoord);
     useEquipped(playerEntityId, Equipped._get(playerEntityId));
 

@@ -32,7 +32,7 @@ contract TeleportSystem is System {
 
     VoxelCoord memory oldCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
 
-    regenHealth(playerEntityId, oldCoord);
+    regenHealth(playerEntityId);
     regenStamina(playerEntityId, oldCoord);
 
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);

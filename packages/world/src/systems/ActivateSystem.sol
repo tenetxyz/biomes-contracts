@@ -28,7 +28,7 @@ contract ActivateSystem is System {
   function activatePlayer(bytes32 playerEntityId) public {
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "ActivateSystem: player isn't logged in");
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
-    regenHealth(playerEntityId, playerCoord);
+    regenHealth(playerEntityId);
     regenStamina(playerEntityId, playerCoord);
   }
 }

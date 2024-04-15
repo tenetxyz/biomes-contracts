@@ -29,7 +29,7 @@ contract MoveSystem is System {
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "MoveSystem: player isn't logged in");
 
     VoxelCoord memory oldCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
-    regenHealth(playerEntityId, oldCoord);
+    regenHealth(playerEntityId);
     regenStamina(playerEntityId, oldCoord);
 
     for (uint256 i = 0; i < newCoords.length; i++) {

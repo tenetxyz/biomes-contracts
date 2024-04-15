@@ -41,7 +41,7 @@ contract MineSystem is System {
       inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, coord),
       "MineSystem: player is too far from the block"
     );
-    regenHealth(playerEntityId, playerCoord);
+    regenHealth(playerEntityId);
     regenStamina(playerEntityId, playerCoord);
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
     callInternalSystem(
