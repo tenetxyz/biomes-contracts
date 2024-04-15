@@ -30,10 +30,10 @@ contract TeleportSystem is System {
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "TeleportSystem: player isn't logged in");
     require(inWorldBorder(newCoord), "TeleportSystem: cannot teleport outside world border");
 
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId);
-
     VoxelCoord memory oldCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+
+    regenHealth(playerEntityId, oldCoord);
+    regenStamina(playerEntityId, oldCoord);
 
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {

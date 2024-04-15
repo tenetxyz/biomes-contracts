@@ -27,7 +27,8 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 contract ActivateSystem is System {
   function activatePlayer(bytes32 playerEntityId) public {
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "ActivateSystem: player isn't logged in");
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId);
+    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+    regenHealth(playerEntityId, playerCoord);
+    regenStamina(playerEntityId, playerCoord);
   }
 }

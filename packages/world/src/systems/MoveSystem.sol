@@ -28,11 +28,10 @@ contract MoveSystem is System {
     require(playerEntityId != bytes32(0), "MoveSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "MoveSystem: player isn't logged in");
 
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId);
+    VoxelCoord memory oldCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+    regenHealth(playerEntityId, oldCoord);
+    regenStamina(playerEntityId, oldCoord);
 
-    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
-    VoxelCoord memory oldCoord = playerCoord;
     for (uint256 i = 0; i < newCoords.length; i++) {
       VoxelCoord memory newCoord = newCoords[i];
       bool gravityRan = move(playerEntityId, oldCoord, newCoord);

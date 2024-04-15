@@ -36,16 +36,13 @@ contract MineSystem is System {
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "MineSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "MineSystem: player isn't logged in");
+    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     require(
-      inSurroundingCube(
-        positionDataToVoxelCoord(Position._get(playerEntityId)),
-        MAX_PLAYER_BUILD_MINE_HALF_WIDTH,
-        coord
-      ),
+      inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, coord),
       "MineSystem: player is too far from the block"
     );
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId);
+    regenHealth(playerEntityId, playerCoord);
+    regenStamina(playerEntityId, playerCoord);
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
     callInternalSystem(
       abi.encodeCall(IMineHelperSystem.spendStaminaForMining, (playerEntityId, objectTypeId, equippedEntityId))

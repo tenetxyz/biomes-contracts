@@ -34,17 +34,15 @@ contract BuildSystem is System {
     );
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "BuildSystem: player isn't logged in");
 
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId);
+    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+
+    regenHealth(playerEntityId, playerCoord);
+    regenStamina(playerEntityId, playerCoord);
 
     uint8 objectTypeId = ObjectType._get(inventoryEntityId);
     require(getObjectTypeIsBlock(objectTypeId), "BuildSystem: object type is not a block");
     require(
-      inSurroundingCube(
-        positionDataToVoxelCoord(Position._get(playerEntityId)),
-        MAX_PLAYER_BUILD_MINE_HALF_WIDTH,
-        coord
-      ),
+      inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, coord),
       "BuildSystem: player is too far from the block"
     );
 

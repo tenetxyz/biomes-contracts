@@ -10,10 +10,11 @@ import { Health, HealthData } from "../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, WATER_STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE, WATER_HEALTH_INCREASE_RATE } from "../Constants.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { getTerrainObjectTypeId } from "./TerrainUtils.sol";
 
-function regenHealth(bytes32 entityId) {
+function regenHealth(bytes32 entityId, VoxelCoord memory entityCoord) {
   HealthData memory healthData = Health._get(entityId);
   if (healthData.health >= MAX_PLAYER_HEALTH && healthData.lastUpdatedTime != block.timestamp) {
     Health._setLastUpdatedTime(entityId, block.timestamp);
@@ -26,8 +27,13 @@ function regenHealth(bytes32 entityId) {
     return;
   }
 
+  bool isInWater = getTerrainObjectTypeId(entityCoord) == WaterObjectID;
+
   // Calculate the new health
-  uint16 numAddHealth = uint16((timeSinceLastUpdate / TIME_BEFORE_INCREASE_HEALTH) * HEALTH_INCREASE_RATE);
+  uint16 numAddHealth = uint16(
+    (timeSinceLastUpdate / TIME_BEFORE_INCREASE_HEALTH) *
+      (isInWater ? WATER_HEALTH_INCREASE_RATE : HEALTH_INCREASE_RATE)
+  );
   uint16 newHealth = healthData.health + numAddHealth;
   if (newHealth > MAX_PLAYER_HEALTH) {
     newHealth = MAX_PLAYER_HEALTH;
@@ -36,7 +42,7 @@ function regenHealth(bytes32 entityId) {
   Health._set(entityId, HealthData({ health: newHealth, lastUpdatedTime: block.timestamp }));
 }
 
-function regenStamina(bytes32 entityId) {
+function regenStamina(bytes32 entityId, VoxelCoord memory entityCoord) {
   StaminaData memory staminaData = Stamina._get(entityId);
   if (staminaData.stamina >= MAX_PLAYER_STAMINA && staminaData.lastUpdatedTime != block.timestamp) {
     Stamina._setLastUpdatedTime(entityId, block.timestamp);
@@ -49,8 +55,13 @@ function regenStamina(bytes32 entityId) {
     return;
   }
 
+  bool isInWater = getTerrainObjectTypeId(entityCoord) == WaterObjectID;
+
   // Calculate the new stamina
-  uint32 numAddStamina = uint32((timeSinceLastUpdate / TIME_BEFORE_INCREASE_STAMINA) * STAMINA_INCREASE_RATE);
+  uint32 numAddStamina = uint32(
+    (timeSinceLastUpdate / TIME_BEFORE_INCREASE_STAMINA) *
+      (isInWater ? WATER_STAMINA_INCREASE_RATE : STAMINA_INCREASE_RATE)
+  );
   uint32 newStamina = staminaData.stamina + numAddStamina;
   if (newStamina > MAX_PLAYER_STAMINA) {
     newStamina = MAX_PLAYER_STAMINA;
