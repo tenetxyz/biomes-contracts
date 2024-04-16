@@ -6,11 +6,10 @@ export default defineWorld({
       schema: {
         objectTypeId: "uint8",
         isBlock: "bool",
-        mass: "uint16",
+        miningDifficulty: "uint16",
         stackable: "uint8",
         damage: "uint16",
         durability: "uint24",
-        hardness: "uint16",
       },
       key: ["objectTypeId"],
       codegen: {

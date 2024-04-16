@@ -18,75 +18,72 @@ import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE } from "../../Constants.sol";
 import { createSingleInputRecipe, createDoubleInputRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitHandBlocksSystem is System {
-  function createHandcraftedBlock(uint8 terrainBlockObjectTypeId, uint16 mass, uint16 hardness) internal {
+  function createHandcraftedBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: true,
-        mass: mass,
+        miningDifficulty: miningDifficulty,
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
-        damage: 0,
-        hardness: hardness
+        damage: 0
       })
     );
   }
 
-  function createHandcraftedTool(uint8 toolObjectTypeId, uint16 mass, uint24 durability, uint16 damage) internal {
+  function createHandcraftedTool(uint8 toolObjectTypeId, uint24 durability, uint16 damage) internal {
     ObjectTypeMetadata._set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: false,
-        mass: mass,
+        miningDifficulty: 0,
         stackable: MAX_TOOL_STACKABLE,
         durability: durability,
-        damage: damage,
-        hardness: 0
+        damage: damage
       })
     );
   }
 
-  function createHandcraftedItem(uint8 itemObjectTypeId, uint16 mass) internal {
+  function createHandcraftedItem(uint8 itemObjectTypeId) internal {
     ObjectTypeMetadata._set(
       itemObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: false,
-        mass: mass,
+        miningDifficulty: 0,
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
-        damage: 0,
-        hardness: 0
+        damage: 0
       })
     );
   }
 
   function initHandcraftedObjectTypes() public {
-    createHandcraftedBlock(CobblestoneObjectID, 2, 1);
-    createHandcraftedBlock(ClayObjectID, 16, 1);
-    createHandcraftedBlock(CottonBlockObjectID, 4, 1);
+    createHandcraftedBlock(CobblestoneObjectID, 2);
+    createHandcraftedBlock(ClayObjectID, 16);
+    createHandcraftedBlock(CottonBlockObjectID, 4);
 
-    createHandcraftedItem(BlueDyeObjectID, 1);
-    createHandcraftedItem(BrownDyeObjectID, 1);
-    createHandcraftedItem(GreenDyeObjectID, 1);
-    createHandcraftedItem(MagentaDyeObjectID, 1);
-    createHandcraftedItem(OrangeDyeObjectID, 1);
-    createHandcraftedItem(PinkDyeObjectID, 1);
-    createHandcraftedItem(PurpleDyeObjectID, 1);
-    createHandcraftedItem(RedDyeObjectID, 1);
-    createHandcraftedItem(TanDyeObjectID, 1);
-    createHandcraftedItem(WhiteDyeObjectID, 1);
-    createHandcraftedItem(YellowDyeObjectID, 1);
-    createHandcraftedItem(BlackDyeObjectID, 1);
-    createHandcraftedItem(SilverDyeObjectID, 1);
+    createHandcraftedItem(BlueDyeObjectID);
+    createHandcraftedItem(BrownDyeObjectID);
+    createHandcraftedItem(GreenDyeObjectID);
+    createHandcraftedItem(MagentaDyeObjectID);
+    createHandcraftedItem(OrangeDyeObjectID);
+    createHandcraftedItem(PinkDyeObjectID);
+    createHandcraftedItem(PurpleDyeObjectID);
+    createHandcraftedItem(RedDyeObjectID);
+    createHandcraftedItem(TanDyeObjectID);
+    createHandcraftedItem(WhiteDyeObjectID);
+    createHandcraftedItem(YellowDyeObjectID);
+    createHandcraftedItem(BlackDyeObjectID);
+    createHandcraftedItem(SilverDyeObjectID);
 
-    createHandcraftedTool(WoodenPickObjectID, 16, 50, 80);
-    createHandcraftedTool(WoodenAxeObjectID, 16, 50, 80);
-    createHandcraftedTool(WoodenWhackerObjectID, 32, 10, 100);
+    createHandcraftedTool(WoodenPickObjectID, 50, 80);
+    createHandcraftedTool(WoodenAxeObjectID, 50, 80);
+    createHandcraftedTool(WoodenWhackerObjectID, 10, 100);
 
-    createHandcraftedBlock(OakLumberObjectID, 1, 1);
-    createHandcraftedBlock(SakuraLumberObjectID, 1, 1);
-    createHandcraftedBlock(RubberLumberObjectID, 1, 1);
-    createHandcraftedBlock(BirchLumberObjectID, 1, 1);
+    createHandcraftedBlock(OakLumberObjectID, 1);
+    createHandcraftedBlock(SakuraLumberObjectID, 1);
+    createHandcraftedBlock(RubberLumberObjectID, 1);
+    createHandcraftedBlock(BirchLumberObjectID, 1);
   }
 
   function initHandcrafedRecipes() public {

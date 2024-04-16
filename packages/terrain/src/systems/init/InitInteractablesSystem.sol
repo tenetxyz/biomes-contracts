@@ -13,10 +13,16 @@ import { AnyLumberObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObj
 import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitInteractablesSystem is System {
-  function createInteractableBlock(uint8 terrainBlockObjectTypeId, uint16 mass) internal {
+  function createInteractableBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
-      ObjectTypeMetadataData({ isBlock: true, mass: mass, stackable: 1, durability: 0, damage: 0, hardness: 1 })
+      ObjectTypeMetadataData({
+        isBlock: true,
+        miningDifficulty: miningDifficulty,
+        stackable: 1,
+        durability: 0,
+        damage: 0
+      })
     );
   }
 

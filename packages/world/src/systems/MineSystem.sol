@@ -32,7 +32,7 @@ import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { isPick, isAxe, isLog, isStone } from "@biomesaw/terrain/src/utils/ObjectTypeUtils.sol";
-import { getObjectTypeMass, getObjectTypeDamage, getObjectTypeHardness } from "../utils/TerrainUtils.sol";
+import { getObjectTypeMiningDifficulty, getObjectTypeDamage } from "../utils/TerrainUtils.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord) public returns (bytes32) {
@@ -80,8 +80,7 @@ contract MineSystem is System {
 
     // Spend stamina for mining
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    uint32 staminaRequired = (getObjectTypeMass(mineObjectTypeId) * getObjectTypeHardness(mineObjectTypeId) * 1000) /
-      equippedToolDamage;
+    uint32 staminaRequired = (getObjectTypeMiningDifficulty(mineObjectTypeId) * 1000) / equippedToolDamage;
     require(currentStamina >= staminaRequired, "MineSystem: not enough stamina");
     Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
 

@@ -16,16 +16,15 @@ import { OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID,
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID } from "../../ObjectTypeIds.sol";
 
 contract InitTerrainBlocksSystem is System {
-  function createTerrainBlock(uint8 terrainBlockObjectTypeId, uint16 mass) internal {
+  function createTerrainBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: true,
-        mass: mass,
+        miningDifficulty: miningDifficulty,
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
-        damage: 0,
-        hardness: 1
+        damage: 0
       })
     );
   }

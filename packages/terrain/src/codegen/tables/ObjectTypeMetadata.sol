@@ -18,11 +18,10 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 struct ObjectTypeMetadataData {
   bool isBlock;
-  uint16 mass;
+  uint16 miningDifficulty;
   uint8 stackable;
   uint16 damage;
   uint24 durability;
-  uint16 hardness;
 }
 
 library ObjectTypeMetadata {
@@ -30,12 +29,12 @@ library ObjectTypeMetadata {
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004f626a656374547970654d6574616461);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x000b060001020102030200000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0009050001020102030000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (uint8)
   Schema constant _keySchema = Schema.wrap(0x0001010000000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bool, uint16, uint8, uint16, uint24, uint16)
-  Schema constant _valueSchema = Schema.wrap(0x000b060060010001020100000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bool, uint16, uint8, uint16, uint24)
+  Schema constant _valueSchema = Schema.wrap(0x0009050060010001020000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -51,13 +50,12 @@ library ObjectTypeMetadata {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](6);
+    fieldNames = new string[](5);
     fieldNames[0] = "isBlock";
-    fieldNames[1] = "mass";
+    fieldNames[1] = "miningDifficulty";
     fieldNames[2] = "stackable";
     fieldNames[3] = "damage";
     fieldNames[4] = "durability";
-    fieldNames[5] = "hardness";
   }
 
   /**
@@ -145,9 +143,9 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Get mass.
+   * @notice Get miningDifficulty.
    */
-  function getMass(uint8 objectTypeId) internal view returns (uint16 mass) {
+  function getMiningDifficulty(uint8 objectTypeId) internal view returns (uint16 miningDifficulty) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -156,9 +154,9 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Get mass.
+   * @notice Get miningDifficulty.
    */
-  function _getMass(uint8 objectTypeId) internal view returns (uint16 mass) {
+  function _getMiningDifficulty(uint8 objectTypeId) internal view returns (uint16 miningDifficulty) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -167,9 +165,9 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Get mass (using the specified store).
+   * @notice Get miningDifficulty (using the specified store).
    */
-  function getMass(IStore _store, uint8 objectTypeId) internal view returns (uint16 mass) {
+  function getMiningDifficulty(IStore _store, uint8 objectTypeId) internal view returns (uint16 miningDifficulty) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -178,33 +176,33 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Set mass.
+   * @notice Set miningDifficulty.
    */
-  function setMass(uint8 objectTypeId, uint16 mass) internal {
+  function setMiningDifficulty(uint8 objectTypeId, uint16 miningDifficulty) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((mass)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((miningDifficulty)), _fieldLayout);
   }
 
   /**
-   * @notice Set mass.
+   * @notice Set miningDifficulty.
    */
-  function _setMass(uint8 objectTypeId, uint16 mass) internal {
+  function _setMiningDifficulty(uint8 objectTypeId, uint16 miningDifficulty) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((mass)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((miningDifficulty)), _fieldLayout);
   }
 
   /**
-   * @notice Set mass (using the specified store).
+   * @notice Set miningDifficulty (using the specified store).
    */
-  function setMass(IStore _store, uint8 objectTypeId, uint16 mass) internal {
+  function setMiningDifficulty(IStore _store, uint8 objectTypeId, uint16 miningDifficulty) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((mass)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((miningDifficulty)), _fieldLayout);
   }
 
   /**
@@ -397,69 +395,6 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Get hardness.
-   */
-  function getHardness(uint8 objectTypeId) internal view returns (uint16 hardness) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Get hardness.
-   */
-  function _getHardness(uint8 objectTypeId) internal view returns (uint16 hardness) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Get hardness (using the specified store).
-   */
-  function getHardness(IStore _store, uint8 objectTypeId) internal view returns (uint16 hardness) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Set hardness.
-   */
-  function setHardness(uint8 objectTypeId, uint16 hardness) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((hardness)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set hardness.
-   */
-  function _setHardness(uint8 objectTypeId, uint16 hardness) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((hardness)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set hardness (using the specified store).
-   */
-  function setHardness(IStore _store, uint8 objectTypeId, uint16 hardness) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((hardness)), _fieldLayout);
-  }
-
-  /**
    * @notice Get the full data.
    */
   function get(uint8 objectTypeId) internal view returns (ObjectTypeMetadataData memory _table) {
@@ -510,13 +445,12 @@ library ObjectTypeMetadata {
   function set(
     uint8 objectTypeId,
     bool isBlock,
-    uint16 mass,
+    uint16 miningDifficulty,
     uint8 stackable,
     uint16 damage,
-    uint24 durability,
-    uint16 hardness
+    uint24 durability
   ) internal {
-    bytes memory _staticData = encodeStatic(isBlock, mass, stackable, damage, durability, hardness);
+    bytes memory _staticData = encodeStatic(isBlock, miningDifficulty, stackable, damage, durability);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -533,13 +467,12 @@ library ObjectTypeMetadata {
   function _set(
     uint8 objectTypeId,
     bool isBlock,
-    uint16 mass,
+    uint16 miningDifficulty,
     uint8 stackable,
     uint16 damage,
-    uint24 durability,
-    uint16 hardness
+    uint24 durability
   ) internal {
-    bytes memory _staticData = encodeStatic(isBlock, mass, stackable, damage, durability, hardness);
+    bytes memory _staticData = encodeStatic(isBlock, miningDifficulty, stackable, damage, durability);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -557,13 +490,12 @@ library ObjectTypeMetadata {
     IStore _store,
     uint8 objectTypeId,
     bool isBlock,
-    uint16 mass,
+    uint16 miningDifficulty,
     uint8 stackable,
     uint16 damage,
-    uint24 durability,
-    uint16 hardness
+    uint24 durability
   ) internal {
-    bytes memory _staticData = encodeStatic(isBlock, mass, stackable, damage, durability, hardness);
+    bytes memory _staticData = encodeStatic(isBlock, miningDifficulty, stackable, damage, durability);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -580,11 +512,10 @@ library ObjectTypeMetadata {
   function set(uint8 objectTypeId, ObjectTypeMetadataData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.isBlock,
-      _table.mass,
+      _table.miningDifficulty,
       _table.stackable,
       _table.damage,
-      _table.durability,
-      _table.hardness
+      _table.durability
     );
 
     EncodedLengths _encodedLengths;
@@ -602,11 +533,10 @@ library ObjectTypeMetadata {
   function _set(uint8 objectTypeId, ObjectTypeMetadataData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.isBlock,
-      _table.mass,
+      _table.miningDifficulty,
       _table.stackable,
       _table.damage,
-      _table.durability,
-      _table.hardness
+      _table.durability
     );
 
     EncodedLengths _encodedLengths;
@@ -624,11 +554,10 @@ library ObjectTypeMetadata {
   function set(IStore _store, uint8 objectTypeId, ObjectTypeMetadataData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.isBlock,
-      _table.mass,
+      _table.miningDifficulty,
       _table.stackable,
       _table.damage,
-      _table.durability,
-      _table.hardness
+      _table.durability
     );
 
     EncodedLengths _encodedLengths;
@@ -645,22 +574,16 @@ library ObjectTypeMetadata {
    */
   function decodeStatic(
     bytes memory _blob
-  )
-    internal
-    pure
-    returns (bool isBlock, uint16 mass, uint8 stackable, uint16 damage, uint24 durability, uint16 hardness)
-  {
+  ) internal pure returns (bool isBlock, uint16 miningDifficulty, uint8 stackable, uint16 damage, uint24 durability) {
     isBlock = (_toBool(uint8(Bytes.getBytes1(_blob, 0))));
 
-    mass = (uint16(Bytes.getBytes2(_blob, 1)));
+    miningDifficulty = (uint16(Bytes.getBytes2(_blob, 1)));
 
     stackable = (uint8(Bytes.getBytes1(_blob, 3)));
 
     damage = (uint16(Bytes.getBytes2(_blob, 4)));
 
     durability = (uint24(Bytes.getBytes3(_blob, 6)));
-
-    hardness = (uint16(Bytes.getBytes2(_blob, 9)));
   }
 
   /**
@@ -674,7 +597,7 @@ library ObjectTypeMetadata {
     EncodedLengths,
     bytes memory
   ) internal pure returns (ObjectTypeMetadataData memory _table) {
-    (_table.isBlock, _table.mass, _table.stackable, _table.damage, _table.durability, _table.hardness) = decodeStatic(
+    (_table.isBlock, _table.miningDifficulty, _table.stackable, _table.damage, _table.durability) = decodeStatic(
       _staticData
     );
   }
@@ -715,13 +638,12 @@ library ObjectTypeMetadata {
    */
   function encodeStatic(
     bool isBlock,
-    uint16 mass,
+    uint16 miningDifficulty,
     uint8 stackable,
     uint16 damage,
-    uint24 durability,
-    uint16 hardness
+    uint24 durability
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(isBlock, mass, stackable, damage, durability, hardness);
+    return abi.encodePacked(isBlock, miningDifficulty, stackable, damage, durability);
   }
 
   /**
@@ -732,13 +654,12 @@ library ObjectTypeMetadata {
    */
   function encode(
     bool isBlock,
-    uint16 mass,
+    uint16 miningDifficulty,
     uint8 stackable,
     uint16 damage,
-    uint24 durability,
-    uint16 hardness
+    uint24 durability
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(isBlock, mass, stackable, damage, durability, hardness);
+    bytes memory _staticData = encodeStatic(isBlock, miningDifficulty, stackable, damage, durability);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

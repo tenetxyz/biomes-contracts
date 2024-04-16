@@ -21,8 +21,8 @@ function getRecipe(bytes32 recipeId) view returns (RecipesData memory) {
   return Recipes.get(IStore(TERRAIN_WORLD_ADDRESS), recipeId);
 }
 
-function getObjectTypeMass(uint8 objectTypeId) view returns (uint16) {
-  return ObjectTypeMetadata.getMass(IStore(TERRAIN_WORLD_ADDRESS), objectTypeId);
+function getObjectTypeMiningDifficulty(uint8 objectTypeId) view returns (uint16) {
+  return ObjectTypeMetadata.getMiningDifficulty(IStore(TERRAIN_WORLD_ADDRESS), objectTypeId);
 }
 
 function getObjectTypeStackable(uint8 objectTypeId) view returns (uint8) {
@@ -35,10 +35,6 @@ function getObjectTypeDamage(uint8 objectTypeId) view returns (uint16) {
 
 function getObjectTypeDurability(uint8 objectTypeId) view returns (uint24) {
   return ObjectTypeMetadata.getDurability(IStore(TERRAIN_WORLD_ADDRESS), objectTypeId);
-}
-
-function getObjectTypeHardness(uint8 objectTypeId) view returns (uint16) {
-  return ObjectTypeMetadata.getHardness(IStore(TERRAIN_WORLD_ADDRESS), objectTypeId);
 }
 
 function getObjectTypeIsBlock(uint8 objectTypeId) view returns (bool) {

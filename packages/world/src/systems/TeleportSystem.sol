@@ -19,7 +19,7 @@ import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds
 import { positionDataToVoxelCoord, callGravity, inWorldBorder } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { getObjectTypeMass, getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
+import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { absInt16 } from "@biomesaw/utils/src/MathUtils.sol";
 import { PLAYER_MASS } from "@biomesaw/terrain/src/Constants.sol";

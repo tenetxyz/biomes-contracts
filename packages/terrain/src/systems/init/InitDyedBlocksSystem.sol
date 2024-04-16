@@ -17,16 +17,15 @@ import { DyeomaticObjectID } from "../../ObjectTypeIds.sol";
 import { createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitDyedBlocksSystem is System {
-  function createDyedBlock(uint8 terrainBlockObjectTypeId, uint16 mass) internal {
+  function createDyedBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: true,
-        mass: mass,
+        miningDifficulty: miningDifficulty,
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
-        damage: 0,
-        hardness: 1
+        damage: 0
       })
     );
   }
