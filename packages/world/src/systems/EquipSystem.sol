@@ -26,7 +26,6 @@ contract EquipSystem is System {
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "EquipSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "EquipSystem: player isn't logged in");
-
     require(Inventory._get(inventoryEntityId) == playerEntityId, "EquipSystem: Entity does not own inventory item");
 
     Equipped._set(playerEntityId, inventoryEntityId);

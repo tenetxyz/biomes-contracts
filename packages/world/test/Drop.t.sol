@@ -631,7 +631,7 @@ contract DropTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = getTerrainObjectTypeId(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-    bytes32 newInventoryId = world.mine(terrainObjectTypeId, mineCoord);
+    bytes32 newInventoryId = world.mine(mineCoord);
 
     assertTrue(Inventory.get(newInventoryId) == playerEntityId, "Inventory not set properly");
     assertTrue(testReverseInventoryHasItem(playerEntityId, newInventoryId), "Reverse Inventory not set");
@@ -676,13 +676,13 @@ contract DropTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = getTerrainObjectTypeId(mineCoord2);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-    bytes32 newInventoryId1 = world.mine(terrainObjectTypeId, mineCoord2);
+    bytes32 newInventoryId1 = world.mine(mineCoord2);
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     uint8 terrainObjectTypeId2 = getTerrainObjectTypeId(mineCoord);
     assertTrue(terrainObjectTypeId2 != AirObjectID, "Terrain block is air");
 
-    bytes32 newInventoryId2 = world.mine(terrainObjectTypeId2, mineCoord);
+    bytes32 newInventoryId2 = world.mine(mineCoord);
 
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId3 = getUniqueEntity();
@@ -814,7 +814,7 @@ contract DropTest is MudTest, GasReporter {
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     uint8 terrainObjectTypeId = getTerrainObjectTypeId(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+    bytes32 inventoryId = world.mine(mineCoord);
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
     assertTrue(testReverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
     assertTrue(ObjectType.get(inventoryId) == terrainObjectTypeId, "Inventory object not set");
@@ -841,7 +841,7 @@ contract DropTest is MudTest, GasReporter {
     mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 2);
     terrainObjectTypeId = getTerrainObjectTypeId(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-    inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+    inventoryId = world.mine(mineCoord);
 
     vm.expectRevert("BuildSystem: Cannot build where there are dropped objects");
     world.build(inventoryId, dropCoord);

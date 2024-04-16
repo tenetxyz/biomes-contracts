@@ -14,7 +14,6 @@ import { IGravitySystem } from "./IGravitySystem.sol";
 import { IHitSystem } from "./IHitSystem.sol";
 import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
-import { IMineHelperSystem } from "./IMineHelperSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
@@ -41,7 +40,6 @@ interface IWorld is
   IHitSystem,
   ILoginSystem,
   ILogoffSystem,
-  IMineHelperSystem,
   IMineSystem,
   IMoveSystem,
   IPlayerSystem,

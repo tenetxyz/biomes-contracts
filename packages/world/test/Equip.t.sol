@@ -160,7 +160,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     startGasReport("mine terrain w/ equipped");
-    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+    bytes32 inventoryId = world.mine(mineCoord);
     endGasReport();
 
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
@@ -199,7 +199,7 @@ contract EquipTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = getTerrainObjectTypeId(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-    bytes32 inventoryId = world.mine(terrainObjectTypeId, mineCoord);
+    bytes32 inventoryId = world.mine(mineCoord);
 
     assertTrue(Inventory.get(inventoryId) == playerEntityId, "Inventory not set");
     assertTrue(testReverseInventoryHasItem(playerEntityId, inventoryId), "Reverse Inventory not set");
@@ -325,7 +325,7 @@ contract EquipTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = getTerrainObjectTypeId(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-    world.mine(terrainObjectTypeId, mineCoord);
+    world.mine(mineCoord);
 
     assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not removed");
     assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");

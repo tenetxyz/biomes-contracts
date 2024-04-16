@@ -54,9 +54,10 @@ contract BuildSystem is System {
       require(getTerrainObjectTypeId(coord) == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
     } else {
       require(ObjectType._get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
-
-      bytes32[] memory droppedEntityIds = ReverseInventory._get(entityId);
-      require(droppedEntityIds.length == 0, "BuildSystem: Cannot build where there are dropped objects");
+      require(
+        ReverseInventory._lengthEntityIds(entityId) == 0,
+        "BuildSystem: Cannot build where there are dropped objects"
+      );
 
       ObjectType._deleteRecord(entityId);
       Position._deleteRecord(entityId);

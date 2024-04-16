@@ -27,6 +27,7 @@ contract HitSystem is System {
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "HitSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "HitSystem: player isn't logged in");
+
     bytes32 hitEntityId = Player._get(hitPlayer);
     require(hitEntityId != bytes32(0), "HitSystem: hit player does not exist");
     require(playerEntityId != hitEntityId, "HitSystem: player cannot hit itself");

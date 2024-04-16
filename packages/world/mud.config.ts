@@ -171,11 +171,6 @@ export default defineWorld({
       openAccess: false,
       accessList: [],
     },
-    MineHelperSystem: {
-      name: "MineHelperSystem",
-      openAccess: false,
-      accessList: [],
-    },
   },
   modules: [
     {

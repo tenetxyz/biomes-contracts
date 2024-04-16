@@ -3,7 +3,6 @@ pragma solidity >=0.8.24;
 
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { IMineHelperSystem } from "../codegen/world/IMineHelperSystem.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
@@ -25,12 +24,20 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { getObjectTypeIsBlock, getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
+import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, callGravity } from "../Utils.sol";
+import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { isPick, isAxe, isLog, isStone } from "@biomesaw/terrain/src/utils/ObjectTypeUtils.sol";
+import { getObjectTypeMass, getObjectTypeDamage, getObjectTypeHardness } from "../utils/TerrainUtils.sol";
+
 contract MineSystem is System {
-  function mine(uint8 objectTypeId, VoxelCoord memory coord) public returns (bytes32) {
+  function mine(VoxelCoord memory coord) public returns (bytes32) {
     require(inWorldBorder(coord), "MineSystem: cannot mine outside world border");
     require(!inSpawnArea(coord), "MineSystem: cannot mine at spawn area");
-    require(getObjectTypeIsBlock(objectTypeId), "MineSystem: object type is not a block");
-    require(objectTypeId != AirObjectID, "MineSystem: cannot mine air");
 
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "MineSystem: player does not exist");
@@ -45,27 +52,41 @@ contract MineSystem is System {
     );
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
-    bytes32 equippedEntityId = Equipped._get(playerEntityId);
-    callInternalSystem(
-      abi.encodeCall(IMineHelperSystem.spendStaminaForMining, (playerEntityId, objectTypeId, equippedEntityId))
-    );
-
-    useEquipped(playerEntityId, equippedEntityId);
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    uint8 mineObjectTypeId;
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(coord) == objectTypeId, "MineSystem: block type does not match with terrain type");
+      mineObjectTypeId = getTerrainObjectTypeId(coord);
 
       // Create new entity
       entityId = getUniqueEntity();
-      ObjectType._set(entityId, objectTypeId);
+      ObjectType._set(entityId, mineObjectTypeId);
     } else {
-      require(ObjectType._get(entityId) == objectTypeId, "MineSystem: invalid block type");
+      mineObjectTypeId = ObjectType._get(entityId);
 
       Position._deleteRecord(entityId);
       ReversePosition._deleteRecord(coord.x, coord.y, coord.z);
     }
+    require(getObjectTypeIsBlock(mineObjectTypeId), "MineSystem: object type is not a block");
+    require(mineObjectTypeId != AirObjectID, "MineSystem: cannot mine air");
+
+    bytes32 equippedEntityId = Equipped._get(playerEntityId);
+    uint32 equippedToolDamage = PLAYER_HAND_DAMAGE;
+    if (equippedEntityId != bytes32(0)) {
+      uint8 equippedObjectTypeId = ObjectType._get(equippedEntityId);
+      equippedToolDamage = getObjectTypeDamage(equippedObjectTypeId);
+    }
+
+    // Spend stamina for mining
+    uint32 currentStamina = Stamina._getStamina(playerEntityId);
+    uint32 staminaRequired = (getObjectTypeMass(mineObjectTypeId) * getObjectTypeHardness(mineObjectTypeId) * 1000) /
+      equippedToolDamage;
+    require(currentStamina >= staminaRequired, "MineSystem: not enough stamina");
+    Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
+
+    useEquipped(playerEntityId, equippedEntityId);
+
     // Make the new position air
     bytes32 airEntityId = getUniqueEntity();
     ObjectType._set(airEntityId, AirObjectID);
@@ -77,7 +98,7 @@ contract MineSystem is System {
 
     Inventory._set(entityId, playerEntityId);
     ReverseInventory._push(playerEntityId, entityId);
-    addToInventoryCount(playerEntityId, PlayerObjectID, objectTypeId, 1);
+    addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
     // Apply gravity
     VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);

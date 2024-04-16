@@ -6,12 +6,15 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { ITerrainSystem } from "@biomesaw/terrain/src/codegen/world/ITerrainSystem.sol";
 import { ObjectTypeMetadata } from "@biomesaw/terrain/src/codegen/tables/ObjectTypeMetadata.sol";
+import { Terrain } from "@biomesaw/terrain/src/codegen/tables/Terrain.sol";
 import { Recipes, RecipesData } from "@biomesaw/terrain/src/codegen/tables/Recipes.sol";
 
 import { TERRAIN_WORLD_ADDRESS } from "../Constants.sol";
 
 function getTerrainObjectTypeId(VoxelCoord memory coord) view returns (uint8) {
-  return ITerrainSystem(TERRAIN_WORLD_ADDRESS).getTerrainObjectTypeId(coord);
+  uint8 cachedObjectTypeId = Terrain.get(IStore(TERRAIN_WORLD_ADDRESS), coord.x, coord.y, coord.z);
+  if (cachedObjectTypeId != 0) return cachedObjectTypeId;
+  return ITerrainSystem(TERRAIN_WORLD_ADDRESS).computeTerrainObjectTypeId(coord);
 }
 
 function getRecipe(bytes32 recipeId) view returns (RecipesData memory) {

@@ -844,11 +844,6 @@
     "name": "mine",
     "inputs": [
       {
-        "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
         "name": "coord",
         "type": "tuple",
         "internalType": "struct VoxelCoord",
@@ -1474,29 +1469,6 @@
         "internalType": "bytes32"
       }
     ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "spendStaminaForMining",
-    "inputs": [
-      {
-        "name": "playerEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "mineObjectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "equippedEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
