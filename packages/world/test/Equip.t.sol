@@ -330,7 +330,6 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not removed");
     assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
     assertTrue(ReversePlayer.get(playerEntityId) == address(0), "Player not removed from world");
-    assertTrue(PlayerMetadata.getNumMovesInBlock(playerEntityId) == 0, "Player move count not reset");
     assertTrue(ObjectType.get(playerEntityId) == AirObjectID, "Player object not removed");
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");

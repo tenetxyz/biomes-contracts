@@ -133,10 +133,6 @@ contract TeleportTest is MudTest, GasReporter {
       PlayerMetadata.getLastMoveBlock(playerEntityId) == block.number,
       "Player last move block is not correct"
     );
-    assertTrue(
-      PlayerMetadata.getNumMovesInBlock(playerEntityId) == numBlocksToTeleport,
-      "Player move count is not correct"
-    );
     assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player object type is not correct");
     assertTrue(
       voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), newCoord),

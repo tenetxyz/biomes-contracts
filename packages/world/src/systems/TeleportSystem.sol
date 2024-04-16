@@ -22,6 +22,7 @@ import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { getObjectTypeMass, getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { absInt16 } from "@biomesaw/utils/src/MathUtils.sol";
+import { PLAYER_MASS } from "@biomesaw/terrain/src/Constants.sol";
 
 contract TeleportSystem is System {
   function teleport(VoxelCoord memory newCoord) public {
@@ -29,6 +30,11 @@ contract TeleportSystem is System {
     require(playerEntityId != bytes32(0), "TeleportSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "TeleportSystem: player isn't logged in");
     require(inWorldBorder(newCoord), "TeleportSystem: cannot teleport outside world border");
+    require(
+      PlayerMetadata._getLastMoveBlock(playerEntityId) < block.number,
+      "MoveSystem: player already moved this block"
+    );
+    PlayerMetadata._setLastMoveBlock(playerEntityId, block.number);
 
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
@@ -60,31 +66,9 @@ contract TeleportSystem is System {
     int16 xDelta = newCoord.x - oldCoord.x;
     int16 yDelta = newCoord.y - oldCoord.y;
     int16 zDelta = newCoord.z - oldCoord.z;
-    uint16 numDeltaPositions = uint16(absInt16(xDelta) + absInt16(yDelta) + absInt16(zDelta));
+    uint32 numDeltaPositions = uint32(int32(absInt16(xDelta) + absInt16(yDelta) + absInt16(zDelta)));
 
-    uint16 numMovesInBlock = PlayerMetadata._getNumMovesInBlock(playerEntityId);
-    if (PlayerMetadata._getLastMoveBlock(playerEntityId) != block.number) {
-      numMovesInBlock = numDeltaPositions;
-      PlayerMetadata._setLastMoveBlock(playerEntityId, block.number);
-    } else {
-      numMovesInBlock += numDeltaPositions;
-    }
-    PlayerMetadata._setNumMovesInBlock(playerEntityId, numMovesInBlock);
-
-    // Inventory mass
-    uint32 inventoryTotalMass = 0;
-    {
-      bytes32[] memory inventoryEntityIds = ReverseInventory._get(playerEntityId);
-      for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
-        uint8 inventoryObjectTypeId = ObjectType._get(inventoryEntityIds[i]);
-        inventoryTotalMass += getObjectTypeMass(inventoryObjectTypeId);
-      }
-    }
-
-    uint32 staminaRequired = getObjectTypeMass(PlayerObjectID);
-    staminaRequired += inventoryTotalMass / 50;
-    staminaRequired = staminaRequired * (numMovesInBlock ** 2);
-    staminaRequired = staminaRequired / 100;
+    uint32 staminaRequired = (PLAYER_MASS * (numDeltaPositions ** 2)) / 100;
     if (staminaRequired == 0) {
       staminaRequired = 1;
     }

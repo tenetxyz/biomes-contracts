@@ -74,7 +74,6 @@ export default defineWorld({
         isLoggedOff: "bool",
         lastMoveBlock: "uint256",
         lastHitTime: "uint256",
-        numMovesInBlock: "uint16",
       },
       key: ["entityId"],
       codegen: {

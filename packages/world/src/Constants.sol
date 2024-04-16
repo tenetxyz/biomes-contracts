@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-address constant TERRAIN_WORLD_ADDRESS = 0x7Fe4942CC902FE552A7a27A22B8597C87aDf8739;
+address constant TERRAIN_WORLD_ADDRESS = 0xF9e3F4B52cceCE07Bb3A1c3201fd35b78b638023;
 
 int16 constant WORLD_BORDER_LOW_X = -2000;
 int16 constant WORLD_BORDER_LOW_Y = -150;

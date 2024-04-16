@@ -38,7 +38,28 @@ contract TestScript is Script {
 
     IWorld world = IWorld(worldAddress);
 
-    // world.spawnPlayer(VoxelCoord(148, -61, -24));
+    // world.spawnPlayer(VoxelCoord(139, -62, -34));
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](50);
+    for (uint8 i = 0; i < newCoords.length; i++) {
+      newCoords[i] = VoxelCoord(139, -62, -34 + int16(int(uint(i))) + 1);
+    }
+    // for (uint i = 0; i < newCoords.length; i++) {
+    //   bytes32 entityId = getUniqueEntity();
+    //   Position.set(entityId, newCoords[i].x, newCoords[i].y, newCoords[i].z);
+    //   ReversePosition.set(newCoords[i].x, newCoords[i].y, newCoords[i].z, entityId);
+    //   ObjectType.set(entityId, AirObjectID);
+
+    //   // set block below to non-air
+    //   VoxelCoord memory belowCoord = VoxelCoord(newCoords[i].x, newCoords[i].y - 1, newCoords[i].z);
+    //   bytes32 belowEntityId = getUniqueEntity();
+    //   Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
+    //   ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
+    //   ObjectType.set(belowEntityId, GrassObjectID);
+    // }
+
+    world.move(newCoords);
+
     // ObjectType.get(entityId)
     // bytes32 entityId = ReversePosition.get(148, -61, -24);
     // console.logBytes32(entityId);
@@ -66,7 +87,7 @@ contract TestScript is Script {
     // ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, entityId);
     // world.teleport(VoxelCoord(149, -62, -37));
 
-    bytes32 playerEntityId = Player.get(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+    // bytes32 playerEntityId = Player.get(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
     // uint8 inputObjectTypeId = GrassObjectID;
     // for (uint i = 0; i < 99; i++) {
     //   bytes32 newInventoryId = getUniqueEntity();
@@ -82,7 +103,7 @@ contract TestScript is Script {
     // ReverseInventory.push(playerEntityId, newInventoryId1);
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
 
-    uint8 inputObjectTypeId = OakLogObjectID;
+    // uint8 inputObjectTypeId = OakLogObjectID;
     // bytes32 newInventoryId = getUniqueEntity();
     // ObjectType.set(newInventoryId, inputObjectTypeId);
     // Inventory.set(newInventoryId, playerEntityId);
@@ -118,8 +139,8 @@ contract TestScript is Script {
     //     break;
     //   }
     // }
-    bytes32 inventoryEntityId = world.mine(VoxelCoord(148, -63, -38));
-    console.logBytes32(inventoryEntityId);
+    // bytes32 inventoryEntityId = world.mine(VoxelCoord(148, -63, -38));
+    // console.logBytes32(inventoryEntityId);
     // inventoryEntityIds[0] = 0x00000000000000000000000000000000000000000000000000000000000001d2;
     // world.drop(inventoryEntityIds, VoxelCoord(149, -63, -38));
     // world.teleport(VoxelCoord(148, -63, -50));

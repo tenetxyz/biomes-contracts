@@ -288,6 +288,8 @@ contract DropTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
+    vm.roll(block.number + 1);
+
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, GrassObjectID);
@@ -371,6 +373,8 @@ contract DropTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
+    vm.roll(block.number + 1);
+
     vm.startPrank(worldDeployer, worldDeployer);
     ObjectTypeMetadata.setStackable(IStore(TERRAIN_WORLD_ADDRESS), GrassObjectID, 1);
     for (uint i = 0; i < MAX_PLAYER_INVENTORY_SLOTS; i++) {
@@ -416,6 +420,8 @@ contract DropTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
+
+    vm.roll(block.number + 1);
 
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId1 = getUniqueEntity();
@@ -500,6 +506,8 @@ contract DropTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
+    vm.roll(block.number + 1);
+
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId1 = getUniqueEntity();
     ObjectType.set(newInventoryId1, GrassObjectID);
@@ -582,6 +590,8 @@ contract DropTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
+    vm.roll(block.number + 1);
+
     vm.startPrank(worldDeployer, worldDeployer);
     ObjectTypeMetadata.setStackable(IStore(TERRAIN_WORLD_ADDRESS), GrassObjectID, 1);
     for (uint i = 0; i < MAX_PLAYER_INVENTORY_SLOTS; i++) {
@@ -626,6 +636,8 @@ contract DropTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
+
+    vm.roll(block.number + 1);
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     uint8 terrainObjectTypeId = getTerrainObjectTypeId(mineCoord);
@@ -729,11 +741,12 @@ contract DropTest is MudTest, GasReporter {
     VoxelCoord memory newCoord = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
     assertTrue(getTerrainObjectTypeId(newCoord) == AirObjectID, "Terrain block is not air");
 
+    vm.roll(block.number + 1);
+
     world.teleport(newCoord);
 
     assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
     assertTrue(ReversePlayer.get(playerEntityId) == address(0), "Player not removed from world");
-    assertTrue(PlayerMetadata.getNumMovesInBlock(playerEntityId) == 0, "Player move count not reset");
     assertTrue(ObjectType.get(playerEntityId) == AirObjectID, "Player object not removed");
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
@@ -759,6 +772,8 @@ contract DropTest is MudTest, GasReporter {
     playerEntityId = setupPlayer();
 
     // move the player to the same location as the dropped items
+    vm.roll(block.number + 1);
+
     world.teleport(newCoord);
 
     // player should have picked up all the items
