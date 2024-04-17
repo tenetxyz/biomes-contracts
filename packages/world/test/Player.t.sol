@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
+import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
@@ -56,14 +57,89 @@ contract PlayerTest is MudTest, GasReporter {
     world = IWorld(worldAddress);
   }
 
-  function testSpawnPlayer() public {
+  function testSpawnPlayerTerrain() public {
     vm.startPrank(alice, alice);
 
     VoxelCoord memory spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
     uint8 terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord);
     assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
 
-    startGasReport("spawn player");
+    startGasReport("spawn player terrain");
+    bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
+    endGasReport();
+
+    assertTrue(playerEntityId != bytes32(0), "Player entity not found");
+    assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player object not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), spawnCoord),
+      "Player position not set"
+    );
+    assertTrue(
+      ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z) == playerEntityId,
+      "Reverse position not set"
+    );
+    assertTrue(Player.get(alice) == playerEntityId, "Player entity not found in player table");
+    assertTrue(ReversePlayer.get(playerEntityId) == alice, "Reverse player is not correct");
+    assertTrue(Health.getHealth(playerEntityId) == MAX_PLAYER_HEALTH, "Player health not set");
+    assertTrue(Stamina.getStamina(playerEntityId) == MAX_PLAYER_STAMINA, "Player stamina not set");
+
+    // Try spawning another player with same user, should fail
+    VoxelCoord memory spawnCoord2 = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord2);
+    assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
+
+    vm.expectRevert("PlayerSystem: player already exists");
+    world.spawnPlayer(spawnCoord2);
+
+    vm.stopPrank();
+
+    vm.startPrank(bob, bob);
+
+    bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
+    assertTrue(playerEntityId2 != bytes32(0) && playerEntityId2 != playerEntityId, "Player entity not found");
+    assertTrue(ObjectType.get(playerEntityId2) == PlayerObjectID, "Player object not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId2)), spawnCoord2),
+      "Player position not set"
+    );
+    assertTrue(
+      ReversePosition.get(spawnCoord2.x, spawnCoord2.y, spawnCoord2.z) == playerEntityId2,
+      "Reverse position not set"
+    );
+    assertTrue(Player.get(bob) == playerEntityId2, "Player entity not found in player table");
+    assertTrue(ReversePlayer.get(playerEntityId2) == bob, "Reverse player is not correct");
+    assertTrue(Health.getHealth(playerEntityId2) == MAX_PLAYER_HEALTH, "Player health not set");
+    assertTrue(Stamina.getStamina(playerEntityId2) == MAX_PLAYER_STAMINA, "Player stamina not set");
+
+    vm.stopPrank();
+  }
+
+  function testSpawnPlayerNonTerrain() public {
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z);
+    uint8 terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord);
+    assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 entityId = getUniqueEntity();
+    Position.set(entityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, entityId);
+    ObjectType.set(entityId, AirObjectID);
+
+    // set block below to non-air
+    VoxelCoord memory belowCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
+    uint8 belowTerrainObjectTypeId = getTerrainObjectTypeId(belowCoord);
+    assertTrue(belowTerrainObjectTypeId != AirObjectID, "Terrain block is air");
+    bytes32 belowEntityId = getUniqueEntity();
+    Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
+    ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
+    ObjectType.set(belowEntityId, belowTerrainObjectTypeId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    startGasReport("spawn player non-terrain");
     bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
     endGasReport();
 

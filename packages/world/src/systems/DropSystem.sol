@@ -46,6 +46,7 @@ contract DropSystem is System {
 
     return entityId;
   }
+
   function drop(uint8 dropObjectTypeId, uint16 numToDrop, VoxelCoord memory coord) public {
     bytes32 playerEntityId = Player._get(_msgSender());
     bytes32 entityId = dropCommon(playerEntityId, coord);
