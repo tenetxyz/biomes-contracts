@@ -43,18 +43,17 @@ contract HitSystem is System {
 
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
-    useEquipped(playerEntityId, Equipped._get(playerEntityId));
 
     // Calculate stamina and health reduction
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
     require(currentStamina > 0, "HitSystem: player has no stamina");
-    uint32 staminaRequired = HIT_STAMINA_COST;
+    uint16 staminaRequired = HIT_STAMINA_COST;
 
     // Try spending all the stamina
-    uint32 staminaSpend = staminaRequired > currentStamina ? currentStamina : staminaRequired;
+    uint16 staminaSpend = staminaRequired > currentStamina ? uint16(currentStamina) : staminaRequired;
 
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
-    uint32 receiverDamage = PLAYER_HAND_DAMAGE;
+    uint16 receiverDamage = PLAYER_HAND_DAMAGE;
     if (equippedEntityId != bytes32(0)) {
       receiverDamage = getObjectTypeDamage(ObjectType._get(equippedEntityId));
     }
@@ -67,6 +66,8 @@ contract HitSystem is System {
 
     // Update stamina and health
     Stamina._setStamina(playerEntityId, currentStamina - staminaSpend);
+
+    useEquipped(playerEntityId, equippedEntityId);
 
     uint16 currentHealth = Health._getHealth(hitEntityId);
     uint16 newHealth = currentHealth > uint16(receiverDamage) ? currentHealth - uint16(receiverDamage) : 0;
