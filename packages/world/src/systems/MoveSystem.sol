@@ -90,7 +90,8 @@ contract MoveSystem is System {
     } else {
       require(ObjectType._get(newEntityId) == AirObjectID, "MoveSystem: cannot move to non-air block");
 
-      // Transfer any dropped items
+      // Note: Turn this on if you want to transfer any drops along the path
+      // to the player. This is disabled for now for gas efficiency.
       // transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
     }
 

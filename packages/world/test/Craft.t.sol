@@ -180,6 +180,35 @@ contract CraftTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testHandcraftMultipleInputVariationsNotEnough() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    // Init inventory with ingredients
+    vm.startPrank(worldDeployer, worldDeployer);
+    uint8 inputObjectTypeId1 = OakLogObjectID;
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    uint8 inputObjectTypeId2 = SakuraLogObjectID;
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 2);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 2, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId2), "Inventory objects not set");
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint8 outputObjectTypeId = WoodenPickObjectID;
+    bytes32 recipeId = keccak256(abi.encodePacked(AnyLogObjectID, uint8(4), outputObjectTypeId, uint8(1)));
+
+    vm.expectRevert("CraftSystem: not enough logs");
+    world.craft(recipeId, bytes32(0));
+
+    vm.stopPrank();
+  }
+
   function testCraftWithStation() public {
     vm.startPrank(alice, alice);
 
