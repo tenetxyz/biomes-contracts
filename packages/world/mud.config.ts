@@ -143,10 +143,10 @@ export default defineWorld({
     },
     Equipped: {
       schema: {
-        entityId: "bytes32",
-        inventoryEntityId: "bytes32",
+        ownerEntityId: "bytes32",
+        toolEntityId: "bytes32",
       },
-      key: ["entityId"],
+      key: ["ownerEntityId"],
       codegen: {
         storeArgument: true,
       },

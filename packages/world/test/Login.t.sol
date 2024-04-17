@@ -91,7 +91,62 @@ contract LoginTest is MudTest, GasReporter {
 
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
 
-    startGasReport("login");
+    startGasReport("login terrain");
+    world.loginPlayer(respawnCoord);
+    endGasReport();
+
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), respawnCoord),
+      "Player position not set"
+    );
+    assertTrue(
+      ReversePosition.get(respawnCoord.x, respawnCoord.y, respawnCoord.z) == playerEntityId,
+      "Reverse position not set"
+    );
+    assertTrue(Health.getHealth(playerEntityId) == healthBefore, "Health not set");
+    assertTrue(Stamina.getStamina(playerEntityId) == staminaBefore, "Stamina not set");
+    assertTrue(Health.getLastUpdatedTime(playerEntityId) == block.timestamp, "Health last update time not set");
+    assertTrue(Stamina.getLastUpdatedTime(playerEntityId) == block.timestamp, "Stamina last update time not set");
+
+    vm.stopPrank();
+  }
+
+  function testLoginNonTerrain() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    Health.setHealth(playerEntityId, 1);
+    Stamina.setStamina(playerEntityId, 1);
+
+    assertTrue(getTerrainObjectTypeId(respawnCoord) == AirObjectID, "Terrain block is not air");
+
+    bytes32 entityId = getUniqueEntity();
+    Position.set(entityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
+    ReversePosition.set(respawnCoord.x, respawnCoord.y, respawnCoord.z, entityId);
+    ObjectType.set(entityId, AirObjectID);
+
+    // set block below to non-air
+    VoxelCoord memory belowCoord = VoxelCoord(respawnCoord.x, respawnCoord.y - 1, respawnCoord.z);
+    uint8 terrainObjectTypeId = getTerrainObjectTypeId(belowCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+    bytes32 belowEntityId = getUniqueEntity();
+    Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
+    ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
+    ObjectType.set(belowEntityId, terrainObjectTypeId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint16 healthBefore = Health.getHealth(playerEntityId);
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+
+    world.logoffPlayer();
+
+    startGasReport("login non-terrain");
     world.loginPlayer(respawnCoord);
     endGasReport();
 
