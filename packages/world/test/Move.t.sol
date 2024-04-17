@@ -202,6 +202,10 @@ contract MoveTest is MudTest, GasReporter {
     testMoveMultipleBlocks(50, false);
   }
 
+  function testMoveHundredBlocksNonTerrain() public {
+    testMoveMultipleBlocks(100, false);
+  }
+
   function testMoveWithoutPlayer() public {
     vm.startPrank(alice, alice);
 
