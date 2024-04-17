@@ -13,7 +13,14 @@ contract InitPlayersSystem is System {
     // Players
     ObjectTypeMetadata._set(
       PlayerObjectID,
-      ObjectTypeMetadataData({ isBlock: false, miningDifficulty: 0, stackable: 0, durability: 0, damage: 0 })
+      ObjectTypeMetadataData({
+        isBlock: false,
+        isTool: false,
+        miningDifficulty: 0,
+        stackable: 0,
+        durability: 0,
+        damage: 0
+      })
     );
   }
 }

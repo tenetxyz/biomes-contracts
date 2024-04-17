@@ -22,6 +22,7 @@ contract InitDyedBlocksSystem is System {
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: true,
+        isTool: false,
         miningDifficulty: miningDifficulty,
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,

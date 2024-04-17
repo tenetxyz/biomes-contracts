@@ -18,10 +18,12 @@ import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../src/codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../src/codegen/tables/Stamina.sol";
-import { Inventory } from "../src/codegen/tables/Inventory.sol";
-import { ReverseInventory } from "../src/codegen/tables/ReverseInventory.sol";
+import { InventoryTool } from "../src/codegen/tables/InventoryTool.sol";
+import { ReverseInventoryTool } from "../src/codegen/tables/ReverseInventoryTool.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
+import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
+import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 
@@ -36,7 +38,7 @@ import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH
 import { AirObjectID, GrassObjectID, ChestObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, OakLumberObjectID, OakLogObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
-import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
+import { testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/InventoryTestUtils.sol";
 import { TERRAIN_WORLD_ADDRESS } from "../src/Constants.sol";
 
 contract UnequipTest is MudTest, GasReporter {
@@ -79,19 +81,20 @@ contract UnequipTest is MudTest, GasReporter {
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
-    Inventory.set(newInventoryId, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, WoodenPickObjectID), "Inventory objects not set");
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
     world.equip(newInventoryId);
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
 
-    startGasReport("equip");
+    startGasReport("unequip");
     world.unequip();
     endGasReport();
     assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not unset");
@@ -107,9 +110,10 @@ contract UnequipTest is MudTest, GasReporter {
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
-    Inventory.set(newInventoryId, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, WoodenPickObjectID), "Inventory objects not set");
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
@@ -134,9 +138,10 @@ contract UnequipTest is MudTest, GasReporter {
     vm.startPrank(worldDeployer, worldDeployer);
     bytes32 newInventoryId = getUniqueEntity();
     ObjectType.set(newInventoryId, WoodenPickObjectID);
-    Inventory.set(newInventoryId, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, WoodenPickObjectID), "Inventory objects not set");
     uint24 durability = 10;
     ItemMetadata.set(newInventoryId, durability);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");

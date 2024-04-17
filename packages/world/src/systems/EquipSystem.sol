@@ -10,8 +10,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Inventory } from "../codegen/tables/Inventory.sol";
-import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
+import { InventoryTool } from "../codegen/tables/InventoryTool.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 
@@ -26,7 +25,7 @@ contract EquipSystem is System {
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "EquipSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "EquipSystem: player isn't logged in");
-    require(Inventory._get(inventoryEntityId) == playerEntityId, "EquipSystem: Entity does not own inventory item");
+    require(InventoryTool._get(inventoryEntityId) == playerEntityId, "EquipSystem: Entity does not own inventory item");
 
     Equipped._set(playerEntityId, inventoryEntityId);
   }

@@ -34,7 +34,7 @@ library ItemMetadata {
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
     keyNames = new string[](1);
-    keyNames[0] = "entityId";
+    keyNames[0] = "toolEntityId";
   }
 
   /**
@@ -70,9 +70,9 @@ library ItemMetadata {
   /**
    * @notice Get numUsesLeft.
    */
-  function getNumUsesLeft(bytes32 entityId) internal view returns (uint24 numUsesLeft) {
+  function getNumUsesLeft(bytes32 toolEntityId) internal view returns (uint24 numUsesLeft) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint24(bytes3(_blob)));
@@ -81,9 +81,9 @@ library ItemMetadata {
   /**
    * @notice Get numUsesLeft.
    */
-  function _getNumUsesLeft(bytes32 entityId) internal view returns (uint24 numUsesLeft) {
+  function _getNumUsesLeft(bytes32 toolEntityId) internal view returns (uint24 numUsesLeft) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint24(bytes3(_blob)));
@@ -92,9 +92,9 @@ library ItemMetadata {
   /**
    * @notice Get numUsesLeft (using the specified store).
    */
-  function getNumUsesLeft(IStore _store, bytes32 entityId) internal view returns (uint24 numUsesLeft) {
+  function getNumUsesLeft(IStore _store, bytes32 toolEntityId) internal view returns (uint24 numUsesLeft) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint24(bytes3(_blob)));
@@ -103,9 +103,9 @@ library ItemMetadata {
   /**
    * @notice Get numUsesLeft.
    */
-  function get(bytes32 entityId) internal view returns (uint24 numUsesLeft) {
+  function get(bytes32 toolEntityId) internal view returns (uint24 numUsesLeft) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint24(bytes3(_blob)));
@@ -114,9 +114,9 @@ library ItemMetadata {
   /**
    * @notice Get numUsesLeft.
    */
-  function _get(bytes32 entityId) internal view returns (uint24 numUsesLeft) {
+  function _get(bytes32 toolEntityId) internal view returns (uint24 numUsesLeft) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint24(bytes3(_blob)));
@@ -125,9 +125,9 @@ library ItemMetadata {
   /**
    * @notice Get numUsesLeft (using the specified store).
    */
-  function get(IStore _store, bytes32 entityId) internal view returns (uint24 numUsesLeft) {
+  function get(IStore _store, bytes32 toolEntityId) internal view returns (uint24 numUsesLeft) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint24(bytes3(_blob)));
@@ -136,9 +136,9 @@ library ItemMetadata {
   /**
    * @notice Set numUsesLeft.
    */
-  function setNumUsesLeft(bytes32 entityId, uint24 numUsesLeft) internal {
+  function setNumUsesLeft(bytes32 toolEntityId, uint24 numUsesLeft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numUsesLeft)), _fieldLayout);
   }
@@ -146,9 +146,9 @@ library ItemMetadata {
   /**
    * @notice Set numUsesLeft.
    */
-  function _setNumUsesLeft(bytes32 entityId, uint24 numUsesLeft) internal {
+  function _setNumUsesLeft(bytes32 toolEntityId, uint24 numUsesLeft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numUsesLeft)), _fieldLayout);
   }
@@ -156,9 +156,9 @@ library ItemMetadata {
   /**
    * @notice Set numUsesLeft (using the specified store).
    */
-  function setNumUsesLeft(IStore _store, bytes32 entityId, uint24 numUsesLeft) internal {
+  function setNumUsesLeft(IStore _store, bytes32 toolEntityId, uint24 numUsesLeft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numUsesLeft)), _fieldLayout);
   }
@@ -166,9 +166,9 @@ library ItemMetadata {
   /**
    * @notice Set numUsesLeft.
    */
-  function set(bytes32 entityId, uint24 numUsesLeft) internal {
+  function set(bytes32 toolEntityId, uint24 numUsesLeft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numUsesLeft)), _fieldLayout);
   }
@@ -176,9 +176,9 @@ library ItemMetadata {
   /**
    * @notice Set numUsesLeft.
    */
-  function _set(bytes32 entityId, uint24 numUsesLeft) internal {
+  function _set(bytes32 toolEntityId, uint24 numUsesLeft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numUsesLeft)), _fieldLayout);
   }
@@ -186,9 +186,9 @@ library ItemMetadata {
   /**
    * @notice Set numUsesLeft (using the specified store).
    */
-  function set(IStore _store, bytes32 entityId, uint24 numUsesLeft) internal {
+  function set(IStore _store, bytes32 toolEntityId, uint24 numUsesLeft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numUsesLeft)), _fieldLayout);
   }
@@ -196,9 +196,9 @@ library ItemMetadata {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 entityId) internal {
+  function deleteRecord(bytes32 toolEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -206,9 +206,9 @@ library ItemMetadata {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 entityId) internal {
+  function _deleteRecord(bytes32 toolEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -216,9 +216,9 @@ library ItemMetadata {
   /**
    * @notice Delete all data for given keys (using the specified store).
    */
-  function deleteRecord(IStore _store, bytes32 entityId) internal {
+  function deleteRecord(IStore _store, bytes32 toolEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     _store.deleteRecord(_tableId, _keyTuple);
   }
@@ -249,9 +249,9 @@ library ItemMetadata {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(bytes32 toolEntityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = toolEntityId;
 
     return _keyTuple;
   }

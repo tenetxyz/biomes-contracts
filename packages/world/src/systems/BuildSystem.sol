@@ -10,8 +10,9 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Inventory } from "../codegen/tables/Inventory.sol";
-import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
+import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
+import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
+import { ReverseInventoryTool } from "../codegen/tables/ReverseInventoryTool.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
@@ -23,22 +24,14 @@ import { getObjectTypeIsBlock, getTerrainObjectTypeId } from "../utils/TerrainUt
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract BuildSystem is System {
-  function build(bytes32 inventoryEntityId, VoxelCoord memory coord) public {
+  function build(uint8 objectTypeId, VoxelCoord memory coord) public returns (bytes32) {
     require(inWorldBorder(coord), "BuildSystem: cannot build outside world border");
     require(!inSpawnArea(coord), "BuildSystem: cannot build at spawn area");
+
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "BuildSystem: player does not exist");
-    require(
-      Inventory._get(inventoryEntityId) == playerEntityId,
-      "BuildSystem: inventory entity does not belong to the player"
-    );
-    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "BuildSystem: player isn't logged in");
-
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId);
-
-    uint8 objectTypeId = ObjectType._get(inventoryEntityId);
     require(getObjectTypeIsBlock(objectTypeId), "BuildSystem: object type is not a block");
+    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "BuildSystem: player isn't logged in");
     require(
       inSurroundingCube(
         positionDataToVoxelCoord(Position._get(playerEntityId)),
@@ -48,26 +41,28 @@ contract BuildSystem is System {
       "BuildSystem: player is too far from the block"
     );
 
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId);
+
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
       require(getTerrainObjectTypeId(coord) == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
+
+      entityId = getUniqueEntity();
+      Position._set(entityId, coord.x, coord.y, coord.z);
+      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
     } else {
       require(ObjectType._get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
       require(
-        ReverseInventory._lengthEntityIds(entityId) == 0,
+        InventoryObjects._lengthObjectTypeIds(entityId) == 0,
         "BuildSystem: Cannot build where there are dropped objects"
       );
-
-      ObjectType._deleteRecord(entityId);
-      Position._deleteRecord(entityId);
     }
 
-    Inventory._deleteRecord(inventoryEntityId);
-    removeEntityIdFromReverseInventory(playerEntityId, inventoryEntityId);
+    ObjectType._set(entityId, objectTypeId);
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
 
-    Position._set(inventoryEntityId, coord.x, coord.y, coord.z);
-    ReversePosition._set(coord.x, coord.y, coord.z, inventoryEntityId);
+    return entityId;
   }
 }

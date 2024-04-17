@@ -11,5 +11,5 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IBuildSystem {
-  function build(bytes32 inventoryEntityId, VoxelCoord memory coord) external;
+  function build(uint8 objectTypeId, VoxelCoord memory coord) external returns (bytes32);
 }

@@ -19,10 +19,12 @@ import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../src/codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../src/codegen/tables/Stamina.sol";
-import { Inventory } from "../src/codegen/tables/Inventory.sol";
-import { ReverseInventory } from "../src/codegen/tables/ReverseInventory.sol";
+import { InventoryTool } from "../src/codegen/tables/InventoryTool.sol";
+import { ReverseInventoryTool } from "../src/codegen/tables/ReverseInventoryTool.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
+import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
+import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 
@@ -37,7 +39,7 @@ import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
-import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
+import { testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/InventoryTestUtils.sol";
 import { TERRAIN_WORLD_ADDRESS } from "../src/Constants.sol";
 
 contract MoveTest is MudTest, GasReporter {
@@ -278,19 +280,13 @@ contract MoveTest is MudTest, GasReporter {
 
     vm.startPrank(worldDeployer, worldDeployer);
     ObjectTypeMetadata.setStackable(IStore(TERRAIN_WORLD_ADDRESS), GrassObjectID, 1);
-    bytes32 inventoryId;
-    for (uint i = 0; i < MAX_PLAYER_INVENTORY_SLOTS; i++) {
-      inventoryId = getUniqueEntity();
-      ObjectType.set(inventoryId, GrassObjectID);
-      Inventory.set(inventoryId, playerEntityId);
-      ReverseInventory.push(playerEntityId, inventoryId);
-      testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
-    }
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, MAX_PLAYER_INVENTORY_SLOTS);
     assertTrue(
       InventoryCount.get(playerEntityId, GrassObjectID) == MAX_PLAYER_INVENTORY_SLOTS,
       "Inventory count not set properly"
     );
     assertTrue(InventorySlots.get(playerEntityId) == MAX_PLAYER_INVENTORY_SLOTS, "Inventory slots not set correctly");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
     vm.stopPrank();
 
     vm.startPrank(alice, alice);

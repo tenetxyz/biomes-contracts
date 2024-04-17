@@ -10,8 +10,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Inventory } from "../codegen/tables/Inventory.sol";
-import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 
@@ -19,13 +17,12 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, inWorldBorder } from "../Utils.sol";
 import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
-import { transferInventoryItem } from "../utils/InventoryUtils.sol";
+import { transferInventoryNonTool, transferInventoryTool } from "../utils/InventoryUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract DropSystem is System {
-  function drop(bytes32[] memory inventoryEntityIds, VoxelCoord memory coord) public {
+  function dropCommon(bytes32 playerEntityId, VoxelCoord memory coord) internal returns (bytes32) {
     require(inWorldBorder(coord), "DropSystem: cannot drop outside world border");
-    bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "DropSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "DropSystem: player isn't logged in");
     require(
@@ -47,8 +44,17 @@ contract DropSystem is System {
       require(ObjectType._get(entityId) == AirObjectID, "DropSystem: cannot drop on non-air block");
     }
 
-    for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
-      transferInventoryItem(playerEntityId, entityId, AirObjectID, inventoryEntityIds[i]);
-    }
+    return entityId;
+  }
+  function drop(uint8 dropObjectTypeId, uint16 numToDrop, VoxelCoord memory coord) public {
+    bytes32 playerEntityId = Player._get(_msgSender());
+    bytes32 entityId = dropCommon(playerEntityId, coord);
+    transferInventoryNonTool(playerEntityId, entityId, AirObjectID, dropObjectTypeId, numToDrop);
+  }
+
+  function drop(bytes32 toolEntityId, VoxelCoord memory coord) public {
+    bytes32 playerEntityId = Player._get(_msgSender());
+    bytes32 entityId = dropCommon(playerEntityId, coord);
+    transferInventoryTool(playerEntityId, entityId, AirObjectID, toolEntityId);
   }
 }

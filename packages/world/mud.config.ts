@@ -80,32 +80,43 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    Inventory: {
+    InventoryTool: {
       schema: {
-        entityId: "bytes32",
+        toolEntityId: "bytes32",
         ownerEntityId: "bytes32",
       },
-      key: ["entityId"],
+      key: ["toolEntityId"],
       codegen: {
         storeArgument: true,
       },
     },
-    ReverseInventory: {
+    ReverseInventoryTool: {
       schema: {
         ownerEntityId: "bytes32",
-        entityIds: "bytes32[]",
+        toolEntityIds: "bytes32[]",
       },
       key: ["ownerEntityId"],
       codegen: {
         storeArgument: true,
       },
     },
-    ItemMetadata: {
+    InventoryCount: {
       schema: {
-        entityId: "bytes32",
-        numUsesLeft: "uint24",
+        ownerEntityId: "bytes32",
+        objectTypeId: "uint8",
+        count: "uint16",
       },
-      key: ["entityId"],
+      key: ["ownerEntityId", "objectTypeId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    InventoryObjects: {
+      schema: {
+        ownerEntityId: "bytes32",
+        objectTypeIds: "uint8[]",
+      },
+      key: ["ownerEntityId"],
       codegen: {
         storeArgument: true,
       },
@@ -120,13 +131,12 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    InventoryCount: {
+    ItemMetadata: {
       schema: {
-        ownerEntityId: "bytes32",
-        objectTypeId: "uint8",
-        count: "uint16",
+        toolEntityId: "bytes32",
+        numUsesLeft: "uint24",
       },
-      key: ["ownerEntityId", "objectTypeId"],
+      key: ["toolEntityId"],
       codegen: {
         storeArgument: true,
       },

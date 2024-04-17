@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { Inventory } from "../../src/codegen/tables/Inventory.sol";
-import { ReverseInventory } from "../../src/codegen/tables/ReverseInventory.sol";
-import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";
+import { InventoryTool } from "../../src/codegen/tables/InventoryTool.sol";
+import { ReverseInventoryTool } from "../../src/codegen/tables/ReverseInventoryTool.sol";
 import { InventorySlots } from "../../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../../src/codegen/tables/InventoryCount.sol";
+import { InventoryObjects } from "../../src/codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../../src/codegen/tables/ItemMetadata.sol";
 
@@ -14,10 +14,20 @@ import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS } from "../../src
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { getObjectTypeStackable } from "../../src/utils/TerrainUtils.sol";
 
-function testReverseInventoryHasItem(bytes32 ownerEntityId, bytes32 inventoryEntityId) view returns (bool) {
-  bytes32[] memory inventoryEntityIds = ReverseInventory.get(ownerEntityId);
+function testReverseInventoryToolHasItem(bytes32 ownerEntityId, bytes32 inventoryEntityId) view returns (bool) {
+  bytes32[] memory inventoryEntityIds = ReverseInventoryTool.get(ownerEntityId);
   for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
     if (inventoryEntityIds[i] == inventoryEntityId) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function testInventoryObjectsHasObjectType(bytes32 ownerEntityId, uint8 objectTypeId) view returns (bool) {
+  uint8[] memory inventoryObjectTypes = InventoryObjects.get(ownerEntityId);
+  for (uint256 i = 0; i < inventoryObjectTypes.length; i++) {
+    if (inventoryObjectTypes[i] == objectTypeId) {
       return true;
     }
   }
@@ -51,4 +61,8 @@ function testAddToInventoryCount(
   }
   InventorySlots.set(ownerEntityId, numFinalSlotsUsed);
   InventoryCount.set(ownerEntityId, objectTypeId, numFinalObjects);
+
+  if (numInitialObjects == 0) {
+    InventoryObjects.push(ownerEntityId, objectTypeId);
+  }
 }

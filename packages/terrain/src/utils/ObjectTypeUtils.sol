@@ -43,6 +43,10 @@ function isLog(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == RubberLogObjectID;
 }
 
+function getLogObjectTypes() pure returns (uint8[4] memory) {
+  return [OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID];
+}
+
 function isLumber(uint8 objectTypeId) pure returns (bool) {
   return
     objectTypeId == OakLumberObjectID ||
@@ -62,6 +66,28 @@ function isLumber(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == YellowOakLumberObjectID ||
     objectTypeId == BlackOakLumberObjectID ||
     objectTypeId == SilverOakLumberObjectID;
+}
+
+function getLumberObjectTypes() pure returns (uint8[17] memory) {
+  return [
+    OakLumberObjectID,
+    SakuraLumberObjectID,
+    RubberLumberObjectID,
+    BirchLumberObjectID,
+    BlueOakLumberObjectID,
+    BrownOakLumberObjectID,
+    GreenOakLumberObjectID,
+    MagentaOakLumberObjectID,
+    OrangeOakLumberObjectID,
+    PinkOakLumberObjectID,
+    PurpleOakLumberObjectID,
+    RedOakLumberObjectID,
+    TanOakLumberObjectID,
+    WhiteOakLumberObjectID,
+    YellowOakLumberObjectID,
+    BlackOakLumberObjectID,
+    SilverOakLumberObjectID
+  ];
 }
 
 function isStone(uint8 objectTypeId) pure returns (bool) {

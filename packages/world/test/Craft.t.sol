@@ -18,10 +18,12 @@ import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../src/codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../src/codegen/tables/Stamina.sol";
-import { Inventory } from "../src/codegen/tables/Inventory.sol";
-import { ReverseInventory } from "../src/codegen/tables/ReverseInventory.sol";
+import { InventoryTool } from "../src/codegen/tables/InventoryTool.sol";
+import { ReverseInventoryTool } from "../src/codegen/tables/ReverseInventoryTool.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
+import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
+import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 
@@ -36,7 +38,7 @@ import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH
 import { AirObjectID, PlayerObjectID, AnyLogObjectID, DyeomaticObjectID, WorkbenchObjectID, GrassObjectID, OakLogObjectID, SakuraLogObjectID, OakLumberObjectID, BlueDyeObjectID, BlueOakLumberObjectID, DiamondOreObjectID, DiamondObjectID, WoodenPickObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
-import { testAddToInventoryCount, testReverseInventoryHasItem } from "./utils/InventoryTestUtils.sol";
+import { testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/InventoryTestUtils.sol";
 import { TERRAIN_WORLD_ADDRESS } from "../src/Constants.sol";
 
 contract CraftTest is MudTest, GasReporter {
@@ -79,29 +81,25 @@ contract CraftTest is MudTest, GasReporter {
     // Init inventory with ingredients
     uint8 inputObjectTypeId = OakLogObjectID;
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, inputObjectTypeId);
-    Inventory.set(newInventoryId, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId), "Inventory objects not set");
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
     uint8 outputObjectTypeId = OakLumberObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
 
-    bytes32[] memory ingredientEntityIds = new bytes32[](1);
-    ingredientEntityIds[0] = newInventoryId;
-
     startGasReport("handcraft single input");
-    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+    world.craft(recipeId, bytes32(0));
     endGasReport();
 
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId, outputObjectTypeId) == 4, "Output object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, outputObjectTypeId), "Inventory objects not set");
 
     vm.stopPrank();
   }
@@ -111,31 +109,17 @@ contract CraftTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    bytes32[] memory ingredientEntityIds = new bytes32[](10);
-
     // Init inventory with ingredients
     vm.startPrank(worldDeployer, worldDeployer);
     uint8 inputObjectTypeId1 = LilacObjectID;
-    for (uint8 i = 0; i < 5; i++) {
-      bytes32 newInventoryId = getUniqueEntity();
-      ObjectType.set(newInventoryId, inputObjectTypeId1);
-      Inventory.set(newInventoryId, playerEntityId);
-      ReverseInventory.push(playerEntityId, newInventoryId);
-      ingredientEntityIds[i] = newInventoryId;
-    }
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 5);
     uint8 inputObjectTypeId2 = AzaleaObjectID;
-    for (uint8 i = 0; i < 5; i++) {
-      bytes32 newInventoryId = getUniqueEntity();
-      ObjectType.set(newInventoryId, inputObjectTypeId2);
-      Inventory.set(newInventoryId, playerEntityId);
-      ReverseInventory.push(playerEntityId, newInventoryId);
-      ingredientEntityIds[i + 5] = newInventoryId;
-    }
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 5);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 5, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 5, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId2), "Inventory objects not set");
 
     vm.stopPrank();
     vm.startPrank(alice, alice);
@@ -146,13 +130,16 @@ contract CraftTest is MudTest, GasReporter {
     );
 
     startGasReport("handcraft multiple input");
-    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+    world.craft(recipeId, bytes32(0));
     endGasReport();
 
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId, outputObjectTypeId) == 10, "Output object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId2), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, outputObjectTypeId), "Inventory objects not set");
 
     vm.stopPrank();
   }
@@ -162,31 +149,17 @@ contract CraftTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    bytes32[] memory ingredientEntityIds = new bytes32[](4);
-
     // Init inventory with ingredients
     vm.startPrank(worldDeployer, worldDeployer);
     uint8 inputObjectTypeId1 = OakLogObjectID;
-    for (uint8 i = 0; i < 1; i++) {
-      bytes32 newInventoryId = getUniqueEntity();
-      ObjectType.set(newInventoryId, inputObjectTypeId1);
-      Inventory.set(newInventoryId, playerEntityId);
-      ReverseInventory.push(playerEntityId, newInventoryId);
-      ingredientEntityIds[i] = newInventoryId;
-    }
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
     uint8 inputObjectTypeId2 = SakuraLogObjectID;
-    for (uint8 i = 0; i < 3; i++) {
-      bytes32 newInventoryId = getUniqueEntity();
-      ObjectType.set(newInventoryId, inputObjectTypeId2);
-      Inventory.set(newInventoryId, playerEntityId);
-      ReverseInventory.push(playerEntityId, newInventoryId);
-      ingredientEntityIds[i + 1] = newInventoryId;
-    }
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 3);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 3, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId2), "Inventory objects not set");
 
     vm.stopPrank();
     vm.startPrank(alice, alice);
@@ -194,12 +167,15 @@ contract CraftTest is MudTest, GasReporter {
     uint8 outputObjectTypeId = WoodenPickObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(AnyLogObjectID, uint8(4), outputObjectTypeId, uint8(1)));
 
-    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+    world.craft(recipeId, bytes32(0));
 
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId, outputObjectTypeId) == 1, "Output object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId2), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, outputObjectTypeId), "Inventory objects not set");
 
     vm.stopPrank();
   }
@@ -209,28 +185,18 @@ contract CraftTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    bytes32[] memory ingredientEntityIds = new bytes32[](2);
-
     // Init inventory with ingredients
     vm.startPrank(worldDeployer, worldDeployer);
     uint8 inputObjectTypeId1 = OakLumberObjectID;
-    bytes32 newInventoryId1 = getUniqueEntity();
-    ObjectType.set(newInventoryId1, inputObjectTypeId1);
-    Inventory.set(newInventoryId1, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId1);
-    ingredientEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     uint8 inputObjectTypeId2 = BlueDyeObjectID;
-    bytes32 newInventoryId2 = getUniqueEntity();
-    ObjectType.set(newInventoryId2, inputObjectTypeId2);
-    Inventory.set(newInventoryId2, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId2);
-    ingredientEntityIds[1] = newInventoryId2;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId2), "Inventory objects not set");
 
     // build statin beside player
     VoxelCoord memory stationCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
@@ -248,13 +214,16 @@ contract CraftTest is MudTest, GasReporter {
     );
 
     startGasReport("craft with station");
-    world.craft(recipeId, ingredientEntityIds, stationEntityId);
+    world.craft(recipeId, stationEntityId);
     endGasReport();
 
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId, outputObjectTypeId) == 1, "Output object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId2), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, outputObjectTypeId), "Inventory objects not set");
 
     vm.stopPrank();
   }
@@ -264,28 +233,18 @@ contract CraftTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    bytes32[] memory ingredientEntityIds = new bytes32[](2);
-
     // Init inventory with ingredients
     vm.startPrank(worldDeployer, worldDeployer);
     uint8 inputObjectTypeId1 = OakLumberObjectID;
-    bytes32 newInventoryId1 = getUniqueEntity();
-    ObjectType.set(newInventoryId1, inputObjectTypeId1);
-    Inventory.set(newInventoryId1, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId1);
-    ingredientEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     uint8 inputObjectTypeId2 = BlueDyeObjectID;
-    bytes32 newInventoryId2 = getUniqueEntity();
-    ObjectType.set(newInventoryId2, inputObjectTypeId2);
-    Inventory.set(newInventoryId2, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId2);
-    ingredientEntityIds[1] = newInventoryId2;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId2), "Inventory objects not set");
 
     // build statin beside player
     VoxelCoord memory stationCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
@@ -303,10 +262,10 @@ contract CraftTest is MudTest, GasReporter {
     );
 
     vm.expectRevert("CraftSystem: wrong station");
-    world.craft(recipeId, ingredientEntityIds, stationEntityId);
+    world.craft(recipeId, stationEntityId);
 
     vm.expectRevert("CraftSystem: wrong station");
-    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+    world.craft(recipeId, bytes32(0));
 
     vm.stopPrank();
   }
@@ -316,28 +275,18 @@ contract CraftTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    bytes32[] memory ingredientEntityIds = new bytes32[](2);
-
     // Init inventory with ingredients
     vm.startPrank(worldDeployer, worldDeployer);
     uint8 inputObjectTypeId1 = OakLumberObjectID;
-    bytes32 newInventoryId1 = getUniqueEntity();
-    ObjectType.set(newInventoryId1, inputObjectTypeId1);
-    Inventory.set(newInventoryId1, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId1);
-    ingredientEntityIds[0] = newInventoryId1;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
 
     uint8 inputObjectTypeId2 = BlueDyeObjectID;
-    bytes32 newInventoryId2 = getUniqueEntity();
-    ObjectType.set(newInventoryId2, inputObjectTypeId2);
-    Inventory.set(newInventoryId2, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId2);
-    ingredientEntityIds[1] = newInventoryId2;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId2), "Inventory objects not set");
 
     // build statin beside player
     VoxelCoord memory stationCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
@@ -355,7 +304,7 @@ contract CraftTest is MudTest, GasReporter {
     );
 
     vm.expectRevert("CraftSystem: player is too far from the station");
-    world.craft(recipeId, ingredientEntityIds, stationEntityId);
+    world.craft(recipeId, stationEntityId);
 
     vm.stopPrank();
   }
@@ -368,27 +317,19 @@ contract CraftTest is MudTest, GasReporter {
     // Init inventory with ingredients
     uint8 inputObjectTypeId = OakLogObjectID;
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, inputObjectTypeId);
-    Inventory.set(newInventoryId, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId), "Inventory objects not set");
 
     ObjectTypeMetadata.setStackable(IStore(TERRAIN_WORLD_ADDRESS), GrassObjectID, 1);
-    for (uint i = 0; i < MAX_PLAYER_INVENTORY_SLOTS - 1; i++) {
-      bytes32 inventoryId = getUniqueEntity();
-      ObjectType.set(inventoryId, GrassObjectID);
-      Inventory.set(inventoryId, playerEntityId);
-      ReverseInventory.push(playerEntityId, inventoryId);
-      testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
-    }
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, MAX_PLAYER_INVENTORY_SLOTS - 1);
     assertTrue(
       InventoryCount.get(playerEntityId, GrassObjectID) == MAX_PLAYER_INVENTORY_SLOTS - 1,
       "Inventory count not set properly"
     );
     assertTrue(InventorySlots.get(playerEntityId) == MAX_PLAYER_INVENTORY_SLOTS, "Inventory slots not set correctly");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
 
     ObjectTypeMetadata.setStackable(IStore(TERRAIN_WORLD_ADDRESS), OakLumberObjectID, 1);
     vm.stopPrank();
@@ -397,11 +338,8 @@ contract CraftTest is MudTest, GasReporter {
     uint8 outputObjectTypeId = OakLumberObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
 
-    bytes32[] memory ingredientEntityIds = new bytes32[](1);
-    ingredientEntityIds[0] = newInventoryId;
-
     vm.expectRevert("Inventory is full");
-    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+    world.craft(recipeId, bytes32(0));
 
     vm.stopPrank();
   }
@@ -414,26 +352,20 @@ contract CraftTest is MudTest, GasReporter {
     // Init inventory with ingredients
     uint8 inputObjectTypeId = OakLogObjectID;
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, inputObjectTypeId);
-    Inventory.set(newInventoryId, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId), "Inventory objects not set");
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
     uint8 outputObjectTypeId = OakLumberObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
 
-    bytes32[] memory ingredientEntityIds = new bytes32[](1);
-    ingredientEntityIds[0] = newInventoryId;
-
     vm.stopPrank();
 
     vm.expectRevert("CraftSystem: player does not exist");
-    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+    world.craft(recipeId, bytes32(0));
   }
 
   function testInvalidRecipe() public {
@@ -444,24 +376,18 @@ contract CraftTest is MudTest, GasReporter {
     // Init inventory with ingredients
     uint8 inputObjectTypeId = OakLogObjectID;
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, inputObjectTypeId);
-    Inventory.set(newInventoryId, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId), "Inventory objects not set");
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
     uint8 outputObjectTypeId = DiamondObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(1)));
 
-    bytes32[] memory ingredientEntityIds = new bytes32[](1);
-    ingredientEntityIds[0] = newInventoryId;
-
     vm.expectRevert("CraftSystem: recipe not found");
-    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+    world.craft(recipeId, bytes32(0));
 
     vm.stopPrank();
   }
@@ -471,27 +397,11 @@ contract CraftTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    bytes32[] memory ingredientEntityIds = new bytes32[](6);
-
     // Init inventory with ingredients
     vm.startPrank(worldDeployer, worldDeployer);
     uint8 inputObjectTypeId1 = LilacObjectID;
-    for (uint8 i = 0; i < 3; i++) {
-      bytes32 newInventoryId = getUniqueEntity();
-      ObjectType.set(newInventoryId, inputObjectTypeId1);
-      Inventory.set(newInventoryId, playerEntityId);
-      ReverseInventory.push(playerEntityId, newInventoryId);
-      ingredientEntityIds[i] = newInventoryId;
-    }
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 3);
     uint8 inputObjectTypeId2 = AzaleaObjectID;
-    for (uint8 i = 0; i < 3; i++) {
-      bytes32 newInventoryId = getUniqueEntity();
-      ObjectType.set(newInventoryId, inputObjectTypeId2);
-      Inventory.set(newInventoryId, playerEntityId);
-      ReverseInventory.push(playerEntityId, newInventoryId);
-      ingredientEntityIds[i + 3] = newInventoryId;
-    }
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId2, 3);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 3, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 3, "Input object not added to inventory");
@@ -505,8 +415,8 @@ contract CraftTest is MudTest, GasReporter {
       abi.encodePacked(inputObjectTypeId1, uint8(5), inputObjectTypeId2, uint8(5), outputObjectTypeId, uint8(10))
     );
 
-    vm.expectRevert("CraftSystem: not enough ingredients");
-    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+    vm.expectRevert("Not enough objects in the inventory");
+    world.craft(recipeId, bytes32(0));
 
     vm.stopPrank();
   }
@@ -519,25 +429,19 @@ contract CraftTest is MudTest, GasReporter {
     // Init inventory with ingredients
     uint8 inputObjectTypeId = OakLogObjectID;
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = getUniqueEntity();
-    ObjectType.set(newInventoryId, inputObjectTypeId);
-    Inventory.set(newInventoryId, playerEntityId);
-    ReverseInventory.push(playerEntityId, newInventoryId);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 1, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId), "Inventory objects not set");
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
     uint8 outputObjectTypeId = OakLumberObjectID;
     bytes32 recipeId = keccak256(abi.encodePacked(inputObjectTypeId, uint8(1), outputObjectTypeId, uint8(4)));
 
-    bytes32[] memory ingredientEntityIds = new bytes32[](1);
-    ingredientEntityIds[0] = newInventoryId;
-
     world.logoffPlayer();
 
     vm.expectRevert("CraftSystem: player isn't logged in");
-    world.craft(recipeId, ingredientEntityIds, bytes32(0));
+    world.craft(recipeId, bytes32(0));
   }
 }

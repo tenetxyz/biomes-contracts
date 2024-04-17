@@ -40,3 +40,6 @@ function getObjectTypeDurability(uint8 objectTypeId) view returns (uint24) {
 function getObjectTypeIsBlock(uint8 objectTypeId) view returns (bool) {
   return ObjectTypeMetadata.getIsBlock(IStore(TERRAIN_WORLD_ADDRESS), objectTypeId);
 }
+function getObjectTypeIsTool(uint8 objectTypeId) view returns (bool) {
+  return ObjectTypeMetadata.getIsTool(IStore(TERRAIN_WORLD_ADDRESS), objectTypeId);
+}

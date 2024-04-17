@@ -11,8 +11,6 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Inventory } from "../codegen/tables/Inventory.sol";
-import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
@@ -35,7 +33,7 @@ import { isPick, isAxe, isLog, isStone } from "@biomesaw/terrain/src/utils/Objec
 import { getObjectTypeMiningDifficulty, getObjectTypeDamage } from "../utils/TerrainUtils.sol";
 
 contract MineSystem is System {
-  function mine(VoxelCoord memory coord) public returns (bytes32) {
+  function mine(VoxelCoord memory coord) public {
     require(inWorldBorder(coord), "MineSystem: cannot mine outside world border");
     require(!inSpawnArea(coord), "MineSystem: cannot mine at spawn area");
 
@@ -50,6 +48,7 @@ contract MineSystem is System {
       ),
       "MineSystem: player is too far from the block"
     );
+
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
 
@@ -61,12 +60,10 @@ contract MineSystem is System {
 
       // Create new entity
       entityId = getUniqueEntity();
-      ObjectType._set(entityId, mineObjectTypeId);
+      Position._set(entityId, coord.x, coord.y, coord.z);
+      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
     } else {
       mineObjectTypeId = ObjectType._get(entityId);
-
-      Position._deleteRecord(entityId);
-      ReversePosition._deleteRecord(coord.x, coord.y, coord.z);
     }
     require(getObjectTypeIsBlock(mineObjectTypeId), "MineSystem: object type is not a block");
     require(mineObjectTypeId != AirObjectID, "MineSystem: cannot mine air");
@@ -86,17 +83,7 @@ contract MineSystem is System {
 
     useEquipped(playerEntityId, equippedEntityId);
 
-    // Make the new position air
-    bytes32 airEntityId = getUniqueEntity();
-    ObjectType._set(airEntityId, AirObjectID);
-    Position._set(airEntityId, coord.x, coord.y, coord.z);
-    ReversePosition._set(coord.x, coord.y, coord.z, airEntityId);
-
-    // transfer existing inventory to the air entity, if any
-    transferAllInventoryEntities(entityId, airEntityId, AirObjectID);
-
-    Inventory._set(entityId, playerEntityId);
-    ReverseInventory._push(playerEntityId, entityId);
+    ObjectType._set(entityId, AirObjectID);
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
     // Apply gravity
@@ -105,7 +92,5 @@ contract MineSystem is System {
     if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
       callGravity(aboveEntityId, aboveCoord);
     }
-
-    return entityId;
   }
 }

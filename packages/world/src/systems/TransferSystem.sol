@@ -10,19 +10,17 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Inventory } from "../codegen/tables/Inventory.sol";
-import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
-import { transferInventoryItem } from "../utils/InventoryUtils.sol";
+import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract TransferSystem is System {
-  function transfer(bytes32 srcEntityId, bytes32 dstEntityId, bytes32[] memory inventoryEntityIds) public {
+  function transferCommon(bytes32 srcEntityId, bytes32 dstEntityId) internal returns (uint8) {
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "TransferSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "TransferSystem: player isn't logged in");
@@ -49,8 +47,16 @@ contract TransferSystem is System {
       revert("TransferSystem: invalid transfer operation");
     }
 
-    for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
-      transferInventoryItem(srcEntityId, dstEntityId, dstObjectTypeId, inventoryEntityIds[i]);
-    }
+    return dstObjectTypeId;
+  }
+
+  function transfer(bytes32 srcEntityId, bytes32 dstEntityId, uint8 transferObjectTypeId, uint16 numToTransfer) public {
+    uint8 dstObjectTypeId = transferCommon(srcEntityId, dstEntityId);
+    transferInventoryNonTool(srcEntityId, dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
+  }
+
+  function transfer(bytes32 srcEntityId, bytes32 dstEntityId, bytes32 toolEntityId) public {
+    uint8 dstObjectTypeId = transferCommon(srcEntityId, dstEntityId);
+    transferInventoryTool(srcEntityId, dstEntityId, dstObjectTypeId, toolEntityId);
   }
 }

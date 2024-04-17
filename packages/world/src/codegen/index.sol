@@ -10,11 +10,12 @@ import { LastKnownPosition, LastKnownPositionData } from "./tables/LastKnownPosi
 import { Player } from "./tables/Player.sol";
 import { ReversePlayer } from "./tables/ReversePlayer.sol";
 import { PlayerMetadata, PlayerMetadataData } from "./tables/PlayerMetadata.sol";
-import { Inventory } from "./tables/Inventory.sol";
-import { ReverseInventory } from "./tables/ReverseInventory.sol";
-import { ItemMetadata } from "./tables/ItemMetadata.sol";
-import { InventorySlots } from "./tables/InventorySlots.sol";
+import { InventoryTool } from "./tables/InventoryTool.sol";
+import { ReverseInventoryTool } from "./tables/ReverseInventoryTool.sol";
 import { InventoryCount } from "./tables/InventoryCount.sol";
+import { InventoryObjects } from "./tables/InventoryObjects.sol";
+import { InventorySlots } from "./tables/InventorySlots.sol";
+import { ItemMetadata } from "./tables/ItemMetadata.sol";
 import { Equipped } from "./tables/Equipped.sol";
 import { Health, HealthData } from "./tables/Health.sol";
 import { Stamina, StaminaData } from "./tables/Stamina.sol";

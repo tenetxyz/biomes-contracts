@@ -10,8 +10,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Inventory } from "../codegen/tables/Inventory.sol";
-import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 

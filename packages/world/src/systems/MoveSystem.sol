@@ -10,9 +10,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Inventory } from "../codegen/tables/Inventory.sol";
-import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
-import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
@@ -50,6 +47,8 @@ contract MoveSystem is System {
     if (finalEntityId == bytes32(0)) {
       finalEntityId = getUniqueEntity();
       ObjectType._set(finalEntityId, AirObjectID);
+    } else {
+      transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
     }
 
     // Swap entity ids
@@ -92,7 +91,7 @@ contract MoveSystem is System {
       require(ObjectType._get(newEntityId) == AirObjectID, "MoveSystem: cannot move to non-air block");
 
       // Transfer any dropped items
-      transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
+      // transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
     }
 
     VoxelCoord memory belowCoord = VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z);

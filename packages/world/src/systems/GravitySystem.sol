@@ -7,7 +7,6 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 
 import { Position, PositionData } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { Inventory } from "../codegen/tables/Inventory.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Health, HealthData } from "../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";

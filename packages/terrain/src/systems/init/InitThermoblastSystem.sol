@@ -29,6 +29,7 @@ contract InitThermoblastSystem is System {
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: true,
+        isTool: false,
         miningDifficulty: miningDifficulty,
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
@@ -42,6 +43,7 @@ contract InitThermoblastSystem is System {
       itemObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: false,
+        isTool: false,
         miningDifficulty: 0,
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,

@@ -10,9 +10,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Inventory } from "../codegen/tables/Inventory.sol";
-import { ReverseInventory } from "../codegen/tables/ReverseInventory.sol";
-import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
@@ -26,7 +23,7 @@ import { PLAYER_MASS } from "@biomesaw/terrain/src/Constants.sol";
 
 contract TeleportSystem is System {
   function teleport(VoxelCoord memory newCoord) public {
-    revert("Teleport disabled");
+    // revert("Teleport disabled");
 
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "TeleportSystem: player does not exist");

@@ -18,6 +18,7 @@ contract InitInteractablesSystem is System {
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: true,
+        isTool: false,
         miningDifficulty: miningDifficulty,
         stackable: 1,
         durability: 0,

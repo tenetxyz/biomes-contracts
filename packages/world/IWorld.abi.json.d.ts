@@ -84,9 +84,9 @@ declare const abi: [
     "name": "build",
     "inputs": [
       {
-        "name": "inventoryEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
+        "name": "objectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
       },
       {
         "name": "coord",
@@ -111,7 +111,13 @@ declare const abi: [
         ]
       }
     ],
-    "outputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
     "stateMutability": "nonpayable"
   },
   {
@@ -177,11 +183,6 @@ declare const abi: [
         "internalType": "bytes32"
       },
       {
-        "name": "ingredientEntityIds",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
-      },
-      {
         "name": "stationEntityId",
         "type": "bytes32",
         "internalType": "bytes32"
@@ -226,9 +227,49 @@ declare const abi: [
     "name": "drop",
     "inputs": [
       {
-        "name": "inventoryEntityIds",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
+        "name": "toolEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "coord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "drop",
+    "inputs": [
+      {
+        "name": "dropObjectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "numToDrop",
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "coord",
@@ -866,13 +907,7 @@ declare const abi: [
         ]
       }
     ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
@@ -1595,9 +1630,37 @@ declare const abi: [
         "internalType": "bytes32"
       },
       {
-        "name": "inventoryEntityIds",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
+        "name": "transferObjectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "numToTransfer",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "transfer",
+    "inputs": [
+      {
+        "name": "srcEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "dstEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "toolEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "outputs": [],

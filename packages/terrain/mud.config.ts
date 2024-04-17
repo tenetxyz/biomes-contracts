@@ -6,6 +6,7 @@ export default defineWorld({
       schema: {
         objectTypeId: "uint8",
         isBlock: "bool",
+        isTool: "bool",
         miningDifficulty: "uint16",
         stackable: "uint8",
         damage: "uint16",

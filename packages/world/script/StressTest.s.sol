@@ -8,8 +8,12 @@ import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueent
 import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { Inventory } from "../src/codegen/tables/Inventory.sol";
-import { ReverseInventory } from "../src/codegen/tables/ReverseInventory.sol";
+import { InventoryTool } from "../src/codegen/tables/InventoryTool.sol";
+import { ReverseInventoryTool } from "../src/codegen/tables/ReverseInventoryTool.sol";
+import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
+import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
+import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
+import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { Health } from "../src/codegen/tables/Health.sol";

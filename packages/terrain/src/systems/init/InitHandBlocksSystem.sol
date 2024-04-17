@@ -23,6 +23,7 @@ contract InitHandBlocksSystem is System {
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: true,
+        isTool: false,
         miningDifficulty: miningDifficulty,
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
@@ -36,6 +37,7 @@ contract InitHandBlocksSystem is System {
       toolObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: false,
+        isTool: true,
         miningDifficulty: 0,
         stackable: MAX_TOOL_STACKABLE,
         durability: durability,
@@ -49,6 +51,7 @@ contract InitHandBlocksSystem is System {
       itemObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: false,
+        isTool: false,
         miningDifficulty: 0,
         stackable: MAX_BLOCK_STACKABLE,
         durability: 0,
