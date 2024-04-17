@@ -61,7 +61,7 @@ contract InitThermoblastSystem is System {
     createBlock(StonePolishedObjectID, 84);
     createBlock(StoneShinglesObjectID, 84);
 
-    createBlock(BasaltBrickObjectID, 120);
+    createBlock(BasaltBrickObjectID, 132);
     createBlock(BasaltCarvedObjectID, 132);
     createBlock(BasaltPolishedObjectID, 132);
     createBlock(BasaltShinglesObjectID, 132);

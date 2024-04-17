@@ -80,10 +80,10 @@ contract InitHandBlocksSystem is System {
     createHandcraftedTool(WoodenAxeObjectID, 50, 80);
     createHandcraftedTool(WoodenWhackerObjectID, 10, 100);
 
-    createHandcraftedBlock(OakLumberObjectID, 1);
-    createHandcraftedBlock(SakuraLumberObjectID, 1);
-    createHandcraftedBlock(RubberLumberObjectID, 1);
-    createHandcraftedBlock(BirchLumberObjectID, 1);
+    createHandcraftedBlock(OakLumberObjectID, 2);
+    createHandcraftedBlock(SakuraLumberObjectID, 2);
+    createHandcraftedBlock(RubberLumberObjectID, 2);
+    createHandcraftedBlock(BirchLumberObjectID, 2);
   }
 
   function initHandcrafedRecipes() public {
