@@ -10,5 +10,5 @@ rmSync(path.join(userHomeDir, ".foundry", "anvil", "tmp"), {
   force: true,
 });
 
-const anvilArgs = ["--block-time", "2", "--block-base-fee-per-gas", "0", "--gas-limit", "50000000"];
+const anvilArgs = ["--block-time", "2", "--block-base-fee-per-gas", "0", "--gas-limit", "100000000"];
 anvil(anvilArgs);
