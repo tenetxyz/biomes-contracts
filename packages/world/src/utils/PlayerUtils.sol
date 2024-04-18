@@ -15,8 +15,7 @@ import { AirObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/sr
 
 function regenHealth(bytes32 entityId) {
   HealthData memory healthData = Health._get(entityId);
-  if (healthData.health >= MAX_PLAYER_HEALTH && healthData.lastUpdatedTime != block.timestamp) {
-    Health._setLastUpdatedTime(entityId, block.timestamp);
+  if (healthData.health >= MAX_PLAYER_HEALTH) {
     return;
   }
 
@@ -26,20 +25,17 @@ function regenHealth(bytes32 entityId) {
     return;
   }
 
-  // Calculate the new health
-  uint16 numAddHealth = uint16((timeSinceLastUpdate / TIME_BEFORE_INCREASE_HEALTH) * HEALTH_INCREASE_RATE);
-  uint16 newHealth = healthData.health + numAddHealth;
-  if (newHealth > MAX_PLAYER_HEALTH) {
-    newHealth = MAX_PLAYER_HEALTH;
-  }
+  uint256 addHealth = (timeSinceLastUpdate / TIME_BEFORE_INCREASE_HEALTH) * HEALTH_INCREASE_RATE;
+  uint16 newHealth = healthData.health + addHealth > MAX_PLAYER_HEALTH
+    ? MAX_PLAYER_HEALTH
+    : healthData.health + uint16(addHealth);
 
   Health._set(entityId, HealthData({ health: newHealth, lastUpdatedTime: block.timestamp }));
 }
 
 function regenStamina(bytes32 entityId) {
   StaminaData memory staminaData = Stamina._get(entityId);
-  if (staminaData.stamina >= MAX_PLAYER_STAMINA && staminaData.lastUpdatedTime != block.timestamp) {
-    Stamina._setLastUpdatedTime(entityId, block.timestamp);
+  if (staminaData.stamina >= MAX_PLAYER_STAMINA) {
     return;
   }
 
@@ -50,11 +46,10 @@ function regenStamina(bytes32 entityId) {
   }
 
   // Calculate the new stamina
-  uint32 numAddStamina = uint32((timeSinceLastUpdate / TIME_BEFORE_INCREASE_STAMINA) * STAMINA_INCREASE_RATE);
-  uint32 newStamina = staminaData.stamina + numAddStamina;
-  if (newStamina > MAX_PLAYER_STAMINA) {
-    newStamina = MAX_PLAYER_STAMINA;
-  }
+  uint256 numAddStamina = (timeSinceLastUpdate / TIME_BEFORE_INCREASE_STAMINA) * STAMINA_INCREASE_RATE;
+  uint32 newStamina = staminaData.stamina + numAddStamina > MAX_PLAYER_STAMINA
+    ? MAX_PLAYER_STAMINA
+    : staminaData.stamina + uint32(numAddStamina);
 
   Stamina._set(entityId, StaminaData({ stamina: newStamina, lastUpdatedTime: block.timestamp }));
 }
