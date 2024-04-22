@@ -41,7 +41,6 @@ contract PlayerSystem is System {
       // Transfer any dropped items
       transferAllInventoryEntities(existingEntityId, playerEntityId, PlayerObjectID);
 
-      ObjectType._deleteRecord(existingEntityId);
       Position._deleteRecord(existingEntityId);
     }
     // Create new entity

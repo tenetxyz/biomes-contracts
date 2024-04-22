@@ -91,7 +91,6 @@ function useEquipped(bytes32 entityId, bytes32 inventoryEntityId) {
         InventoryTool._deleteRecord(inventoryEntityId);
         Equipped._deleteRecord(entityId);
         removeEntityIdFromReverseInventory(entityId, inventoryEntityId);
-        ObjectType._deleteRecord(inventoryEntityId);
       } else {
         ItemMetadata._set(inventoryEntityId, numUsesLeft - 1);
       }
