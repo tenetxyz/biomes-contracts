@@ -89,8 +89,8 @@ function useEquipped(bytes32 entityId, bytes32 inventoryEntityId) {
         removeFromInventoryCount(entityId, ObjectType._get(inventoryEntityId), 1);
         ItemMetadata._deleteRecord(inventoryEntityId);
         InventoryTool._deleteRecord(inventoryEntityId);
+        removeEntityIdFromReverseInventoryTool(entityId, inventoryEntityId);
         Equipped._deleteRecord(entityId);
-        removeEntityIdFromReverseInventory(entityId, inventoryEntityId);
       } else {
         ItemMetadata._set(inventoryEntityId, numUsesLeft - 1);
       }
@@ -98,7 +98,7 @@ function useEquipped(bytes32 entityId, bytes32 inventoryEntityId) {
   }
 }
 
-function removeEntityIdFromReverseInventory(bytes32 ownerEntityId, bytes32 removeInventoryEntityId) {
+function removeEntityIdFromReverseInventoryTool(bytes32 ownerEntityId, bytes32 removeInventoryEntityId) {
   bytes32[] memory inventoryEntityIds = ReverseInventoryTool._get(ownerEntityId);
   bytes32[] memory newInventoryEntityIds = new bytes32[](inventoryEntityIds.length - 1);
   uint256 j = 0;
@@ -173,7 +173,7 @@ function transferInventoryTool(bytes32 srcEntityId, bytes32 dstEntityId, uint8 d
   }
   InventoryTool._set(toolEntityId, dstEntityId);
   ReverseInventoryTool._push(dstEntityId, toolEntityId);
-  removeEntityIdFromReverseInventory(srcEntityId, toolEntityId);
+  removeEntityIdFromReverseInventoryTool(srcEntityId, toolEntityId);
 
   uint8 inventoryObjectTypeId = ObjectType._get(toolEntityId);
   removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);

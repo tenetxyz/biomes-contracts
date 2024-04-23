@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-address constant TERRAIN_WORLD_ADDRESS = 0xEAe149dD74c2d49538C74d5d87469CcB93b9b954;
+address constant TERRAIN_WORLD_ADDRESS = 0xc12Ab965FddDC8b30faFD42f162Adc820c042FFc;
 
 int16 constant WORLD_BORDER_LOW_X = -2000;
 int16 constant WORLD_BORDER_LOW_Y = -150;
@@ -12,9 +12,11 @@ int16 constant WORLD_BORDER_HIGH_Y = 250;
 int16 constant WORLD_BORDER_HIGH_Z = 2000;
 
 int16 constant SPAWN_LOW_X = 139;
-int16 constant SPAWN_HIGH_X = 159;
 int16 constant SPAWN_LOW_Z = -34;
+
+int16 constant SPAWN_HIGH_X = 159;
 int16 constant SPAWN_HIGH_Z = -14;
+
 int16 constant SPAWN_GROUND_Y = -62;
 
 uint16 constant MAX_PLAYER_HEALTH = 1000;
@@ -24,6 +26,7 @@ uint32 constant TIME_BEFORE_INCREASE_STAMINA = 1 minutes;
 uint32 constant STAMINA_INCREASE_RATE = 1000;
 uint16 constant TIME_BEFORE_INCREASE_HEALTH = 1 minutes;
 uint16 constant HEALTH_INCREASE_RATE = 20;
+
 uint16 constant GRAVITY_DAMAGE = 100;
 uint16 constant PLAYER_HAND_DAMAGE = 20;
 uint16 constant HIT_STAMINA_COST = 250;

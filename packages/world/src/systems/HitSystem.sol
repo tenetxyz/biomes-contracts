@@ -30,47 +30,35 @@ contract HitSystem is System {
 
     bytes32 hitEntityId = Player._get(hitPlayer);
     require(hitEntityId != bytes32(0), "HitSystem: hit player does not exist");
-    require(playerEntityId != hitEntityId, "HitSystem: player cannot hit itself");
+    require(playerEntityId != hitEntityId, "HitSystem: cannot hit yourself");
     require(!PlayerMetadata._getIsLoggedOff(hitEntityId), "HitSystem: hit player isn't logged in");
 
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     VoxelCoord memory hitCoord = positionDataToVoxelCoord(Position._get(hitEntityId));
-    require(!inSpawnArea(hitCoord), "HitSystem: cannot hit at spawn area");
+    require(!inSpawnArea(hitCoord), "HitSystem: cannot hit players in spawn area");
     require(inSurroundingCube(playerCoord, 1, hitCoord), "HitSystem: hit entity is not in surrounding cube of player");
-
-    regenHealth(hitEntityId);
-    regenStamina(hitEntityId);
 
     regenHealth(playerEntityId);
     regenStamina(playerEntityId);
 
-    // Calculate stamina and health reduction
+    regenHealth(hitEntityId);
+    regenStamina(hitEntityId);
+
+    // Update stamina and health
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    require(currentStamina > 0, "HitSystem: player has no stamina");
     uint16 staminaRequired = HIT_STAMINA_COST;
+    require(currentStamina >= staminaRequired, "HitSystem: player does not have enough stamina");
+    Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
 
-    // Try spending all the stamina
-    uint16 staminaSpend = staminaRequired > currentStamina ? uint16(currentStamina) : staminaRequired;
-
-    bytes32 equippedEntityId = Equipped._get(playerEntityId);
     uint16 receiverDamage = PLAYER_HAND_DAMAGE;
+    bytes32 equippedEntityId = Equipped._get(playerEntityId);
     if (equippedEntityId != bytes32(0)) {
       receiverDamage = getObjectTypeDamage(ObjectType._get(equippedEntityId));
     }
-
-    // Update damage to be the actual damage done
-    if (staminaSpend < staminaRequired) {
-      receiverDamage = (staminaSpend * receiverDamage) / HIT_STAMINA_COST;
-    }
-    require(receiverDamage > 0, "HitSystem: damage is 0");
-
-    // Update stamina and health
-    Stamina._setStamina(playerEntityId, currentStamina - staminaSpend);
-
     useEquipped(playerEntityId, equippedEntityId);
 
     uint16 currentHealth = Health._getHealth(hitEntityId);
-    uint16 newHealth = currentHealth > uint16(receiverDamage) ? currentHealth - uint16(receiverDamage) : 0;
+    uint16 newHealth = currentHealth > receiverDamage ? currentHealth - receiverDamage : 0;
     Health._setHealth(hitEntityId, newHealth);
 
     if (newHealth == 0) {

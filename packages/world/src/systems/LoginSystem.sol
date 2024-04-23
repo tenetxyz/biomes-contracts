@@ -22,7 +22,7 @@ import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, callGravit
 import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { inSurroundingCube, inSurroundingCubeIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract LoginSystem is System {
   function loginPlayer(VoxelCoord memory respawnCoord) public {
@@ -33,10 +33,7 @@ contract LoginSystem is System {
     VoxelCoord memory lastKnownCoord = lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(playerEntityId));
     require(inWorldBorder(respawnCoord), "LoginSystem: cannot respawn outside world border");
     require(
-      respawnCoord.x >= lastKnownCoord.x - MAX_PLAYER_RESPAWN_HALF_WIDTH &&
-        respawnCoord.x <= lastKnownCoord.x + MAX_PLAYER_RESPAWN_HALF_WIDTH &&
-        respawnCoord.z >= lastKnownCoord.z - MAX_PLAYER_RESPAWN_HALF_WIDTH &&
-        respawnCoord.z <= lastKnownCoord.z + MAX_PLAYER_RESPAWN_HALF_WIDTH,
+      inSurroundingCubeIgnoreY(lastKnownCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH, respawnCoord),
       "LoginSystem: respawn coord too far from last known position"
     );
 
@@ -61,7 +58,7 @@ contract LoginSystem is System {
     LastKnownPosition._deleteRecord(playerEntityId);
     PlayerMetadata._setIsLoggedOff(playerEntityId, false);
 
-    // Reset update blocks to current block
+    // Reset update time to current time
     Health._setLastUpdatedTime(playerEntityId, block.timestamp);
     Stamina._setLastUpdatedTime(playerEntityId, block.timestamp);
 

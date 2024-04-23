@@ -38,7 +38,7 @@ contract TransferSystem is System {
     uint8 srcObjectTypeId = ObjectType._get(srcEntityId);
     uint8 dstObjectTypeId = ObjectType._get(dstEntityId);
     if (srcObjectTypeId == PlayerObjectID) {
-      require(playerEntityId == srcEntityId, "TransferSystem: player does not own inventory item");
+      require(playerEntityId == srcEntityId, "TransferSystem: player does not own source inventory");
       require(dstObjectTypeId == ChestObjectID, "TransferSystem: cannot transfer to non-chest");
     } else if (dstObjectTypeId == PlayerObjectID) {
       require(playerEntityId == dstEntityId, "TransferSystem: player does not own destination inventory");

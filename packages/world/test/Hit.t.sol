@@ -146,7 +146,7 @@ contract HitTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    vm.expectRevert("HitSystem: player cannot hit itself");
+    vm.expectRevert("HitSystem: cannot hit yourself");
     world.hit(alice);
 
     vm.stopPrank();
@@ -179,7 +179,7 @@ contract HitTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("HitSystem: cannot hit at spawn area");
+    vm.expectRevert("HitSystem: cannot hit players in spawn area");
     world.hit(bob);
 
     vm.stopPrank();
@@ -199,7 +199,7 @@ contract HitTest is MudTest, GasReporter {
 
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("HitSystem: player has no stamina");
+    vm.expectRevert("HitSystem: player does not have enough stamina");
     world.hit(bob);
 
     vm.stopPrank();

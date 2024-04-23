@@ -44,13 +44,14 @@ contract SetupSpawn is Script {
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       entityId = getUniqueEntity();
-    }
-    if (ObjectType.get(entityId) == objectTypeId) {
-      // no-op
-      return;
+    } else {
+      if (ObjectType.get(entityId) == objectTypeId) {
+        // no-op
+        return;
+      }
+      ReversePosition.set(coord.x, coord.y, coord.z, entityId);
     }
     ObjectType.set(entityId, objectTypeId);
     Position.set(entityId, coord.x, coord.y, coord.z);
-    ReversePosition.set(coord.x, coord.y, coord.z, entityId);
   }
 }

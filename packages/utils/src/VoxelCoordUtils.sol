@@ -19,3 +19,15 @@ function inSurroundingCube(
 
   return isInX && isInY && isInZ;
 }
+
+function inSurroundingCubeIgnoreY(
+  VoxelCoord memory cubeCenter,
+  int16 halfWidth,
+  VoxelCoord memory checkCoord
+) pure returns (bool) {
+  // Check if checkCoord is within the cube in all three dimensions
+  bool isInX = checkCoord.x >= cubeCenter.x - halfWidth && checkCoord.x <= cubeCenter.x + halfWidth;
+  bool isInZ = checkCoord.z >= cubeCenter.z - halfWidth && checkCoord.z <= cubeCenter.z + halfWidth;
+
+  return isInX && isInZ;
+}

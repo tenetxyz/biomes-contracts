@@ -21,7 +21,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { NullObjectTypeId, AirObjectID, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { getObjectTypeDurability, getRecipe, getObjectTypeIsTool } from "../utils/TerrainUtils.sol";
-import { addToInventoryCount, removeFromInventoryCount, removeEntityIdFromReverseInventory } from "../utils/InventoryUtils.sol";
+import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { getLogObjectTypes, getLumberObjectTypes } from "@biomesaw/terrain/src/utils/ObjectTypeUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
@@ -45,7 +45,7 @@ contract CraftSystem is System {
       );
     }
 
-    // Require that the acting object has all the ingredients in its inventory
+    // Require that the player has all the ingredients in its inventory
     // And delete the ingredients from the inventory as they are used
     for (uint256 i = 0; i < recipeData.inputObjectTypeIds.length; i++) {
       if (recipeData.inputObjectTypeIds[i] == AnyLogObjectID) {
@@ -94,6 +94,7 @@ contract CraftSystem is System {
         }
       }
     }
+
     addToInventoryCount(
       playerEntityId,
       PlayerObjectID,

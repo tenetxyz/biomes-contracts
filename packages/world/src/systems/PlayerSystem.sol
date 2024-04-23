@@ -64,13 +64,4 @@ contract PlayerSystem is System {
 
     return playerEntityId;
   }
-
-  // function changePlayerOwner(address newOwner) public {
-  //   bytes32 playerEntityId = Player._get(_msgSender());
-  //   require(playerEntityId != bytes32(0), "PlayerSystem: player does not exist");
-  //   require(Player._get(newOwner) == bytes32(0), "PlayerSystem: new owner already has a player");
-  //   Player._deleteRecord(_msgSender());
-  //   Player._set(newOwner, playerEntityId);
-  //   ReversePlayer._set(playerEntityId, newOwner);
-  // }
 }

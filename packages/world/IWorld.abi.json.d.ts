@@ -1284,7 +1284,7 @@ declare const abi: [
         "internalType": "bytes32"
       },
       {
-        "name": "coord",
+        "name": "playerCoord",
         "type": "tuple",
         "internalType": "struct VoxelCoord",
         "components": [

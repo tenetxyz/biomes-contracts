@@ -24,6 +24,7 @@ function createSingleInputWithStationRecipe(
   bytes32 recipeId = keccak256(
     abi.encodePacked(inputObjectTypeId, inputObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount)
   );
+
   Recipes._set(
     recipeId,
     RecipesData({
@@ -90,6 +91,7 @@ function createDoubleInputWithStationRecipe(
         outputObjectTypeAmount
       )
     );
+
   Recipes._set(
     recipeId,
     RecipesData({
