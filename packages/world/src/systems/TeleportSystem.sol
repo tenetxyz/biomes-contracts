@@ -23,7 +23,8 @@ import { PLAYER_MASS } from "@biomesaw/terrain/src/Constants.sol";
 
 contract TeleportSystem is System {
   function teleport(VoxelCoord memory newCoord) public {
-    // revert("Teleport disabled");
+    revert("Teleport disabled");
+    return;
 
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "TeleportSystem: player does not exist");
