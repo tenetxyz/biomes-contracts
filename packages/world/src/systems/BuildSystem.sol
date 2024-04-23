@@ -45,8 +45,8 @@ contract BuildSystem is System {
     if (entityId == bytes32(0)) {
       // Check terrain block type
       uint8 terrainObjectTypeId = getTerrainObjectTypeId(coord);
-      require(terrainObjectTypeId == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
       require(terrainObjectTypeId != WaterObjectID, "BuildSystem: cannot build on water block");
+      require(terrainObjectTypeId == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
 
       entityId = getUniqueEntity();
       Position._set(entityId, coord.x, coord.y, coord.z);

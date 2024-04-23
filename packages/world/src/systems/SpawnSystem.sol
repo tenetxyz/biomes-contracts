@@ -88,7 +88,7 @@ contract SpawnSystem is System {
   function initSpawnAreaBottom() public {
     for (int16 x = SPAWN_LOW_X; x <= SPAWN_HIGH_X; x++) {
       for (int16 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
-        setObjectAtCoord(DirtObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
+        setObjectAtCoord(DirtObjectID, VoxelCoord(x, SPAWN_GROUND_Y - 1, z));
       }
     }
   }

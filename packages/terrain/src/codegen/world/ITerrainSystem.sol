@@ -16,4 +16,6 @@ interface ITerrainSystem {
   function getTerrainObjectTypeIdWithCacheSet(VoxelCoord memory coord) external returns (uint8);
 
   function computeTerrainObjectTypeId(VoxelCoord memory coord) external view returns (uint8);
+
+  function fillTerrainCache(VoxelCoord memory lowerSouthWestCorner, VoxelCoord memory size) external;
 }
