@@ -6,10 +6,16 @@ pragma solidity >=0.8.24;
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 /**
- * @title ITerrainOreSystem
+ * @title ISpawnSystem
  * @author MUD (https://mud.dev) by Lattice (https://lattice.xyz)
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
-interface ITerrainOreSystem {
-  function Ores(VoxelCoord memory coord) external view returns (uint8);
+interface ISpawnSystem {
+  function spawnPlayer(VoxelCoord memory spawnCoord) external returns (bytes32);
+
+  function initSpawnAreaTop() external;
+
+  function initSpawnAreaBottom() external;
+
+  function initSpawnAreaBottomBorder() external;
 }

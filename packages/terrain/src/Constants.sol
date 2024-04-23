@@ -9,13 +9,9 @@ uint8 constant MAX_TOOL_STACKABLE = 1;
 // Terrain
 enum Biome {
   Mountains,
-  Mountains2,
-  Mountains3,
-  Mountains4,
-  Swamp,
-  Plains,
+  Desert,
   Forest,
-  Desert
+  Savanna
 }
 
 int16 constant STRUCTURE_CHUNK = 5;

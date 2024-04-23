@@ -12,8 +12,7 @@ import { IInitPlayersSystem } from "./IInitPlayersSystem.sol";
 import { IInitTerrainBlocksSystem } from "./IInitTerrainBlocksSystem.sol";
 import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
 import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
-import { ITerrainBlockSystem } from "./ITerrainBlockSystem.sol";
-import { ITerrainOreSystem } from "./ITerrainOreSystem.sol";
+import { IProcGenSystem } from "./IProcGenSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 
 /**
@@ -32,7 +31,6 @@ interface IWorld is
   IInitTerrainBlocksSystem,
   IInitThermoblastSystem,
   IInitWorkbenchSystem,
-  ITerrainBlockSystem,
-  ITerrainOreSystem,
+  IProcGenSystem,
   ITerrainSystem
 {}

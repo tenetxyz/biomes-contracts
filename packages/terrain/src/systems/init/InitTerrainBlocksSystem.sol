@@ -34,9 +34,9 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(AirObjectID, 0);
     createTerrainBlock(WaterObjectID, 0);
     createTerrainBlock(GrassObjectID, 4);
-    createTerrainBlock(MuckGrassObjectID, 4);
+    // createTerrainBlock(MuckGrassObjectID, 4);
     createTerrainBlock(DirtObjectID, 4);
-    createTerrainBlock(MuckDirtObjectID, 4);
+    // createTerrainBlock(MuckDirtObjectID, 4);
     createTerrainBlock(MossBlockObjectID, 4);
     createTerrainBlock(GravelObjectID, 5);
     createTerrainBlock(SandObjectID, 2);
@@ -54,7 +54,7 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(RedMushroomObjectID, 1);
     createTerrainBlock(BellflowerObjectID, 1);
     createTerrainBlock(CottonBushObjectID, 1);
-    createTerrainBlock(SwitchGrassObjectID, 1);
+    // createTerrainBlock(SwitchGrassObjectID, 1);
     createTerrainBlock(DaylilyObjectID, 1);
     createTerrainBlock(AzaleaObjectID, 1);
     createTerrainBlock(RoseObjectID, 1);

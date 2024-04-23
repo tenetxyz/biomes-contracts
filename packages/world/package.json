@@ -20,8 +20,7 @@
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
     "test": "./runTests.bash",
-    "test:gas": "./runTests.bash --verbose",
-    "setup:spawn": "./runForgeScript.bash script/SetupSpawn.s.sol"
+    "test:gas": "./runTests.bash --verbose"
   },
   "dependencies": {
     "@biomesaw/utils": "workspace:*",

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-address constant TERRAIN_WORLD_ADDRESS = 0x8F879C338DC638B535B6D8cba194435fA5e294D4;
+address constant TERRAIN_WORLD_ADDRESS = 0x5D56148873E9102B2EcF7E5A415aaea9d82E8a79;
 
 int16 constant WORLD_BORDER_LOW_X = -2000;
 int16 constant WORLD_BORDER_LOW_Y = -150;
@@ -11,13 +11,13 @@ int16 constant WORLD_BORDER_HIGH_X = 2000;
 int16 constant WORLD_BORDER_HIGH_Y = 250;
 int16 constant WORLD_BORDER_HIGH_Z = 2000;
 
-int16 constant SPAWN_LOW_X = 139;
-int16 constant SPAWN_LOW_Z = -34;
+int16 constant SPAWN_LOW_X = 363;
+int16 constant SPAWN_LOW_Z = -225;
 
-int16 constant SPAWN_HIGH_X = 159;
-int16 constant SPAWN_HIGH_Z = -14;
+int16 constant SPAWN_HIGH_X = 387;
+int16 constant SPAWN_HIGH_Z = -205;
 
-int16 constant SPAWN_GROUND_Y = -62;
+int16 constant SPAWN_GROUND_Y = 17;
 
 uint16 constant MAX_PLAYER_HEALTH = 1000;
 uint32 constant MAX_PLAYER_STAMINA = 120000;

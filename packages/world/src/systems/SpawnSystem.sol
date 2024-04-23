@@ -3,6 +3,8 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
+import { UniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/tables/UniqueEntity.sol";
+import { TABLE_ID } from "@latticexyz/world-modules/src/modules/uniqueentity/constants.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
@@ -17,19 +19,20 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../Constants.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, BasaltCarvedObjectID, StoneObjectID, DirtObjectID, GrassObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, callGravity, inWorldBorder, inSpawnArea } from "../Utils.sol";
 import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
-contract PlayerSystem is System {
+contract SpawnSystem is System {
   function spawnPlayer(VoxelCoord memory spawnCoord) public returns (bytes32) {
     address newPlayer = _msgSender();
-    require(Player._get(newPlayer) == bytes32(0), "PlayerSystem: player already exists");
-    require(inWorldBorder(spawnCoord), "PlayerSystem: cannot spawn outside world border");
-    require(inSpawnArea(spawnCoord), "PlayerSystem: cannot spawn outside spawn area");
+    require(Player._get(newPlayer) == bytes32(0), "SpawnSystem: player already exists");
+    require(inWorldBorder(spawnCoord), "SpawnSystem: cannot spawn outside world border");
+    require(inSpawnArea(spawnCoord), "SpawnSystem: cannot spawn outside spawn area");
 
     bytes32 existingEntityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     bytes32 playerEntityId = getUniqueEntity();
@@ -37,10 +40,10 @@ contract PlayerSystem is System {
       uint8 terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord);
       require(
         terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
-        "PlayerSystem: cannot spawn on terrain non-air block"
+        "SpawnSystem: cannot spawn on terrain non-air block"
       );
     } else {
-      require(ObjectType._get(existingEntityId) == AirObjectID, "PlayerSystem: spawn coord is not air");
+      require(ObjectType._get(existingEntityId) == AirObjectID, "SpawnSystem: spawn coord is not air");
 
       // Transfer any dropped items
       transferAllInventoryEntities(existingEntityId, playerEntityId, PlayerObjectID);
@@ -63,9 +66,56 @@ contract PlayerSystem is System {
     VoxelCoord memory belowCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
     bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
     if (belowEntityId == bytes32(0) || ObjectType._get(belowEntityId) == AirObjectID) {
-      require(!callGravity(playerEntityId, spawnCoord), "PlayerSystem: cannot spawn player with gravity");
+      require(!callGravity(playerEntityId, spawnCoord), "SpawnSystem: cannot spawn player with gravity");
     }
 
     return playerEntityId;
+  }
+
+  function initSpawnAreaTop() public {
+    // Create 20 x 20 platform of stone
+    for (int16 x = SPAWN_LOW_X; x <= SPAWN_HIGH_X; x++) {
+      for (int16 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
+        if (x == SPAWN_LOW_X || x == SPAWN_HIGH_X || z == SPAWN_LOW_Z || z == SPAWN_HIGH_Z) {
+          setObjectAtCoord(BasaltCarvedObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
+        } else {
+          setObjectAtCoord(StoneObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
+        }
+      }
+    }
+  }
+
+  function initSpawnAreaBottom() public {
+    for (int16 x = SPAWN_LOW_X; x <= SPAWN_HIGH_X; x++) {
+      for (int16 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
+        setObjectAtCoord(DirtObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
+      }
+    }
+  }
+
+  function initSpawnAreaBottomBorder() public {
+    require(UniqueEntity._get(TABLE_ID) == 0, "SpawnSystem: spawn area already initialized");
+    for (int16 x = SPAWN_LOW_X - 1; x <= SPAWN_HIGH_X + 1; x++) {
+      for (int16 z = SPAWN_LOW_Z - 1; z <= SPAWN_HIGH_Z + 1; z++) {
+        if (x == SPAWN_LOW_X - 1 || x == SPAWN_HIGH_X + 1 || z == SPAWN_LOW_Z - 1 || z == SPAWN_HIGH_Z + 1) {
+          setObjectAtCoord(GrassObjectID, VoxelCoord(x, SPAWN_GROUND_Y - 1, z));
+        }
+      }
+    }
+  }
+
+  function setObjectAtCoord(uint8 objectTypeId, VoxelCoord memory coord) internal {
+    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (entityId == bytes32(0)) {
+      entityId = getUniqueEntity();
+      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
+    } else {
+      if (ObjectType._get(entityId) == objectTypeId) {
+        // no-op
+        return;
+      }
+    }
+    ObjectType._set(entityId, objectTypeId);
+    Position._set(entityId, coord.x, coord.y, coord.z);
   }
 }

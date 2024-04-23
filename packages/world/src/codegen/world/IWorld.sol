@@ -16,8 +16,8 @@ import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
-import { IPlayerSystem } from "./IPlayerSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
+import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITeleportSystem } from "./ITeleportSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
@@ -42,8 +42,8 @@ interface IWorld is
   ILogoffSystem,
   IMineSystem,
   IMoveSystem,
-  IPlayerSystem,
   IReadSystem,
+  ISpawnSystem,
   ITeleportSystem,
   ITransferSystem,
   IUnequipSystem

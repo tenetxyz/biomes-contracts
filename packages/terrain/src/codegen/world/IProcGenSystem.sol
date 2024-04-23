@@ -6,12 +6,18 @@ pragma solidity >=0.8.24;
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 /**
- * @title ITerrainBlockSystem
+ * @title IProcGenSystem
  * @author MUD (https://mud.dev) by Lattice (https://lattice.xyz)
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
-interface ITerrainBlockSystem {
+interface IProcGenSystem {
   function getTerrainBlock(VoxelCoord memory coord) external view returns (uint8);
+
+  function Air(VoxelCoord memory coord) external view returns (uint8);
+
+  function Water(VoxelCoord memory coord) external view returns (uint8);
+
+  function Ores(VoxelCoord memory coord) external view returns (uint8);
 
   function Trees(VoxelCoord memory coord) external view returns (uint8);
 
