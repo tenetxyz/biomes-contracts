@@ -16,7 +16,7 @@ import { ReverseInventoryTool } from "../codegen/tables/ReverseInventoryTool.sol
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, inSpawnArea, inWorldBorder } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
@@ -32,28 +32,28 @@ contract BuildSystem is System {
     require(playerEntityId != bytes32(0), "BuildSystem: player does not exist");
     require(getObjectTypeIsBlock(objectTypeId), "BuildSystem: object type is not a block");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "BuildSystem: player isn't logged in");
+    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     require(
-      inSurroundingCube(
-        positionDataToVoxelCoord(Position._get(playerEntityId)),
-        MAX_PLAYER_BUILD_MINE_HALF_WIDTH,
-        coord
-      ),
+      inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, coord),
       "BuildSystem: player is too far from the block"
     );
 
     regenHealth(playerEntityId);
-    regenStamina(playerEntityId);
+    regenStamina(playerEntityId, playerCoord);
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(coord) == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
+      uint8 terrainObjectTypeId = getTerrainObjectTypeId(coord);
+      require(terrainObjectTypeId == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
+      require(terrainObjectTypeId != WaterObjectID, "BuildSystem: cannot build on water block");
 
       entityId = getUniqueEntity();
       Position._set(entityId, coord.x, coord.y, coord.z);
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
     } else {
       require(ObjectType._get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
+      require(getTerrainObjectTypeId(coord) != WaterObjectID, "BuildSystem: cannot build on water block");
       require(
         InventoryObjects._lengthObjectTypeIds(entityId) == 0,
         "BuildSystem: Cannot build where there are dropped objects"

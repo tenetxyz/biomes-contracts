@@ -24,7 +24,7 @@ import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, callGravity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
@@ -40,17 +40,14 @@ contract MineSystem is System {
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "MineSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "MineSystem: player isn't logged in");
+    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     require(
-      inSurroundingCube(
-        positionDataToVoxelCoord(Position._get(playerEntityId)),
-        MAX_PLAYER_BUILD_MINE_HALF_WIDTH,
-        coord
-      ),
+      inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, coord),
       "MineSystem: player is too far from the block"
     );
 
     regenHealth(playerEntityId);
-    regenStamina(playerEntityId);
+    regenStamina(playerEntityId, playerCoord);
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     uint8 mineObjectTypeId;
@@ -67,6 +64,7 @@ contract MineSystem is System {
     }
     require(getObjectTypeIsBlock(mineObjectTypeId), "MineSystem: object type is not a block");
     require(mineObjectTypeId != AirObjectID, "MineSystem: cannot mine air");
+    require(mineObjectTypeId != WaterObjectID, "MineSystem: cannot mine water");
 
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
     uint32 equippedToolDamage = PLAYER_HAND_DAMAGE;

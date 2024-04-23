@@ -17,7 +17,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, callGravity, inWorldBorder } from "../Utils.sol";
 import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
@@ -40,8 +40,9 @@ contract LoginSystem is System {
     bytes32 respawnEntityId = ReversePosition._get(respawnCoord.x, respawnCoord.y, respawnCoord.z);
     if (respawnEntityId == bytes32(0)) {
       // Check terrain block type
+      uint8 terrainObjectTypeId = getTerrainObjectTypeId(respawnCoord);
       require(
-        getTerrainObjectTypeId(respawnCoord) == AirObjectID,
+        terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
         "LoginSystem: cannot respawn on terrain non-air block"
       );
     } else {

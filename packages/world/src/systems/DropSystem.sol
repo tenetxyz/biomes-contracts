@@ -14,7 +14,7 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, inWorldBorder } from "../Utils.sol";
 import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { transferInventoryNonTool, transferInventoryTool } from "../utils/InventoryUtils.sol";
@@ -33,7 +33,11 @@ contract DropSystem is System {
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(coord) == AirObjectID, "DropSystem: cannot drop on non-air block");
+      uint8 terrainObjectTypeId = getTerrainObjectTypeId(coord);
+      require(
+        terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
+        "DropSystem: cannot drop on non-air block"
+      );
 
       // Create new entity
       entityId = getUniqueEntity();

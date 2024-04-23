@@ -106,7 +106,7 @@ uint8 constant LimestoneShinglesObjectID = 79;
 uint8 constant EmberstoneObjectID = 80;
 uint8 constant MoonstoneObjectID = 81;
 uint8 constant SunstoneObjectID = 82;
-uint8 constant LavaObjectID = 83;
+uint8 constant WaterObjectID = 82;
 
 // Interactable
 uint8 constant ChestObjectID = 84;

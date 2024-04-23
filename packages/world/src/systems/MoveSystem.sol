@@ -12,7 +12,7 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, callGravity, inWorldBorder } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
@@ -31,10 +31,11 @@ contract MoveSystem is System {
     );
     PlayerMetadata._setLastMoveBlock(playerEntityId, block.number);
 
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId);
-
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId, playerCoord);
+
     VoxelCoord memory oldCoord = playerCoord;
     bytes32 finalEntityId;
     for (uint256 i = 0; i < newCoords.length; i++) {
@@ -86,7 +87,11 @@ contract MoveSystem is System {
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
-      require(getTerrainObjectTypeId(newCoord) == AirObjectID, "MoveSystem: cannot move to non-air block");
+      uint8 terrainObjectTypeId = getTerrainObjectTypeId(newCoord);
+      require(
+        terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
+        "MoveSystem: cannot move to non-air block"
+      );
     } else {
       require(ObjectType._get(newEntityId) == AirObjectID, "MoveSystem: cannot move to non-air block");
 

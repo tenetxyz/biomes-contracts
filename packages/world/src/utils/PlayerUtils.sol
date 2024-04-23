@@ -10,8 +10,9 @@ import { Health, HealthData } from "../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, WATER_STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "../Constants.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { getTerrainObjectTypeId } from "./TerrainUtils.sol";
 
 function regenHealth(bytes32 entityId) {
   HealthData memory healthData = Health._get(entityId);
@@ -33,7 +34,7 @@ function regenHealth(bytes32 entityId) {
   Health._set(entityId, HealthData({ health: newHealth, lastUpdatedTime: block.timestamp }));
 }
 
-function regenStamina(bytes32 entityId) {
+function regenStamina(bytes32 entityId, VoxelCoord memory entityCoord) {
   StaminaData memory staminaData = Stamina._get(entityId);
   if (staminaData.stamina >= MAX_PLAYER_STAMINA) {
     return;
@@ -46,7 +47,11 @@ function regenStamina(bytes32 entityId) {
   }
 
   // Calculate the new stamina
-  uint256 numAddStamina = (timeSinceLastUpdate / TIME_BEFORE_INCREASE_STAMINA) * STAMINA_INCREASE_RATE;
+  bool isInWater = getTerrainObjectTypeId(entityCoord) == WaterObjectID;
+
+  // Calculate the new stamina
+  uint256 numAddStamina = (timeSinceLastUpdate / TIME_BEFORE_INCREASE_STAMINA) *
+    (isInWater ? WATER_STAMINA_INCREASE_RATE : STAMINA_INCREASE_RATE);
   uint32 newStamina = staminaData.stamina + numAddStamina > MAX_PLAYER_STAMINA
     ? MAX_PLAYER_STAMINA
     : staminaData.stamina + uint32(numAddStamina);

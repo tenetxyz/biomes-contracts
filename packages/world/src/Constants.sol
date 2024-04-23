@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-address constant TERRAIN_WORLD_ADDRESS = 0x0435109aD18fb8509E27AEfFd075E1F83e6edB40;
+address constant TERRAIN_WORLD_ADDRESS = 0x8F879C338DC638B535B6D8cba194435fA5e294D4;
 
 int16 constant WORLD_BORDER_LOW_X = -2000;
 int16 constant WORLD_BORDER_LOW_Y = -150;
@@ -23,7 +23,8 @@ uint16 constant MAX_PLAYER_HEALTH = 1000;
 uint32 constant MAX_PLAYER_STAMINA = 120000;
 
 uint32 constant TIME_BEFORE_INCREASE_STAMINA = 1 minutes;
-uint32 constant STAMINA_INCREASE_RATE = 1000;
+uint32 constant STAMINA_INCREASE_RATE = 100;
+uint32 constant WATER_STAMINA_INCREASE_RATE = 2000;
 uint16 constant TIME_BEFORE_INCREASE_HEALTH = 1 minutes;
 uint16 constant HEALTH_INCREASE_RATE = 20;
 

@@ -254,7 +254,7 @@ contract HitTest is MudTest, GasReporter {
 
     vm.startPrank(alice, alice);
 
-    uint256 newBlockTime = block.timestamp + TIME_BEFORE_INCREASE_STAMINA + TIME_BEFORE_INCREASE_HEALTH + 1;
+    uint256 newBlockTime = block.timestamp + ((TIME_BEFORE_INCREASE_STAMINA + TIME_BEFORE_INCREASE_HEALTH + 1) * 1000);
     vm.warp(newBlockTime);
 
     uint16 player1HealthBefore = Health.getHealth(playerEntityId);
