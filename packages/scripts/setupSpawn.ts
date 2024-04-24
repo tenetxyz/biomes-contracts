@@ -70,7 +70,7 @@ async function main() {
       args: [],
     };
     let txHash = await walletClient.writeContract(txDetails);
-    console.log("txHash", txHash);
+    console.log(txDetails.functionName, txHash);
     let transaction = await publicClient.waitForTransactionReceipt({ hash: txHash });
     console.log("gasUsed", transaction.gasUsed);
   } catch (e) {
@@ -84,7 +84,7 @@ async function main() {
       args: [],
     };
     let txHash = await walletClient.writeContract(txDetails);
-    console.log("txHash", txHash);
+    console.log(txDetails.functionName, txHash);
     let transaction = await publicClient.waitForTransactionReceipt({ hash: txHash });
     console.log("gasUsed", transaction.gasUsed);
   } catch (e) {
@@ -98,7 +98,7 @@ async function main() {
       args: [],
     };
     let txHash = await walletClient.writeContract(txDetails);
-    console.log("txHash", txHash);
+    console.log(txDetails.functionName, txHash);
     let transaction = await publicClient.waitForTransactionReceipt({ hash: txHash });
     console.log("gasUsed", transaction.gasUsed);
   } catch (e) {
@@ -112,7 +112,7 @@ async function main() {
       args: [],
     };
     let txHash = await walletClient.writeContract(txDetails);
-    console.log("txHash", txHash);
+    console.log(txDetails.functionName, txHash);
     let transaction = await publicClient.waitForTransactionReceipt({ hash: txHash });
     console.log("gasUsed", transaction.gasUsed);
   } catch (e) {
@@ -126,7 +126,7 @@ async function main() {
       args: [],
     };
     let txHash = await walletClient.writeContract(txDetails);
-    console.log("txHash", txHash);
+    console.log(txDetails.functionName, txHash);
     let transaction = await publicClient.waitForTransactionReceipt({ hash: txHash });
     console.log("gasUsed", transaction.gasUsed);
   } catch (e) {
