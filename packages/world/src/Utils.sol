@@ -44,7 +44,7 @@ function callGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) retu
   return abi.decode(returnData, (bool));
 }
 
-function callGravityWithPreCheck(bytes32 playerEntityId, VoxelCoord memory playerCoord) returns (bool) {
+function gravityApplies(bytes32 playerEntityId, VoxelCoord memory playerCoord) returns (bool) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
   bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
   if (belowEntityId == bytes32(0)) {
@@ -56,7 +56,5 @@ function callGravityWithPreCheck(bytes32 playerEntityId, VoxelCoord memory playe
     return false;
   }
 
-  bytes memory callData = abi.encodeCall(IGravitySystem.runGravity, (playerEntityId, playerCoord));
-  bytes memory returnData = callInternalSystem(callData);
-  return abi.decode(returnData, (bool));
+  return true;
 }

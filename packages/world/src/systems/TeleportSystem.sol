@@ -13,7 +13,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, callGravity, callGravityWithPreCheck, inWorldBorder } from "../Utils.sol";
+import { positionDataToVoxelCoord, callGravity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
@@ -89,6 +89,6 @@ contract TeleportSystem is System {
       }
     }
 
-    callGravityWithPreCheck(playerEntityId, newCoord);
+    gravityApplies(playerEntityId, newCoord);
   }
 }

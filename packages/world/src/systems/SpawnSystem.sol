@@ -21,7 +21,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, BasaltCarvedObjectID, StoneObjectID, DirtObjectID, GrassObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, callGravityWithPreCheck, inWorldBorder, inSpawnArea } from "../Utils.sol";
+import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, inSpawnArea } from "../Utils.sol";
 import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
@@ -63,7 +63,7 @@ contract SpawnSystem is System {
     Stamina._set(playerEntityId, block.timestamp, MAX_PLAYER_STAMINA);
 
     // We let the user pick a y coord, so we need to apply gravity
-    require(!callGravityWithPreCheck(playerEntityId, spawnCoord), "SpawnSystem: cannot spawn player with gravity");
+    require(!gravityApplies(playerEntityId, spawnCoord), "SpawnSystem: cannot spawn player with gravity");
 
     return playerEntityId;
   }
