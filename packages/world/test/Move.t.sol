@@ -28,6 +28,7 @@ import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 
+import { Terrain } from "@biomesaw/terrain/src/codegen/tables/Terrain.sol";
 import { ObjectTypeMetadata } from "@biomesaw/terrain/src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "@biomesaw/terrain/src/codegen/tables/Recipes.sol";
 
@@ -100,18 +101,23 @@ contract MoveTest is MudTest, GasReporter {
     vm.startPrank(worldDeployer, worldDeployer);
     for (uint i = 0; i < newCoords.length; i++) {
       if (!overTerrain) {
-        bytes32 entityId = getUniqueEntity();
-        Position.set(entityId, newCoords[i].x, newCoords[i].y, newCoords[i].z);
-        ReversePosition.set(newCoords[i].x, newCoords[i].y, newCoords[i].z, entityId);
-        ObjectType.set(entityId, AirObjectID);
+        if (i == newCoords.length - 1) {
+          bytes32 entityId = getUniqueEntity();
+          Position.set(entityId, newCoords[i].x, newCoords[i].y, newCoords[i].z);
+          ReversePosition.set(newCoords[i].x, newCoords[i].y, newCoords[i].z, entityId);
+          ObjectType.set(entityId, AirObjectID);
+        }
 
-        // set block below to non-air
+        // // set block below to non-air
         VoxelCoord memory belowCoord = VoxelCoord(newCoords[i].x, newCoords[i].y - 1, newCoords[i].z);
         // assertTrue(getTerrainObjectTypeId(belowCoord) != AirObjectID, "Terrain block is air");
-        bytes32 belowEntityId = getUniqueEntity();
-        Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
-        ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
-        ObjectType.set(belowEntityId, GrassObjectID);
+        // bytes32 belowEntityId = getUniqueEntity();
+        // Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
+        // ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
+        // ObjectType.set(belowEntityId, GrassObjectID);
+
+        Terrain.set(IStore(TERRAIN_WORLD_ADDRESS), newCoords[i].x, newCoords[i].y, newCoords[i].z, AirObjectID);
+        Terrain.set(IStore(TERRAIN_WORLD_ADDRESS), belowCoord.x, belowCoord.y, belowCoord.z, GrassObjectID);
       } else {
         assertTrue(getTerrainObjectTypeId(newCoords[i]) == AirObjectID, "Terrain block is not air");
       }

@@ -59,7 +59,7 @@ async function main() {
     address: worldAddress as Hex,
     abi: IWorldAbi,
     functionName: "getCachedTerrainObjectTypeId",
-    args: [{ x: 350, y: 16, z: -233 }],
+    args: [{ x: 359, y: 16, z: -213 }],
     account,
   });
   console.log("Current cached value:", currentCachedValue);

@@ -8,6 +8,11 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { OptionalSystemHooks } from "@latticexyz/world/src/codegen/tables/OptionalSystemHooks.sol";
 import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/UserDelegationControl.sol";
 
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { Position } from "../codegen/tables/Position.sol";
+import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { NullObjectTypeId } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
 import { TERRAIN_WORLD_ADDRESS } from "../Constants.sol";
 
 // Public getters so clients can read the world state
@@ -29,5 +34,13 @@ contract ReadSystem is System {
 
   function getTerrainWorldAddress() public pure returns (address) {
     return TERRAIN_WORLD_ADDRESS;
+  }
+
+  function getObjectTypeIdAtCoord(VoxelCoord memory coord) public view returns (uint8) {
+    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (entityId == bytes32(0)) {
+      return NullObjectTypeId;
+    }
+    return ObjectType._get(entityId);
   }
 }
