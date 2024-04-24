@@ -41,24 +41,54 @@ async function main() {
 
   const [account] = await walletClient.getAddresses();
 
-  const readResult = await publicClient.readContract({
-    address: worldAddress as Hex,
-    abi: IWorldAbi,
-    functionName: "getTerrainObjectTypeId",
-    args: [{ x: 1, y: 1, z: 1 }],
-    account,
-  });
-  console.log("readResult", readResult);
+  // const readResult = await publicClient.readContract({
+  //   address: worldAddress as Hex,
+  //   abi: IWorldAbi,
+  //   functionName: "getTerrainObjectTypeId",
+  //   args: [{ x: 1, y: 1, z: 1 }],
+  //   account,
+  // });
+  // console.log("readResult", readResult);
 
-  const txResult = await walletClient.writeContract({
-    address: worldAddress as Hex,
-    abi: IWorldAbi,
-    functionName: "getTerrainObjectTypeIdWithCacheSet",
-    args: [{ x: 1, y: 1, z: 1 }],
-    account,
-  });
+  const spawnLowX = 363;
+  const spawnLowZ = -225;
 
-  console.log("txResult", txResult);
+  const startCorner = { x: spawnLowX, y: 15, z: spawnLowZ };
+  const fullSize = { x: 20, y: 10, z: 20 };
+  const chunkSize = 6;
+  const rangeX = Math.ceil(fullSize.x / chunkSize);
+  const rangeY = Math.ceil(fullSize.y / chunkSize);
+  const rangeZ = Math.ceil(fullSize.z / chunkSize);
+
+  console.log("Num chunks", rangeX * rangeY * rangeZ);
+  for (let x = 0; x < rangeX; x++) {
+    for (let y = 0; y < rangeY; y++) {
+      for (let z = 0; z < rangeZ; z++) {
+        const lowerSouthWestCorner = {
+          x: startCorner.x + x * chunkSize,
+          y: startCorner.y + y * chunkSize,
+          z: startCorner.z + z * chunkSize,
+        };
+        const size = { x: chunkSize, y: chunkSize, z: chunkSize };
+        console.log("fillTerrainCache", lowerSouthWestCorner, size);
+
+        const fillTerrainCacheTx = {
+          address: worldAddress as Hex,
+          abi: IWorldAbi,
+          functionName: "fillTerrainCache",
+          args: [lowerSouthWestCorner, size],
+          account,
+        };
+        // const gasEstimate = await publicClient.estimateContractGas(fillTerrainCacheTx);
+        // console.log("estimatedGas:", gasEstimate);
+
+        const txHash = await walletClient.writeContract(fillTerrainCacheTx);
+        console.log("txHash", txHash);
+        // const transaction = await publicClient.waitForTransactionReceipt({ hash: txHash });
+        // console.log("gasUsed", transaction.gasUsed);
+      }
+    }
+  }
 
   process.exit(0);
 }
