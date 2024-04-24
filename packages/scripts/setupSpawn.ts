@@ -2,7 +2,6 @@ import { createPublicClient, createWalletClient, custom, parseGwei } from "viem"
 import dotenv from "dotenv";
 import { transportObserver } from "@latticexyz/common";
 import { Hex } from "viem";
-import { mudFoundry } from "@latticexyz/common/chains";
 import { fallback } from "viem";
 import { webSocket } from "viem";
 import { http } from "viem";

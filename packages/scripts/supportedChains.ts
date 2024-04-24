@@ -13,31 +13,23 @@
 
 import { latticeTestnet, mudFoundry } from "@latticexyz/common/chains";
 
-import { defineChain, Chain } from "viem";
+import { Chain } from "viem";
 
-export const tenetTestnet = defineChain(
-  {
-    name: "Tenet Testnet",
-    id: 1337,
-    network: "geth",
-    nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
-    rpcUrls: {
-      default: {
-        http: ["https://testnet.biomes.aw"],
-        webSocket: ["wss://testnet.biomes.aw"],
-      },
-      public: {
-        http: ["https://testnet.biomes.aw"],
-        webSocket: ["wss://testnet.biomes.aw"],
-      },
+export const biomesTestnet = {
+  name: "Biomes Testnet",
+  id: 1337,
+  nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
+  rpcUrls: {
+    default: {
+      http: ["https://testnet.biomes.aw"],
+      webSocket: ["wss://testnet.biomes.aw"],
+    },
+    public: {
+      http: ["https://testnet.biomes.aw"],
+      webSocket: ["wss://testnet.biomes.aw"],
     },
   },
-  {
-    fees: {
-      defaultPriorityFee: 0n,
-    },
-  }
-);
+} satisfies Chain;
 
 const sourceId: number = 17000;
 export const garnetHolesky = {
@@ -102,4 +94,4 @@ export const redstoneMainnet = {
  * See https://mud.dev/tutorials/minimal/deploy#run-the-user-interface
  * for instructions on how to add networks.
  */
-export const supportedChains: Chain[] = [mudFoundry, latticeTestnet, tenetTestnet, garnetHolesky, redstoneMainnet];
+export const supportedChains: Chain[] = [mudFoundry, latticeTestnet, biomesTestnet, garnetHolesky, redstoneMainnet];
