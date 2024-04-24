@@ -13,7 +13,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, callGravity, inWorldBorder } from "../Utils.sol";
+import { positionDataToVoxelCoord, callGravity, callGravityWithPreCheck, inWorldBorder } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
@@ -100,11 +100,7 @@ contract MoveSystem is System {
       // transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
     }
 
-    VoxelCoord memory belowCoord = VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z);
-    bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
-    if (belowEntityId == bytes32(0) || ObjectType._get(belowEntityId) == AirObjectID) {
-      require(!callGravity(playerEntityId, newCoord), "MoveSystem: cannot move player with gravity");
-    }
+    require(!callGravityWithPreCheck(playerEntityId, newCoord), "MoveSystem: cannot move player with gravity");
 
     return newEntityId;
   }

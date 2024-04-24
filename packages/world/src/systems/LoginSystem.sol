@@ -18,7 +18,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, callGravity, inWorldBorder } from "../Utils.sol";
+import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, callGravityWithPreCheck, inWorldBorder } from "../Utils.sol";
 import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
@@ -64,10 +64,6 @@ contract LoginSystem is System {
     Stamina._setLastUpdatedTime(playerEntityId, block.timestamp);
 
     // We let the user pick a y coord, so we need to apply gravity
-    VoxelCoord memory belowCoord = VoxelCoord(respawnCoord.x, respawnCoord.y - 1, respawnCoord.z);
-    bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
-    if (belowEntityId == bytes32(0) || ObjectType._get(belowEntityId) == AirObjectID) {
-      require(!callGravity(playerEntityId, respawnCoord), "LoginSystem: cannot respawn player with gravity");
-    }
+    require(!callGravityWithPreCheck(playerEntityId, respawnCoord), "LoginSystem: cannot respawn player with gravity");
   }
 }
