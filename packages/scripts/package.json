@@ -4,10 +4,16 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "anvil": "node runAnvil.js"
+    "anvil": "node runAnvil.js",
+    "fillTerrain": "npx tsx fillTerrain.ts"
   },
   "dependencies": {
+    "@biomesaw/terrain": "workspace:*",
+    "@biomesaw/world": "workspace:*",
     "@latticexyz/common": "link:../../../mud/packages/common",
-    "viem": "2.7.12"
+    "dotenv": "^16.3.1",
+    "tsx": "^4.7.2",
+    "typescript": "5.1.6",
+    "viem": "2.9.20"
   }
 }
