@@ -190,5 +190,10 @@ export default defineWorld({
       root: true,
       args: [],
     },
+    {
+      name: "Unstable_CallWithSignatureModule",
+      root: true,
+      args: [],
+    },
   ],
 });
