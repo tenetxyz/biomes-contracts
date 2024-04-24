@@ -6,6 +6,8 @@
   "scripts": {
     "anvil": "npx tsx runAnvil.ts",
     "fillTerrain": "npx tsx fillTerrain.ts",
+    "readTerrain": "npx tsx readTerrain.ts",
+    "readWorld": "npx tsx readWorld.ts",
     "setupSpawn": "npx tsx setupSpawn.ts"
   },
   "dependencies": {

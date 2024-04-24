@@ -57,6 +57,13 @@ async function main() {
 
   const spawnLowX = 363;
   const spawnLowZ = -225;
+  const spawnHighX = 387;
+  const spawnHighZ = -205;
+
+  // Calculate midpoints
+  const spawnMidX = (spawnLowX + spawnHighX) / 2;
+  const spawnMidZ = (spawnLowZ + spawnHighZ) / 2;
+
   const minY = 0;
   const maxY = 25;
 
@@ -69,7 +76,7 @@ async function main() {
   // 16 minutes
   const fullSize = { x: 50, y: maxY, z: 50 };
 
-  const startCorner = { x: Math.floor(spawnLowX - fullSize.x / 2), y: minY, z: Math.floor(spawnLowZ - fullSize.z / 2) };
+  const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: Math.floor(spawnMidZ - fullSize.z / 2) };
 
   const chunkSize = 5;
   const rangeX = Math.ceil(fullSize.x / chunkSize);
@@ -85,13 +92,23 @@ async function main() {
 
   const numTxs = rangeX * rangeY * rangeZ;
   console.log("Num Txs:", numTxs);
-  const timePerTx = 2;
+  const timePerTx = 5;
   const totalSeconds = numTxs * timePerTx;
   console.log("Total Time:", totalSeconds / 60, "minutes", totalSeconds / (60 * 60), "hours");
-  return;
+
+  let nonce = await publicClient.getTransactionCount({
+    address: publicKey as Hex,
+  });
+  console.log("Latest nonce:", nonce);
+
+  // return;
+
+  let txCount = 0;
   for (let x = 0; x < rangeX; x++) {
     for (let y = 0; y < rangeY; y++) {
       for (let z = 0; z < rangeZ; z++) {
+        txCount += 1;
+        console.log("Tx", txCount, "of", numTxs, "(", Math.round((txCount / numTxs) * 100), "% )");
         const lowerSouthWestCorner = {
           x: startCorner.x + x * chunkSize,
           y: startCorner.y + y * chunkSize,
@@ -111,6 +128,7 @@ async function main() {
 
         const size = { x: chunkSize, y: chunkSize, z: chunkSize };
         console.log("fillTerrainCache", lowerSouthWestCorner, size);
+        nonce += 1;
 
         const fillTerrainCacheTx = {
           address: worldAddress as Hex,
@@ -120,19 +138,26 @@ async function main() {
           account,
           maxPriorityFeePerGas: parseGwei("0"),
           gas: 50_000_000n,
+          // nonce: nonce,
         };
         // const gasEstimate = await publicClient.estimateContractGas(fillTerrainCacheTx);
         // console.log("estimatedGas:", gasEstimate);
 
         const txHash = await walletClient.writeContract(fillTerrainCacheTx);
         console.log("txHash", txHash);
-        const transaction = await publicClient.waitForTransactionReceipt({ hash: txHash });
-        console.log("gasUsed", transaction.gasUsed);
+        await printReceipt(publicClient, txHash);
+        // wait 1 second
+        // await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
   }
 
   process.exit(0);
+}
+
+async function printReceipt(publicClient: any, txHash: string) {
+  const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+  console.log("gasUsed", receipt.gasUsed);
 }
 
 main();

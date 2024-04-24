@@ -33,6 +33,12 @@ contract TerrainSystem is System {
     return objectTypeId;
   }
 
+  function computeTerrainObjectTypeIdWithSet(VoxelCoord memory coord) public returns (uint8) {
+    uint8 objectTypeId = computeTerrainObjectTypeId(coord);
+    Terrain.set(coord.x, coord.y, coord.z, objectTypeId);
+    return objectTypeId;
+  }
+
   function computeTerrainObjectTypeId(VoxelCoord memory coord) public view returns (uint8) {
     return abi.decode(staticCallInternalSystem(abi.encodeCall(IProcGenSystem.getTerrainBlock, (coord))), (uint8));
   }
