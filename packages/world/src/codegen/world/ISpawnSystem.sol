@@ -15,7 +15,11 @@ interface ISpawnSystem {
 
   function initSpawnAreaTop() external;
 
+  function initSpawnAreaTopPart2() external;
+
   function initSpawnAreaBottom() external;
+
+  function initSpawnAreaBottomPart2() external;
 
   function initSpawnAreaBottomBorder() external;
 }

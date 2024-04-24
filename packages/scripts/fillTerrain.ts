@@ -1,4 +1,4 @@
-import { createPublicClient, createWalletClient, custom } from "viem";
+import { createPublicClient, createWalletClient, custom, parseGwei } from "viem";
 import dotenv from "dotenv";
 import { transportObserver } from "@latticexyz/common";
 import { Hex } from "viem";
@@ -14,7 +14,7 @@ import { supportedChains } from "./supportedChains";
 
 dotenv.config();
 
-const PROD_CHAIN_ID = supportedChains.find((chain) => chain.name === "Garnet Holesky")?.id ?? 1337;
+const PROD_CHAIN_ID = supportedChains.find((chain) => chain.name === "Redstone Mainnet")?.id ?? 1337;
 const DEV_CHAIN_ID = supportedChains.find((chain) => chain.name === "Foundry")?.id ?? 31337;
 
 const chainId = process.env.NODE_ENV === "production" ? PROD_CHAIN_ID : DEV_CHAIN_ID;
@@ -29,12 +29,14 @@ async function main() {
   if (!chain) {
     throw new Error(`Chain ${chainId} not found`);
   }
-  console.log("Using RPC: " + chain.rpcUrls["default"].http);
+  console.log("Using RPC:", chain.rpcUrls["default"].http);
+  console.log("Chain Id:", chain.id);
 
   const worldAddress = worldsJson[chain.id]?.address;
   if (!worldAddress) {
     throw new Error("Missing worldAddress in worlds.json file");
   }
+  console.log("Using WorldAddress:", worldAddress);
 
   const account = privateKeyToAccount(privateKey as Hex);
 
@@ -44,7 +46,7 @@ async function main() {
   });
 
   const walletClient = createWalletClient({
-    chain: mudFoundry,
+    chain: chain,
     transport: transportObserver(fallback([webSocket(), http()])),
     pollingInterval: 1000, // e.g. when waiting for transactions, we poll every 1000ms
     account: account,
@@ -90,6 +92,8 @@ async function main() {
           functionName: "fillTerrainCache",
           args: [lowerSouthWestCorner, size],
           account,
+          maxPriorityFeePerGas: parseGwei("0"),
+          gas: 50_000_000n,
         };
         // const gasEstimate = await publicClient.estimateContractGas(fillTerrainCacheTx);
         // console.log("estimatedGas:", gasEstimate);

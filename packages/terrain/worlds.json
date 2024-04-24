@@ -1,4 +1,8 @@
 {
+  "690": {
+    "address": "0x7dc9c7b751420f16113c12586f4c0148c0f55713",
+    "blockNumber": 892579
+  },
   "1337": {
     "address": "0xff994d1d14dd7f643337e62d8ffaa7a5c3736caf"
   },
@@ -7,6 +11,6 @@
     "blockNumber": 899467
   },
   "31337": {
-    "address": "0x1a5e50a424c53e1e8c0bde350694cb8c84304004"
+    "address": "0x226c6819aa2646e5edf7efceb9c674055777419c"
   }
 }

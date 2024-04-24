@@ -73,8 +73,21 @@ contract SpawnSystem is System {
   }
 
   function initSpawnAreaTop() public {
-    // Create 20 x 20 platform of stone
-    for (int16 x = SPAWN_LOW_X; x <= SPAWN_HIGH_X; x++) {
+    int16 midPointX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
+    for (int16 x = SPAWN_LOW_X; x <= midPointX; x++) {
+      for (int16 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
+        if (x == SPAWN_LOW_X || x == SPAWN_HIGH_X || z == SPAWN_LOW_Z || z == SPAWN_HIGH_Z) {
+          setObjectAtCoord(BasaltCarvedObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
+        } else {
+          setObjectAtCoord(StoneObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
+        }
+      }
+    }
+  }
+
+  function initSpawnAreaTopPart2() public {
+    int16 midPointX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
+    for (int16 x = midPointX + 1; x <= SPAWN_HIGH_X; x++) {
       for (int16 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
         if (x == SPAWN_LOW_X || x == SPAWN_HIGH_X || z == SPAWN_LOW_Z || z == SPAWN_HIGH_Z) {
           setObjectAtCoord(BasaltCarvedObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
@@ -86,7 +99,17 @@ contract SpawnSystem is System {
   }
 
   function initSpawnAreaBottom() public {
-    for (int16 x = SPAWN_LOW_X; x <= SPAWN_HIGH_X; x++) {
+    int16 midPointX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
+    for (int16 x = SPAWN_LOW_X; x <= midPointX; x++) {
+      for (int16 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
+        setObjectAtCoord(DirtObjectID, VoxelCoord(x, SPAWN_GROUND_Y - 1, z));
+      }
+    }
+  }
+
+  function initSpawnAreaBottomPart2() public {
+    int16 midPointX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
+    for (int16 x = midPointX + 1; x <= SPAWN_HIGH_X; x++) {
       for (int16 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
         setObjectAtCoord(DirtObjectID, VoxelCoord(x, SPAWN_GROUND_Y - 1, z));
       }

@@ -15,6 +15,10 @@ import { NullObjectTypeId, AirObjectID } from "../ObjectTypeIds.sol";
 import { staticCallInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 contract TerrainSystem is System {
+  function getCachedTerrainObjectTypeId(VoxelCoord memory coord) public view returns (uint8) {
+    return Terrain.get(coord.x, coord.y, coord.z);
+  }
+
   function getTerrainObjectTypeId(VoxelCoord memory coord) public view returns (uint8) {
     uint8 cachedObjectTypeId = Terrain.get(coord.x, coord.y, coord.z);
     if (cachedObjectTypeId != 0) return cachedObjectTypeId;

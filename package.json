@@ -5,6 +5,7 @@
     "dev": "mprocs",
     "deploy:local": "pnpm --filter 'terrain' deploy:local && pnpm --filter 'world' deploy:local",
     "deploy:testnet": "pnpm --filter 'terrain' deploy:testnet && pnpm --filter 'world' deploy:testnet",
+    "deploy:mainnet": "pnpm --filter 'terrain' deploy:mainnet && pnpm --filter 'world' deploy:mainnet",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
     "mud:up": "pnpm mud set-version --tag main && pnpm install",
     "prepare": "(forge --version || pnpm foundry:up)",

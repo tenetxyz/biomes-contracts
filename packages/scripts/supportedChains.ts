@@ -76,8 +76,30 @@ export const garnetHolesky = {
   },
 } satisfies Chain;
 
+export const redstoneMainnet = {
+  id: 690,
+  name: "Redstone Mainnet",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.redstonechain.com"],
+      webSocket: ["wss://rpc.redstonechain.com"],
+    },
+    public: {
+      http: ["https://rpc.redstonechain.com"],
+      webSocket: ["wss://rpc.redstonechain.com"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "Blockscout",
+      url: "https://explorer.garnet.qry.live",
+    },
+  },
+} satisfies Chain;
+
 /*
  * See https://mud.dev/tutorials/minimal/deploy#run-the-user-interface
  * for instructions on how to add networks.
  */
-export const supportedChains: Chain[] = [mudFoundry, latticeTestnet, tenetTestnet, garnetHolesky];
+export const supportedChains: Chain[] = [mudFoundry, latticeTestnet, tenetTestnet, garnetHolesky, redstoneMainnet];

@@ -10,11 +10,13 @@
     "build": "mud build && pnpm run build:js && pnpm run cp-abi",
     "cp-abi": "cp out/IWorld.sol/IWorld.abi.json IWorld.abi.json",
     "build:js": "tsup",
-    "cp-terrain:local": "node ../scripts/setAddress.js 31337 ../terrain/worlds.json src/Constants.sol TERRAIN_WORLD_ADDRESS",
-    "cp-terrain:testnet": "node ../scripts/setAddress.js 17069 ../terrain/worlds.json src/Constants.sol TERRAIN_WORLD_ADDRESS",
+    "cp-terrain:local": "npx tsx ../scripts/setAddress.ts \"Foundry\" ../terrain/worlds.json src/Constants.sol TERRAIN_WORLD_ADDRESS",
+    "cp-terrain:testnet": "npx tsx ../scripts/setAddress.ts \"Garnet Holesky\" ../terrain/worlds.json src/Constants.sol TERRAIN_WORLD_ADDRESS",
+    "cp-terrain:mainnet": "npx tsx ../scripts/setAddress.ts \"Redstone Mainnet\" ../terrain/worlds.json src/Constants.sol TERRAIN_WORLD_ADDRESS",
     "clean": "forge clean && rimraf src/codegen",
     "deploy:local": "pnpm run cp-terrain:local && pnpm run build && mud deploy",
     "deploy:testnet": "pnpm run cp-terrain:testnet && pnpm run build && mud deploy --profile=lattice-testnet",
+    "deploy:mainnet": "pnpm run cp-terrain:mainnet && pnpm run build && mud deploy --profile=lattice-mainnet",
     "dev": "pnpm run build:js && pnpm mud dev-contracts",
     "lint": "pnpm run prettier && pnpm run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
@@ -43,6 +45,9 @@
     "solhint": "^3.3.7",
     "solhint-config-mud": "2.0.0-next.17",
     "solhint-plugin-mud": "2.0.0-next.17",
-    "tsup": "^7.2.0"
+    "tsup": "^7.2.0",
+    "tsx": "^4.7.2",
+    "typescript": "5.1.6",
+    "viem": "2.9.20"
   }
 }

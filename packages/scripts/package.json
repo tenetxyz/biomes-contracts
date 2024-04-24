@@ -4,8 +4,9 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "anvil": "node runAnvil.js",
-    "fillTerrain": "npx tsx fillTerrain.ts"
+    "anvil": "npx tsx runAnvil.ts",
+    "fillTerrain": "npx tsx fillTerrain.ts",
+    "setupSpawn": "npx tsx setupSpawn.ts"
   },
   "dependencies": {
     "@biomesaw/terrain": "workspace:*",

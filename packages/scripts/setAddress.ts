@@ -1,14 +1,20 @@
 import fs from "fs";
 import { getAddress } from "viem";
+import { supportedChains } from "./supportedChains";
 
-const chainId = process.argv[2];
+const chainName = process.argv[2];
 const worldsJsonPath = process.argv[3];
 const solidityFilePath = process.argv[4];
 const variableName = process.argv[5];
 
 function setAddress() {
+  if (chainName === undefined) {
+    console.log("[BIOMES] chainName is undefined");
+    return;
+  }
+  const chainId = supportedChains.find((chain) => chain.name === chainName)?.id;
   if (chainId === undefined) {
-    console.log("[BIOMES] chainId is undefined");
+    console.log("[BIOMES] chainId not found for" + chainName);
     return;
   }
 
