@@ -1,4 +1,4 @@
-import { createPublicClient, createWalletClient, custom, parseGwei } from "viem";
+import { createPublicClient, createWalletClient, custom, parseGwei, size } from "viem";
 import dotenv from "dotenv";
 import { transportObserver } from "@latticexyz/common";
 import { Hex } from "viem";
@@ -15,7 +15,7 @@ import { supportedChains } from "./supportedChains";
 dotenv.config();
 
 const PROD_CHAIN_ID = supportedChains.find((chain) => chain.name === "Redstone Mainnet")?.id ?? 1337;
-const DEV_CHAIN_ID = supportedChains.find((chain) => chain.name === "Foundry")?.id ?? 31337;
+const DEV_CHAIN_ID = supportedChains.find((chain) => chain.name === "Garnet Holesky")?.id ?? 31337;
 
 const chainId = process.env.NODE_ENV === "production" ? PROD_CHAIN_ID : DEV_CHAIN_ID;
 
@@ -55,26 +55,29 @@ async function main() {
   const [publicKey] = await walletClient.getAddresses();
   console.log("Using Account:", publicKey);
 
-  // const readResult = await publicClient.readContract({
-  //   address: worldAddress as Hex,
-  //   abi: IWorldAbi,
-  //   functionName: "getTerrainObjectTypeId",
-  //   args: [{ x: 1, y: 1, z: 1 }],
-  //   account,
-  // });
-  // console.log("readResult", readResult);
-
   const spawnLowX = 363;
   const spawnLowZ = -225;
 
-  const startCorner = { x: spawnLowX, y: 15, z: spawnLowZ };
-  const fullSize = { x: 1, y: 1, z: 1 };
-  const chunkSize = 6;
+  const startCorner = { x: 213, y: 0, z: -375 };
+  const fullSize = { x: 300, y: 25, z: 300 };
+  const chunkSize = 5;
   const rangeX = Math.ceil(fullSize.x / chunkSize);
   const rangeY = Math.ceil(fullSize.y / chunkSize);
   const rangeZ = Math.ceil(fullSize.z / chunkSize);
+  console.log(
+    "Covered Area:",
+    JSON.stringify({
+      lowerSouthwestCorner: startCorner,
+      size: fullSize,
+    })
+  );
 
-  console.log("Num Txs:", rangeX * rangeY * rangeZ);
+  const numTxs = rangeX * rangeY * rangeZ;
+  console.log("Num Txs:", numTxs);
+  const timePerTx = 2;
+  const totalSeconds = numTxs * timePerTx;
+  console.log("Total Time:", totalSeconds / 60, "minutes", totalSeconds / (60 * 60), "hours");
+  return;
   for (let x = 0; x < rangeX; x++) {
     for (let y = 0; y < rangeY; y++) {
       for (let z = 0; z < rangeZ; z++) {
@@ -83,6 +86,18 @@ async function main() {
           y: startCorner.y + y * chunkSize,
           z: startCorner.z + z * chunkSize,
         };
+        const currentCachedValue = await publicClient.readContract({
+          address: worldAddress as Hex,
+          abi: IWorldAbi,
+          functionName: "getCachedTerrainObjectTypeId",
+          args: [lowerSouthWestCorner],
+          account,
+        });
+        if (currentCachedValue != 0) {
+          console.log("Skipping", lowerSouthWestCorner, "already filled");
+          continue;
+        }
+
         const size = { x: chunkSize, y: chunkSize, z: chunkSize };
         console.log("fillTerrainCache", lowerSouthWestCorner, size);
 
