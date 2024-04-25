@@ -64,19 +64,18 @@ async function main() {
   const spawnMidX = (spawnLowX + spawnHighX) / 2;
   const spawnMidZ = (spawnLowZ + spawnHighZ) / 2;
 
-  const minY = 0;
-  const maxY = 25;
+  const minY = 10;
+  const maxY = 15;
 
   // 10 hours
-  // const fullSize = { x: 300, y: 25, z: 300 };
+  // const fullSize = { x: 300, y: maxY, z: 300 };
 
-  // 4 hours
-  // const fullSize = { x: 200, y: 25, z: 200 };
+  // 6 hours
+  const fullSize = { x: 150, y: maxY, z: 150 };
 
-  const fullSize = { x: 150, y: 25, z: 150 };
-
-  // 16 minutes
+  // 40 minutes
   // const fullSize = { x: 50, y: maxY, z: 50 };
+  // const fullSize = { x: 20, y: maxY, z: 20 };
 
   const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: Math.floor(spawnMidZ - fullSize.z / 2) };
 
@@ -116,40 +115,45 @@ async function main() {
           y: startCorner.y + y * chunkSize,
           z: startCorner.z + z * chunkSize,
         };
-        const currentCachedValue = await publicClient.readContract({
-          address: worldAddress as Hex,
-          abi: IWorldAbi,
-          functionName: "getObjectTypeIdAtCoord",
-          args: [lowerSouthWestCorner],
-          account,
-        });
-        if (currentCachedValue != 0) {
-          console.log("Skipping", lowerSouthWestCorner, "already filled");
-          continue;
+
+        try {
+          const currentCachedValue = await publicClient.readContract({
+            address: worldAddress as Hex,
+            abi: IWorldAbi,
+            functionName: "getObjectTypeIdAtCoord",
+            args: [lowerSouthWestCorner],
+            account,
+          });
+          if (currentCachedValue != 0) {
+            console.log("Skipping", lowerSouthWestCorner, "already filled");
+            continue;
+          }
+
+          const size = { x: chunkSize, y: chunkSize, z: chunkSize };
+          console.log("fillObjectTypeWithComputedTerrainCache", lowerSouthWestCorner, size);
+          nonce += 1;
+
+          const fillTerrainCacheTx = {
+            address: worldAddress as Hex,
+            abi: IWorldAbi,
+            functionName: "fillObjectTypeWithComputedTerrainCache",
+            args: [lowerSouthWestCorner, size],
+            account,
+            maxPriorityFeePerGas: parseGwei("0"),
+            gas: 50_000_000n,
+            // nonce: nonce,
+          };
+          // const gasEstimate = await publicClient.estimateContractGas(fillTerrainCacheTx);
+          // console.log("estimatedGas:", gasEstimate);
+
+          const txHash = await walletClient.writeContract(fillTerrainCacheTx);
+          console.log("txHash", txHash);
+          await printReceipt(publicClient, txHash);
+          // wait 1 second
+          // await new Promise((resolve) => setTimeout(resolve, 1000));
+        } catch (e) {
+          console.log("Failed to fill", lowerSouthWestCorner, "with error", e);
         }
-
-        const size = { x: chunkSize, y: chunkSize, z: chunkSize };
-        console.log("fillObjectTypeWithComputedTerrainCache", lowerSouthWestCorner, size);
-        nonce += 1;
-
-        const fillTerrainCacheTx = {
-          address: worldAddress as Hex,
-          abi: IWorldAbi,
-          functionName: "fillObjectTypeWithComputedTerrainCache",
-          args: [lowerSouthWestCorner, size],
-          account,
-          maxPriorityFeePerGas: parseGwei("0"),
-          gas: 50_000_000n,
-          // nonce: nonce,
-        };
-        // const gasEstimate = await publicClient.estimateContractGas(fillTerrainCacheTx);
-        // console.log("estimatedGas:", gasEstimate);
-
-        const txHash = await walletClient.writeContract(fillTerrainCacheTx);
-        console.log("txHash", txHash);
-        await printReceipt(publicClient, txHash);
-        // wait 1 second
-        // await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
   }
