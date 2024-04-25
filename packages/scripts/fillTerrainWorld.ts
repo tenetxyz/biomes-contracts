@@ -73,8 +73,10 @@ async function main() {
   // 4 hours
   // const fullSize = { x: 200, y: 25, z: 200 };
 
+  const fullSize = { x: 150, y: 25, z: 150 };
+
   // 16 minutes
-  const fullSize = { x: 50, y: maxY, z: 50 };
+  // const fullSize = { x: 50, y: maxY, z: 50 };
 
   const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: Math.floor(spawnMidZ - fullSize.z / 2) };
 

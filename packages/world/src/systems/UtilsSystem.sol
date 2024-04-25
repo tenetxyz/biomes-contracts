@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 import { ITerrainSystem } from "@biomesaw/terrain/src/codegen/world/ITerrainSystem.sol";
+import { Terrain } from "@biomesaw/terrain/src/codegen/tables/Terrain.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
@@ -67,7 +69,7 @@ contract UtilsSystem is System {
           entityId = getUniqueEntity();
           ReversePosition._set(coord.x, coord.y, coord.z, entityId);
           Position._set(entityId, coord.x, coord.y, coord.z);
-          ObjectType._set(entityId, objectTypeId);
+          ObjectType._set(entityId, cachedObjectTypeId);
         }
       }
     }
