@@ -19,6 +19,19 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { TERRAIN_WORLD_ADDRESS } from "../Constants.sol";
 
 contract UtilsSystem is System {
+  function fillObjectTypeWithComputedTerrainCache(VoxelCoord memory coord) public {
+    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (entityId != bytes32(0)) {
+      return;
+    }
+    entityId = getUniqueEntity();
+    ReversePosition._set(coord.x, coord.y, coord.z, entityId);
+    Position._set(entityId, coord.x, coord.y, coord.z);
+
+    uint8 objectTypeId = ITerrainSystem(TERRAIN_WORLD_ADDRESS).computeTerrainObjectTypeIdWithSet(coord);
+    ObjectType._set(entityId, objectTypeId);
+  }
+
   function fillObjectTypeWithComputedTerrainCache(
     VoxelCoord memory lowerSouthWestCorner,
     VoxelCoord memory size
@@ -32,16 +45,7 @@ contract UtilsSystem is System {
             lowerSouthWestCorner.y + y,
             lowerSouthWestCorner.z + z
           );
-          bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-          if (entityId != bytes32(0)) {
-            continue;
-          }
-          entityId = getUniqueEntity();
-          ReversePosition._set(coord.x, coord.y, coord.z, entityId);
-          Position._set(entityId, coord.x, coord.y, coord.z);
-
-          uint8 objectTypeId = ITerrainSystem(TERRAIN_WORLD_ADDRESS).computeTerrainObjectTypeIdWithSet(coord);
-          ObjectType._set(entityId, objectTypeId);
+          fillObjectTypeWithComputedTerrainCache(coord);
         }
       }
     }

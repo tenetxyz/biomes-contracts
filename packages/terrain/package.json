@@ -12,7 +12,7 @@
     "build:js": "tsup",
     "clean": "forge clean && rimraf src/codegen",
     "deploy:local": "pnpm run build && mud deploy",
-    "deploy:testnet": "pnpm run build && mud deploy --profile=lattice-testnet --worldAddress=0xfaf842a0c8550194edb3317fda6cd49eacd98072",
+    "deploy:testnet": "pnpm run build && mud deploy --profile=lattice-testnet",
     "deploy:mainnet": "pnpm run build && mud deploy --profile=lattice-mainnet",
     "dev": "pnpm run build:js && pnpm mud dev-contracts",
     "lint": "pnpm run prettier && pnpm run solhint",

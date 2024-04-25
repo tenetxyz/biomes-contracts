@@ -367,6 +367,36 @@ declare const abi: [
     "name": "fillObjectTypeWithComputedTerrainCache",
     "inputs": [
       {
+        "name": "coord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "fillObjectTypeWithComputedTerrainCache",
+    "inputs": [
+      {
         "name": "lowerSouthWestCorner",
         "type": "tuple",
         "internalType": "struct VoxelCoord",

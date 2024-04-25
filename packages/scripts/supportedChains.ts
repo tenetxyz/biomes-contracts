@@ -1,16 +1,3 @@
-/*
- * The supported chains.
- * By default, there are only two chains here:
- *
- * - mudFoundry, the chain running on anvil that pnpm dev
- *   starts by default. It is similar to the viem anvil chain
- *   (see https://viem.sh/docs/clients/test.html), but with the
- *   basefee set to zero to avoid transaction fees.
- * - latticeTestnet, our public test network.
- *
-
- */
-
 import { latticeTestnet, mudFoundry } from "@latticexyz/common/chains";
 
 import { Chain } from "viem";
@@ -39,21 +26,18 @@ export const garnetHolesky = {
   nativeCurrency: { name: "Holesky Ether", symbol: "ETH", decimals: 18 },
   rpcUrls: {
     default: {
-      http: ["https://rpc.garnet.qry.live"],
-      webSocket: ["wss://rpc.garnet.qry.live"],
+      http: ["https://rpc.garnetchain.com"],
+      webSocket: ["wss://rpc.garnetchain.com"],
     },
     public: {
-      http: ["https://rpc.garnet.qry.live"],
-      webSocket: ["wss://rpc.garnet.qry.live"],
-    },
-    erc4337Bundler: {
-      http: ["https://bundler.garnet.qry.live"],
+      http: ["https://rpc.garnetchain.com"],
+      webSocket: ["wss://rpc.garnetchain.com"],
     },
   },
   blockExplorers: {
     default: {
       name: "Blockscout",
-      url: "https://explorer.garnet.qry.live",
+      url: "https://explorer.garnetchain.com",
     },
   },
   contracts: {
@@ -85,7 +69,7 @@ export const redstoneMainnet = {
   blockExplorers: {
     default: {
       name: "Blockscout",
-      url: "https://explorer.garnet.qry.live",
+      url: "https://explorer.redstone.xyz",
     },
   },
 } satisfies Chain;

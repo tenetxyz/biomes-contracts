@@ -11,6 +11,8 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IUtilsSystem {
+  function fillObjectTypeWithComputedTerrainCache(VoxelCoord memory coord) external;
+
   function fillObjectTypeWithComputedTerrainCache(
     VoxelCoord memory lowerSouthWestCorner,
     VoxelCoord memory size

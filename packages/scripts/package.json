@@ -9,12 +9,14 @@
     "fillTerrainWorld": "npx tsx fillTerrainWorld.ts",
     "readTerrain": "npx tsx readTerrain.ts",
     "readWorld": "npx tsx readWorld.ts",
-    "setupSpawn": "npx tsx setupSpawn.ts"
+    "setupSpawn": "npx tsx setupSpawn.ts",
+    "measureGas": "npx tsx gas/measureGas.ts"
   },
   "dependencies": {
     "@biomesaw/terrain": "workspace:*",
     "@biomesaw/world": "workspace:*",
     "@latticexyz/common": "link:../../../mud/packages/common",
+    "@latticexyz/utils": "link:../../../mud/packages/utils",
     "dotenv": "^16.3.1",
     "tsx": "^4.7.2",
     "typescript": "5.1.6",

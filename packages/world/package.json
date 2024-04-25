@@ -15,7 +15,7 @@
     "cp-terrain:mainnet": "npx tsx ../scripts/setAddress.ts \"Redstone Mainnet\" ../terrain/worlds.json src/Constants.sol TERRAIN_WORLD_ADDRESS",
     "clean": "forge clean && rimraf src/codegen",
     "deploy:local": "pnpm run cp-terrain:local && pnpm run build && mud deploy",
-    "deploy:testnet": "pnpm run cp-terrain:testnet && pnpm run build && mud deploy --profile=lattice-testnet --worldAddress=0xcb45fd376685caa28c582875c86bc14087426fcc",
+    "deploy:testnet": "pnpm run cp-terrain:testnet && pnpm run build && mud deploy --profile=lattice-testnet",
     "deploy:mainnet": "pnpm run cp-terrain:mainnet && pnpm run build && mud deploy --profile=lattice-mainnet",
     "dev": "pnpm run build:js && pnpm mud dev-contracts",
     "lint": "pnpm run prettier && pnpm run solhint",

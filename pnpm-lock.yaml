@@ -47,6 +47,9 @@ importers:
       '@latticexyz/common':
         specifier: link:../../../mud/packages/common
         version: link:../../../mud/packages/common
+      '@latticexyz/utils':
+        specifier: link:../../../mud/packages/utils
+        version: link:../../../mud/packages/utils
       dotenv:
         specifier: ^16.3.1
         version: 16.4.5

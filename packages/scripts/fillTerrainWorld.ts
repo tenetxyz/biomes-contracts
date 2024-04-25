@@ -1,68 +1,13 @@
-import { createPublicClient, createWalletClient, custom, parseGwei, size } from "viem";
-import dotenv from "dotenv";
-import { transportObserver } from "@latticexyz/common";
 import { Hex } from "viem";
-import { mudFoundry } from "@latticexyz/common/chains";
-import { fallback } from "viem";
-import { webSocket } from "viem";
-import { http } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import IWorldAbi from "@biomesaw/world/IWorld.abi.json";
-
-import worldsJson from "@biomesaw/world/worlds.json";
-import { supportedChains } from "./supportedChains";
-
-dotenv.config();
-
-const PROD_CHAIN_ID = supportedChains.find((chain) => chain.name === "Redstone Mainnet")?.id ?? 1337;
-const DEV_CHAIN_ID = supportedChains.find((chain) => chain.name === "Foundry")?.id ?? 31337;
-
-const chainId = process.env.NODE_ENV === "production" ? PROD_CHAIN_ID : DEV_CHAIN_ID;
+import { setupNetwork } from "./setupNetwork";
+import { SPAWN_HIGH_X, SPAWN_HIGH_Z, SPAWN_LOW_X, SPAWN_LOW_Z } from "./constants";
 
 async function main() {
-  const privateKey = process.env.PRIVATE_KEY;
-  if (!privateKey) {
-    throw new Error("Missing PRIVATE_KEY in .env file");
-  }
-  const chainIndex = supportedChains.findIndex((c) => c.id === chainId);
-  const chain = supportedChains[chainIndex];
-  if (!chain) {
-    throw new Error(`Chain ${chainId} not found`);
-  }
-  console.log("Using RPC:", chain.rpcUrls["default"].http);
-  console.log("Chain Id:", chain.id);
-
-  const worldAddress = worldsJson[chain.id]?.address;
-  if (!worldAddress) {
-    throw new Error("Missing worldAddress in worlds.json file");
-  }
-  console.log("Using WorldAddress:", worldAddress);
-
-  const account = privateKeyToAccount(privateKey as Hex);
-
-  const publicClient = createPublicClient({
-    chain: chain,
-    transport: http(),
-  });
-
-  const walletClient = createWalletClient({
-    chain: chain,
-    transport: transportObserver(fallback([webSocket(), http()])),
-    pollingInterval: 1000, // e.g. when waiting for transactions, we poll every 1000ms
-    account: account,
-  });
-
-  const [publicKey] = await walletClient.getAddresses();
-  console.log("Using Account:", publicKey);
-
-  const spawnLowX = 363;
-  const spawnLowZ = -225;
-  const spawnHighX = 387;
-  const spawnHighZ = -205;
+  const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
 
   // Calculate midpoints
-  const spawnMidX = (spawnLowX + spawnHighX) / 2;
-  const spawnMidZ = (spawnLowZ + spawnHighZ) / 2;
+  const spawnMidX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
+  const spawnMidZ = (SPAWN_LOW_Z + SPAWN_HIGH_Z) / 2;
 
   const minY = 10;
   const maxY = 15;
@@ -97,13 +42,6 @@ async function main() {
   const totalSeconds = numTxs * timePerTx;
   console.log("Total Time:", totalSeconds / 60, "minutes", totalSeconds / (60 * 60), "hours");
 
-  let nonce = await publicClient.getTransactionCount({
-    address: publicKey as Hex,
-  });
-  console.log("Latest nonce:", nonce);
-
-  // return;
-
   let txCount = 0;
   for (let x = 0; x < rangeX; x++) {
     for (let y = 0; y < rangeY; y++) {
@@ -131,26 +69,12 @@ async function main() {
 
           const size = { x: chunkSize, y: chunkSize, z: chunkSize };
           console.log("fillObjectTypeWithComputedTerrainCache", lowerSouthWestCorner, size);
-          nonce += 1;
 
-          const fillTerrainCacheTx = {
-            address: worldAddress as Hex,
-            abi: IWorldAbi,
+          await callTx({
+            ...txOptions,
             functionName: "fillObjectTypeWithComputedTerrainCache",
             args: [lowerSouthWestCorner, size],
-            account,
-            maxPriorityFeePerGas: parseGwei("0"),
-            gas: 50_000_000n,
-            // nonce: nonce,
-          };
-          // const gasEstimate = await publicClient.estimateContractGas(fillTerrainCacheTx);
-          // console.log("estimatedGas:", gasEstimate);
-
-          const txHash = await walletClient.writeContract(fillTerrainCacheTx);
-          console.log("txHash", txHash);
-          await printReceipt(publicClient, txHash);
-          // wait 1 second
-          // await new Promise((resolve) => setTimeout(resolve, 1000));
+          });
         } catch (e) {
           console.log("Failed to fill", lowerSouthWestCorner, "with error", e);
         }
@@ -159,11 +83,6 @@ async function main() {
   }
 
   process.exit(0);
-}
-
-async function printReceipt(publicClient: any, txHash: string) {
-  const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
-  console.log("gasUsed", receipt.gasUsed);
 }
 
 main();

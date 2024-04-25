@@ -1,6 +1,6 @@
 procs:
   contracts:
-    shell: pnpm run deploy:local
+    shell: pnpm run deploy:local && pnpm run setupSpawn
   anvil:
     cwd: packages/scripts
     shell: pnpm run anvil
