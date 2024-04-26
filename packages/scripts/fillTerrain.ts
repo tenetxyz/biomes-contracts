@@ -10,21 +10,23 @@ async function main() {
   const spawnMidX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
   const spawnMidZ = (SPAWN_LOW_Z + SPAWN_HIGH_Z) / 2;
 
-  const minY = -10;
-  const maxY = 60;
+  // const minY = -10;
+  // const maxY = 60;
+  const minY = 10;
+  const maxY = 20;
 
   // 10 hours
-  const fullSize = { x: 400, y: maxY, z: 400 };
+  // const fullSize = { x: 400, y: maxY, z: 400 };
 
   // 6 hours
   // const fullSize = { x: 150, y: maxY, z: 150 };
 
   // 40 minutes
   // const fullSize = { x: 50, y: maxY, z: 50 };
-  // const fullSize = { x: 20, y: maxY, z: 20 };
+  const fullSize = { x: 20, y: maxY, z: 20 };
 
-  // const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: Math.floor(spawnMidZ - fullSize.z / 2) };
-  const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: SPAWN_LOW_Z - 30 };
+  const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: Math.floor(spawnMidZ - fullSize.z / 2) };
+  // const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: SPAWN_LOW_Z - 30 };
 
   const chunkSize = { x: 5, y: 5, z: 5 };
   const rangeX = Math.ceil(fullSize.x / chunkSize.x);

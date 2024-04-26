@@ -2,7 +2,7 @@ import { defineWorld } from "@latticexyz/world";
 
 export default defineWorld({
   deploy: {
-    useProxy: true,
+    upgradeableWorldImplementation: true,
   },
   tables: {
     UniqueEntity: {

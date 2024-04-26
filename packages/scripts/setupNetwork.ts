@@ -16,7 +16,7 @@ import { supportedChains } from "./supportedChains";
 
 dotenv.config();
 
-const PROD_CHAIN_ID = supportedChains.find((chain) => chain.name === "Redstone Mainnet")?.id ?? 1337;
+const PROD_CHAIN_ID = supportedChains.find((chain) => chain.name === "Redstone")?.id ?? 1337;
 const TESNET_CHAIN_ID = supportedChains.find((chain) => chain.name === "Garnet Holesky")?.id ?? 1337;
 const DEV_CHAIN_ID = supportedChains.find((chain) => chain.name === "Foundry")?.id ?? 31337;
 

@@ -24,7 +24,7 @@ import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { GrassObjectID, OakLogObjectID, AirObjectID, OakLumberObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
+import { GrassObjectID, OakLogObjectID, AirObjectID, OakLumberObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testGetUniqueEntity, testAddToInventoryCount } from "../test/utils/InventoryTestUtils.sol";
 
@@ -43,10 +43,10 @@ contract TestScript is Script {
 
     // world.spawnPlayer(VoxelCoord(139, -62, -34));
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](50);
-    for (uint8 i = 0; i < newCoords.length; i++) {
-      newCoords[i] = VoxelCoord(139, -62, -34 + int16(int(uint(i))) + 1);
-    }
+    // VoxelCoord[] memory newCoords = new VoxelCoord[](50);
+    // for (uint8 i = 0; i < newCoords.length; i++) {
+    //   newCoords[i] = VoxelCoord(139, -62, -34 + int16(int(uint(i))) + 1);
+    // }
     // for (uint i = 0; i < newCoords.length; i++) {
     //   bytes32 entityId = testGetUniqueEntity();
     //   Position.set(entityId, newCoords[i].x, newCoords[i].y, newCoords[i].z);
@@ -61,7 +61,7 @@ contract TestScript is Script {
     //   ObjectType.set(belowEntityId, GrassObjectID);
     // }
 
-    world.move(newCoords);
+    // world.move(newCoords);
 
     // ObjectType.get(entityId)
     // bytes32 entityId = ReversePosition.get(148, -61, -24);
@@ -90,7 +90,7 @@ contract TestScript is Script {
     // ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, entityId);
     // world.teleport(VoxelCoord(149, -62, -37));
 
-    // bytes32 playerEntityId = Player.get(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+    bytes32 playerEntityId = Player.get(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
     // uint8 inputObjectTypeId = GrassObjectID;
     // for (uint i = 0; i < 99; i++) {
     //   bytes32 newInventoryId = testGetUniqueEntity();
@@ -98,7 +98,7 @@ contract TestScript is Script {
     //   Inventory.set(newInventoryId, playerEntityId);
     //   ReverseInventory.push(playerEntityId, newInventoryId);
     // }
-    // testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 99);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, CoalOreObjectID, 4);
 
     // bytes32 newInventoryId1 = testGetUniqueEntity();
     // ObjectType.set(newInventoryId1, ChestObjectID);
