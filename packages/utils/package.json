@@ -1,6 +1,6 @@
 {
   "name": "@biomesaw/utils",
-  "version": "0.0.1",
+  "version": "0.0.6",
   "scripts": {
     "build": "forge build",
     "clean": "forge clean",
