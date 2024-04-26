@@ -28,19 +28,17 @@ import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 
-import { ObjectTypeMetadata } from "@biomesaw/terrain/src/codegen/tables/ObjectTypeMetadata.sol";
-import { Recipes, RecipesData } from "@biomesaw/terrain/src/codegen/tables/Recipes.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
-import { getTerrainObjectTypeId } from "../src/utils/TerrainUtils.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord } from "../src/Utils.sol";
+import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testAddToInventoryCount, testReverseInventoryToolHasItem } from "./utils/InventoryTestUtils.sol";
-import { TERRAIN_WORLD_ADDRESS } from "../src/Constants.sol";
 
 contract LoginTest is MudTest, GasReporter {
   IWorld private world;
@@ -61,7 +59,7 @@ contract LoginTest is MudTest, GasReporter {
 
   function setupPlayer() public returns (bytes32) {
     spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y + 1, SPAWN_LOW_Z);
-    assertTrue(getTerrainObjectTypeId(spawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
 
     // move player outside spawn
@@ -124,7 +122,7 @@ contract LoginTest is MudTest, GasReporter {
     Health.setHealth(playerEntityId, 1);
     Stamina.setStamina(playerEntityId, 1);
 
-    assertTrue(getTerrainObjectTypeId(respawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(world.getTerrainBlock(respawnCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32 entityId = getUniqueEntity();
     Position.set(entityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
@@ -133,7 +131,7 @@ contract LoginTest is MudTest, GasReporter {
 
     // set block below to non-air
     VoxelCoord memory belowCoord = VoxelCoord(respawnCoord.x, respawnCoord.y - 1, respawnCoord.z);
-    uint8 terrainObjectTypeId = getTerrainObjectTypeId(belowCoord);
+    uint8 terrainObjectTypeId = world.getTerrainBlock(belowCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
     bytes32 belowEntityId = getUniqueEntity();
     Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
@@ -211,7 +209,7 @@ contract LoginTest is MudTest, GasReporter {
     world.logoffPlayer();
 
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
-    assertTrue(getTerrainObjectTypeId(respawnCoord) != AirObjectID, "Terrain block is air");
+    assertTrue(world.getTerrainBlock(respawnCoord) != AirObjectID, "Terrain block is air");
 
     vm.expectRevert("LoginSystem: cannot respawn on terrain non-air block");
     world.loginPlayer(respawnCoord);
@@ -231,7 +229,7 @@ contract LoginTest is MudTest, GasReporter {
       spawnCoord.y,
       spawnCoord.z + (MAX_PLAYER_RESPAWN_HALF_WIDTH + 1)
     );
-    assertTrue(getTerrainObjectTypeId(respawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(world.getTerrainBlock(respawnCoord) == AirObjectID, "Terrain block is not air");
 
     vm.expectRevert("LoginSystem: respawn coord too far from last known position");
     world.loginPlayer(respawnCoord);
@@ -262,7 +260,7 @@ contract LoginTest is MudTest, GasReporter {
     world.logoffPlayer();
 
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
-    assertTrue(getTerrainObjectTypeId(respawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(world.getTerrainBlock(respawnCoord) == AirObjectID, "Terrain block is not air");
 
     vm.expectRevert("LoginSystem: cannot respawn player with gravity");
     world.loginPlayer(respawnCoord);

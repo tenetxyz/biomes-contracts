@@ -4,15 +4,6 @@ import { setupNetwork } from "./setupNetwork";
 async function main() {
   const { publicClient, worldAddress, IWorldAbi, account } = await setupNetwork();
 
-  const terrainWorldAdddress = await publicClient.readContract({
-    address: worldAddress as Hex,
-    abi: IWorldAbi,
-    functionName: "getTerrainWorldAddress",
-    args: [],
-    account,
-  });
-  console.log("Using terrain world:", terrainWorldAdddress);
-
   const objectTypeAtCoord = await publicClient.readContract({
     address: worldAddress as Hex,
     abi: IWorldAbi,

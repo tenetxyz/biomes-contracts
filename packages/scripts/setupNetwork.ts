@@ -12,9 +12,6 @@ import { privateKeyToAccount } from "viem/accounts";
 import IWorldAbi from "@biomesaw/world/IWorld.abi.json";
 import worldsJson from "@biomesaw/world/worlds.json";
 
-import TerrainIWorldAbi from "@biomesaw/terrain/IWorld.abi.json";
-import terrainWorldsJson from "@biomesaw/terrain/worlds.json";
-
 import { supportedChains } from "./supportedChains";
 
 dotenv.config();
@@ -36,12 +33,6 @@ export async function setupNetwork() {
   }
   console.log("Using RPC:", chain.rpcUrls["default"].http);
   console.log("Chain Id:", chain.id);
-
-  const terrainWorldAddress = terrainWorldsJson[chain.id]?.address;
-  if (!terrainWorldAddress) {
-    throw new Error("Missing terrainWorldAddress in worlds.json file");
-  }
-  console.log("Using TerrainWorldAddress:", terrainWorldAddress);
 
   const worldAddress = worldsJson[chain.id]?.address;
   if (!worldAddress) {
@@ -75,15 +66,6 @@ export async function setupNetwork() {
     gas: 50_000_000n,
   };
 
-  const terrainTxOptions = {
-    address: terrainWorldAddress as Hex,
-    abi: TerrainIWorldAbi,
-    account,
-    chain,
-    maxPriorityFeePerGas: parseGwei("0"),
-    gas: 50_000_000n,
-  };
-
   async function callTx<
     chain extends Chain | undefined,
     account extends Account | undefined,
@@ -111,13 +93,10 @@ export async function setupNetwork() {
 
   return {
     IWorldAbi,
-    TerrainIWorldAbi,
     worldAddress,
-    terrainWorldAddress,
     walletClient,
     publicClient,
     txOptions,
-    terrainTxOptions,
     callTx,
     account,
   };

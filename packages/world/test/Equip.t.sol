@@ -27,19 +27,17 @@ import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 
-import { ObjectTypeMetadata } from "@biomesaw/terrain/src/codegen/tables/ObjectTypeMetadata.sol";
-import { Recipes, RecipesData } from "@biomesaw/terrain/src/codegen/tables/Recipes.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord } from "../src/Utils.sol";
-import { getTerrainObjectTypeId } from "../src/utils/TerrainUtils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, GrassObjectID, ChestObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, OakLumberObjectID, OakLogObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, GrassObjectID, ChestObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, OakLumberObjectID, OakLogObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/InventoryTestUtils.sol";
-import { TERRAIN_WORLD_ADDRESS } from "../src/Constants.sol";
 
 contract EquipTest is MudTest, GasReporter {
   IWorld private world;
@@ -60,7 +58,7 @@ contract EquipTest is MudTest, GasReporter {
 
   function setupPlayer() public returns (bytes32) {
     spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y + 1, SPAWN_LOW_Z);
-    assertTrue(getTerrainObjectTypeId(spawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
 
     // move player outside spawn
@@ -77,7 +75,7 @@ contract EquipTest is MudTest, GasReporter {
   function setupPlayer2(int16 zOffset) public returns (bytes32) {
     vm.startPrank(bob, bob);
     VoxelCoord memory spawnCoord2 = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y + 1, SPAWN_LOW_Z + zOffset);
-    assertTrue(getTerrainObjectTypeId(spawnCoord2) == AirObjectID, "Terrain block is not air");
+    assertTrue(world.getTerrainBlock(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
 
     VoxelCoord[] memory path = new VoxelCoord[](1);
@@ -162,7 +160,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
-    uint8 terrainObjectTypeId = getTerrainObjectTypeId(mineCoord);
+    uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     startGasReport("mine terrain w/ equipped");
@@ -202,7 +200,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
-    uint8 terrainObjectTypeId = getTerrainObjectTypeId(mineCoord);
+    uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     world.mine(mineCoord);
@@ -245,7 +243,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
 
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    assertTrue(getTerrainObjectTypeId(dropCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
 
     world.drop(newInventoryId, dropCoord);
 
@@ -290,7 +288,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
-    uint8 terrainObjectTypeId = getTerrainObjectTypeId(mineCoord);
+    uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     world.mine(mineCoord);
@@ -338,7 +336,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, WoodenPickObjectID), "Inventory objects not set");
     uint16 equippedDamage = 50;
-    ObjectTypeMetadata.setDamage(IStore(TERRAIN_WORLD_ADDRESS), WoodenPickObjectID, equippedDamage);
+    ObjectTypeMetadata.setDamage(WoodenPickObjectID, equippedDamage);
     vm.stopPrank();
     vm.startPrank(alice, alice);
 

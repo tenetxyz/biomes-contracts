@@ -23,7 +23,5 @@ interface IReadSystem {
     address delegatee
   ) external view returns (ResourceId delegationControlId);
 
-  function getTerrainWorldAddress() external pure returns (address);
-
   function getObjectTypeIdAtCoord(VoxelCoord memory coord) external view returns (uint8);
 }

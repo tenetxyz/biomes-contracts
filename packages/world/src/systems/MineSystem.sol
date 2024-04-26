@@ -11,26 +11,16 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, callGravity, inWorldBorder, inSpawnArea } from "../Utils.sol";
+import { positionDataToVoxelCoord, callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { getObjectTypeIsBlock, getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
-
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, callGravity } from "../Utils.sol";
-import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { isPick, isAxe, isLog, isStone } from "@biomesaw/terrain/src/utils/ObjectTypeUtils.sol";
-import { getObjectTypeMiningDifficulty, getObjectTypeDamage } from "../utils/TerrainUtils.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord) public {
@@ -62,7 +52,7 @@ contract MineSystem is System {
     } else {
       mineObjectTypeId = ObjectType._get(entityId);
     }
-    require(getObjectTypeIsBlock(mineObjectTypeId), "MineSystem: object type is not a block");
+    require(ObjectTypeMetadata._getIsBlock(mineObjectTypeId), "MineSystem: object type is not a block");
     require(mineObjectTypeId != AirObjectID, "MineSystem: cannot mine air");
     require(mineObjectTypeId != WaterObjectID, "MineSystem: cannot mine water");
 
@@ -70,12 +60,12 @@ contract MineSystem is System {
     uint32 equippedToolDamage = PLAYER_HAND_DAMAGE;
     if (equippedEntityId != bytes32(0)) {
       uint8 equippedObjectTypeId = ObjectType._get(equippedEntityId);
-      equippedToolDamage = getObjectTypeDamage(equippedObjectTypeId);
+      equippedToolDamage = ObjectTypeMetadata._getDamage(equippedObjectTypeId);
     }
 
     // Spend stamina for mining
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    uint32 staminaRequired = (getObjectTypeMiningDifficulty(mineObjectTypeId) * 1000) / equippedToolDamage;
+    uint32 staminaRequired = (ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId) * 1000) / equippedToolDamage;
     require(currentStamina >= staminaRequired, "MineSystem: not enough stamina");
     Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
 

@@ -15,14 +15,14 @@ import { ReverseInventoryTool } from "../codegen/tables/ReverseInventoryTool.sol
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
-import { RecipesData } from "@biomesaw/terrain/src/codegen/tables/Recipes.sol";
+import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { NullObjectTypeId, AirObjectID, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { NullObjectTypeId, AirObjectID, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
-import { getObjectTypeDurability, getRecipe, getObjectTypeIsTool } from "../utils/TerrainUtils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
-import { getLogObjectTypes, getLumberObjectTypes } from "@biomesaw/terrain/src/utils/ObjectTypeUtils.sol";
+import { getLogObjectTypes, getLumberObjectTypes } from "../utils/ObjectTypeUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract CraftSystem is System {
@@ -31,7 +31,7 @@ contract CraftSystem is System {
     require(playerEntityId != bytes32(0), "CraftSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "CraftSystem: player isn't logged in");
 
-    RecipesData memory recipeData = getRecipe(recipeId);
+    RecipesData memory recipeData = Recipes._get(recipeId);
     require(recipeData.inputObjectTypeIds.length > 0, "CraftSystem: recipe not found");
     if (recipeData.stationObjectTypeId != NullObjectTypeId) {
       require(ObjectType._get(stationEntityId) == recipeData.stationObjectTypeId, "CraftSystem: wrong station");
@@ -82,13 +82,13 @@ contract CraftSystem is System {
     }
 
     // Create the crafted objects
-    if (getObjectTypeIsTool(recipeData.outputObjectTypeId)) {
+    if (ObjectTypeMetadata._getIsTool(recipeData.outputObjectTypeId)) {
       for (uint256 i = 0; i < recipeData.outputObjectTypeAmount; i++) {
         bytes32 newInventoryEntityId = getUniqueEntity();
         ObjectType._set(newInventoryEntityId, recipeData.outputObjectTypeId);
         InventoryTool._set(newInventoryEntityId, playerEntityId);
         ReverseInventoryTool._push(playerEntityId, newInventoryEntityId);
-        uint24 durability = getObjectTypeDurability(recipeData.outputObjectTypeId);
+        uint24 durability = ObjectTypeMetadata._getDurability(recipeData.outputObjectTypeId);
         if (durability > 0) {
           ItemMetadata._set(newInventoryEntityId, durability);
         }

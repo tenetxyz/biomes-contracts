@@ -8,11 +8,11 @@ import { InventoryCount } from "../../src/codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../../src/codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../../src/codegen/tables/ItemMetadata.sol";
+import { ObjectTypeMetadata } from "../../src/codegen/tables/ObjectTypeMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS } from "../../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { getObjectTypeStackable } from "../../src/utils/TerrainUtils.sol";
+import { AirObjectID, PlayerObjectID, ChestObjectID } from "../../src/ObjectTypeIds.sol";
 
 function testReverseInventoryToolHasItem(bytes32 ownerEntityId, bytes32 inventoryEntityId) view returns (bool) {
   bytes32[] memory inventoryEntityIds = ReverseInventoryTool.get(ownerEntityId);
@@ -40,7 +40,7 @@ function testAddToInventoryCount(
   uint8 objectTypeId,
   uint16 numObjectsToAdd
 ) {
-  uint8 stackable = getObjectTypeStackable(objectTypeId);
+  uint8 stackable = ObjectTypeMetadata.getStackable(objectTypeId);
   require(stackable > 0, "This object type cannot be added to the inventory");
 
   uint16 numInitialObjects = InventoryCount.get(ownerEntityId, objectTypeId);

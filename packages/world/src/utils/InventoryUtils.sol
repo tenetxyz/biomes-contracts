@@ -9,11 +9,11 @@ import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { getObjectTypeStackable, getObjectTypeIsBlock, getObjectTypeIsTool } from "./TerrainUtils.sol";
+import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 
 function addToInventoryCount(
   bytes32 ownerEntityId,
@@ -21,7 +21,7 @@ function addToInventoryCount(
   uint8 objectTypeId,
   uint16 numObjectsToAdd
 ) {
-  uint8 stackable = getObjectTypeStackable(objectTypeId);
+  uint8 stackable = ObjectTypeMetadata._getStackable(objectTypeId);
   require(stackable > 0, "This object type cannot be added to the inventory");
 
   uint16 numInitialObjects = InventoryCount._get(ownerEntityId, objectTypeId);
@@ -52,7 +52,7 @@ function removeFromInventoryCount(bytes32 ownerEntityId, uint8 objectTypeId, uin
   uint16 numInitialObjects = InventoryCount._get(ownerEntityId, objectTypeId);
   require(numInitialObjects >= numObjectsToRemove, "Not enough objects in the inventory");
 
-  uint8 stackable = getObjectTypeStackable(objectTypeId);
+  uint8 stackable = ObjectTypeMetadata._getStackable(objectTypeId);
   require(stackable > 0, "This object type cannot be removed from the inventory");
 
   uint16 numInitialFullStacks = numInitialObjects / stackable;
@@ -157,7 +157,7 @@ function transferInventoryNonTool(
   uint8 transferObjectTypeId,
   uint16 numObjectsToTransfer
 ) {
-  require(!getObjectTypeIsTool(transferObjectTypeId), "Object type is not a block");
+  require(!ObjectTypeMetadata._getIsTool(transferObjectTypeId), "Object type is not a block");
   require(
     InventoryCount._get(srcEntityId, transferObjectTypeId) >= numObjectsToTransfer,
     "Entity does not own inventory item"

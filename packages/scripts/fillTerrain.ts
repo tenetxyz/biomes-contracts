@@ -3,24 +3,24 @@ import { setupNetwork } from "./setupNetwork";
 import { SPAWN_HIGH_X, SPAWN_HIGH_Z, SPAWN_LOW_X, SPAWN_LOW_Z } from "./constants";
 
 async function main() {
-  const { publicClient, terrainWorldAddress, TerrainIWorldAbi, account, terrainTxOptions, callTx } =
-    await setupNetwork();
+  const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
 
   // Calculate midpoints
   const spawnMidX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
   const spawnMidZ = (SPAWN_LOW_Z + SPAWN_HIGH_Z) / 2;
 
-  const minY = 0;
-  const maxY = 25;
+  const minY = 10;
+  const maxY = 15;
 
   // 10 hours
-  // const fullSize = { x: 300, y: 25, z: 300 };
+  // const fullSize = { x: 300, y: maxY, z: 300 };
 
-  // 4 hours
-  // const fullSize = { x: 200, y: 25, z: 200 };
+  // 6 hours
+  const fullSize = { x: 150, y: maxY, z: 150 };
 
-  // 16 minutes
-  const fullSize = { x: 50, y: maxY, z: 50 };
+  // 40 minutes
+  // const fullSize = { x: 50, y: maxY, z: 50 };
+  // const fullSize = { x: 20, y: maxY, z: 20 };
 
   const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: Math.floor(spawnMidZ - fullSize.z / 2) };
 
@@ -53,29 +53,30 @@ async function main() {
           y: startCorner.y + y * chunkSize,
           z: startCorner.z + z * chunkSize,
         };
-        const currentCachedValue = await publicClient.readContract({
-          address: terrainWorldAddress as Hex,
-          abi: TerrainIWorldAbi,
-          functionName: "getCachedTerrainObjectTypeId",
-          args: [lowerSouthWestCorner],
-          account,
-        });
-        if (currentCachedValue != 0) {
-          console.log("Skipping", lowerSouthWestCorner, "already filled");
-          continue;
-        }
-
-        const size = { x: chunkSize, y: chunkSize, z: chunkSize };
-        console.log("fillTerrainCache", lowerSouthWestCorner, size);
 
         try {
+          const currentCachedValue = await publicClient.readContract({
+            address: worldAddress as Hex,
+            abi: IWorldAbi,
+            functionName: "getObjectTypeIdAtCoord",
+            args: [lowerSouthWestCorner],
+            account,
+          });
+          if (currentCachedValue != 0) {
+            console.log("Skipping", lowerSouthWestCorner, "already filled");
+            continue;
+          }
+
+          const size = { x: chunkSize, y: chunkSize, z: chunkSize };
+          console.log("fillObjectTypeWithComputedTerrainCache", lowerSouthWestCorner, size);
+
           await callTx({
-            ...terrainTxOptions,
-            functionName: "fillTerrainCache",
+            ...txOptions,
+            functionName: "fillObjectTypeWithComputedTerrainCache",
             args: [lowerSouthWestCorner, size],
           });
         } catch (e) {
-          console.log("Error", e);
+          console.log("Failed to fill", lowerSouthWestCorner, "with error", e);
         }
       }
     }

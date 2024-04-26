@@ -1,7 +1,7 @@
 import { printMoveGasCosts } from "./moveGas";
 
 async function measureGas() {
-  const preFillTerrain = false;
+  const preFillTerrain = true;
   const preMoveCoords = [
     { x: 362, y: 17, z: -225 },
     { x: 361, y: 16, z: -225 },
@@ -11,7 +11,7 @@ async function measureGas() {
     { x: 357, y: 16, z: -225 },
   ];
 
-  const moveCoords = [
+  const tenMoveCoords = [
     { x: 357, y: 16, z: -224 },
     { x: 357, y: 16, z: -223 },
     { x: 357, y: 16, z: -222 },
@@ -24,7 +24,60 @@ async function measureGas() {
     { x: 357, y: 16, z: -215 },
   ];
 
-  await printMoveGasCosts(preMoveCoords, moveCoords, preFillTerrain);
+  const fiftyMoveCoords = [
+    { x: 357, y: 16, z: -224 },
+    { x: 357, y: 16, z: -223 },
+    { x: 357, y: 16, z: -222 },
+    { x: 357, y: 16, z: -221 },
+    { x: 357, y: 16, z: -220 },
+    { x: 357, y: 16, z: -219 },
+    { x: 357, y: 16, z: -218 },
+    { x: 357, y: 16, z: -217 },
+    { x: 357, y: 16, z: -216 },
+    { x: 357, y: 16, z: -215 },
+    { x: 357, y: 16, z: -214 },
+    { x: 357, y: 16, z: -213 },
+    { x: 357, y: 16, z: -212 },
+    { x: 357, y: 16, z: -211 },
+    { x: 357, y: 16, z: -210 },
+    { x: 357, y: 16, z: -209 },
+    { x: 357, y: 16, z: -208 },
+    { x: 357, y: 16, z: -207 },
+    { x: 357, y: 16, z: -206 },
+    { x: 357, y: 16, z: -205 },
+    { x: 357, y: 16, z: -204 },
+    { x: 357, y: 16, z: -203 },
+    { x: 357, y: 16, z: -202 },
+    { x: 357, y: 16, z: -201 },
+    { x: 357, y: 16, z: -200 },
+    { x: 357, y: 16, z: -199 },
+    { x: 357, y: 16, z: -198 },
+    { x: 357, y: 16, z: -197 },
+    { x: 357, y: 16, z: -196 },
+    { x: 357, y: 16, z: -195 },
+    { x: 357, y: 16, z: -194 },
+    { x: 356, y: 15, z: -193 },
+    { x: 356, y: 15, z: -192 },
+    { x: 357, y: 15, z: -191 },
+    { x: 357, y: 15, z: -190 },
+    { x: 357, y: 15, z: -189 },
+    { x: 357, y: 15, z: -188 },
+    { x: 357, y: 15, z: -187 },
+    { x: 357, y: 15, z: -186 },
+    { x: 357, y: 15, z: -185 },
+    { x: 357, y: 15, z: -184 },
+    { x: 357, y: 15, z: -183 },
+    { x: 357, y: 15, z: -182 },
+    { x: 357, y: 15, z: -181 },
+    { x: 357, y: 15, z: -180 },
+    { x: 356, y: 14, z: -179 },
+    { x: 357, y: 14, z: -178 },
+    { x: 357, y: 14, z: -177 },
+    { x: 357, y: 14, z: -176 },
+    { x: 357, y: 14, z: -175 },
+  ];
+
+  await printMoveGasCosts(preMoveCoords, fiftyMoveCoords, preFillTerrain);
 
   process.exit(0);
 }

@@ -1,7 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-address constant TERRAIN_WORLD_ADDRESS = 0x99caB14a9ca8e7e0F27e1AfE0449968d03f90937;
+uint16 constant PLAYER_MASS = 10;
+
+uint8 constant MAX_BLOCK_STACKABLE = 99;
+uint8 constant MAX_TOOL_STACKABLE = 1;
+
+// Terrain
+enum Biome {
+  Mountains,
+  Desert,
+  Forest,
+  Savanna
+}
+
+int16 constant STRUCTURE_CHUNK = 5;
+int16 constant STRUCTURE_CHUNK_CENTER = STRUCTURE_CHUNK / 2 + 1;
 
 int16 constant WORLD_BORDER_LOW_X = -2000;
 int16 constant WORLD_BORDER_LOW_Y = -150;

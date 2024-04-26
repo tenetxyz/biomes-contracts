@@ -14,9 +14,8 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, inWorldBorder } from "../Utils.sol";
-import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, inWorldBorder, getTerrainObjectTypeId } from "../Utils.sol";
 import { transferInventoryNonTool, transferInventoryTool } from "../utils/InventoryUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 

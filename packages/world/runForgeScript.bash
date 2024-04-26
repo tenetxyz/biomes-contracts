@@ -22,7 +22,7 @@ done
 # Extract worldAddress using awk
 worldAddress=$(awk -v id="$chainId" -F'"' '$2 == id {getline; print $4}' worlds.json)
 
-command="forge script $1 --sig 'run(address)' '${worldAddress}' --broadcast --rpc-url ${rpcUrl} -vv"
+command="forge script $1 --sig 'run(address)' '${worldAddress}' --broadcast --rpc-url ${rpcUrl} -vvvv"
 
 echo "Running script: $command"
 

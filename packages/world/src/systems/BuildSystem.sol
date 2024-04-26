@@ -13,14 +13,14 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ReverseInventoryTool } from "../codegen/tables/ReverseInventoryTool.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, inSpawnArea, inWorldBorder } from "../Utils.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, inSpawnArea, inWorldBorder, getTerrainObjectTypeId } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { getObjectTypeIsBlock, getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract BuildSystem is System {
@@ -30,7 +30,7 @@ contract BuildSystem is System {
 
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "BuildSystem: player does not exist");
-    require(getObjectTypeIsBlock(objectTypeId), "BuildSystem: object type is not a block");
+    require(ObjectTypeMetadata._getIsBlock(objectTypeId), "BuildSystem: object type is not a block");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "BuildSystem: player isn't logged in");
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     require(

@@ -12,8 +12,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { NullObjectTypeId } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { TERRAIN_WORLD_ADDRESS } from "../Constants.sol";
+import { NullObjectTypeId } from "../ObjectTypeIds.sol";
 
 // Public getters so clients can read the world state
 contract ReadSystem is System {
@@ -22,18 +21,14 @@ contract ReadSystem is System {
     ResourceId SystemId,
     bytes32 callDataHash
   ) public view returns (bytes21[] memory hooks) {
-    return OptionalSystemHooks.getHooks(player, SystemId, callDataHash);
+    return OptionalSystemHooks._getHooks(player, SystemId, callDataHash);
   }
 
   function getUserDelegation(
     address delegator,
     address delegatee
   ) public view returns (ResourceId delegationControlId) {
-    return UserDelegationControl.getDelegationControlId(delegator, delegatee);
-  }
-
-  function getTerrainWorldAddress() public pure returns (address) {
-    return TERRAIN_WORLD_ADDRESS;
+    return UserDelegationControl._getDelegationControlId(delegator, delegatee);
   }
 
   function getObjectTypeIdAtCoord(VoxelCoord memory coord) public view returns (uint8) {

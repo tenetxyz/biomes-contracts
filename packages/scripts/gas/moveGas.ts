@@ -6,7 +6,7 @@ export async function printMoveGasCosts(
   moveCoords: VoxelCoord[],
   preFillTerrain: boolean = false
 ) {
-  const { spawnCoord, txOptions, terrainTxOptions, callTx } = await setupGasTest();
+  const { spawnCoord, txOptions, callTx, account } = await setupGasTest();
 
   await callTx(
     {
@@ -41,6 +41,12 @@ export async function printMoveGasCosts(
       );
     }
   }
+
+  await callTx({
+    ...txOptions,
+    functionName: "activatePlayer",
+    args: [account.address],
+  });
 
   await callTx(
     {

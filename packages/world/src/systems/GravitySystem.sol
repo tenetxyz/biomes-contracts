@@ -13,9 +13,8 @@ import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GRAVITY_DAMAGE } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { inWorldBorder } from "../Utils.sol";
-import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
+import { inWorldBorder, getTerrainObjectTypeId } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { despawnPlayer } from "../utils/PlayerUtils.sol";
 

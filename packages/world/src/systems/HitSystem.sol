@@ -12,14 +12,14 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, callGravity, inSpawnArea } from "../Utils.sol";
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
-import { getObjectTypeDamage } from "../utils/TerrainUtils.sol";
 import { inSurroundingCube, voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract HitSystem is System {
@@ -53,7 +53,7 @@ contract HitSystem is System {
     uint16 receiverDamage = PLAYER_HAND_DAMAGE;
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
     if (equippedEntityId != bytes32(0)) {
-      receiverDamage = getObjectTypeDamage(ObjectType._get(equippedEntityId));
+      receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
     }
     useEquipped(playerEntityId, equippedEntityId);
 

@@ -27,19 +27,17 @@ import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 
-import { ObjectTypeMetadata } from "@biomesaw/terrain/src/codegen/tables/ObjectTypeMetadata.sol";
-import { Recipes, RecipesData } from "@biomesaw/terrain/src/codegen/tables/Recipes.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord } from "../src/Utils.sol";
-import { getTerrainObjectTypeId } from "../src/utils/TerrainUtils.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, GRAVITY_DAMAGE } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID, BlueDyeObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, ChestObjectID, BlueDyeObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/InventoryTestUtils.sol";
-import { TERRAIN_WORLD_ADDRESS } from "../src/Constants.sol";
 
 contract TransferTest is MudTest, GasReporter {
   IWorld private world;
@@ -59,7 +57,7 @@ contract TransferTest is MudTest, GasReporter {
 
   function setupPlayer() public returns (bytes32) {
     spawnCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y + 1, SPAWN_LOW_Z);
-    assertTrue(getTerrainObjectTypeId(spawnCoord) == AirObjectID, "Terrain block is not air");
+    assertTrue(world.getTerrainBlock(spawnCoord) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId = world.spawnPlayer(spawnCoord);
 
     // move player outside spawn
@@ -152,7 +150,7 @@ contract TransferTest is MudTest, GasReporter {
 
     vm.startPrank(worldDeployer, worldDeployer);
     uint8 inputObjectTypeId1 = GrassObjectID;
-    ObjectTypeMetadata.setStackable(IStore(TERRAIN_WORLD_ADDRESS), inputObjectTypeId1, 1);
+    ObjectTypeMetadata.setStackable(inputObjectTypeId1, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 2);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 2, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
@@ -165,7 +163,7 @@ contract TransferTest is MudTest, GasReporter {
     Position.set(chestEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
     ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, chestEntityId);
 
-    ObjectTypeMetadata.setStackable(IStore(TERRAIN_WORLD_ADDRESS), DiamondOreObjectID, 1);
+    ObjectTypeMetadata.setStackable(DiamondOreObjectID, 1);
     testAddToInventoryCount(chestEntityId, ChestObjectID, DiamondOreObjectID, MAX_CHEST_INVENTORY_SLOTS - 1);
     assertTrue(
       InventoryCount.get(chestEntityId, DiamondOreObjectID) == MAX_CHEST_INVENTORY_SLOTS - 1,
@@ -229,7 +227,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(bob, bob);
 
     VoxelCoord memory spawnCoord2 = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y + 1, SPAWN_LOW_Z);
-    assertTrue(getTerrainObjectTypeId(spawnCoord2) == AirObjectID, "Terrain block is not air");
+    assertTrue(world.getTerrainBlock(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
 
     assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 0, "Input object not removed from inventory");
@@ -303,12 +301,12 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(bob, bob);
 
     VoxelCoord memory spawnCoord2 = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y + 1, SPAWN_LOW_Z);
-    assertTrue(getTerrainObjectTypeId(spawnCoord2) == AirObjectID, "Terrain block is not air");
+    assertTrue(world.getTerrainBlock(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
 
     // fill up inventory
     vm.startPrank(worldDeployer, worldDeployer);
-    ObjectTypeMetadata.setStackable(IStore(TERRAIN_WORLD_ADDRESS), GrassObjectID, 1);
+    ObjectTypeMetadata.setStackable(GrassObjectID, 1);
     testAddToInventoryCount(playerEntityId2, PlayerObjectID, GrassObjectID, MAX_PLAYER_INVENTORY_SLOTS);
     assertTrue(
       InventoryCount.get(playerEntityId2, GrassObjectID) == MAX_PLAYER_INVENTORY_SLOTS,
@@ -372,7 +370,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(bob, bob);
 
     VoxelCoord memory spawnCoord2 = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y + 1, SPAWN_LOW_Z);
-    assertTrue(getTerrainObjectTypeId(spawnCoord2) == AirObjectID, "Terrain block is not air");
+    assertTrue(world.getTerrainBlock(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
 
     assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 0, "Input object not removed from inventory");
@@ -432,7 +430,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(bob, bob);
 
     VoxelCoord memory spawnCoord2 = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y + 1, SPAWN_LOW_Z);
-    assertTrue(getTerrainObjectTypeId(spawnCoord2) == AirObjectID, "Terrain block is not air");
+    assertTrue(world.getTerrainBlock(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
     vm.stopPrank();
 

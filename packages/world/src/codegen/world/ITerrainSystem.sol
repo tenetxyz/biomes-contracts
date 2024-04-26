@@ -6,11 +6,21 @@ pragma solidity >=0.8.24;
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 /**
- * @title IUtilsSystem
+ * @title ITerrainSystem
  * @author MUD (https://mud.dev) by Lattice (https://lattice.xyz)
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
-interface IUtilsSystem {
+interface ITerrainSystem {
+  function getCachedTerrainObjectTypeId(VoxelCoord memory coord) external view returns (uint8);
+
+  function getTerrainObjectTypeId(VoxelCoord memory coord) external view returns (uint8);
+
+  function getTerrainObjectTypeIdWithCacheSet(VoxelCoord memory coord) external returns (uint8);
+
+  function computeTerrainObjectTypeIdWithSet(VoxelCoord memory coord) external returns (uint8);
+
+  function fillTerrainCache(VoxelCoord memory lowerSouthWestCorner, VoxelCoord memory size) external;
+
   function fillObjectTypeWithComputedTerrainCache(VoxelCoord memory coord) external;
 
   function fillObjectTypeWithComputedTerrainCache(

@@ -25,7 +25,7 @@ import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { GrassObjectID, OakLogObjectID, AirObjectID, OakLumberObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { GrassObjectID, OakLogObjectID, AirObjectID, OakLumberObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testAddToInventoryCount } from "../test/utils/InventoryTestUtils.sol";
 

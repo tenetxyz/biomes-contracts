@@ -17,14 +17,16 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract ActivateSystem is System {
-  function activatePlayer(bytes32 playerEntityId) public {
+  function activatePlayer(address player) public {
+    bytes32 playerEntityId = Player._get(player);
+    require(playerEntityId != bytes32(0), "ActivateSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "ActivateSystem: player isn't logged in");
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     regenHealth(playerEntityId);

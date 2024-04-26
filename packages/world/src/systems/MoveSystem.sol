@@ -12,13 +12,12 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "@biomesaw/terrain/src/ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, callGravity, gravityApplies, inWorldBorder } from "../Utils.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { getTerrainObjectTypeId } from "../utils/TerrainUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { PLAYER_MASS } from "@biomesaw/terrain/src/Constants.sol";
+import { PLAYER_MASS } from "../Constants.sol";
 
 contract MoveSystem is System {
   function move(VoxelCoord[] memory newCoords) public {
