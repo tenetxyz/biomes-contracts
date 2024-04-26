@@ -43,6 +43,8 @@ async function measureGas() {
 
   await printBuildMineGasCosts(setupNetworkData, mineCoord, buildCoord, buildObjectType, preFillTerrain);
 
+  const oneMoveCoord = [{ x: 357, y: 16, z: -224 }];
+
   const tenMoveCoords = [
     { x: 357, y: 16, z: -224 },
     { x: 357, y: 16, z: -223 },

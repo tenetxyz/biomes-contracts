@@ -1,6 +1,7 @@
 import { Hex } from "viem";
 import { setupNetwork } from "./setupNetwork";
 import { SPAWN_HIGH_X, SPAWN_HIGH_Z, SPAWN_LOW_X, SPAWN_LOW_Z } from "./constants";
+import prompts from "prompts";
 
 async function main() {
   const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
@@ -42,6 +43,15 @@ async function main() {
   const totalSeconds = numTxs * timePerTx;
   console.log("Total Time:", totalSeconds / 60, "minutes", totalSeconds / (60 * 60), "hours");
 
+  const respose = await prompts({
+    type: "confirm",
+    name: "continue",
+    message: "Are you sure you want to continue?",
+  });
+  if (!respose.continue) {
+    process.exit(0);
+  }
+
   let txCount = 0;
   for (let x = 0; x < rangeX; x++) {
     for (let y = 0; y < rangeY; y++) {
@@ -58,7 +68,7 @@ async function main() {
           const currentCachedValue = await publicClient.readContract({
             address: worldAddress as Hex,
             abi: IWorldAbi,
-            functionName: "getObjectTypeIdAtCoord",
+            functionName: "getCachedTerrainObjectTypeId",
             args: [lowerSouthWestCorner],
             account,
           });
@@ -68,11 +78,11 @@ async function main() {
           }
 
           const size = { x: chunkSize, y: chunkSize, z: chunkSize };
-          console.log("fillObjectTypeWithComputedTerrainCache", lowerSouthWestCorner, size);
+          console.log("fillTerrainCache", lowerSouthWestCorner, size);
 
           await callTx({
             ...txOptions,
-            functionName: "fillObjectTypeWithComputedTerrainCache",
+            functionName: "fillTerrainCache",
             args: [lowerSouthWestCorner, size],
           });
         } catch (e) {
