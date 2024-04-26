@@ -1,3 +1,5 @@
+import { GRASS_OBJECT_TYPE_ID } from "../constants";
+import { printBuildMineGasCosts } from "./buildMineGas";
 import { printMoveGasCosts } from "./moveGas";
 
 async function measureGas() {
@@ -10,6 +12,12 @@ async function measureGas() {
     { x: 358, y: 16, z: -225 },
     { x: 357, y: 16, z: -225 },
   ];
+
+  const mineCoord = { x: 357, y: 15, z: -226 };
+  const buildObjectType = GRASS_OBJECT_TYPE_ID;
+  const buildCoord = { x: 357, y: 16, z: -227 };
+
+  await printBuildMineGasCosts(preMoveCoords, mineCoord, buildCoord, buildObjectType, preFillTerrain);
 
   const tenMoveCoords = [
     { x: 357, y: 16, z: -224 },
@@ -77,7 +85,7 @@ async function measureGas() {
     { x: 357, y: 14, z: -175 },
   ];
 
-  await printMoveGasCosts(preMoveCoords, fiftyMoveCoords, preFillTerrain);
+  await printMoveGasCosts([], fiftyMoveCoords, preFillTerrain);
 
   process.exit(0);
 }

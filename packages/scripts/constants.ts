@@ -5,3 +5,5 @@ export const SPAWN_HIGH_X = 387;
 export const SPAWN_HIGH_Z = -205;
 
 export const SPAWN_GROUND_Y = 17;
+
+export const GRASS_OBJECT_TYPE_ID = 35;
