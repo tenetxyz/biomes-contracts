@@ -244,7 +244,7 @@ contract EquipTest is MudTest, GasReporter {
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
     assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
 
-    world.drop(newInventoryId, dropCoord);
+    world.dropTool(newInventoryId, dropCoord);
 
     assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped still set");
     assertTrue(ItemMetadata.get(newInventoryId) == durability, "Durability changed");
@@ -400,7 +400,7 @@ contract EquipTest is MudTest, GasReporter {
     world.equip(newInventoryId2);
     assertTrue(Equipped.get(playerEntityId) == newInventoryId2, "Equipped not set");
 
-    world.transfer(playerEntityId, chestEntityId, newInventoryId2);
+    world.transferTool(playerEntityId, chestEntityId, newInventoryId2);
     world.transfer(playerEntityId, chestEntityId, GrassObjectID, 1);
 
     assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not removed");

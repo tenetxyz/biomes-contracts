@@ -16,5 +16,5 @@ interface ITransferSystem {
     uint16 numToTransfer
   ) external;
 
-  function transfer(bytes32 srcEntityId, bytes32 dstEntityId, bytes32 toolEntityId) external;
+  function transferTool(bytes32 srcEntityId, bytes32 dstEntityId, bytes32 toolEntityId) external;
 }

@@ -479,9 +479,14 @@ declare const abi: [
     "name": "drop",
     "inputs": [
       {
-        "name": "toolEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
+        "name": "dropObjectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "numToDrop",
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "coord",
@@ -511,17 +516,12 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "drop",
+    "name": "dropTool",
     "inputs": [
       {
-        "name": "dropObjectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "numToDrop",
-        "type": "uint16",
-        "internalType": "uint16"
+        "name": "toolEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
       },
       {
         "name": "coord",
@@ -2369,29 +2369,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "transfer",
-    "inputs": [
-      {
-        "name": "srcEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "dstEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "toolEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "transferBalanceToAddress",
     "inputs": [
       {
@@ -2449,6 +2426,29 @@ declare const abi: [
         "name": "newOwner",
         "type": "address",
         "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "transferTool",
+    "inputs": [
+      {
+        "name": "srcEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "dstEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "toolEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "outputs": [],

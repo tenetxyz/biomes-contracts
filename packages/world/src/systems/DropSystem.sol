@@ -55,7 +55,7 @@ contract DropSystem is System {
     transferInventoryNonTool(playerEntityId, entityId, AirObjectID, dropObjectTypeId, numToDrop);
   }
 
-  function drop(bytes32 toolEntityId, VoxelCoord memory coord) public {
+  function dropTool(bytes32 toolEntityId, VoxelCoord memory coord) public {
     bytes32 playerEntityId = Player._get(_msgSender());
     bytes32 entityId = dropCommon(playerEntityId, coord);
     transferInventoryTool(playerEntityId, entityId, AirObjectID, toolEntityId);

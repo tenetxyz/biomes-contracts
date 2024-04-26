@@ -54,7 +54,7 @@ contract TransferSystem is System {
     transferInventoryNonTool(srcEntityId, dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
   }
 
-  function transfer(bytes32 srcEntityId, bytes32 dstEntityId, bytes32 toolEntityId) public {
+  function transferTool(bytes32 srcEntityId, bytes32 dstEntityId, bytes32 toolEntityId) public {
     uint8 dstObjectTypeId = transferCommon(srcEntityId, dstEntityId);
     transferInventoryTool(srcEntityId, dstEntityId, dstObjectTypeId, toolEntityId);
   }
