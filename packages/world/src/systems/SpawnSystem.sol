@@ -2,9 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
-import { UniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/tables/UniqueEntity.sol";
-import { TABLE_ID } from "@latticexyz/world-modules/src/modules/uniqueentity/constants.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
@@ -16,12 +13,13 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
+import { UniqueEntity } from "../codegen/tables/UniqueEntity.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, BasaltCarvedObjectID, StoneObjectID, DirtObjectID, GrassObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, inSpawnArea, getTerrainObjectTypeId } from "../Utils.sol";
+import { getUniqueEntity, positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, inSpawnArea, getTerrainObjectTypeId } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
@@ -112,7 +110,7 @@ contract SpawnSystem is System {
   }
 
   function initSpawnAreaBottomBorder() public {
-    require(UniqueEntity._get(TABLE_ID) == 0, "SpawnSystem: spawn area already initialized");
+    require(UniqueEntity._get() == 0, "SpawnSystem: spawn area already initialized");
     for (int16 x = SPAWN_LOW_X - 1; x <= SPAWN_HIGH_X + 1; x++) {
       for (int16 z = SPAWN_LOW_Z - 1; z <= SPAWN_HIGH_Z + 1; z++) {
         if (x == SPAWN_LOW_X - 1 || x == SPAWN_HIGH_X + 1 || z == SPAWN_LOW_Z - 1 || z == SPAWN_HIGH_Z + 1) {

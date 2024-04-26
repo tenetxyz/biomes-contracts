@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
-import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
@@ -30,7 +29,7 @@ import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testAddToInventoryCount } from "../test/utils/InventoryTestUtils.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
-import { positionDataToVoxelCoord, callGravity } from "../src/Utils.sol";
+import { positionDataToVoxelCoord, callGravity, getUniqueEntity } from "../src/Utils.sol";
 
 contract StressTest is Script {
   function run(address worldAddress) external {

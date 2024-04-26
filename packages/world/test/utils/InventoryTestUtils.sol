@@ -9,10 +9,18 @@ import { InventoryObjects } from "../../src/codegen/tables/InventoryObjects.sol"
 import { Equipped } from "../../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../../src/codegen/tables/ItemMetadata.sol";
 import { ObjectTypeMetadata } from "../../src/codegen/tables/ObjectTypeMetadata.sol";
+import { UniqueEntity } from "../../src/codegen/tables/UniqueEntity.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS } from "../../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../../src/ObjectTypeIds.sol";
+
+function testGetUniqueEntity() returns (bytes32) {
+  uint256 uniqueEntity = UniqueEntity.get() + 1;
+  UniqueEntity.set(uniqueEntity);
+
+  return bytes32(uniqueEntity);
+}
 
 function testReverseInventoryToolHasItem(bytes32 ownerEntityId, bytes32 inventoryEntityId) view returns (bool) {
   bytes32[] memory inventoryEntityIds = ReverseInventoryTool.get(ownerEntityId);

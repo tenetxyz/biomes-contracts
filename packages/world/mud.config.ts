@@ -5,6 +5,15 @@ export default defineWorld({
     useProxy: true,
   },
   tables: {
+    UniqueEntity: {
+      schema: {
+        value: "uint256",
+      },
+      key: [],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     ObjectTypeMetadata: {
       schema: {
         objectTypeId: "uint8",
@@ -226,11 +235,6 @@ export default defineWorld({
     },
   },
   modules: [
-    {
-      name: "UniqueEntityModule",
-      root: true,
-      args: [],
-    },
     {
       name: "Unstable_CallWithSignatureModule",
       root: true,

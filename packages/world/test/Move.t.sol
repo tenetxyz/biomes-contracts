@@ -5,7 +5,6 @@ import "forge-std/Test.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
-import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -39,7 +38,7 @@ import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
-import { testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/InventoryTestUtils.sol";
+import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/InventoryTestUtils.sol";
 
 contract MoveTest is MudTest, GasReporter {
   IWorld private world;
@@ -99,7 +98,7 @@ contract MoveTest is MudTest, GasReporter {
     vm.startPrank(worldDeployer, worldDeployer);
     for (uint i = 0; i < newCoords.length; i++) {
       if (!overTerrain) {
-        bytes32 entityId = getUniqueEntity();
+        bytes32 entityId = testGetUniqueEntity();
         Position.set(entityId, newCoords[i].x, newCoords[i].y, newCoords[i].z);
         ReversePosition.set(newCoords[i].x, newCoords[i].y, newCoords[i].z, entityId);
         ObjectType.set(entityId, AirObjectID);
@@ -107,7 +106,7 @@ contract MoveTest is MudTest, GasReporter {
         // // set block below to non-air
         VoxelCoord memory belowCoord = VoxelCoord(newCoords[i].x, newCoords[i].y - 1, newCoords[i].z);
         // assertTrue(world.getTerrainBlock(belowCoord) != AirObjectID, "Terrain block is air");
-        bytes32 belowEntityId = getUniqueEntity();
+        bytes32 belowEntityId = testGetUniqueEntity();
         Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
         ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
         ObjectType.set(belowEntityId, GrassObjectID);

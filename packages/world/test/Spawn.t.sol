@@ -5,7 +5,6 @@ import "forge-std/Test.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
-import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
@@ -37,7 +36,7 @@ import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, GrassObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
-import { testAddToInventoryCount, testReverseInventoryToolHasItem } from "./utils/InventoryTestUtils.sol";
+import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem } from "./utils/InventoryTestUtils.sol";
 
 contract SpawnTest is MudTest, GasReporter {
   IWorld private world;
@@ -120,7 +119,7 @@ contract SpawnTest is MudTest, GasReporter {
     assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is not air");
 
     vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 entityId = getUniqueEntity();
+    bytes32 entityId = testGetUniqueEntity();
     Position.set(entityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
     ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, entityId);
     ObjectType.set(entityId, AirObjectID);
@@ -129,7 +128,7 @@ contract SpawnTest is MudTest, GasReporter {
     VoxelCoord memory belowCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
     // uint8 belowTerrainObjectTypeId = world.getTerrainBlock(belowCoord);
     // assertTrue(belowTerrainObjectTypeId != AirObjectID, "Terrain block is air");
-    bytes32 belowEntityId = getUniqueEntity();
+    bytes32 belowEntityId = testGetUniqueEntity();
     Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
     ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
     ObjectType.set(belowEntityId, GrassObjectID);

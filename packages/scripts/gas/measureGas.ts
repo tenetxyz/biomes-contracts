@@ -1,7 +1,7 @@
 import { printMoveGasCosts } from "./moveGas";
 
 async function measureGas() {
-  const preFillTerrain = true;
+  const preFillTerrain = false;
   const preMoveCoords = [
     { x: 362, y: 17, z: -225 },
     { x: 361, y: 16, z: -225 },

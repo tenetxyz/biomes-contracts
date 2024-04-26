@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
-import { getUniqueEntity } from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
@@ -27,7 +26,7 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GrassObjectID, OakLogObjectID, AirObjectID, OakLumberObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
-import { testAddToInventoryCount } from "../test/utils/InventoryTestUtils.sol";
+import { testGetUniqueEntity, testAddToInventoryCount } from "../test/utils/InventoryTestUtils.sol";
 
 contract TestScript is Script {
   function run(address worldAddress) external {
@@ -49,14 +48,14 @@ contract TestScript is Script {
       newCoords[i] = VoxelCoord(139, -62, -34 + int16(int(uint(i))) + 1);
     }
     // for (uint i = 0; i < newCoords.length; i++) {
-    //   bytes32 entityId = getUniqueEntity();
+    //   bytes32 entityId = testGetUniqueEntity();
     //   Position.set(entityId, newCoords[i].x, newCoords[i].y, newCoords[i].z);
     //   ReversePosition.set(newCoords[i].x, newCoords[i].y, newCoords[i].z, entityId);
     //   ObjectType.set(entityId, AirObjectID);
 
     //   // set block below to non-air
     //   VoxelCoord memory belowCoord = VoxelCoord(newCoords[i].x, newCoords[i].y - 1, newCoords[i].z);
-    //   bytes32 belowEntityId = getUniqueEntity();
+    //   bytes32 belowEntityId = testGetUniqueEntity();
     //   Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
     //   ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
     //   ObjectType.set(belowEntityId, GrassObjectID);
@@ -94,21 +93,21 @@ contract TestScript is Script {
     // bytes32 playerEntityId = Player.get(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
     // uint8 inputObjectTypeId = GrassObjectID;
     // for (uint i = 0; i < 99; i++) {
-    //   bytes32 newInventoryId = getUniqueEntity();
+    //   bytes32 newInventoryId = testGetUniqueEntity();
     //   ObjectType.set(newInventoryId, inputObjectTypeId);
     //   Inventory.set(newInventoryId, playerEntityId);
     //   ReverseInventory.push(playerEntityId, newInventoryId);
     // }
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId, 99);
 
-    // bytes32 newInventoryId1 = getUniqueEntity();
+    // bytes32 newInventoryId1 = testGetUniqueEntity();
     // ObjectType.set(newInventoryId1, ChestObjectID);
     // Inventory.set(newInventoryId1, playerEntityId);
     // ReverseInventory.push(playerEntityId, newInventoryId1);
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
 
     // uint8 inputObjectTypeId = OakLogObjectID;
-    // bytes32 newInventoryId = getUniqueEntity();
+    // bytes32 newInventoryId = testGetUniqueEntity();
     // ObjectType.set(newInventoryId, inputObjectTypeId);
     // Inventory.set(newInventoryId, playerEntityId);
     // ReverseInventory.push(playerEntityId, newInventoryId);

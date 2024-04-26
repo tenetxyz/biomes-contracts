@@ -2,13 +2,14 @@
 pragma solidity >=0.8.24;
 
 import { IGravitySystem } from "./codegen/world/IGravitySystem.sol";
+import { IProcGenSystem } from "./codegen/world/IProcGenSystem.sol";
 
 import { Position, PositionData } from "./codegen/tables/Position.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
 import { Terrain } from "./codegen/tables/Terrain.sol";
+import { UniqueEntity } from "./codegen/tables/UniqueEntity.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
-import { IProcGenSystem } from "./codegen/world/IProcGenSystem.sol";
 
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "./Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "./Constants.sol";
@@ -68,4 +69,11 @@ function getTerrainObjectTypeId(VoxelCoord memory coord) view returns (uint8) {
 
 function staticCallProcGenSystem(VoxelCoord memory coord) view returns (uint8) {
   return abi.decode(staticCallInternalSystem(abi.encodeCall(IProcGenSystem.getTerrainBlock, (coord))), (uint8));
+}
+
+function getUniqueEntity() returns (bytes32) {
+  uint256 uniqueEntity = UniqueEntity._get() + 1;
+  UniqueEntity._set(uniqueEntity);
+
+  return bytes32(uniqueEntity);
 }
