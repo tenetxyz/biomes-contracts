@@ -18,8 +18,7 @@
     "lint": "pnpm run prettier && pnpm run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
-    "test": "./runTests.bash",
-    "test:gas": "./runTests.bash --verbose"
+    "test": "./runTests.bash"
   },
   "dependencies": {
     "@biomesaw/utils": "workspace:*",

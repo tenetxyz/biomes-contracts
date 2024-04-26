@@ -20,18 +20,6 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    Terrain: {
-      schema: {
-        x: "int16",
-        y: "int16",
-        z: "int16",
-        objectTypeId: "uint8",
-      },
-      key: ["x", "y", "z"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
     Recipes: {
       schema: {
         recipeId: "bytes32",
@@ -42,6 +30,18 @@ export default defineWorld({
         inputObjectTypeAmounts: "uint8[]",
       },
       key: ["recipeId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    Terrain: {
+      schema: {
+        x: "int16",
+        y: "int16",
+        z: "int16",
+        objectTypeId: "uint8",
+      },
+      key: ["x", "y", "z"],
       codegen: {
         storeArgument: true,
       },

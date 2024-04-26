@@ -16,8 +16,8 @@ fi
 # Loop through all arguments to check for the --prod flag
 for arg in "$@"
 do
-  if [ "$arg" = "--verbose" ]; then
-    echo "Running in verbose mode"
+  if [ "$arg" = "--with-gas" ]; then
+    echo "Running with gas reporter"
     command="GAS_REPORTER_ENABLED=true pnpm mud test --worldAddress='${worldAddress}' --forgeOptions='-vvvv"
 
     # Conditionally append the user-provided test option
