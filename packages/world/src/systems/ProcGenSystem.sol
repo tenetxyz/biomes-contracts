@@ -352,7 +352,7 @@ contract ProcGenSystem is System {
 
   function CottonPatch(uint16 hash1, uint16 hash2, VoxelCoord memory offset) internal view returns (uint8) {
     int16 densitySeed = int16((hash1 % 10) + (hash2 % 10));
-    if ((offset.x + offset.y + offset.z + densitySeed) % 3 == 0) return CottonBlockObjectID;
+    if ((offset.x + offset.y + offset.z + densitySeed) % 3 == 0) return CottonBushObjectID;
 
     return NullObjectTypeId;
   }
