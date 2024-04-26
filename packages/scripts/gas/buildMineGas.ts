@@ -1,29 +1,20 @@
-import { setupGasTest } from "./common";
+import { SetupNetwork, setupNetwork } from "../setupNetwork";
 import { VoxelCoord } from "@latticexyz/utils";
 
 export async function printBuildMineGasCosts(
-  preMoveCoords: VoxelCoord[],
+  setupNetwork: SetupNetwork,
   mineCoord: VoxelCoord,
   buildCoord: VoxelCoord,
   buildObjectType: number,
   preFillTerrain: boolean = false
 ) {
-  const { spawnCoord, txOptions, callTx, account } = await setupGasTest();
-
-  await callTx(
-    {
-      ...txOptions,
-      functionName: "move",
-      args: [preMoveCoords],
-    },
-    "pre move " + preMoveCoords.length
-  );
+  const { txOptions, callTx, account } = setupNetwork;
 
   if (preFillTerrain) {
     await callTx(
       {
         ...txOptions,
-        functionName: "fillObjectTypeWithComputedTerrainCache",
+        functionName: "computeTerrainObjectTypeIdWithSet",
         args: [mineCoord],
       },
       "fill mine"
@@ -32,7 +23,7 @@ export async function printBuildMineGasCosts(
     await callTx(
       {
         ...txOptions,
-        functionName: "fillObjectTypeWithComputedTerrainCache",
+        functionName: "computeTerrainObjectTypeIdWithSet",
         args: [buildCoord],
       },
       "fill build"

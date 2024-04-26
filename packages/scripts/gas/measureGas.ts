@@ -1,9 +1,22 @@
-import { GRASS_OBJECT_TYPE_ID } from "../constants";
+import { GRASS_OBJECT_TYPE_ID, SPAWN_GROUND_Y, SPAWN_LOW_X, SPAWN_LOW_Z } from "../constants";
+import { setupNetwork } from "../setupNetwork";
 import { printBuildMineGasCosts } from "./buildMineGas";
 import { printMoveGasCosts } from "./moveGas";
+import { printSpawnCosts } from "./spawnGas";
 
 async function measureGas() {
+  const setupNetworkData = await setupNetwork();
+  const { txOptions, callTx } = setupNetworkData;
   const preFillTerrain = true;
+
+  const spawnCoord = {
+    x: SPAWN_LOW_X,
+    y: SPAWN_GROUND_Y + 1,
+    z: SPAWN_LOW_Z,
+  };
+
+  await printSpawnCosts(setupNetworkData, spawnCoord, preFillTerrain);
+
   const preMoveCoords = [
     { x: 362, y: 17, z: -225 },
     { x: 361, y: 16, z: -225 },
@@ -13,11 +26,22 @@ async function measureGas() {
     { x: 357, y: 16, z: -225 },
   ];
 
+  if (preMoveCoords.length > 0) {
+    await callTx(
+      {
+        ...txOptions,
+        functionName: "move",
+        args: [preMoveCoords],
+      },
+      "pre move " + preMoveCoords.length
+    );
+  }
+
   const mineCoord = { x: 357, y: 15, z: -226 };
   const buildObjectType = GRASS_OBJECT_TYPE_ID;
   const buildCoord = { x: 357, y: 16, z: -227 };
 
-  await printBuildMineGasCosts(preMoveCoords, mineCoord, buildCoord, buildObjectType, preFillTerrain);
+  await printBuildMineGasCosts(setupNetworkData, mineCoord, buildCoord, buildObjectType, preFillTerrain);
 
   const tenMoveCoords = [
     { x: 357, y: 16, z: -224 },
@@ -85,7 +109,7 @@ async function measureGas() {
     { x: 357, y: 14, z: -175 },
   ];
 
-  await printMoveGasCosts([], fiftyMoveCoords, preFillTerrain);
+  await printMoveGasCosts(setupNetworkData, fiftyMoveCoords, preFillTerrain);
 
   process.exit(0);
 }

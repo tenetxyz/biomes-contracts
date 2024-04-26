@@ -21,6 +21,8 @@ const DEV_CHAIN_ID = supportedChains.find((chain) => chain.name === "Foundry")?.
 
 const chainId = process.env.NODE_ENV === "production" ? PROD_CHAIN_ID : DEV_CHAIN_ID;
 
+export type SetupNetwork = Awaited<ReturnType<typeof setupNetwork>>;
+
 export async function setupNetwork() {
   const privateKey = process.env.PRIVATE_KEY;
   if (!privateKey) {
