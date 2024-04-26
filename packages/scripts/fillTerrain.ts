@@ -23,7 +23,7 @@ async function main() {
 
   // 40 minutes
   // const fullSize = { x: 50, y: maxY, z: 50 };
-  const fullSize = { x: 20, y: maxY, z: 20 };
+  const fullSize = { x: 40, y: maxY, z: 40 };
 
   const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: Math.floor(spawnMidZ - fullSize.z / 2) };
   // const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: SPAWN_LOW_Z - 30 };
