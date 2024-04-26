@@ -64,7 +64,8 @@ function gravityApplies(bytes32 playerEntityId, VoxelCoord memory playerCoord) r
 function getTerrainObjectTypeId(VoxelCoord memory coord) view returns (uint8) {
   uint8 cachedObjectTypeId = Terrain._get(coord.x, coord.y, coord.z);
   if (cachedObjectTypeId != 0) return cachedObjectTypeId;
-  return staticCallProcGenSystem(coord);
+  cachedObjectTypeId = staticCallProcGenSystem(coord);
+  Terrain._set(coord.x, coord.y, coord.z, cachedObjectTypeId);
 }
 
 function staticCallProcGenSystem(VoxelCoord memory coord) view returns (uint8) {

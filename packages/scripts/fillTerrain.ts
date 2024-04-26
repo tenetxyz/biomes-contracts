@@ -82,6 +82,7 @@ async function main() {
 
           await callTx({
             ...txOptions,
+            // gas: 50_000_000n,
             functionName: "fillTerrainCache",
             args: [lowerSouthWestCorner, chunkSize],
           });
