@@ -24,7 +24,7 @@ export async function printMoveGasCosts(
       await callTx(
         {
           ...txOptions,
-          functionName: "computeTerrainObjectTypeIdWithSet",
+          functionName: "fillObjectTypeWithComputedTerrainCache",
           args: [moveCoord],
         },
         "fill"
@@ -34,7 +34,7 @@ export async function printMoveGasCosts(
       await callTx(
         {
           ...txOptions,
-          functionName: "computeTerrainObjectTypeIdWithSet",
+          functionName: "fillObjectTypeWithComputedTerrainCache",
           args: [belowCoord],
         },
         "fill below"
