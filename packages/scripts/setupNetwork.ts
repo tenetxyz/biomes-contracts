@@ -71,7 +71,7 @@ export async function setupNetwork() {
     account,
     chain,
     maxPriorityFeePerGas: parseGwei("0"),
-    gas: 50_000_000n,
+    // gas: 50_000_000n,
   };
 
   async function callTx<

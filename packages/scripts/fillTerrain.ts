@@ -10,25 +10,26 @@ async function main() {
   const spawnMidX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
   const spawnMidZ = (SPAWN_LOW_Z + SPAWN_HIGH_Z) / 2;
 
-  const minY = 10;
-  const maxY = 15;
+  const minY = -10;
+  const maxY = 60;
 
   // 10 hours
-  // const fullSize = { x: 300, y: maxY, z: 300 };
+  const fullSize = { x: 400, y: maxY, z: 400 };
 
   // 6 hours
-  const fullSize = { x: 150, y: maxY, z: 150 };
+  // const fullSize = { x: 150, y: maxY, z: 150 };
 
   // 40 minutes
   // const fullSize = { x: 50, y: maxY, z: 50 };
   // const fullSize = { x: 20, y: maxY, z: 20 };
 
-  const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: Math.floor(spawnMidZ - fullSize.z / 2) };
+  // const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: Math.floor(spawnMidZ - fullSize.z / 2) };
+  const startCorner = { x: Math.floor(spawnMidX - fullSize.x / 2), y: minY, z: SPAWN_LOW_Z - 30 };
 
-  const chunkSize = 5;
-  const rangeX = Math.ceil(fullSize.x / chunkSize);
-  const rangeY = Math.ceil(fullSize.y / chunkSize);
-  const rangeZ = Math.ceil(fullSize.z / chunkSize);
+  const chunkSize = { x: 5, y: 5, z: 5 };
+  const rangeX = Math.ceil(fullSize.x / chunkSize.x);
+  const rangeY = Math.ceil(fullSize.y / chunkSize.y);
+  const rangeZ = Math.ceil(fullSize.z / chunkSize.z);
   console.log(
     "Covered Area:",
     JSON.stringify({
@@ -59,9 +60,9 @@ async function main() {
         txCount += 1;
         console.log("Tx", txCount, "of", numTxs, "(", Math.round((txCount / numTxs) * 100), "% )");
         const lowerSouthWestCorner = {
-          x: startCorner.x + x * chunkSize,
-          y: startCorner.y + y * chunkSize,
-          z: startCorner.z + z * chunkSize,
+          x: startCorner.x + x * chunkSize.x,
+          y: startCorner.y + y * chunkSize.y,
+          z: startCorner.z + z * chunkSize.z,
         };
 
         try {
@@ -77,13 +78,12 @@ async function main() {
             continue;
           }
 
-          const size = { x: chunkSize, y: chunkSize, z: chunkSize };
-          console.log("fillTerrainCache", lowerSouthWestCorner, size);
+          console.log("fillTerrainCache", lowerSouthWestCorner, chunkSize);
 
           await callTx({
             ...txOptions,
             functionName: "fillTerrainCache",
-            args: [lowerSouthWestCorner, size],
+            args: [lowerSouthWestCorner, chunkSize],
           });
         } catch (e) {
           console.log("Failed to fill", lowerSouthWestCorner, "with error", e);
