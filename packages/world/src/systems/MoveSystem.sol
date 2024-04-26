@@ -44,7 +44,6 @@ contract MoveSystem is System {
 
     // Create new entity
     if (finalEntityId == bytes32(0)) {
-      // 1 read, 2 writes
       finalEntityId = getUniqueEntity();
       ObjectType._set(finalEntityId, AirObjectID);
     } else {

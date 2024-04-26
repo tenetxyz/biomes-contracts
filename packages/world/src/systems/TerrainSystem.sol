@@ -47,7 +47,7 @@ contract TerrainSystem is System {
             lowerSouthWestCorner.y + y,
             lowerSouthWestCorner.z + z
           );
-          Terrain.set(coord.x, coord.y, coord.z, staticCallProcGenSystem(coord));
+          Terrain._set(coord.x, coord.y, coord.z, staticCallProcGenSystem(coord));
         }
       }
     }
