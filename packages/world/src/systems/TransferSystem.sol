@@ -16,6 +16,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
+import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract TransferSystem is System {
@@ -25,14 +26,12 @@ contract TransferSystem is System {
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "TransferSystem: player isn't logged in");
 
     require(dstEntityId != srcEntityId, "TransferSystem: cannot transfer to self");
-    require(
-      inSurroundingCube(
-        positionDataToVoxelCoord(Position._get(srcEntityId)),
-        1,
-        positionDataToVoxelCoord(Position._get(dstEntityId))
-      ),
-      "TransferSystem: destination out of range"
-    );
+    VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(srcEntityId));
+    VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(dstEntityId));
+    require(inSurroundingCube(srcCoord, 1, dstCoord), "TransferSystem: destination out of range");
+
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId, playerEntityId == srcEntityId ? srcCoord : dstCoord);
 
     uint8 srcObjectTypeId = ObjectType._get(srcEntityId);
     uint8 dstObjectTypeId = ObjectType._get(dstEntityId);

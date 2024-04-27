@@ -22,6 +22,7 @@ import { NullObjectTypeId, AirObjectID, PlayerObjectID, AnyLogObjectID, AnyLumbe
 import { positionDataToVoxelCoord, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { getLogObjectTypes, getLumberObjectTypes } from "../utils/ObjectTypeUtils.sol";
+import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract CraftSystem is System {
@@ -30,16 +31,17 @@ contract CraftSystem is System {
     require(playerEntityId != bytes32(0), "CraftSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "CraftSystem: player isn't logged in");
 
+    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId, playerCoord);
+
     RecipesData memory recipeData = Recipes._get(recipeId);
     require(recipeData.inputObjectTypeIds.length > 0, "CraftSystem: recipe not found");
     if (recipeData.stationObjectTypeId != NullObjectTypeId) {
       require(ObjectType._get(stationEntityId) == recipeData.stationObjectTypeId, "CraftSystem: wrong station");
       require(
-        inSurroundingCube(
-          positionDataToVoxelCoord(Position._get(stationEntityId)),
-          1,
-          positionDataToVoxelCoord(Position._get(playerEntityId))
-        ),
+        inSurroundingCube(playerCoord, 1, positionDataToVoxelCoord(Position._get(stationEntityId))),
         "CraftSystem: player is too far from the station"
       );
     }

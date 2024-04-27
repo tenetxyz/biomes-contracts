@@ -6,6 +6,7 @@ pragma solidity >=0.8.24;
 import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.sol";
 
 import { IActivateSystem } from "./IActivateSystem.sol";
+import { IAdminTerrainSystem } from "./IAdminTerrainSystem.sol";
 import { IBuildSystem } from "./IBuildSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
@@ -26,7 +27,6 @@ import { IMoveSystem } from "./IMoveSystem.sol";
 import { IProcGenSystem } from "./IProcGenSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
-import { ITeleportSystem } from "./ITeleportSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
@@ -41,6 +41,7 @@ import { IUnequipSystem } from "./IUnequipSystem.sol";
 interface IWorld is
   IBaseWorld,
   IActivateSystem,
+  IAdminTerrainSystem,
   IBuildSystem,
   ICraftSystem,
   IDropSystem,
@@ -61,7 +62,6 @@ interface IWorld is
   IProcGenSystem,
   IReadSystem,
   ISpawnSystem,
-  ITeleportSystem,
   ITerrainSystem,
   ITransferSystem,
   IUnequipSystem

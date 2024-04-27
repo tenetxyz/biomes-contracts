@@ -41,7 +41,6 @@ contract HitSystem is System {
     regenStamina(playerEntityId, playerCoord);
 
     regenHealth(hitEntityId);
-    regenStamina(hitEntityId, hitCoord);
 
     // Update stamina and health
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
@@ -54,11 +53,12 @@ contract HitSystem is System {
     if (equippedEntityId != bytes32(0)) {
       receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
     }
-    useEquipped(playerEntityId, equippedEntityId);
 
     uint16 currentHealth = Health._getHealth(hitEntityId);
     uint16 newHealth = currentHealth > receiverDamage ? currentHealth - receiverDamage : 0;
     Health._setHealth(hitEntityId, newHealth);
+
+    useEquipped(playerEntityId, equippedEntityId);
 
     if (newHealth == 0) {
       despawnPlayer(hitEntityId);

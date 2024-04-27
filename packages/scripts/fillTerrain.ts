@@ -55,45 +55,66 @@ async function main() {
     process.exit(0);
   }
 
-  let txCount = 0;
-  for (let x = 0; x < rangeX; x++) {
-    for (let y = 0; y < rangeY; y++) {
-      for (let z = 0; z < rangeZ; z++) {
-        txCount += 1;
-        console.log("Tx", txCount, "of", numTxs, "(", Math.round((txCount / numTxs) * 100), "% )");
-        const lowerSouthWestCorner = {
-          x: startCorner.x + x * chunkSize.x,
-          y: startCorner.y + y * chunkSize.y,
-          z: startCorner.z + z * chunkSize.z,
-        };
+  let coords = [];
 
-        try {
-          const currentCachedValue = await publicClient.readContract({
-            address: worldAddress as Hex,
-            abi: IWorldAbi,
-            functionName: "getCachedTerrainObjectTypeId",
-            args: [lowerSouthWestCorner],
-            account,
-          });
-          if (currentCachedValue != 0) {
-            console.log("Skipping", lowerSouthWestCorner, "already filled");
-            continue;
-          }
-
-          console.log("fillTerrainCache", lowerSouthWestCorner, chunkSize);
-
+  for (let x = 0; x < fullSize.x; x++) {
+    for (let z = 0; z < fullSize.z; z++) {
+      for (let y = 0; y < fullSize.y; y++) {
+        const coord = { x: startCorner.x + x, y: startCorner.y + y, z: startCorner.z + z };
+        coords.push(coord);
+        const objectTypeId = 35;
+        if (coords.length == 1000) {
+          const objectTypeIds = coords.map(() => objectTypeId);
           await callTx({
             ...txOptions,
-            // gas: 50_000_000n,
-            functionName: "fillTerrainCache",
-            args: [lowerSouthWestCorner, chunkSize],
+            functionName: "setTerrainObjectTypeIds",
+            args: [coords, objectTypeIds],
           });
-        } catch (e) {
-          console.log("Failed to fill", lowerSouthWestCorner, "with error", e);
+          coords = [];
         }
       }
     }
   }
+
+  // let txCount = 0;
+  // for (let x = 0; x < rangeX; x++) {
+  //   for (let y = 0; y < rangeY; y++) {
+  //     for (let z = 0; z < rangeZ; z++) {
+  //       txCount += 1;
+  //       console.log("Tx", txCount, "of", numTxs, "(", Math.round((txCount / numTxs) * 100), "% )");
+  //       const lowerSouthWestCorner = {
+  //         x: startCorner.x + x * chunkSize.x,
+  //         y: startCorner.y + y * chunkSize.y,
+  //         z: startCorner.z + z * chunkSize.z,
+  //       };
+
+  //       try {
+  //         const currentCachedValue = await publicClient.readContract({
+  //           address: worldAddress as Hex,
+  //           abi: IWorldAbi,
+  //           functionName: "getCachedTerrainObjectTypeId",
+  //           args: [lowerSouthWestCorner],
+  //           account,
+  //         });
+  //         if (currentCachedValue != 0) {
+  //           console.log("Skipping", lowerSouthWestCorner, "already filled");
+  //           continue;
+  //         }
+
+  //         console.log("fillTerrainCache", lowerSouthWestCorner, chunkSize);
+
+  //         await callTx({
+  //           ...txOptions,
+  //           // gas: 50_000_000n,
+  //           functionName: "fillTerrainCache",
+  //           args: [lowerSouthWestCorner, chunkSize],
+  //         });
+  //       } catch (e) {
+  //         console.log("Failed to fill", lowerSouthWestCorner, "with error", e);
+  //       }
+  //     }
+  //   }
+  // }
 
   process.exit(0);
 }

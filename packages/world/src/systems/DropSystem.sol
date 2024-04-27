@@ -16,6 +16,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonTool, transferInventoryTool } from "../utils/InventoryUtils.sol";
+import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract DropSystem is System {
@@ -23,10 +24,11 @@ contract DropSystem is System {
     require(inWorldBorder(coord), "DropSystem: cannot drop outside world border");
     require(playerEntityId != bytes32(0), "DropSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "DropSystem: player isn't logged in");
-    require(
-      inSurroundingCube(positionDataToVoxelCoord(Position._get(playerEntityId)), 1, coord),
-      "DropSystem: player is too far from the drop coord"
-    );
+    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+    require(inSurroundingCube(playerCoord, 1, coord), "DropSystem: player is too far from the drop coord");
+
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId, playerCoord);
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {

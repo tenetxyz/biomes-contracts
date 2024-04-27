@@ -15,7 +15,7 @@ import { GRAVITY_DAMAGE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { despawnPlayer } from "../utils/PlayerUtils.sol";
+import { regenHealth, despawnPlayer } from "../utils/PlayerUtils.sol";
 
 contract GravitySystem is System {
   function runGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) public returns (bool) {
@@ -51,7 +51,7 @@ contract GravitySystem is System {
     Position._set(playerEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
     ReversePosition._set(belowCoord.x, belowCoord.y, belowCoord.z, playerEntityId);
 
-    uint16 currentHealth = Health._getHealth(playerEntityId);
+    uint16 currentHealth = regenHealth(playerEntityId);
     uint16 newHealth = currentHealth > GRAVITY_DAMAGE ? currentHealth - GRAVITY_DAMAGE : 0;
     Health._setHealth(playerEntityId, newHealth);
 

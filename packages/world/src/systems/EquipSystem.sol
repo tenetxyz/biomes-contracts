@@ -17,6 +17,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
+import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract EquipSystem is System {
@@ -25,6 +26,10 @@ contract EquipSystem is System {
     require(playerEntityId != bytes32(0), "EquipSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "EquipSystem: player isn't logged in");
     require(InventoryTool._get(inventoryEntityId) == playerEntityId, "EquipSystem: Entity does not own inventory item");
+
+    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId, playerCoord);
 
     Equipped._set(playerEntityId, inventoryEntityId);
   }

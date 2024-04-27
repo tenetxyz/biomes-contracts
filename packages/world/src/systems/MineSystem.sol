@@ -58,13 +58,15 @@ contract MineSystem is System {
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
     uint32 equippedToolDamage = PLAYER_HAND_DAMAGE;
     if (equippedEntityId != bytes32(0)) {
-      uint8 equippedObjectTypeId = ObjectType._get(equippedEntityId);
-      equippedToolDamage = ObjectTypeMetadata._getDamage(equippedObjectTypeId);
+      equippedToolDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
     }
 
     // Spend stamina for mining
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
     uint32 staminaRequired = (ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId) * 1000) / equippedToolDamage;
+    if (staminaRequired == 0) {
+      staminaRequired = 1;
+    }
     require(currentStamina >= staminaRequired, "MineSystem: not enough stamina");
     Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
 

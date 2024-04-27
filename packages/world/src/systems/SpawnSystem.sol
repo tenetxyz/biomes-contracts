@@ -31,8 +31,8 @@ contract SpawnSystem is System {
     require(inWorldBorder(spawnCoord), "SpawnSystem: cannot spawn outside world border");
     require(inSpawnArea(spawnCoord), "SpawnSystem: cannot spawn outside spawn area");
 
-    bytes32 existingEntityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     bytes32 playerEntityId = getUniqueEntity();
+    bytes32 existingEntityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     if (existingEntityId == bytes32(0)) {
       uint8 terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord);
       require(

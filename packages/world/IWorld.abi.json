@@ -391,42 +391,6 @@
   },
   {
     "type": "function",
-    "name": "computeTerrainObjectTypeIdWithSet",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "craft",
     "inputs": [
       {
@@ -564,89 +528,7 @@
   },
   {
     "type": "function",
-    "name": "fillObjectTypeTerrainCache",
-    "inputs": [
-      {
-        "name": "lowerSouthWestCorner",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      },
-      {
-        "name": "size",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "fillObjectTypeWithComputedTerrainCache",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "fillObjectTypeWithComputedTerrainCache",
+    "name": "fillTerrainCache",
     "inputs": [
       {
         "name": "lowerSouthWestCorner",
@@ -701,9 +583,9 @@
     "name": "fillTerrainCache",
     "inputs": [
       {
-        "name": "lowerSouthWestCorner",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
+        "name": "coord",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
         "components": [
           {
             "name": "x",
@@ -721,9 +603,17 @@
             "internalType": "int16"
           }
         ]
-      },
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "fillTerrainCache",
+    "inputs": [
       {
-        "name": "size",
+        "name": "coord",
         "type": "tuple",
         "internalType": "struct VoxelCoord",
         "components": [
@@ -745,7 +635,13 @@
         ]
       }
     ],
-    "outputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
     "stateMutability": "nonpayable"
   },
   {
@@ -2196,6 +2092,133 @@
   },
   {
     "type": "function",
+    "name": "setTerrainObjectTypeIds",
+    "inputs": [
+      {
+        "name": "lowerSouthWestCorner",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "size",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "objectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setTerrainObjectTypeIds",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "objectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setTerrainObjectTypeIds",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "objectTypeId",
+        "type": "uint8[]",
+        "internalType": "uint8[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "spawnPlayer",
     "inputs": [
       {
@@ -2308,36 +2331,6 @@
       }
     ],
     "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "teleport",
-    "inputs": [
-      {
-        "name": "newCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
   },
   {
     "type": "function",

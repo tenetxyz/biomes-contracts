@@ -14,16 +14,16 @@ import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, ST
 import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { getTerrainObjectTypeId } from "../Utils.sol";
 
-function regenHealth(bytes32 entityId) {
+function regenHealth(bytes32 entityId) returns (uint16) {
   HealthData memory healthData = Health._get(entityId);
   if (healthData.health >= MAX_PLAYER_HEALTH) {
-    return;
+    return healthData.health;
   }
 
   // Calculate how much time has passed since last update
   uint256 timeSinceLastUpdate = block.timestamp - healthData.lastUpdatedTime;
   if (timeSinceLastUpdate <= TIME_BEFORE_INCREASE_HEALTH) {
-    return;
+    return healthData.health;
   }
 
   uint256 addHealth = (timeSinceLastUpdate / TIME_BEFORE_INCREASE_HEALTH) * HEALTH_INCREASE_RATE;
@@ -32,6 +32,8 @@ function regenHealth(bytes32 entityId) {
     : healthData.health + uint16(addHealth);
 
   Health._set(entityId, HealthData({ health: newHealth, lastUpdatedTime: block.timestamp }));
+
+  return newHealth;
 }
 
 function regenStamina(bytes32 entityId, VoxelCoord memory entityCoord) {

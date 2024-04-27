@@ -33,15 +33,19 @@ contract LogoffSystem is System {
     );
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "LogoffSystem: player isn't logged in");
 
-    VoxelCoord memory coord = positionDataToVoxelCoord(Position._get(playerEntityId));
-    LastKnownPosition._set(playerEntityId, coord.x, coord.y, coord.z);
+    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId, playerCoord);
+
+    LastKnownPosition._set(playerEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
     Position._deleteRecord(playerEntityId);
     PlayerMetadata._setIsLoggedOff(playerEntityId, true);
 
     // Create air entity at this position
     bytes32 airEntityId = getUniqueEntity();
     ObjectType._set(airEntityId, AirObjectID);
-    Position._set(airEntityId, coord.x, coord.y, coord.z);
-    ReversePosition._set(coord.x, coord.y, coord.z, airEntityId);
+    Position._set(airEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
+    ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, airEntityId);
   }
 }

@@ -564,7 +564,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("Entity does not own inventory item");
+    vm.expectRevert("Not enough objects in the inventory");
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
 
     vm.stopPrank();
