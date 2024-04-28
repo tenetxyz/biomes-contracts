@@ -85,12 +85,16 @@ async function main() {
           //   continue;
           // }
           // console.log("fillTerrainCache", lowerSouthwestCorner, chunkSize);
+          const volume = chunkSize.x * chunkSize.y * chunkSize.z;
 
-          await callTx({
-            ...txOptions,
-            functionName: "fillTerrainCache",
-            args: [lowerSouthwestCorner, chunkSize],
-          });
+          await callTx(
+            {
+              ...txOptions,
+              functionName: "fillTerrainCache",
+              args: [lowerSouthwestCorner, chunkSize],
+            },
+            "fillTerrainCache: " + volume.toString() + " blocks"
+          );
         } catch (e) {
           console.log("Failed to fill", lowerSouthwestCorner, "with error", e);
         }
