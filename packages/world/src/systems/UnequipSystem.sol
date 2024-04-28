@@ -27,6 +27,8 @@ contract UnequipSystem is System {
     regenHealth(playerEntityId);
     regenStamina(playerEntityId, playerCoord);
 
-    Equipped._deleteRecord(playerEntityId);
+    if (Equipped._get(playerEntityId) != bytes32(0)) {
+      Equipped._deleteRecord(playerEntityId);
+    }
   }
 }

@@ -7,6 +7,9 @@ import { VoxelCoord } from "@latticexyz/utils";
 const maxTerrainVolume = 1331; // 11^3
 const maxCoordsInOneTx = 1300;
 
+const singleTxFee = 0.000000000000000001; // 1 wei
+const areaTxFee = 0.000000000000000001; // 1 wei
+
 // Safer values
 // const maxTerrainVolume = 1000; // 10^3
 // const maxCoordsInOneTx = 1200;
@@ -69,6 +72,7 @@ async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false): Prom
   let numTxes: number = 0;
   let areasToProcess = [...terrainTxes["areas"]]; // Clone the original areas list
   let coordsCovered: VoxelCoord[] = [];
+  let objectTypeTxs = new Map();
 
   while (areasToProcess.length > 0) {
     const terrainTxArea = areasToProcess.shift();
@@ -82,6 +86,15 @@ async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false): Prom
     }
 
     numTxes++;
+    let newTxCount = objectTypeTxs.get(objectTypeId.toString());
+    if (newTxCount === undefined) {
+      newTxCount = {
+        areaCount: 0,
+        singleCount: 0,
+      };
+    }
+    newTxCount.areaCount++;
+    objectTypeTxs.set(objectTypeId.toString(), newTxCount);
 
     for (let x = lowerSouthwestCorner.x; x < lowerSouthwestCorner.x + size.x; x++) {
       for (let y = lowerSouthwestCorner.y; y < lowerSouthwestCorner.y + size.y; y++) {
@@ -95,11 +108,11 @@ async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false): Prom
       continue;
     }
 
-    await callTx({
-      ...txOptions,
-      functionName: "setTerrainObjectTypeIds",
-      args: [lowerSouthwestCorner, size, objectTypeId],
-    });
+    // await callTx({
+    //   ...txOptions,
+    //   functionName: "setTerrainObjectTypeIds",
+    //   args: [lowerSouthwestCorner, size, objectTypeId],
+    // });
   }
 
   for (const [objectTypeId, coords] of Object.entries(terrainTxes["singles"])) {
@@ -112,6 +125,15 @@ async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false): Prom
         coordsIndex++;
       }
       numTxes++;
+      let newTxCount = objectTypeTxs.get(objectTypeId.toString());
+      if (newTxCount === undefined) {
+        newTxCount = {
+          areaCount: 0,
+          singleCount: 0,
+        };
+      }
+      newTxCount.singleCount++;
+      objectTypeTxs.set(objectTypeId.toString(), newTxCount);
 
       coordsCovered.push(...coordsToSend);
 
@@ -124,10 +146,11 @@ async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false): Prom
         functionName: "setTerrainObjectTypeIds",
         args: [coordsToSend, Number(objectTypeId)],
       });
+      process.exit(0);
     }
   }
 
-  return [numTxes, coordsCovered];
+  return [numTxes, coordsCovered, objectTypeTxs];
 }
 
 async function main() {
@@ -135,9 +158,10 @@ async function main() {
   const terrainTxes = JSON.parse(fs.readFileSync("terrain_txs.json", "utf8"));
   console.log("Terrain tx's read from file.");
 
-  const [numTxs, coordsCovered] = await applyTerrainTxes(terrainTxes, true);
+  const [numTxs, coordsCovered, objectTypeTxs] = await applyTerrainTxes(terrainTxes, true);
   console.log("Num tx's to apply:", numTxs);
   console.log("Coords to be covered:", coordsCovered.length.toLocaleString());
+  console.log("objectTypeTxs", objectTypeTxs);
   const timePerTx = 5;
   const totalSeconds = numTxs * timePerTx;
   console.log("Total Time:", totalSeconds / 60, "minutes", totalSeconds / (60 * 60), "hours");
