@@ -245,13 +245,16 @@ async function main() {
   console.log("Area Tx Cost:", numAreaTxs * areaTxFee, "ETH");
   console.log("Single Tx Cost:", numSingleTxs * singleTxFee, "ETH");
 
-  const respose = await prompts({
-    type: "confirm",
-    name: "continue",
-    message: "Are you sure you want to continue?",
-  });
-  if (!respose.continue) {
-    process.exit(0);
+  // check if user added a --skip-confirm flag
+  if (!process.argv.includes("--skip-confirm")) {
+    const respose = await prompts({
+      type: "confirm",
+      name: "continue",
+      message: "Are you sure you want to continue?",
+    });
+    if (!respose.continue) {
+      process.exit(0);
+    }
   }
 
   await applyTerrainTxes(terrainTxes, false, false);
