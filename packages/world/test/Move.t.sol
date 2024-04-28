@@ -130,10 +130,6 @@ contract MoveTest is MudTest, GasReporter {
 
     assertTrue(Player.get(alice) == playerEntityId, "Player entity id is not correct");
     assertTrue(ReversePlayer.get(playerEntityId) == alice, "Reverse player is not correct");
-    assertTrue(
-      PlayerMetadata.getLastMoveBlock(playerEntityId) == block.number,
-      "Player last move block is not correct"
-    );
     assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player object type is not correct");
     assertTrue(
       voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), newCoords[numBlocksToMove - 1]),

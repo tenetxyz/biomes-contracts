@@ -23,11 +23,6 @@ contract MoveSystem is System {
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "MoveSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "MoveSystem: player isn't logged in");
-    require(
-      PlayerMetadata._getLastMoveBlock(playerEntityId) < block.number,
-      "MoveSystem: player already moved this block"
-    );
-    PlayerMetadata._setLastMoveBlock(playerEntityId, block.number);
 
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
 
