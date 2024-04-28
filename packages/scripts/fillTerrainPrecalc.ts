@@ -2,6 +2,7 @@ import { Hex } from "viem";
 import { setupNetwork } from "./setupNetwork";
 import prompts from "prompts";
 import fs from "fs";
+import { VoxelCoord } from "@latticexyz/utils";
 
 const maxTerrainVolume = 1331; // 11^3
 const maxCoordsInOneTx = 1300;
@@ -10,20 +11,86 @@ const maxCoordsInOneTx = 1300;
 // const maxTerrainVolume = 1000; // 10^3
 // const maxCoordsInOneTx = 1200;
 
-async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false) {
+function splitArea(area: any) {
+  const { lowerSouthwestCorner, size, objectTypeId } = area;
+  // console.log("Splitting area", area);
+  const { x, y, z } = size;
+  const maxSize = Math.max(x, y, z);
+  const newSize = {};
+
+  if (maxSize === x) {
+    newSize.x = Math.ceil(x / 2);
+    newSize.y = y;
+    newSize.z = z;
+  } else if (maxSize === y) {
+    newSize.x = x;
+    newSize.y = Math.ceil(y / 2);
+    newSize.z = z;
+  } else {
+    newSize.x = x;
+    newSize.y = y;
+    newSize.z = Math.ceil(z / 2);
+  }
+
+  const newArea1 = {
+    lowerSouthwestCorner,
+    size: newSize,
+    objectTypeId,
+  };
+
+  const newLowerCorner = { ...lowerSouthwestCorner };
+  if (maxSize === x) {
+    newLowerCorner.x += newSize.x;
+  } else if (maxSize === y) {
+    newLowerCorner.y += newSize.y;
+  } else {
+    newLowerCorner.z += newSize.z;
+  }
+
+  const newArea2 = {
+    lowerSouthwestCorner: newLowerCorner,
+    size: {
+      ...size,
+      [maxSize === x ? "x" : maxSize === y ? "y" : "z"]: Math.floor(
+        size[maxSize === x ? "x" : maxSize === y ? "y" : "z"] / 2
+      ),
+    },
+    objectTypeId,
+  };
+
+  // console.log("New areas", newArea1, newArea2);
+
+  return [newArea1, newArea2];
+}
+
+async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false): Promise<[number, VoxelCoord[]]> {
   const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
 
   let numTxes: number = 0;
-  for (const terrainTxArea of terrainTxes["areas"]) {
-    const lowerSouthmostCorner = terrainTxArea.lowerSouthwestCorner;
-    const size = terrainTxArea.size;
-    const objectTypeId = terrainTxArea.objectTypeId;
+  let areasToProcess = [...terrainTxes["areas"]]; // Clone the original areas list
+  let coordsCovered: VoxelCoord[] = [];
+
+  while (areasToProcess.length > 0) {
+    const terrainTxArea = areasToProcess.shift();
+    const { lowerSouthwestCorner, size, objectTypeId } = terrainTxArea;
     const areaVolume = size.x * size.y * size.z;
+
     if (areaVolume > maxTerrainVolume) {
-      console.log("Area too large, skipping.");
+      const newAreas = splitArea(terrainTxArea);
+      areasToProcess.push(...newAreas);
       continue;
     }
+
     numTxes++;
+
+    for (let x = lowerSouthwestCorner.x; x < lowerSouthwestCorner.x + size.x; x++) {
+      for (let y = lowerSouthwestCorner.y; y < lowerSouthwestCorner.y + size.y; y++) {
+        for (let z = lowerSouthwestCorner.z; z < lowerSouthwestCorner.z + size.z; z++) {
+          coordsCovered.push({ x, y, z });
+        }
+      }
+    }
+
     if (dryRun) {
       continue;
     }
@@ -31,7 +98,7 @@ async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false) {
     await callTx({
       ...txOptions,
       functionName: "setTerrainObjectTypeIds",
-      args: [lowerSouthmostCorner, size, objectTypeId],
+      args: [lowerSouthwestCorner, size, objectTypeId],
     });
   }
 
@@ -45,6 +112,9 @@ async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false) {
         coordsIndex++;
       }
       numTxes++;
+
+      coordsCovered.push(...coordsToSend);
+
       if (dryRun) {
         continue;
       }
@@ -57,18 +127,17 @@ async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false) {
     }
   }
 
-  return numTxes;
+  return [numTxes, coordsCovered];
 }
 
 async function main() {
-  const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
-
   // Load pre-calculated tx's from terrain_txs.json
   const terrainTxes = JSON.parse(fs.readFileSync("terrain_txs.json", "utf8"));
   console.log("Terrain tx's read from file.");
 
-  const numTxs = await applyTerrainTxes(terrainTxes, true);
+  const [numTxs, coordsCovered] = await applyTerrainTxes(terrainTxes, true);
   console.log("Num tx's to apply:", numTxs);
+  console.log("Coords to be covered:", coordsCovered.length.toLocaleString());
   const timePerTx = 5;
   const totalSeconds = numTxs * timePerTx;
   console.log("Total Time:", totalSeconds / 60, "minutes", totalSeconds / (60 * 60), "hours");
