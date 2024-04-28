@@ -259,6 +259,8 @@ async function main() {
 
   await applyTerrainTxes(terrainTxes, false, false);
 
+  console.log("All done!");
+
   process.exit(0);
 }
 
