@@ -8,9 +8,9 @@ const maxTerrainVolume = 1331; // 11^3
 const maxCoordsInOneTx = 1300;
 
 const singleTxFee = 0.00005614070453336; // ETH
-const singleTxFeeNoPriority = 0.00001231957591901; // ETH
+const singleTxFeeNoPriority = 0.00001574278385738; // ETH
 const areaTxFee = 0.00004031227105893; // 1 ETH
-const areaTxFeeNoPriority = 0.00000002173463148; // ETH
+const areaTxFeeNoPriority = 0.000000058268909947; // ETH
 // Safer values
 // const maxTerrainVolume = 1000; // 10^3
 // const maxCoordsInOneTx = 1200;
@@ -250,8 +250,8 @@ async function main() {
   if (numAreaTxs + numSingleTxs != numTxs) {
     throw new Error("Number of area txs and single txs do not match total txs");
   }
-  console.log("Area Tx Cost:", numAreaTxs * areaTxFee, "ETH");
-  console.log("Single Tx Cost:", numSingleTxs * singleTxFee, "ETH");
+  console.log("Area Tx Cost:", numAreaTxs * areaTxFeeNoPriority, "ETH");
+  console.log("Single Tx Cost:", numSingleTxs * singleTxFeeNoPriority, "ETH");
 
   // check if user added a --skip-confirm flag
   if (!process.argv.includes("--skip-confirm")) {
