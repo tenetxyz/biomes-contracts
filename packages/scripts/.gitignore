@@ -8,3 +8,4 @@ broadcast/
 # Ignore MUD deploy artifacts
 deploys/**/*.json
 dist/
+terrain_txs.json

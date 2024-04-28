@@ -63,12 +63,12 @@ async function main() {
         const coord = { x: startCorner.x + x, y: startCorner.y + y, z: startCorner.z + z };
         coords.push(coord);
         const objectTypeId = 35;
-        if (coords.length == 1000) {
-          const objectTypeIds = coords.map(() => objectTypeId);
+        if (coords.length == 1300) {
+          // const objectTypeIds = coords.map(() => objectTypeId);
           await callTx({
             ...txOptions,
             functionName: "setTerrainObjectTypeIds",
-            args: [coords, objectTypeIds],
+            args: [coords, objectTypeId],
           });
           coords = [];
         }
