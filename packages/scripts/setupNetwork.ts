@@ -87,9 +87,15 @@ export async function setupNetwork() {
   ) {
     const txHash = await walletClient.writeContract(txData);
     console.log(`${label ?? txData.functionName} txHash: ${txHash}`);
-    const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+    const receipt = await publicClient.waitForTransactionReceipt({
+      hash: txHash,
+      pollingInterval: 1_000,
+      retryDelay: 2_000,
+      timeout: 60_000,
+    });
     if (receipt.status !== "success") {
       try {
+        console.log(`Simulating transaction: ${txData.functionName}`);
         await publicClient.simulateContract(txData);
       } catch (e) {
         console.error(e);
