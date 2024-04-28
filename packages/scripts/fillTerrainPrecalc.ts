@@ -143,14 +143,18 @@ async function applyTerrainTxes(
       }
     }
 
-    await callTx(
-      {
-        ...txOptions,
-        functionName: "setTerrainObjectTypeIds",
-        args: [lowerSouthwestCorner, size, objectTypeId],
-      },
-      "setTerrainObjectTypeIds area: " + areaVolume.toString()
-    );
+    try {
+      await callTx(
+        {
+          ...txOptions,
+          functionName: "setTerrainObjectTypeIds",
+          args: [lowerSouthwestCorner, size, objectTypeId],
+        },
+        "setTerrainObjectTypeIds area: " + areaVolume.toString()
+      );
+    } catch (e) {
+      console.log("Error setting terrain object type ids", e);
+    }
   }
 
   for (const [objectTypeId, coords] of Object.entries(terrainTxes["singles"])) {
@@ -206,14 +210,18 @@ async function applyTerrainTxes(
         }
       }
 
-      await callTx(
-        {
-          ...txOptions,
-          functionName: "setTerrainObjectTypeIds",
-          args: [coordsToSend, Number(objectTypeId)],
-        },
-        "setTerrainObjectTypeIds single: " + coordsToSend.length.toString()
-      );
+      try {
+        await callTx(
+          {
+            ...txOptions,
+            functionName: "setTerrainObjectTypeIds",
+            args: [coordsToSend, Number(objectTypeId)],
+          },
+          "setTerrainObjectTypeIds single: " + coordsToSend.length.toString()
+        );
+      } catch (e) {
+        console.log("Error setting terrain object type ids", e);
+      }
     }
   }
 
