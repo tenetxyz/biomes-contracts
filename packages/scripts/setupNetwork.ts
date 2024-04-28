@@ -70,7 +70,7 @@ export async function setupNetwork() {
     abi: IWorldAbi,
     account,
     chain,
-    maxPriorityFeePerGas: parseGwei("0.001"),
+    maxPriorityFeePerGas: 1n,
     // gas: 50_000_000n,
   };
 
