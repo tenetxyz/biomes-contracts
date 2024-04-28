@@ -531,7 +531,7 @@ declare const abi: [
     "name": "fillTerrainCache",
     "inputs": [
       {
-        "name": "lowerSouthWestCorner",
+        "name": "lowerSouthwestCorner",
         "type": "tuple",
         "internalType": "struct VoxelCoord",
         "components": [
@@ -2095,7 +2095,7 @@ declare const abi: [
     "name": "setTerrainObjectTypeIds",
     "inputs": [
       {
-        "name": "lowerSouthWestCorner",
+        "name": "lowerSouthwestCorner",
         "type": "tuple",
         "internalType": "struct VoxelCoord",
         "components": [

@@ -43,15 +43,15 @@ contract TerrainSystem is System {
     }
   }
 
-  function fillTerrainCache(VoxelCoord memory lowerSouthWestCorner, VoxelCoord memory size) public {
+  function fillTerrainCache(VoxelCoord memory lowerSouthwestCorner, VoxelCoord memory size) public {
     require(size.x > 0 && size.y > 0 && size.z > 0, "TerrainSystem: size must be positive");
     for (int16 x = 0; x < size.x; x++) {
       for (int16 y = 0; y < size.y; y++) {
         for (int16 z = 0; z < size.z; z++) {
           VoxelCoord memory coord = VoxelCoord(
-            lowerSouthWestCorner.x + x,
-            lowerSouthWestCorner.y + y,
-            lowerSouthWestCorner.z + z
+            lowerSouthwestCorner.x + x,
+            lowerSouthwestCorner.y + y,
+            lowerSouthwestCorner.z + z
           );
           Terrain._set(coord.x, coord.y, coord.z, staticCallProcGenSystem(coord));
         }

@@ -21,5 +21,5 @@ interface ITerrainSystem {
 
   function fillTerrainCache(VoxelCoord[] memory coord) external;
 
-  function fillTerrainCache(VoxelCoord memory lowerSouthWestCorner, VoxelCoord memory size) external;
+  function fillTerrainCache(VoxelCoord memory lowerSouthwestCorner, VoxelCoord memory size) external;
 }

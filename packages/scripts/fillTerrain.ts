@@ -82,7 +82,7 @@ async function main() {
   //     for (let z = 0; z < rangeZ; z++) {
   //       txCount += 1;
   //       console.log("Tx", txCount, "of", numTxs, "(", Math.round((txCount / numTxs) * 100), "% )");
-  //       const lowerSouthWestCorner = {
+  //       const lowerSouthwestCorner = {
   //         x: startCorner.x + x * chunkSize.x,
   //         y: startCorner.y + y * chunkSize.y,
   //         z: startCorner.z + z * chunkSize.z,
@@ -93,24 +93,24 @@ async function main() {
   //           address: worldAddress as Hex,
   //           abi: IWorldAbi,
   //           functionName: "getCachedTerrainObjectTypeId",
-  //           args: [lowerSouthWestCorner],
+  //           args: [lowerSouthwestCorner],
   //           account,
   //         });
   //         if (currentCachedValue != 0) {
-  //           console.log("Skipping", lowerSouthWestCorner, "already filled");
+  //           console.log("Skipping", lowerSouthwestCorner, "already filled");
   //           continue;
   //         }
 
-  //         console.log("fillTerrainCache", lowerSouthWestCorner, chunkSize);
+  //         console.log("fillTerrainCache", lowerSouthwestCorner, chunkSize);
 
   //         await callTx({
   //           ...txOptions,
   //           // gas: 50_000_000n,
   //           functionName: "fillTerrainCache",
-  //           args: [lowerSouthWestCorner, chunkSize],
+  //           args: [lowerSouthwestCorner, chunkSize],
   //         });
   //       } catch (e) {
-  //         console.log("Failed to fill", lowerSouthWestCorner, "with error", e);
+  //         console.log("Failed to fill", lowerSouthwestCorner, "with error", e);
   //       }
   //     }
   //   }

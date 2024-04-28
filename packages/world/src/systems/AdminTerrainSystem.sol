@@ -35,7 +35,7 @@ contract AdminTerrainSystem is System {
   }
 
   function setTerrainObjectTypeIds(
-    VoxelCoord memory lowerSouthWestCorner,
+    VoxelCoord memory lowerSouthwestCorner,
     VoxelCoord memory size,
     uint8 objectTypeId
   ) public {
@@ -44,9 +44,9 @@ contract AdminTerrainSystem is System {
       for (int16 y = 0; y < size.y; y++) {
         for (int16 z = 0; z < size.z; z++) {
           VoxelCoord memory coord = VoxelCoord(
-            lowerSouthWestCorner.x + x,
-            lowerSouthWestCorner.y + y,
-            lowerSouthWestCorner.z + z
+            lowerSouthwestCorner.x + x,
+            lowerSouthwestCorner.y + y,
+            lowerSouthwestCorner.z + z
           );
           Terrain._set(coord.x, coord.y, coord.z, objectTypeId);
         }

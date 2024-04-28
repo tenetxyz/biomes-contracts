@@ -16,7 +16,7 @@ interface IAdminTerrainSystem {
   function setTerrainObjectTypeIds(VoxelCoord[] memory coord, uint8 objectTypeId) external;
 
   function setTerrainObjectTypeIds(
-    VoxelCoord memory lowerSouthWestCorner,
+    VoxelCoord memory lowerSouthwestCorner,
     VoxelCoord memory size,
     uint8 objectTypeId
   ) external;
