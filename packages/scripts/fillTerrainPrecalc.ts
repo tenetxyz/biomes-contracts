@@ -67,7 +67,11 @@ function splitArea(area: any) {
   return [newArea1, newArea2];
 }
 
-async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false): Promise<[number, VoxelCoord[]]> {
+async function applyTerrainTxes(
+  terrainTxes: any,
+  skipExisting: boolean,
+  dryRun: boolean = false
+): Promise<[number, VoxelCoord[]]> {
   const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
 
   let numTxes: number = 0;
@@ -110,31 +114,33 @@ async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false): Prom
     }
 
     // check if these coords are already set
-    let numCoordsAlreadySet = 0;
-    console.log("Checking if coords are already set", objectTypeId, lowerSouthwestCorner, size);
-    for (let x = lowerSouthwestCorner.x; x < lowerSouthwestCorner.x + size.x; x++) {
-      for (let y = lowerSouthwestCorner.y; y < lowerSouthwestCorner.y + size.y; y++) {
-        for (let z = lowerSouthwestCorner.z; z < lowerSouthwestCorner.z + size.z; z++) {
-          const cachedObjectType = await publicClient.readContract({
-            address: worldAddress as Hex,
-            abi: IWorldAbi,
-            functionName: "getCachedTerrainObjectTypeId",
-            args: [{ x, y, z }],
-            account,
-          });
-          // remove ones that are already set
-          if (cachedObjectType === Number(objectTypeId)) {
-            numCoordsAlreadySet++;
+    if (skipExisting) {
+      let numCoordsAlreadySet = 0;
+      console.log("Checking if coords are already set", objectTypeId, lowerSouthwestCorner, size);
+      for (let x = lowerSouthwestCorner.x; x < lowerSouthwestCorner.x + size.x; x++) {
+        for (let y = lowerSouthwestCorner.y; y < lowerSouthwestCorner.y + size.y; y++) {
+          for (let z = lowerSouthwestCorner.z; z < lowerSouthwestCorner.z + size.z; z++) {
+            const cachedObjectType = await publicClient.readContract({
+              address: worldAddress as Hex,
+              abi: IWorldAbi,
+              functionName: "getCachedTerrainObjectTypeId",
+              args: [{ x, y, z }],
+              account,
+            });
+            // remove ones that are already set
+            if (cachedObjectType === Number(objectTypeId)) {
+              numCoordsAlreadySet++;
+            }
           }
         }
       }
-    }
-    if (numCoordsAlreadySet === areaVolume) {
-      console.log("All coords already set", objectTypeId, lowerSouthwestCorner, size);
-      continue;
-    }
-    if (numCoordsAlreadySet > 0) {
-      console.log("Some coords already set", numCoordsAlreadySet, objectTypeId, lowerSouthwestCorner, size);
+      if (numCoordsAlreadySet === areaVolume) {
+        console.log("All coords already set", objectTypeId, lowerSouthwestCorner, size);
+        continue;
+      }
+      if (numCoordsAlreadySet > 0) {
+        console.log("Some coords already set", numCoordsAlreadySet, objectTypeId, lowerSouthwestCorner, size);
+      }
     }
 
     await callTx(
@@ -174,28 +180,30 @@ async function applyTerrainTxes(terrainTxes: any, dryRun: boolean = false): Prom
       }
 
       // check if these coords are already set
-      let removed = 0;
-      console.log("Checking if coords are already set", objectTypeId, coordsToSend.length, coordsToSend);
-      for (const coord of coordsToSend) {
-        const cachedObjectType = await publicClient.readContract({
-          address: worldAddress as Hex,
-          abi: IWorldAbi,
-          functionName: "getCachedTerrainObjectTypeId",
-          args: [coord],
-          account,
-        });
-        // remove ones that are already set
-        if (cachedObjectType === Number(objectTypeId)) {
-          coordsToSend = coordsToSend.filter((c) => c !== coord);
-          removed++;
+      if (skipExisting) {
+        let removed = 0;
+        console.log("Checking if coords are already set", objectTypeId, coordsToSend.length, coordsToSend);
+        for (const coord of coordsToSend) {
+          const cachedObjectType = await publicClient.readContract({
+            address: worldAddress as Hex,
+            abi: IWorldAbi,
+            functionName: "getCachedTerrainObjectTypeId",
+            args: [coord],
+            account,
+          });
+          // remove ones that are already set
+          if (cachedObjectType === Number(objectTypeId)) {
+            coordsToSend = coordsToSend.filter((c) => c !== coord);
+            removed++;
+          }
         }
-      }
-      if (coordsToSend.length === 0) {
-        console.log("All coords already set", objectTypeId, coordsToSend);
-        continue;
-      }
-      if (removed > 0) {
-        console.log("Removed", removed, "coords that were already set", objectTypeId, coordsToSend);
+        if (coordsToSend.length === 0) {
+          console.log("All coords already set", objectTypeId, coordsToSend);
+          continue;
+        }
+        if (removed > 0) {
+          console.log("Removed", removed, "coords that were already set", objectTypeId, coordsToSend);
+        }
       }
 
       await callTx(
@@ -217,7 +225,7 @@ async function main() {
   const terrainTxes = JSON.parse(fs.readFileSync("terrain_txs.json", "utf8"));
   console.log("Terrain tx's read from file.");
 
-  const [numTxs, coordsCovered, objectTypeTxs] = await applyTerrainTxes(terrainTxes, true);
+  const [numTxs, coordsCovered, objectTypeTxs] = await applyTerrainTxes(terrainTxes, false, true);
   console.log("Num tx's to apply:", numTxs);
   console.log("Coords to be covered:", coordsCovered.length.toLocaleString());
   console.log("objectTypeTxs", objectTypeTxs);
@@ -246,7 +254,7 @@ async function main() {
     process.exit(0);
   }
 
-  await applyTerrainTxes(terrainTxes, false);
+  await applyTerrainTxes(terrainTxes, false, false);
 
   process.exit(0);
 }
