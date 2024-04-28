@@ -149,7 +149,7 @@ async function applyTerrainTxes(
         functionName: "setTerrainObjectTypeIds",
         args: [lowerSouthwestCorner, size, objectTypeId],
       },
-      "setTerrainObjectTypeIds area"
+      "setTerrainObjectTypeIds area: " + areaVolume.toString()
     );
   }
 
@@ -212,7 +212,7 @@ async function applyTerrainTxes(
           functionName: "setTerrainObjectTypeIds",
           args: [coordsToSend, Number(objectTypeId)],
         },
-        "setTerrainObjectTypeIds single"
+        "setTerrainObjectTypeIds single: " + coordsToSend.length.toString()
       );
     }
   }
