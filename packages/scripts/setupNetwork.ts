@@ -21,7 +21,7 @@ const TESNET_CHAIN_ID = supportedChains.find((chain) => chain.name === "Garnet H
 const DEV_CHAIN_ID = supportedChains.find((chain) => chain.name === "Foundry")?.id ?? 31337;
 
 const chainId =
-  process.env.NODE_ENV === "production"
+  process.env.NODE_ENV === "mainnet"
     ? PROD_CHAIN_ID
     : process.env.NODE_ENV === "testnet"
     ? TESNET_CHAIN_ID
