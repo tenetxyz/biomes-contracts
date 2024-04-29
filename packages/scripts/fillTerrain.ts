@@ -66,6 +66,10 @@ async function main() {
       for (let z = 0; z < rangeZ; z++) {
         txCount += 1;
         console.log("Tx", txCount, "of", numTxs, "(", Math.round((txCount / numTxs) * 100), "% )");
+        if (txCount < 14300) {
+          console.log("Skipping", txCount);
+          continue;
+        }
         const lowerSouthwestCorner = {
           x: startCorner.x + x * chunkSize.x,
           y: startCorner.y + y * chunkSize.y,
