@@ -9,6 +9,7 @@
     "fillTerrainPrecalc": "npx tsx fillTerrainPrecalc.ts",
     "readTerrain": "npx tsx readTerrain.ts",
     "readWorld": "npx tsx readWorld.ts",
+    "writeWorld": "npx tsx writeWorld.ts",
     "setupSpawn": "npx tsx setupSpawn.ts",
     "measureGas": "npx tsx gas/measureGas.ts"
   },
