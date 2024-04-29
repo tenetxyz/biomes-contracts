@@ -73,17 +73,17 @@ async function main() {
         };
 
         try {
-          // const currentCachedValue = await publicClient.readContract({
-          //   address: worldAddress as Hex,
-          //   abi: IWorldAbi,
-          //   functionName: "getCachedTerrainObjectTypeId",
-          //   args: [lowerSouthwestCorner],
-          //   account,
-          // });
-          // if (currentCachedValue != 0) {
-          //   console.log("Skipping", lowerSouthwestCorner, "already filled");
-          //   continue;
-          // }
+          const currentCachedValue = await publicClient.readContract({
+            address: worldAddress as Hex,
+            abi: IWorldAbi,
+            functionName: "getCachedTerrainObjectTypeId",
+            args: [lowerSouthwestCorner],
+            account,
+          });
+          if (currentCachedValue != 0) {
+            console.log("Skipping", lowerSouthwestCorner, "already filled");
+            continue;
+          }
           // console.log("fillTerrainCache", lowerSouthwestCorner, chunkSize);
           const volume = chunkSize.x * chunkSize.y * chunkSize.z;
 
