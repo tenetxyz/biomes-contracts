@@ -66,7 +66,7 @@ async function main() {
       for (let z = 0; z < rangeZ; z++) {
         txCount += 1;
         console.log("Tx", txCount, "of", numTxs, "(", Math.round((txCount / numTxs) * 100), "% )");
-        if (txCount < 26300) {
+        if (txCount < 28400) {
           console.log("Skipping", txCount);
           continue;
         }
