@@ -66,7 +66,7 @@ async function main() {
       for (let z = 0; z < rangeZ; z++) {
         txCount += 1;
         console.log("Tx", txCount, "of", numTxs, "(", Math.round((txCount / numTxs) * 100), "% )");
-        if (txCount < 14300) {
+        if (txCount < 18000) {
           console.log("Skipping", txCount);
           continue;
         }
@@ -88,7 +88,7 @@ async function main() {
             console.log("Skipping", lowerSouthwestCorner, "already filled");
             continue;
           }
-          // console.log("fillTerrainCache", lowerSouthwestCorner, chunkSize);
+          console.log("fillTerrainCache", lowerSouthwestCorner, chunkSize);
           const volume = chunkSize.x * chunkSize.y * chunkSize.z;
 
           await callTx(
