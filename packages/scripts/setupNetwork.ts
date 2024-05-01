@@ -92,6 +92,7 @@ export async function setupNetwork() {
       pollingInterval: 1_000,
       retryDelay: 2_000,
       timeout: 60_000,
+      confirmations: 0,
     });
     if (receipt.status !== "success") {
       try {
