@@ -11,6 +11,7 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
+import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
@@ -44,6 +45,8 @@ contract TransferSystem is System {
     } else {
       revert("TransferSystem: invalid transfer operation");
     }
+
+    PlayerActivity._set(playerEntityId, block.timestamp);
 
     return dstObjectTypeId;
   }

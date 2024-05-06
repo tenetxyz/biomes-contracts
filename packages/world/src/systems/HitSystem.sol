@@ -12,6 +12,7 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
@@ -70,6 +71,9 @@ contract HitSystem is System {
       }
     } else {
       PlayerMetadata._setLastHitTime(hitEntityId, block.timestamp);
+      PlayerActivity._set(hitEntityId, block.timestamp);
     }
+
+    PlayerActivity._set(playerEntityId, block.timestamp);
   }
 }

@@ -132,6 +132,16 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    PlayerActivity: {
+      schema: {
+        entityId: "bytes32",
+        lastActionTime: "uint256",
+      },
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     InventoryTool: {
       schema: {
         toolEntityId: "bytes32",

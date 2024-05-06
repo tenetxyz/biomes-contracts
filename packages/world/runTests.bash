@@ -4,7 +4,7 @@
 worldAddress=$(awk -F'"' '/"31337":/{getline; print $4}' worlds.json)
 
 # Start constructing the command
-command="pnpm mud test --worldAddress='${worldAddress}' --forgeOptions='-vvvv"
+command="pnpm mud test --worldAddress='${worldAddress}' --forgeOptions='-vvv"
 
 # Conditionally append the user-provided test option
 if [[ -n "$1" ]]; then
@@ -18,7 +18,7 @@ for arg in "$@"
 do
   if [ "$arg" = "--with-gas" ]; then
     echo "Running with gas reporter"
-    command="GAS_REPORTER_ENABLED=true pnpm mud test --worldAddress='${worldAddress}' --forgeOptions='-vvvv"
+    command="GAS_REPORTER_ENABLED=true pnpm mud test --worldAddress='${worldAddress}' --forgeOptions='-vvv"
 
     # Conditionally append the user-provided test option
     if [[ -n "$2" ]]; then

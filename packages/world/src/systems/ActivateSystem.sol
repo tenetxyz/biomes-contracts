@@ -13,6 +13,7 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
+import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
@@ -30,5 +31,6 @@ contract ActivateSystem is System {
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     regenHealth(playerEntityId);
     regenStamina(playerEntityId, playerCoord);
+    PlayerActivity._set(playerEntityId, block.timestamp);
   }
 }

@@ -13,6 +13,7 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
+import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
@@ -56,6 +57,7 @@ contract LoginSystem is System {
     ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);
     LastKnownPosition._deleteRecord(playerEntityId);
     PlayerMetadata._setIsLoggedOff(playerEntityId, false);
+    PlayerActivity._set(playerEntityId, block.timestamp);
 
     // Reset update time to current time
     Health._setLastUpdatedTime(playerEntityId, block.timestamp);

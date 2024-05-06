@@ -10,4 +10,6 @@ pragma solidity >=0.8.24;
  */
 interface ILogoffSystem {
   function logoffPlayer() external;
+
+  function logoffStalePlayer(address player) external;
 }

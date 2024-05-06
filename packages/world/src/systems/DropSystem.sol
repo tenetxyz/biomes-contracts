@@ -11,6 +11,7 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
+import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
@@ -47,6 +48,8 @@ contract DropSystem is System {
     } else {
       require(ObjectType._get(entityId) == AirObjectID, "DropSystem: cannot drop on non-air block");
     }
+
+    PlayerActivity._set(playerEntityId, block.timestamp);
 
     return entityId;
   }

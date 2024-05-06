@@ -1502,6 +1502,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "logoffStalePlayer",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "mine",
     "inputs": [
       {

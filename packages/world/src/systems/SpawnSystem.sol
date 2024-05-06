@@ -14,6 +14,8 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { UniqueEntity } from "../codegen/tables/UniqueEntity.sol";
+import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
@@ -58,6 +60,9 @@ contract SpawnSystem is System {
 
     Health._set(playerEntityId, block.timestamp, MAX_PLAYER_HEALTH);
     Stamina._set(playerEntityId, block.timestamp, MAX_PLAYER_STAMINA);
+
+    PlayerActivity._set(playerEntityId, block.timestamp);
+    PlayerMetadata._set(playerEntityId, false, 0);
 
     // We let the user pick a y coord, so we need to apply gravity
     require(!gravityApplies(playerEntityId, spawnCoord), "SpawnSystem: cannot spawn player with gravity");

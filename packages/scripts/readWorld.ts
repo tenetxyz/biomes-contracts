@@ -5,14 +5,14 @@ import { resourceToHex } from "@latticexyz/common";
 async function main() {
   const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
 
-  const delegation = await publicClient.readContract({
+  const objectTypeIdAtCoord = await publicClient.readContract({
     address: worldAddress as Hex,
     abi: IWorldAbi,
-    functionName: "getUserDelegation",
-    args: ["0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a", "0xD50ba6a632Bc7C07e36A8004847007bEf245a69f"],
+    functionName: "getObjectTypeIdAtCoord",
+    args: [{ x: 373, y: 18, z: -206 }],
     account,
   });
-  console.log("Delegation:", delegation);
+  console.log("objectTypeIdAtCoord:", objectTypeIdAtCoord);
 
   // const emptyInitCallData = "0x0000000000000000000000000000000000000000000000000000000000000000";
   // const UNLIMITED_DELEGATION = resourceToHex({ type: "system", namespace: "", name: "unlimited" });
@@ -32,8 +32,8 @@ async function main() {
   const objectTypeAtCoord = await publicClient.readContract({
     address: worldAddress as Hex,
     abi: IWorldAbi,
-    functionName: "getCachedTerrainObjectTypeId",
-    args: [oreCoord],
+    functionName: "getTerrainObjectTypeId",
+    args: [{ x: 373, y: 18, z: -206 }],
     account,
   });
   console.log("Object Type:", objectTypeAtCoord);

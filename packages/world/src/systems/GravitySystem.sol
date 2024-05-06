@@ -9,6 +9,7 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Health, HealthData } from "../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
+import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GRAVITY_DAMAGE } from "../Constants.sol";
@@ -50,6 +51,10 @@ contract GravitySystem is System {
 
     Position._set(playerEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
     ReversePosition._set(belowCoord.x, belowCoord.y, belowCoord.z, playerEntityId);
+
+    if (PlayerActivity._get(playerEntityId) != block.timestamp) {
+      PlayerActivity._set(playerEntityId, block.timestamp);
+    }
 
     uint16 currentHealth = regenHealth(playerEntityId);
     uint16 newHealth = currentHealth > GRAVITY_DAMAGE ? currentHealth - GRAVITY_DAMAGE : 0;

@@ -12,6 +12,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { InventoryTool } from "../codegen/tables/InventoryTool.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
+import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
@@ -32,5 +33,7 @@ contract EquipSystem is System {
     regenStamina(playerEntityId, playerCoord);
 
     Equipped._set(playerEntityId, inventoryEntityId);
+
+    PlayerActivity._set(playerEntityId, block.timestamp);
   }
 }

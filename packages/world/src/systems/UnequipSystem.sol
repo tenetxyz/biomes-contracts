@@ -16,6 +16,7 @@ import { positionDataToVoxelCoord } from "../Utils.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 contract UnequipSystem is System {
   function unequip() public {
@@ -30,5 +31,7 @@ contract UnequipSystem is System {
     if (Equipped._get(playerEntityId) != bytes32(0)) {
       Equipped._deleteRecord(playerEntityId);
     }
+
+    PlayerActivity._set(playerEntityId, block.timestamp);
   }
 }

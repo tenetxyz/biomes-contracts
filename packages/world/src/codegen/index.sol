@@ -14,6 +14,7 @@ import { LastKnownPosition, LastKnownPositionData } from "./tables/LastKnownPosi
 import { Player } from "./tables/Player.sol";
 import { ReversePlayer } from "./tables/ReversePlayer.sol";
 import { PlayerMetadata, PlayerMetadataData } from "./tables/PlayerMetadata.sol";
+import { PlayerActivity } from "./tables/PlayerActivity.sol";
 import { InventoryTool } from "./tables/InventoryTool.sol";
 import { ReverseInventoryTool } from "./tables/ReverseInventoryTool.sol";
 import { InventoryCount } from "./tables/InventoryCount.sol";

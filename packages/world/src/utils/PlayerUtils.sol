@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
+import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../codegen/tables/Health.sol";
@@ -73,6 +74,7 @@ function despawnPlayer(bytes32 playerEntityId) {
   }
 
   PlayerMetadata._deleteRecord(playerEntityId);
+  PlayerActivity._deleteRecord(playerEntityId);
   address player = ReversePlayer._get(playerEntityId);
   Player._deleteRecord(player);
   ReversePlayer._deleteRecord(playerEntityId);
