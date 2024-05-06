@@ -226,7 +226,7 @@ contract LogoffTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(bob, bob);
 
-    vm.expectRevert("LogoffSystem: player has recent actions and cannot be logged off automatically");
+    vm.expectRevert("LogoffSystem: player has recent actions and cannot be logged off");
     world.logoffStalePlayer(alice);
 
     vm.stopPrank();

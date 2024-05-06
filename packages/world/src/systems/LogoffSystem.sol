@@ -59,7 +59,7 @@ contract LogoffSystem is System {
     require(playerEntityId != bytes32(0), "LogoffSystem: player does not exist");
     require(
       block.timestamp - PlayerActivity._get(playerEntityId) > MIN_TIME_BEFORE_AUTO_LOGOFF,
-      "LogoffSystem: player has recent actions and cannot be logged off automatically"
+      "LogoffSystem: player has recent actions and cannot be logged off"
     );
     logoffCommon(playerEntityId);
   }

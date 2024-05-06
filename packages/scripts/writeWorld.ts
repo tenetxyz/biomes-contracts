@@ -6,8 +6,8 @@ async function main() {
 
   await callTx({
     ...txOptions,
-    functionName: "unregisterDelegation",
-    args: ["0xD50ba6a632Bc7C07e36A8004847007bEf245a69f"],
+    functionName: "logoffStalePlayer",
+    args: ["0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a"],
   });
 
   process.exit(0);
