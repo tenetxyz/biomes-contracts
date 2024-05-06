@@ -24,4 +24,6 @@ interface IReadSystem {
   ) external view returns (ResourceId delegationControlId);
 
   function getObjectTypeIdAtCoord(VoxelCoord memory coord) external view returns (uint8);
+
+  function getLastActivityTime(address player) external view returns (uint256);
 }

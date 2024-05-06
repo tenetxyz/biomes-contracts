@@ -943,6 +943,25 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "getLastActivityTime",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getObjectTypeIdAtCoord",
     "inputs": [
       {

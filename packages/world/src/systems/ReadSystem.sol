@@ -10,6 +10,10 @@ import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/User
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { Player } from "../codegen/tables/Player.sol";
+import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
+
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { NullObjectTypeId } from "../ObjectTypeIds.sol";
 
@@ -36,5 +40,13 @@ contract ReadSystem is System {
       return NullObjectTypeId;
     }
     return ObjectType._get(entityId);
+  }
+
+  function getLastActivityTime(address player) public view returns (uint256) {
+    bytes32 playerEntityId = Player._get(player);
+    if (PlayerMetadata._getIsLoggedOff(playerEntityId)) {
+      return 0;
+    }
+    return PlayerActivity._get(playerEntityId);
   }
 }
