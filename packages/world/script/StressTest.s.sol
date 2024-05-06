@@ -27,9 +27,16 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GrassObjectID, OakLogObjectID, AirObjectID, OakLumberObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testAddToInventoryCount } from "../test/utils/InventoryTestUtils.sol";
-import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../src/Constants.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
 import { positionDataToVoxelCoord, callGravity, getUniqueEntity } from "../src/Utils.sol";
+
+int16 constant SPAWN_LOW_X = 363;
+int16 constant SPAWN_LOW_Z = -225;
+
+int16 constant SPAWN_HIGH_X = 387;
+int16 constant SPAWN_HIGH_Z = -205;
+
+int16 constant SPAWN_GROUND_Y = 17;
 
 contract StressTest is Script {
   function run(address worldAddress) external {

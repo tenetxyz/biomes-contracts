@@ -1,17 +1,16 @@
 import { Hex } from "viem";
 import { setupNetwork } from "./setupNetwork";
-import { SPAWN_HIGH_X, SPAWN_HIGH_Z, SPAWN_LOW_X, SPAWN_LOW_Z } from "./constants";
 import prompts from "prompts";
 
 async function main() {
   const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
 
   // Calculate midpoints
-  const spawnMidX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
-  const spawnMidZ = (SPAWN_LOW_Z + SPAWN_HIGH_Z) / 2;
+  // const spawnMidX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
+  // const spawnMidZ = (SPAWN_LOW_Z + SPAWN_HIGH_Z) / 2;
 
-  const minY = -10;
-  const maxY = 60;
+  // const minY = -10;
+  // const maxY = 60;
   // const minY = 10;
   // const maxY = 20;
 

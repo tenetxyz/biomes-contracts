@@ -1,4 +1,4 @@
-import { GRASS_OBJECT_TYPE_ID, SPAWN_GROUND_Y, SPAWN_LOW_X, SPAWN_LOW_Z } from "../constants";
+import { GRASS_OBJECT_TYPE_ID } from "../constants";
 import { setupNetwork } from "../setupNetwork";
 import { printBuildMineGasCosts } from "./buildMineGas";
 import { printMoveGasCosts } from "./moveGas";
@@ -10,9 +10,9 @@ async function measureGas() {
   const preFillTerrain = true;
 
   const spawnCoord = {
-    x: SPAWN_LOW_X,
-    y: SPAWN_GROUND_Y + 1,
-    z: SPAWN_LOW_Z,
+    x: 363,
+    y: 18,
+    z: -225,
   };
 
   await printSpawnCosts(setupNetworkData, spawnCoord, preFillTerrain);

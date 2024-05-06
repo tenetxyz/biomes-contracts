@@ -9,7 +9,7 @@ async function main() {
     address: worldAddress as Hex,
     abi: IWorldAbi,
     functionName: "getObjectTypeIdAtCoord",
-    args: [{ x: 373, y: 18, z: -206 }],
+    args: [{ x: 927, y: 87, z: -547 }],
     account,
   });
   console.log("objectTypeIdAtCoord:", objectTypeIdAtCoord);
@@ -33,7 +33,7 @@ async function main() {
     address: worldAddress as Hex,
     abi: IWorldAbi,
     functionName: "getTerrainObjectTypeId",
-    args: [{ x: 373, y: 18, z: -206 }],
+    args: [{ x: 927, y: 87, z: -547 }],
     account,
   });
   console.log("Object Type:", objectTypeAtCoord);

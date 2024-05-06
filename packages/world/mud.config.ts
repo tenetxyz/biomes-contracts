@@ -55,6 +55,21 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    Spawn: {
+      schema: {
+        x: "int16",
+        z: "int16",
+        initialized: "bool",
+        spawnLowX: "int16",
+        spawnHighX: "int16",
+        spawnLowZ: "int16",
+        spawnHighZ: "int16",
+      },
+      key: ["x", "z"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     ObjectType: {
       schema: {
         entityId: "bytes32",

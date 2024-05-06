@@ -9,14 +9,18 @@ import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
 import { Terrain } from "./codegen/tables/Terrain.sol";
 import { UniqueEntity } from "./codegen/tables/UniqueEntity.sol";
+import { Spawn, SpawnData } from "./codegen/tables/Spawn.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
 
-import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z } from "./Constants.sol";
+import { SPAWN_SHARD_DIM } from "./Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "./Constants.sol";
 
 import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "./ObjectTypeIds.sol";
 import { callInternalSystem, staticCallInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+
+import { console } from "forge-std/console.sol";
 
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);
@@ -36,8 +40,18 @@ function inWorldBorder(VoxelCoord memory coord) pure returns (bool) {
     coord.z <= WORLD_BORDER_HIGH_Z;
 }
 
-function inSpawnArea(VoxelCoord memory coord) pure returns (bool) {
-  return coord.x >= SPAWN_LOW_X && coord.x <= SPAWN_HIGH_X && coord.z >= SPAWN_LOW_Z && coord.z <= SPAWN_HIGH_Z;
+function inSpawnArea(VoxelCoord memory coord) view returns (bool) {
+  VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(coord, SPAWN_SHARD_DIM);
+  SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
+  if (!spawnData.initialized) {
+    return false;
+  }
+
+  return
+    coord.x >= spawnData.spawnLowX &&
+    coord.x <= spawnData.spawnHighX &&
+    coord.z >= spawnData.spawnLowZ &&
+    coord.z <= spawnData.spawnHighZ;
 }
 
 function callGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) returns (bool) {

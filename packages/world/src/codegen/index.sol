@@ -7,6 +7,7 @@ import { UniqueEntity } from "./tables/UniqueEntity.sol";
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "./tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "./tables/Recipes.sol";
 import { Terrain } from "./tables/Terrain.sol";
+import { Spawn, SpawnData } from "./tables/Spawn.sol";
 import { ObjectType } from "./tables/ObjectType.sol";
 import { Position, PositionData } from "./tables/Position.sol";
 import { ReversePosition } from "./tables/ReversePosition.sol";

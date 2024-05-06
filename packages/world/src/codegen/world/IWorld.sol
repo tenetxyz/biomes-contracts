@@ -20,6 +20,7 @@ import { IInitPlayersSystem } from "./IInitPlayersSystem.sol";
 import { IInitTerrainBlocksSystem } from "./IInitTerrainBlocksSystem.sol";
 import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
 import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
+import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
 import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
@@ -55,6 +56,7 @@ interface IWorld is
   IInitTerrainBlocksSystem,
   IInitThermoblastSystem,
   IInitWorkbenchSystem,
+  IInitSpawnSystem,
   ILoginSystem,
   ILogoffSystem,
   IMineSystem,

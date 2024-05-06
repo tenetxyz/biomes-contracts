@@ -19,7 +19,6 @@ import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
-import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, BasaltCarvedObjectID, StoneObjectID, DirtObjectID, GrassObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity, positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, inSpawnArea, getTerrainObjectTypeId } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
@@ -68,75 +67,5 @@ contract SpawnSystem is System {
     require(!gravityApplies(playerEntityId, spawnCoord), "SpawnSystem: cannot spawn player with gravity");
 
     return playerEntityId;
-  }
-
-  function initSpawnAreaTop() public {
-    int16 midPointX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
-    for (int16 x = SPAWN_LOW_X; x <= midPointX; x++) {
-      for (int16 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
-        if (x == SPAWN_LOW_X || x == SPAWN_HIGH_X || z == SPAWN_LOW_Z || z == SPAWN_HIGH_Z) {
-          setObjectAtCoord(BasaltCarvedObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
-        } else {
-          setObjectAtCoord(StoneObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
-        }
-      }
-    }
-  }
-
-  function initSpawnAreaTopPart2() public {
-    int16 midPointX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
-    for (int16 x = midPointX + 1; x <= SPAWN_HIGH_X; x++) {
-      for (int16 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
-        if (x == SPAWN_LOW_X || x == SPAWN_HIGH_X || z == SPAWN_LOW_Z || z == SPAWN_HIGH_Z) {
-          setObjectAtCoord(BasaltCarvedObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
-        } else {
-          setObjectAtCoord(StoneObjectID, VoxelCoord(x, SPAWN_GROUND_Y, z));
-        }
-      }
-    }
-  }
-
-  function initSpawnAreaBottom() public {
-    int16 midPointX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
-    for (int16 x = SPAWN_LOW_X; x <= midPointX; x++) {
-      for (int16 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
-        setObjectAtCoord(DirtObjectID, VoxelCoord(x, SPAWN_GROUND_Y - 1, z));
-      }
-    }
-  }
-
-  function initSpawnAreaBottomPart2() public {
-    int16 midPointX = (SPAWN_LOW_X + SPAWN_HIGH_X) / 2;
-    for (int16 x = midPointX + 1; x <= SPAWN_HIGH_X; x++) {
-      for (int16 z = SPAWN_LOW_Z; z <= SPAWN_HIGH_Z; z++) {
-        setObjectAtCoord(DirtObjectID, VoxelCoord(x, SPAWN_GROUND_Y - 1, z));
-      }
-    }
-  }
-
-  function initSpawnAreaBottomBorder() public {
-    require(UniqueEntity._get() == 0, "SpawnSystem: spawn area already initialized");
-    for (int16 x = SPAWN_LOW_X - 1; x <= SPAWN_HIGH_X + 1; x++) {
-      for (int16 z = SPAWN_LOW_Z - 1; z <= SPAWN_HIGH_Z + 1; z++) {
-        if (x == SPAWN_LOW_X - 1 || x == SPAWN_HIGH_X + 1 || z == SPAWN_LOW_Z - 1 || z == SPAWN_HIGH_Z + 1) {
-          setObjectAtCoord(GrassObjectID, VoxelCoord(x, SPAWN_GROUND_Y - 1, z));
-        }
-      }
-    }
-  }
-
-  function setObjectAtCoord(uint8 objectTypeId, VoxelCoord memory coord) internal {
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    if (entityId == bytes32(0)) {
-      entityId = getUniqueEntity();
-      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
-    } else {
-      if (ObjectType._get(entityId) == objectTypeId) {
-        // no-op
-        return;
-      }
-    }
-    ObjectType._set(entityId, objectTypeId);
-    Position._set(entityId, coord.x, coord.y, coord.z);
   }
 }

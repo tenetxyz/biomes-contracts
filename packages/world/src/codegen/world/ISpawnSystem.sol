@@ -12,14 +12,4 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
  */
 interface ISpawnSystem {
   function spawnPlayer(VoxelCoord memory spawnCoord) external returns (bytes32);
-
-  function initSpawnAreaTop() external;
-
-  function initSpawnAreaTopPart2() external;
-
-  function initSpawnAreaBottom() external;
-
-  function initSpawnAreaBottomPart2() external;
-
-  function initSpawnAreaBottomBorder() external;
 }

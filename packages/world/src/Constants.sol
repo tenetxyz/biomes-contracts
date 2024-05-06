@@ -25,13 +25,7 @@ int16 constant WORLD_BORDER_HIGH_X = 2000;
 int16 constant WORLD_BORDER_HIGH_Y = 250;
 int16 constant WORLD_BORDER_HIGH_Z = 2000;
 
-int16 constant SPAWN_LOW_X = 363;
-int16 constant SPAWN_LOW_Z = -225;
-
-int16 constant SPAWN_HIGH_X = 387;
-int16 constant SPAWN_HIGH_Z = -205;
-
-int16 constant SPAWN_GROUND_Y = 17;
+int16 constant SPAWN_SHARD_DIM = 1000;
 
 uint16 constant MAX_PLAYER_HEALTH = 1000;
 uint32 constant MAX_PLAYER_STAMINA = 120000;
