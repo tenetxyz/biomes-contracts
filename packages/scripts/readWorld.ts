@@ -1,9 +1,46 @@
 import { Hex } from "viem";
 import { setupNetwork } from "./setupNetwork";
 import { resourceToHex } from "@latticexyz/common";
+import { storeEventsAbi } from "@latticexyz/store";
+
+export function isDefined<T>(argument: T | undefined): argument is T {
+  return argument !== undefined;
+}
 
 async function main() {
   const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
+
+  const fromBlock = 1569359n;
+  const toBlock = 1569559n;
+
+  const logs = await publicClient.getLogs({
+    address: worldAddress,
+    events: storeEventsAbi,
+    fromBlock,
+    toBlock,
+    strict: true,
+  });
+  console.log("block range:", fromBlock, toBlock);
+  console.log("logs", logs.length);
+  const blockNumbers = Array.from(new Set(logs.map((log) => log.blockNumber)));
+  console.log("blockNumbers", blockNumbers);
+
+  const groupedBlocks = blockNumbers
+    .map((blockNumber) => {
+      const blockLogs = logs.filter((log) => log.blockNumber === blockNumber);
+      if (!blockLogs.length) return;
+      blockLogs.sort((a, b) => (a.logIndex < b.logIndex ? -1 : a.logIndex > b.logIndex ? 1 : 0));
+
+      if (!blockLogs.length) return;
+
+      return {
+        blockNumber,
+        logs: blockLogs,
+      };
+    })
+    .filter(isDefined);
+  const gBlockNumbers = Array.from(new Set(groupedBlocks.map((gb) => gb.blockNumber)));
+  console.log("groupedBlocks", gBlockNumbers);
 
   const objectTypeIdAtCoord = await publicClient.readContract({
     address: worldAddress as Hex,
