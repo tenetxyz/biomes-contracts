@@ -24,7 +24,7 @@ import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { GrassObjectID, OakLogObjectID, AirObjectID, OakLumberObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
+import { GrassObjectID, OakLogObjectID, AirObjectID, OakLumberObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testGetUniqueEntity, testAddToInventoryCount } from "../test/utils/InventoryTestUtils.sol";
 
@@ -90,7 +90,7 @@ contract TestScript is Script {
     // ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, entityId);
     // world.teleport(VoxelCoord(149, -62, -37));
 
-    bytes32 playerEntityId = Player.get(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+    bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
     // uint8 inputObjectTypeId = GrassObjectID;
     // for (uint i = 0; i < 99; i++) {
     //   bytes32 newInventoryId = testGetUniqueEntity();
@@ -98,7 +98,8 @@ contract TestScript is Script {
     //   Inventory.set(newInventoryId, playerEntityId);
     //   ReverseInventory.push(playerEntityId, newInventoryId);
     // }
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, CoalOreObjectID, 4);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, CobblestoneBrickObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, DyeomaticObjectID, 1);
 
     // bytes32 newInventoryId1 = testGetUniqueEntity();
     // ObjectType.set(newInventoryId1, ChestObjectID);

@@ -14,7 +14,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
+import { MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { positionDataToVoxelCoord, callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
@@ -64,12 +64,14 @@ contract MineSystem is System {
 
     // Spend stamina for mining
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    uint32 staminaRequired = (ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId) * 1000) / equippedToolDamage;
-    if (staminaRequired == 0) {
-      staminaRequired = 1;
+    uint256 staminaRequired = (uint256(ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId)) * 1000) /
+      equippedToolDamage;
+    uint32 useStamina = staminaRequired > MAX_PLAYER_STAMINA ? MAX_PLAYER_STAMINA : uint32(staminaRequired);
+    if (useStamina == 0) {
+      useStamina = 1;
     }
-    require(currentStamina >= staminaRequired, "MineSystem: not enough stamina");
-    Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
+    require(currentStamina >= useStamina, "MineSystem: not enough stamina");
+    Stamina._setStamina(playerEntityId, currentStamina - useStamina);
 
     useEquipped(playerEntityId, equippedEntityId);
 
