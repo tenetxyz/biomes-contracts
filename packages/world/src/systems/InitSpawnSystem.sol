@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { AccessControl } from "@latticexyz/world/src/AccessControl.sol";
-import { ROOT_NAMESPACE_ID } from "@latticexyz/world/src/Constants.sol";
+import { ROOT_NAMESPACE_ID } from "@latticexyz/world/src/constants.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
