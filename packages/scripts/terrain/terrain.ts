@@ -12,7 +12,7 @@ export function getTerrain(coord: VoxelCoord, perlin: Perlin) {
   return { biome, height };
 }
 
-export function getInfiniteTerrainBlock(coord: VoxelCoord, perlin: Perlin): BiomesVariantData {
+export function getTerrainBlock(coord: VoxelCoord, perlin: Perlin): BiomesVariantData {
   const { biome, height } = getTerrain(coord, perlin);
   const state: TerrainState = { biomeVector: biome, height, coord, perlin };
 

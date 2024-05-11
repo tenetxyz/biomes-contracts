@@ -3,7 +3,7 @@ import { Coord, CoordMap, VoxelCoord } from "@latticexyz/utils";
 import { BigNumber } from "ethers";
 import { encodeAbiParameters, keccak256, parseAbiParameters } from "viem";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "./constants";
-import { getTerrain } from "./infinite";
+import { getTerrain } from "./terrain";
 import { TerrainState } from "./types";
 
 let hashCache = new CoordMap<number>();

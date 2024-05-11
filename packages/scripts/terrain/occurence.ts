@@ -18,7 +18,7 @@ import {
   GRAVEL_OBJECT_ID,
   LILAC_OBJECT_ID,
   LIMESTONE_OBJECT_ID,
-  MOSS_OBJECT_ID,
+  MOSS_BLOCK_OBJECT_ID,
   NEPTUNIUM_ORE_OBJECT_ID,
   QUARTZITE_OBJECT_ID,
   RED_MUSHROOM_OBJECT_ID,
@@ -62,7 +62,7 @@ export function TerrainBlocks(state: TerrainState): BiomesVariantData | undefine
       if (biome == Biome.Savanna) return getBiomesVariantDataStrict(GRASS_OBJECT_ID);
     }
     if (biome == Biome.Mountains) return getBiomesVariantDataStrict(STONE_OBJECT_ID);
-    else if (biome == Biome.Forest && y > 0) return getBiomesVariantDataStrict(MOSS_OBJECT_ID);
+    else if (biome == Biome.Forest && y > 0) return getBiomesVariantDataStrict(MOSS_BLOCK_OBJECT_ID);
   }
 
   if (biome == Biome.Mountains) {
