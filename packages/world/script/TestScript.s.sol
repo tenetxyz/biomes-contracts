@@ -24,7 +24,8 @@ import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { GrassObjectID, OakLogObjectID, AirObjectID, OakLumberObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
+import { GrassObjectID, DirtObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, AirObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
+import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testGetUniqueEntity, testAddToInventoryCount } from "../test/utils/InventoryTestUtils.sol";
 
@@ -40,6 +41,26 @@ contract TestScript is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     IWorld world = IWorld(worldAddress);
+
+    bytes32 airEntityId = ReversePosition.get(308, 11, -188);
+    console.logBytes32(airEntityId);
+    uint8[] memory inventoryObjects = InventoryObjects.get(airEntityId);
+    console.logUint(inventoryObjects.length);
+
+    // bytes32 playerEntityId = Player.get(0x8F09EeF679904F64752523f95dB664039dF278e2);
+    // console.logUint(InventoryCount.get(playerEntityId, GrassObjectID));
+    // console.logUint(InventoryCount.get(playerEntityId, OakLogObjectID));
+    // console.logUint(InventoryCount.get(playerEntityId, SakuraLogObjectID));
+    // console.logUint(InventoryCount.get(playerEntityId, BirchLogObjectID));
+    // console.logUint(InventoryCount.get(playerEntityId, RubberLogObjectID));
+    // console.logUint(InventoryCount.get(playerEntityId, SilverBarObjectID));
+    // console.logUint(InventoryCount.get(playerEntityId, SilverPickObjectID));
+    // bytes32[] memory toolsEntityIds = ReverseInventoryTool.get(playerEntityId);
+    // for (uint i = 0; i < toolsEntityIds.length; i++) {
+    //   console.logBytes32(toolsEntityIds[i]);
+    //   console.log(ObjectType.get(toolsEntityIds[i]));
+    //   console.logUint(ItemMetadata.getNumUsesLeft(toolsEntityIds[i]));
+    // }
 
     // world.spawnPlayer(VoxelCoord(139, -62, -34));
 
@@ -90,7 +111,7 @@ contract TestScript is Script {
     // ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, entityId);
     // world.teleport(VoxelCoord(149, -62, -37));
 
-    bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
+    // bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
     // uint8 inputObjectTypeId = GrassObjectID;
     // for (uint i = 0; i < 99; i++) {
     //   bytes32 newInventoryId = testGetUniqueEntity();
@@ -98,8 +119,24 @@ contract TestScript is Script {
     //   Inventory.set(newInventoryId, playerEntityId);
     //   ReverseInventory.push(playerEntityId, newInventoryId);
     // }
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, CobblestoneBrickObjectID, 1);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, DyeomaticObjectID, 1);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverBarObjectID, 4);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, OakLogObjectID, 40);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, SakuraLogObjectID, 40);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, RubberLogObjectID, 40);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, BirchLogObjectID, 40);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 4);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, DirtObjectID, 4);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, OakLumberObjectID, 4);
+
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, CactusObjectID, 4);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, LilacObjectID, 4);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, DandelionObjectID, 4);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, RedMushroomObjectID, 4);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, BellflowerObjectID, 4);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, CottonBushObjectID, 40);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, DaylilyObjectID, 4);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, AzaleaObjectID, 4);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, RoseObjectID, 4);
 
     // bytes32 newInventoryId1 = testGetUniqueEntity();
     // ObjectType.set(newInventoryId1, ChestObjectID);

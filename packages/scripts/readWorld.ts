@@ -45,11 +45,12 @@ async function main() {
   const objectTypeIdAtCoord = await publicClient.readContract({
     address: worldAddress as Hex,
     abi: IWorldAbi,
-    functionName: "getObjectTypeIdAtCoord",
-    args: [{ x: 927, y: 87, z: -547 }],
+    functionName: "getUserDelegation",
+    args: ["0x47CC04d208784c08513A96A8a608a36a821eF309", "0x0F500014239FA76d03Dd32be58692E22b68c0C2a"],
     account,
   });
   console.log("objectTypeIdAtCoord:", objectTypeIdAtCoord);
+  return;
 
   // const emptyInitCallData = "0x0000000000000000000000000000000000000000000000000000000000000000";
   // const UNLIMITED_DELEGATION = resourceToHex({ type: "system", namespace: "", name: "unlimited" });
