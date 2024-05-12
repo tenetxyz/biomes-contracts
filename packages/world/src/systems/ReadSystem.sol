@@ -42,6 +42,10 @@ contract ReadSystem is System {
     return ObjectType._get(entityId);
   }
 
+  function getEntityIdAtCoord(VoxelCoord memory coord) public view returns (bytes32) {
+    return ReversePosition._get(coord.x, coord.y, coord.z);
+  }
+
   function getLastActivityTime(address player) public view returns (uint256) {
     bytes32 playerEntityId = Player._get(player);
     if (PlayerMetadata._getIsLoggedOff(playerEntityId)) {
