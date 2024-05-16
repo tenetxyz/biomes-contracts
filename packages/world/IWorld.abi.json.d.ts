@@ -1354,6 +1354,25 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "getUserDelegations",
+    "inputs": [
+      {
+        "name": "delegator",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "delegatees",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getValueSchema",
     "inputs": [
       {
