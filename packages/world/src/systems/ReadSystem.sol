@@ -6,7 +6,6 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 import { OptionalSystemHooks } from "@latticexyz/world/src/codegen/tables/OptionalSystemHooks.sol";
 import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/UserDelegationControl.sol";
-import { UserDelegations } from "@latticexyz/world/src/codegen/tables/UserDelegations.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
@@ -33,10 +32,6 @@ contract ReadSystem is System {
     address delegatee
   ) public view returns (ResourceId delegationControlId) {
     return UserDelegationControl._getDelegationControlId(delegator, delegatee);
-  }
-
-  function getUserDelegations(address delegator) public view returns (address[] memory delegatees) {
-    return UserDelegations._get(delegator);
   }
 
   function getObjectTypeIdAtCoord(VoxelCoord memory coord) public view returns (uint8) {

@@ -23,8 +23,6 @@ interface IReadSystem {
     address delegatee
   ) external view returns (ResourceId delegationControlId);
 
-  function getUserDelegations(address delegator) external view returns (address[] memory delegatees);
-
   function getObjectTypeIdAtCoord(VoxelCoord memory coord) external view returns (uint8);
 
   function getEntityIdAtCoord(VoxelCoord memory coord) external view returns (bytes32);
