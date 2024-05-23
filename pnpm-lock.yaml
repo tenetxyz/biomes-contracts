@@ -53,6 +53,9 @@ importers:
       '@latticexyz/utils':
         specifier: link:../../../mud/packages/utils
         version: link:../../../mud/packages/utils
+      '@latticexyz/world-modules':
+        specifier: link:../../../mud/packages/world-modules
+        version: link:../../../mud/packages/world-modules
       dotenv:
         specifier: ^16.3.1
         version: 16.4.5

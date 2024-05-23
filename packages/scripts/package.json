@@ -13,7 +13,8 @@
     "writeWorld": "npx tsx writeWorld.ts",
     "setupSpawn": "npx tsx setupSpawn.ts",
     "measureGas": "npx tsx gas/measureGas.ts",
-    "testTerrain": "npx tsx terrain/testTerrain.ts"
+    "testTerrain": "npx tsx terrain/testTerrain.ts",
+    "governor": "npx tsx governor.ts"
   },
   "dependencies": {
     "@biomesaw/world": "workspace:*",
@@ -21,6 +22,7 @@
     "@latticexyz/store": "link:../../../mud/packages/store",
     "@latticexyz/utils": "link:../../../mud/packages/utils",
     "@latticexyz/noise": "link:../../../mud/packages/noise",
+    "@latticexyz/world-modules": "link:../../../mud/packages/world-modules",
     "ethers": "^5.7.2",
     "dotenv": "^16.3.1",
     "prompts": "^2.4.2",
