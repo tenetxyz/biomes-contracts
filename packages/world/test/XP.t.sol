@@ -572,14 +572,10 @@ contract XPTest is MudTest, GasReporter {
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
 
-    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
-    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
-    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 4, "Inventory count not set properly");
-    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
-    assertTrue(testInventoryObjectsHasObjectType(airEntityId, GrassObjectID), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(airEntityId, DiamondOreObjectID), "Inventory objects not set");
-    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
-    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, DiamondOreObjectID), "Inventory objects not set");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 4, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, DiamondOreObjectID), "Inventory objects not set");
 
     vm.stopPrank();
   }

@@ -89,19 +89,16 @@ contract XPSystem is System {
         terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
         "XPSystem: cannot respawn on terrain non-air block"
       );
-
-      // Create new entity
-      respawnEntityId = getUniqueEntity();
-      ObjectType._set(respawnEntityId, AirObjectID);
-      Position._set(respawnEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
-      ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, respawnEntityId);
     } else {
       require(ObjectType._get(respawnEntityId) == AirObjectID, "XPSystem: cannot respawn on non-air block");
-    }
-    // Transfer any items to the respawn entity
-    transferAllInventoryEntities(playerEntityId, respawnEntityId, AirObjectID);
 
+      transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
+      Position._deleteRecord(respawnEntityId);
+    }
     LastKnownPosition._deleteRecord(playerEntityId);
+    Position._set(playerEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
+    ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);
+
     despawnPlayer(playerEntityId);
   }
 }

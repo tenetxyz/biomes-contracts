@@ -50,34 +50,20 @@ contract LoginSystem is System {
     } else {
       require(ObjectType._get(respawnEntityId) == AirObjectID, "LoginSystem: cannot respawn on non-air block");
 
-      // Transfer any dropped items
-      if (newXP > 0) {
-        transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
-        Position._deleteRecord(respawnEntityId);
-      }
+      transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
+      Position._deleteRecord(respawnEntityId);
     }
     LastKnownPosition._deleteRecord(playerEntityId);
+    Position._set(playerEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
+    ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);
 
     if (newXP == 0) {
-      if (respawnEntityId == bytes32(0)) {
-        // Create new entity
-        respawnEntityId = getUniqueEntity();
-        ObjectType._set(respawnEntityId, AirObjectID);
-        Position._set(respawnEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
-        ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, respawnEntityId);
-      }
-      // Transfer any items to the respawn entity
-      transferAllInventoryEntities(playerEntityId, respawnEntityId, AirObjectID);
-
       // If player has no xp, despawn them
       despawnPlayer(playerEntityId);
       return;
     }
 
     ExperiencePoints._set(playerEntityId, newXP);
-
-    Position._set(playerEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
-    ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);
     PlayerMetadata._setIsLoggedOff(playerEntityId, false);
     PlayerActivity._set(playerEntityId, block.timestamp);
 
