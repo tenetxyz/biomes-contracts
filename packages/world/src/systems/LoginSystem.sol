@@ -37,8 +37,6 @@ contract LoginSystem is System {
       "LoginSystem: respawn coord too far from last known position"
     );
 
-    uint256 newXP = calculateRemainingXP(playerEntityId);
-
     bytes32 respawnEntityId = ReversePosition._get(respawnCoord.x, respawnCoord.y, respawnCoord.z);
     if (respawnEntityId == bytes32(0)) {
       // Check terrain block type
@@ -50,13 +48,16 @@ contract LoginSystem is System {
     } else {
       require(ObjectType._get(respawnEntityId) == AirObjectID, "LoginSystem: cannot respawn on non-air block");
 
+      // Transfer any dropped items
       transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
       Position._deleteRecord(respawnEntityId);
     }
-    LastKnownPosition._deleteRecord(playerEntityId);
+
     Position._set(playerEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
     ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);
+    LastKnownPosition._deleteRecord(playerEntityId);
 
+    uint256 newXP = calculateRemainingXP(playerEntityId);
     if (newXP == 0) {
       // If player has no xp, despawn them
       despawnPlayer(playerEntityId);
