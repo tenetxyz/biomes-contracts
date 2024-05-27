@@ -22,7 +22,7 @@ import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, P
 import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
+import { regenHealth, regenStamina, despawnPlayer, calculateRemainingXP } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube, inSurroundingCubeIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract XPSystem is System {
@@ -78,14 +78,7 @@ contract XPSystem is System {
       "XPSystem: respawn coord too far from last known position"
     );
 
-    uint256 timeSinceLogoff = block.timestamp - PlayerActivity._get(playerEntityId);
-    uint256 currentXP = ExperiencePoints._get(playerEntityId);
-    // Burn xp based on time logged off
-    uint256 xpBurn = timeSinceLogoff / 60;
-    if (xpBurn > currentXP) {
-      xpBurn = currentXP;
-    }
-    uint256 newXP = currentXP - xpBurn;
+    uint256 newXP = calculateRemainingXP(playerEntityId);
     require(newXP == 0, "XPSystem: player must have 0 xp to enforce logout penalty");
 
     bytes32 respawnEntityId = ReversePosition._get(respawnCoord.x, respawnCoord.y, respawnCoord.z);
