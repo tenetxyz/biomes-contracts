@@ -218,12 +218,32 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    BlockMetadata: {
+      schema: {
+        entityId: "bytes32",
+        owner: "address",
+      },
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     Equipped: {
       schema: {
         ownerEntityId: "bytes32",
         toolEntityId: "bytes32",
       },
       key: ["ownerEntityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    ExperiencePoints: {
+      schema: {
+        entityId: "bytes32",
+        xp: "uint256",
+      },
+      key: ["entityId"],
       codegen: {
         storeArgument: true,
       },

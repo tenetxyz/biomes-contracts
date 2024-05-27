@@ -14,6 +14,7 @@ import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ReverseInventoryTool } from "../codegen/tables/ReverseInventoryTool.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
@@ -64,6 +65,7 @@ contract BuildSystem is System {
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
+    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
 
     return entityId;
   }

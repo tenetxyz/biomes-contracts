@@ -17,6 +17,7 @@ import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { NullObjectTypeId, AirObjectID, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID } from "../ObjectTypeIds.sol";
@@ -105,5 +106,6 @@ contract CraftSystem is System {
     );
 
     PlayerActivity._set(playerEntityId, block.timestamp);
+    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
   }
 }

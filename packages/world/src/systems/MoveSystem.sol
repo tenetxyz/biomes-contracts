@@ -10,6 +10,7 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -64,6 +65,7 @@ contract MoveSystem is System {
     Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
+    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
 
     VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);

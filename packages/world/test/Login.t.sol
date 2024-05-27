@@ -26,6 +26,8 @@ import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
+import { ExperiencePoints } from "../src/codegen/tables/ExperiencePoints.sol";
+import { BlockMetadata } from "../src/codegen/tables/BlockMetadata.sol";
 
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
@@ -85,14 +87,21 @@ contract LoginTest is MudTest, GasReporter {
 
     uint16 healthBefore = Health.getHealth(playerEntityId);
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+    uint256 xpBefore = ExperiencePoints.get(playerEntityId);
 
     world.logoffPlayer();
+
+    uint256 newBlockTime = block.timestamp + 60;
+    vm.warp(newBlockTime);
 
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
 
     startGasReport("login terrain");
     world.loginPlayer(respawnCoord);
     endGasReport();
+
+    uint256 xpAfter = ExperiencePoints.get(playerEntityId);
+    assertTrue(xpAfter < xpBefore, "XP increased");
 
     assertTrue(
       voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), respawnCoord),
@@ -106,6 +115,43 @@ contract LoginTest is MudTest, GasReporter {
     assertTrue(Stamina.getStamina(playerEntityId) == staminaBefore, "Stamina not set");
     assertTrue(Health.getLastUpdatedTime(playerEntityId) == block.timestamp, "Health last update time not set");
     assertTrue(Stamina.getLastUpdatedTime(playerEntityId) == block.timestamp, "Stamina last update time not set");
+
+    vm.stopPrank();
+  }
+
+  function testLoginWithDepletedXP() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ExperiencePoints.set(playerEntityId, 1);
+    Health.setHealth(playerEntityId, 1);
+    Stamina.setStamina(playerEntityId, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint16 healthBefore = Health.getHealth(playerEntityId);
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+    uint256 xpBefore = ExperiencePoints.get(playerEntityId);
+
+    world.logoffPlayer();
+
+    uint256 newBlockTime = block.timestamp + 60;
+    vm.warp(newBlockTime);
+
+    VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+
+    startGasReport("login w/ depleted xp");
+    world.loginPlayer(respawnCoord);
+    endGasReport();
+
+    assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
+    assertTrue(ReversePlayer.get(playerEntityId) == address(0), "Player not removed from world");
+    assertTrue(ObjectType.get(playerEntityId) == AirObjectID, "Player object not removed");
+    assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
+    assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
 
     vm.stopPrank();
   }
@@ -161,6 +207,59 @@ contract LoginTest is MudTest, GasReporter {
     assertTrue(Stamina.getStamina(playerEntityId) == staminaBefore, "Stamina not set");
     assertTrue(Health.getLastUpdatedTime(playerEntityId) == block.timestamp, "Health last update time not set");
     assertTrue(Stamina.getLastUpdatedTime(playerEntityId) == block.timestamp, "Stamina last update time not set");
+
+    vm.stopPrank();
+  }
+
+  function testLoginNonTerrainWithDepletedXP() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ExperiencePoints.set(playerEntityId, 1);
+    Health.setHealth(playerEntityId, 1);
+    Stamina.setStamina(playerEntityId, 1);
+
+    assertTrue(world.getTerrainBlock(respawnCoord) == AirObjectID, "Terrain block is not air");
+
+    bytes32 entityId = testGetUniqueEntity();
+    Position.set(entityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
+    ReversePosition.set(respawnCoord.x, respawnCoord.y, respawnCoord.z, entityId);
+    ObjectType.set(entityId, AirObjectID);
+
+    // set block below to non-air
+    VoxelCoord memory belowCoord = VoxelCoord(respawnCoord.x, respawnCoord.y - 1, respawnCoord.z);
+    uint8 terrainObjectTypeId = world.getTerrainBlock(belowCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
+    bytes32 belowEntityId = testGetUniqueEntity();
+    Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
+    ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
+    ObjectType.set(belowEntityId, terrainObjectTypeId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint16 healthBefore = Health.getHealth(playerEntityId);
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+
+    world.logoffPlayer();
+
+    uint256 newBlockTime = block.timestamp + 60;
+    vm.warp(newBlockTime);
+
+    startGasReport("login non-terrain w/ depleted xp");
+    world.loginPlayer(respawnCoord);
+    endGasReport();
+
+    assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
+    assertTrue(ReversePlayer.get(playerEntityId) == address(0), "Player not removed from world");
+    assertTrue(ObjectType.get(playerEntityId) == AirObjectID, "Player object not removed");
+    assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
+    assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
 
     vm.stopPrank();
   }

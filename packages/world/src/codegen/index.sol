@@ -22,6 +22,8 @@ import { InventoryCount } from "./tables/InventoryCount.sol";
 import { InventoryObjects } from "./tables/InventoryObjects.sol";
 import { InventorySlots } from "./tables/InventorySlots.sol";
 import { ItemMetadata } from "./tables/ItemMetadata.sol";
+import { BlockMetadata } from "./tables/BlockMetadata.sol";
 import { Equipped } from "./tables/Equipped.sol";
+import { ExperiencePoints } from "./tables/ExperiencePoints.sol";
 import { Health, HealthData } from "./tables/Health.sol";
 import { Stamina, StaminaData } from "./tables/Stamina.sol";

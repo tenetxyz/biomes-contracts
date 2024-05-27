@@ -14,11 +14,12 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, getTerrainObjectTypeId } from "../Utils.sol";
+import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube, inSurroundingCubeIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
@@ -36,6 +37,15 @@ contract LoginSystem is System {
       "LoginSystem: respawn coord too far from last known position"
     );
 
+    uint256 timeSinceLogoff = block.timestamp - PlayerActivity._get(playerEntityId);
+    uint256 currentXP = ExperiencePoints._get(playerEntityId);
+    // Burn xp based on time logged off
+    uint256 xpBurn = timeSinceLogoff / 60;
+    if (xpBurn > currentXP) {
+      xpBurn = currentXP;
+    }
+    uint256 newXP = currentXP - xpBurn;
+
     bytes32 respawnEntityId = ReversePosition._get(respawnCoord.x, respawnCoord.y, respawnCoord.z);
     if (respawnEntityId == bytes32(0)) {
       // Check terrain block type
@@ -48,14 +58,33 @@ contract LoginSystem is System {
       require(ObjectType._get(respawnEntityId) == AirObjectID, "LoginSystem: cannot respawn on non-air block");
 
       // Transfer any dropped items
-      transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
-
-      Position._deleteRecord(respawnEntityId);
+      if (newXP > 0) {
+        transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
+        Position._deleteRecord(respawnEntityId);
+      }
     }
+    LastKnownPosition._deleteRecord(playerEntityId);
+
+    if (newXP == 0) {
+      if (respawnEntityId == bytes32(0)) {
+        // Create new entity
+        respawnEntityId = getUniqueEntity();
+        ObjectType._set(respawnEntityId, AirObjectID);
+        Position._set(respawnEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
+        ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, respawnEntityId);
+      }
+      // Transfer any items to the respawn entity
+      transferAllInventoryEntities(playerEntityId, respawnEntityId, AirObjectID);
+
+      // If player has no xp, despawn them
+      despawnPlayer(playerEntityId);
+      return;
+    }
+
+    ExperiencePoints._set(playerEntityId, newXP);
 
     Position._set(playerEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
     ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);
-    LastKnownPosition._deleteRecord(playerEntityId);
     PlayerMetadata._setIsLoggedOff(playerEntityId, false);
     PlayerActivity._set(playerEntityId, block.timestamp);
 

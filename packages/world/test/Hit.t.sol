@@ -25,6 +25,8 @@ import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
+import { ExperiencePoints } from "../src/codegen/tables/ExperiencePoints.sol";
+import { BlockMetadata } from "../src/codegen/tables/BlockMetadata.sol";
 
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
@@ -232,6 +234,7 @@ contract HitTest is MudTest, GasReporter {
     assertTrue(ObjectType.get(playerEntityId2) == AirObjectID, "Player object not removed");
     assertTrue(Health.getHealth(playerEntityId2) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId2) == 0, "Player stamina not reduced to 0");
+    assertTrue(ExperiencePoints.get(playerEntityId2) == 0, "Player xp not reduced to 0");
 
     vm.stopPrank();
   }

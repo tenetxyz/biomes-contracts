@@ -12,6 +12,8 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
+import { BlockMetadata } from "../codegen/tables/BlockMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
@@ -51,6 +53,14 @@ contract MineSystem is System {
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
     } else {
       mineObjectTypeId = ObjectType._get(entityId);
+
+      address owner = BlockMetadata._getOwner(entityId);
+      require(owner == address(0) || owner == _msgSender(), "MineSystem: cannot mine a locked block");
+      if (owner != address(0)) {
+        // Burn xp
+        ExperiencePoints._deleteRecord(entityId);
+        BlockMetadata._setOwner(entityId, address(0));
+      }
     }
     require(ObjectTypeMetadata._getIsBlock(mineObjectTypeId), "MineSystem: object type is not a block");
     require(mineObjectTypeId != AirObjectID, "MineSystem: cannot mine air");
@@ -79,6 +89,7 @@ contract MineSystem is System {
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
+    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
 
     // Apply gravity
     VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);

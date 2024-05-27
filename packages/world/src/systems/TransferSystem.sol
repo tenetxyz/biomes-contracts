@@ -12,6 +12,8 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
+import { BlockMetadata } from "../codegen/tables/BlockMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
@@ -46,7 +48,11 @@ contract TransferSystem is System {
       revert("TransferSystem: invalid transfer operation");
     }
 
+    address owner = BlockMetadata._getOwner(playerEntityId == srcEntityId ? dstEntityId : srcEntityId);
+    require(owner == address(0) || owner == _msgSender(), "TransferSystem: cannot transfer to/from a locked block");
+
     PlayerActivity._set(playerEntityId, block.timestamp);
+    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
 
     return dstObjectTypeId;
   }

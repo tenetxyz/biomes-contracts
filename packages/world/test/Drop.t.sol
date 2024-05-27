@@ -25,6 +25,8 @@ import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
+import { ExperiencePoints } from "../src/codegen/tables/ExperiencePoints.sol";
+import { BlockMetadata } from "../src/codegen/tables/BlockMetadata.sol";
 
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
@@ -588,6 +590,7 @@ contract DropTest is MudTest, GasReporter {
     // assertTrue(ObjectType.get(playerEntityId) == AirObjectID, "Player object not removed");
     // assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     // assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
+    // assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
 
     // // All 3 blocks should be on the air object at mineCoord2
     // bytes32 airEntityId2 = ReversePosition.get(mineCoord2.x, mineCoord2.y, mineCoord2.z);
@@ -777,6 +780,104 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(!testInventoryObjectsHasObjectType(airEntityId, DiamondOreObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, DiamondOreObjectID), "Inventory objects not set");
+
+    vm.stopPrank();
+  }
+
+  function testLoginWithDepletedXPWithDropsAndPickUpDrops() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    world.logoffPlayer();
+
+    uint256 newBlockTime = block.timestamp + 60;
+    vm.warp(newBlockTime);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ExperiencePoints.set(playerEntityId, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+
+    bytes32 airEntityId = testGetUniqueEntity();
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    Position.set(airEntityId, dropCoord.x, dropCoord.y, dropCoord.z);
+    ReversePosition.set(dropCoord.x, dropCoord.y, dropCoord.z, airEntityId);
+    ObjectType.set(airEntityId, AirObjectID);
+
+    testAddToInventoryCount(airEntityId, AirObjectID, GrassObjectID, 2);
+    testAddToInventoryCount(airEntityId, AirObjectID, DiamondOreObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(testInventoryObjectsHasObjectType(airEntityId, GrassObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(airEntityId, DiamondOreObjectID), "Inventory objects not set");
+
+    VoxelCoord memory respawnCoord = dropCoord;
+    world.loginPlayer(respawnCoord);
+
+    assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
+    assertTrue(ReversePlayer.get(playerEntityId) == address(0), "Player not removed from world");
+    assertTrue(ObjectType.get(playerEntityId) == AirObjectID, "Player object not removed");
+    assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
+    assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 4, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
+    assertTrue(testInventoryObjectsHasObjectType(airEntityId, GrassObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(airEntityId, DiamondOreObjectID), "Inventory objects not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, DiamondOreObjectID), "Inventory objects not set");
+
+    vm.stopPrank();
+  }
+
+  function testLoginWithDepletedXPWithDrops() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    world.logoffPlayer();
+
+    uint256 newBlockTime = block.timestamp + 60;
+    vm.warp(newBlockTime);
+
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ExperiencePoints.set(playerEntityId, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
+
+    VoxelCoord memory respawnCoord = dropCoord;
+    world.loginPlayer(respawnCoord);
+
+    assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
+    assertTrue(ReversePlayer.get(playerEntityId) == address(0), "Player not removed from world");
+    assertTrue(ObjectType.get(playerEntityId) == AirObjectID, "Player object not removed");
+    assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
+    assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+
+    bytes32 airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    assertTrue(airEntityId != bytes32(0), "Dropped entity not set");
+    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Dropped object not set");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(airEntityId)), dropCoord),
+      "Dropped position not set"
+    );
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 2, "Inventory count not set properly");
+    assertTrue(testInventoryObjectsHasObjectType(airEntityId, GrassObjectID), "Inventory objects not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
 
     vm.stopPrank();
   }

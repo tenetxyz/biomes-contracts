@@ -31,6 +31,7 @@ import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
+import { IXPSystem } from "./IXPSystem.sol";
 
 /**
  * @title IWorld
@@ -66,5 +67,6 @@ interface IWorld is
   ISpawnSystem,
   ITerrainSystem,
   ITransferSystem,
-  IUnequipSystem
+  IUnequipSystem,
+  IXPSystem
 {}

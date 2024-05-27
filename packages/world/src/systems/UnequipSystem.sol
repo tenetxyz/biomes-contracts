@@ -11,6 +11,7 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
+import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
@@ -33,5 +34,6 @@ contract UnequipSystem is System {
     }
 
     PlayerActivity._set(playerEntityId, block.timestamp);
+    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
   }
 }
