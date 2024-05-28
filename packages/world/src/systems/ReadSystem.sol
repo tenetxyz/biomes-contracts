@@ -14,6 +14,7 @@ import { Player } from "../codegen/tables/Player.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
+import { WorldMetadata } from "../codegen/tables/WorldMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { NullObjectTypeId } from "../ObjectTypeIds.sol";
@@ -45,6 +46,14 @@ contract ReadSystem is System {
 
   function getEntityIdAtCoord(VoxelCoord memory coord) public view returns (bytes32) {
     return ReversePosition._get(coord.x, coord.y, coord.z);
+  }
+
+  function getTokenAddress() public view returns (address) {
+    return WorldMetadata._getToken();
+  }
+
+  function getXPSupply() public view returns (uint256) {
+    return WorldMetadata._getXpSupply();
   }
 
   function getXP(address player) public view returns (uint256) {

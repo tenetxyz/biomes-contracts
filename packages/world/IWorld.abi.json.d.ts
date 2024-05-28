@@ -1391,6 +1391,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "getTokenAddress",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getUserDelegation",
     "inputs": [
       {
@@ -1442,6 +1455,19 @@ declare const abi: [
         "internalType": "address"
       }
     ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getXPSupply",
+    "inputs": [],
     "outputs": [
       {
         "name": "",
