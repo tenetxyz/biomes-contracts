@@ -20,6 +20,7 @@ import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract TransferSystem is System {
@@ -52,7 +53,7 @@ contract TransferSystem is System {
     require(owner == address(0) || owner == _msgSender(), "TransferSystem: cannot transfer to/from a locked block");
 
     PlayerActivity._set(playerEntityId, block.timestamp);
-    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
+    mintXP(playerEntityId, 1);
 
     return dstObjectTypeId;
   }

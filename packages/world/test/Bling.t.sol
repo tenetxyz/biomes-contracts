@@ -13,7 +13,6 @@ import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
-import { LastKnownPosition } from "../src/codegen/tables/LastKnownPosition.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../src/codegen/tables/Health.sol";
@@ -35,19 +34,21 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
-import { MIN_TIME_BEFORE_AUTO_LOGOFF, MIN_TIME_TO_LOGOFF_AFTER_HIT, MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, MAX_PLAYER_RESPAWN_HALF_WIDTH, MIN_TIME_BEFORE_AUTO_LOGOFF, INITIAL_PLAYER_XP } from "../src/Constants.sol";
+import { AirObjectID, PlayerObjectID, ChestObjectID, BlueDyeObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
-import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem } from "./utils/TestUtils.sol";
+import { burnTestXP, mintTestXP, testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
+import { Bling } from "../external/Bling.sol";
 
-contract LogoffTest is MudTest, GasReporter {
+contract BlingTest is MudTest, GasReporter {
   IWorld private world;
   address payable internal worldDeployer;
   address payable internal alice;
   address payable internal bob;
   VoxelCoord spawnCoord;
+  Bling bling;
 
   function setUp() public override {
     super.setUp();
@@ -57,6 +58,11 @@ contract LogoffTest is MudTest, GasReporter {
     alice = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
     bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bling = new Bling(worldAddress);
+    WorldMetadata.setToken(address(bling));
+    vm.stopPrank();
   }
 
   function setupPlayer() public returns (bytes32) {
@@ -89,159 +95,163 @@ contract LogoffTest is MudTest, GasReporter {
     return playerEntityId2;
   }
 
-  function testLogoff() public {
+  function testXPToBling() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
-    startGasReport("logoff");
-    world.logoffPlayer();
+    assertTrue(bling.balanceOf(alice) == 0, "Bling balance not 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) > 0, "XP not set");
+
+    startGasReport("convertXPToBling");
+    world.convertXPToBling(ExperiencePoints.get(playerEntityId));
     endGasReport();
 
-    assertTrue(
-      voxelCoordsAreEqual(lastKnownPositionDataToVoxelCoord(LastKnownPosition.get(playerEntityId)), spawnCoord),
-      "Last known position not set"
-    );
-
-    bytes32 airEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    assertTrue(airEntityId != playerEntityId, "Player is still in the world");
-    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Air type not set");
-    assertTrue(
-      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(airEntityId)), spawnCoord),
-      "Air position not set"
-    );
+    assertTrue(bling.balanceOf(alice) > 0, "Bling balance not set");
+    assertTrue(ExperiencePoints.get(playerEntityId) == 0, "XP not reset");
 
     vm.stopPrank();
   }
 
-  function testLogoffAfterHit() public {
+  function testBlingToXP() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
-    bytes32 playerEntityId2 = setupPlayer2(1);
-    vm.startPrank(bob, bob);
-    world.hit(alice);
-    assertTrue(PlayerMetadata.getLastHitTime(playerEntityId) == block.timestamp, "Last hit block not set");
-    assertTrue(PlayerMetadata.getLastHitTime(playerEntityId2) != block.timestamp, "Last hit block set");
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-    vm.warp(block.timestamp + MIN_TIME_TO_LOGOFF_AFTER_HIT + 1);
-    world.logoffPlayer();
+    assertTrue(bling.balanceOf(alice) == 0, "Bling balance not 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) > 0, "XP not set");
 
-    assertTrue(
-      voxelCoordsAreEqual(lastKnownPositionDataToVoxelCoord(LastKnownPosition.get(playerEntityId)), spawnCoord),
-      "Last known position not set"
-    );
-
-    bytes32 airEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    assertTrue(airEntityId != playerEntityId, "Player is still in the world");
-    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Air type not set");
-    assertTrue(
-      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(airEntityId)), spawnCoord),
-      "Air position not set"
-    );
-
-    vm.stopPrank();
-  }
-
-  function testLogoffAfterHitTooSoon() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    bytes32 playerEntityId2 = setupPlayer2(1);
-    vm.startPrank(bob, bob);
-    world.hit(alice);
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    vm.expectRevert("LogoffSystem: player needs to wait before logging off as they were recently hit");
-    world.logoffPlayer();
-
-    vm.stopPrank();
-  }
-
-  function testLogoffWithoutPlayer() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-    vm.stopPrank();
-
-    vm.expectRevert("LogoffSystem: player does not exist");
-    world.logoffPlayer();
-  }
-
-  function testLogoffAlreadyLoggedOff() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    world.logoffPlayer();
-
-    vm.expectRevert("LogoffSystem: player isn't logged in");
-    world.logoffPlayer();
-
-    vm.stopPrank();
-  }
-
-  function testLogoffStale() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    vm.warp(block.timestamp + MIN_TIME_BEFORE_AUTO_LOGOFF + 1);
-
-    vm.stopPrank();
-    vm.startPrank(bob, bob);
-
-    startGasReport("logoff stale");
-    world.logoffStalePlayer(alice);
+    startGasReport("convertXPToBling");
+    world.convertXPToBling(ExperiencePoints.get(playerEntityId));
     endGasReport();
 
-    assertTrue(
-      voxelCoordsAreEqual(lastKnownPositionDataToVoxelCoord(LastKnownPosition.get(playerEntityId)), spawnCoord),
-      "Last known position not set"
-    );
+    assertTrue(bling.balanceOf(alice) > 0, "Bling balance not set");
+    assertTrue(ExperiencePoints.get(playerEntityId) == 0, "XP not reset");
 
-    bytes32 airEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    assertTrue(airEntityId != playerEntityId, "Player is still in the world");
-    assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Air type not set");
-    assertTrue(
-      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(airEntityId)), spawnCoord),
-      "Air position not set"
-    );
+    world.convertBlingToXP(bling.balanceOf(alice));
 
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    VoxelCoord memory respawnCoord = spawnCoord;
-    world.loginPlayer(respawnCoord);
+    assertTrue(bling.balanceOf(alice) == 0, "Bling balance not 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) > 0, "XP not set");
 
     vm.stopPrank();
   }
 
-  function testLogoffStaleNonStalePlayer() public {
+  function testConvertXPToBlingNotEnoughXP() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
-    vm.stopPrank();
-    vm.startPrank(bob, bob);
+    assertTrue(bling.balanceOf(alice) == 0, "Bling balance not 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) > 0, "XP not set");
 
-    vm.expectRevert("LogoffSystem: player has recent actions and cannot be logged off");
-    world.logoffStalePlayer(alice);
+    uint256 currentXP = ExperiencePoints.get(playerEntityId);
+
+    vm.expectRevert("player does not have enough xp");
+    world.convertXPToBling(currentXP + 1);
 
     vm.stopPrank();
   }
 
-  function testLogoffStaleInvalidPlayer() public {
+  function testConvertXPToBlingWithoutPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+    vm.stopPrank();
+
+    vm.expectRevert("BlingSystem: player does not exist");
+    world.convertXPToBling(10);
+  }
+
+  function testConvertXPToBlingWithoutToken() public {
+    vm.startPrank(alice, alice);
+    bytes32 playerEntityId = setupPlayer();
+    vm.stopPrank();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    WorldMetadata.setToken(address(0));
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    vm.expectRevert("BlingSystem: bling contract not deployed");
+    world.convertXPToBling(10);
+
+    vm.stopPrank();
+  }
+
+  function testConvertBlingToXPNotEnoughBling() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
-    vm.expectRevert("LogoffSystem: player does not exist");
-    world.logoffStalePlayer(bob);
+    assertTrue(bling.balanceOf(alice) == 0, "Bling balance not 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) > 0, "XP not set");
+
+    vm.expectRevert();
+    world.convertBlingToXP(1);
+
+    vm.stopPrank();
+  }
+
+  function testConvertBlingToXPWithoutPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+    vm.stopPrank();
+
+    vm.expectRevert("BlingSystem: player does not exist");
+    world.convertBlingToXP(10);
+  }
+
+  function testConvertBlingToXPWithoutToken() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    assertTrue(bling.balanceOf(alice) == 0, "Bling balance not 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) > 0, "XP not set");
+
+    world.convertXPToBling(ExperiencePoints.get(playerEntityId));
+
+    assertTrue(bling.balanceOf(alice) > 0, "Bling balance not set");
+    assertTrue(ExperiencePoints.get(playerEntityId) == 0, "XP not reset");
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    WorldMetadata.setToken(address(0));
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    vm.expectRevert("BlingSystem: bling contract not deployed");
+    world.convertBlingToXP(10);
+
+    vm.stopPrank();
+  }
+
+  function testInvalidCallerMint() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.expectRevert();
+    bling.mint(alice, 10);
+
+    vm.stopPrank();
+  }
+
+  function testInvalidCallerBurn() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    assertTrue(bling.balanceOf(alice) == 0, "Bling balance not 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) > 0, "XP not set");
+
+    world.convertXPToBling(ExperiencePoints.get(playerEntityId));
+
+    assertTrue(bling.balanceOf(alice) > 0, "Bling balance not set");
+    assertTrue(ExperiencePoints.get(playerEntityId) == 0, "XP not reset");
+
+    vm.expectRevert();
+    bling.burn(alice, 1);
 
     vm.stopPrank();
   }

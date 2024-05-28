@@ -27,6 +27,8 @@ int16 constant WORLD_BORDER_HIGH_Z = 2000;
 
 int16 constant SPAWN_SHARD_DIM = 1000;
 
+uint256 constant INITIAL_PLAYER_XP = 100;
+
 uint16 constant MAX_PLAYER_HEALTH = 1000;
 uint32 constant MAX_PLAYER_STAMINA = 120000;
 

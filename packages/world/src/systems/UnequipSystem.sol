@@ -12,12 +12,13 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
+import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 
 contract UnequipSystem is System {
   function unequip() public {
@@ -34,6 +35,6 @@ contract UnequipSystem is System {
     }
 
     PlayerActivity._set(playerEntityId, block.timestamp);
-    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
+    mintXP(playerEntityId, 1);
   }
 }

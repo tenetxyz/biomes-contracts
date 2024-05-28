@@ -21,6 +21,7 @@ import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, callGravity, inSpawnArea } from "../Utils.sol";
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 import { inSurroundingCube, voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract HitSystem is System {
@@ -63,7 +64,7 @@ contract HitSystem is System {
     useEquipped(playerEntityId, equippedEntityId);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
-    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
+    mintXP(playerEntityId, 1);
 
     if (newHealth == 0) {
       despawnPlayer(hitEntityId);

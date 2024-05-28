@@ -10,6 +10,8 @@ import { Equipped } from "../../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../../src/codegen/tables/ItemMetadata.sol";
 import { ObjectTypeMetadata } from "../../src/codegen/tables/ObjectTypeMetadata.sol";
 import { UniqueEntity } from "../../src/codegen/tables/UniqueEntity.sol";
+import { ExperiencePoints } from "../../src/codegen/tables/ExperiencePoints.sol";
+import { WorldMetadata } from "../../src/codegen/tables/WorldMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS } from "../../src/Constants.sol";
@@ -73,4 +75,19 @@ function testAddToInventoryCount(
   if (numInitialObjects == 0) {
     InventoryObjects.push(ownerEntityId, objectTypeId);
   }
+}
+
+function mintTestXP(bytes32 playerEntityId, uint256 xpToMint) {
+  uint256 currentXP = ExperiencePoints.get(playerEntityId);
+  ExperiencePoints.set(playerEntityId, currentXP + xpToMint);
+  WorldMetadata.setXpSupply(WorldMetadata.getXpSupply() + xpToMint);
+}
+
+function burnTestXP(bytes32 playerEntityId, uint256 xpToBurn) returns (uint256) {
+  uint256 currentXP = ExperiencePoints.get(playerEntityId);
+  require(currentXP >= xpToBurn, "player does not have enough xp");
+  uint256 newXP = currentXP - xpToBurn;
+  ExperiencePoints.set(playerEntityId, newXP);
+  WorldMetadata.setXpSupply(WorldMetadata.getXpSupply() - xpToBurn);
+  return newXP;
 }

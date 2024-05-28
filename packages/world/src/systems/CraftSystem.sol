@@ -25,6 +25,7 @@ import { positionDataToVoxelCoord, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { getLogObjectTypes, getLumberObjectTypes } from "../utils/ObjectTypeUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract CraftSystem is System {
@@ -106,6 +107,6 @@ contract CraftSystem is System {
     );
 
     PlayerActivity._set(playerEntityId, block.timestamp);
-    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
+    mintXP(playerEntityId, 1);
   }
 }

@@ -13,5 +13,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 interface IXPSystem {
   function transferXP(bytes32 dstEntityId, uint256 transferAmount) external;
 
+  function updateLoggedOffXP(address player) external;
+
   function enforceLogoutPenalty(address player, VoxelCoord memory respawnCoord) external;
 }

@@ -7,6 +7,7 @@ import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.
 
 import { IActivateSystem } from "./IActivateSystem.sol";
 import { IAdminTerrainSystem } from "./IAdminTerrainSystem.sol";
+import { IBlingSystem } from "./IBlingSystem.sol";
 import { IBuildSystem } from "./IBuildSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
@@ -44,6 +45,7 @@ interface IWorld is
   IBaseWorld,
   IActivateSystem,
   IAdminTerrainSystem,
+  IBlingSystem,
   IBuildSystem,
   ICraftSystem,
   IDropSystem,

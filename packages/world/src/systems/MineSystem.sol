@@ -20,6 +20,7 @@ import { MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAG
 import { positionDataToVoxelCoord, callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -57,7 +58,7 @@ contract MineSystem is System {
       address owner = BlockMetadata._getOwner(entityId);
       require(owner == address(0) || owner == _msgSender(), "MineSystem: cannot mine a locked block");
       if (owner != address(0)) {
-        // Burn xp
+        // Burn xp, but don't change supply as it was never increased for blocks
         ExperiencePoints._deleteRecord(entityId);
         BlockMetadata._setOwner(entityId, address(0));
       }
@@ -89,7 +90,7 @@ contract MineSystem is System {
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
-    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
+    mintXP(playerEntityId, 1);
 
     // Apply gravity
     VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);

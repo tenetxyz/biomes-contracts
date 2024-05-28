@@ -5,6 +5,16 @@ export default defineWorld({
     upgradeableWorldImplementation: true,
   },
   tables: {
+    WorldMetadata: {
+      schema: {
+        token: "address",
+        xpSupply: "uint256",
+      },
+      key: [],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     UniqueEntity: {
       schema: {
         value: "uint256",

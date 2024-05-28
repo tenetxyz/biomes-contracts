@@ -22,6 +22,7 @@ import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol
 import { positionDataToVoxelCoord, inSpawnArea, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract BuildSystem is System {
@@ -65,7 +66,7 @@ contract BuildSystem is System {
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
-    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
+    mintXP(playerEntityId, 1);
 
     return entityId;
   }

@@ -443,6 +443,32 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "convertBlingToXP",
+    "inputs": [
+      {
+        "name": "blingToConvert",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "convertXPToBling",
+    "inputs": [
+      {
+        "name": "xpToConvert",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "craft",
     "inputs": [
       {
@@ -1402,6 +1428,25 @@ declare const abi: [
         "name": "valueSchema",
         "type": "bytes32",
         "internalType": "Schema"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getXP",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
@@ -2882,6 +2927,19 @@ declare const abi: [
         "name": "hookAddress",
         "type": "address",
         "internalType": "contract ISystemHook"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateLoggedOffXP",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],

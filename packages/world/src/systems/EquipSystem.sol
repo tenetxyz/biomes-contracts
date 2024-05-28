@@ -20,6 +20,7 @@ import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract EquipSystem is System {
@@ -36,6 +37,6 @@ contract EquipSystem is System {
     Equipped._set(playerEntityId, inventoryEntityId);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
-    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
+    mintXP(playerEntityId, 1);
   }
 }

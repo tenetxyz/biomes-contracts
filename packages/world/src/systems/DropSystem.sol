@@ -19,6 +19,7 @@ import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../Ob
 import { positionDataToVoxelCoord, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonTool, transferInventoryTool } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract DropSystem is System {
@@ -51,7 +52,7 @@ contract DropSystem is System {
     }
 
     PlayerActivity._set(playerEntityId, block.timestamp);
-    ExperiencePoints._set(playerEntityId, ExperiencePoints._get(playerEntityId) + 1);
+    mintXP(playerEntityId, 1);
 
     return entityId;
   }

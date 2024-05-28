@@ -19,11 +19,12 @@ import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
+import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST, INITIAL_PLAYER_XP } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, BasaltCarvedObjectID, StoneObjectID, DirtObjectID, GrassObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity, positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, inSpawnArea, getTerrainObjectTypeId } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract SpawnSystem is System {
@@ -60,7 +61,7 @@ contract SpawnSystem is System {
 
     Health._set(playerEntityId, block.timestamp, MAX_PLAYER_HEALTH);
     Stamina._set(playerEntityId, block.timestamp, MAX_PLAYER_STAMINA);
-    ExperiencePoints._set(playerEntityId, 100);
+    mintXP(playerEntityId, INITIAL_PLAYER_XP);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
     PlayerMetadata._set(playerEntityId, false, 0);

@@ -22,8 +22,9 @@ import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, P
 import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { regenHealth, regenStamina, despawnPlayer, calculateRemainingXP } from "../utils/PlayerUtils.sol";
+import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube, inSurroundingCubeIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { calculateXPToBurnFromLogout, burnXP, safeBurnXP } from "../utils/XPUtils.sol";
 
 contract XPSystem is System {
   function transferXP(bytes32 dstEntityId, uint256 transferAmount) public {
@@ -38,24 +39,27 @@ contract XPSystem is System {
     regenHealth(playerEntityId);
     regenStamina(playerEntityId, playerCoord);
 
-    uint256 currentXP = ExperiencePoints._get(playerEntityId);
-    require(currentXP >= transferAmount, "XPSystem: player does not have enough xp");
-
     uint8 dstObjectTypeId = ObjectType._get(dstEntityId);
     require(dstObjectTypeId == ChestObjectID, "XPSystem: cannot transfer to non-chest");
     address owner = BlockMetadata._getOwner(dstEntityId);
     uint256 currentDstXP = ExperiencePoints._get(dstEntityId);
     if (owner == address(0) || owner == _msgSender()) {
+      burnXP(playerEntityId, transferAmount);
       // lock chest
-      ExperiencePoints._set(playerEntityId, currentXP - transferAmount);
+
+      // Mint XP to chest without increasing total supply
+      uint256 currentDstXP = ExperiencePoints._get(dstEntityId);
       ExperiencePoints._set(dstEntityId, currentDstXP + transferAmount);
+
       if (owner == address(0)) {
         BlockMetadata._setOwner(dstEntityId, _msgSender());
       }
     } else {
       // spend xp to unlock chest
       uint256 spendXP = currentDstXP > transferAmount ? transferAmount : currentDstXP;
-      ExperiencePoints._set(playerEntityId, currentXP - spendXP);
+      burnXP(playerEntityId, spendXP);
+
+      // Burn XP from chest without decreasing total supply, as it was never increased
       uint256 newDstXP = currentDstXP - spendXP;
       if (newDstXP == 0) {
         ExperiencePoints._deleteRecord(dstEntityId);
@@ -66,10 +70,23 @@ contract XPSystem is System {
     }
   }
 
+  function updateLoggedOffXP(address player) public {
+    bytes32 playerEntityId = Player._get(player);
+    require(playerEntityId != bytes32(0), "XPSystem: player does not exist");
+    require(PlayerMetadata._getIsLoggedOff(playerEntityId), "XPSystem: player already logged in");
+    uint256 newXP = safeBurnXP(playerEntityId, calculateXPToBurnFromLogout(playerEntityId));
+    require(newXP > 0, "XPSystem: if xp is 0, must enforce logout penalty");
+  }
+
   function enforceLogoutPenalty(address player, VoxelCoord memory respawnCoord) public {
     bytes32 playerEntityId = Player._get(player);
     require(playerEntityId != bytes32(0), "XPSystem: player does not exist");
     require(PlayerMetadata._getIsLoggedOff(playerEntityId), "XPSystem: player already logged in");
+
+    uint256 newXP = safeBurnXP(playerEntityId, calculateXPToBurnFromLogout(playerEntityId));
+    if (newXP > 0) {
+      return;
+    }
 
     VoxelCoord memory lastKnownCoord = lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(playerEntityId));
     require(inWorldBorder(respawnCoord), "XPSystem: cannot respawn outside world border");
@@ -93,9 +110,6 @@ contract XPSystem is System {
       transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
       Position._deleteRecord(respawnEntityId);
     }
-
-    uint256 newXP = calculateRemainingXP(playerEntityId);
-    require(newXP == 0, "XPSystem: player must have 0 xp to enforce logout penalty");
 
     Position._set(playerEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
     ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);

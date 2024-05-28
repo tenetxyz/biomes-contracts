@@ -28,6 +28,7 @@ import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 import { ExperiencePoints } from "../src/codegen/tables/ExperiencePoints.sol";
 import { BlockMetadata } from "../src/codegen/tables/BlockMetadata.sol";
+import { WorldMetadata } from "../src/codegen/tables/WorldMetadata.sol";
 
 import { Terrain } from "../src/codegen/tables/Terrain.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";

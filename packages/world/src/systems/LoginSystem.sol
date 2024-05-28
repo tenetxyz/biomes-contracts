@@ -21,7 +21,9 @@ import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, P
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { regenHealth, regenStamina, despawnPlayer, calculateRemainingXP } from "../utils/PlayerUtils.sol";
+import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
+import { calculateXPToBurnFromLogout, safeBurnXP } from "../utils/XPUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 import { inSurroundingCube, inSurroundingCubeIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract LoginSystem is System {
@@ -57,14 +59,13 @@ contract LoginSystem is System {
     ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);
     LastKnownPosition._deleteRecord(playerEntityId);
 
-    uint256 newXP = calculateRemainingXP(playerEntityId);
+    uint256 newXP = safeBurnXP(playerEntityId, calculateXPToBurnFromLogout(playerEntityId));
     if (newXP == 0) {
       // If player has no xp, despawn them
       despawnPlayer(playerEntityId);
       return;
     }
 
-    ExperiencePoints._set(playerEntityId, newXP);
     PlayerMetadata._setIsLoggedOff(playerEntityId, false);
     PlayerActivity._set(playerEntityId, block.timestamp);
 

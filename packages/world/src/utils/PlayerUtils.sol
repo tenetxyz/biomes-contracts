@@ -10,6 +10,7 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
 import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
+import { WorldMetadata } from "../codegen/tables/WorldMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, WATER_STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "../Constants.sol";
@@ -63,18 +64,6 @@ function regenStamina(bytes32 entityId, VoxelCoord memory entityCoord) {
   Stamina._set(entityId, StaminaData({ stamina: newStamina, lastUpdatedTime: block.timestamp }));
 }
 
-function calculateRemainingXP(bytes32 playerEntityId) view returns (uint256) {
-  uint256 timeSinceLogoff = block.timestamp - PlayerActivity._get(playerEntityId);
-  uint256 currentXP = ExperiencePoints._get(playerEntityId);
-  // Burn xp based on time logged off
-  uint256 xpBurn = timeSinceLogoff / 60;
-  if (xpBurn > currentXP) {
-    xpBurn = currentXP;
-  }
-  uint256 newXP = currentXP - xpBurn;
-  return newXP;
-}
-
 function despawnPlayer(bytes32 playerEntityId) {
   // Note: Inventory is already attached to the entity id, which means it'll be
   // attached to air, ie it's a "dropped" item
@@ -89,6 +78,7 @@ function despawnPlayer(bytes32 playerEntityId) {
   PlayerMetadata._deleteRecord(playerEntityId);
   PlayerActivity._deleteRecord(playerEntityId);
   ExperiencePoints._deleteRecord(playerEntityId);
+  WorldMetadata._setXpSupply(WorldMetadata._getXpSupply() - ExperiencePoints._get(playerEntityId));
   address player = ReversePlayer._get(playerEntityId);
   Player._deleteRecord(player);
   ReversePlayer._deleteRecord(playerEntityId);

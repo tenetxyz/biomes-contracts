@@ -28,6 +28,7 @@ import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 import { ExperiencePoints } from "../src/codegen/tables/ExperiencePoints.sol";
 import { BlockMetadata } from "../src/codegen/tables/BlockMetadata.sol";
+import { WorldMetadata } from "../src/codegen/tables/WorldMetadata.sol";
 
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
@@ -35,11 +36,11 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
-import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
+import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, INITIAL_PLAYER_XP } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
-import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem } from "./utils/TestUtils.sol";
+import { burnTestXP, mintTestXP, testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem } from "./utils/TestUtils.sol";
 
 contract LoginTest is MudTest, GasReporter {
   IWorld private world;
@@ -125,7 +126,7 @@ contract LoginTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     vm.startPrank(worldDeployer, worldDeployer);
-    ExperiencePoints.set(playerEntityId, 1);
+    burnTestXP(playerEntityId, ExperiencePoints.get(playerEntityId) - 1);
     Health.setHealth(playerEntityId, 1);
     Stamina.setStamina(playerEntityId, 1);
     vm.stopPrank();
@@ -219,7 +220,7 @@ contract LoginTest is MudTest, GasReporter {
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    ExperiencePoints.set(playerEntityId, 1);
+    burnTestXP(playerEntityId, ExperiencePoints.get(playerEntityId) - 1);
     Health.setHealth(playerEntityId, 1);
     Stamina.setStamina(playerEntityId, 1);
 

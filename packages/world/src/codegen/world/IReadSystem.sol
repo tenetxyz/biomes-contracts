@@ -27,5 +27,7 @@ interface IReadSystem {
 
   function getEntityIdAtCoord(VoxelCoord memory coord) external view returns (bytes32);
 
+  function getXP(address player) external view returns (uint256);
+
   function getLastActivityTime(address player) external view returns (uint256);
 }
