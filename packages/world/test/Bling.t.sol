@@ -136,6 +136,31 @@ contract BlingTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testConvertXPToBlingLoggedOff() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    burnTestXP(playerEntityId, ExperiencePoints.get(playerEntityId) - 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    assertTrue(bling.balanceOf(alice) == 0, "Bling balance not 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) == 1, "XP not set");
+
+    world.logoffPlayer();
+
+    uint256 newBlockTime = block.timestamp + 60;
+    vm.warp(newBlockTime);
+
+    uint256 currentXP = ExperiencePoints.get(playerEntityId);
+    vm.expectRevert("BlingSystem: player has no XP to convert");
+    world.convertXPToBling(currentXP);
+
+    vm.stopPrank();
+  }
+
   function testConvertXPToBlingNotEnoughXP() public {
     vm.startPrank(alice, alice);
 
@@ -200,6 +225,31 @@ contract BlingTest is MudTest, GasReporter {
 
     vm.expectRevert("BlingSystem: player does not exist");
     world.convertBlingToXP(10);
+  }
+
+  function testConvertBlingToXPLoggedOff() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    assertTrue(bling.balanceOf(alice) == 0, "Bling balance not 0");
+    assertTrue(ExperiencePoints.get(playerEntityId) > 0, "XP not set");
+
+    world.convertXPToBling(ExperiencePoints.get(playerEntityId));
+
+    assertTrue(bling.balanceOf(alice) > 0, "Bling balance not set");
+    assertTrue(ExperiencePoints.get(playerEntityId) == 0, "XP not reset");
+
+    world.logoffPlayer();
+
+    uint256 newBlockTime = block.timestamp + 60;
+    vm.warp(newBlockTime);
+
+    uint256 currntBling = bling.balanceOf(alice);
+    vm.expectRevert("BlingSystem: player has no XP to convert");
+    world.convertBlingToXP(currntBling);
+
+    vm.stopPrank();
   }
 
   function testConvertBlingToXPWithoutToken() public {

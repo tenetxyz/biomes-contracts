@@ -25,7 +25,7 @@ import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, gravityApp
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube, inSurroundingCubeIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { burnXP, mintXP } from "../utils/XPUtils.sol";
+import { calculateXPToBurnFromLogout, burnXP, mintXP, safeBurnXP } from "../utils/XPUtils.sol";
 
 import { IBling } from "../../external/IBling.sol";
 
@@ -33,6 +33,11 @@ contract BlingSystem is System {
   function convertXPToBling(uint256 xpToConvert) public {
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "BlingSystem: player does not exist");
+
+    if (PlayerMetadata._getIsLoggedOff(playerEntityId)) {
+      uint256 newXP = safeBurnXP(playerEntityId, calculateXPToBurnFromLogout(playerEntityId));
+      require(newXP > 0, "BlingSystem: player has no XP to convert");
+    }
 
     address blingAddress = WorldMetadata._getToken();
     require(blingAddress != address(0), "BlingSystem: bling contract not deployed");
@@ -56,6 +61,11 @@ contract BlingSystem is System {
   function convertBlingToXP(uint256 blingToConvert) public {
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "BlingSystem: player does not exist");
+
+    if (PlayerMetadata._getIsLoggedOff(playerEntityId)) {
+      uint256 newXP = safeBurnXP(playerEntityId, calculateXPToBurnFromLogout(playerEntityId));
+      require(newXP > 0, "BlingSystem: player has no XP to convert");
+    }
 
     address blingAddress = WorldMetadata._getToken();
     require(blingAddress != address(0), "BlingSystem: bling contract not deployed");
