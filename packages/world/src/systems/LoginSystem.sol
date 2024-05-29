@@ -52,6 +52,7 @@ contract LoginSystem is System {
 
       // Transfer any dropped items
       transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
+
       Position._deleteRecord(respawnEntityId);
     }
 
