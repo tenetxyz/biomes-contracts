@@ -167,6 +167,7 @@ contract GravityTest is MudTest, GasReporter {
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     uint16 healthBefore = Health.getHealth(playerEntityId);
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
 
     startGasReport("gravity via mine, fatal fall from full health");
     world.mine(mineCoord);
@@ -178,6 +179,7 @@ contract GravityTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     assertTrue(Player.get(bob) == playerEntity2, "Player removed from world");
     assertTrue(ReversePlayer.get(playerEntity2) == bob, "Player removed from world");
@@ -268,6 +270,7 @@ contract GravityTest is MudTest, GasReporter {
 
     uint256 health1Before = Health.getHealth(playerEntityId);
     uint256 health2Before = Health.getHealth(playerEntityId2);
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
 
     world.mine(mineCoord);
 
@@ -277,6 +280,7 @@ contract GravityTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     assertTrue(Player.get(bob) == playerEntityId2, "Player removed from world");
     assertTrue(ReversePlayer.get(playerEntityId2) == bob, "Player removed from world");
@@ -736,6 +740,9 @@ contract GravityTest is MudTest, GasReporter {
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
     newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
     world.move(newCoords);
+
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
+
     world.hit(alice);
 
     assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
@@ -744,6 +751,7 @@ contract GravityTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     assertTrue(Player.get(bob) == playerEntity2, "Player removed from world");
     assertTrue(ReversePlayer.get(playerEntity2) == bob, "Player removed from world");

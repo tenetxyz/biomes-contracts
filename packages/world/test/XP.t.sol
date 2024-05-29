@@ -122,6 +122,8 @@ contract XPTest is MudTest, GasReporter {
     assertTrue(ExperiencePoints.get(chestEntityId) == 0, "XP not set");
     assertTrue(BlockMetadata.getOwner(chestEntityId) == address(0), "Owner not set");
 
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
+
     startGasReport("lock chest");
     world.transferXP(chestEntityId, 10);
     endGasReport();
@@ -129,6 +131,7 @@ contract XPTest is MudTest, GasReporter {
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "XP not set");
     assertTrue(ExperiencePoints.get(chestEntityId) == 10, "XP not set");
     assertTrue(BlockMetadata.getOwner(chestEntityId) == alice, "Owner not set");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     // Should be a allowed cuz we're the chest owner
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
@@ -199,11 +202,14 @@ contract XPTest is MudTest, GasReporter {
     assertTrue(ExperiencePoints.get(chestEntityId) == 0, "XP not set");
     assertTrue(BlockMetadata.getOwner(chestEntityId) == address(0), "Owner not set");
 
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
+
     world.transferXP(chestEntityId, 5);
 
     assertTrue(ExperiencePoints.get(playerEntityId) == 5, "XP not set");
     assertTrue(ExperiencePoints.get(chestEntityId) == 5, "XP not set");
     assertTrue(BlockMetadata.getOwner(chestEntityId) == alice, "Owner not set");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     // Should be a allowed cuz we're the chest owner
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
@@ -216,6 +222,8 @@ contract XPTest is MudTest, GasReporter {
 
     vm.startPrank(bob, bob);
 
+    xpSupplyBefore = WorldMetadata.getXpSupply();
+
     // Transfer XP to unlock chest
     startGasReport("unlock chest");
     world.transferXP(chestEntityId, 5);
@@ -224,6 +232,7 @@ contract XPTest is MudTest, GasReporter {
     assertTrue(ExperiencePoints.get(chestEntityId) == 0, "XP not set");
     assertTrue(ExperiencePoints.get(playerEntityId2) == 5, "XP not set");
     assertTrue(BlockMetadata.getOwner(chestEntityId) == address(0), "Owner not set");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     // Should be a allowed cuz the chest is unlocked now
     world.transfer(chestEntityId, playerEntityId2, inputObjectTypeId1, 1);
@@ -251,12 +260,16 @@ contract XPTest is MudTest, GasReporter {
     assertTrue(ObjectType.get(chestEntityId) == ChestObjectID, "Chest not rebuilt");
     assertTrue(ExperiencePoints.get(playerEntityId2) == 5, "XP not set");
     assertTrue(ExperiencePoints.get(chestEntityId) == 0, "XP not set");
+
+    xpSupplyBefore = WorldMetadata.getXpSupply();
+
     // lock chest
     world.transferXP(chestEntityId, 5);
 
     assertTrue(ExperiencePoints.get(playerEntityId2) == 0, "XP not set");
     assertTrue(ExperiencePoints.get(chestEntityId) == 5, "XP not set");
     assertTrue(BlockMetadata.getOwner(chestEntityId) == bob, "Owner not set");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     vm.stopPrank();
   }
@@ -459,6 +472,8 @@ contract XPTest is MudTest, GasReporter {
 
     vm.startPrank(bob, bob);
 
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
+
     startGasReport("enforceLogoutPenalty");
     world.enforceLogoutPenalty(alice, respawnCoord);
     endGasReport();
@@ -469,6 +484,7 @@ contract XPTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     vm.stopPrank();
   }
@@ -504,6 +520,8 @@ contract XPTest is MudTest, GasReporter {
 
     vm.startPrank(bob, bob);
 
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
+
     startGasReport("enforceLogoutPenalty non-terrain");
     world.enforceLogoutPenalty(alice, respawnCoord);
     endGasReport();
@@ -514,6 +532,7 @@ contract XPTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     vm.stopPrank();
   }
@@ -561,6 +580,8 @@ contract XPTest is MudTest, GasReporter {
 
     vm.startPrank(bob, bob);
 
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
+
     startGasReport("enforceLogoutPenalty non-terrain w/ drops");
     world.enforceLogoutPenalty(alice, respawnCoord);
     endGasReport();
@@ -571,6 +592,7 @@ contract XPTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 4, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
@@ -616,6 +638,8 @@ contract XPTest is MudTest, GasReporter {
 
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
 
+    assertTrue(WorldMetadata.getXpSupply() == 0, "World xp supply not reduced");
+
     world.enforceLogoutPenalty(alice, respawnCoord);
 
     assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
@@ -624,6 +648,7 @@ contract XPTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() == 0, "World xp supply not reduced");
 
     vm.stopPrank();
   }

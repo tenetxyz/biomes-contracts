@@ -816,6 +816,8 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(airEntityId, DiamondOreObjectID), "Inventory objects not set");
 
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
+
     VoxelCoord memory respawnCoord = dropCoord;
     world.loginPlayer(respawnCoord);
 
@@ -825,6 +827,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 4, "Inventory count not set properly");
     assertTrue(InventoryCount.get(playerEntityId, DiamondOreObjectID) == 1, "Inventory count not set properly");
@@ -854,6 +857,8 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 2, "Inventory count not set properly");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
 
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
+
     VoxelCoord memory respawnCoord = dropCoord;
     world.loginPlayer(respawnCoord);
 
@@ -863,6 +868,7 @@ contract DropTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     bytes32 airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
     assertTrue(airEntityId != bytes32(0), "Dropped entity not set");

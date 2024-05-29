@@ -77,8 +77,11 @@ function despawnPlayer(bytes32 playerEntityId) {
 
   PlayerMetadata._deleteRecord(playerEntityId);
   PlayerActivity._deleteRecord(playerEntityId);
+  uint256 playerXP = ExperiencePoints._get(playerEntityId);
+  if (playerXP > 0) {
+    WorldMetadata._setXpSupply(WorldMetadata._getXpSupply() - playerXP);
+  }
   ExperiencePoints._deleteRecord(playerEntityId);
-  WorldMetadata._setXpSupply(WorldMetadata._getXpSupply() - ExperiencePoints._get(playerEntityId));
   address player = ReversePlayer._get(playerEntityId);
   Player._deleteRecord(player);
   ReversePlayer._deleteRecord(playerEntityId);

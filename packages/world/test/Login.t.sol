@@ -143,6 +143,8 @@ contract LoginTest is MudTest, GasReporter {
 
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
 
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
+
     startGasReport("login w/ depleted xp");
     world.loginPlayer(respawnCoord);
     endGasReport();
@@ -153,6 +155,7 @@ contract LoginTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     vm.stopPrank();
   }
@@ -251,6 +254,8 @@ contract LoginTest is MudTest, GasReporter {
     uint256 newBlockTime = block.timestamp + 60;
     vm.warp(newBlockTime);
 
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
+
     startGasReport("login non-terrain w/ depleted xp");
     world.loginPlayer(respawnCoord);
     endGasReport();
@@ -261,6 +266,7 @@ contract LoginTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     vm.stopPrank();
   }

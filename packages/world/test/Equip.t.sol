@@ -293,6 +293,8 @@ contract EquipTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
+
     world.mine(mineCoord);
 
     assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not removed");
@@ -302,6 +304,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     vm.stopPrank();
   }

@@ -223,6 +223,8 @@ contract HitTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
+    uint256 xpSupplyBefore = WorldMetadata.getXpSupply();
+
     startGasReport("hit player fatal");
     world.hit(bob);
     endGasReport();
@@ -236,6 +238,7 @@ contract HitTest is MudTest, GasReporter {
     assertTrue(Health.getHealth(playerEntityId2) == 0, "Player health not reduced to 0");
     assertTrue(Stamina.getStamina(playerEntityId2) == 0, "Player stamina not reduced to 0");
     assertTrue(ExperiencePoints.get(playerEntityId2) == 0, "Player xp not reduced to 0");
+    assertTrue(WorldMetadata.getXpSupply() < xpSupplyBefore, "World xp supply not reduced");
 
     vm.stopPrank();
   }
