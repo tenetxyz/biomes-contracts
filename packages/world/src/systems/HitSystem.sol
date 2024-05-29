@@ -61,6 +61,8 @@ contract HitSystem is System {
 
     useEquipped(playerEntityId, equippedEntityId);
 
+    PlayerActivity._set(playerEntityId, block.timestamp);
+
     if (newHealth == 0) {
       despawnPlayer(hitEntityId);
 
@@ -73,7 +75,5 @@ contract HitSystem is System {
       PlayerMetadata._setLastHitTime(hitEntityId, block.timestamp);
       PlayerActivity._set(hitEntityId, block.timestamp);
     }
-
-    PlayerActivity._set(playerEntityId, block.timestamp);
   }
 }

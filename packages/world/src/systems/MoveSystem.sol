@@ -63,13 +63,13 @@ contract MoveSystem is System {
     require(currentStamina >= staminaRequired, "MoveSystem: not enough stamina");
     Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
 
+    PlayerActivity._set(playerEntityId, block.timestamp);
+
     VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
     if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
       callGravity(aboveEntityId, aboveCoord);
     }
-
-    PlayerActivity._set(playerEntityId, block.timestamp);
   }
 
   function move(

@@ -26,7 +26,7 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GrassObjectID, OakLogObjectID, AirObjectID, OakLumberObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
-import { testAddToInventoryCount } from "../test/utils/InventoryTestUtils.sol";
+import { testAddToInventoryCount } from "../test/utils/TestUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
 import { positionDataToVoxelCoord, callGravity, getUniqueEntity } from "../src/Utils.sol";
 

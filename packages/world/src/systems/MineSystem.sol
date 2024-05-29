@@ -78,13 +78,13 @@ contract MineSystem is System {
     ObjectType._set(entityId, AirObjectID);
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
+    PlayerActivity._set(playerEntityId, block.timestamp);
+
     // Apply gravity
     VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);
     bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
     if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
       callGravity(aboveEntityId, aboveCoord);
     }
-
-    PlayerActivity._set(playerEntityId, block.timestamp);
   }
 }

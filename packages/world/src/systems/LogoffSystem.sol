@@ -36,6 +36,7 @@ contract LogoffSystem is System {
 
     regenHealth(playerEntityId);
     regenStamina(playerEntityId, playerCoord);
+    PlayerActivity._set(playerEntityId, block.timestamp);
 
     LastKnownPosition._set(playerEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
     Position._deleteRecord(playerEntityId);
