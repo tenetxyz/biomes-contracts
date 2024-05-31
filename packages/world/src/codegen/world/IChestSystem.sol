@@ -15,5 +15,5 @@ interface IChestSystem {
     uint16 strengthenObjectTypeAmount
   ) external;
 
-  function setChestTransferHook(bytes32 chestEntityId, address hookAddress) external;
+  function setChestOnTransferHook(bytes32 chestEntityId, address hookAddress) external;
 }

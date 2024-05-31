@@ -2232,7 +2232,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "setChestTransferHook",
+    "name": "setChestOnTransferHook",
     "inputs": [
       {
         "name": "chestEntityId",

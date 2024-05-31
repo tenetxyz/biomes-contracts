@@ -142,7 +142,9 @@ contract ChestTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
+    startGasReport("build bedrock chest");
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
+    endGasReport();
 
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
     assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
@@ -240,6 +242,11 @@ contract ChestTest is MudTest, GasReporter {
     world.mine(chestCoord);
     assertTrue(ChestMetadata.getStrength(chestEntityId) < strengthBefore, "Strength not decreased");
     assertTrue(ObjectType.get(chestEntityId) == BedrockChestObjectID, "Chest mined");
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    Stamina.setStamina(playerEntityId, MAX_PLAYER_STAMINA);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
 
     strengthBefore = ChestMetadata.getStrength(chestEntityId);
     world.mine(chestCoord);
@@ -590,7 +597,7 @@ contract ChestTest is MudTest, GasReporter {
 
     assertTrue(ChestMetadata.getOnTransferHook(chestEntityId) == address(0), "OnTransferHook not set");
     address chestHookAddress = address(chestTransferHook);
-    world.setChestTransferHook(chestEntityId, chestHookAddress);
+    world.setChestOnTransferHook(chestEntityId, chestHookAddress);
     assertTrue(ChestMetadata.getOnTransferHook(chestEntityId) == chestHookAddress, "OnTransferHook not set");
 
     vm.startPrank(bob, bob);
@@ -651,9 +658,7 @@ contract ChestTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    startGasReport("build bedrock chest");
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
-    endGasReport();
 
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
     assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
@@ -672,7 +677,7 @@ contract ChestTest is MudTest, GasReporter {
     vm.stopPrank();
 
     vm.expectRevert("ChestSystem: player does not exist");
-    world.setChestTransferHook(chestEntityId, chestHookAddress);
+    world.setChestOnTransferHook(chestEntityId, chestHookAddress);
 
     vm.stopPrank();
   }
@@ -726,7 +731,7 @@ contract ChestTest is MudTest, GasReporter {
     world.logoffPlayer();
 
     vm.expectRevert("ChestSystem: player isn't logged in");
-    world.setChestTransferHook(chestEntityId, chestHookAddress);
+    world.setChestOnTransferHook(chestEntityId, chestHookAddress);
 
     vm.stopPrank();
   }
@@ -783,7 +788,7 @@ contract ChestTest is MudTest, GasReporter {
     world.move(newCoords);
 
     vm.expectRevert("ChestSystem: player is too far from the chest");
-    world.setChestTransferHook(chestEntityId, chestHookAddress);
+    world.setChestOnTransferHook(chestEntityId, chestHookAddress);
 
     vm.stopPrank();
   }
@@ -838,7 +843,7 @@ contract ChestTest is MudTest, GasReporter {
     address chestHookAddress = address(chestTransferHook);
 
     vm.expectRevert("ChestSystem: player does not own chest");
-    world.setChestTransferHook(chestEntityId, chestHookAddress);
+    world.setChestOnTransferHook(chestEntityId, chestHookAddress);
 
     vm.stopPrank();
   }
@@ -889,10 +894,10 @@ contract ChestTest is MudTest, GasReporter {
     assertTrue(ChestMetadata.getOnTransferHook(chestEntityId) == address(0), "OnTransferHook not set");
     address chestHookAddress = address(chestTransferHook);
 
-    world.setChestTransferHook(chestEntityId, chestHookAddress);
+    world.setChestOnTransferHook(chestEntityId, chestHookAddress);
 
     vm.expectRevert("ChestSystem: chest already has a transfer hook");
-    world.setChestTransferHook(chestEntityId, chestHookAddress);
+    world.setChestOnTransferHook(chestEntityId, chestHookAddress);
 
     vm.stopPrank();
   }

@@ -83,13 +83,17 @@ contract MineSystem is System {
         ChestMetadata._deleteRecord(entityId);
       } else {
         if (currentStamina >= strengthStaminaRequired) {
-          Stamina._setStamina(playerEntityId, currentStamina - uint32(strengthStaminaRequired));
           chestMetadata.strength = 0;
           ChestMetadata._set(entityId, chestMetadata);
+
+          Stamina._setStamina(playerEntityId, currentStamina - uint32(strengthStaminaRequired));
         } else {
+          // Use all the current stamina
           uint256 reduceStrength = (currentStamina * equippedToolDamage) / 1000;
           chestMetadata.strength -= reduceStrength;
           ChestMetadata._set(entityId, chestMetadata);
+
+          Stamina._setStamina(playerEntityId, 0);
         }
 
         // Need to complete the mine in a separate transaction

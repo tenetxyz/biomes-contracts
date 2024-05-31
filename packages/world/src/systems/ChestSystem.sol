@@ -57,16 +57,16 @@ contract ChestSystem is System {
       uint256(ObjectTypeMetadata._getMiningDifficulty(strengthenObjectTypeId)) *
       strengthenObjectTypeAmount;
 
-    bool found = false;
+    bool strengthenObjectTypeFound = false;
     for (uint i = 0; i < chestMetadata.strengthenObjectTypeIds.length; i++) {
       if (chestMetadata.strengthenObjectTypeIds[i] == strengthenObjectTypeId) {
-        found = true;
+        strengthenObjectTypeFound = true;
         chestMetadata.strengthenObjectTypeAmounts[i] += strengthenObjectTypeAmount;
         break;
       }
     }
 
-    if (!found) {
+    if (!strengthenObjectTypeFound) {
       uint8[] memory newStrengthenObjectTypeIds = new uint8[](chestMetadata.strengthenObjectTypeIds.length + 1);
       uint16[] memory newStrengthenObjectTypeAmounts = new uint16[](
         chestMetadata.strengthenObjectTypeAmounts.length + 1
@@ -85,7 +85,7 @@ contract ChestSystem is System {
     ChestMetadata._set(chestEntityId, chestMetadata);
   }
 
-  function setChestTransferHook(bytes32 chestEntityId, address hookAddress) public {
+  function setChestOnTransferHook(bytes32 chestEntityId, address hookAddress) public {
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "ChestSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "ChestSystem: player isn't logged in");
