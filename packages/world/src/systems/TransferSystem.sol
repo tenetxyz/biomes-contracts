@@ -20,6 +20,7 @@ import { positionDataToVoxelCoord } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { isChest } from "../utils/ObjectTypeUtils.sol";
 import { IChestTransferHook } from "../prototypes/IChestTransferHook.sol";
 
 contract TransferSystem is System {
@@ -39,10 +40,10 @@ contract TransferSystem is System {
     uint8 dstObjectTypeId = ObjectType._get(dstEntityId);
     if (srcObjectTypeId == PlayerObjectID) {
       require(playerEntityId == srcEntityId, "TransferSystem: player does not own source inventory");
-      require(dstObjectTypeId == ChestObjectID, "TransferSystem: cannot transfer to non-chest");
+      require(isChest(dstObjectTypeId), "TransferSystem: cannot transfer to non-chest");
     } else if (dstObjectTypeId == PlayerObjectID) {
       require(playerEntityId == dstEntityId, "TransferSystem: player does not own destination inventory");
-      require(srcObjectTypeId == ChestObjectID, "TransferSystem: cannot transfer from non-chest");
+      require(isChest(srcObjectTypeId), "TransferSystem: cannot transfer from non-chest");
     } else {
       revert("TransferSystem: invalid transfer operation");
     }

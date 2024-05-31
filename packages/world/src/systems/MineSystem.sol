@@ -70,7 +70,18 @@ contract MineSystem is System {
 
       // Strength needs to first become 0 before the chest can be minedt
       uint256 strengthStaminaRequired = (uint256(chestMetadata.strength) * 1000) / equippedToolDamage;
-      if (strengthStaminaRequired > 0) {
+      if (strengthStaminaRequired == 0) {
+        for (uint i = 0; i < chestMetadata.strengthenObjectTypeIds.length; i++) {
+          addToInventoryCount(
+            entityId,
+            AirObjectID,
+            chestMetadata.strengthenObjectTypeIds[i],
+            chestMetadata.strengthenObjectTypeAmounts[i]
+          );
+        }
+
+        ChestMetadata._deleteRecord(entityId);
+      } else {
         if (currentStamina >= strengthStaminaRequired) {
           Stamina._setStamina(playerEntityId, currentStamina - uint32(strengthStaminaRequired));
           chestMetadata.strength = 0;
@@ -81,6 +92,7 @@ contract MineSystem is System {
           ChestMetadata._set(entityId, chestMetadata);
         }
 
+        // Need to mine in a separate transaction
         return;
       }
     }
@@ -96,19 +108,6 @@ contract MineSystem is System {
 
     ObjectType._set(entityId, AirObjectID);
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
-    if (mineObjectTypeId == ReinforcedChestObjectID || mineObjectTypeId == BedrockChestObjectID) {
-      ChestMetadataData memory chestMetadata = ChestMetadata._get(entityId);
-      for (uint i = 0; i < chestMetadata.strengthenObjectTypeIds.length; i++) {
-        addToInventoryCount(
-          entityId,
-          AirObjectID,
-          chestMetadata.strengthenObjectTypeIds[i],
-          chestMetadata.strengthenObjectTypeAmounts[i]
-        );
-      }
-
-      ChestMetadata._deleteRecord(entityId);
-    }
 
     PlayerActivity._set(playerEntityId, block.timestamp);
 

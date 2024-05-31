@@ -14,6 +14,7 @@ import { UniqueEntity } from "../../src/codegen/tables/UniqueEntity.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS } from "../../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../../src/ObjectTypeIds.sol";
+import { isChest } from "../../src/utils/ObjectTypeUtils.sol";
 
 function testGetUniqueEntity() returns (bytes32) {
   uint256 uniqueEntity = UniqueEntity.get() + 1;
@@ -64,7 +65,7 @@ function testAddToInventoryCount(
   uint16 numFinalSlotsUsed = numInitialSlotsUsed + numFinalSlotsUsedDelta;
   if (ownerObjectTypeId == PlayerObjectID) {
     require(numFinalSlotsUsed <= MAX_PLAYER_INVENTORY_SLOTS, "Inventory is full");
-  } else if (ownerObjectTypeId == ChestObjectID) {
+  } else if (isChest(ownerObjectTypeId)) {
     require(numFinalSlotsUsed <= MAX_CHEST_INVENTORY_SLOTS, "Inventory is full");
   }
   InventorySlots.set(ownerEntityId, numFinalSlotsUsed);

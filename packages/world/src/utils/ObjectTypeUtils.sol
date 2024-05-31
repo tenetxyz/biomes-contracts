@@ -12,6 +12,7 @@ import { ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, Reinforced
 import { GoldCubeObjectID, SilverCubeObjectID, DiamondCubeObjectID, NeptuniumCubeObjectID } from "../ObjectTypeIds.sol";
 import { OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID, OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../ObjectTypeIds.sol";
 import { WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "../ObjectTypeIds.sol";
+import { ChestObjectID, ReinforcedChestObjectID, BedrockChestObjectID } from "../ObjectTypeIds.sol";
 import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../ObjectTypeIds.sol";
 import { BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "../ObjectTypeIds.sol";
 
@@ -99,6 +100,11 @@ function isReinforcedLumber(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == ReinforcedOakLumberObjectID ||
     objectTypeId == ReinforcedRubberLumberObjectID ||
     objectTypeId == ReinforcedBirchLumberObjectID;
+}
+
+function isChest(uint8 objectTypeId) pure returns (bool) {
+  return
+    objectTypeId == ChestObjectID || objectTypeId == ReinforcedChestObjectID || objectTypeId == BedrockChestObjectID;
 }
 
 function isStone(uint8 objectTypeId) pure returns (bool) {
