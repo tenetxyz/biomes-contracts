@@ -37,7 +37,8 @@ contract ChestSystem is System {
     require(playerEntityId != bytes32(0), "ChestSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "ChestSystem: player isn't logged in");
     ChestMetadataData memory chestMetadata = ChestMetadata._get(chestEntityId);
-    require(chestMetadata.owner == _msgSender(), "ChestSystem: player does not own chest");
+    // Anyone can strengthen a chest
+    // require(chestMetadata.owner == _msgSender(), "ChestSystem: player does not own chest");
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     VoxelCoord memory chestCoord = positionDataToVoxelCoord(Position._get(chestEntityId));
     require(
