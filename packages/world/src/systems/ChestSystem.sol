@@ -41,10 +41,7 @@ contract ChestSystem is System {
     // require(chestMetadata.owner == _msgSender(), "ChestSystem: player does not own chest");
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     VoxelCoord memory chestCoord = positionDataToVoxelCoord(Position._get(chestEntityId));
-    require(
-      inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, chestCoord),
-      "ChestSystem: player is too far from the chest"
-    );
+    require(inSurroundingCube(playerCoord, 1, chestCoord), "ChestSystem: player is too far from the chest");
     uint8 chestObjectTypeId = ObjectType._get(chestEntityId);
     if (chestObjectTypeId == ReinforcedChestObjectID) {
       require(isReinforcedLumber(strengthenObjectTypeId), "ChestSystem: invalid strengthen object type");
@@ -96,10 +93,7 @@ contract ChestSystem is System {
     require(ChestMetadata._getOwner(chestEntityId) == _msgSender(), "ChestSystem: player does not own chest");
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     VoxelCoord memory chestCoord = positionDataToVoxelCoord(Position._get(chestEntityId));
-    require(
-      inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, chestCoord),
-      "ChestSystem: player is too far from the chest"
-    );
+    require(inSurroundingCube(playerCoord, 1, chestCoord), "ChestSystem: player is too far from the chest");
     require(
       ChestMetadata._getOnTransferHook(chestEntityId) == address(0),
       "ChestSystem: chest already has a transfer hook"
