@@ -87,10 +87,8 @@ contract MineSystem is System {
 
     uint256 staminaRequired = (uint256(ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId)) * 1000) /
       equippedToolDamage;
-    uint32 useStamina = staminaRequired > MAX_PLAYER_STAMINA ? MAX_PLAYER_STAMINA : uint32(staminaRequired);
-    if (useStamina == 0) {
-      useStamina = 1;
-    }
+    require(staminaRequired <= MAX_PLAYER_STAMINA, "MineSystem: mining difficulty too high. Try a stronger tool.");
+    uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
     require(currentStamina >= useStamina, "MineSystem: not enough stamina");
     Stamina._setStamina(playerEntityId, currentStamina - useStamina);
 
