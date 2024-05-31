@@ -92,7 +92,7 @@ contract MineSystem is System {
           ChestMetadata._set(entityId, chestMetadata);
         }
 
-        // Need to mine in a separate transaction
+        // Need to complete the mine in a separate transaction
         return;
       }
     }

@@ -53,7 +53,7 @@ contract TransferSystem is System {
     return dstObjectTypeId;
   }
 
-  function ensureAllowed(
+  function requireAllowed(
     bytes32 playerEntityId,
     bytes32 srcEntityId,
     bytes32 dstEntityId,
@@ -95,7 +95,15 @@ contract TransferSystem is System {
     transferInventoryNonTool(srcEntityId, dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    ensureAllowed(playerEntityId, srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, bytes32(0), extraData);
+    requireAllowed(
+      playerEntityId,
+      srcEntityId,
+      dstEntityId,
+      transferObjectTypeId,
+      numToTransfer,
+      bytes32(0),
+      extraData
+    );
   }
 
   function transferTool(
@@ -109,6 +117,6 @@ contract TransferSystem is System {
     uint8 toolObjectTypeId = transferInventoryTool(srcEntityId, dstEntityId, dstObjectTypeId, toolEntityId);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    ensureAllowed(playerEntityId, srcEntityId, dstEntityId, toolObjectTypeId, 1, toolEntityId, extraData);
+    requireAllowed(playerEntityId, srcEntityId, dstEntityId, toolObjectTypeId, 1, toolEntityId, extraData);
   }
 }
