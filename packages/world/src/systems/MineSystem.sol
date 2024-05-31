@@ -71,7 +71,7 @@ contract MineSystem is System {
       // Strength needs to first become 0 before the chest can be minedt
       uint256 strengthStaminaRequired = (uint256(chestMetadata.strength) * 1000) / equippedToolDamage;
       if (strengthStaminaRequired == 0) {
-        for (uint i = 0; i < chestMetadata.strengthenObjectTypeIds.length; i++) {
+        for (uint256 i = 0; i < chestMetadata.strengthenObjectTypeIds.length; i++) {
           addToInventoryCount(
             entityId,
             AirObjectID,

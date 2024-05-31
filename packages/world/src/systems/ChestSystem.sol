@@ -80,6 +80,9 @@ contract ChestSystem is System {
       }
       newStrengthenObjectTypeIds[chestMetadata.strengthenObjectTypeIds.length] = strengthenObjectTypeId;
       newStrengthenObjectTypeAmounts[chestMetadata.strengthenObjectTypeAmounts.length] = strengthenObjectTypeAmount;
+
+      chestMetadata.strengthenObjectTypeIds = newStrengthenObjectTypeIds;
+      chestMetadata.strengthenObjectTypeAmounts = newStrengthenObjectTypeAmounts;
     }
 
     ChestMetadata._set(chestEntityId, chestMetadata);

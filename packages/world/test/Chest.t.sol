@@ -34,7 +34,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, ReinforcedChestObjectID, BedrockChestObjectID, GrassObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedChestObjectID, BedrockChestObjectID, GrassObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
@@ -133,21 +133,126 @@ contract ChestTest is MudTest, GasReporter {
 
     vm.startPrank(bob, bob);
 
-    // // Try transferring to chest owned by another player
-    // vm.expectRevert("TransferSystem: Player not authorized to make this transfer");
-    // world.transfer(playerEntityId2, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
+    // Try transferring to chest owned by another player
+    vm.expectRevert("TransferSystem: Player not authorized to make this transfer");
+    world.transfer(playerEntityId2, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
 
-    // // Try transfering from chest owned by another player
-    // vm.expectRevert("TransferSystem: Player not authorized to make this transfer");
-    // world.transfer(chestEntityId, playerEntityId2, inputObjectTypeId1, 1, new bytes(0));
+    // Try transfering from chest owned by another player
+    vm.expectRevert("TransferSystem: Player not authorized to make this transfer");
+    world.transfer(chestEntityId, playerEntityId2, inputObjectTypeId1, 1, new bytes(0));
 
-    // // Try mining the chest
-    // // Since strength is 0, it should be mined
-    // world.mine(chestCoord);
+    // Try mining the chest
+    // Since strength is 0, it should be mined
+    world.mine(chestCoord);
 
-    // assertTrue(ObjectType.get(chestEntityId) == AirObjectID, "Chest not mined");
-    // assertTrue(ChestMetadata.getOwner(chestEntityId) == address(0), "Owner set");
+    assertTrue(ObjectType.get(chestEntityId) == AirObjectID, "Chest not mined");
+    assertTrue(ChestMetadata.getOwner(chestEntityId) == address(0), "Owner set");
 
     vm.stopPrank();
   }
+
+  function testStrengthenOwnedChest() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+    vm.stopPrank();
+    bytes32 playerEntityId2 = setupPlayer2(1);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    uint8 inputObjectTypeId1 = GrassObjectID;
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockObjectID, 99);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId2, PlayerObjectID, inputObjectTypeId1, 1);
+
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId2) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId1), "Inventory objects not set");
+
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 airEntityId = testGetUniqueEntity();
+    ObjectType.set(airEntityId, AirObjectID);
+    Position.set(airEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, airEntityId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockChestObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
+    assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+
+    // Strengthen chest
+    uint16 strengthenAmount = 5;
+    world.strengthenChest(chestEntityId, BedrockObjectID, strengthenAmount);
+
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength not 0");
+    uint8[] memory strengthenObjectTypeIds = ChestMetadata.getStrengthenObjectTypeIds(chestEntityId);
+    uint16[] memory strengthenObjectAmounts = ChestMetadata.getStrengthenObjectTypeAmounts(chestEntityId);
+    assertTrue(strengthenObjectTypeIds.length == 1, "Strengthen object type ids not set");
+    assertTrue(strengthenObjectAmounts.length == 1, "Strengthen object amounts not set");
+    assertTrue(strengthenObjectTypeIds[0] == BedrockObjectID, "Strengthen object type ids not set");
+    assertTrue(strengthenObjectAmounts[0] == strengthenAmount, "Strengthen object amounts not set");
+
+    // Should be allowed cuz we're the chest owner
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not removed from inventory");
+    assertTrue(InventorySlots.get(chestEntityId) == 1, "Inventory slot not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(chestEntityId, inputObjectTypeId1), "Inventory objects not set");
+
+    vm.startPrank(bob, bob);
+
+    // Try mining the chest
+    // Since strength is not 0, it should take multiple mines
+
+    uint256 strengthBefore = ChestMetadata.getStrength(chestEntityId);
+    world.mine(chestCoord);
+    assertTrue(ChestMetadata.getStrength(chestEntityId) < strengthBefore, "Strength not decreased");
+    assertTrue(ObjectType.get(chestEntityId) == BedrockChestObjectID, "Chest mined");
+
+    strengthBefore = ChestMetadata.getStrength(chestEntityId);
+    world.mine(chestCoord);
+    assertTrue(ChestMetadata.getStrength(chestEntityId) < strengthBefore, "Strength not decreased");
+    assertTrue(ObjectType.get(chestEntityId) == BedrockChestObjectID, "Chest mined");
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    Stamina.setStamina(playerEntityId, MAX_PLAYER_STAMINA);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    world.mine(chestCoord);
+    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not decreased");
+    assertTrue(ObjectType.get(chestEntityId) == BedrockChestObjectID, "Chest mined");
+
+    // Now the mine will go through
+    world.mine(chestCoord);
+    assertTrue(ObjectType.get(chestEntityId) == AirObjectID, "Chest not mined");
+    assertTrue(ChestMetadata.getOwner(chestEntityId) == address(0), "Owner set");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.lengthStrengthenObjectTypeIds(chestEntityId) == 0, "Strengthen object type ids not set");
+    assertTrue(
+      ChestMetadata.lengthStrengthenObjectTypeAmounts(chestEntityId) == 0,
+      "Strengthen object amounts not set"
+    );
+
+    // Check if the added bedrock was dropped
+    assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not removed from inventory");
+    assertTrue(
+      InventoryCount.get(chestEntityId, BedrockObjectID) == strengthenAmount,
+      "Input object not removed from inventory"
+    );
+    assertTrue(InventorySlots.get(chestEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(chestEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(chestEntityId, BedrockObjectID), "Inventory objects not set");
+
+    vm.stopPrank();
+  }
+
+  function testOwnedChestWithApprovals() public {}
 }
