@@ -12,6 +12,7 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { ChestMetadata, ChestMetadataData } from "../codegen/tables/ChestMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
@@ -20,7 +21,7 @@ import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, ReinforcedChestObjectID, BedrockChestObjectID } from "../ObjectTypeIds.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord) public {
@@ -64,6 +65,26 @@ contract MineSystem is System {
 
     // Spend stamina for mining
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
+    if (mineObjectTypeId == ReinforcedChestObjectID || mineObjectTypeId == BedrockChestObjectID) {
+      ChestMetadataData memory chestMetadata = ChestMetadata._get(entityId);
+
+      // Strength needs to first become 0 before the chest can be minedt
+      uint256 strengthStaminaRequired = (uint256(chestMetadata.strength) * 1000) / equippedToolDamage;
+      if (strengthStaminaRequired > 0) {
+        if (currentStamina >= strengthStaminaRequired) {
+          Stamina._setStamina(playerEntityId, currentStamina - uint32(strengthStaminaRequired));
+          chestMetadata.strength = 0;
+          ChestMetadata._set(entityId, chestMetadata);
+        } else {
+          uint256 reduceStrength = (currentStamina * equippedToolDamage) / 1000;
+          chestMetadata.strength -= reduceStrength;
+          ChestMetadata._set(entityId, chestMetadata);
+        }
+
+        return;
+      }
+    }
+
     uint256 staminaRequired = (uint256(ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId)) * 1000) /
       equippedToolDamage;
     uint32 useStamina = staminaRequired > MAX_PLAYER_STAMINA ? MAX_PLAYER_STAMINA : uint32(staminaRequired);
@@ -77,6 +98,19 @@ contract MineSystem is System {
 
     ObjectType._set(entityId, AirObjectID);
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
+    if (mineObjectTypeId == ReinforcedChestObjectID || mineObjectTypeId == BedrockChestObjectID) {
+      ChestMetadataData memory chestMetadata = ChestMetadata._get(entityId);
+      for (uint i = 0; i < chestMetadata.strengthenObjectTypeIds.length; i++) {
+        addToInventoryCount(
+          entityId,
+          AirObjectID,
+          chestMetadata.strengthenObjectTypeIds[i],
+          chestMetadata.strengthenObjectTypeAmounts[i]
+        );
+      }
+
+      ChestMetadata._deleteRecord(entityId);
+    }
 
     PlayerActivity._set(playerEntityId, block.timestamp);
 

@@ -202,3 +202,7 @@ uint8 constant BlackGlassObjectID = 158;
 // Used for Recipes only
 uint8 constant AnyLogObjectID = 159;
 uint8 constant AnyLumberObjectID = 160;
+uint8 constant AnyReinforcedLumberObjectID = 161;
+
+uint8 constant ReinforcedChestObjectID = 162;
+uint8 constant BedrockChestObjectID = 163;

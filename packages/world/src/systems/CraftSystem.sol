@@ -19,10 +19,10 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { NullObjectTypeId, AirObjectID, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID } from "../ObjectTypeIds.sol";
+import { NullObjectTypeId, AirObjectID, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
-import { getLogObjectTypes, getLumberObjectTypes } from "../utils/ObjectTypeUtils.sol";
+import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes } from "../utils/ObjectTypeUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
@@ -74,6 +74,20 @@ contract CraftSystem is System {
           }
         }
         require(numLumberLeft == 0, "CraftSystem: not enough lumber");
+      } else if (recipeData.inputObjectTypeIds[i] == AnyReinforcedLumberObjectID) {
+        uint8 numReinforcedLumberLeft = recipeData.inputObjectTypeAmounts[i];
+        uint8[3] memory reinforcedLumberObjectTypeIds = getReinforcedLumberObjectTypes();
+        for (uint256 j = 0; j < reinforcedLumberObjectTypeIds.length; j++) {
+          uint16 numReinforcedLumber = InventoryCount._get(playerEntityId, reinforcedLumberObjectTypeIds[j]);
+          uint8 spendReinforcedLumber = numReinforcedLumber > numReinforcedLumberLeft
+            ? numReinforcedLumberLeft
+            : uint8(numReinforcedLumber);
+          if (spendReinforcedLumber > 0) {
+            removeFromInventoryCount(playerEntityId, reinforcedLumberObjectTypeIds[j], spendReinforcedLumber);
+            numReinforcedLumberLeft -= spendReinforcedLumber;
+          }
+        }
+        require(numReinforcedLumberLeft == 0, "CraftSystem: not enough reinforced lumber");
       } else {
         removeFromInventoryCount(
           playerEntityId,

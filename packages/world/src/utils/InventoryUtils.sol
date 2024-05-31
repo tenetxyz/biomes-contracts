@@ -162,7 +162,12 @@ function transferInventoryNonTool(
   addToInventoryCount(dstEntityId, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);
 }
 
-function transferInventoryTool(bytes32 srcEntityId, bytes32 dstEntityId, uint8 dstObjectTypeId, bytes32 toolEntityId) {
+function transferInventoryTool(
+  bytes32 srcEntityId,
+  bytes32 dstEntityId,
+  uint8 dstObjectTypeId,
+  bytes32 toolEntityId
+) returns (uint8) {
   require(InventoryTool._get(toolEntityId) == srcEntityId, "Entity does not own inventory item");
   if (Equipped._get(srcEntityId) == toolEntityId) {
     Equipped._deleteRecord(srcEntityId);
@@ -174,4 +179,5 @@ function transferInventoryTool(bytes32 srcEntityId, bytes32 dstEntityId, uint8 d
   uint8 inventoryObjectTypeId = ObjectType._get(toolEntityId);
   removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);
   addToInventoryCount(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
+  return inventoryObjectTypeId;
 }

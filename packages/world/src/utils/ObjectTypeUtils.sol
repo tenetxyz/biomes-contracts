@@ -90,6 +90,17 @@ function getLumberObjectTypes() pure returns (uint8[17] memory) {
   ];
 }
 
+function getReinforcedLumberObjectTypes() pure returns (uint8[3] memory) {
+  return [ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID];
+}
+
+function isReinforcedLumber(uint8 objectTypeId) pure returns (bool) {
+  return
+    objectTypeId == ReinforcedOakLumberObjectID ||
+    objectTypeId == ReinforcedRubberLumberObjectID ||
+    objectTypeId == ReinforcedBirchLumberObjectID;
+}
+
 function isStone(uint8 objectTypeId) pure returns (bool) {
   return
     objectTypeId == StoneObjectID ||

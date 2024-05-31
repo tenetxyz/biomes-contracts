@@ -12,6 +12,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { ChestMetadata, ChestMetadataData } from "../codegen/tables/ChestMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
@@ -19,10 +20,10 @@ import { positionDataToVoxelCoord } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { IChestTransferHook } from "../prototypes/IChestTransferHook.sol";
 
 contract TransferSystem is System {
-  function transferCommon(bytes32 srcEntityId, bytes32 dstEntityId) internal returns (uint8) {
-    bytes32 playerEntityId = Player._get(_msgSender());
+  function transferCommon(bytes32 playerEntityId, bytes32 srcEntityId, bytes32 dstEntityId) internal returns (uint8) {
     require(playerEntityId != bytes32(0), "TransferSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "TransferSystem: player isn't logged in");
 
@@ -51,13 +52,62 @@ contract TransferSystem is System {
     return dstObjectTypeId;
   }
 
-  function transfer(bytes32 srcEntityId, bytes32 dstEntityId, uint8 transferObjectTypeId, uint16 numToTransfer) public {
-    uint8 dstObjectTypeId = transferCommon(srcEntityId, dstEntityId);
-    transferInventoryNonTool(srcEntityId, dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
+  function ensureAllowed(
+    bytes32 playerEntityId,
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    uint8 transferObjectTypeId,
+    uint16 numToTransfer,
+    bytes32 toolEntityId,
+    bytes memory extraData
+  ) internal {
+    ChestMetadataData memory chestMetadata = ChestMetadata._get(
+      playerEntityId == srcEntityId ? dstEntityId : srcEntityId
+    );
+    if (chestMetadata.owner != address(0) && chestMetadata.owner != _msgSender()) {
+      require(
+        chestMetadata.onTransferHook != address(0),
+        "TransferSystem: Player not authorized to make this transfer"
+      );
+      // Forward any ether sent with the transaction to the hook
+      bool transferAllowed = IChestTransferHook(chestMetadata.onTransferHook).allowTransfer{ value: msg.value }(
+        srcEntityId,
+        dstEntityId,
+        transferObjectTypeId,
+        numToTransfer,
+        toolEntityId,
+        extraData
+      );
+      require(transferAllowed, "TransferSystem: Player not authorized to make this transfer");
+    }
   }
 
-  function transferTool(bytes32 srcEntityId, bytes32 dstEntityId, bytes32 toolEntityId) public {
-    uint8 dstObjectTypeId = transferCommon(srcEntityId, dstEntityId);
-    transferInventoryTool(srcEntityId, dstEntityId, dstObjectTypeId, toolEntityId);
+  function transfer(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    uint8 transferObjectTypeId,
+    uint16 numToTransfer,
+    bytes memory extraData
+  ) public payable {
+    bytes32 playerEntityId = Player._get(_msgSender());
+    uint8 dstObjectTypeId = transferCommon(playerEntityId, srcEntityId, dstEntityId);
+    transferInventoryNonTool(srcEntityId, dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
+
+    // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
+    ensureAllowed(playerEntityId, srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, bytes32(0), extraData);
+  }
+
+  function transferTool(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    bytes32 toolEntityId,
+    bytes memory extraData
+  ) public payable {
+    bytes32 playerEntityId = Player._get(_msgSender());
+    uint8 dstObjectTypeId = transferCommon(playerEntityId, srcEntityId, dstEntityId);
+    uint8 toolObjectTypeId = transferInventoryTool(srcEntityId, dstEntityId, dstObjectTypeId, toolEntityId);
+
+    // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
+    ensureAllowed(playerEntityId, srcEntityId, dstEntityId, toolObjectTypeId, 1, toolEntityId, extraData);
   }
 }

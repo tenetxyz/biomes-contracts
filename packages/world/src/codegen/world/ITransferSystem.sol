@@ -13,8 +13,14 @@ interface ITransferSystem {
     bytes32 srcEntityId,
     bytes32 dstEntityId,
     uint8 transferObjectTypeId,
-    uint16 numToTransfer
-  ) external;
+    uint16 numToTransfer,
+    bytes memory extraData
+  ) external payable;
 
-  function transferTool(bytes32 srcEntityId, bytes32 dstEntityId, bytes32 toolEntityId) external;
+  function transferTool(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    bytes32 toolEntityId,
+    bytes memory extraData
+  ) external payable;
 }
