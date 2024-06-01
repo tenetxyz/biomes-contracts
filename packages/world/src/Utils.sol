@@ -20,8 +20,6 @@ import { callInternalSystem, staticCallInternalSystem } from "@biomesaw/utils/sr
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
-import { console } from "forge-std/console.sol";
-
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);
 }
