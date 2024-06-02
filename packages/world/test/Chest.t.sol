@@ -896,8 +896,11 @@ contract ChestTest is MudTest, GasReporter {
 
     world.setChestOnTransferHook(chestEntityId, chestHookAddress);
 
-    vm.expectRevert("ChestSystem: chest already has a transfer hook");
-    world.setChestOnTransferHook(chestEntityId, chestHookAddress);
+    assertTrue(ChestMetadata.getOnTransferHook(chestEntityId) == chestHookAddress, "OnTransferHook not set");
+
+    world.setChestOnTransferHook(chestEntityId, address(0));
+
+    assertTrue(ChestMetadata.getOnTransferHook(chestEntityId) == address(0), "OnTransferHook not set");
 
     vm.stopPrank();
   }

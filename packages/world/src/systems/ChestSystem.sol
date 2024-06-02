@@ -94,11 +94,9 @@ contract ChestSystem is System {
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     VoxelCoord memory chestCoord = positionDataToVoxelCoord(Position._get(chestEntityId));
     require(inSurroundingCube(playerCoord, 1, chestCoord), "ChestSystem: player is too far from the chest");
-    require(
-      ChestMetadata._getOnTransferHook(chestEntityId) == address(0),
-      "ChestSystem: chest already has a transfer hook"
-    );
-    requireInterface(hookAddress, type(IChestTransferHook).interfaceId);
+    if (hookAddress != address(0)) {
+      requireInterface(hookAddress, type(IChestTransferHook).interfaceId);
+    }
     ChestMetadata._setOnTransferHook(chestEntityId, hookAddress);
   }
 }

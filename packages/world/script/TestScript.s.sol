@@ -24,7 +24,7 @@ import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { GrassObjectID, DirtObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, AirObjectID, ReinforcedOakLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID, ReinforcedChestObjectID, BedrockChestObjectID } from "../src/ObjectTypeIds.sol";
+import { GrassObjectID, DirtObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, AirObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID, ReinforcedChestObjectID, BedrockChestObjectID } from "../src/ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testGetUniqueEntity, testAddToInventoryCount } from "../test/utils/TestUtils.sol";
@@ -112,6 +112,7 @@ contract TestScript is Script {
     // world.teleport(VoxelCoord(149, -62, -37));
 
     bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
+    Stamina.set(playerEntityId, block.timestamp, 120000);
     // uint8 inputObjectTypeId = GrassObjectID;
     // for (uint i = 0; i < 99; i++) {
     //   bytes32 newInventoryId = testGetUniqueEntity();
@@ -120,6 +121,8 @@ contract TestScript is Script {
     //   ReverseInventory.push(playerEntityId, newInventoryId);
     // }
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ReinforcedOakLumberObjectID, 4);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ReinforcedBirchLumberObjectID, 4);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ReinforcedRubberLumberObjectID, 4);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockObjectID, 4);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ReinforcedChestObjectID, 1);
