@@ -570,6 +570,40 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testTransferInvalidArgs() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    // build chest beside player
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 chestEntityId = testGetUniqueEntity();
+    ObjectType.set(chestEntityId, ChestObjectID);
+    Position.set(chestEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, chestEntityId);
+
+    uint8 inputObjectTypeId1 = GrassObjectID;
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(chestEntityId, ChestObjectID, inputObjectTypeId1, 1);
+
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
+    testAddToInventoryCount(chestEntityId, ChestObjectID, inputObjectTypeId2, 1);
+    assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(chestEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(chestEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(chestEntityId, inputObjectTypeId2), "Inventory objects not set");
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    vm.expectRevert("Amount must be greater than 0");
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 0, new bytes(0));
+
+    vm.stopPrank();
+  }
+
   function testTransferWithLoggedOffPlayer() public {
     vm.startPrank(alice, alice);
 

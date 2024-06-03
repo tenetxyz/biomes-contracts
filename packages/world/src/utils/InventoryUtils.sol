@@ -159,6 +159,7 @@ function transferInventoryNonTool(
   uint16 numObjectsToTransfer
 ) {
   require(!ObjectTypeMetadata._getIsTool(transferObjectTypeId), "Object type is not a block");
+  require(numObjectsToTransfer > 0, "Amount must be greater than 0");
   removeFromInventoryCount(srcEntityId, transferObjectTypeId, numObjectsToTransfer);
   addToInventoryCount(dstEntityId, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);
 }
