@@ -43,6 +43,10 @@ import { IERC165 } from "@latticexyz/store/src/IERC165.sol";
 import { IChestTransferHook } from "../src/prototypes/IChestTransferHook.sol";
 
 contract ChestTransferHook is IChestTransferHook {
+  function onHookSet(bytes32 chestEntityId) external {
+    // Do nothing
+  }
+
   function allowTransfer(
     bytes32 srcEntityId,
     bytes32 dstEntityId,

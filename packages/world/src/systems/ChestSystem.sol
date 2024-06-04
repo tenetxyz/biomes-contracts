@@ -96,6 +96,7 @@ contract ChestSystem is System {
     require(inSurroundingCube(playerCoord, 1, chestCoord), "ChestSystem: player is too far from the chest");
     if (hookAddress != address(0)) {
       requireInterface(hookAddress, type(IChestTransferHook).interfaceId);
+      IChestTransferHook(hookAddress).onHookSet(chestEntityId);
     }
     ChestMetadata._setOnTransferHook(chestEntityId, hookAddress);
   }
