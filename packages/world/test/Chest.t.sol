@@ -248,6 +248,9 @@ contract ChestTest is MudTest, GasReporter {
     assertTrue(ObjectType.get(chestEntityId) == BedrockChestObjectID, "Chest mined");
 
     vm.startPrank(worldDeployer, worldDeployer);
+    // for the test, reduce the strength
+    ChestMetadata.setStrength(chestEntityId, 8000);
+
     Stamina.setStamina(playerEntityId2, MAX_PLAYER_STAMINA);
     vm.stopPrank();
     vm.startPrank(bob, bob);
