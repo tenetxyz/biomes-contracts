@@ -217,7 +217,7 @@ contract ChestTest is MudTest, GasReporter {
     assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
 
     // Strengthen chest
-    uint16 strengthenAmount = 5;
+    uint16 strengthenAmount = 1;
     world.strengthenChest(chestEntityId, BedrockObjectID, strengthenAmount);
 
     assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength not 0");
@@ -248,9 +248,9 @@ contract ChestTest is MudTest, GasReporter {
     assertTrue(ObjectType.get(chestEntityId) == BedrockChestObjectID, "Chest mined");
 
     vm.startPrank(worldDeployer, worldDeployer);
-    Stamina.setStamina(playerEntityId, MAX_PLAYER_STAMINA);
+    Stamina.setStamina(playerEntityId2, MAX_PLAYER_STAMINA);
     vm.stopPrank();
-    vm.startPrank(alice, alice);
+    vm.startPrank(bob, bob);
 
     strengthBefore = ChestMetadata.getStrength(chestEntityId);
     world.mine(chestCoord);
@@ -258,10 +258,31 @@ contract ChestTest is MudTest, GasReporter {
     assertTrue(ObjectType.get(chestEntityId) == BedrockChestObjectID, "Chest mined");
 
     vm.startPrank(worldDeployer, worldDeployer);
-    Stamina.setStamina(playerEntityId, MAX_PLAYER_STAMINA);
+    Stamina.setStamina(playerEntityId2, MAX_PLAYER_STAMINA);
     vm.stopPrank();
-    vm.startPrank(alice, alice);
+    vm.startPrank(bob, bob);
 
+    strengthBefore = ChestMetadata.getStrength(chestEntityId);
+    world.mine(chestCoord);
+    assertTrue(ChestMetadata.getStrength(chestEntityId) < strengthBefore, "Strength not decreased");
+    assertTrue(ObjectType.get(chestEntityId) == BedrockChestObjectID, "Chest mined");
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    Stamina.setStamina(playerEntityId2, MAX_PLAYER_STAMINA);
+    vm.stopPrank();
+    vm.startPrank(bob, bob);
+
+    strengthBefore = ChestMetadata.getStrength(chestEntityId);
+    world.mine(chestCoord);
+    assertTrue(ChestMetadata.getStrength(chestEntityId) < strengthBefore, "Strength not decreased");
+    assertTrue(ObjectType.get(chestEntityId) == BedrockChestObjectID, "Chest mined");
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    Stamina.setStamina(playerEntityId2, MAX_PLAYER_STAMINA);
+    vm.stopPrank();
+    vm.startPrank(bob, bob);
+
+    strengthBefore = ChestMetadata.getStrength(chestEntityId);
     world.mine(chestCoord);
     assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not decreased");
     assertTrue(ObjectType.get(chestEntityId) == BedrockChestObjectID, "Chest mined");

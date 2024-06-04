@@ -18,7 +18,7 @@ import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ChestMetadata, ChestMetadataData } from "../codegen/tables/ChestMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
+import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, CHEST_STRENGTH_MULTIPLIER } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, ReinforcedChestObjectID, BedrockChestObjectID, BedrockObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, inSpawnArea, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
@@ -55,6 +55,7 @@ contract ChestSystem is System {
 
     chestMetadata.strength +=
       uint256(ObjectTypeMetadata._getMiningDifficulty(strengthenObjectTypeId)) *
+      CHEST_STRENGTH_MULTIPLIER *
       strengthenObjectTypeAmount;
 
     bool strengthenObjectTypeFound = false;
