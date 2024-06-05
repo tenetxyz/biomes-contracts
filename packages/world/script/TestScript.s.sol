@@ -127,7 +127,7 @@ contract TestScript is Script {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ReinforcedChestObjectID, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockChestObjectID, 1);
-    // testAddToInventoryCount(playerEntityId, PlayerObjectID, OakLogObjectID, 40);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, OakLogObjectID, 40);
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, SakuraLogObjectID, 40);
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, RubberLogObjectID, 40);
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, BirchLogObjectID, 40);
