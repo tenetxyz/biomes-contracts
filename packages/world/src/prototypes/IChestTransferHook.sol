@@ -6,6 +6,8 @@ import { IERC165 } from "@latticexyz/store/src/IERC165.sol";
 interface IChestTransferHook is IERC165 {
   function onHookSet(bytes32 chestEntityId) external;
 
+  function onHookRemoved(bytes32 chestEntityId) external;
+
   function allowTransfer(
     bytes32 srcEntityId,
     bytes32 dstEntityId,

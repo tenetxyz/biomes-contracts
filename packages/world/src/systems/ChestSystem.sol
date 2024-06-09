@@ -91,10 +91,14 @@ contract ChestSystem is System {
     require(playerEntityId != bytes32(0), "ChestSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "ChestSystem: player isn't logged in");
     // Note: we don't need to check the object type since if it's a chest type, it will have a chest metadata
-    require(ChestMetadata._getOwner(chestEntityId) == _msgSender(), "ChestSystem: player does not own chest");
+    ChestMetadataData memory chestMetadata = ChestMetadata._get(chestEntityId);
+    require(chestMetadata.owner == _msgSender(), "ChestSystem: player does not own chest");
     VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
     VoxelCoord memory chestCoord = positionDataToVoxelCoord(Position._get(chestEntityId));
     require(inSurroundingCube(playerCoord, 1, chestCoord), "ChestSystem: player is too far from the chest");
+    if (chestMetadata.onTransferHook != address(0)) {
+      IChestTransferHook(chestMetadata.onTransferHook).onHookRemoved(chestEntityId);
+    }
     if (hookAddress != address(0)) {
       requireInterface(hookAddress, type(IChestTransferHook).interfaceId);
       IChestTransferHook(hookAddress).onHookSet(chestEntityId);

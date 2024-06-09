@@ -47,6 +47,10 @@ contract ChestTransferHook is IChestTransferHook {
     // Do nothing
   }
 
+  function onHookRemoved(bytes32 chestEntityId) external {
+    // Do nothing
+  }
+
   function allowTransfer(
     bytes32 srcEntityId,
     bytes32 dstEntityId,

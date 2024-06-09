@@ -22,6 +22,7 @@ import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, ReinforcedChestObjectID, BedrockChestObjectID } from "../ObjectTypeIds.sol";
+import { IChestTransferHook } from "../prototypes/IChestTransferHook.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord) public {
@@ -78,6 +79,10 @@ contract MineSystem is System {
             chestMetadata.strengthenObjectTypeIds[i],
             chestMetadata.strengthenObjectTypeAmounts[i]
           );
+        }
+
+        if (chestMetadata.onTransferHook != address(0)) {
+          IChestTransferHook(chestMetadata.onTransferHook).onHookRemoved(entityId);
         }
 
         ChestMetadata._deleteRecord(entityId);
