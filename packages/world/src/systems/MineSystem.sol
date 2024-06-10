@@ -69,7 +69,7 @@ contract MineSystem is System {
     if (mineObjectTypeId == ReinforcedChestObjectID || mineObjectTypeId == BedrockChestObjectID) {
       ChestMetadataData memory chestMetadata = ChestMetadata._get(entityId);
 
-      // Strength needs to first become 0 before the chest can be minedt
+      // Strength needs to first become 0 before the chest can be mined
       uint256 strengthStaminaRequired = (uint256(chestMetadata.strength) * 1000) / equippedToolDamage;
       if (strengthStaminaRequired == 0) {
         for (uint256 i = 0; i < chestMetadata.strengthenObjectTypeIds.length; i++) {
@@ -88,15 +88,14 @@ contract MineSystem is System {
         ChestMetadata._deleteRecord(entityId);
       } else {
         if (currentStamina >= strengthStaminaRequired) {
-          chestMetadata.strength = 0;
-          ChestMetadata._set(entityId, chestMetadata);
+          ChestMetadata._setStrength(entityId, 0);
 
           Stamina._setStamina(playerEntityId, currentStamina - uint32(strengthStaminaRequired));
         } else {
+          require(currentStamina > 0, "MineSystem: not enough stamina");
           // Use all the current stamina
           uint256 reduceStrength = (currentStamina * equippedToolDamage) / 1000;
-          chestMetadata.strength -= reduceStrength;
-          ChestMetadata._set(entityId, chestMetadata);
+          ChestMetadata._setStrength(entityId, chestMetadata.strength - reduceStrength);
 
           Stamina._setStamina(playerEntityId, 0);
         }
