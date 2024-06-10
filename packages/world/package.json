@@ -1,6 +1,6 @@
 {
   "name": "@biomesaw/world",
-  "version": "0.0.6",
+  "version": "0.1.4",
   "exports": {
     "./mud.config": "./dist/mud.config.js",
     "./worlds.json": "./worlds.json",
