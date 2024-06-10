@@ -14,6 +14,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
+import { isChest } from "./ObjectTypeUtils.sol";
 
 function addToInventoryCount(
   bytes32 ownerEntityId,
@@ -37,7 +38,7 @@ function addToInventoryCount(
   uint16 numFinalSlotsUsed = numInitialSlotsUsed + numFinalSlotsUsedDelta;
   if (ownerObjectTypeId == PlayerObjectID) {
     require(numFinalSlotsUsed <= MAX_PLAYER_INVENTORY_SLOTS, "Inventory is full");
-  } else if (ownerObjectTypeId == ChestObjectID) {
+  } else if (isChest(ownerObjectTypeId)) {
     require(numFinalSlotsUsed <= MAX_CHEST_INVENTORY_SLOTS, "Inventory is full");
   }
   InventorySlots._set(ownerEntityId, numFinalSlotsUsed);
@@ -158,11 +159,17 @@ function transferInventoryNonTool(
   uint16 numObjectsToTransfer
 ) {
   require(!ObjectTypeMetadata._getIsTool(transferObjectTypeId), "Object type is not a block");
+  require(numObjectsToTransfer > 0, "Amount must be greater than 0");
   removeFromInventoryCount(srcEntityId, transferObjectTypeId, numObjectsToTransfer);
   addToInventoryCount(dstEntityId, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);
 }
 
-function transferInventoryTool(bytes32 srcEntityId, bytes32 dstEntityId, uint8 dstObjectTypeId, bytes32 toolEntityId) {
+function transferInventoryTool(
+  bytes32 srcEntityId,
+  bytes32 dstEntityId,
+  uint8 dstObjectTypeId,
+  bytes32 toolEntityId
+) returns (uint8) {
   require(InventoryTool._get(toolEntityId) == srcEntityId, "Entity does not own inventory item");
   if (Equipped._get(srcEntityId) == toolEntityId) {
     Equipped._deleteRecord(srcEntityId);
@@ -174,4 +181,5 @@ function transferInventoryTool(bytes32 srcEntityId, bytes32 dstEntityId, uint8 d
   uint8 inventoryObjectTypeId = ObjectType._get(toolEntityId);
   removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);
   addToInventoryCount(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
+  return inventoryObjectTypeId;
 }

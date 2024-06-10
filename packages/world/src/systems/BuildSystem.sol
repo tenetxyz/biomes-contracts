@@ -14,10 +14,11 @@ import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ReverseInventoryTool } from "../codegen/tables/ReverseInventoryTool.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { ChestMetadata, ChestMetadataData } from "../codegen/tables/ChestMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, ReinforcedChestObjectID, BedrockChestObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, inSpawnArea, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
@@ -62,6 +63,13 @@ contract BuildSystem is System {
 
     ObjectType._set(entityId, objectTypeId);
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
+
+    if (objectTypeId == ReinforcedChestObjectID || objectTypeId == BedrockChestObjectID) {
+      ChestMetadataData memory chestMetadata;
+      // Use defaults, except for the owner
+      chestMetadata.owner = _msgSender();
+      ChestMetadata._set(entityId, chestMetadata);
+    }
 
     PlayerActivity._set(playerEntityId, block.timestamp);
 

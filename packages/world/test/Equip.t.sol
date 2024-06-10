@@ -400,8 +400,8 @@ contract EquipTest is MudTest, GasReporter {
     world.equip(newInventoryId2);
     assertTrue(Equipped.get(playerEntityId) == newInventoryId2, "Equipped not set");
 
-    world.transferTool(playerEntityId, chestEntityId, newInventoryId2);
-    world.transfer(playerEntityId, chestEntityId, GrassObjectID, 1);
+    world.transferTool(playerEntityId, chestEntityId, newInventoryId2, new bytes(0));
+    world.transfer(playerEntityId, chestEntityId, GrassObjectID, 1, new bytes(0));
 
     assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not removed");
     assertTrue(ItemMetadata.get(newInventoryId2) == durability, "Item metadata not set");

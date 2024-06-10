@@ -93,7 +93,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     startGasReport("transfer to chest: 1 object");
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
     endGasReport();
 
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
@@ -129,7 +129,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     startGasReport("transfer to chest 99 objects");
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId, 99);
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId, 99, new bytes(0));
     endGasReport();
 
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId) == 0, "Input object not removed from inventory");
@@ -175,7 +175,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     vm.expectRevert("Inventory is full");
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 2);
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 2, new bytes(0));
 
     vm.stopPrank();
   }
@@ -207,8 +207,8 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId2, 1);
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId2, 1, new bytes(0));
 
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
@@ -236,9 +236,9 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(!testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId2), "Inventory objects not set");
 
     startGasReport("transfer from chest");
-    world.transfer(chestEntityId, playerEntityId2, inputObjectTypeId1, 1);
+    world.transfer(chestEntityId, playerEntityId2, inputObjectTypeId1, 1, new bytes(0));
     endGasReport();
-    world.transfer(chestEntityId, playerEntityId2, inputObjectTypeId2, 1);
+    world.transfer(chestEntityId, playerEntityId2, inputObjectTypeId2, 1, new bytes(0));
 
     assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 1, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId2) == 1, "Input object not removed from inventory");
@@ -281,8 +281,8 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId2, 1);
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId2, 1, new bytes(0));
 
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
@@ -318,7 +318,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(bob, bob);
 
     vm.expectRevert("Inventory is full");
-    world.transfer(chestEntityId, playerEntityId2, inputObjectTypeId1, 1);
+    world.transfer(chestEntityId, playerEntityId2, inputObjectTypeId1, 1, new bytes(0));
 
     vm.stopPrank();
   }
@@ -350,8 +350,8 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId2, 1);
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId2, 1, new bytes(0));
 
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId2) == 0, "Input object not removed from inventory");
@@ -436,7 +436,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     vm.expectRevert("TransferSystem: cannot transfer to non-chest");
-    world.transfer(playerEntityId, playerEntityId2, inputObjectTypeId1, 1);
+    world.transfer(playerEntityId, playerEntityId2, inputObjectTypeId1, 1, new bytes(0));
 
     vm.stopPrank();
   }
@@ -469,7 +469,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     vm.expectRevert("TransferSystem: destination out of range");
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
 
     vm.stopPrank();
   }
@@ -501,7 +501,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
 
     vm.expectRevert("TransferSystem: player does not exist");
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
   }
 
   function testTransferSelf() public {
@@ -532,7 +532,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     vm.expectRevert("TransferSystem: cannot transfer to self");
-    world.transfer(playerEntityId, playerEntityId, inputObjectTypeId1, 1);
+    world.transfer(playerEntityId, playerEntityId, inputObjectTypeId1, 1, new bytes(0));
 
     vm.stopPrank();
   }
@@ -565,7 +565,41 @@ contract TransferTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     vm.expectRevert("Not enough objects in the inventory");
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
+
+    vm.stopPrank();
+  }
+
+  function testTransferInvalidArgs() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    // build chest beside player
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 chestEntityId = testGetUniqueEntity();
+    ObjectType.set(chestEntityId, ChestObjectID);
+    Position.set(chestEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, chestEntityId);
+
+    uint8 inputObjectTypeId1 = GrassObjectID;
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(chestEntityId, ChestObjectID, inputObjectTypeId1, 1);
+
+    uint8 inputObjectTypeId2 = BlueDyeObjectID;
+    testAddToInventoryCount(chestEntityId, ChestObjectID, inputObjectTypeId2, 1);
+    assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId2) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(chestEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(chestEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(chestEntityId, inputObjectTypeId2), "Inventory objects not set");
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    vm.expectRevert("Amount must be greater than 0");
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 0, new bytes(0));
 
     vm.stopPrank();
   }
@@ -599,7 +633,7 @@ contract TransferTest is MudTest, GasReporter {
     world.logoffPlayer();
 
     vm.expectRevert("TransferSystem: player isn't logged in");
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
 
     vm.stopPrank();
   }

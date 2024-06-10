@@ -884,6 +884,26 @@ contract DropTest is MudTest, GasReporter {
     world.drop(GrassObjectID, 1, dropCoord);
   }
 
+  function testDropInvalidArgs() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
+
+    VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+
+    vm.expectRevert("Amount must be greater than 0");
+    world.drop(GrassObjectID, 0, dropCoord);
+  }
+
   function testDropOutsideWorldBorder() public {
     vm.startPrank(alice, alice);
 
