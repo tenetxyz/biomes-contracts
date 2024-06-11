@@ -155,7 +155,8 @@ contract ChestTest is MudTest, GasReporter {
     endGasReport();
 
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    uint256 initailStrength = ChestMetadata.getStrength(chestEntityId);
+    assertTrue(initailStrength > 0, "Strength 0");
 
     // Should be allowed cuz we're the chest owner
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
@@ -177,11 +178,12 @@ contract ChestTest is MudTest, GasReporter {
     world.transfer(chestEntityId, playerEntityId2, inputObjectTypeId1, 1, new bytes(0));
 
     // Try mining the chest
-    // Since strength is 0, it should be mined
+    // Since initial strength is not 0, it should not be mined
     world.mine(chestCoord);
 
-    assertTrue(ObjectType.get(chestEntityId) == AirObjectID, "Chest not mined");
-    assertTrue(ChestMetadata.getOwner(chestEntityId) == address(0), "Owner set");
+    assertTrue(ObjectType.get(chestEntityId) == BedrockChestObjectID, "Chest not mined");
+    assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner set");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) < initailStrength, "Strength not decreased");
 
     vm.stopPrank();
   }
@@ -218,7 +220,7 @@ contract ChestTest is MudTest, GasReporter {
 
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength 0");
 
     // Strengthen chest
     uint16 strengthenAmount = 1;
@@ -298,7 +300,7 @@ contract ChestTest is MudTest, GasReporter {
     world.mine(chestCoord);
     assertTrue(ObjectType.get(chestEntityId) == AirObjectID, "Chest not mined");
     assertTrue(ChestMetadata.getOwner(chestEntityId) == address(0), "Owner set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength 0");
     assertTrue(ChestMetadata.lengthStrengthenObjectTypeIds(chestEntityId) == 0, "Strengthen object type ids not set");
     assertTrue(
       ChestMetadata.lengthStrengthenObjectTypeAmounts(chestEntityId) == 0,
@@ -350,7 +352,7 @@ contract ChestTest is MudTest, GasReporter {
 
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength 0");
 
     // Strengthen chest
     uint16 strengthenAmount = 5;
@@ -394,7 +396,7 @@ contract ChestTest is MudTest, GasReporter {
 
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength 0");
 
     // Strengthen chest
     uint16 strengthenAmount = 5;
@@ -439,7 +441,7 @@ contract ChestTest is MudTest, GasReporter {
 
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength 0");
 
     // Strengthen chest
     uint16 strengthenAmount = 5;
@@ -487,7 +489,7 @@ contract ChestTest is MudTest, GasReporter {
 
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength 0");
 
     // Strengthen chest
     uint16 strengthenAmount = 5;
@@ -530,7 +532,7 @@ contract ChestTest is MudTest, GasReporter {
 
     bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
     assertTrue(ChestMetadata.getOwner(chestEntityId) == address(0), "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength 0");
 
     // Strengthen chest
     uint16 strengthenAmount = 5;
@@ -573,7 +575,7 @@ contract ChestTest is MudTest, GasReporter {
 
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength 0");
 
     // Strengthen chest
     uint16 strengthenAmount = 5;
@@ -616,7 +618,7 @@ contract ChestTest is MudTest, GasReporter {
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
 
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength 0");
 
     // Should be allowed cuz we're the chest owner
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
@@ -650,13 +652,6 @@ contract ChestTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(chestEntityId) == 0, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId1), "Inventory objects not set");
     assertTrue(!testInventoryObjectsHasObjectType(chestEntityId, inputObjectTypeId1), "Inventory objects not set");
-
-    world.mine(chestCoord);
-
-    assertTrue(ObjectType.get(chestEntityId) == AirObjectID, "Chest not mined");
-    assertTrue(ChestMetadata.getOwner(chestEntityId) == address(0), "Owner set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
-    assertTrue(ChestMetadata.getOnTransferHook(chestEntityId) == address(0), "OnTransferHook set");
 
     vm.stopPrank();
   }
@@ -693,7 +688,7 @@ contract ChestTest is MudTest, GasReporter {
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
 
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength 0");
 
     // Should be allowed cuz we're the chest owner
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
@@ -746,7 +741,7 @@ contract ChestTest is MudTest, GasReporter {
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
 
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength 0");
 
     // Should be allowed cuz we're the chest owner
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
@@ -800,7 +795,7 @@ contract ChestTest is MudTest, GasReporter {
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
 
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength 0");
 
     // Should be allowed cuz we're the chest owner
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
@@ -857,7 +852,7 @@ contract ChestTest is MudTest, GasReporter {
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
 
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength 0");
 
     // Should be allowed cuz we're the chest owner
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
@@ -912,7 +907,7 @@ contract ChestTest is MudTest, GasReporter {
     bytes32 chestEntityId = world.build(BedrockChestObjectID, chestCoord);
 
     assertTrue(ChestMetadata.getOwner(chestEntityId) == alice, "Owner not set");
-    assertTrue(ChestMetadata.getStrength(chestEntityId) == 0, "Strength not 0");
+    assertTrue(ChestMetadata.getStrength(chestEntityId) > 0, "Strength 0");
 
     // Should be allowed cuz we're the chest owner
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));

@@ -17,8 +17,8 @@ import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ChestMetadata, ChestMetadataData } from "../codegen/tables/ChestMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID, ReinforcedChestObjectID, BedrockChestObjectID } from "../ObjectTypeIds.sol";
+import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, CHEST_STRENGTH_MULTIPLIER } from "../Constants.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, ReinforcedChestObjectID, BedrockChestObjectID, BedrockObjectID, ReinforcedOakLumberObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, inSpawnArea, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
@@ -66,8 +66,11 @@ contract BuildSystem is System {
 
     if (objectTypeId == ReinforcedChestObjectID || objectTypeId == BedrockChestObjectID) {
       ChestMetadataData memory chestMetadata;
-      // Use defaults, except for the owner
+      // Use defaults, except for the owner and initial strength
       chestMetadata.owner = _msgSender();
+      chestMetadata.strength =
+        uint256(ObjectTypeMetadata._getMiningDifficulty(objectTypeId)) *
+        CHEST_STRENGTH_MULTIPLIER;
       ChestMetadata._set(entityId, chestMetadata);
     }
 
