@@ -25,7 +25,7 @@ import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
-import { ChestMetadata } from "../src/codegen/tables/ChestMetadata.sol";
+import { ChestMetadata, ChestMetadataData } from "../src/codegen/tables/ChestMetadata.sol";
 
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
@@ -59,8 +59,15 @@ contract ChestTransferHook is IChestTransferHook {
     bytes32 toolEntityId,
     bytes memory extraData
   ) external payable returns (bool) {
-    bool isWithdrawl = ObjectType.get(dstEntityId) == PlayerObjectID;
-    if (msg.value > 0 && isWithdrawl && transferObjectTypeId == DiamondOreObjectID) {
+    bool isDeposit = ObjectType.get(IStore(msg.sender), srcEntityId) == PlayerObjectID;
+    bytes32 chestEntityId = isDeposit ? dstEntityId : srcEntityId;
+    ChestMetadataData memory chestMetadata = ChestMetadata.get(IStore(msg.sender), chestEntityId);
+    require(chestMetadata.owner != address(0), "Chest does not exist");
+    address player = ReversePlayer.get(IStore(msg.sender), isDeposit ? srcEntityId : dstEntityId);
+    if (player == chestMetadata.owner) {
+      return true;
+    }
+    if (msg.value > 0 && !isDeposit && transferObjectTypeId == DiamondOreObjectID) {
       return true;
     }
 
@@ -167,6 +174,7 @@ contract ChestTest is MudTest, GasReporter {
     assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(chestEntityId, inputObjectTypeId1), "Inventory objects not set");
 
+    vm.stopPrank();
     vm.startPrank(bob, bob);
 
     // Try transferring to chest owned by another player

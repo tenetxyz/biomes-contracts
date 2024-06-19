@@ -65,11 +65,7 @@ contract TransferSystem is System {
     ChestMetadataData memory chestMetadata = ChestMetadata._get(
       playerEntityId == srcEntityId ? dstEntityId : srcEntityId
     );
-    if (chestMetadata.owner != address(0) && chestMetadata.owner != _msgSender()) {
-      require(
-        chestMetadata.onTransferHook != address(0),
-        "TransferSystem: Player not authorized to make this transfer"
-      );
+    if (chestMetadata.onTransferHook != address(0)) {
       // Forward any ether sent with the transaction to the hook
       bool transferAllowed = IChestTransferHook(chestMetadata.onTransferHook).allowTransfer{ value: msg.value }(
         srcEntityId,
@@ -80,6 +76,8 @@ contract TransferSystem is System {
         extraData
       );
       require(transferAllowed, "TransferSystem: Player not authorized to make this transfer");
+    } else if (chestMetadata.owner != address(0)) {
+      require(chestMetadata.owner == _msgSender(), "TransferSystem: Player not authorized to make this transfer");
     }
   }
 
