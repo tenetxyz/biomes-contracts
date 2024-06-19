@@ -72,6 +72,10 @@ contract MineSystem is System {
       // Strength needs to first become 0 before the chest can be mined
       uint256 strengthStaminaRequired = (uint256(chestMetadata.strength) * 1000) / equippedToolDamage;
       if (strengthStaminaRequired == 0) {
+        if (chestMetadata.onTransferHook != address(0)) {
+          IChestTransferHook(chestMetadata.onTransferHook).onHookRemoved(entityId);
+        }
+
         for (uint256 i = 0; i < chestMetadata.strengthenObjectTypeIds.length; i++) {
           addToInventoryCount(
             entityId,
@@ -79,10 +83,6 @@ contract MineSystem is System {
             chestMetadata.strengthenObjectTypeIds[i],
             chestMetadata.strengthenObjectTypeAmounts[i]
           );
-        }
-
-        if (chestMetadata.onTransferHook != address(0)) {
-          IChestTransferHook(chestMetadata.onTransferHook).onHookRemoved(entityId);
         }
 
         ChestMetadata._deleteRecord(entityId);
