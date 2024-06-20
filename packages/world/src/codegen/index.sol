@@ -22,6 +22,7 @@ import { InventoryCount } from "./tables/InventoryCount.sol";
 import { InventoryObjects } from "./tables/InventoryObjects.sol";
 import { InventorySlots } from "./tables/InventorySlots.sol";
 import { ItemMetadata } from "./tables/ItemMetadata.sol";
+import { Chip, ChipData } from "./tables/Chip.sol";
 import { Equipped } from "./tables/Equipped.sol";
 import { Health, HealthData } from "./tables/Health.sol";
 import { Stamina, StaminaData } from "./tables/Stamina.sol";

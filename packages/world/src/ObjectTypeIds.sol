@@ -203,3 +203,6 @@ uint8 constant BlackGlassObjectID = 158;
 uint8 constant AnyLogObjectID = 159;
 uint8 constant AnyLumberObjectID = 160;
 uint8 constant AnyReinforcedLumberObjectID = 161;
+
+uint8 constant ChipObjectID = 162;
+uint8 constant ChipBatteryObjectID = 163;

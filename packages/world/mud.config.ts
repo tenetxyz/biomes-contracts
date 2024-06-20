@@ -218,6 +218,17 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    Chip: {
+      schema: {
+        entityId: "bytes32",
+        chipAddress: "address",
+        batteryLevel: "uint256",
+      },
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     Equipped: {
       schema: {
         ownerEntityId: "bytes32",
