@@ -223,6 +223,7 @@ export default defineWorld({
         entityId: "bytes32",
         chipAddress: "address",
         batteryLevel: "uint256",
+        lastUpdatedTime: "uint256",
       },
       key: ["entityId"],
       codegen: {

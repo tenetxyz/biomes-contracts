@@ -19,6 +19,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 struct ChipData {
   address chipAddress;
   uint256 batteryLevel;
+  uint256 lastUpdatedTime;
 }
 
 library Chip {
@@ -26,12 +27,12 @@ library Chip {
   ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000043686970000000000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0034020014200000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0054030014202000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (address, uint256)
-  Schema constant _valueSchema = Schema.wrap(0x00340200611f0000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (address, uint256, uint256)
+  Schema constant _valueSchema = Schema.wrap(0x00540300611f1f00000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -47,9 +48,10 @@ library Chip {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](2);
+    fieldNames = new string[](3);
     fieldNames[0] = "chipAddress";
     fieldNames[1] = "batteryLevel";
+    fieldNames[2] = "lastUpdatedTime";
   }
 
   /**
@@ -200,6 +202,69 @@ library Chip {
   }
 
   /**
+   * @notice Get lastUpdatedTime.
+   */
+  function getLastUpdatedTime(bytes32 entityId) internal view returns (uint256 lastUpdatedTime) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
+   * @notice Get lastUpdatedTime.
+   */
+  function _getLastUpdatedTime(bytes32 entityId) internal view returns (uint256 lastUpdatedTime) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
+   * @notice Get lastUpdatedTime (using the specified store).
+   */
+  function getLastUpdatedTime(IStore _store, bytes32 entityId) internal view returns (uint256 lastUpdatedTime) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
+   * @notice Set lastUpdatedTime.
+   */
+  function setLastUpdatedTime(bytes32 entityId, uint256 lastUpdatedTime) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((lastUpdatedTime)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set lastUpdatedTime.
+   */
+  function _setLastUpdatedTime(bytes32 entityId, uint256 lastUpdatedTime) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((lastUpdatedTime)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set lastUpdatedTime (using the specified store).
+   */
+  function setLastUpdatedTime(IStore _store, bytes32 entityId, uint256 lastUpdatedTime) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((lastUpdatedTime)), _fieldLayout);
+  }
+
+  /**
    * @notice Get the full data.
    */
   function get(bytes32 entityId) internal view returns (ChipData memory _table) {
@@ -247,8 +312,8 @@ library Chip {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 entityId, address chipAddress, uint256 batteryLevel) internal {
-    bytes memory _staticData = encodeStatic(chipAddress, batteryLevel);
+  function set(bytes32 entityId, address chipAddress, uint256 batteryLevel, uint256 lastUpdatedTime) internal {
+    bytes memory _staticData = encodeStatic(chipAddress, batteryLevel, lastUpdatedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -262,8 +327,8 @@ library Chip {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 entityId, address chipAddress, uint256 batteryLevel) internal {
-    bytes memory _staticData = encodeStatic(chipAddress, batteryLevel);
+  function _set(bytes32 entityId, address chipAddress, uint256 batteryLevel, uint256 lastUpdatedTime) internal {
+    bytes memory _staticData = encodeStatic(chipAddress, batteryLevel, lastUpdatedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -277,8 +342,14 @@ library Chip {
   /**
    * @notice Set the full data using individual values (using the specified store).
    */
-  function set(IStore _store, bytes32 entityId, address chipAddress, uint256 batteryLevel) internal {
-    bytes memory _staticData = encodeStatic(chipAddress, batteryLevel);
+  function set(
+    IStore _store,
+    bytes32 entityId,
+    address chipAddress,
+    uint256 batteryLevel,
+    uint256 lastUpdatedTime
+  ) internal {
+    bytes memory _staticData = encodeStatic(chipAddress, batteryLevel, lastUpdatedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -293,7 +364,7 @@ library Chip {
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 entityId, ChipData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.chipAddress, _table.batteryLevel);
+    bytes memory _staticData = encodeStatic(_table.chipAddress, _table.batteryLevel, _table.lastUpdatedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -308,7 +379,7 @@ library Chip {
    * @notice Set the full data using the data struct.
    */
   function _set(bytes32 entityId, ChipData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.chipAddress, _table.batteryLevel);
+    bytes memory _staticData = encodeStatic(_table.chipAddress, _table.batteryLevel, _table.lastUpdatedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -323,7 +394,7 @@ library Chip {
    * @notice Set the full data using the data struct (using the specified store).
    */
   function set(IStore _store, bytes32 entityId, ChipData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.chipAddress, _table.batteryLevel);
+    bytes memory _staticData = encodeStatic(_table.chipAddress, _table.batteryLevel, _table.lastUpdatedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -337,10 +408,14 @@ library Chip {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (address chipAddress, uint256 batteryLevel) {
+  function decodeStatic(
+    bytes memory _blob
+  ) internal pure returns (address chipAddress, uint256 batteryLevel, uint256 lastUpdatedTime) {
     chipAddress = (address(Bytes.getBytes20(_blob, 0)));
 
     batteryLevel = (uint256(Bytes.getBytes32(_blob, 20)));
+
+    lastUpdatedTime = (uint256(Bytes.getBytes32(_blob, 52)));
   }
 
   /**
@@ -354,7 +429,7 @@ library Chip {
     EncodedLengths,
     bytes memory
   ) internal pure returns (ChipData memory _table) {
-    (_table.chipAddress, _table.batteryLevel) = decodeStatic(_staticData);
+    (_table.chipAddress, _table.batteryLevel, _table.lastUpdatedTime) = decodeStatic(_staticData);
   }
 
   /**
@@ -391,8 +466,12 @@ library Chip {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(address chipAddress, uint256 batteryLevel) internal pure returns (bytes memory) {
-    return abi.encodePacked(chipAddress, batteryLevel);
+  function encodeStatic(
+    address chipAddress,
+    uint256 batteryLevel,
+    uint256 lastUpdatedTime
+  ) internal pure returns (bytes memory) {
+    return abi.encodePacked(chipAddress, batteryLevel, lastUpdatedTime);
   }
 
   /**
@@ -403,9 +482,10 @@ library Chip {
    */
   function encode(
     address chipAddress,
-    uint256 batteryLevel
+    uint256 batteryLevel,
+    uint256 lastUpdatedTime
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(chipAddress, batteryLevel);
+    bytes memory _staticData = encodeStatic(chipAddress, batteryLevel, lastUpdatedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
