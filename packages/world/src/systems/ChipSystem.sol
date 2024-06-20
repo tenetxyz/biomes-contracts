@@ -3,6 +3,8 @@ pragma solidity >=0.8.24;
 
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import { requireInterface } from "@latticexyz/world/src/requireInterface.sol";
+
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -23,27 +25,10 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID, ChipObjectID, ChipBatteryObjectID } from "../ObjectTypeIds.sol";
 
+import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { IChip } from "../prototypes/IChip.sol";
+
 contract ChipSystem is System {
-  function updateChipBatteryLevel(bytes32 entityId) internal returns (ChipData memory) {
-    ChipData memory chipData = Chip._get(entityId);
-
-    if (chipData.batteryLevel > 0) {
-      uint256 timeDiff = block.timestamp - chipData.lastUpdatedTime;
-      uint256 batteryDecay = timeDiff / 60; // 1 minute
-      if (batteryDecay > chipData.batteryLevel) {
-        chipData.batteryLevel = 0;
-        Chip._setBatteryLevel(entityId, 0);
-      } else {
-        chipData.batteryLevel -= batteryDecay;
-        Chip._setBatteryLevel(entityId, chipData.batteryLevel - batteryDecay);
-      }
-      chipData.lastUpdatedTime = block.timestamp;
-      Chip._setLastUpdatedTime(entityId, block.timestamp);
-    }
-
-    return chipData;
-  }
-
   function attachChip(bytes32 entityId, address chipAddress) public {
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "ChipSystem: player does not exist");
@@ -60,13 +45,15 @@ contract ChipSystem is System {
     require(Chip._getChipAddress(entityId) == address(0), "ChipSystem: chip already attached");
     require(chipAddress != address(0), "ChipSystem: invalid chip address");
 
-    // TODO: Check interface of chipAddress
+    requireInterface(chipAddress, type(IChip).interfaceId);
 
     removeFromInventoryCount(playerEntityId, ChipObjectID, 1);
 
     Chip._set(entityId, ChipData({ chipAddress: chipAddress, batteryLevel: 0, lastUpdatedTime: block.timestamp }));
 
     PlayerActivity._set(playerEntityId, block.timestamp);
+
+    IChip(chipAddress).onAttached(playerEntityId, entityId);
   }
 
   function detachChip(bytes32 entityId) public {
@@ -84,11 +71,13 @@ contract ChipSystem is System {
     require(chipData.batteryLevel == 0, "ChipSystem: battery level is not empty");
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 
-    // TODO: notify chipAddress
-
     Chip._deleteRecord(entityId);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
+
+    addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+
+    IChip(chipData.chipAddress).onDetached(playerEntityId, entityId);
   }
 
   function powerChip(bytes32 entityId, uint16 powerAmount) public {
@@ -107,13 +96,13 @@ contract ChipSystem is System {
 
     removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, powerAmount);
 
-    // TODO: notify chipAddress
-
     // TODO: Figure out how to scale powerAmount
     Chip._setBatteryLevel(entityId, chipData.batteryLevel + powerAmount);
     Chip._setLastUpdatedTime(entityId, block.timestamp);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
+
+    IChip(chipData.chipAddress).onPowered(playerEntityId, entityId, powerAmount);
   }
 
   function hitChip(bytes32 entityId) public {
@@ -127,8 +116,7 @@ contract ChipSystem is System {
     regenHealth(playerEntityId);
     regenStamina(playerEntityId, playerCoord);
     ChipData memory chipData = updateChipBatteryLevel(entityId);
-
-    // TODO: notify chipAddress
+    require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
     uint16 staminaRequired = HIT_STAMINA_COST;
@@ -141,12 +129,22 @@ contract ChipSystem is System {
       receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
     }
 
-    uint256 currentBatteryLevel = chipData.batteryLevel;
-    uint256 newBatteryLevel = currentBatteryLevel > receiverDamage ? currentBatteryLevel - receiverDamage : 0;
-    Chip._setBatteryLevel(entityId, newBatteryLevel);
-
     useEquipped(playerEntityId, equippedEntityId);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
+
+    uint256 currentBatteryLevel = chipData.batteryLevel;
+    uint256 newBatteryLevel = currentBatteryLevel > receiverDamage ? currentBatteryLevel - receiverDamage : 0;
+    if (newBatteryLevel == 0) {
+      Chip._deleteRecord(entityId);
+
+      addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+
+      IChip(chipData.chipAddress).onDetached(playerEntityId, entityId);
+    } else {
+      Chip._setBatteryLevel(entityId, newBatteryLevel);
+
+      IChip(chipData.chipAddress).onChipHit(playerEntityId, entityId);
+    }
   }
 }

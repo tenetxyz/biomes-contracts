@@ -12,6 +12,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
@@ -19,6 +20,8 @@ import { positionDataToVoxelCoord } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { IChip } from "../prototypes/IChip.sol";
 
 contract TransferSystem is System {
   function transferCommon(bytes32 playerEntityId, bytes32 srcEntityId, bytes32 dstEntityId) internal returns (uint8) {
@@ -50,6 +53,32 @@ contract TransferSystem is System {
     return dstObjectTypeId;
   }
 
+  function notifyChip(
+    bytes32 playerEntityId,
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    uint8 transferObjectTypeId,
+    uint16 numToTransfer,
+    bytes32 toolEntityId,
+    bytes memory extraData
+  ) internal {
+    bytes32 chestEntityId = playerEntityId == srcEntityId ? dstEntityId : srcEntityId;
+    address chipAddress = Chip._getChipAddress(chestEntityId);
+    if (chipAddress != address(0)) {
+      updateChipBatteryLevel(chestEntityId);
+
+      // Forward any ether sent with the transaction to the hook
+      IChip(chipAddress).onTransfer{ value: msg.value }(
+        srcEntityId,
+        dstEntityId,
+        transferObjectTypeId,
+        numToTransfer,
+        toolEntityId,
+        extraData
+      );
+    }
+  }
+
   function transfer(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
@@ -60,6 +89,9 @@ contract TransferSystem is System {
     bytes32 playerEntityId = Player._get(_msgSender());
     uint8 dstObjectTypeId = transferCommon(playerEntityId, srcEntityId, dstEntityId);
     transferInventoryNonTool(srcEntityId, dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
+
+    // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
+    notifyChip(playerEntityId, srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, bytes32(0), extraData);
   }
 
   function transferTool(
@@ -71,5 +103,8 @@ contract TransferSystem is System {
     bytes32 playerEntityId = Player._get(_msgSender());
     uint8 dstObjectTypeId = transferCommon(playerEntityId, srcEntityId, dstEntityId);
     uint8 toolObjectTypeId = transferInventoryTool(srcEntityId, dstEntityId, dstObjectTypeId, toolEntityId);
+
+    // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
+    notifyChip(playerEntityId, srcEntityId, dstEntityId, toolObjectTypeId, 1, toolEntityId, extraData);
   }
 }

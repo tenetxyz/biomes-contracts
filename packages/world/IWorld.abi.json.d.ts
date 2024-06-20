@@ -282,6 +282,24 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "attachChip",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "chipAddress",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "batchCall",
     "inputs": [
       {
@@ -485,6 +503,19 @@ declare const abi: [
         "name": "keyTuple",
         "type": "bytes32[]",
         "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "detachChip",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "outputs": [],
@@ -1404,6 +1435,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "hitChip",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "initDyedObjectTypes",
     "inputs": [],
     "outputs": [],
@@ -1878,6 +1922,24 @@ declare const abi: [
         "name": "byteLengthToPop",
         "type": "uint256",
         "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "powerChip",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "powerAmount",
+        "type": "uint16",
+        "internalType": "uint16"
       }
     ],
     "outputs": [],
