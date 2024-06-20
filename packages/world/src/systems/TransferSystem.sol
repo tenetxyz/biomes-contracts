@@ -12,7 +12,6 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
-import { ChestMetadata, ChestMetadataData } from "../codegen/tables/ChestMetadata.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
@@ -20,8 +19,6 @@ import { positionDataToVoxelCoord } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { isChest } from "../utils/ObjectTypeUtils.sol";
-import { IChestTransferHook } from "../prototypes/IChestTransferHook.sol";
 
 contract TransferSystem is System {
   function transferCommon(bytes32 playerEntityId, bytes32 srcEntityId, bytes32 dstEntityId) internal returns (uint8) {
@@ -40,10 +37,10 @@ contract TransferSystem is System {
     uint8 dstObjectTypeId = ObjectType._get(dstEntityId);
     if (srcObjectTypeId == PlayerObjectID) {
       require(playerEntityId == srcEntityId, "TransferSystem: player does not own source inventory");
-      require(isChest(dstObjectTypeId), "TransferSystem: cannot transfer to non-chest");
+      require(dstObjectTypeId == ChestObjectID, "TransferSystem: cannot transfer to non-chest");
     } else if (dstObjectTypeId == PlayerObjectID) {
       require(playerEntityId == dstEntityId, "TransferSystem: player does not own destination inventory");
-      require(isChest(srcObjectTypeId), "TransferSystem: cannot transfer from non-chest");
+      require(srcObjectTypeId == ChestObjectID, "TransferSystem: cannot transfer from non-chest");
     } else {
       revert("TransferSystem: invalid transfer operation");
     }
@@ -51,34 +48,6 @@ contract TransferSystem is System {
     PlayerActivity._set(playerEntityId, block.timestamp);
 
     return dstObjectTypeId;
-  }
-
-  function requireAllowed(
-    bytes32 playerEntityId,
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    uint8 transferObjectTypeId,
-    uint16 numToTransfer,
-    bytes32 toolEntityId,
-    bytes memory extraData
-  ) internal {
-    ChestMetadataData memory chestMetadata = ChestMetadata._get(
-      playerEntityId == srcEntityId ? dstEntityId : srcEntityId
-    );
-    if (chestMetadata.onTransferHook != address(0)) {
-      // Forward any ether sent with the transaction to the hook
-      bool transferAllowed = IChestTransferHook(chestMetadata.onTransferHook).allowTransfer{ value: msg.value }(
-        srcEntityId,
-        dstEntityId,
-        transferObjectTypeId,
-        numToTransfer,
-        toolEntityId,
-        extraData
-      );
-      require(transferAllowed, "TransferSystem: Player not authorized to make this transfer");
-    } else if (chestMetadata.owner != address(0)) {
-      require(chestMetadata.owner == _msgSender(), "TransferSystem: Player not authorized to make this transfer");
-    }
   }
 
   function transfer(
@@ -91,17 +60,6 @@ contract TransferSystem is System {
     bytes32 playerEntityId = Player._get(_msgSender());
     uint8 dstObjectTypeId = transferCommon(playerEntityId, srcEntityId, dstEntityId);
     transferInventoryNonTool(srcEntityId, dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
-
-    // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    requireAllowed(
-      playerEntityId,
-      srcEntityId,
-      dstEntityId,
-      transferObjectTypeId,
-      numToTransfer,
-      bytes32(0),
-      extraData
-    );
   }
 
   function transferTool(
@@ -113,8 +71,5 @@ contract TransferSystem is System {
     bytes32 playerEntityId = Player._get(_msgSender());
     uint8 dstObjectTypeId = transferCommon(playerEntityId, srcEntityId, dstEntityId);
     uint8 toolObjectTypeId = transferInventoryTool(srcEntityId, dstEntityId, dstObjectTypeId, toolEntityId);
-
-    // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    requireAllowed(playerEntityId, srcEntityId, dstEntityId, toolObjectTypeId, 1, toolEntityId, extraData);
   }
 }

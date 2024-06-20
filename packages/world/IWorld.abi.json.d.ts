@@ -2232,24 +2232,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "setChestOnTransferHook",
-    "inputs": [
-      {
-        "name": "chestEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "hookAddress",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "setDynamicField",
     "inputs": [
       {
@@ -2644,29 +2626,6 @@ declare const abi: [
       }
     ],
     "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "strengthenChest",
-    "inputs": [
-      {
-        "name": "chestEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "strengthenObjectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "strengthenObjectTypeAmount",
-        "type": "uint16",
-        "internalType": "uint16"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
