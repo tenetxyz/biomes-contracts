@@ -156,6 +156,62 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testMineWithChip() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 airEntityId = testGetUniqueEntity();
+    ObjectType.set(airEntityId, AirObjectID);
+    Position.set(airEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, airEntityId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
+
+    world.attachChip(chestEntityId, address(testChip));
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    vm.expectRevert("MineSystem: chip must be detached first");
+    world.mine(chestCoord);
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+    Chip.setBatteryLevel(chestEntityId, 0);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    world.detachChip(chestEntityId);
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip not removed");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not removed from inventory");
+
+    world.mine(chestCoord);
+
+    assertTrue(ObjectType.get(chestEntityId) == AirObjectID, "Chest not mined");
+
+    vm.stopPrank();
+  }
+
   function testAttachChipAlreadyAttached() public {
     vm.startPrank(alice, alice);
 
