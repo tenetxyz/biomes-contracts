@@ -17,20 +17,28 @@ import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, NullObjectTypeId } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord } from "../Utils.sol";
 import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
+import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 contract ActivateSystem is System {
-  function activatePlayer(address player) public {
-    bytes32 playerEntityId = Player._get(player);
-    require(playerEntityId != bytes32(0), "ActivateSystem: player does not exist");
-    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "ActivateSystem: player isn't logged in");
-    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId, playerCoord);
-    PlayerActivity._set(playerEntityId, block.timestamp);
+  function activate(bytes32 entityId) public {
+    require(entityId != bytes32(0), "ActivateSystem: entity does not exist");
+    uint8 objectTypeId = ObjectType._get(entityId);
+    require(objectTypeId != NullObjectTypeId, "ActivateSystem: entity has no object type");
+
+    if (objectTypeId == PlayerObjectID) {
+      require(!PlayerMetadata._getIsLoggedOff(entityId), "ActivateSystem: player isn't logged in");
+      VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(entityId));
+      regenHealth(entityId);
+      regenStamina(entityId, playerCoord);
+      PlayerActivity._set(entityId, block.timestamp);
+    } else {
+      // if there's no chip, it'll just do nothing
+      updateChipBatteryLevel(entityId);
+    }
   }
 }

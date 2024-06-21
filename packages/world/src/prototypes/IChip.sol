@@ -9,7 +9,7 @@ interface IChip is IERC165 {
 
   function onDetached(bytes32 playerEntityId, bytes32 entityId) external;
 
-  function onPowered(bytes32 playerEntityId, bytes32 entityId, uint16 powerAmount) external;
+  function onPowered(bytes32 playerEntityId, bytes32 entityId, uint16 numBattery) external;
 
   function onChipHit(bytes32 playerEntityId, bytes32 entityId) external;
 
@@ -20,5 +20,5 @@ interface IChip is IERC165 {
     uint16 numToTransfer,
     bytes32 toolEntityId,
     bytes memory extraData
-  ) external payable;
+  ) external payable returns (bool isAllowed);
 }

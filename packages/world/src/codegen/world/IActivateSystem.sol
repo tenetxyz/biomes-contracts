@@ -9,5 +9,5 @@ pragma solidity >=0.8.24;
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IActivateSystem {
-  function activatePlayer(address player) external;
+  function activate(bytes32 entityId) external;
 }

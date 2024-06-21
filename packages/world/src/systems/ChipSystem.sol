@@ -49,6 +49,7 @@ contract ChipSystem is System {
 
     removeFromInventoryCount(playerEntityId, ChipObjectID, 1);
 
+    // TODO: figure out initial battery level
     Chip._set(entityId, ChipData({ chipAddress: chipAddress, batteryLevel: 0, lastUpdatedTime: block.timestamp }));
 
     PlayerActivity._set(playerEntityId, block.timestamp);
@@ -80,7 +81,7 @@ contract ChipSystem is System {
     IChip(chipData.chipAddress).onDetached(playerEntityId, entityId);
   }
 
-  function powerChip(bytes32 entityId, uint16 powerAmount) public {
+  function powerChip(bytes32 entityId, uint16 numBattery) public {
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "ChipSystem: player does not exist");
     require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "ChipSystem: player isn't logged in");
@@ -94,15 +95,15 @@ contract ChipSystem is System {
     ChipData memory chipData = updateChipBatteryLevel(entityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 
-    removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, powerAmount);
+    removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, numBattery);
 
     // TODO: Figure out how to scale powerAmount
-    Chip._setBatteryLevel(entityId, chipData.batteryLevel + powerAmount);
+    Chip._setBatteryLevel(entityId, chipData.batteryLevel + (numBattery * 100));
     Chip._setLastUpdatedTime(entityId, block.timestamp);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
 
-    IChip(chipData.chipAddress).onPowered(playerEntityId, entityId, powerAmount);
+    IChip(chipData.chipAddress).onPowered(playerEntityId, entityId, numBattery);
   }
 
   function hitChip(bytes32 entityId) public {
@@ -115,6 +116,7 @@ contract ChipSystem is System {
 
     regenHealth(playerEntityId);
     regenStamina(playerEntityId, playerCoord);
+
     ChipData memory chipData = updateChipBatteryLevel(entityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 

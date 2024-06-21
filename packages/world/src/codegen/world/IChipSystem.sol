@@ -13,7 +13,7 @@ interface IChipSystem {
 
   function detachChip(bytes32 entityId) external;
 
-  function powerChip(bytes32 entityId, uint16 powerAmount) external;
+  function powerChip(bytes32 entityId, uint16 numBattery) external;
 
   function hitChip(bytes32 entityId) external;
 }

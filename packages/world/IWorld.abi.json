@@ -217,12 +217,12 @@
   },
   {
     "type": "function",
-    "name": "activatePlayer",
+    "name": "activate",
     "inputs": [
       {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "outputs": [],
@@ -1937,7 +1937,7 @@
         "internalType": "bytes32"
       },
       {
-        "name": "powerAmount",
+        "name": "numBattery",
         "type": "uint16",
         "internalType": "uint16"
       }
