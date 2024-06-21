@@ -69,7 +69,7 @@ contract ChipSystem is System {
     regenStamina(playerEntityId, playerCoord);
 
     ChipData memory chipData = updateChipBatteryLevel(entityId);
-    require(chipData.batteryLevel == 0, "ChipSystem: battery level is not empty");
+    require(chipData.batteryLevel == 0, "ChipSystem: battery level is not zero");
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 
     Chip._deleteRecord(entityId);
