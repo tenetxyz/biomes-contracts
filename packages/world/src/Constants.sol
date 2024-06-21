@@ -36,6 +36,9 @@ uint32 constant WATER_STAMINA_INCREASE_RATE = 2000;
 uint16 constant TIME_BEFORE_INCREASE_HEALTH = 1 minutes;
 uint16 constant HEALTH_INCREASE_RATE = 20;
 
+uint16 constant TIME_BEFORE_DECREASE_BATTERY_LEVEL = 1 minutes;
+uint16 constant BATTERY_DECREASE_RATE = 20;
+
 uint16 constant GRAVITY_DAMAGE = 100;
 uint16 constant PLAYER_HAND_DAMAGE = 20;
 uint16 constant HIT_STAMINA_COST = 250;

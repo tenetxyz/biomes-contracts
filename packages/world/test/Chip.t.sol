@@ -33,7 +33,7 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL, BATTERY_DECREASE_RATE } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ChestObjectID, GrassObjectID, ChipObjectID, ChipBatteryObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
@@ -700,6 +700,286 @@ contract ChipTest is MudTest, GasReporter {
 
     vm.expectRevert("ChipSystem: no chip attached");
     world.detachChip(chestEntityId);
+
+    vm.stopPrank();
+  }
+
+  function testPowerChip() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 airEntityId = testGetUniqueEntity();
+    ObjectType.set(airEntityId, AirObjectID);
+    Position.set(airEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, airEntityId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
+
+    world.attachChip(chestEntityId, address(testChip));
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    uint256 initialBatteryLevel = Chip.getBatteryLevel(chestEntityId);
+    uint256 initialBatteries = InventoryCount.get(playerEntityId, ChipBatteryObjectID);
+
+    startGasReport("power chip");
+    world.powerChip(chestEntityId, 10);
+    endGasReport();
+
+    uint256 newBatteryLevel = Chip.getBatteryLevel(chestEntityId);
+
+    assertTrue(newBatteryLevel > initialBatteryLevel, "Battery level not increased");
+    assertTrue(Chip.getLastUpdatedTime(chestEntityId) == block.timestamp, "Last updated time not set");
+    assertTrue(
+      InventoryCount.get(playerEntityId, ChipBatteryObjectID) == initialBatteries - 10,
+      "Battery not removed from inventory"
+    );
+
+    vm.warp(block.timestamp + TIME_BEFORE_DECREASE_BATTERY_LEVEL + 1);
+    world.activate(chestEntityId);
+
+    assertTrue(Chip.getBatteryLevel(chestEntityId) < newBatteryLevel, "Battery level not decreased");
+    assertTrue(Chip.getLastUpdatedTime(chestEntityId) == block.timestamp, "Last updated time not set");
+
+    vm.stopPrank();
+  }
+
+  function testPowerChipWithoutPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 airEntityId = testGetUniqueEntity();
+    ObjectType.set(airEntityId, AirObjectID);
+    Position.set(airEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, airEntityId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
+
+    world.attachChip(chestEntityId, address(testChip));
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    uint256 initialBatteryLevel = Chip.getBatteryLevel(chestEntityId);
+    uint256 initialBatteries = InventoryCount.get(playerEntityId, ChipBatteryObjectID);
+    vm.stopPrank();
+
+    vm.expectRevert("ChipSystem: player does not exist");
+    world.powerChip(chestEntityId, 10);
+
+    vm.stopPrank();
+  }
+
+  function testPowerChipWithLoggedOffPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 airEntityId = testGetUniqueEntity();
+    ObjectType.set(airEntityId, AirObjectID);
+    Position.set(airEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, airEntityId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
+
+    world.attachChip(chestEntityId, address(testChip));
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    uint256 initialBatteryLevel = Chip.getBatteryLevel(chestEntityId);
+    uint256 initialBatteries = InventoryCount.get(playerEntityId, ChipBatteryObjectID);
+
+    world.logoffPlayer();
+
+    vm.expectRevert("ChipSystem: player isn't logged in");
+    world.powerChip(chestEntityId, 10);
+
+    vm.stopPrank();
+  }
+
+  function testPowerChipTooFar() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 airEntityId = testGetUniqueEntity();
+    ObjectType.set(airEntityId, AirObjectID);
+    Position.set(airEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, airEntityId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
+
+    world.attachChip(chestEntityId, address(testChip));
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    uint256 initialBatteryLevel = Chip.getBatteryLevel(chestEntityId);
+    uint256 initialBatteries = InventoryCount.get(playerEntityId, ChipBatteryObjectID);
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](2);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
+    newCoords[1] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 2);
+    world.move(newCoords);
+
+    vm.expectRevert("ChipSystem: player is too far from the object");
+    world.powerChip(chestEntityId, 10);
+
+    vm.stopPrank();
+  }
+
+  function testPowerChipNoChip() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 airEntityId = testGetUniqueEntity();
+    ObjectType.set(airEntityId, AirObjectID);
+    Position.set(airEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, airEntityId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
+
+    vm.expectRevert("ChipSystem: no chip attached");
+    world.powerChip(chestEntityId, 10);
+
+    vm.stopPrank();
+  }
+
+  function testPowerChipNotEnoughBatteries() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 airEntityId = testGetUniqueEntity();
+    ObjectType.set(airEntityId, AirObjectID);
+    Position.set(airEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, airEntityId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
+
+    world.attachChip(chestEntityId, address(testChip));
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    uint256 initialBatteryLevel = Chip.getBatteryLevel(chestEntityId);
+    uint256 initialBatteries = InventoryCount.get(playerEntityId, ChipBatteryObjectID);
+
+    vm.expectRevert("Not enough objects in the inventory");
+    world.powerChip(chestEntityId, 40);
 
     vm.stopPrank();
   }
