@@ -68,6 +68,7 @@ contract TransferSystem is System {
       updateChipBatteryLevel(chestEntityId);
 
       // Forward any ether sent with the transaction to the hook
+      // Don't safe call here as we want to revert if the chip doesn't allow the transfer
       bool transferAllowed = IChip(chipAddress).onTransfer{ value: msg.value }(
         srcEntityId,
         dstEntityId,

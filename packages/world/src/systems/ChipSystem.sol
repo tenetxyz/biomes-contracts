@@ -54,6 +54,7 @@ contract ChipSystem is System {
 
     PlayerActivity._set(playerEntityId, block.timestamp);
 
+    // Don't safe call here because we want to revert if the chip doesn't allow the attachment
     IChip(chipAddress).onAttached(playerEntityId, entityId);
   }
 
@@ -78,7 +79,8 @@ contract ChipSystem is System {
 
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
-    IChip(chipData.chipAddress).onDetached(playerEntityId, entityId);
+    // Safe call so the chip can't block the call
+    chipData.chipAddress.call(abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
   }
 
   function powerChip(bytes32 entityId, uint16 numBattery) public {
@@ -103,7 +105,8 @@ contract ChipSystem is System {
 
     PlayerActivity._set(playerEntityId, block.timestamp);
 
-    IChip(chipData.chipAddress).onPowered(playerEntityId, entityId, numBattery);
+    // Safe call so the chip can't block the call
+    chipData.chipAddress.call(abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
   }
 
   function hitChip(bytes32 entityId) public {
@@ -142,11 +145,13 @@ contract ChipSystem is System {
 
       addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
-      IChip(chipData.chipAddress).onDetached(playerEntityId, entityId);
+      // Safe call so the chip can't block the call
+      chipData.chipAddress.call(abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
     } else {
       Chip._setBatteryLevel(entityId, newBatteryLevel);
 
-      IChip(chipData.chipAddress).onChipHit(playerEntityId, entityId);
+      // Safe call so the chip can't block the call
+      chipData.chipAddress.call(abi.encodeCall(IChip.onChipHit, (playerEntityId, entityId)));
     }
   }
 }
