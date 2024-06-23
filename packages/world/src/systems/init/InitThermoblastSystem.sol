@@ -18,6 +18,7 @@ import { EmberstoneObjectID, SunstoneObjectID, MoonstoneObjectID, GlassObjectID,
 import { GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID } from "../../ObjectTypeIds.sol";
 import { SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../../ObjectTypeIds.sol";
 import { GoldCubeObjectID, SilverCubeObjectID, DiamondCubeObjectID, NeptuniumCubeObjectID } from "../../ObjectTypeIds.sol";
+import { ChipObjectID, ChipBatteryObjectID } from "../../ObjectTypeIds.sol";
 
 import { ThermoblasterObjectID } from "../../ObjectTypeIds.sol";
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
@@ -98,6 +99,9 @@ contract InitThermoblastSystem is System {
     createItem(GoldBarObjectID);
     createItem(DiamondObjectID);
     createItem(NeptuniumBarObjectID);
+
+    createItem(ChipObjectID);
+    createItem(ChipBatteryObjectID);
 
     createBlock(SilverCubeObjectID, 4608);
     createBlock(GoldCubeObjectID, 6400);
@@ -200,5 +204,8 @@ contract InitThermoblastSystem is System {
     createSingleInputWithStationRecipe(ThermoblasterObjectID, SilverBarObjectID, 8, SilverCubeObjectID, 1);
     createSingleInputWithStationRecipe(ThermoblasterObjectID, DiamondObjectID, 8, DiamondCubeObjectID, 1);
     createSingleInputWithStationRecipe(ThermoblasterObjectID, NeptuniumBarObjectID, 8, NeptuniumCubeObjectID, 1);
+
+    createDoubleInputWithStationRecipe(ThermoblasterObjectID, SandObjectID, 4, CoalOreObjectID, 2, ChipObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, SandObjectID, 2, ChipBatteryObjectID, 1);
   }
 }

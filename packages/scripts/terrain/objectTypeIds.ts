@@ -201,8 +201,8 @@ export const ANY_LOG_OBJECT_ID = 159;
 export const ANY_LUMBER_OBJECT_ID = 160;
 export const ANY_REINFORCED_LUMBER_OBJECT_ID = 161;
 
-export const REINFORCED_CHEST_OBJECT_ID = 162;
-export const BEDROCK_CHEST_OBJECT_ID = 163;
+export const CHIP_OBJECT_ID = 162;
+export const CHIP_BATTERY_OBJECT_ID = 163;
 
 // legacy
 export type BiomesVariantData = number;

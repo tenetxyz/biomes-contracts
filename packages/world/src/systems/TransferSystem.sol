@@ -12,7 +12,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
-import { ChestMetadata, ChestMetadataData } from "../codegen/tables/ChestMetadata.sol";
+import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
@@ -20,8 +20,8 @@ import { positionDataToVoxelCoord } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { isChest } from "../utils/ObjectTypeUtils.sol";
-import { IChestTransferHook } from "../prototypes/IChestTransferHook.sol";
+import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { IChip } from "../prototypes/IChip.sol";
 
 contract TransferSystem is System {
   function transferCommon(bytes32 playerEntityId, bytes32 srcEntityId, bytes32 dstEntityId) internal returns (uint8) {
@@ -40,10 +40,10 @@ contract TransferSystem is System {
     uint8 dstObjectTypeId = ObjectType._get(dstEntityId);
     if (srcObjectTypeId == PlayerObjectID) {
       require(playerEntityId == srcEntityId, "TransferSystem: player does not own source inventory");
-      require(isChest(dstObjectTypeId), "TransferSystem: cannot transfer to non-chest");
+      require(dstObjectTypeId == ChestObjectID, "TransferSystem: cannot transfer to non-chest");
     } else if (dstObjectTypeId == PlayerObjectID) {
       require(playerEntityId == dstEntityId, "TransferSystem: player does not own destination inventory");
-      require(isChest(srcObjectTypeId), "TransferSystem: cannot transfer from non-chest");
+      require(srcObjectTypeId == ChestObjectID, "TransferSystem: cannot transfer from non-chest");
     } else {
       revert("TransferSystem: invalid transfer operation");
     }
@@ -62,12 +62,14 @@ contract TransferSystem is System {
     bytes32 toolEntityId,
     bytes memory extraData
   ) internal {
-    ChestMetadataData memory chestMetadata = ChestMetadata._get(
-      playerEntityId == srcEntityId ? dstEntityId : srcEntityId
-    );
-    if (chestMetadata.onTransferHook != address(0)) {
+    bytes32 chestEntityId = playerEntityId == srcEntityId ? dstEntityId : srcEntityId;
+    address chipAddress = Chip._getChipAddress(chestEntityId);
+    if (chipAddress != address(0)) {
+      updateChipBatteryLevel(chestEntityId);
+
       // Forward any ether sent with the transaction to the hook
-      bool transferAllowed = IChestTransferHook(chestMetadata.onTransferHook).allowTransfer{ value: msg.value }(
+      // Don't safe call here as we want to revert if the chip doesn't allow the transfer
+      bool transferAllowed = IChip(chipAddress).onTransfer{ value: msg.value }(
         srcEntityId,
         dstEntityId,
         transferObjectTypeId,
@@ -75,9 +77,7 @@ contract TransferSystem is System {
         toolEntityId,
         extraData
       );
-      require(transferAllowed, "TransferSystem: Player not authorized to make this transfer");
-    } else if (chestMetadata.owner != address(0)) {
-      require(chestMetadata.owner == _msgSender(), "TransferSystem: Player not authorized to make this transfer");
+      require(transferAllowed, "TransferSystem: Player not authorized by chip to make this transfer");
     }
   }
 

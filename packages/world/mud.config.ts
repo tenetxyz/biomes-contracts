@@ -218,16 +218,14 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    ChestMetadata: {
+    Chip: {
       schema: {
-        chestEntityId: "bytes32",
-        owner: "address",
-        onTransferHook: "address",
-        strength: "uint256",
-        strengthenObjectTypeIds: "uint8[]",
-        strengthenObjectTypeAmounts: "uint16[]",
+        entityId: "bytes32",
+        chipAddress: "address",
+        batteryLevel: "uint256",
+        lastUpdatedTime: "uint256",
       },
-      key: ["chestEntityId"],
+      key: ["entityId"],
       codegen: {
         storeArgument: true,
       },
