@@ -2,12 +2,19 @@
 pragma solidity >=0.8.24;
 
 import { SystemCall } from "@latticexyz/world/src/SystemCall.sol";
+import { SystemRegistry } from "@latticexyz/world/src/codegen/tables/SystemRegistry.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { FunctionSelectors } from "@latticexyz/world/src/codegen/tables/FunctionSelectors.sol";
 import { WorldContextProviderLib, WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
-import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
+import { ResourceId, WorldResourceIdInstance } from "@latticexyz/world/src/WorldResourceId.sol";
 import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { Bytes } from "@latticexyz/store/src/Bytes.sol";
+
+function getCallerNamespace(address caller) view returns (bytes14) {
+  ResourceId callerSystemId = SystemRegistry._get(caller);
+  require(ResourceId.unwrap(callerSystemId) != bytes32(0), "Caller is not a system");
+  return WorldResourceIdInstance.getNamespace(callerSystemId);
+}
 
 function callInternalSystem(bytes memory callData) returns (bytes memory) {
   (ResourceId systemId, bytes4 systemFunctionSelector) = FunctionSelectors._get(bytes4(callData));
