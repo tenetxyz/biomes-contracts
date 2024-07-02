@@ -39,7 +39,7 @@ import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } 
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
 
-import { IERC165 } from "@latticexyz/store/src/IERC165.sol";
+import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
 import { IChip } from "../src/prototypes/IChip.sol";
 
 contract TestChip is IChip {
