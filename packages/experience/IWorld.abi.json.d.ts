@@ -509,11 +509,6 @@ declare const abi: [
     "name": "experience__setExperienceMetadata",
     "inputs": [
       {
-        "name": "id",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
         "name": "data",
         "type": "tuple",
         "internalType": "struct ExperienceMetadataData",

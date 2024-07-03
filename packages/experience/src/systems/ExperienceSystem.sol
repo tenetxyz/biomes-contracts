@@ -7,7 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ExperienceMetadata, ExperienceMetadataData } from "../codegen/tables/ExperienceMetadata.sol";
 
 contract ExperienceSystem is System {
-  function setExperienceMetadata(uint256 id, ExperienceMetadataData memory data) public {
+  function setExperienceMetadata(ExperienceMetadataData memory data) public {
     ExperienceMetadata.set(_msgSender(), data);
   }
 

@@ -11,7 +11,7 @@ import { ExperienceMetadataData } from "./../tables/ExperienceMetadata.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IExperienceSystem {
-  function experience__setExperienceMetadata(uint256 id, ExperienceMetadataData memory data) external;
+  function experience__setExperienceMetadata(ExperienceMetadataData memory data) external;
 
   function experience__deleteExperienceMetadata() external;
 }
