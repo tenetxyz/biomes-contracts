@@ -6,9 +6,9 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ExperienceMetadata, ExperienceMetadataData } from "../codegen/tables/ExperienceMetadata.sol";
 
-contract ExperienceSystem is System {
-  function setExperienceMetadata(ExperienceMetadataData memory data) public {
-    ExperienceMetadata.set(_msgSender(), data);
+contract ExpMetadataSystem is System {
+  function setExperienceMetadata(ExperienceMetadataData memory metadata) public {
+    ExperienceMetadata.set(_msgSender(), metadata);
   }
 
   function deleteExperienceMetadata() public {

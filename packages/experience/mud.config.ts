@@ -5,6 +5,9 @@ export default defineWorld({
   deploy: {
     upgradeableWorldImplementation: true,
   },
+  enums: {
+    ChipType: ["None", "Chest"],
+  },
   namespace: "experience",
   tables: {
     ExperienceMetadata: {
@@ -20,6 +23,15 @@ export default defineWorld({
       codegen: {
         storeArgument: true,
       },
+    },
+    ChipMetadata: {
+      schema: {
+        chipAddress: "address",
+        chipType: "ChipType",
+        name: "string",
+        description: "string",
+      },
+      key: ["chipAddress"],
     },
     DisplayStatus: {
       schema: {
