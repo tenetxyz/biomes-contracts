@@ -37,28 +37,6 @@ function getBuild(address experience, bytes32 buildId) view returns (Build memor
   return Build({ objectTypeIds: buildData.objectTypeIds, relativePositions: relativePositions });
 }
 
-function setBuild(address experience, bytes32 buildId, string memory name, Build memory build) {
-  int16[] memory relativePositionsX = new int16[](build.relativePositions.length);
-  int16[] memory relativePositionsY = new int16[](build.relativePositions.length);
-  int16[] memory relativePositionsZ = new int16[](build.relativePositions.length);
-  for (uint256 i = 0; i < build.relativePositions.length; i++) {
-    relativePositionsX[i] = build.relativePositions[i].x;
-    relativePositionsY[i] = build.relativePositions[i].y;
-    relativePositionsZ[i] = build.relativePositions[i].z;
-  }
-  Builds.set(
-    experience,
-    buildId,
-    BuildsData({
-      name: name,
-      objectTypeIds: build.objectTypeIds,
-      relativePositionsX: relativePositionsX,
-      relativePositionsY: relativePositionsY,
-      relativePositionsZ: relativePositionsZ
-    })
-  );
-}
-
 function getBuildWithPos(address experience, bytes32 buildId) view returns (BuildWithPos memory) {
   BuildsWithPosData memory buildData = BuildsWithPos.get(experience, buildId);
 
@@ -77,31 +55,6 @@ function getBuildWithPos(address experience, bytes32 buildId) view returns (Buil
       relativePositions: relativePositions,
       baseWorldCoord: VoxelCoord(buildData.baseWorldCoordX, buildData.baseWorldCoordY, buildData.baseWorldCoordZ)
     });
-}
-
-function setBuildWithPos(address experience, bytes32 buildId, string memory name, BuildWithPos memory build) {
-  int16[] memory relativePositionsX = new int16[](build.relativePositions.length);
-  int16[] memory relativePositionsY = new int16[](build.relativePositions.length);
-  int16[] memory relativePositionsZ = new int16[](build.relativePositions.length);
-  for (uint256 i = 0; i < build.relativePositions.length; i++) {
-    relativePositionsX[i] = build.relativePositions[i].x;
-    relativePositionsY[i] = build.relativePositions[i].y;
-    relativePositionsZ[i] = build.relativePositions[i].z;
-  }
-  BuildsWithPos.set(
-    experience,
-    buildId,
-    BuildsWithPosData({
-      name: name,
-      objectTypeIds: build.objectTypeIds,
-      relativePositionsX: relativePositionsX,
-      relativePositionsY: relativePositionsY,
-      relativePositionsZ: relativePositionsZ,
-      baseWorldCoordX: build.baseWorldCoord.x,
-      baseWorldCoordY: build.baseWorldCoord.y,
-      baseWorldCoordZ: build.baseWorldCoord.z
-    })
-  );
 }
 
 function buildExistsInWorld(

@@ -25,22 +25,6 @@ function getArea(address experience, bytes32 areaId) view returns (Area memory) 
     });
 }
 
-function setArea(address experience, bytes32 areaId, string memory name, Area memory area) {
-  Areas.set(
-    experience,
-    areaId,
-    AreasData({
-      name: name,
-      lowerSouthwestCornerX: area.lowerSouthwestCorner.x,
-      lowerSouthwestCornerY: area.lowerSouthwestCorner.y,
-      lowerSouthwestCornerZ: area.lowerSouthwestCorner.z,
-      sizeX: area.size.x,
-      sizeY: area.size.y,
-      sizeZ: area.size.z
-    })
-  );
-}
-
 function insideArea(Area memory area, VoxelCoord memory baseWorldCoord) pure returns (bool) {
   VoxelCoord memory topNortheastCorner = VoxelCoord(
     area.lowerSouthwestCorner.x + area.size.x,

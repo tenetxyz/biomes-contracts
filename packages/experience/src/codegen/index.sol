@@ -7,7 +7,7 @@ import { ExperienceMetadata, ExperienceMetadataData } from "./tables/ExperienceM
 import { DisplayStatus } from "./tables/DisplayStatus.sol";
 import { DisplayRegisterMsg } from "./tables/DisplayRegisterMsg.sol";
 import { DisplayUnregisterMsg } from "./tables/DisplayUnregisterMsg.sol";
-import { Notifications, NotificationsData } from "./tables/Notifications.sol";
+import { Notification, NotificationData } from "./tables/Notification.sol";
 import { Players } from "./tables/Players.sol";
 import { Areas, AreasData } from "./tables/Areas.sol";
 import { Builds, BuildsData } from "./tables/Builds.sol";

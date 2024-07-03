@@ -54,7 +54,7 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    Notifications: {
+    Notification: {
       schema: {
         experience: "address",
         player: "address",

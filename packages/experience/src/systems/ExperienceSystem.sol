@@ -10,4 +10,8 @@ contract ExperienceSystem is System {
   function setExperienceMetadata(uint256 id, ExperienceMetadataData memory data) public {
     ExperienceMetadata.set(_msgSender(), data);
   }
+
+  function deleteExperienceMetadata() public {
+    ExperienceMetadata.deleteRecord(_msgSender());
+  }
 }

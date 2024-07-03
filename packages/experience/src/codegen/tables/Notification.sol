@@ -16,14 +16,14 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-struct NotificationsData {
+struct NotificationData {
   address player;
   string message;
 }
 
-library Notifications {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "Notifications", typeId: RESOURCE_OFFCHAIN_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x6f74657870657269656e6365000000004e6f74696669636174696f6e73000000);
+library Notification {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "Notification", typeId: RESOURCE_OFFCHAIN_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x6f74657870657269656e6365000000004e6f74696669636174696f6e00000000);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0014010114000000000000000000000000000000000000000000000000000000);
@@ -151,7 +151,7 @@ library Notifications {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(address experience, NotificationsData memory _table) internal {
+  function set(address experience, NotificationData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.player);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.message);
@@ -166,7 +166,7 @@ library Notifications {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(address experience, NotificationsData memory _table) internal {
+  function _set(address experience, NotificationData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.player);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.message);
@@ -181,7 +181,7 @@ library Notifications {
   /**
    * @notice Set the full data using the data struct (using the specified store).
    */
-  function set(IStore _store, address experience, NotificationsData memory _table) internal {
+  function set(IStore _store, address experience, NotificationData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.player);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.message);
@@ -225,7 +225,7 @@ library Notifications {
     bytes memory _staticData,
     EncodedLengths _encodedLengths,
     bytes memory _dynamicData
-  ) internal pure returns (NotificationsData memory _table) {
+  ) internal pure returns (NotificationData memory _table) {
     (_table.player) = decodeStatic(_staticData);
 
     (_table.message) = decodeDynamic(_encodedLengths, _dynamicData);

@@ -152,6 +152,360 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__deleteArea",
+    "inputs": [
+      {
+        "name": "areaId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteBuild",
+    "inputs": [
+      {
+        "name": "buildId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteBuildWithPos",
+    "inputs": [
+      {
+        "name": "buildId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteCountdown",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteExperienceMetadata",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteNotifications",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deletePlayers",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteRegisterMsg",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteStatus",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteUnregisterMsg",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__popPlayers",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__pushPlayers",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setArea",
+    "inputs": [
+      {
+        "name": "areaId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "area",
+        "type": "tuple",
+        "internalType": "struct Area",
+        "components": [
+          {
+            "name": "lowerSouthwestCorner",
+            "type": "tuple",
+            "internalType": "struct VoxelCoord",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          },
+          {
+            "name": "size",
+            "type": "tuple",
+            "internalType": "struct VoxelCoord",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setBuild",
+    "inputs": [
+      {
+        "name": "buildId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "build",
+        "type": "tuple",
+        "internalType": "struct Build",
+        "components": [
+          {
+            "name": "objectTypeIds",
+            "type": "uint8[]",
+            "internalType": "uint8[]"
+          },
+          {
+            "name": "relativePositions",
+            "type": "tuple[]",
+            "internalType": "struct VoxelCoord[]",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setBuildWithPos",
+    "inputs": [
+      {
+        "name": "buildId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "build",
+        "type": "tuple",
+        "internalType": "struct BuildWithPos",
+        "components": [
+          {
+            "name": "objectTypeIds",
+            "type": "uint8[]",
+            "internalType": "uint8[]"
+          },
+          {
+            "name": "relativePositions",
+            "type": "tuple[]",
+            "internalType": "struct VoxelCoord[]",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          },
+          {
+            "name": "baseWorldCoord",
+            "type": "tuple",
+            "internalType": "struct VoxelCoord",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setCountdown",
+    "inputs": [
+      {
+        "name": "countdownData",
+        "type": "tuple",
+        "internalType": "struct CountdownData",
+        "components": [
+          {
+            "name": "countdownEndTimestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "countdownEndBlock",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setCountdownEndBlock",
+    "inputs": [
+      {
+        "name": "countdownEndBlock",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setCountdownEndTimestamp",
+    "inputs": [
+      {
+        "name": "countdownEndTimestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__setExperienceMetadata",
     "inputs": [
       {
@@ -190,6 +544,94 @@ declare const abi: [
             "internalType": "string"
           }
         ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setNotification",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "message",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setPlayers",
+    "inputs": [
+      {
+        "name": "players",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setRegisterMsg",
+    "inputs": [
+      {
+        "name": "registerMessage",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setStatus",
+    "inputs": [
+      {
+        "name": "status",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setUnregisterMsg",
+    "inputs": [
+      {
+        "name": "unregisterMessage",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__updatePlayers",
+    "inputs": [
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
