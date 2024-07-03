@@ -191,6 +191,13 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__deleteChipMetadata",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteCountdown",
     "inputs": [],
     "outputs": [],
@@ -455,6 +462,36 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__setChipMetadata",
+    "inputs": [
+      {
+        "name": "metadata",
+        "type": "tuple",
+        "internalType": "struct ChipMetadataData",
+        "components": [
+          {
+            "name": "chipType",
+            "type": "uint8",
+            "internalType": "enum ChipType"
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__setCountdown",
     "inputs": [
       {
@@ -509,7 +546,7 @@ declare const abi: [
     "name": "experience__setExperienceMetadata",
     "inputs": [
       {
-        "name": "data",
+        "name": "metadata",
         "type": "tuple",
         "internalType": "struct ExperienceMetadataData",
         "components": [
