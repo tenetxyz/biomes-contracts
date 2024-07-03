@@ -33,6 +33,13 @@ export default defineWorld({
       },
       key: ["chipAddress"],
     },
+    ChipAttachment: {
+      schema: {
+        entityId: "bytes32",
+        attacher: "address",
+      },
+      key: ["entityId"],
+    },
     DisplayStatus: {
       schema: {
         experience: "address",

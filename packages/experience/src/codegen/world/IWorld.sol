@@ -7,6 +7,7 @@ import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.
 
 import { IAreaSystem } from "./IAreaSystem.sol";
 import { IBuildsSystem } from "./IBuildsSystem.sol";
+import { IChipAttachmentSystem } from "./IChipAttachmentSystem.sol";
 import { IChipMetadataSystem } from "./IChipMetadataSystem.sol";
 import { ICountdownSystem } from "./ICountdownSystem.sol";
 import { IDisplaySystem } from "./IDisplaySystem.sol";
@@ -25,6 +26,7 @@ interface IWorld is
   IBaseWorld,
   IAreaSystem,
   IBuildsSystem,
+  IChipAttachmentSystem,
   IChipMetadataSystem,
   ICountdownSystem,
   IDisplaySystem,
