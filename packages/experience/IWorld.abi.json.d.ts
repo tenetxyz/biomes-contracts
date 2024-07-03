@@ -191,6 +191,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__deleteChipAttacher",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteChipMetadata",
     "inputs": [],
     "outputs": [],
@@ -455,6 +468,24 @@ declare const abi: [
             ]
           }
         ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setChipAttacher",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "attacher",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
