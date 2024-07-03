@@ -36,6 +36,61 @@ importers:
         specifier: 5.1.6
         version: 5.1.6
 
+  packages/experience:
+    dependencies:
+      '@biomesaw/utils':
+        specifier: workspace:*
+        version: link:../utils
+      '@biomesaw/world':
+        specifier: workspace:*
+        version: link:../world
+      '@latticexyz/cli':
+        specifier: link:../../../mud/packages/cli
+        version: link:../../../mud/packages/cli
+      '@latticexyz/schema-type':
+        specifier: link:../../../mud/packages/schema-type
+        version: link:../../../mud/packages/schema-type
+      '@latticexyz/store':
+        specifier: link:../../../mud/packages/store
+        version: link:../../../mud/packages/store
+      '@latticexyz/world':
+        specifier: link:../../../mud/packages/world
+        version: link:../../../mud/packages/world
+      '@latticexyz/world-modules':
+        specifier: link:../../../mud/packages/world-modules
+        version: link:../../../mud/packages/world-modules
+      '@openzeppelin/contracts':
+        specifier: ^5.0.2
+        version: 5.0.2
+    devDependencies:
+      '@types/node':
+        specifier: ^18.15.11
+        version: 18.19.18
+      ds-test:
+        specifier: https://github.com/dapphub/ds-test.git#e282159d5170298eb2455a6c05280ab5a73a4ef0
+        version: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
+      forge-std:
+        specifier: https://github.com/foundry-rs/forge-std.git#74cfb77e308dd188d2f58864aaf44963ae6b88b1
+        version: https://codeload.github.com/foundry-rs/forge-std/tar.gz/74cfb77e308dd188d2f58864aaf44963ae6b88b1
+      prettier:
+        specifier: 3.2.5
+        version: 3.2.5
+      prettier-plugin-solidity:
+        specifier: 1.3.1
+        version: 1.3.1(prettier@3.2.5)
+      solhint:
+        specifier: ^3.3.7
+        version: 3.6.2(typescript@5.1.6)
+      solhint-config-mud:
+        specifier: 2.0.12
+        version: 2.0.12
+      solhint-plugin-mud:
+        specifier: 2.0.12
+        version: 2.0.12
+      tsup:
+        specifier: ^7.2.0
+        version: 7.3.0(typescript@5.1.6)
+
   packages/scripts:
     dependencies:
       '@biomesaw/world':
@@ -496,6 +551,9 @@ packages:
   '@openzeppelin/contracts@4.9.6':
     resolution: {integrity: sha512-xSmezSupL+y9VkHZJGDoCBpmnB2ogM13ccaYDWqJTfS3dbuHkgjuwDFUmaFauBCboQMGB/S5UqUl2y54X99BmA==}
 
+  '@openzeppelin/contracts@5.0.2':
+    resolution: {integrity: sha512-ytPc6eLGcHHnapAZ9S+5qsdomhjo6QBHTDRRBFfTxXIpsicMhVPouPgmUPebZZZGX7vt9USA+Z+0M0dSVtSUEA==}
+
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
@@ -576,6 +634,9 @@ packages:
 
   '@solidity-parser/parser@0.16.2':
     resolution: {integrity: sha512-PI9NfoA3P8XK2VBkK5oIfRgKDsicwDZfkVq9ZTBCQYGOP1N2owgY2dyLGyU5/J/hQs8KRk55kdmvTLjy3Mu3vg==}
+
+  '@solidity-parser/parser@0.17.0':
+    resolution: {integrity: sha512-Nko8R0/kUo391jsEHHxrGM07QFdnPGvlmox4rmH0kNiNAashItAilhy4Mv4pK5gQmW5f4sXAF58fwJbmlkGcVw==}
 
   '@types/debug@4.1.7':
     resolution: {integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==}
@@ -1335,9 +1396,20 @@ packages:
     peerDependencies:
       prettier: '>=2.3.0 || >=3.0.0-alpha.0'
 
+  prettier-plugin-solidity@1.3.1:
+    resolution: {integrity: sha512-MN4OP5I2gHAzHZG1wcuJl0FsLS3c4Cc5494bbg+6oQWBPuEamjwDvmGfFMZ6NFzsh3Efd9UUxeT7ImgjNH4ozA==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      prettier: '>=2.3.0'
+
   prettier@2.8.8:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
+    hasBin: true
+
+  prettier@3.2.5:
+    resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}
+    engines: {node: '>=14'}
     hasBin: true
 
   prompts@2.4.2:
@@ -1427,8 +1499,14 @@ packages:
   solhint-config-mud@2.0.0-next.17:
     resolution: {integrity: sha512-qM/9xCujeRr486wAcw1OQVSkxN9e9Ulssh+zeJzzkX48tP1bnqs8YjAclrXOHPaMx6cVR7af44u2rOj4XkXNZQ==}
 
+  solhint-config-mud@2.0.12:
+    resolution: {integrity: sha512-3xes2ylLj8500FL91q8nnKFRONb2l4mIJWlZIF+mPGHmVHVgL46fv75V+zBYoMgXwvTzshkpBd02ea7IE1pwLQ==}
+
   solhint-plugin-mud@2.0.0-next.17:
     resolution: {integrity: sha512-uredIpgJQYRrazFo0wsITZfBRz+giU+Iuz8gToQY5fMEg9zgdYK3snc1Uez36heppsFg/DXiDWskmT7Vr1eqjA==}
+
+  solhint-plugin-mud@2.0.12:
+    resolution: {integrity: sha512-qoVYpkZ69YGpc22ErSd9KO+P4Pl/ujPxWsjesWR6qjVDakXSoOwMQdaEn3NjAEA9DZO9KoDALNj9ey9FjMt5Eg==}
 
   solhint@3.6.2:
     resolution: {integrity: sha512-85EeLbmkcPwD+3JR7aEMKsVC9YrRSxd4qkXuMzrlf7+z2Eqdfm1wHWq1ffTuo5aDhoZxp2I9yF3QkxZOxOL7aQ==}
@@ -1436,6 +1514,9 @@ packages:
 
   solidity-comments-extractor@0.0.7:
     resolution: {integrity: sha512-wciNMLg/Irp8OKGrh3S2tfvZiZ0NEyILfcRCXCD4mp7SgK/i9gzLfhY2hY7VMCQJ3kH9UB9BzNdibIVMchzyYw==}
+
+  solidity-comments-extractor@0.0.8:
+    resolution: {integrity: sha512-htM7Vn6LhHreR+EglVMd2s+sZhcXAirB1Zlyrv5zBuTxieCvjfnRpd7iZk75m/u6NOlEyQ94C6TWbBn2cY7w8g==}
 
   source-map@0.8.0-beta.0:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
@@ -2037,6 +2118,8 @@ snapshots:
 
   '@openzeppelin/contracts@4.9.6': {}
 
+  '@openzeppelin/contracts@5.0.2': {}
+
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
@@ -2095,6 +2178,8 @@ snapshots:
   '@solidity-parser/parser@0.16.2':
     dependencies:
       antlr4ts: 0.5.0-alpha.4
+
+  '@solidity-parser/parser@0.17.0': {}
 
   '@types/debug@4.1.7':
     dependencies:
@@ -2894,7 +2979,16 @@ snapshots:
       semver: 7.6.0
       solidity-comments-extractor: 0.0.7
 
+  prettier-plugin-solidity@1.3.1(prettier@3.2.5):
+    dependencies:
+      '@solidity-parser/parser': 0.17.0
+      prettier: 3.2.5
+      semver: 7.6.0
+      solidity-comments-extractor: 0.0.8
+
   prettier@2.8.8: {}
+
+  prettier@3.2.5: {}
 
   prompts@2.4.2:
     dependencies:
@@ -2976,7 +3070,13 @@ snapshots:
 
   solhint-config-mud@2.0.0-next.17: {}
 
+  solhint-config-mud@2.0.12: {}
+
   solhint-plugin-mud@2.0.0-next.17:
+    dependencies:
+      '@solidity-parser/parser': 0.16.2
+
+  solhint-plugin-mud@2.0.12:
     dependencies:
       '@solidity-parser/parser': 0.16.2
 
@@ -3005,6 +3105,8 @@ snapshots:
       - typescript
 
   solidity-comments-extractor@0.0.7: {}
+
+  solidity-comments-extractor@0.0.8: {}
 
   source-map@0.8.0-beta.0:
     dependencies:

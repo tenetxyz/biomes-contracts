@@ -22,11 +22,11 @@ extra_output_files = [
 ]
 fs_permissions = [{ access = "read", path = "./"}]
 
-[profile.lattice-mainnet]
-eth_rpc_url = "https://rpc.redstonechain.com"
-
-[profile.lattice-testnet]
+[profile.garnet]
 eth_rpc_url = "https://rpc.garnetchain.com"
+
+[profile.redstone]
+eth_rpc_url = "https://rpc.redstonechain.com"
 
 [profile.biomes-testnet]
 eth_rpc_url = "https://testnet.biomes.aw"
