@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { IWorld } from "@biomesaw/world/src/codegen/world/IWorld.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
@@ -57,11 +58,7 @@ function getBuildWithPos(address experience, bytes32 buildId) view returns (Buil
     });
 }
 
-function buildExistsInWorld(
-  address biomeWorldAddress,
-  Build memory buildData,
-  VoxelCoord memory baseWorldCoord
-) view returns (bool) {
+function buildExistsInWorld(Build memory buildData, VoxelCoord memory baseWorldCoord) view returns (bool) {
   // Go through each relative position, apply it to the base world coord, and check if the object type id matches
   for (uint256 i = 0; i < buildData.objectTypeIds.length; i++) {
     VoxelCoord memory absolutePosition = VoxelCoord({
@@ -74,7 +71,7 @@ function buildExistsInWorld(
     uint8 objectTypeId;
     if (entityId == bytes32(0)) {
       // then it's the terrain
-      objectTypeId = IWorld(biomeWorldAddress).getTerrainBlock(absolutePosition);
+      objectTypeId = IWorld(WorldContextConsumerLib._world()).getTerrainBlock(absolutePosition);
     } else {
       objectTypeId = getObjectType(entityId);
     }
@@ -87,7 +84,6 @@ function buildExistsInWorld(
 }
 
 function buildWithPosExistsInWorld(
-  address biomeWorldAddress,
   BuildWithPos memory buildData,
   VoxelCoord memory baseWorldCoord
 ) view returns (bool) {
@@ -96,7 +92,6 @@ function buildWithPosExistsInWorld(
   }
   return
     buildExistsInWorld(
-      biomeWorldAddress,
       Build({ objectTypeIds: buildData.objectTypeIds, relativePositions: buildData.relativePositions }),
       baseWorldCoord
     );

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { ResourceId, WorldResourceIdLib, WorldResourceIdInstance } from "@latticexyz/world/src/WorldResourceId.sol";
 import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 
@@ -34,14 +35,9 @@ function isSystemId(ResourceId checkSystemId, bytes16 systemId) pure returns (bo
   return ResourceId.unwrap(checkSystemId) == ResourceId.unwrap(getSystemId(systemId));
 }
 
-function callBuild(
-  address biomeWorldAddress,
-  address delegatorAddress,
-  uint8 objectTypeId,
-  VoxelCoord memory coord
-) returns (bytes32 entityId) {
+function callBuild(address delegatorAddress, uint8 objectTypeId, VoxelCoord memory coord) returns (bytes32 entityId) {
   bytes memory buildCallData = abi.encodeCall(IBuildSystem.build, (objectTypeId, coord));
-  bytes memory returnData = IWorld(biomeWorldAddress).callFrom(
+  bytes memory returnData = IWorld(WorldContextConsumerLib._world()).callFrom(
     delegatorAddress,
     getSystemId("BuildSystem"),
     buildCallData
@@ -49,23 +45,22 @@ function callBuild(
   return abi.decode(returnData, (bytes32));
 }
 
-function callMine(address biomeWorldAddress, address delegatorAddress, VoxelCoord memory coord) {
+function callMine(address delegatorAddress, VoxelCoord memory coord) {
   bytes memory mineCallData = abi.encodeCall(IMineSystem.mine, (coord));
-  IWorld(biomeWorldAddress).callFrom(delegatorAddress, getSystemId("MineSystem"), mineCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("MineSystem"), mineCallData);
 }
 
-function callMove(address biomeWorldAddress, address delegatorAddress, VoxelCoord[] memory newCoords) {
+function callMove(address delegatorAddress, VoxelCoord[] memory newCoords) {
   bytes memory moveCallData = abi.encodeCall(IMoveSystem.move, (newCoords));
-  IWorld(biomeWorldAddress).callFrom(delegatorAddress, getSystemId("MoveSystem"), moveCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("MoveSystem"), moveCallData);
 }
 
-function callHit(address biomeWorldAddress, address delegatorAddress, address hitPlayer) {
+function callHit(address delegatorAddress, address hitPlayer) {
   bytes memory hitCallData = abi.encodeCall(IHitSystem.hit, (hitPlayer));
-  IWorld(biomeWorldAddress).callFrom(delegatorAddress, getSystemId("HitSystem"), hitCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("HitSystem"), hitCallData);
 }
 
 function callDrop(
-  address biomeWorldAddress,
   address delegatorAddress,
   uint8 dropObjectTypeId,
   uint16 numToDrop,
@@ -78,11 +73,10 @@ function callDrop(
   } else {
     dropCallData = abi.encodeCall(IDropSystem.dropTool, (toolEntityId, coord));
   }
-  IWorld(biomeWorldAddress).callFrom(delegatorAddress, getSystemId("DropSystem"), dropCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("DropSystem"), dropCallData);
 }
 
 function callTransfer(
-  address biomeWorldAddress,
   address delegatorAddress,
   bytes32 srcEntityId,
   bytes32 dstEntityId,
@@ -102,40 +96,40 @@ function callTransfer(
       (srcEntityId, dstEntityId, toolEntityId, new bytes(0))
     );
   }
-  IWorld(biomeWorldAddress).callFrom(delegatorAddress, getSystemId("TransferSystem"), transferCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("TransferSystem"), transferCallData);
 }
 
-function callCraft(address biomeWorldAddress, address delegatorAddress, bytes32 recipeId, bytes32 stationEntityId) {
+function callCraft(address delegatorAddress, bytes32 recipeId, bytes32 stationEntityId) {
   bytes memory craftCallData = abi.encodeCall(ICraftSystem.craft, (recipeId, stationEntityId));
-  IWorld(biomeWorldAddress).callFrom(delegatorAddress, getSystemId("CraftSystem"), craftCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("CraftSystem"), craftCallData);
 }
 
-function callEquip(address biomeWorldAddress, address delegatorAddress, bytes32 entityId) {
+function callEquip(address delegatorAddress, bytes32 entityId) {
   bytes memory equipCallData = abi.encodeCall(IEquipSystem.equip, (entityId));
-  IWorld(biomeWorldAddress).callFrom(delegatorAddress, getSystemId("EquipSystem"), equipCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("EquipSystem"), equipCallData);
 }
 
-function callUnequip(address biomeWorldAddress, address delegatorAddress) {
+function callUnequip(address delegatorAddress) {
   bytes memory unequipCallData = abi.encodeCall(IUnequipSystem.unequip, ());
-  IWorld(biomeWorldAddress).callFrom(delegatorAddress, getSystemId("UnequipSystem"), unequipCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("UnequipSystem"), unequipCallData);
 }
 
-function callLogin(address biomeWorldAddress, address delegatorAddress, VoxelCoord memory respawnCoord) {
+function callLogin(address delegatorAddress, VoxelCoord memory respawnCoord) {
   bytes memory loginCallData = abi.encodeCall(ILoginSystem.loginPlayer, (respawnCoord));
-  IWorld(biomeWorldAddress).callFrom(delegatorAddress, getSystemId("LoginSystem"), loginCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("LoginSystem"), loginCallData);
 }
 
-function callLogout(address biomeWorldAddress, address delegatorAddress) {
+function callLogout(address delegatorAddress) {
   bytes memory logoutCallData = abi.encodeCall(ILogoffSystem.logoffPlayer, ());
-  IWorld(biomeWorldAddress).callFrom(delegatorAddress, getSystemId("LogoffSystem"), logoutCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("LogoffSystem"), logoutCallData);
 }
 
-function callSpawn(address biomeWorldAddress, address delegatorAddress, VoxelCoord memory spawnCoord) {
+function callSpawn(address delegatorAddress, VoxelCoord memory spawnCoord) {
   bytes memory spawnCallData = abi.encodeCall(ISpawnSystem.spawnPlayer, (spawnCoord));
-  IWorld(biomeWorldAddress).callFrom(delegatorAddress, getSystemId("SpawnSystem"), spawnCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("SpawnSystem"), spawnCallData);
 }
 
-function callActivate(address biomeWorldAddress, address delegatorAddress, bytes32 entityId) {
+function callActivate(address delegatorAddress, bytes32 entityId) {
   bytes memory activateCallData = abi.encodeCall(IActivateSystem.activate, (entityId));
-  IWorld(biomeWorldAddress).callFrom(delegatorAddress, getSystemId("ActivateSystem"), activateCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("ActivateSystem"), activateCallData);
 }

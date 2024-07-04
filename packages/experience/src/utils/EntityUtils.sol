@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { OptionalSystemHooks } from "@latticexyz/world/src/codegen/tables/OptionalSystemHooks.sol";
 import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/UserDelegationControl.sol";
 import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
@@ -46,12 +47,12 @@ function hasDelegated(address delegator, address delegatee) view returns (bool) 
   return Delegation.isUnlimited(UserDelegationControl.getDelegationControlId(delegator, delegatee));
 }
 
-function getObjectTypeAtCoord(address biomeWorldAddress, VoxelCoord memory coord) view returns (uint8) {
+function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (uint8) {
   bytes32 entityId = getEntityAtCoord(coord);
 
   uint8 objectTypeId;
   if (entityId == bytes32(0)) {
-    objectTypeId = IWorld(biomeWorldAddress).getTerrainBlock(coord);
+    objectTypeId = IWorld(WorldContextConsumerLib._world()).getTerrainBlock(coord);
   } else {
     objectTypeId = getObjectType(entityId);
   }

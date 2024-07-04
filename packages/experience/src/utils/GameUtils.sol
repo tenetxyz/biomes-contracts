@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { AirObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
@@ -36,10 +37,7 @@ function decimalString(uint256 value, uint256 decimals) pure returns (string mem
   return string(trimmedBuffer);
 }
 
-function getEmptyBlockOnGround(
-  address biomeWorldAddress,
-  VoxelCoord memory centerCoord
-) view returns (VoxelCoord memory) {
+function getEmptyBlockOnGround(VoxelCoord memory centerCoord) view returns (VoxelCoord memory) {
   for (int8 dx = -1; dx <= 1; dx++) {
     for (int8 dy = -1; dy <= 1; dy++) {
       for (int8 dz = -1; dz <= 1; dz++) {
@@ -50,10 +48,7 @@ function getEmptyBlockOnGround(
           z: centerCoord.z + dz
         });
 
-        if (
-          getObjectTypeAtCoord(biomeWorldAddress, coord) == AirObjectID &&
-          getObjectTypeAtCoord(biomeWorldAddress, coordBelow) != AirObjectID
-        ) {
+        if (getObjectTypeAtCoord(coord) == AirObjectID && getObjectTypeAtCoord(coordBelow) != AirObjectID) {
           return coord;
         }
       }
