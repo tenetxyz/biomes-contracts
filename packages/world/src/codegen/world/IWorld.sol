@@ -14,13 +14,6 @@ import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
 import { IGravitySystem } from "./IGravitySystem.sol";
 import { IHitSystem } from "./IHitSystem.sol";
-import { IInitDyedBlocksSystem } from "./IInitDyedBlocksSystem.sol";
-import { IInitHandBlocksSystem } from "./IInitHandBlocksSystem.sol";
-import { IInitInteractablesSystem } from "./IInitInteractablesSystem.sol";
-import { IInitPlayersSystem } from "./IInitPlayersSystem.sol";
-import { IInitTerrainBlocksSystem } from "./IInitTerrainBlocksSystem.sol";
-import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
-import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
 import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
 import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
@@ -32,6 +25,13 @@ import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
+import { IInitDyedBlocksSystem } from "./IInitDyedBlocksSystem.sol";
+import { IInitHandBlocksSystem } from "./IInitHandBlocksSystem.sol";
+import { IInitInteractablesSystem } from "./IInitInteractablesSystem.sol";
+import { IInitPlayersSystem } from "./IInitPlayersSystem.sol";
+import { IInitTerrainBlocksSystem } from "./IInitTerrainBlocksSystem.sol";
+import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
+import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
 
 /**
  * @title IWorld
@@ -51,13 +51,6 @@ interface IWorld is
   IEquipSystem,
   IGravitySystem,
   IHitSystem,
-  IInitDyedBlocksSystem,
-  IInitHandBlocksSystem,
-  IInitInteractablesSystem,
-  IInitPlayersSystem,
-  IInitTerrainBlocksSystem,
-  IInitThermoblastSystem,
-  IInitWorkbenchSystem,
   IInitSpawnSystem,
   ILoginSystem,
   ILogoffSystem,
@@ -68,5 +61,12 @@ interface IWorld is
   ISpawnSystem,
   ITerrainSystem,
   ITransferSystem,
-  IUnequipSystem
+  IUnequipSystem,
+  IInitDyedBlocksSystem,
+  IInitHandBlocksSystem,
+  IInitInteractablesSystem,
+  IInitPlayersSystem,
+  IInitTerrainBlocksSystem,
+  IInitThermoblastSystem,
+  IInitWorkbenchSystem
 {}
