@@ -7,10 +7,12 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Chip, ChipData } from "@biomesaw/world/src/codegen/tables/Chip.sol";
 import { ChipAttachment } from "../codegen/tables/ChipAttachment.sol";
 
+import { getExperienceAddress } from "../Utils.sol";
+
 contract ChipAttachmentSystem is System {
   function setChipAttacher(bytes32 entityId, address attacher) public {
     require(
-      Chip.getChipAddress(entityId) == _msgSender(),
+      Chip.getChipAddress(entityId) == getExperienceAddress(_msgSender()),
       "ChipAttachmentSystem: Only the chip address can set the attacher."
     );
     ChipAttachment.setAttacher(entityId, attacher);
@@ -18,7 +20,7 @@ contract ChipAttachmentSystem is System {
 
   function deleteChipAttacher(bytes32 entityId) public {
     require(
-      Chip.getChipAddress(entityId) == _msgSender(),
+      Chip.getChipAddress(entityId) == getExperienceAddress(_msgSender()),
       "ChipAttachmentSystem: Only the chip address can delete the attacher."
     );
     ChipAttachment.deleteRecord(entityId);

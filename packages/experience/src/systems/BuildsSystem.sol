@@ -8,6 +8,8 @@ import { Builds, BuildsData } from "../codegen/tables/Builds.sol";
 import { BuildsWithPos, BuildsWithPosData } from "../codegen/tables/BuildsWithPos.sol";
 import { Build, BuildWithPos } from "../utils/BuildUtils.sol";
 
+import { getExperienceAddress } from "../Utils.sol";
+
 contract BuildsSystem is System {
   function setBuild(bytes32 buildId, string memory name, Build memory build) public {
     int16[] memory relativePositionsX = new int16[](build.relativePositions.length);
@@ -20,7 +22,7 @@ contract BuildsSystem is System {
     }
 
     Builds.set(
-      _msgSender(),
+      getExperienceAddress(_msgSender()),
       buildId,
       BuildsData({
         name: name,
@@ -33,7 +35,7 @@ contract BuildsSystem is System {
   }
 
   function deleteBuild(bytes32 buildId) public {
-    Builds.deleteRecord(_msgSender(), buildId);
+    Builds.deleteRecord(getExperienceAddress(_msgSender()), buildId);
   }
 
   function setBuildWithPos(bytes32 buildId, string memory name, BuildWithPos memory build) public {
@@ -47,7 +49,7 @@ contract BuildsSystem is System {
     }
 
     BuildsWithPos.set(
-      _msgSender(),
+      getExperienceAddress(_msgSender()),
       buildId,
       BuildsWithPosData({
         name: name,
@@ -63,6 +65,6 @@ contract BuildsSystem is System {
   }
 
   function deleteBuildWithPos(bytes32 buildId) public {
-    BuildsWithPos.deleteRecord(_msgSender(), buildId);
+    BuildsWithPos.deleteRecord(getExperienceAddress(_msgSender()), buildId);
   }
 }

@@ -10,6 +10,13 @@ export default defineWorld({
   },
   namespace: "experience",
   tables: {
+    NamespaceMetadata: {
+      schema: {
+        namespace: "bytes14",
+        experience: "address",
+      },
+      key: ["namespace"],
+    },
     ExperienceMetadata: {
       schema: {
         experience: "address",

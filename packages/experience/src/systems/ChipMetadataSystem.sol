@@ -6,12 +6,14 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ChipMetadata, ChipMetadataData } from "../codegen/tables/ChipMetadata.sol";
 
+import { getExperienceAddress } from "../Utils.sol";
+
 contract ChipMetadataSystem is System {
   function setChipMetadata(ChipMetadataData memory metadata) public {
-    ChipMetadata.set(_msgSender(), metadata);
+    ChipMetadata.set(getExperienceAddress(_msgSender()), metadata);
   }
 
   function deleteChipMetadata() public {
-    ChipMetadata.deleteRecord(_msgSender());
+    ChipMetadata.deleteRecord(getExperienceAddress(_msgSender()));
   }
 }
