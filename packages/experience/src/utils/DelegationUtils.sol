@@ -35,29 +35,71 @@ function isSystemId(ResourceId checkSystemId, bytes16 systemId) pure returns (bo
   return ResourceId.unwrap(checkSystemId) == ResourceId.unwrap(getSystemId(systemId));
 }
 
+function getBuildCallData(uint8 objectTypeId, VoxelCoord memory coord) returns (bytes memory buildCallData) {
+  buildCallData = abi.encodeCall(IBuildSystem.build, (objectTypeId, coord));
+  return buildCallData;
+}
+
 function callBuild(address delegatorAddress, uint8 objectTypeId, VoxelCoord memory coord) returns (bytes32 entityId) {
-  bytes memory buildCallData = abi.encodeCall(IBuildSystem.build, (objectTypeId, coord));
   bytes memory returnData = IWorld(WorldContextConsumerLib._world()).callFrom(
     delegatorAddress,
     getSystemId("BuildSystem"),
-    buildCallData
+    getBuildCallData(objectTypeId, coord)
   );
   return abi.decode(returnData, (bytes32));
 }
 
+function getMineCallData(VoxelCoord memory coord) returns (bytes memory mineCallData) {
+  mineCallData = abi.encodeCall(IMineSystem.mine, (coord));
+  return mineCallData;
+}
+
 function callMine(address delegatorAddress, VoxelCoord memory coord) {
-  bytes memory mineCallData = abi.encodeCall(IMineSystem.mine, (coord));
-  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("MineSystem"), mineCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(
+    delegatorAddress,
+    getSystemId("MineSystem"),
+    getMineCallData(coord)
+  );
+}
+
+function getMoveCallData(VoxelCoord[] memory newCoords) returns (bytes memory moveCallData) {
+  moveCallData = abi.encodeCall(IMoveSystem.move, (newCoords));
+  return moveCallData;
 }
 
 function callMove(address delegatorAddress, VoxelCoord[] memory newCoords) {
-  bytes memory moveCallData = abi.encodeCall(IMoveSystem.move, (newCoords));
-  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("MoveSystem"), moveCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(
+    delegatorAddress,
+    getSystemId("MoveSystem"),
+    getMoveCallData(newCoords)
+  );
+}
+
+function getHitCallData(address hitPlayer) returns (bytes memory hitCallData) {
+  hitCallData = abi.encodeCall(IHitSystem.hit, (hitPlayer));
+  return hitCallData;
 }
 
 function callHit(address delegatorAddress, address hitPlayer) {
-  bytes memory hitCallData = abi.encodeCall(IHitSystem.hit, (hitPlayer));
-  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("HitSystem"), hitCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(
+    delegatorAddress,
+    getSystemId("HitSystem"),
+    getHitCallData(hitPlayer)
+  );
+}
+
+function getDropCallData(
+  uint8 dropObjectTypeId,
+  uint16 numToDrop,
+  VoxelCoord memory coord,
+  bytes32 toolEntityId
+) returns (bytes memory dropCallData) {
+  if (toolEntityId == bytes32(0)) {
+    dropCallData = abi.encodeCall(IDropSystem.drop, (dropObjectTypeId, numToDrop, coord));
+  } else {
+    dropCallData = abi.encodeCall(IDropSystem.dropTool, (toolEntityId, coord));
+  }
+  return dropCallData;
 }
 
 function callDrop(
@@ -67,24 +109,20 @@ function callDrop(
   VoxelCoord memory coord,
   bytes32 toolEntityId
 ) {
-  bytes memory dropCallData;
-  if (toolEntityId == bytes32(0)) {
-    dropCallData = abi.encodeCall(IDropSystem.drop, (dropObjectTypeId, numToDrop, coord));
-  } else {
-    dropCallData = abi.encodeCall(IDropSystem.dropTool, (toolEntityId, coord));
-  }
-  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("DropSystem"), dropCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(
+    delegatorAddress,
+    getSystemId("DropSystem"),
+    getDropCallData(dropObjectTypeId, numToDrop, coord, toolEntityId)
+  );
 }
 
-function callTransfer(
-  address delegatorAddress,
+function getTransferCallData(
   bytes32 srcEntityId,
   bytes32 dstEntityId,
   uint8 transferObjectTypeId,
   uint16 numToTransfer,
   bytes32 toolEntityId
-) {
-  bytes memory transferCallData;
+) returns (bytes memory transferCallData) {
   if (toolEntityId == bytes32(0)) {
     transferCallData = abi.encodeCall(
       ITransferSystem.transfer,
@@ -96,40 +134,107 @@ function callTransfer(
       (srcEntityId, dstEntityId, toolEntityId, new bytes(0))
     );
   }
-  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("TransferSystem"), transferCallData);
+  return transferCallData;
+}
+
+function callTransfer(
+  address delegatorAddress,
+  bytes32 srcEntityId,
+  bytes32 dstEntityId,
+  uint8 transferObjectTypeId,
+  uint16 numToTransfer,
+  bytes32 toolEntityId
+) {
+  IWorld(WorldContextConsumerLib._world()).callFrom(
+    delegatorAddress,
+    getSystemId("TransferSystem"),
+    getTransferCallData(srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, toolEntityId)
+  );
+}
+
+function getCraftCallData(bytes32 recipeId, bytes32 stationEntityId) returns (bytes memory craftCallData) {
+  craftCallData = abi.encodeCall(ICraftSystem.craft, (recipeId, stationEntityId));
+  return craftCallData;
 }
 
 function callCraft(address delegatorAddress, bytes32 recipeId, bytes32 stationEntityId) {
-  bytes memory craftCallData = abi.encodeCall(ICraftSystem.craft, (recipeId, stationEntityId));
-  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("CraftSystem"), craftCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(
+    delegatorAddress,
+    getSystemId("CraftSystem"),
+    getCraftCallData(recipeId, stationEntityId)
+  );
+}
+
+function getEquipCallData(bytes32 entityId) returns (bytes memory equipCallData) {
+  equipCallData = abi.encodeCall(IEquipSystem.equip, (entityId));
+  return equipCallData;
 }
 
 function callEquip(address delegatorAddress, bytes32 entityId) {
-  bytes memory equipCallData = abi.encodeCall(IEquipSystem.equip, (entityId));
-  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("EquipSystem"), equipCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(
+    delegatorAddress,
+    getSystemId("EquipSystem"),
+    getEquipCallData(entityId)
+  );
+}
+
+function getUnequipCallData() returns (bytes memory unequipCallData) {
+  unequipCallData = abi.encodeCall(IUnequipSystem.unequip, ());
+  return unequipCallData;
 }
 
 function callUnequip(address delegatorAddress) {
-  bytes memory unequipCallData = abi.encodeCall(IUnequipSystem.unequip, ());
-  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("UnequipSystem"), unequipCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(
+    delegatorAddress,
+    getSystemId("UnequipSystem"),
+    getUnequipCallData()
+  );
+}
+
+function getLoginCallData(VoxelCoord memory respawnCoord) returns (bytes memory loginCallData) {
+  loginCallData = abi.encodeCall(ILoginSystem.loginPlayer, (respawnCoord));
+  return loginCallData;
 }
 
 function callLogin(address delegatorAddress, VoxelCoord memory respawnCoord) {
-  bytes memory loginCallData = abi.encodeCall(ILoginSystem.loginPlayer, (respawnCoord));
-  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("LoginSystem"), loginCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(
+    delegatorAddress,
+    getSystemId("LoginSystem"),
+    getLoginCallData(respawnCoord)
+  );
+}
+
+function getLogoutCallData() returns (bytes memory logoutCallData) {
+  logoutCallData = abi.encodeCall(ILogoffSystem.logoffPlayer, ());
+  return logoutCallData;
 }
 
 function callLogout(address delegatorAddress) {
-  bytes memory logoutCallData = abi.encodeCall(ILogoffSystem.logoffPlayer, ());
-  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("LogoffSystem"), logoutCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("LogoffSystem"), getLogoutCallData());
+}
+
+function getSpawnCallData(VoxelCoord memory spawnCoord) returns (bytes memory spawnCallData) {
+  spawnCallData = abi.encodeCall(ISpawnSystem.spawnPlayer, (spawnCoord));
+  return spawnCallData;
 }
 
 function callSpawn(address delegatorAddress, VoxelCoord memory spawnCoord) {
-  bytes memory spawnCallData = abi.encodeCall(ISpawnSystem.spawnPlayer, (spawnCoord));
-  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("SpawnSystem"), spawnCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(
+    delegatorAddress,
+    getSystemId("SpawnSystem"),
+    getSpawnCallData(spawnCoord)
+  );
+}
+
+function getActivateCallData(bytes32 entityId) returns (bytes memory activateCallData) {
+  activateCallData = abi.encodeCall(IActivateSystem.activate, (entityId));
+  return activateCallData;
 }
 
 function callActivate(address delegatorAddress, bytes32 entityId) {
-  bytes memory activateCallData = abi.encodeCall(IActivateSystem.activate, (entityId));
-  IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("ActivateSystem"), activateCallData);
+  IWorld(WorldContextConsumerLib._world()).callFrom(
+    delegatorAddress,
+    getSystemId("ActivateSystem"),
+    getActivateCallData(entityId)
+  );
 }
