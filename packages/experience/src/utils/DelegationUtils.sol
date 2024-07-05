@@ -35,7 +35,7 @@ function isSystemId(ResourceId checkSystemId, bytes16 systemId) pure returns (bo
   return ResourceId.unwrap(checkSystemId) == ResourceId.unwrap(getSystemId(systemId));
 }
 
-function getBuildCallData(uint8 objectTypeId, VoxelCoord memory coord) returns (bytes memory buildCallData) {
+function getBuildCallData(uint8 objectTypeId, VoxelCoord memory coord) pure returns (bytes memory buildCallData) {
   buildCallData = abi.encodeCall(IBuildSystem.build, (objectTypeId, coord));
   return buildCallData;
 }
@@ -49,7 +49,7 @@ function callBuild(address delegatorAddress, uint8 objectTypeId, VoxelCoord memo
   return abi.decode(returnData, (bytes32));
 }
 
-function getMineCallData(VoxelCoord memory coord) returns (bytes memory mineCallData) {
+function getMineCallData(VoxelCoord memory coord) pure returns (bytes memory mineCallData) {
   mineCallData = abi.encodeCall(IMineSystem.mine, (coord));
   return mineCallData;
 }
@@ -62,7 +62,7 @@ function callMine(address delegatorAddress, VoxelCoord memory coord) {
   );
 }
 
-function getMoveCallData(VoxelCoord[] memory newCoords) returns (bytes memory moveCallData) {
+function getMoveCallData(VoxelCoord[] memory newCoords) pure returns (bytes memory moveCallData) {
   moveCallData = abi.encodeCall(IMoveSystem.move, (newCoords));
   return moveCallData;
 }
@@ -75,7 +75,7 @@ function callMove(address delegatorAddress, VoxelCoord[] memory newCoords) {
   );
 }
 
-function getHitCallData(address hitPlayer) returns (bytes memory hitCallData) {
+function getHitCallData(address hitPlayer) pure returns (bytes memory hitCallData) {
   hitCallData = abi.encodeCall(IHitSystem.hit, (hitPlayer));
   return hitCallData;
 }
@@ -93,7 +93,7 @@ function getDropCallData(
   uint16 numToDrop,
   VoxelCoord memory coord,
   bytes32 toolEntityId
-) returns (bytes memory dropCallData) {
+) pure returns (bytes memory dropCallData) {
   if (toolEntityId == bytes32(0)) {
     dropCallData = abi.encodeCall(IDropSystem.drop, (dropObjectTypeId, numToDrop, coord));
   } else {
@@ -122,7 +122,7 @@ function getTransferCallData(
   uint8 transferObjectTypeId,
   uint16 numToTransfer,
   bytes32 toolEntityId
-) returns (bytes memory transferCallData) {
+) pure returns (bytes memory transferCallData) {
   if (toolEntityId == bytes32(0)) {
     transferCallData = abi.encodeCall(
       ITransferSystem.transfer,
@@ -152,7 +152,7 @@ function callTransfer(
   );
 }
 
-function getCraftCallData(bytes32 recipeId, bytes32 stationEntityId) returns (bytes memory craftCallData) {
+function getCraftCallData(bytes32 recipeId, bytes32 stationEntityId) pure returns (bytes memory craftCallData) {
   craftCallData = abi.encodeCall(ICraftSystem.craft, (recipeId, stationEntityId));
   return craftCallData;
 }
@@ -165,7 +165,7 @@ function callCraft(address delegatorAddress, bytes32 recipeId, bytes32 stationEn
   );
 }
 
-function getEquipCallData(bytes32 entityId) returns (bytes memory equipCallData) {
+function getEquipCallData(bytes32 entityId) pure returns (bytes memory equipCallData) {
   equipCallData = abi.encodeCall(IEquipSystem.equip, (entityId));
   return equipCallData;
 }
@@ -178,7 +178,7 @@ function callEquip(address delegatorAddress, bytes32 entityId) {
   );
 }
 
-function getUnequipCallData() returns (bytes memory unequipCallData) {
+function getUnequipCallData() pure returns (bytes memory unequipCallData) {
   unequipCallData = abi.encodeCall(IUnequipSystem.unequip, ());
   return unequipCallData;
 }
@@ -191,7 +191,7 @@ function callUnequip(address delegatorAddress) {
   );
 }
 
-function getLoginCallData(VoxelCoord memory respawnCoord) returns (bytes memory loginCallData) {
+function getLoginCallData(VoxelCoord memory respawnCoord) pure returns (bytes memory loginCallData) {
   loginCallData = abi.encodeCall(ILoginSystem.loginPlayer, (respawnCoord));
   return loginCallData;
 }
@@ -204,7 +204,7 @@ function callLogin(address delegatorAddress, VoxelCoord memory respawnCoord) {
   );
 }
 
-function getLogoutCallData() returns (bytes memory logoutCallData) {
+function getLogoutCallData() pure returns (bytes memory logoutCallData) {
   logoutCallData = abi.encodeCall(ILogoffSystem.logoffPlayer, ());
   return logoutCallData;
 }
@@ -213,7 +213,7 @@ function callLogout(address delegatorAddress) {
   IWorld(WorldContextConsumerLib._world()).callFrom(delegatorAddress, getSystemId("LogoffSystem"), getLogoutCallData());
 }
 
-function getSpawnCallData(VoxelCoord memory spawnCoord) returns (bytes memory spawnCallData) {
+function getSpawnCallData(VoxelCoord memory spawnCoord) pure returns (bytes memory spawnCallData) {
   spawnCallData = abi.encodeCall(ISpawnSystem.spawnPlayer, (spawnCoord));
   return spawnCallData;
 }
@@ -226,7 +226,7 @@ function callSpawn(address delegatorAddress, VoxelCoord memory spawnCoord) {
   );
 }
 
-function getActivateCallData(bytes32 entityId) returns (bytes memory activateCallData) {
+function getActivateCallData(bytes32 entityId) pure returns (bytes memory activateCallData) {
   activateCallData = abi.encodeCall(IActivateSystem.activate, (entityId));
   return activateCallData;
 }
