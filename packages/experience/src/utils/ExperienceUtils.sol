@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { IWorld } from "../codegen/world/IWorld.sol";
 
+import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
@@ -10,6 +11,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { CountdownData } from "../codegen/tables/Countdown.sol";
 import { ExperienceMetadataData } from "../codegen/tables/ExperienceMetadata.sol";
 import { ChipMetadataData } from "../codegen/tables/ChipMetadata.sol";
+import { NamespaceMetadata } from "../codegen/tables/NamespaceMetadata.sol";
 
 import { Area } from "./AreaUtils.sol";
 import { Build, BuildWithPos } from "./BuildUtils.sol";
@@ -128,6 +130,10 @@ function updatePlayers(uint256 index, address player) {
 
 function deletePlayers() {
   IWorld(WorldContextConsumerLib._world()).experience__deletePlayers();
+}
+
+function getNamespaceExperience() view returns (address) {
+  return NamespaceMetadata.getExperience(Utils.systemNamespace());
 }
 
 function setNamespaceExperience(address experience) {
