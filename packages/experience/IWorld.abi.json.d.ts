@@ -621,6 +621,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__setJoinFee",
+    "inputs": [
+      {
+        "name": "joinFee",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__setNamespaceExperience",
     "inputs": [
       {

@@ -13,6 +13,10 @@ contract ExpMetadataSystem is System {
     ExperienceMetadata.set(getExperienceAddress(_msgSender()), metadata);
   }
 
+  function setJoinFee(uint256 joinFee) public {
+    ExperienceMetadata.setJoinFee(getExperienceAddress(_msgSender()), joinFee);
+  }
+
   function deleteExperienceMetadata() public {
     ExperienceMetadata.deleteRecord(getExperienceAddress(_msgSender()));
   }

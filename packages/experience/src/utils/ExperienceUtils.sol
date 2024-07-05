@@ -100,6 +100,10 @@ function setExperienceMetadata(ExperienceMetadataData memory metadata) {
   IWorld(WorldContextConsumerLib._world()).experience__setExperienceMetadata(metadata);
 }
 
+function setJoinFee(uint256 joinFee) {
+  IWorld(WorldContextConsumerLib._world()).experience__setJoinFee(joinFee);
+}
+
 function deleteExperienceMetadata() {
   IWorld(WorldContextConsumerLib._world()).experience__deleteExperienceMetadata();
 }

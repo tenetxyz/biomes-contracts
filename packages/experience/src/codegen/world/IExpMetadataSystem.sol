@@ -13,5 +13,7 @@ import { ExperienceMetadataData } from "./../tables/ExperienceMetadata.sol";
 interface IExpMetadataSystem {
   function experience__setExperienceMetadata(ExperienceMetadataData memory metadata) external;
 
+  function experience__setJoinFee(uint256 joinFee) external;
+
   function experience__deleteExperienceMetadata() external;
 }
