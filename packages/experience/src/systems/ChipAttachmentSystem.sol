@@ -6,21 +6,16 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { Chip, ChipData } from "@biomesaw/world/src/codegen/tables/Chip.sol";
 import { ChipAttachment } from "../codegen/tables/ChipAttachment.sol";
+import { requireChipOwner } from "../Utils.sol";
 
 contract ChipAttachmentSystem is System {
   function setChipAttacher(bytes32 entityId, address attacher) public {
-    require(
-      Chip.getChipAddress(entityId) == _msgSender(),
-      "ChipAttachmentSystem: Only the chip address can set the attacher."
-    );
+    requireChipOwner(entityId);
     ChipAttachment.setAttacher(entityId, attacher);
   }
 
   function deleteChipAttacher(bytes32 entityId) public {
-    require(
-      Chip.getChipAddress(entityId) == _msgSender(),
-      "ChipAttachmentSystem: Only the chip address can delete the attacher."
-    );
+    requireChipOwner(entityId);
     ChipAttachment.deleteRecord(entityId);
   }
 }

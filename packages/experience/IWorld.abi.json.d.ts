@@ -225,13 +225,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__deleteNamespaceExperience",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "experience__deleteNotifications",
     "inputs": [],
     "outputs": [],
@@ -248,6 +241,19 @@ declare const abi: [
     "type": "function",
     "name": "experience__deleteRegisterMsg",
     "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteShop",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
@@ -482,6 +488,29 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__setBuyShop",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "buyObjectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "buyPrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__setChipAttacher",
     "inputs": [
       {
@@ -634,19 +663,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__setNamespaceExperience",
-    "inputs": [
-      {
-        "name": "experience",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "experience__setNotification",
     "inputs": [
       {
@@ -684,6 +700,92 @@ declare const abi: [
         "name": "registerMessage",
         "type": "string",
         "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setSellShop",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "sellObjectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "sellPrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setShop",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "shopData",
+        "type": "tuple",
+        "internalType": "struct ShopData",
+        "components": [
+          {
+            "name": "buyObjectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "buyPrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "sellObjectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "sellPrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "balance",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setShopBalance",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "balance",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],

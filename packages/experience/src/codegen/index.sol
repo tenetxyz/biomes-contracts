@@ -6,7 +6,7 @@ pragma solidity >=0.8.24;
 import { ExperienceMetadata, ExperienceMetadataData } from "./tables/ExperienceMetadata.sol";
 import { ChipMetadata, ChipMetadataData } from "./tables/ChipMetadata.sol";
 import { ChipAttachment } from "./tables/ChipAttachment.sol";
-import { ShopData, ShopDataData } from "./tables/ShopData.sol";
+import { Shop, ShopData } from "./tables/Shop.sol";
 import { DisplayStatus } from "./tables/DisplayStatus.sol";
 import { DisplayRegisterMsg } from "./tables/DisplayRegisterMsg.sol";
 import { DisplayUnregisterMsg } from "./tables/DisplayUnregisterMsg.sol";

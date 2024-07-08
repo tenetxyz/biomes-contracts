@@ -10,7 +10,6 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { CountdownData } from "../codegen/tables/Countdown.sol";
 import { ExperienceMetadataData } from "../codegen/tables/ExperienceMetadata.sol";
-import { ChipMetadataData } from "../codegen/tables/ChipMetadata.sol";
 
 import { Area } from "./AreaUtils.sol";
 import { Build, BuildWithPos } from "./BuildUtils.sol";
@@ -37,22 +36,6 @@ function setBuildWithPos(bytes32 buildId, string memory name, BuildWithPos memor
 
 function deleteBuildWithPos(bytes32 buildId) {
   IWorld(WorldContextConsumerLib._world()).experience__deleteBuildWithPos(buildId);
-}
-
-function setChipAttacher(bytes32 entityId, address attacher) {
-  IWorld(WorldContextConsumerLib._world()).experience__setChipAttacher(entityId, attacher);
-}
-
-function deleteChipAttacher(bytes32 entityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteChipAttacher(entityId);
-}
-
-function setChipMetadata(ChipMetadataData memory metadata) {
-  IWorld(WorldContextConsumerLib._world()).experience__setChipMetadata(metadata);
-}
-
-function deleteChipMetadata() {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteChipMetadata();
 }
 
 function setCountdown(CountdownData memory countdownData) {

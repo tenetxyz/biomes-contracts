@@ -40,7 +40,7 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    ShopData: {
+    Shop: {
       schema: {
         entityId: "bytes32",
         buyObjectTypeId: "uint8",

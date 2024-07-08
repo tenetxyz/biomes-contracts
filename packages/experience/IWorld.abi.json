@@ -246,6 +246,19 @@
   },
   {
     "type": "function",
+    "name": "experience__deleteShop",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteStatus",
     "inputs": [],
     "outputs": [],
@@ -475,6 +488,29 @@
   },
   {
     "type": "function",
+    "name": "experience__setBuyShop",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "buyObjectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "buyPrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__setChipAttacher",
     "inputs": [
       {
@@ -664,6 +700,92 @@
         "name": "registerMessage",
         "type": "string",
         "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setSellShop",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "sellObjectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "sellPrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setShop",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "shopData",
+        "type": "tuple",
+        "internalType": "struct ShopData",
+        "components": [
+          {
+            "name": "buyObjectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "buyPrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "sellObjectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "sellPrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "balance",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setShopBalance",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "balance",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
