@@ -47,12 +47,16 @@ function hasDelegated(address delegator, address delegatee) view returns (bool) 
   return Delegation.isUnlimited(UserDelegationControl.getDelegationControlId(delegator, delegatee));
 }
 
+function getTerrainBlock(VoxelCoord memory coord) view returns (uint8) {
+  return IWorld(WorldContextConsumerLib._world()).getTerrainBlock(coord);
+}
+
 function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (uint8) {
   bytes32 entityId = getEntityAtCoord(coord);
 
   uint8 objectTypeId;
   if (entityId == bytes32(0)) {
-    objectTypeId = IWorld(WorldContextConsumerLib._world()).getTerrainBlock(coord);
+    objectTypeId = getTerrainBlock(coord);
   } else {
     objectTypeId = getObjectType(entityId);
   }
