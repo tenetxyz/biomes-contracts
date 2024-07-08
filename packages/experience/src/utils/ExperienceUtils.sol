@@ -11,7 +11,6 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { CountdownData } from "../codegen/tables/Countdown.sol";
 import { ExperienceMetadataData } from "../codegen/tables/ExperienceMetadata.sol";
 import { ChipMetadataData } from "../codegen/tables/ChipMetadata.sol";
-import { NamespaceMetadata } from "../codegen/tables/NamespaceMetadata.sol";
 
 import { Area } from "./AreaUtils.sol";
 import { Build, BuildWithPos } from "./BuildUtils.sol";
@@ -134,16 +133,4 @@ function updatePlayers(uint256 index, address player) {
 
 function deletePlayers() {
   IWorld(WorldContextConsumerLib._world()).experience__deletePlayers();
-}
-
-function getNamespaceExperience() view returns (address) {
-  return NamespaceMetadata.getExperience(Utils.systemNamespace());
-}
-
-function setNamespaceExperience(address experience) {
-  IWorld(WorldContextConsumerLib._world()).experience__setNamespaceExperience(experience);
-}
-
-function deleteNamespaceExperience() {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteNamespaceExperience();
 }

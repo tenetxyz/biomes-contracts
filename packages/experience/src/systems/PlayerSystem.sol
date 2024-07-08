@@ -6,26 +6,24 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { Players } from "../codegen/tables/Players.sol";
 
-import { getExperienceAddress } from "../Utils.sol";
-
 contract PlayerSystem is System {
   function setPlayers(address[] memory players) public {
-    Players.setPlayers(getExperienceAddress(_msgSender()), players);
+    Players.setPlayers(_msgSender(), players);
   }
 
   function pushPlayers(address player) public {
-    Players.pushPlayers(getExperienceAddress(_msgSender()), player);
+    Players.pushPlayers(_msgSender(), player);
   }
 
   function popPlayers() public {
-    Players.popPlayers(getExperienceAddress(_msgSender()));
+    Players.popPlayers(_msgSender());
   }
 
   function updatePlayers(uint256 index, address player) public {
-    Players.updatePlayers(getExperienceAddress(_msgSender()), index, player);
+    Players.updatePlayers(_msgSender(), index, player);
   }
 
   function deletePlayers() public {
-    Players.deleteRecord(getExperienceAddress(_msgSender()));
+    Players.deleteRecord(_msgSender());
   }
 }

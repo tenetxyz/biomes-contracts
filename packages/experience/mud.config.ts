@@ -10,13 +10,6 @@ export default defineWorld({
   },
   namespace: "experience",
   tables: {
-    NamespaceMetadata: {
-      schema: {
-        namespace: "bytes14",
-        experience: "address",
-      },
-      key: ["namespace"],
-    },
     ExperienceMetadata: {
       schema: {
         experience: "address",
@@ -44,6 +37,17 @@ export default defineWorld({
       schema: {
         entityId: "bytes32",
         attacher: "address",
+      },
+      key: ["entityId"],
+    },
+    ShopData: {
+      schema: {
+        entityId: "bytes32",
+        buyObjectTypeId: "uint8",
+        buyPrice: "uint256",
+        sellObjectTypeId: "uint8",
+        sellPrice: "uint256",
+        balance: "uint256",
       },
       key: ["entityId"],
     },

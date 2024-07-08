@@ -225,13 +225,6 @@
   },
   {
     "type": "function",
-    "name": "experience__deleteNamespaceExperience",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "experience__deleteNotifications",
     "inputs": [],
     "outputs": [],
@@ -627,19 +620,6 @@
         "name": "joinFee",
         "type": "uint256",
         "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "experience__setNamespaceExperience",
-    "inputs": [
-      {
-        "name": "experience",
-        "type": "address",
-        "internalType": "address"
       }
     ],
     "outputs": [],

@@ -6,18 +6,16 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ExperienceMetadata, ExperienceMetadataData } from "../codegen/tables/ExperienceMetadata.sol";
 
-import { getExperienceAddress } from "../Utils.sol";
-
 contract ExpMetadataSystem is System {
   function setExperienceMetadata(ExperienceMetadataData memory metadata) public {
-    ExperienceMetadata.set(getExperienceAddress(_msgSender()), metadata);
+    ExperienceMetadata.set(_msgSender(), metadata);
   }
 
   function setJoinFee(uint256 joinFee) public {
-    ExperienceMetadata.setJoinFee(getExperienceAddress(_msgSender()), joinFee);
+    ExperienceMetadata.setJoinFee(_msgSender(), joinFee);
   }
 
   function deleteExperienceMetadata() public {
-    ExperienceMetadata.deleteRecord(getExperienceAddress(_msgSender()));
+    ExperienceMetadata.deleteRecord(_msgSender());
   }
 }
