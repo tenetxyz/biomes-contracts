@@ -117,3 +117,23 @@ function updatePlayers(uint256 index, address player) {
 function deletePlayers() {
   IWorld(WorldContextConsumerLib._world()).experience__deletePlayers();
 }
+
+function setTokens(address[] memory tokens) {
+  IWorld(WorldContextConsumerLib._world()).experience__setTokens(tokens);
+}
+
+function pushTokens(address token) {
+  IWorld(WorldContextConsumerLib._world()).experience__pushTokens(token);
+}
+
+function popTokens() {
+  IWorld(WorldContextConsumerLib._world()).experience__popTokens();
+}
+
+function updateTokens(uint256 index, address token) {
+  IWorld(WorldContextConsumerLib._world()).experience__updateTokens(index, token);
+}
+
+function deleteTokens() {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteTokens();
+}

@@ -15,6 +15,7 @@ import { IExpMetadataSystem } from "./IExpMetadataSystem.sol";
 import { INotificationSystem } from "./INotificationSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
 import { IShopSystem } from "./IShopSystem.sol";
+import { ITokenSystem } from "./ITokenSystem.sol";
 
 /**
  * @title IWorld
@@ -34,5 +35,6 @@ interface IWorld is
   IExpMetadataSystem,
   INotificationSystem,
   IPlayerSystem,
-  IShopSystem
+  IShopSystem,
+  ITokenSystem
 {}

@@ -266,6 +266,13 @@
   },
   {
     "type": "function",
+    "name": "experience__deleteTokens",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteUnregisterMsg",
     "inputs": [],
     "outputs": [],
@@ -280,10 +287,30 @@
   },
   {
     "type": "function",
+    "name": "experience__popTokens",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__pushPlayers",
     "inputs": [
       {
         "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__pushTokens",
+    "inputs": [
+      {
+        "name": "token",
         "type": "address",
         "internalType": "address"
       }
@@ -806,6 +833,19 @@
   },
   {
     "type": "function",
+    "name": "experience__setTokens",
+    "inputs": [
+      {
+        "name": "tokens",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__setUnregisterMsg",
     "inputs": [
       {
@@ -828,6 +868,24 @@
       },
       {
         "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__updateTokens",
+    "inputs": [
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "token",
         "type": "address",
         "internalType": "address"
       }
