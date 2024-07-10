@@ -11,8 +11,10 @@ import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { Bytes } from "@latticexyz/store/src/Bytes.sol";
 
 function getCallerNamespace(address caller) view returns (bytes14) {
-  ResourceId callerSystemId = SystemRegistry._get(caller);
-  require(ResourceId.unwrap(callerSystemId) != bytes32(0), "Caller is not a system");
+  ResourceId callerSystemId = SystemRegistry.get(caller);
+  if (ResourceId.unwrap(callerSystemId) == bytes32(0)) {
+    return bytes14(0);
+  }
   return WorldResourceIdInstance.getNamespace(callerSystemId);
 }
 

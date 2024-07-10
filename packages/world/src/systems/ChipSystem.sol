@@ -73,14 +73,15 @@ contract ChipSystem is System {
     require(chipData.batteryLevel == 0, "ChipSystem: battery level is not zero");
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 
-    Chip._deleteRecord(entityId);
-
     PlayerActivity._set(playerEntityId, block.timestamp);
 
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
     // Safe call so the chip can't block the call
     chipData.chipAddress.call(abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
+
+    // We delete the chip after the onDetached call so the chip can still access the chip data
+    Chip._deleteRecord(entityId);
   }
 
   function powerChip(bytes32 entityId, uint16 numBattery) public {
@@ -141,12 +142,13 @@ contract ChipSystem is System {
     uint256 currentBatteryLevel = chipData.batteryLevel;
     uint256 newBatteryLevel = currentBatteryLevel > receiverDamage ? currentBatteryLevel - receiverDamage : 0;
     if (newBatteryLevel == 0) {
-      Chip._deleteRecord(entityId);
-
       addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
       // Safe call so the chip can't block the call
       chipData.chipAddress.call(abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
+
+      // We delete the chip after the onDetached call so the chip can still access the chip data
+      Chip._deleteRecord(entityId);
     } else {
       Chip._setBatteryLevel(entityId, newBatteryLevel);
 
