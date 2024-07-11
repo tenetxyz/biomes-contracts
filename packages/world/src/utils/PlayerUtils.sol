@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
+import { Position } from "../codegen/tables/Position.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
@@ -13,7 +14,15 @@ import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, WATER_STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
-import { getTerrainObjectTypeId } from "../Utils.sol";
+import { getTerrainObjectTypeId, positionDataToVoxelCoord } from "../Utils.sol";
+
+function requireValidPlayer(address player) returns (bytes32, VoxelCoord memory) {
+  bytes32 playerEntityId = Player._get(player);
+  require(playerEntityId != bytes32(0), "Player does not exist");
+  require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "Player isn't logged in");
+  VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+  return (playerEntityId, playerCoord);
+}
 
 function regenHealth(bytes32 entityId) returns (uint16) {
   HealthData memory healthData = Health._get(entityId);
