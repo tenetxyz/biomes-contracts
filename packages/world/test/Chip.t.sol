@@ -71,6 +71,15 @@ contract TestChip is IChip {
     return true;
   }
 
+  function onMine(
+    bytes32 playerEntityId,
+    uint8 objectTypeId,
+    VoxelCoord memory coord,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    return true;
+  }
+
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
     return interfaceId == type(IChip).interfaceId || interfaceId == type(IERC165).interfaceId;
   }
@@ -201,7 +210,7 @@ contract ChipTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.expectRevert("MineSystem: chip must be detached first");
-    world.mine(chestCoord);
+    world.mine(chestCoord, new bytes(0));
 
     vm.stopPrank();
     vm.startPrank(worldDeployer, worldDeployer);
@@ -214,7 +223,7 @@ contract ChipTest is MudTest, GasReporter {
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip not removed");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not removed from inventory");
 
-    world.mine(chestCoord);
+    world.mine(chestCoord, new bytes(0));
 
     assertTrue(ObjectType.get(chestEntityId) == AirObjectID, "Chest not mined");
 

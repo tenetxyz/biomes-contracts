@@ -22,9 +22,12 @@ import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { IChip } from "../prototypes/IChip.sol";
 
 contract MineSystem is System {
-  function mine(VoxelCoord memory coord) public {
+  function mine(VoxelCoord memory coord, bytes memory extraData) public payable {
     require(inWorldBorder(coord), "MineSystem: cannot mine outside world border");
     require(!inSpawnArea(coord), "MineSystem: cannot mine at spawn area");
 
@@ -86,6 +89,38 @@ contract MineSystem is System {
     bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
     if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
       callGravity(aboveEntityId, aboveCoord);
+    }
+
+    // Note: we call this after the mine state has been updated, to prevent re-entrancy attacks
+    requireAllowed(playerEntityId, mineObjectTypeId, coord, extraData);
+  }
+
+  function requireAllowed(
+    bytes32 playerEntityId,
+    uint8 objectTypeId,
+    VoxelCoord memory coord,
+    bytes memory extraData
+  ) internal {
+    bytes32 forceFieldEntityId = getForceField(coord);
+    if (forceFieldEntityId != bytes32(0)) {
+      address chipAddress = Chip._getChipAddress(forceFieldEntityId);
+      if (chipAddress != address(0)) {
+        updateChipBatteryLevel(forceFieldEntityId);
+
+        // Forward any ether sent with the transaction to the hook
+        // Don't safe call here as we want to revert if the chip doesn't allow the mine
+        bool mineAllowed = IChip(chipAddress).onMine{ value: msg.value }(
+          playerEntityId,
+          objectTypeId,
+          coord,
+          extraData
+        );
+        if (!mineAllowed) {
+          // TODO: apply a stamina multipler
+        }
+      } else {
+        // TODO: apply a stamina multipler
+      }
     }
   }
 }

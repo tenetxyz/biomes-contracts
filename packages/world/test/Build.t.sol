@@ -78,7 +78,7 @@ contract BuildTest is MudTest, GasReporter {
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, terrainObjectTypeId), "Inventory objects not set");
@@ -116,7 +116,7 @@ contract BuildTest is MudTest, GasReporter {
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, terrainObjectTypeId), "Inventory objects not set");
@@ -205,7 +205,7 @@ contract BuildTest is MudTest, GasReporter {
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, terrainObjectTypeId), "Inventory objects not set");
@@ -255,7 +255,7 @@ contract BuildTest is MudTest, GasReporter {
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
@@ -276,7 +276,7 @@ contract BuildTest is MudTest, GasReporter {
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     VoxelCoord memory buildCoord = VoxelCoord(
       spawnCoord.x - (MAX_PLAYER_BUILD_MINE_HALF_WIDTH + 5),
@@ -344,7 +344,7 @@ contract BuildTest is MudTest, GasReporter {
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     vm.startPrank(worldDeployer, worldDeployer);
     Stamina.setStamina(playerEntityId, 1);
@@ -384,7 +384,7 @@ contract BuildTest is MudTest, GasReporter {
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");

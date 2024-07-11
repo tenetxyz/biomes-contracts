@@ -36,7 +36,9 @@ function getBuildArgs(bytes memory callData) pure returns (uint8 objectTypeId, V
 function getMineArgs(bytes memory callData) pure returns (VoxelCoord memory coord) {
   (bytes4 selector, bytes memory args) = decodeCallData(callData);
   require(selector == IMineSystem.mine.selector, "Invalid selector");
-  return abi.decode(args, (VoxelCoord));
+  bytes memory extraData;
+  (coord, extraData) = abi.decode(args, (VoxelCoord, bytes));
+  return coord;
 }
 
 function getMoveArgs(bytes memory callData) pure returns (VoxelCoord[] memory newCoords) {

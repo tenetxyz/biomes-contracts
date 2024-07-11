@@ -83,7 +83,7 @@ contract MineTest is MudTest, GasReporter {
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
 
     startGasReport("mine terrain");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
     endGasReport();
 
     bytes32 mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
@@ -106,7 +106,7 @@ contract MineTest is MudTest, GasReporter {
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
     VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
     world.build(terrainObjectTypeId, buildCoord, new bytes(0));
@@ -116,7 +116,7 @@ contract MineTest is MudTest, GasReporter {
     vm.roll(block.number + 1);
 
     startGasReport("mine non-terrain");
-    world.mine(buildCoord);
+    world.mine(buildCoord, new bytes(0));
     endGasReport();
 
     bytes32 mineEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
@@ -143,7 +143,7 @@ contract MineTest is MudTest, GasReporter {
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, terrainObjectTypeId), "Inventory objects not set");
@@ -156,7 +156,7 @@ contract MineTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     vm.expectRevert("MineSystem: mining difficulty too high. Try a stronger tool.");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     vm.stopPrank();
   }
@@ -166,7 +166,7 @@ contract MineTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
     vm.expectRevert("MineSystem: object type is not a block");
-    world.mine(spawnCoord);
+    world.mine(spawnCoord, new bytes(0));
 
     vm.stopPrank();
   }
@@ -181,7 +181,7 @@ contract MineTest is MudTest, GasReporter {
     assertTrue(terrainObjectTypeId == AirObjectID, "Terrain block is air");
 
     vm.expectRevert("MineSystem: cannot mine air");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     vm.stopPrank();
   }
@@ -192,7 +192,7 @@ contract MineTest is MudTest, GasReporter {
     VoxelCoord memory mineCoord = VoxelCoord(SPAWN_LOW_X - 1, SPAWN_GROUND_Y - 1, SPAWN_LOW_Z - 1);
 
     vm.expectRevert("MineSystem: player does not exist");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     vm.stopPrank();
   }
@@ -205,12 +205,12 @@ contract MineTest is MudTest, GasReporter {
     VoxelCoord memory mineCoord = VoxelCoord(SPAWN_LOW_X + 1, SPAWN_GROUND_Y - 1, SPAWN_LOW_Z);
 
     vm.expectRevert("MineSystem: cannot mine at spawn area");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     mineCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z + 1);
 
     vm.expectRevert("MineSystem: cannot mine at spawn area");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     vm.stopPrank();
   }
@@ -225,7 +225,7 @@ contract MineTest is MudTest, GasReporter {
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     vm.expectRevert("MineSystem: cannot mine outside world border");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     vm.stopPrank();
   }
@@ -244,7 +244,7 @@ contract MineTest is MudTest, GasReporter {
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     vm.expectRevert("MineSystem: player is too far from the block");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     vm.stopPrank();
   }
@@ -265,7 +265,7 @@ contract MineTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     vm.expectRevert("MineSystem: not enough stamina");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     vm.stopPrank();
   }
@@ -295,7 +295,7 @@ contract MineTest is MudTest, GasReporter {
 
     vm.startPrank(alice, alice);
     startGasReport("final mine to make inventory full");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
     endGasReport();
 
     VoxelCoord memory mineCoord2 = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 2);
@@ -303,7 +303,7 @@ contract MineTest is MudTest, GasReporter {
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     vm.expectRevert("Inventory is full");
-    world.mine(mineCoord2);
+    world.mine(mineCoord2, new bytes(0));
 
     vm.stopPrank();
   }
@@ -334,7 +334,7 @@ contract MineTest is MudTest, GasReporter {
     uint32 healthBefore = Health.getHealth(playerEntityId);
 
     startGasReport("mine terrain w/ health and stamina regen");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
     endGasReport();
 
     assertTrue(Stamina.getStamina(playerEntityId) > staminaBefore, "Stamina not regened");
@@ -355,7 +355,7 @@ contract MineTest is MudTest, GasReporter {
     world.logoffPlayer();
 
     vm.expectRevert("MineSystem: player isn't logged in");
-    world.mine(mineCoord);
+    world.mine(mineCoord, new bytes(0));
 
     vm.stopPrank();
   }

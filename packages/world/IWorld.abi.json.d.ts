@@ -1869,10 +1869,15 @@ declare const abi: [
             "internalType": "int16"
           }
         ]
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "payable"
   },
   {
     "type": "function",

@@ -29,4 +29,11 @@ interface IChip is IERC165 {
     VoxelCoord memory coord,
     bytes memory extraData
   ) external payable returns (bool isAllowed);
+
+  function onMine(
+    bytes32 playerEntityId,
+    uint8 objectTypeId,
+    VoxelCoord memory coord,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed);
 }

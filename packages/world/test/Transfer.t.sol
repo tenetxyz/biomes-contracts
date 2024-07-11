@@ -379,7 +379,7 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(!testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId2), "Inventory objects not set");
 
     startGasReport("mine chest with items");
-    world.mine(chestCoord);
+    world.mine(chestCoord, new bytes(0));
     endGasReport();
 
     bytes32 airEntityId = ReversePosition.get(chestCoord.x, chestCoord.y, chestCoord.z);

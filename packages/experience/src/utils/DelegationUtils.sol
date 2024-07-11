@@ -50,7 +50,7 @@ function callBuild(address delegatorAddress, uint8 objectTypeId, VoxelCoord memo
 }
 
 function getMineCallData(VoxelCoord memory coord) pure returns (bytes memory mineCallData) {
-  mineCallData = abi.encodeCall(IMineSystem.mine, (coord));
+  mineCallData = abi.encodeCall(IMineSystem.mine, (coord, new bytes(0)));
   return mineCallData;
 }
 

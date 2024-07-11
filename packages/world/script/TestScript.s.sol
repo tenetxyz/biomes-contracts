@@ -188,7 +188,7 @@ contract TestScript is Script {
     //     break;
     //   }
     // }
-    // bytes32 inventoryEntityId = world.mine(VoxelCoord(148, -63, -38));
+    // bytes32 inventoryEntityId = world.mine(VoxelCoord(148, -63, -38), new bytes(0));
     // console.logBytes32(inventoryEntityId);
     // inventoryEntityIds[0] = 0x00000000000000000000000000000000000000000000000000000000000001d2;
     // world.drop(inventoryEntityIds, VoxelCoord(149, -63, -38));
@@ -200,7 +200,7 @@ contract TestScript is Script {
     // bytes32 dstEntityId = 0x00000000000000000000000000000000000000000000000000000000000001da;
     // world.transfer(playerEntityId, dstEntityId, inventoryEntityIds);
 
-    // world.mine(VoxelCoord(149, -63, -57));
+    // world.mine(VoxelCoord(149, -63, -57), new bytes(0));
     // bytes32 inventoryEntityId = 0x00000000000000000000000000000000000000000000000000000000000001bc;
     // world.build(inventoryEntityId, VoxelCoord(150, -62, -38), new bytes(0));
     // world.hit(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
