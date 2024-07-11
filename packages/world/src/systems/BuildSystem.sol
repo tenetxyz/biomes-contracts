@@ -71,12 +71,14 @@ contract BuildSystem is System {
 
     PlayerActivity._set(playerEntityId, block.timestamp);
 
+    bytes32 forceFieldEntityId = getForceField(coord);
     if (objectTypeId == ForceFieldObjectID) {
+      require(forceFieldEntityId == bytes32(0), "BuildSystem: Force field overlaps with another force field");
       setupForceField(entityId, coord);
     }
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
-    requireAllowed(playerEntityId, objectTypeId, coord, extraData);
+    requireAllowed(forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData);
 
     return entityId;
   }
@@ -140,12 +142,12 @@ contract BuildSystem is System {
   }
 
   function requireAllowed(
+    bytes32 forceFieldEntityId,
     bytes32 playerEntityId,
     uint8 objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
   ) internal {
-    bytes32 forceFieldEntityId = getForceField(coord);
     if (forceFieldEntityId != bytes32(0)) {
       address chipAddress = Chip._getChipAddress(forceFieldEntityId);
       if (chipAddress != address(0)) {
