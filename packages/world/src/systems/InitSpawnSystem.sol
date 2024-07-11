@@ -30,7 +30,7 @@ import { inSurroundingCube, coordToShardCoordIgnoreY } from "@biomesaw/utils/src
 
 contract InitSpawnSystem is System {
   function addSpawn(VoxelCoord memory lowerSouthwestCorner, VoxelCoord memory size) public {
-    AccessControl.requireOwner(ROOT_NAMESPACE_ID, msg.sender);
+    AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
 
     require(inWorldBorder(lowerSouthwestCorner), "InitSpawnSystem: cannot place spawn outside world border");
     VoxelCoord memory spawnCoord = coordToShardCoordIgnoreY(lowerSouthwestCorner, SPAWN_SHARD_DIM);
@@ -54,7 +54,7 @@ contract InitSpawnSystem is System {
   }
 
   function initSpawnAreaTop(VoxelCoord memory spawnCoord) public {
-    AccessControl.requireOwner(ROOT_NAMESPACE_ID, msg.sender);
+    AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
@@ -75,7 +75,7 @@ contract InitSpawnSystem is System {
   }
 
   function initSpawnAreaTopPart2(VoxelCoord memory spawnCoord) public {
-    AccessControl.requireOwner(ROOT_NAMESPACE_ID, msg.sender);
+    AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
@@ -96,7 +96,7 @@ contract InitSpawnSystem is System {
   }
 
   function initSpawnAreaTopAir(VoxelCoord memory spawnCoord) public {
-    AccessControl.requireOwner(ROOT_NAMESPACE_ID, msg.sender);
+    AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
@@ -111,7 +111,7 @@ contract InitSpawnSystem is System {
   }
 
   function initSpawnAreaTopAirPart2(VoxelCoord memory spawnCoord) public {
-    AccessControl.requireOwner(ROOT_NAMESPACE_ID, msg.sender);
+    AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
@@ -126,7 +126,7 @@ contract InitSpawnSystem is System {
   }
 
   function initSpawnAreaBottom(VoxelCoord memory spawnCoord) public {
-    AccessControl.requireOwner(ROOT_NAMESPACE_ID, msg.sender);
+    AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
@@ -141,7 +141,7 @@ contract InitSpawnSystem is System {
   }
 
   function initSpawnAreaBottomPart2(VoxelCoord memory spawnCoord) public {
-    AccessControl.requireOwner(ROOT_NAMESPACE_ID, msg.sender);
+    AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
@@ -156,7 +156,7 @@ contract InitSpawnSystem is System {
   }
 
   function initSpawnAreaBottomBorder(VoxelCoord memory spawnCoord) public {
-    AccessControl.requireOwner(ROOT_NAMESPACE_ID, msg.sender);
+    AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
