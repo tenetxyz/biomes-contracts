@@ -58,7 +58,7 @@ function callGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) retu
   return abi.decode(returnData, (bool));
 }
 
-function gravityApplies(bytes32 playerEntityId, VoxelCoord memory playerCoord) view returns (bool) {
+function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
   bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
   if (belowEntityId == bytes32(0)) {

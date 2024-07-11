@@ -64,7 +64,7 @@ contract SpawnSystem is System {
     PlayerMetadata._set(playerEntityId, false, 0);
 
     // We let the user pick a y coord, so we need to apply gravity
-    require(!gravityApplies(playerEntityId, spawnCoord), "SpawnSystem: cannot spawn player with gravity");
+    require(!gravityApplies(spawnCoord), "SpawnSystem: cannot spawn player with gravity");
 
     return playerEntityId;
   }

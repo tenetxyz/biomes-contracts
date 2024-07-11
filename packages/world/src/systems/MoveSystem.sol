@@ -96,7 +96,7 @@ contract MoveSystem is System {
       // transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
     }
 
-    require(!gravityApplies(playerEntityId, newCoord), "MoveSystem: cannot move player with gravity");
+    require(!gravityApplies(newCoord), "MoveSystem: cannot move player with gravity");
 
     return newEntityId;
   }
