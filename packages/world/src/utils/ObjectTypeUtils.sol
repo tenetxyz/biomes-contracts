@@ -14,6 +14,7 @@ import { OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID,
 import { WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "../ObjectTypeIds.sol";
 import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../ObjectTypeIds.sol";
 import { BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "../ObjectTypeIds.sol";
+import { ChestObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 
 function isPick(uint8 objectTypeId) pure returns (bool) {
   return
@@ -110,4 +111,8 @@ function isStone(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == GraniteObjectID ||
     objectTypeId == QuartziteObjectID ||
     objectTypeId == LimestoneObjectID;
+}
+
+function canAttachChip(uint8 objectTypeId) pure returns (bool) {
+  return objectTypeId == ChestObjectID || objectTypeId == ForceFieldObjectID;
 }

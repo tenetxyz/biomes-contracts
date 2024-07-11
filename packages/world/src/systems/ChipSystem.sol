@@ -24,6 +24,7 @@ import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID, ChipObjectID, ChipBatteryObjectID } from "../ObjectTypeIds.sol";
+import { canAttachChip } from "../utils/ObjectTypeUtils.sol";
 
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { IChip } from "../prototypes/IChip.sol";
@@ -41,7 +42,7 @@ contract ChipSystem is System {
     regenStamina(playerEntityId, playerCoord);
 
     uint8 objectTypeId = ObjectType._get(entityId);
-    require(objectTypeId == ChestObjectID, "ChipSystem: cannot attach a chip to this object");
+    require(canAttachChip(objectTypeId), "ChipSystem: cannot attach a chip to this object");
     require(Chip._getChipAddress(entityId) == address(0), "ChipSystem: chip already attached");
     require(chipAddress != address(0), "ChipSystem: invalid chip address");
 
