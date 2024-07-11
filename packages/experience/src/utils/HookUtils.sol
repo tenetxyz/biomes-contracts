@@ -28,7 +28,9 @@ function decodeCallData(bytes memory callData) pure returns (bytes4, bytes memor
 function getBuildArgs(bytes memory callData) pure returns (uint8 objectTypeId, VoxelCoord memory coord) {
   (bytes4 selector, bytes memory args) = decodeCallData(callData);
   require(selector == IBuildSystem.build.selector, "Invalid selector");
-  return abi.decode(args, (uint8, VoxelCoord));
+  bytes memory extraData;
+  (objectTypeId, coord, extraData) = abi.decode(args, (uint8, VoxelCoord, bytes));
+  return (objectTypeId, coord);
 }
 
 function getMineArgs(bytes memory callData) pure returns (VoxelCoord memory coord) {
@@ -78,13 +80,14 @@ function getTransferArgs(
   )
 {
   (bytes4 selector, bytes memory args) = decodeCallData(callData);
+  bytes memory extraData;
   if (selector == ITransferSystem.transfer.selector) {
-    (srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer) = abi.decode(
+    (srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, extraData) = abi.decode(
       args,
-      (bytes32, bytes32, uint8, uint16)
+      (bytes32, bytes32, uint8, uint16, bytes)
     );
   } else if (selector == ITransferSystem.transferTool.selector) {
-    (srcEntityId, dstEntityId, toolEntityId) = abi.decode(args, (bytes32, bytes32, bytes32));
+    (srcEntityId, dstEntityId, toolEntityId, extraData) = abi.decode(args, (bytes32, bytes32, bytes32, bytes));
     numToTransfer = 1;
     transferObjectTypeId = getObjectType(toolEntityId);
   } else {

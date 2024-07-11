@@ -144,8 +144,9 @@ contract GravityTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     vm.startPrank(worldDeployer, worldDeployer);
+    VoxelCoord memory mineCoord;
     for (uint16 i = 0; i < GRAVITY_DAMAGE - 1; i++) {
-      VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - (int16(int(uint(i))) + 2), spawnCoord.z);
+      mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - (int16(int(uint(i))) + 2), spawnCoord.z);
       assertTrue(world.getTerrainBlock(mineCoord) != AirObjectID, "Terrain block is air");
       bytes32 entityId = testGetUniqueEntity();
       Position.set(entityId, mineCoord.x, mineCoord.y, mineCoord.z);
@@ -159,7 +160,7 @@ contract GravityTest is MudTest, GasReporter {
     assertTrue(world.getTerrainBlock(spawnCoord2) == AirObjectID, "Terrain block is not air");
     bytes32 playerEntity2 = world.spawnPlayer(spawnCoord2);
 
-    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
+    mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 

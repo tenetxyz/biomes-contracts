@@ -109,7 +109,7 @@ contract MineTest is MudTest, GasReporter {
     world.mine(mineCoord);
     VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
-    world.build(terrainObjectTypeId, buildCoord);
+    world.build(terrainObjectTypeId, buildCoord, new bytes(0));
 
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
 

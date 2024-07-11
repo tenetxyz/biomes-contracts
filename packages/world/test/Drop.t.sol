@@ -686,7 +686,7 @@ contract DropTest is MudTest, GasReporter {
     world.mine(mineCoord);
 
     vm.expectRevert("BuildSystem: Cannot build where there are dropped objects");
-    world.build(terrainObjectTypeId, dropCoord);
+    world.build(terrainObjectTypeId, dropCoord, new bytes(0));
 
     vm.stopPrank();
   }

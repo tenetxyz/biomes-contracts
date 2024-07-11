@@ -202,7 +202,7 @@ contract TestScript is Script {
 
     // world.mine(VoxelCoord(149, -63, -57));
     // bytes32 inventoryEntityId = 0x00000000000000000000000000000000000000000000000000000000000001bc;
-    // world.build(inventoryEntityId, VoxelCoord(150, -62, -38));
+    // world.build(inventoryEntityId, VoxelCoord(150, -62, -38), new bytes(0));
     // world.hit(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
     // world.hit(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
     // world.hit(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
