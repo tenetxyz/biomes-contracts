@@ -18,23 +18,20 @@ import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inSpawnArea, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
-import { regenHealth, regenStamina, requireValidPlayer } from "../utils/PlayerUtils.sol";
+import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
 contract BuildSystem is System {
   function build(uint8 objectTypeId, VoxelCoord memory coord, bytes memory extraData) public payable returns (bytes32) {
     require(inWorldBorder(coord), "BuildSystem: cannot build outside world border");
     require(!inSpawnArea(coord), "BuildSystem: cannot build at spawn area");
+    require(ObjectTypeMetadata._getIsBlock(objectTypeId), "BuildSystem: object type is not a block");
 
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     require(
       inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, coord),
       "BuildSystem: player is too far from the block"
     );
-    require(ObjectTypeMetadata._getIsBlock(objectTypeId), "BuildSystem: object type is not a block");
-
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId, playerCoord);
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {

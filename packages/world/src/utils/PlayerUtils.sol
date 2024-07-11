@@ -15,13 +15,24 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, WATER_STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { getTerrainObjectTypeId, positionDataToVoxelCoord } from "../Utils.sol";
+import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 function requireValidPlayer(address player) returns (bytes32, VoxelCoord memory) {
   bytes32 playerEntityId = Player._get(player);
   require(playerEntityId != bytes32(0), "Player does not exist");
   require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "Player isn't logged in");
   VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+
+  regenHealth(playerEntityId);
+  regenStamina(playerEntityId, playerCoord);
+
   return (playerEntityId, playerCoord);
+}
+
+function requireBesidePlayer(VoxelCoord memory playerCoord, bytes32 entityId) returns (VoxelCoord memory) {
+  VoxelCoord memory coord = positionDataToVoxelCoord(Position._get(entityId));
+  require(inSurroundingCube(playerCoord, 1, coord), "Player is too far");
+  return coord;
 }
 
 function regenHealth(bytes32 entityId) returns (uint16) {
