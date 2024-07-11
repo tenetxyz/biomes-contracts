@@ -10,8 +10,7 @@ import { coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.so
 
 import { FORCE_FIELD_SHARD_DIM, FORCE_FIELD_DIM } from "../Constants.sol";
 
-function getForceField(VoxelCoord memory coord) returns (bytes32) {
-  VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(coord, FORCE_FIELD_SHARD_DIM);
+function getForceField(VoxelCoord memory coord, VoxelCoord memory shardCoord) view returns (bytes32) {
   bytes32[] memory forceFieldEntityIds = ShardFields._get(shardCoord.x, shardCoord.z);
   for (uint i = 0; i < forceFieldEntityIds.length; i++) {
     ForceFieldData memory forceFieldData = ForceField._get(forceFieldEntityIds[i]);
@@ -27,4 +26,9 @@ function getForceField(VoxelCoord memory coord) returns (bytes32) {
     }
   }
   return bytes32(0);
+}
+
+function getForceField(VoxelCoord memory coord) view returns (bytes32) {
+  VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(coord, FORCE_FIELD_SHARD_DIM);
+  return getForceField(coord, shardCoord);
 }
