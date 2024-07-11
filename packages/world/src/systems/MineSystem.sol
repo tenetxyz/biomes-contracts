@@ -69,13 +69,17 @@ contract MineSystem is System {
     }
 
     // Spend stamina for mining
-    uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    uint256 staminaRequired = (uint256(ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId)) * 1000) /
-      equippedToolDamage;
-    require(staminaRequired <= MAX_PLAYER_STAMINA, "MineSystem: mining difficulty too high. Try a stronger tool.");
-    uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
-    require(currentStamina >= useStamina, "MineSystem: not enough stamina");
-    Stamina._setStamina(playerEntityId, currentStamina - useStamina);
+    uint32 newStamina;
+    {
+      uint32 currentStamina = Stamina._getStamina(playerEntityId);
+      uint256 staminaRequired = (uint256(ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId)) * 1000) /
+        equippedToolDamage;
+      require(staminaRequired <= MAX_PLAYER_STAMINA, "MineSystem: mining difficulty too high. Try a stronger tool.");
+      uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
+      require(currentStamina >= useStamina, "MineSystem: not enough stamina");
+      newStamina = currentStamina - useStamina;
+      Stamina._setStamina(playerEntityId, newStamina);
+    }
 
     useEquipped(playerEntityId, equippedEntityId);
 
@@ -85,24 +89,29 @@ contract MineSystem is System {
     PlayerActivity._set(playerEntityId, block.timestamp);
 
     // Apply gravity
-    VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);
-    bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-    if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
-      callGravity(aboveEntityId, aboveCoord);
+    {
+      VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);
+      bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+      if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+        callGravity(aboveEntityId, aboveCoord);
+      }
     }
 
     // Note: we call this after the mine state has been updated, to prevent re-entrancy attacks
-    requireAllowed(playerEntityId, mineObjectTypeId, coord, extraData);
+    requireAllowed(playerEntityId, newStamina, equippedToolDamage, mineObjectTypeId, coord, extraData);
   }
 
   function requireAllowed(
     bytes32 playerEntityId,
+    uint32 currentStamina,
+    uint32 equippedToolDamage,
     uint8 objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
   ) internal {
     bytes32 forceFieldEntityId = getForceField(coord);
     if (forceFieldEntityId != bytes32(0)) {
+      uint256 staminaRequired = 0;
       address chipAddress = Chip._getChipAddress(forceFieldEntityId);
       if (chipAddress != address(0)) {
         updateChipBatteryLevel(forceFieldEntityId);
@@ -116,10 +125,23 @@ contract MineSystem is System {
           extraData
         );
         if (!mineAllowed) {
-          // TODO: apply a stamina multipler
+          // Scale the stamina required by the chip's battery level
+          staminaRequired = 1000 * Chip._getBatteryLevel(forceFieldEntityId);
         }
       } else {
-        // TODO: apply a stamina multipler
+        staminaRequired = 1000;
+      }
+
+      // Apply an additional stamina cost for mining inside of a force field
+      if (staminaRequired > 0) {
+        staminaRequired = (staminaRequired * 1000) / equippedToolDamage;
+        require(
+          staminaRequired <= MAX_PLAYER_STAMINA,
+          "MineSystem: mining difficulty too high due to force field. Try a stronger tool."
+        );
+        uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
+        require(currentStamina >= useStamina, "MineSystem: not enough stamina due to force field");
+        Stamina._setStamina(playerEntityId, currentStamina - useStamina);
       }
     }
   }
