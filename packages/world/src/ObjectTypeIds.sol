@@ -206,3 +206,4 @@ uint8 constant AnyReinforcedLumberObjectID = 161;
 
 uint8 constant ChipObjectID = 162;
 uint8 constant ChipBatteryObjectID = 163;
+uint8 constant ForceFieldObjectID = 164;
