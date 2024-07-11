@@ -12,6 +12,7 @@ import { IChipSystem } from "./IChipSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
+import { IForceFieldSystem } from "./IForceFieldSystem.sol";
 import { IGravitySystem } from "./IGravitySystem.sol";
 import { IHitSystem } from "./IHitSystem.sol";
 import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
@@ -49,6 +50,7 @@ interface IWorld is
   ICraftSystem,
   IDropSystem,
   IEquipSystem,
+  IForceFieldSystem,
   IGravitySystem,
   IHitSystem,
   IInitSpawnSystem,

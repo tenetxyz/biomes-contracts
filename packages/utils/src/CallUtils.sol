@@ -24,7 +24,7 @@ function callInternalSystem(bytes memory callData) returns (bytes memory) {
 
   (bool success, bytes memory returnData) = WorldContextProviderLib.delegatecallWithContext({
     msgSender: WorldContextConsumerLib._msgSender(),
-    msgValue: 0,
+    msgValue: WorldContextConsumerLib._msgValue(),
     target: systemAddress,
     callData: Bytes.setBytes4(callData, 0, systemFunctionSelector)
   });
@@ -42,7 +42,7 @@ function staticCallInternalSystem(bytes memory callData) view returns (bytes mem
     WorldContextProviderLib.appendContext({
       callData: Bytes.setBytes4(callData, 0, systemFunctionSelector),
       msgSender: WorldContextConsumerLib._msgSender(),
-      msgValue: 0
+      msgValue: WorldContextConsumerLib._msgValue()
     })
   );
 

@@ -19,15 +19,15 @@ import { ShardFields } from "../codegen/tables/ShardFields.sol";
 import { ForceField, ForceFieldData } from "../codegen/tables/ForceField.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH, FORCE_FIELD_DIM, FORCE_FIELD_SHARD_DIM } from "../Constants.sol";
+import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, inSpawnArea, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube, coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { IChip } from "../prototypes/IChip.sol";
+import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
 contract BuildSystem is System {
   function build(uint8 objectTypeId, VoxelCoord memory coord, bytes memory extraData) public payable returns (bytes32) {
@@ -71,100 +71,11 @@ contract BuildSystem is System {
 
     PlayerActivity._set(playerEntityId, block.timestamp);
 
-    bytes32 forceFieldEntityId = getForceField(coord);
-    if (objectTypeId == ForceFieldObjectID) {
-      require(forceFieldEntityId == bytes32(0), "BuildSystem: Force field overlaps with another force field");
-      setupForceField(entityId, coord);
-    }
-
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
-    requireAllowed(forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData);
+    callInternalSystem(
+      abi.encodeCall(IForceFieldSystem.requireBuildAllowed, (playerEntityId, entityId, objectTypeId, coord, extraData))
+    );
 
     return entityId;
-  }
-
-  function setupForceField(bytes32 entityId, VoxelCoord memory coord) internal {
-    // NOTE: This assumes FORCE_FIELD_DIM < FORCE_FIELD_SHARD_DIM
-
-    // This coord will be the center of the force field
-    int16 halfDim = FORCE_FIELD_DIM / 2;
-    int16 fieldLowX = coord.x - halfDim;
-    int16 fieldHighX = coord.x + halfDim + 1;
-    int16 fieldLowZ = coord.z - halfDim;
-    int16 fieldHighZ = coord.z + halfDim + 1;
-
-    // Check the 4 corners of the force field to make sure they dont overlap with another force field
-    VoxelCoord[4] memory fieldCorners = [
-      VoxelCoord(fieldLowX, coord.y, fieldLowZ),
-      VoxelCoord(fieldLowX, coord.y, fieldHighZ),
-      VoxelCoord(fieldHighX, coord.y, fieldLowZ),
-      VoxelCoord(fieldHighX, coord.y, fieldHighZ)
-    ];
-
-    // Use an array to track pushed shard coordinates
-    bytes32[] memory pushedShardCoods = new bytes32[](4);
-    uint pushedShardCoodsLength = 0;
-
-    for (uint i = 0; i < fieldCorners.length; i++) {
-      VoxelCoord memory cornerShardCoord = coordToShardCoordIgnoreY(fieldCorners[i], FORCE_FIELD_SHARD_DIM);
-      require(
-        getForceField(fieldCorners[i], cornerShardCoord) == bytes32(0),
-        "BuildSystem: Force field overlaps with another force field"
-      );
-      bytes32 cornerShardCoordHash = keccak256(
-        abi.encodePacked(cornerShardCoord.x, cornerShardCoord.y, cornerShardCoord.z)
-      );
-      if (_isPushed(pushedShardCoods, pushedShardCoodsLength, cornerShardCoordHash)) {
-        continue;
-      }
-      pushedShardCoods[pushedShardCoodsLength] = cornerShardCoordHash;
-      pushedShardCoodsLength++;
-      ShardFields._push(cornerShardCoord.x, cornerShardCoord.z, entityId);
-    }
-
-    ForceField._set(
-      entityId,
-      ForceFieldData({ fieldLowX: fieldLowX, fieldHighX: fieldHighX, fieldLowZ: fieldLowZ, fieldHighZ: fieldHighZ })
-    );
-  }
-
-  function _isPushed(
-    bytes32[] memory coordHashes,
-    uint coordHashesLength,
-    bytes32 coordHash
-  ) internal pure returns (bool) {
-    for (uint i = 0; i < coordHashesLength; i++) {
-      if (coordHashes[i] == coordHash) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function requireAllowed(
-    bytes32 forceFieldEntityId,
-    bytes32 playerEntityId,
-    uint8 objectTypeId,
-    VoxelCoord memory coord,
-    bytes memory extraData
-  ) internal {
-    if (forceFieldEntityId != bytes32(0)) {
-      address chipAddress = Chip._getChipAddress(forceFieldEntityId);
-      if (chipAddress != address(0)) {
-        updateChipBatteryLevel(forceFieldEntityId);
-
-        // Forward any ether sent with the transaction to the hook
-        // Don't safe call here as we want to revert if the chip doesn't allow the build
-        bool buildAllowed = IChip(chipAddress).onBuild{ value: msg.value }(
-          playerEntityId,
-          objectTypeId,
-          coord,
-          extraData
-        );
-        require(buildAllowed, "BuildSystem: Player not authorized by chip to build here");
-      } else {
-        revert("BuildSystem: Cannot build in force field without chip");
-      }
-    }
   }
 }

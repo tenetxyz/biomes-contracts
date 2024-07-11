@@ -17,16 +17,14 @@ import { ShardFields } from "../codegen/tables/ShardFields.sol";
 import { ForceField, ForceFieldData } from "../codegen/tables/ForceField.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE, FORCE_FIELD_DIM, FORCE_FIELD_SHARD_DIM } from "../Constants.sol";
+import { MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { positionDataToVoxelCoord, callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube, coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
-import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
-import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { IChip } from "../prototypes/IChip.sol";
+import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord, bytes memory extraData) public payable {
@@ -100,108 +98,11 @@ contract MineSystem is System {
     }
 
     // Note: we call this after the mine state has been updated, to prevent re-entrancy attacks
-    requireAllowed(playerEntityId, newStamina, equippedToolDamage, mineObjectTypeId, coord, extraData);
-
-    if (mineObjectTypeId == ForceFieldObjectID) {
-      destroyForceField(entityId, coord);
-    }
-  }
-
-  function destroyForceField(bytes32 entityId, VoxelCoord memory coord) internal {
-    ForceFieldData memory forceFieldData = ForceField._get(entityId);
-
-    // Check the 4 corners of the force field to make sure they dont overlap with another force field
-    VoxelCoord[4] memory fieldCorners = [
-      VoxelCoord(forceFieldData.fieldLowX, coord.y, forceFieldData.fieldLowZ),
-      VoxelCoord(forceFieldData.fieldLowX, coord.y, forceFieldData.fieldHighZ),
-      VoxelCoord(forceFieldData.fieldHighX, coord.y, forceFieldData.fieldLowZ),
-      VoxelCoord(forceFieldData.fieldHighX, coord.y, forceFieldData.fieldHighZ)
-    ];
-
-    // Use an array to track pushed shard coordinates
-    bytes32[] memory pushedShardCoods = new bytes32[](4);
-    uint pushedShardCoodsLength = 0;
-
-    for (uint i = 0; i < fieldCorners.length; i++) {
-      VoxelCoord memory cornerShardCoord = coordToShardCoordIgnoreY(fieldCorners[i], FORCE_FIELD_SHARD_DIM);
-      bytes32 cornerShardCoordHash = keccak256(
-        abi.encodePacked(cornerShardCoord.x, cornerShardCoord.y, cornerShardCoord.z)
-      );
-      if (_isPushed(pushedShardCoods, pushedShardCoodsLength, cornerShardCoordHash)) {
-        continue;
-      }
-      pushedShardCoods[pushedShardCoodsLength] = cornerShardCoordHash;
-      pushedShardCoodsLength++;
-      bytes32[] memory forceFieldEntityIds = ShardFields._get(cornerShardCoord.x, cornerShardCoord.z);
-      bytes32[] memory newForceFieldEntityIds = new bytes32[](forceFieldEntityIds.length - 1);
-      uint newForceFieldEntityIdsLength = 0;
-      for (uint j = 0; j < forceFieldEntityIds.length; j++) {
-        if (forceFieldEntityIds[j] != entityId) {
-          newForceFieldEntityIds[newForceFieldEntityIdsLength] = forceFieldEntityIds[j];
-          newForceFieldEntityIdsLength++;
-        }
-      }
-      ShardFields._set(cornerShardCoord.x, cornerShardCoord.z, newForceFieldEntityIds);
-    }
-
-    ForceField._deleteRecord(entityId);
-  }
-
-  function _isPushed(
-    bytes32[] memory coordHashes,
-    uint coordHashesLength,
-    bytes32 coordHash
-  ) internal pure returns (bool) {
-    for (uint i = 0; i < coordHashesLength; i++) {
-      if (coordHashes[i] == coordHash) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function requireAllowed(
-    bytes32 playerEntityId,
-    uint32 currentStamina,
-    uint32 equippedToolDamage,
-    uint8 objectTypeId,
-    VoxelCoord memory coord,
-    bytes memory extraData
-  ) internal {
-    bytes32 forceFieldEntityId = getForceField(coord);
-    if (forceFieldEntityId != bytes32(0)) {
-      uint256 staminaRequired = 0;
-      address chipAddress = Chip._getChipAddress(forceFieldEntityId);
-      if (chipAddress != address(0)) {
-        updateChipBatteryLevel(forceFieldEntityId);
-
-        // Forward any ether sent with the transaction to the hook
-        // Don't safe call here as we want to revert if the chip doesn't allow the mine
-        bool mineAllowed = IChip(chipAddress).onMine{ value: msg.value }(
-          playerEntityId,
-          objectTypeId,
-          coord,
-          extraData
-        );
-        if (!mineAllowed) {
-          // Scale the stamina required by the chip's battery level
-          staminaRequired = 1000 * Chip._getBatteryLevel(forceFieldEntityId);
-        }
-      } else {
-        staminaRequired = 1000;
-      }
-
-      // Apply an additional stamina cost for mining inside of a force field
-      if (staminaRequired > 0) {
-        staminaRequired = (staminaRequired * 1000) / equippedToolDamage;
-        require(
-          staminaRequired <= MAX_PLAYER_STAMINA,
-          "MineSystem: mining difficulty too high due to force field. Try a stronger tool."
-        );
-        uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
-        require(currentStamina >= useStamina, "MineSystem: not enough stamina due to force field");
-        Stamina._setStamina(playerEntityId, currentStamina - useStamina);
-      }
-    }
+    callInternalSystem(
+      abi.encodeCall(
+        IForceFieldSystem.requireMineAllowed,
+        (playerEntityId, equippedToolDamage, entityId, mineObjectTypeId, coord, extraData)
+      )
+    );
   }
 }

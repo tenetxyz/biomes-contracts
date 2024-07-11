@@ -293,6 +293,11 @@ export default defineWorld({
       openAccess: false,
       accessList: [],
     },
+    ForceFieldSystem: {
+      name: "ForceFieldSystem",
+      openAccess: false,
+      accessList: [],
+    },
   },
   modules: [
     {
