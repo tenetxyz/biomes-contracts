@@ -13,15 +13,17 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
+import { ShardFields } from "../codegen/tables/ShardFields.sol";
+import { ForceField, ForceFieldData } from "../codegen/tables/ForceField.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
+import { MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE, FORCE_FIELD_DIM, FORCE_FIELD_SHARD_DIM } from "../Constants.sol";
 import { positionDataToVoxelCoord, callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { inSurroundingCube, coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { IChip } from "../prototypes/IChip.sol";
@@ -99,6 +101,63 @@ contract MineSystem is System {
 
     // Note: we call this after the mine state has been updated, to prevent re-entrancy attacks
     requireAllowed(playerEntityId, newStamina, equippedToolDamage, mineObjectTypeId, coord, extraData);
+
+    if (mineObjectTypeId == ForceFieldObjectID) {
+      destroyForceField(entityId, coord);
+    }
+  }
+
+  function destroyForceField(bytes32 entityId, VoxelCoord memory coord) internal {
+    ForceFieldData memory forceFieldData = ForceField._get(entityId);
+
+    // Check the 4 corners of the force field to make sure they dont overlap with another force field
+    VoxelCoord[4] memory fieldCorners = [
+      VoxelCoord(forceFieldData.fieldLowX, coord.y, forceFieldData.fieldLowZ),
+      VoxelCoord(forceFieldData.fieldLowX, coord.y, forceFieldData.fieldHighZ),
+      VoxelCoord(forceFieldData.fieldHighX, coord.y, forceFieldData.fieldLowZ),
+      VoxelCoord(forceFieldData.fieldHighX, coord.y, forceFieldData.fieldHighZ)
+    ];
+
+    // Use an array to track pushed shard coordinates
+    bytes32[] memory pushedShardCoods = new bytes32[](4);
+    uint pushedShardCoodsLength = 0;
+
+    for (uint i = 0; i < fieldCorners.length; i++) {
+      VoxelCoord memory cornerShardCoord = coordToShardCoordIgnoreY(fieldCorners[i], FORCE_FIELD_SHARD_DIM);
+      bytes32 cornerShardCoordHash = keccak256(
+        abi.encodePacked(cornerShardCoord.x, cornerShardCoord.y, cornerShardCoord.z)
+      );
+      if (_isPushed(pushedShardCoods, pushedShardCoodsLength, cornerShardCoordHash)) {
+        continue;
+      }
+      pushedShardCoods[pushedShardCoodsLength] = cornerShardCoordHash;
+      pushedShardCoodsLength++;
+      bytes32[] memory forceFieldEntityIds = ShardFields._get(cornerShardCoord.x, cornerShardCoord.z);
+      bytes32[] memory newForceFieldEntityIds = new bytes32[](forceFieldEntityIds.length - 1);
+      uint newForceFieldEntityIdsLength = 0;
+      for (uint j = 0; j < forceFieldEntityIds.length; j++) {
+        if (forceFieldEntityIds[j] != entityId) {
+          newForceFieldEntityIds[newForceFieldEntityIdsLength] = forceFieldEntityIds[j];
+          newForceFieldEntityIdsLength++;
+        }
+      }
+      ShardFields._set(cornerShardCoord.x, cornerShardCoord.z, newForceFieldEntityIds);
+    }
+
+    ForceField._deleteRecord(entityId);
+  }
+
+  function _isPushed(
+    bytes32[] memory coordHashes,
+    uint coordHashesLength,
+    bytes32 coordHash
+  ) internal pure returns (bool) {
+    for (uint i = 0; i < coordHashesLength; i++) {
+      if (coordHashes[i] == coordHash) {
+        return true;
+      }
+    }
+    return false;
   }
 
   function requireAllowed(
