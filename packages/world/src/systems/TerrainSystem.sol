@@ -2,15 +2,12 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { Terrain } from "../codegen/tables/Terrain.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { NullObjectTypeId, AirObjectID } from "../ObjectTypeIds.sol";
-import { staticCallProcGenSystem, getUniqueEntity } from "../Utils.sol";
+import { NullObjectTypeId } from "../ObjectTypeIds.sol";
+import { staticCallProcGenSystem } from "../Utils.sol";
 
 contract TerrainSystem is System {
   function getCachedTerrainObjectTypeId(VoxelCoord memory coord) public view returns (uint8) {
