@@ -82,18 +82,14 @@ contract TestChip is IChip {
     uint8 objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
-  ) external payable returns (bool isAllowed) {
-    return true;
-  }
+  ) external payable returns (bool isAllowed) {}
 
   function onMine(
     bytes32 playerEntityId,
     uint8 objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
-  ) external payable returns (bool isAllowed) {
-    return true;
-  }
+  ) external payable returns (bool isAllowed) {}
 
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
     return interfaceId == type(IChip).interfaceId || interfaceId == type(IERC165).interfaceId;
