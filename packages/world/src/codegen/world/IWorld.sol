@@ -12,8 +12,6 @@ import { IChipSystem } from "./IChipSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
-import { IForceFieldSystem } from "./IForceFieldSystem.sol";
-import { IGravitySystem } from "./IGravitySystem.sol";
 import { IHitSystem } from "./IHitSystem.sol";
 import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
 import { ILoginSystem } from "./ILoginSystem.sol";
@@ -33,6 +31,8 @@ import { IInitPlayersSystem } from "./IInitPlayersSystem.sol";
 import { IInitTerrainBlocksSystem } from "./IInitTerrainBlocksSystem.sol";
 import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
 import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
+import { IForceFieldSystem } from "./IForceFieldSystem.sol";
+import { IGravitySystem } from "./IGravitySystem.sol";
 
 /**
  * @title IWorld
@@ -50,8 +50,6 @@ interface IWorld is
   ICraftSystem,
   IDropSystem,
   IEquipSystem,
-  IForceFieldSystem,
-  IGravitySystem,
   IHitSystem,
   IInitSpawnSystem,
   ILoginSystem,
@@ -70,5 +68,7 @@ interface IWorld is
   IInitPlayersSystem,
   IInitTerrainBlocksSystem,
   IInitThermoblastSystem,
-  IInitWorkbenchSystem
+  IInitWorkbenchSystem,
+  IForceFieldSystem,
+  IGravitySystem
 {}

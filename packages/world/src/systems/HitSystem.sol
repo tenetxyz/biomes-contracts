@@ -2,11 +2,10 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Player } from "../codegen/tables/Player.sol";
-import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health } from "../codegen/tables/Health.sol";
@@ -14,34 +13,18 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, callGravity, inSpawnArea } from "../Utils.sol";
+import { PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
+import { PlayerObjectID } from "../ObjectTypeIds.sol";
+import { callGravity, inSpawnArea } from "../Utils.sol";
 import { useEquipped } from "../utils/InventoryUtils.sol";
-import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube, voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { requireValidPlayer, requireBesidePlayer, despawnPlayer } from "../utils/PlayerUtils.sol";
 
 contract HitSystem is System {
   function hit(address hitPlayer) public {
-    bytes32 playerEntityId = Player._get(_msgSender());
-    require(playerEntityId != bytes32(0), "HitSystem: player does not exist");
-    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "HitSystem: player isn't logged in");
-
-    bytes32 hitEntityId = Player._get(hitPlayer);
-    require(hitEntityId != bytes32(0), "HitSystem: hit player does not exist");
-    require(playerEntityId != hitEntityId, "HitSystem: cannot hit yourself");
-    require(!PlayerMetadata._getIsLoggedOff(hitEntityId), "HitSystem: hit player isn't logged in");
-
-    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
-    VoxelCoord memory hitCoord = positionDataToVoxelCoord(Position._get(hitEntityId));
+    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (bytes32 hitEntityId, VoxelCoord memory hitCoord) = requireValidPlayer(hitPlayer);
     require(!inSpawnArea(hitCoord), "HitSystem: cannot hit players in spawn area");
-    require(inSurroundingCube(playerCoord, 1, hitCoord), "HitSystem: hit entity is not in surrounding cube of player");
-
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId, playerCoord);
-
-    regenHealth(hitEntityId);
+    requireBesidePlayer(playerCoord, hitCoord);
 
     // Update stamina and health
     uint32 currentStamina = Stamina._getStamina(playerEntityId);

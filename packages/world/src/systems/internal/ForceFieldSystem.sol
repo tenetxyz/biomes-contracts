@@ -1,32 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { Player } from "../codegen/tables/Player.sol";
-import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Equipped } from "../codegen/tables/Equipped.sol";
-import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { Stamina } from "../codegen/tables/Stamina.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
-import { Chip, ChipData } from "../codegen/tables/Chip.sol";
-import { ShardFields } from "../codegen/tables/ShardFields.sol";
-import { ForceField, ForceFieldData } from "../codegen/tables/ForceField.sol";
-
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE, FORCE_FIELD_DIM, FORCE_FIELD_SHARD_DIM } from "../Constants.sol";
-import { positionDataToVoxelCoord, callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
-import { addToInventoryCount, useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube, coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
-import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
-import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { IChip } from "../prototypes/IChip.sol";
+import { coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+
+import { Stamina } from "../../codegen/tables/Stamina.sol";
+import { Chip, ChipData } from "../../codegen/tables/Chip.sol";
+import { ShardFields } from "../../codegen/tables/ShardFields.sol";
+import { ForceField, ForceFieldData } from "../../codegen/tables/ForceField.sol";
+
+import { MAX_PLAYER_STAMINA, FORCE_FIELD_DIM, FORCE_FIELD_SHARD_DIM } from "../../Constants.sol";
+import { ForceFieldObjectID } from "../../ObjectTypeIds.sol";
+import { updateChipBatteryLevel } from "../../utils/ChipUtils.sol";
+import { getForceField } from "../../utils/ForceFieldUtils.sol";
+
+import { IChip } from "../../prototypes/IChip.sol";
 
 contract ForceFieldSystem is System {
   function requireBuildAllowed(
