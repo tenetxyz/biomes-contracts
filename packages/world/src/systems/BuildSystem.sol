@@ -12,7 +12,6 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -55,8 +54,6 @@ contract BuildSystem is System {
 
     ObjectType._set(entityId, objectTypeId);
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
-
-    PlayerActivity._set(playerEntityId, block.timestamp);
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
     callInternalSystem(

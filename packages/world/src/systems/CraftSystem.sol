@@ -11,7 +11,6 @@ import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { NullObjectTypeId, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity } from "../Utils.sol";
@@ -100,7 +99,5 @@ contract CraftSystem is System {
       recipeData.outputObjectTypeId,
       recipeData.outputObjectTypeAmount
     );
-
-    PlayerActivity._set(playerEntityId, block.timestamp);
   }
 }

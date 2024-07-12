@@ -9,7 +9,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 
 import { PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
@@ -38,8 +37,6 @@ contract ChipSystem is System {
     // TODO: figure out initial battery level
     Chip._set(entityId, ChipData({ chipAddress: chipAddress, batteryLevel: 0, lastUpdatedTime: block.timestamp }));
 
-    PlayerActivity._set(playerEntityId, block.timestamp);
-
     // Don't safe call here because we want to revert if the chip doesn't allow the attachment
     IChip(chipAddress).onAttached(playerEntityId, entityId);
   }
@@ -55,8 +52,6 @@ contract ChipSystem is System {
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
     Chip._deleteRecord(entityId);
-
-    PlayerActivity._set(playerEntityId, block.timestamp);
 
     // Safe call so the chip can't block the call
     chipData.chipAddress.call(abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
@@ -74,8 +69,6 @@ contract ChipSystem is System {
     // TODO: Figure out how to scale powerAmount
     Chip._setBatteryLevel(entityId, chipData.batteryLevel + (numBattery * 100));
     Chip._setLastUpdatedTime(entityId, block.timestamp);
-
-    PlayerActivity._set(playerEntityId, block.timestamp);
 
     // Safe call so the chip can't block the call
     chipData.chipAddress.call(abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
@@ -100,8 +93,6 @@ contract ChipSystem is System {
     }
 
     useEquipped(playerEntityId, equippedEntityId);
-
-    PlayerActivity._set(playerEntityId, block.timestamp);
 
     uint256 currentBatteryLevel = chipData.batteryLevel;
     uint256 newBatteryLevel = currentBatteryLevel > receiverDamage ? currentBatteryLevel - receiverDamage : 0;

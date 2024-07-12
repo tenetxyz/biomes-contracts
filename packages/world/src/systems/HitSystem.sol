@@ -11,7 +11,6 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
 import { PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -44,8 +43,6 @@ contract HitSystem is System {
 
     useEquipped(playerEntityId, equippedEntityId);
 
-    PlayerActivity._set(playerEntityId, block.timestamp);
-
     if (newHealth == 0) {
       despawnPlayer(hitEntityId);
 
@@ -56,7 +53,6 @@ contract HitSystem is System {
       }
     } else {
       PlayerMetadata._setLastHitTime(hitEntityId, block.timestamp);
-      PlayerActivity._set(hitEntityId, block.timestamp);
     }
   }
 }

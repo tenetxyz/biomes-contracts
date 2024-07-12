@@ -9,7 +9,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
 import { PLAYER_MASS } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -53,8 +52,6 @@ contract MoveSystem is System {
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
     require(currentStamina >= staminaRequired, "MoveSystem: not enough stamina");
     Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
-
-    PlayerActivity._set(playerEntityId, block.timestamp);
 
     VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);

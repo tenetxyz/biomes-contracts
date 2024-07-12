@@ -7,7 +7,6 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 
 import { PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
@@ -38,8 +37,6 @@ contract TransferSystem is System {
     } else {
       revert("TransferSystem: invalid transfer operation");
     }
-
-    PlayerActivity._set(playerEntityId, block.timestamp);
 
     return (playerEntityId, dstObjectTypeId);
   }

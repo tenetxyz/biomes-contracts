@@ -27,6 +27,8 @@ function requireValidPlayer(address player) returns (bytes32, VoxelCoord memory)
   regenHealth(playerEntityId);
   regenStamina(playerEntityId, playerCoord);
 
+  PlayerActivity._set(playerEntityId, block.timestamp);
+
   return (playerEntityId, playerCoord);
 }
 
