@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
@@ -11,11 +14,9 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, WATER_STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID } from "../ObjectTypeIds.sol";
 import { getTerrainObjectTypeId, positionDataToVoxelCoord } from "../Utils.sol";
-import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 function requireValidPlayer(address player) returns (bytes32, VoxelCoord memory) {
   bytes32 playerEntityId = Player._get(player);

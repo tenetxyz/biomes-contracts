@@ -2,39 +2,30 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
-import { Player } from "../codegen/tables/Player.sol";
-import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { Stamina } from "../codegen/tables/Stamina.sol";
-import { Equipped } from "../codegen/tables/Equipped.sol";
-import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
+import { PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
-import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+
 import { IChip } from "../prototypes/IChip.sol";
 
 contract TransferSystem is System {
-  function transferCommon(bytes32 playerEntityId, bytes32 srcEntityId, bytes32 dstEntityId) internal returns (uint8) {
-    require(playerEntityId != bytes32(0), "TransferSystem: player does not exist");
-    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "TransferSystem: player isn't logged in");
+  function transferCommon(bytes32 srcEntityId, bytes32 dstEntityId) internal returns (bytes32, uint8) {
+    (bytes32 playerEntityId, ) = requireValidPlayer(_msgSender());
 
     require(dstEntityId != srcEntityId, "TransferSystem: cannot transfer to self");
     VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(srcEntityId));
     VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(dstEntityId));
     require(inSurroundingCube(srcCoord, 1, dstCoord), "TransferSystem: destination out of range");
-
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId, playerEntityId == srcEntityId ? srcCoord : dstCoord);
 
     uint8 srcObjectTypeId = ObjectType._get(srcEntityId);
     uint8 dstObjectTypeId = ObjectType._get(dstEntityId);
@@ -50,7 +41,7 @@ contract TransferSystem is System {
 
     PlayerActivity._set(playerEntityId, block.timestamp);
 
-    return dstObjectTypeId;
+    return (playerEntityId, dstObjectTypeId);
   }
 
   function requireAllowed(
@@ -88,8 +79,7 @@ contract TransferSystem is System {
     uint16 numToTransfer,
     bytes memory extraData
   ) public payable {
-    bytes32 playerEntityId = Player._get(_msgSender());
-    uint8 dstObjectTypeId = transferCommon(playerEntityId, srcEntityId, dstEntityId);
+    (bytes32 playerEntityId, uint8 dstObjectTypeId) = transferCommon(srcEntityId, dstEntityId);
     transferInventoryNonTool(srcEntityId, dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
@@ -110,8 +100,7 @@ contract TransferSystem is System {
     bytes32 toolEntityId,
     bytes memory extraData
   ) public payable {
-    bytes32 playerEntityId = Player._get(_msgSender());
-    uint8 dstObjectTypeId = transferCommon(playerEntityId, srcEntityId, dstEntityId);
+    (bytes32 playerEntityId, uint8 dstObjectTypeId) = transferCommon(srcEntityId, dstEntityId);
     uint8 toolObjectTypeId = transferInventoryTool(srcEntityId, dstEntityId, dstObjectTypeId, toolEntityId);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks

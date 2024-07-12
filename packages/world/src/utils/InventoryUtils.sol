@@ -11,9 +11,8 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
+import { PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 
 function addToInventoryCount(
   bytes32 ownerEntityId,
