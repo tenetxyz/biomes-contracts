@@ -28,10 +28,7 @@ contract BuildSystem is System {
     require(ObjectTypeMetadata._getIsBlock(objectTypeId), "BuildSystem: object type is not a block");
 
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    require(
-      inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, coord),
-      "BuildSystem: player is too far from the block"
-    );
+    require(inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, coord), "Player is too far");
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {

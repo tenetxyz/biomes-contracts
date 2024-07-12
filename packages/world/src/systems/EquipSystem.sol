@@ -11,7 +11,7 @@ import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 contract EquipSystem is System {
   function equip(bytes32 inventoryEntityId) public {
     (bytes32 playerEntityId, ) = requireValidPlayer(_msgSender());
-    require(InventoryTool._get(inventoryEntityId) == playerEntityId, "EquipSystem: Player does not own inventory item");
+    require(InventoryTool._get(inventoryEntityId) == playerEntityId, "Player does not own inventory item");
     Equipped._set(playerEntityId, inventoryEntityId);
   }
 }

@@ -168,7 +168,7 @@ function transferInventoryTool(
   uint8 dstObjectTypeId,
   bytes32 toolEntityId
 ) returns (uint8) {
-  require(InventoryTool._get(toolEntityId) == srcEntityId, "Entity does not own inventory item");
+  require(InventoryTool._get(toolEntityId) == srcEntityId, "Player does not own inventory item");
   if (Equipped._get(srcEntityId) == toolEntityId) {
     Equipped._deleteRecord(srcEntityId);
   }

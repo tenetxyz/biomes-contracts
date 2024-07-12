@@ -122,7 +122,7 @@ contract UnequipTest is MudTest, GasReporter {
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
     vm.stopPrank();
 
-    vm.expectRevert("UnequipSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.unequip();
 
     vm.stopPrank();
@@ -151,7 +151,7 @@ contract UnequipTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("UnequipSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.unequip();
 
     vm.stopPrank();

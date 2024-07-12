@@ -175,7 +175,7 @@ contract LoginTest is MudTest, GasReporter {
     VoxelCoord memory respawnCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     vm.stopPrank();
 
-    vm.expectRevert("LoginSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.loginPlayer(respawnCoord);
 
     vm.stopPrank();

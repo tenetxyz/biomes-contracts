@@ -217,7 +217,7 @@ contract MoveTest is MudTest, GasReporter {
     }
     vm.stopPrank();
 
-    vm.expectRevert("MoveSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.move(newCoords);
   }
 
@@ -376,7 +376,7 @@ contract MoveTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("MoveSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.move(newCoords);
   }
 }

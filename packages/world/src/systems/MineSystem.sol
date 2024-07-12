@@ -28,10 +28,7 @@ contract MineSystem is System {
     require(!inSpawnArea(coord), "MineSystem: cannot mine at spawn area");
 
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    require(
-      inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, coord),
-      "MineSystem: player is too far from the block"
-    );
+    require(inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, coord), "Player is too far");
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     uint8 mineObjectTypeId;

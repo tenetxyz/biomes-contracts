@@ -330,7 +330,7 @@ contract CraftTest is MudTest, GasReporter {
       abi.encodePacked(inputObjectTypeId2, uint8(1), inputObjectTypeId1, uint8(1), outputObjectTypeId, uint8(1))
     );
 
-    vm.expectRevert("CraftSystem: player is too far from the station");
+    vm.expectRevert("Player is too far");
     world.craft(recipeId, stationEntityId);
 
     vm.stopPrank();
@@ -391,7 +391,7 @@ contract CraftTest is MudTest, GasReporter {
 
     vm.stopPrank();
 
-    vm.expectRevert("CraftSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.craft(recipeId, bytes32(0));
   }
 
@@ -468,7 +468,7 @@ contract CraftTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("CraftSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.craft(recipeId, bytes32(0));
   }
 }

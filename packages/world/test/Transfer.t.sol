@@ -500,7 +500,7 @@ contract TransferTest is MudTest, GasReporter {
 
     vm.stopPrank();
 
-    vm.expectRevert("TransferSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
   }
 
@@ -632,7 +632,7 @@ contract TransferTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("TransferSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
 
     vm.stopPrank();

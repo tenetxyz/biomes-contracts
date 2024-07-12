@@ -191,7 +191,7 @@ contract MineTest is MudTest, GasReporter {
 
     VoxelCoord memory mineCoord = VoxelCoord(SPAWN_LOW_X - 1, SPAWN_GROUND_Y - 1, SPAWN_LOW_Z - 1);
 
-    vm.expectRevert("MineSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.mine(mineCoord, new bytes(0));
 
     vm.stopPrank();
@@ -243,7 +243,7 @@ contract MineTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-    vm.expectRevert("MineSystem: player is too far from the block");
+    vm.expectRevert("Player is too far");
     world.mine(mineCoord, new bytes(0));
 
     vm.stopPrank();
@@ -354,7 +354,7 @@ contract MineTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("MineSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.mine(mineCoord, new bytes(0));
 
     vm.stopPrank();

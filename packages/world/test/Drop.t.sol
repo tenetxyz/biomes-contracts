@@ -709,7 +709,7 @@ contract DropTest is MudTest, GasReporter {
 
     vm.stopPrank();
 
-    vm.expectRevert("DropSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.drop(GrassObjectID, 1, dropCoord);
   }
 
@@ -729,7 +729,7 @@ contract DropTest is MudTest, GasReporter {
     VoxelCoord memory dropCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 2);
     assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
 
-    vm.expectRevert("DropSystem: player is too far from the drop coord");
+    vm.expectRevert("Player is too far");
     world.drop(GrassObjectID, 1, dropCoord);
 
     vm.stopPrank();
@@ -880,7 +880,7 @@ contract DropTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("DropSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.drop(GrassObjectID, 1, dropCoord);
   }
 

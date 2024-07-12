@@ -131,7 +131,7 @@ contract EquipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("EquipSystem: Entity does not own inventory item");
+    vm.expectRevert("Player does not own inventory item");
     world.equip(newInventoryId);
 
     vm.stopPrank();
@@ -439,7 +439,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, WoodenPickObjectID), "Inventory objects not set");
     vm.stopPrank();
 
-    vm.expectRevert("EquipSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.equip(newInventoryId);
   }
 
@@ -463,7 +463,7 @@ contract EquipTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("EquipSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.equip(newInventoryId);
 
     vm.stopPrank();

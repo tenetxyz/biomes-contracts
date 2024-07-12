@@ -262,7 +262,7 @@ contract BuildTest is MudTest, GasReporter {
 
     vm.stopPrank();
 
-    vm.expectRevert("BuildSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.build(terrainObjectTypeId, buildCoord, new bytes(0));
 
     vm.stopPrank();
@@ -285,7 +285,7 @@ contract BuildTest is MudTest, GasReporter {
     );
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
 
-    vm.expectRevert("BuildSystem: player is too far from the block");
+    vm.expectRevert("Player is too far");
     world.build(terrainObjectTypeId, buildCoord, new bytes(0));
 
     vm.stopPrank();
@@ -391,7 +391,7 @@ contract BuildTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("BuildSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.build(terrainObjectTypeId, buildCoord, new bytes(0));
 
     vm.stopPrank();

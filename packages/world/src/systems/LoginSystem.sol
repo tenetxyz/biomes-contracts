@@ -23,7 +23,7 @@ import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 contract LoginSystem is System {
   function loginPlayer(VoxelCoord memory respawnCoord) public {
     bytes32 playerEntityId = Player._get(_msgSender());
-    require(playerEntityId != bytes32(0), "LoginSystem: player does not exist");
+    require(playerEntityId != bytes32(0), "Player does not exist");
     require(PlayerMetadata._getIsLoggedOff(playerEntityId), "LoginSystem: player already logged in");
 
     VoxelCoord memory lastKnownCoord = lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(playerEntityId));
