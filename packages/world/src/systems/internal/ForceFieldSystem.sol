@@ -38,7 +38,7 @@ contract ForceFieldSystem is System {
 
         // Forward any ether sent with the transaction to the hook
         // Don't safe call here as we want to revert if the chip doesn't allow the build
-        bool buildAllowed = IChip(chipAddress).onBuild{ value: msg.value }(
+        bool buildAllowed = IChip(chipAddress).onBuild{ value: _msgValue() }(
           playerEntityId,
           objectTypeId,
           coord,
@@ -68,7 +68,7 @@ contract ForceFieldSystem is System {
 
         // Forward any ether sent with the transaction to the hook
         // Don't safe call here as we want to revert if the chip doesn't allow the mine
-        bool mineAllowed = IChip(chipAddress).onMine{ value: msg.value }(
+        bool mineAllowed = IChip(chipAddress).onMine{ value: _msgValue() }(
           playerEntityId,
           objectTypeId,
           coord,
