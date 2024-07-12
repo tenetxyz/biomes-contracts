@@ -4,29 +4,17 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { AccessControl } from "@latticexyz/world/src/AccessControl.sol";
 import { ROOT_NAMESPACE_ID } from "@latticexyz/world/src/constants.sol";
-
-import { Player } from "../codegen/tables/Player.sol";
-import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
-import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Position } from "../codegen/tables/Position.sol";
-import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { Equipped } from "../codegen/tables/Equipped.sol";
-import { Health } from "../codegen/tables/Health.sol";
-import { Stamina } from "../codegen/tables/Stamina.sol";
-import { UniqueEntity } from "../codegen/tables/UniqueEntity.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
-import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
-import { Spawn, SpawnData } from "../codegen/tables/Spawn.sol";
-
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { SPAWN_SHARD_DIM, MAX_PLAYER_RESPAWN_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID, BasaltCarvedObjectID, StoneObjectID, DirtObjectID, GrassObjectID } from "../ObjectTypeIds.sol";
-import { getUniqueEntity, positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, inSpawnArea, getTerrainObjectTypeId } from "../Utils.sol";
-import { useEquipped, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { regenHealth, regenStamina, despawnPlayer } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube, coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+
+import { ObjectType } from "../../codegen/tables/ObjectType.sol";
+import { Position } from "../../codegen/tables/Position.sol";
+import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
+import { Spawn, SpawnData } from "../../codegen/tables/Spawn.sol";
+
+import { SPAWN_SHARD_DIM } from "../../Constants.sol";
+import { AirObjectID, BasaltCarvedObjectID, StoneObjectID, DirtObjectID, GrassObjectID } from "../../ObjectTypeIds.sol";
+import { getUniqueEntity, inWorldBorder } from "../../Utils.sol";
 
 contract InitSpawnSystem is System {
   function addSpawn(VoxelCoord memory lowerSouthwestCorner, VoxelCoord memory size) public {

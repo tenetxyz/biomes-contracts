@@ -6,14 +6,12 @@ pragma solidity >=0.8.24;
 import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.sol";
 
 import { IActivateSystem } from "./IActivateSystem.sol";
-import { IAdminTerrainSystem } from "./IAdminTerrainSystem.sol";
 import { IBuildSystem } from "./IBuildSystem.sol";
 import { IChipSystem } from "./IChipSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
 import { IHitSystem } from "./IHitSystem.sol";
-import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
 import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
@@ -24,6 +22,8 @@ import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
+import { IAdminTerrainSystem } from "./IAdminTerrainSystem.sol";
+import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
 import { IInitDyedBlocksSystem } from "./IInitDyedBlocksSystem.sol";
 import { IInitHandBlocksSystem } from "./IInitHandBlocksSystem.sol";
 import { IInitInteractablesSystem } from "./IInitInteractablesSystem.sol";
@@ -44,14 +44,12 @@ import { IGravitySystem } from "./IGravitySystem.sol";
 interface IWorld is
   IBaseWorld,
   IActivateSystem,
-  IAdminTerrainSystem,
   IBuildSystem,
   IChipSystem,
   ICraftSystem,
   IDropSystem,
   IEquipSystem,
   IHitSystem,
-  IInitSpawnSystem,
   ILoginSystem,
   ILogoffSystem,
   IMineSystem,
@@ -62,6 +60,8 @@ interface IWorld is
   ITerrainSystem,
   ITransferSystem,
   IUnequipSystem,
+  IAdminTerrainSystem,
+  IInitSpawnSystem,
   IInitDyedBlocksSystem,
   IInitHandBlocksSystem,
   IInitInteractablesSystem,

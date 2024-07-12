@@ -7,7 +7,7 @@ import { AccessControl } from "@latticexyz/world/src/AccessControl.sol";
 import { ROOT_NAMESPACE_ID } from "@latticexyz/world/src/constants.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
-import { Terrain } from "../codegen/tables/Terrain.sol";
+import { Terrain } from "../../codegen/tables/Terrain.sol";
 
 contract AdminTerrainSystem is System {
   function setTerrainObjectTypeIds(VoxelCoord[] memory coord, uint8[] memory objectTypeId) public {
