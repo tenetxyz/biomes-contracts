@@ -16,14 +16,14 @@ import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
-import { IProcGenSystem } from "./IProcGenSystem.sol";
-import { IReadSystem } from "./IReadSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
-import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
 import { IAdminTerrainSystem } from "./IAdminTerrainSystem.sol";
 import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
+import { IProcGenSystem } from "./IProcGenSystem.sol";
+import { IReadSystem } from "./IReadSystem.sol";
+import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { IInitDyedBlocksSystem } from "./IInitDyedBlocksSystem.sol";
 import { IInitHandBlocksSystem } from "./IInitHandBlocksSystem.sol";
 import { IInitInteractablesSystem } from "./IInitInteractablesSystem.sol";
@@ -54,14 +54,14 @@ interface IWorld is
   ILogoffSystem,
   IMineSystem,
   IMoveSystem,
-  IProcGenSystem,
-  IReadSystem,
   ISpawnSystem,
-  ITerrainSystem,
   ITransferSystem,
   IUnequipSystem,
   IAdminTerrainSystem,
   IInitSpawnSystem,
+  IProcGenSystem,
+  IReadSystem,
+  ITerrainSystem,
   IInitDyedBlocksSystem,
   IInitHandBlocksSystem,
   IInitInteractablesSystem,

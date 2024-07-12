@@ -7,13 +7,13 @@ import { OptionalSystemHooks } from "@latticexyz/world/src/codegen/tables/Option
 import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/UserDelegationControl.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { Player } from "../codegen/tables/Player.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
-import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
+import { ObjectType } from "../../codegen/tables/ObjectType.sol";
+import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
+import { Player } from "../../codegen/tables/Player.sol";
+import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
+import { PlayerMetadata } from "../../codegen/tables/PlayerMetadata.sol";
 
-import { NullObjectTypeId } from "../ObjectTypeIds.sol";
+import { NullObjectTypeId } from "../../ObjectTypeIds.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {
