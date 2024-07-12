@@ -29,9 +29,13 @@ function requireValidPlayer(address player) returns (bytes32, VoxelCoord memory)
   return (playerEntityId, playerCoord);
 }
 
+function requireBesidePlayer(VoxelCoord memory playerCoord, VoxelCoord memory coord) {
+  require(inSurroundingCube(playerCoord, 1, coord), "Player is too far");
+}
+
 function requireBesidePlayer(VoxelCoord memory playerCoord, bytes32 entityId) returns (VoxelCoord memory) {
   VoxelCoord memory coord = positionDataToVoxelCoord(Position._get(entityId));
-  require(inSurroundingCube(playerCoord, 1, coord), "Player is too far");
+  requireBesidePlayer(playerCoord, coord);
   return coord;
 }
 
