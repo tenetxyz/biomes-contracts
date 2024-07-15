@@ -69,14 +69,28 @@ contract TestChip is IChip {
     uint8 objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
-  ) external payable returns (bool isAllowed) {}
+  ) external payable returns (bool isAllowed) {
+    address player = ReversePlayer.get(playerEntityId);
+    if (player == 0x70997970C51812dc3A010C7d01b50e0d17dc79C8) {
+      isAllowed = true;
+    }
+
+    // else: default is false
+  }
 
   function onMine(
     bytes32 playerEntityId,
     uint8 objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
-  ) external payable returns (bool isAllowed) {}
+  ) external payable returns (bool isAllowed) {
+    address player = ReversePlayer.get(playerEntityId);
+    if (player == 0x70997970C51812dc3A010C7d01b50e0d17dc79C8) {
+      isAllowed = true;
+    }
+
+    // else: default is false
+  }
 
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
     return interfaceId == type(IChip).interfaceId || interfaceId == type(IERC165).interfaceId;
@@ -243,6 +257,104 @@ contract ForceFieldTest is MudTest, GasReporter {
 
     vm.expectRevert("Force field overlaps with another force field");
     world.build(ForceFieldObjectID, forceFieldCoord, new bytes(0));
+
+    vm.stopPrank();
+  }
+
+  function testForceFieldWithChip() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+    vm.stopPrank();
+    bytes32 playerEntityId2 = setupPlayer2(1);
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+
+    uint8 inputObjectTypeId1 = GrassObjectID;
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId2, PlayerObjectID, inputObjectTypeId1, 1);
+
+    assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 4, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId2) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ForceFieldObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId1), "Inventory objects not set");
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord, new bytes(0));
+    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+
+    world.attachChip(forceFieldEntityId, address(testChip));
+    world.powerChip(forceFieldEntityId, 1);
+
+    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(testChip), "Chip not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    // Try building with allowed player
+
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z + 2);
+    assertTrue(getForceField(buildCoord) == forceFieldEntityId, "Force field not found");
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+
+    startGasReport("build in force field with chip");
+    bytes32 buildEntityId = world.build(GrassObjectID, buildCoord, new bytes(0));
+    endGasReport();
+
+    assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
+
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+    world.mine(buildCoord, new bytes(0));
+    uint32 staminaSpent = staminaBefore - Stamina.getStamina(playerEntityId);
+    assertTrue(ObjectType.get(buildEntityId) == AirObjectID, "Object not built");
+    assertTrue(staminaSpent > 0, "Stamina not spent");
+
+    world.build(GrassObjectID, buildCoord, new bytes(0));
+    assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
+
+    vm.stopPrank();
+    vm.startPrank(bob, bob);
+
+    // try building
+    vm.expectRevert("Player not authorized by chip to build here");
+    world.build(GrassObjectID, VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z + 3), new bytes(0));
+
+    uint32 stamina2Before = Stamina.getStamina(playerEntityId2);
+    world.mine(buildCoord, new bytes(0));
+    uint32 stamina2Spent = stamina2Before - Stamina.getStamina(playerEntityId2);
+    assertTrue(ObjectType.get(buildEntityId) == AirObjectID, "Object not built");
+
+    // It should cost more stamina to non-authorized players
+    assertTrue(stamina2Spent > staminaSpent, "Stamina not spent");
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+    Chip.setBatteryLevel(forceFieldEntityId, 1);
+    vm.stopPrank();
+    vm.startPrank(bob, bob);
+
+    // Mine force field object
+    world.hitChip(forceFieldEntityId);
+    world.mine(forceFieldCoord, new bytes(0));
+    assertTrue(getForceField(forceFieldCoord) == bytes32(0), "Force field still exists");
+
+    // Now build
+    buildEntityId = world.build(GrassObjectID, buildCoord, new bytes(0));
+    assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
 
     vm.stopPrank();
   }

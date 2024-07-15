@@ -76,7 +76,7 @@ contract ForceFieldSystem is System {
         );
         if (!mineAllowed) {
           // Scale the stamina required by the chip's battery level
-          staminaRequired = 1000 * Chip._getBatteryLevel(forceFieldEntityId);
+          staminaRequired = Chip._getBatteryLevel(forceFieldEntityId);
         }
       } else {
         staminaRequired = 1000;
