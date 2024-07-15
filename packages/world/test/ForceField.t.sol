@@ -75,6 +75,10 @@ contract TestChip is IChip {
       isAllowed = true;
     }
 
+    if (msg.value > 0) {
+      return true;
+    }
+
     // else: default is false
   }
 
@@ -323,15 +327,15 @@ contract ForceFieldTest is MudTest, GasReporter {
     assertTrue(ObjectType.get(buildEntityId) == AirObjectID, "Object not built");
     assertTrue(staminaSpent > 0, "Stamina not spent");
 
-    world.build(GrassObjectID, buildCoord, new bytes(0));
-    assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
-
     vm.stopPrank();
     vm.startPrank(bob, bob);
 
     // try building
     vm.expectRevert("Player not authorized by chip to build here");
     world.build(GrassObjectID, VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z + 3), new bytes(0));
+
+    buildEntityId = world.build{ value: 1000 }(GrassObjectID, buildCoord, new bytes(0));
+    assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
 
     uint32 stamina2Before = Stamina.getStamina(playerEntityId2);
     world.mine(buildCoord, new bytes(0));
