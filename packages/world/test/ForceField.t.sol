@@ -35,7 +35,7 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL, BATTERY_DECREASE_RATE } from "../src/Constants.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL, BATTERY_DECREASE_RATE, FORCE_FIELD_SHARD_DIM, FORCE_FIELD_DIM } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ChestObjectID, GrassObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
@@ -198,6 +198,51 @@ contract ForceFieldTest is MudTest, GasReporter {
 
     bytes32 buildEntityId = world.build(GrassObjectID, grassCoord, new bytes(0));
     assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not mined");
+
+    vm.stopPrank();
+  }
+
+  function testForceFieldOverlap() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 2);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 2, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ForceFieldObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+
+    assertTrue(getForceField(forceFieldCoord) == bytes32(0), "Force field already exists");
+
+    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord, new bytes(0));
+    assertTrue(getForceField(forceFieldCoord) == forceFieldEntityId, "Force field not created");
+
+    // Move FORCE_FIELD_DIM in x direction
+    VoxelCoord[] memory path = new VoxelCoord[](uint(int(FORCE_FIELD_DIM / 2)) + 1);
+    path[0] = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z + 1);
+    for (int16 i = 1; i <= (FORCE_FIELD_DIM / 2); i++) {
+      VoxelCoord memory testCoord = VoxelCoord(forceFieldCoord.x + i, forceFieldCoord.y, forceFieldCoord.z);
+      path[uint16(i)] = testCoord;
+      assertTrue(getForceField(testCoord) == forceFieldEntityId, "Force field already exists");
+    }
+    world.move(path);
+
+    forceFieldCoord = VoxelCoord(spawnCoord.x + 3 + FORCE_FIELD_DIM / 2, spawnCoord.y + 1, spawnCoord.z);
+    assertTrue(getForceField(forceFieldCoord) == bytes32(0), "Force field found");
+
+    vm.expectRevert("Force field overlaps with another force field");
+    world.build(ForceFieldObjectID, forceFieldCoord, new bytes(0));
 
     vm.stopPrank();
   }
