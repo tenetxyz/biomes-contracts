@@ -120,15 +120,12 @@ contract TestScript is Script {
     //   Inventory.set(newInventoryId, playerEntityId);
     //   ReverseInventory.push(playerEntityId, newInventoryId);
     // }
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ReinforcedOakLumberObjectID, 4);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ReinforcedBirchLumberObjectID, 4);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ReinforcedRubberLumberObjectID, 4);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockObjectID, 4);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 5);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 10);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 2);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, OakLogObjectID, 40);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 5);
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, SakuraLogObjectID, 40);
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, RubberLogObjectID, 40);
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, BirchLogObjectID, 40);
