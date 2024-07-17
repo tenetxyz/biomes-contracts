@@ -24,6 +24,7 @@ interface IChip is IERC165 {
   ) external payable returns (bool isAllowed);
 
   function onBuild(
+    bytes32 forceFieldEntityId,
     bytes32 playerEntityId,
     uint8 objectTypeId,
     VoxelCoord memory coord,
@@ -31,6 +32,7 @@ interface IChip is IERC165 {
   ) external payable returns (bool isAllowed);
 
   function onMine(
+    bytes32 forceFieldEntityId,
     bytes32 playerEntityId,
     uint8 objectTypeId,
     VoxelCoord memory coord,

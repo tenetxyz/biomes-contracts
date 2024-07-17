@@ -78,6 +78,7 @@ contract TestChip is IChip {
   }
 
   function onBuild(
+    bytes32 forceFieldEntityId,
     bytes32 playerEntityId,
     uint8 objectTypeId,
     VoxelCoord memory coord,
@@ -85,6 +86,7 @@ contract TestChip is IChip {
   ) external payable returns (bool isAllowed) {}
 
   function onMine(
+    bytes32 forceFieldEntityId,
     bytes32 playerEntityId,
     uint8 objectTypeId,
     VoxelCoord memory coord,
