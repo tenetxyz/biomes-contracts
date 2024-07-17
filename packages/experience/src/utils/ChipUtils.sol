@@ -8,7 +8,7 @@ import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol"
 
 import { ChipMetadataData } from "../codegen/tables/ChipMetadata.sol";
 import { ShopData } from "../codegen/tables/Shop.sol";
-import { ForceFieldApprovals, ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
+import { ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
 
 function setChipMetadata(ChipMetadataData memory metadata) {
   IWorld(WorldContextConsumerLib._world()).experience__setChipMetadata(metadata);
@@ -44,6 +44,14 @@ function setSellShop(bytes32 entityId, uint8 sellObjectTypeId, uint256 sellPrice
 
 function setShopBalance(bytes32 entityId, uint256 balance) {
   IWorld(WorldContextConsumerLib._world()).experience__setShopBalance(entityId, balance);
+}
+
+function setForceFieldName(bytes32 entityId, string memory name) {
+  IWorld(WorldContextConsumerLib._world()).experience__setForceFieldName(entityId, name);
+}
+
+function deleteForceFieldMetadata(bytes32 entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteForceFieldMetadata(entityId);
 }
 
 function setForceFieldApprovals(bytes32 entityId, ForceFieldApprovalsData memory approvals) {

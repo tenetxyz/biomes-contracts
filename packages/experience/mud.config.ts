@@ -51,6 +51,13 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
+    ForceFieldMetadata: {
+      schema: {
+        entityId: "bytes32",
+        name: "string",
+      },
+      key: ["entityId"],
+    },
     ForceFieldApprovals: {
       schema: {
         entityId: "bytes32",
