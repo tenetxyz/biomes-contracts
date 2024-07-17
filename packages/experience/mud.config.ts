@@ -6,7 +6,7 @@ export default defineWorld({
     upgradeableWorldImplementation: true,
   },
   enums: {
-    ChipType: ["None", "Chest"],
+    ChipType: ["None", "Chest", "ForceField"],
   },
   namespace: "experience",
   tables: {
