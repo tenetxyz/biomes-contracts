@@ -12,6 +12,7 @@ import { IChipMetadataSystem } from "./IChipMetadataSystem.sol";
 import { ICountdownSystem } from "./ICountdownSystem.sol";
 import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IExpMetadataSystem } from "./IExpMetadataSystem.sol";
+import { IFFApprovalsSystem } from "./IFFApprovalsSystem.sol";
 import { INotificationSystem } from "./INotificationSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
 import { IShopSystem } from "./IShopSystem.sol";
@@ -33,6 +34,7 @@ interface IWorld is
   ICountdownSystem,
   IDisplaySystem,
   IExpMetadataSystem,
+  IFFApprovalsSystem,
   INotificationSystem,
   IPlayerSystem,
   IShopSystem,

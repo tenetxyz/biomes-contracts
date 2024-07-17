@@ -51,6 +51,14 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
+    ForceFieldApprovals: {
+      schema: {
+        entityId: "bytes32",
+        players: "address[]",
+        nfts: "address[]",
+      },
+      key: ["entityId"],
+    },
     DisplayStatus: {
       schema: {
         experience: "address",
