@@ -53,8 +53,9 @@ contract ChipSystem is System {
 
     Chip._deleteRecord(entityId);
 
-    // Safe call so the chip can't block the call
-    chipData.chipAddress.call(abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
+    // TODO: Figure out a way to accurately estimate gas in the client to then change this to be a safe call instead
+    // chipData.chipAddress.call(abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
+    IChip(chipData.chipAddress).onDetached(playerEntityId, entityId);
   }
 
   function powerChip(bytes32 entityId, uint16 numBattery) public {
@@ -70,8 +71,9 @@ contract ChipSystem is System {
     Chip._setBatteryLevel(entityId, chipData.batteryLevel + (numBattery * 100));
     Chip._setLastUpdatedTime(entityId, block.timestamp);
 
-    // Safe call so the chip can't block the call
-    chipData.chipAddress.call(abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
+    // TODO: Figure out a way to accurately estimate gas in the client to then change this to be a safe call instead
+    // chipData.chipAddress.call(abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
+    IChip(chipData.chipAddress).onPowered(playerEntityId, entityId, numBattery);
   }
 
   function hitChip(bytes32 entityId) public {
@@ -101,13 +103,15 @@ contract ChipSystem is System {
 
       Chip._deleteRecord(entityId);
 
-      // Safe call so the chip can't block the call
-      chipData.chipAddress.call(abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
+      // TODO: Figure out a way to accurately estimate gas in the client to then change this to be a safe call instead
+      // chipData.chipAddress.call(abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
+      IChip(chipData.chipAddress).onDetached(playerEntityId, entityId);
     } else {
       Chip._setBatteryLevel(entityId, newBatteryLevel);
 
-      // Safe call so the chip can't block the call
-      chipData.chipAddress.call(abi.encodeCall(IChip.onChipHit, (playerEntityId, entityId)));
+      // TODO: Figure out a way to accurately estimate gas in the client to then change this to be a safe call instead
+      // chipData.chipAddress.call(abi.encodeCall(IChip.onChipHit, (playerEntityId, entityId)));
+      IChip(chipData.chipAddress).onChipHit(playerEntityId, entityId);
     }
   }
 }

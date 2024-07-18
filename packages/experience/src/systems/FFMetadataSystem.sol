@@ -5,7 +5,7 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
-import { requireChipOwner } from "../Utils.sol";
+import { requireChipOwner, requireChipOwnerOrNoOwner } from "../Utils.sol";
 
 contract FFMetadataSystem is System {
   function setForceFieldName(bytes32 entityId, string memory name) public {
@@ -14,7 +14,7 @@ contract FFMetadataSystem is System {
   }
 
   function deleteForceFieldMetadata(bytes32 entityId) public {
-    requireChipOwner(entityId);
+    requireChipOwnerOrNoOwner(entityId);
     ForceFieldMetadata.deleteRecord(entityId);
   }
 }

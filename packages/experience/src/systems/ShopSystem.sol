@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { Chip, ChipData } from "@biomesaw/world/src/codegen/tables/Chip.sol";
 import { Shop, ShopData } from "../codegen/tables/Shop.sol";
-import { requireChipOwner } from "../Utils.sol";
+import { requireChipOwner, requireChipOwnerOrNoOwner } from "../Utils.sol";
 
 contract ShopSystem is System {
   function setShop(bytes32 entityId, ShopData memory shopData) public {
@@ -15,7 +15,7 @@ contract ShopSystem is System {
   }
 
   function deleteShop(bytes32 entityId) public {
-    requireChipOwner(entityId);
+    requireChipOwnerOrNoOwner(entityId);
     Shop.deleteRecord(entityId);
   }
 

@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { Chip, ChipData } from "@biomesaw/world/src/codegen/tables/Chip.sol";
 import { ChipAttachment } from "../codegen/tables/ChipAttachment.sol";
-import { requireChipOwner } from "../Utils.sol";
+import { requireChipOwner, requireChipOwnerOrNoOwner } from "../Utils.sol";
 
 contract ChipAttachmentSystem is System {
   function setChipAttacher(bytes32 entityId, address attacher) public {
@@ -15,7 +15,7 @@ contract ChipAttachmentSystem is System {
   }
 
   function deleteChipAttacher(bytes32 entityId) public {
-    requireChipOwner(entityId);
+    requireChipOwnerOrNoOwner(entityId);
     ChipAttachment.deleteRecord(entityId);
   }
 }
