@@ -46,8 +46,6 @@ contract ForceFieldSystem is System {
           extraData
         );
         require(buildAllowed, "Player not authorized by chip to build here");
-      } else {
-        revert("Cannot build in force field without chip");
       }
     }
   }
@@ -62,7 +60,6 @@ contract ForceFieldSystem is System {
   ) public payable {
     bytes32 forceFieldEntityId = getForceField(coord);
     if (forceFieldEntityId != bytes32(0)) {
-      uint256 staminaRequired = 0;
       address chipAddress = Chip._getChipAddress(forceFieldEntityId);
       if (chipAddress != address(0)) {
         updateChipBatteryLevel(forceFieldEntityId);
@@ -77,24 +74,18 @@ contract ForceFieldSystem is System {
           extraData
         );
         if (!mineAllowed) {
+          // Apply an additional stamina cost for mining inside of a force field
           // Scale the stamina required by the chip's battery level
-          staminaRequired = Chip._getBatteryLevel(forceFieldEntityId);
+          uint256 staminaRequired = (Chip._getBatteryLevel(forceFieldEntityId) * 1000) / equippedToolDamage;
+          uint32 currentStamina = Stamina._getStamina(playerEntityId);
+          require(
+            staminaRequired <= MAX_PLAYER_STAMINA,
+            "MineSystem: mining difficulty too high due to force field. Try a stronger tool."
+          );
+          uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
+          require(currentStamina >= useStamina, "MineSystem: not enough stamina due to force field");
+          Stamina._setStamina(playerEntityId, currentStamina - useStamina);
         }
-      } else {
-        staminaRequired = 1000;
-      }
-
-      // Apply an additional stamina cost for mining inside of a force field
-      if (staminaRequired > 0) {
-        uint32 currentStamina = Stamina._getStamina(playerEntityId);
-        staminaRequired = (staminaRequired * 1000) / equippedToolDamage;
-        require(
-          staminaRequired <= MAX_PLAYER_STAMINA,
-          "MineSystem: mining difficulty too high due to force field. Try a stronger tool."
-        );
-        uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
-        require(currentStamina >= useStamina, "MineSystem: not enough stamina due to force field");
-        Stamina._setStamina(playerEntityId, currentStamina - useStamina);
       }
     }
 

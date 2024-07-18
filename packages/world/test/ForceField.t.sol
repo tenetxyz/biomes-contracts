@@ -185,8 +185,8 @@ contract ForceFieldTest is MudTest, GasReporter {
     VoxelCoord memory grassCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z + 1);
     assertTrue(world.getTerrainBlock(grassCoord) == AirObjectID, "Terrain block is not air");
 
-    vm.expectRevert("Cannot build in force field without chip");
-    world.build(GrassObjectID, grassCoord, new bytes(0));
+    bytes32 buildEntityId = world.build(GrassObjectID, grassCoord, new bytes(0));
+    assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
 
     // Try mining
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y - 1, spawnCoord.z + 1);
@@ -202,7 +202,7 @@ contract ForceFieldTest is MudTest, GasReporter {
     bytes32 mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertTrue(mineEntityId != bytes32(0), "Mine entity not found");
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Object not mined");
-    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 2, "Inventory count not set");
+    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, terrainObjectTypeId), "Inventory objects not set");
     assertTrue(Stamina.getStamina(playerEntityId) < staminaBefore, "Stamina not decremented");
@@ -215,9 +215,6 @@ contract ForceFieldTest is MudTest, GasReporter {
     endGasReport();
 
     assertTrue(getForceField(forceFieldCoord) == bytes32(0), "Force field still exists");
-
-    bytes32 buildEntityId = world.build(GrassObjectID, grassCoord, new bytes(0));
-    assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not mined");
 
     vm.stopPrank();
   }
