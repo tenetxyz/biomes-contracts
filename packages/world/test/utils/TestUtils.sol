@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { console } from "forge-std/console.sol";
 import { coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 import { InventoryTool } from "../../src/codegen/tables/InventoryTool.sol";
@@ -12,8 +13,7 @@ import { Equipped } from "../../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../../src/codegen/tables/ItemMetadata.sol";
 import { ObjectTypeMetadata } from "../../src/codegen/tables/ObjectTypeMetadata.sol";
 import { UniqueEntity } from "../../src/codegen/tables/UniqueEntity.sol";
-import { ShardFields } from "../../src/codegen/tables/ShardFields.sol";
-import { ForceField, ForceFieldData } from "../../src/codegen/tables/ForceField.sol";
+import { ShardField } from "../../src/codegen/tables/ShardField.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, FORCE_FIELD_SHARD_DIM } from "../../src/Constants.sol";
@@ -79,25 +79,7 @@ function testAddToInventoryCount(
   }
 }
 
-function getForceField(VoxelCoord memory coord, VoxelCoord memory shardCoord) view returns (bytes32) {
-  bytes32[] memory forceFieldEntityIds = ShardFields.get(shardCoord.x, shardCoord.z);
-  for (uint i = 0; i < forceFieldEntityIds.length; i++) {
-    ForceFieldData memory forceFieldData = ForceField.get(forceFieldEntityIds[i]);
-
-    // Check if coord inside of force field
-    if (
-      coord.x >= forceFieldData.fieldLowX &&
-      coord.x <= forceFieldData.fieldHighX &&
-      coord.z >= forceFieldData.fieldLowZ &&
-      coord.z <= forceFieldData.fieldHighZ
-    ) {
-      return forceFieldEntityIds[i];
-    }
-  }
-  return bytes32(0);
-}
-
 function getForceField(VoxelCoord memory coord) view returns (bytes32) {
   VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(coord, FORCE_FIELD_SHARD_DIM);
-  return getForceField(coord, shardCoord);
+  return ShardField.get(shardCoord.x, shardCoord.z);
 }

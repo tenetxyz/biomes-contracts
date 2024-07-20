@@ -26,8 +26,7 @@ import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 import { Chip, ChipData } from "../src/codegen/tables/Chip.sol";
-import { ShardFields } from "../src/codegen/tables/ShardFields.sol";
-import { ForceField, ForceFieldData } from "../src/codegen/tables/ForceField.sol";
+import { ShardField } from "../src/codegen/tables/ShardField.sol";
 
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
@@ -35,7 +34,7 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL, BATTERY_DECREASE_RATE, FORCE_FIELD_SHARD_DIM, FORCE_FIELD_DIM } from "../src/Constants.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL, BATTERY_DECREASE_RATE, FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ChestObjectID, GrassObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
@@ -182,22 +181,22 @@ contract ForceFieldTest is MudTest, GasReporter {
     assertTrue(getForceField(forceFieldCoord) == forceFieldEntityId, "Force field not created");
 
     // try building grass
-    VoxelCoord memory grassCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z + 1);
+    VoxelCoord memory grassCoord = VoxelCoord(forceFieldCoord.x, forceFieldCoord.y, forceFieldCoord.z - 1);
+    assertTrue(getForceField(grassCoord) == forceFieldEntityId, "Force field not created");
     assertTrue(world.getTerrainBlock(grassCoord) == AirObjectID, "Terrain block is not air");
 
     bytes32 buildEntityId = world.build(GrassObjectID, grassCoord, new bytes(0));
     assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
 
     // Try mining
-    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y - 1, spawnCoord.z + 1);
+    VoxelCoord memory mineCoord = VoxelCoord(forceFieldCoord.x, forceFieldCoord.y - 2, forceFieldCoord.z - 1);
+    assertTrue(getForceField(mineCoord) == forceFieldEntityId, "Force field not created");
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
 
-    startGasReport("mine in force field");
     world.mine(mineCoord, new bytes(0));
-    endGasReport();
 
     bytes32 mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertTrue(mineEntityId != bytes32(0), "Mine entity not found");
@@ -245,18 +244,7 @@ contract ForceFieldTest is MudTest, GasReporter {
     bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord, new bytes(0));
     assertTrue(getForceField(forceFieldCoord) == forceFieldEntityId, "Force field not created");
 
-    // Move FORCE_FIELD_DIM in x direction
-    VoxelCoord[] memory path = new VoxelCoord[](uint(int(FORCE_FIELD_DIM / 2)) + 1);
-    path[0] = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z + 1);
-    for (int16 i = 1; i <= (FORCE_FIELD_DIM / 2); i++) {
-      VoxelCoord memory testCoord = VoxelCoord(forceFieldCoord.x + i, forceFieldCoord.y, forceFieldCoord.z);
-      path[uint16(i)] = testCoord;
-      assertTrue(getForceField(testCoord) == forceFieldEntityId, "Force field already exists");
-    }
-    world.move(path);
-
-    forceFieldCoord = VoxelCoord(spawnCoord.x + 3 + FORCE_FIELD_DIM / 2, spawnCoord.y + 1, spawnCoord.z);
-    assertTrue(getForceField(forceFieldCoord) == bytes32(0), "Force field found");
+    forceFieldCoord = VoxelCoord(forceFieldCoord.x + 3, forceFieldCoord.y, forceFieldCoord.z);
 
     vm.expectRevert("Force field overlaps with another force field");
     world.build(ForceFieldObjectID, forceFieldCoord, new bytes(0));
@@ -310,7 +298,7 @@ contract ForceFieldTest is MudTest, GasReporter {
 
     // Try building with allowed player
 
-    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z + 2);
+    VoxelCoord memory buildCoord = VoxelCoord(forceFieldCoord.x, forceFieldCoord.y, forceFieldCoord.z - 2);
     assertTrue(getForceField(buildCoord) == forceFieldEntityId, "Force field not found");
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
 
@@ -321,7 +309,9 @@ contract ForceFieldTest is MudTest, GasReporter {
     assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
 
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+    startGasReport("mine in force field with chip");
     world.mine(buildCoord, new bytes(0));
+    endGasReport();
     uint32 staminaSpent = staminaBefore - Stamina.getStamina(playerEntityId);
     assertTrue(ObjectType.get(buildEntityId) == AirObjectID, "Object not built");
     assertTrue(staminaSpent > 0, "Stamina not spent");
@@ -330,8 +320,11 @@ contract ForceFieldTest is MudTest, GasReporter {
     vm.startPrank(bob, bob);
 
     // try building
+    VoxelCoord memory buildCoord2 = VoxelCoord(forceFieldCoord.x, forceFieldCoord.y, forceFieldCoord.z - 3);
+    assertTrue(getForceField(buildCoord2) == forceFieldEntityId, "Force field not found");
+    assertTrue(world.getTerrainBlock(buildCoord2) == AirObjectID, "Terrain block is not air");
     vm.expectRevert("Player not authorized by chip to build here");
-    world.build(GrassObjectID, VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z + 3), new bytes(0));
+    world.build(GrassObjectID, buildCoord2, new bytes(0));
 
     buildEntityId = world.build{ value: 1000 }(GrassObjectID, buildCoord, new bytes(0));
     assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");

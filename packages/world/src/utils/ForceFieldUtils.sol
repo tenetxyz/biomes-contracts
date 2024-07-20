@@ -4,30 +4,21 @@ pragma solidity >=0.8.24;
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
-import { ShardFields } from "../codegen/tables/ShardFields.sol";
-import { ForceField, ForceFieldData } from "../codegen/tables/ForceField.sol";
+import { ShardField } from "../codegen/tables/ShardField.sol";
 
 import { FORCE_FIELD_SHARD_DIM } from "../Constants.sol";
 
-function getForceField(VoxelCoord memory coord, VoxelCoord memory shardCoord) view returns (bytes32) {
-  bytes32[] memory forceFieldEntityIds = ShardFields._get(shardCoord.x, shardCoord.z);
-  for (uint i = 0; i < forceFieldEntityIds.length; i++) {
-    ForceFieldData memory forceFieldData = ForceField._get(forceFieldEntityIds[i]);
-
-    // Check if coord inside of force field
-    if (
-      coord.x >= forceFieldData.fieldLowX &&
-      coord.x <= forceFieldData.fieldHighX &&
-      coord.z >= forceFieldData.fieldLowZ &&
-      coord.z <= forceFieldData.fieldHighZ
-    ) {
-      return forceFieldEntityIds[i];
-    }
-  }
-  return bytes32(0);
-}
-
 function getForceField(VoxelCoord memory coord) view returns (bytes32) {
   VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(coord, FORCE_FIELD_SHARD_DIM);
-  return getForceField(coord, shardCoord);
+  return ShardField._get(shardCoord.x, shardCoord.z);
+}
+
+function setupForceField(bytes32 forceFieldEntityId, VoxelCoord memory coord) {
+  VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(coord, FORCE_FIELD_SHARD_DIM);
+  ShardField._set(shardCoord.x, shardCoord.z, forceFieldEntityId);
+}
+
+function destroyForceField(bytes32 forceFieldEntityId, VoxelCoord memory coord) {
+  VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(coord, FORCE_FIELD_SHARD_DIM);
+  ShardField._deleteRecord(shardCoord.x, shardCoord.z);
 }
