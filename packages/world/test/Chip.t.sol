@@ -62,6 +62,22 @@ contract TestChip is IChip {
     return true;
   }
 
+  function onBuild(
+    bytes32 forceFieldEntityId,
+    bytes32 playerEntityId,
+    uint8 objectTypeId,
+    VoxelCoord memory coord,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {}
+
+  function onMine(
+    bytes32 forceFieldEntityId,
+    bytes32 playerEntityId,
+    uint8 objectTypeId,
+    VoxelCoord memory coord,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {}
+
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
     return interfaceId == type(IChip).interfaceId || interfaceId == type(IERC165).interfaceId;
   }
@@ -142,7 +158,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -182,7 +198,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -192,7 +208,7 @@ contract ChipTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.expectRevert("MineSystem: chip must be detached first");
-    world.mine(chestCoord);
+    world.mine(chestCoord, new bytes(0));
 
     vm.stopPrank();
     vm.startPrank(worldDeployer, worldDeployer);
@@ -205,7 +221,7 @@ contract ChipTest is MudTest, GasReporter {
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip not removed");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not removed from inventory");
 
-    world.mine(chestCoord);
+    world.mine(chestCoord, new bytes(0));
 
     assertTrue(ObjectType.get(chestEntityId) == AirObjectID, "Chest not mined");
 
@@ -238,7 +254,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -279,7 +295,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -315,7 +331,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 grassEntityId = world.build(GrassObjectID, chestCoord);
+    bytes32 grassEntityId = world.build(GrassObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(grassEntityId) == address(0), "Chip set");
 
@@ -350,7 +366,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -386,13 +402,13 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
     vm.stopPrank();
 
-    vm.expectRevert("ChipSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.attachChip(chestEntityId, address(testChip));
 
     vm.stopPrank();
@@ -424,13 +440,13 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
     world.logoffPlayer();
 
-    vm.expectRevert("ChipSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.attachChip(chestEntityId, address(testChip));
 
     vm.stopPrank();
@@ -462,7 +478,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -471,7 +487,7 @@ contract ChipTest is MudTest, GasReporter {
     newCoords[1] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 2);
     world.move(newCoords);
 
-    vm.expectRevert("ChipSystem: player is too far from the object");
+    vm.expectRevert("Player is too far");
     world.attachChip(chestEntityId, address(testChip));
 
     vm.stopPrank();
@@ -503,7 +519,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -554,7 +570,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -601,7 +617,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -617,7 +633,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
     vm.stopPrank();
 
-    vm.expectRevert("ChipSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.detachChip(chestEntityId);
 
     vm.stopPrank();
@@ -649,7 +665,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -666,7 +682,7 @@ contract ChipTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("ChipSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.detachChip(chestEntityId);
 
     vm.stopPrank();
@@ -698,7 +714,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -718,7 +734,7 @@ contract ChipTest is MudTest, GasReporter {
     newCoords[1] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 2);
     world.move(newCoords);
 
-    vm.expectRevert("ChipSystem: player is too far from the object");
+    vm.expectRevert("Player is too far");
     world.detachChip(chestEntityId);
 
     vm.stopPrank();
@@ -750,7 +766,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -786,7 +802,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -846,7 +862,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -859,7 +875,7 @@ contract ChipTest is MudTest, GasReporter {
     uint256 initialBatteries = InventoryCount.get(playerEntityId, ChipBatteryObjectID);
     vm.stopPrank();
 
-    vm.expectRevert("ChipSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.powerChip(chestEntityId, 10);
 
     vm.stopPrank();
@@ -891,7 +907,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -905,7 +921,7 @@ contract ChipTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("ChipSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.powerChip(chestEntityId, 10);
 
     vm.stopPrank();
@@ -937,7 +953,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -954,7 +970,7 @@ contract ChipTest is MudTest, GasReporter {
     newCoords[1] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 2);
     world.move(newCoords);
 
-    vm.expectRevert("ChipSystem: player is too far from the object");
+    vm.expectRevert("Player is too far");
     world.powerChip(chestEntityId, 10);
 
     vm.stopPrank();
@@ -986,7 +1002,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1022,7 +1038,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1066,7 +1082,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1120,7 +1136,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1188,7 +1204,7 @@ contract ChipTest is MudTest, GasReporter {
     world.equip(newInventoryId);
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1246,7 +1262,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1294,7 +1310,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1313,7 +1329,7 @@ contract ChipTest is MudTest, GasReporter {
     uint32 playerStaminaBefore = Stamina.getStamina(playerEntityId);
     vm.stopPrank();
 
-    vm.expectRevert("ChipSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.hitChip(chestEntityId);
 
     vm.stopPrank();
@@ -1345,7 +1361,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1365,7 +1381,7 @@ contract ChipTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("ChipSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.hitChip(chestEntityId);
 
     vm.stopPrank();
@@ -1397,7 +1413,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1420,7 +1436,7 @@ contract ChipTest is MudTest, GasReporter {
     newCoords[1] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 2);
     world.move(newCoords);
 
-    vm.expectRevert("ChipSystem: player is too far from the object");
+    vm.expectRevert("Player is too far");
     world.hitChip(chestEntityId);
 
     vm.stopPrank();
@@ -1452,7 +1468,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 

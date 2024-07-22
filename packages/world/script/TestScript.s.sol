@@ -24,8 +24,8 @@ import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { GrassObjectID, DirtObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
-import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID } from "../src/ObjectTypeIds.sol";
+import { GrassObjectID, DirtObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
+import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testGetUniqueEntity, testAddToInventoryCount } from "../test/utils/TestUtils.sol";
 
@@ -120,14 +120,13 @@ contract TestScript is Script {
     //   Inventory.set(newInventoryId, playerEntityId);
     //   ReverseInventory.push(playerEntityId, newInventoryId);
     // }
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ReinforcedOakLumberObjectID, 4);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ReinforcedBirchLumberObjectID, 4);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ReinforcedRubberLumberObjectID, 4);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockObjectID, 4);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 5);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 10);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 99);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 2);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, OakLogObjectID, 40);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 5);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, BlueGlassObjectID, 30);
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, SakuraLogObjectID, 40);
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, RubberLogObjectID, 40);
     // testAddToInventoryCount(playerEntityId, PlayerObjectID, BirchLogObjectID, 40);
@@ -187,7 +186,7 @@ contract TestScript is Script {
     //     break;
     //   }
     // }
-    // bytes32 inventoryEntityId = world.mine(VoxelCoord(148, -63, -38));
+    // bytes32 inventoryEntityId = world.mine(VoxelCoord(148, -63, -38), new bytes(0));
     // console.logBytes32(inventoryEntityId);
     // inventoryEntityIds[0] = 0x00000000000000000000000000000000000000000000000000000000000001d2;
     // world.drop(inventoryEntityIds, VoxelCoord(149, -63, -38));
@@ -199,9 +198,9 @@ contract TestScript is Script {
     // bytes32 dstEntityId = 0x00000000000000000000000000000000000000000000000000000000000001da;
     // world.transfer(playerEntityId, dstEntityId, inventoryEntityIds);
 
-    // world.mine(VoxelCoord(149, -63, -57));
+    // world.mine(VoxelCoord(149, -63, -57), new bytes(0));
     // bytes32 inventoryEntityId = 0x00000000000000000000000000000000000000000000000000000000000001bc;
-    // world.build(inventoryEntityId, VoxelCoord(150, -62, -38));
+    // world.build(inventoryEntityId, VoxelCoord(150, -62, -38), new bytes(0));
     // world.hit(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
     // world.hit(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
     // world.hit(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);

@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { IWorld } from "../../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
-import { FunctionSelectors } from "@latticexyz/world/src/codegen/tables/FunctionSelectors.sol";
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 

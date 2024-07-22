@@ -6,25 +6,24 @@ pragma solidity >=0.8.24;
 import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.sol";
 
 import { IActivateSystem } from "./IActivateSystem.sol";
-import { IAdminTerrainSystem } from "./IAdminTerrainSystem.sol";
 import { IBuildSystem } from "./IBuildSystem.sol";
 import { IChipSystem } from "./IChipSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
-import { IGravitySystem } from "./IGravitySystem.sol";
 import { IHitSystem } from "./IHitSystem.sol";
-import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
 import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
-import { IProcGenSystem } from "./IProcGenSystem.sol";
-import { IReadSystem } from "./IReadSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
-import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
+import { IAdminTerrainSystem } from "./IAdminTerrainSystem.sol";
+import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
+import { IProcGenSystem } from "./IProcGenSystem.sol";
+import { IReadSystem } from "./IReadSystem.sol";
+import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { IInitDyedBlocksSystem } from "./IInitDyedBlocksSystem.sol";
 import { IInitHandBlocksSystem } from "./IInitHandBlocksSystem.sol";
 import { IInitInteractablesSystem } from "./IInitInteractablesSystem.sol";
@@ -32,6 +31,8 @@ import { IInitPlayersSystem } from "./IInitPlayersSystem.sol";
 import { IInitTerrainBlocksSystem } from "./IInitTerrainBlocksSystem.sol";
 import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
 import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
+import { IForceFieldSystem } from "./IForceFieldSystem.sol";
+import { IGravitySystem } from "./IGravitySystem.sol";
 
 /**
  * @title IWorld
@@ -43,30 +44,31 @@ import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
 interface IWorld is
   IBaseWorld,
   IActivateSystem,
-  IAdminTerrainSystem,
   IBuildSystem,
   IChipSystem,
   ICraftSystem,
   IDropSystem,
   IEquipSystem,
-  IGravitySystem,
   IHitSystem,
-  IInitSpawnSystem,
   ILoginSystem,
   ILogoffSystem,
   IMineSystem,
   IMoveSystem,
-  IProcGenSystem,
-  IReadSystem,
   ISpawnSystem,
-  ITerrainSystem,
   ITransferSystem,
   IUnequipSystem,
+  IAdminTerrainSystem,
+  IInitSpawnSystem,
+  IProcGenSystem,
+  IReadSystem,
+  ITerrainSystem,
   IInitDyedBlocksSystem,
   IInitHandBlocksSystem,
   IInitInteractablesSystem,
   IInitPlayersSystem,
   IInitTerrainBlocksSystem,
   IInitThermoblastSystem,
-  IInitWorkbenchSystem
+  IInitWorkbenchSystem,
+  IForceFieldSystem,
+  IGravitySystem
 {}

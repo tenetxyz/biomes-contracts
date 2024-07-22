@@ -6,14 +6,25 @@ pragma solidity >=0.8.24;
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 /**
- * @title IBuildSystem
+ * @title IForceFieldSystem
  * @author MUD (https://mud.dev) by Lattice (https://lattice.xyz)
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
-interface IBuildSystem {
-  function build(
+interface IForceFieldSystem {
+  function requireBuildAllowed(
+    bytes32 playerEntityId,
+    bytes32 entityId,
     uint8 objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
-  ) external payable returns (bytes32);
+  ) external payable;
+
+  function requireMineAllowed(
+    bytes32 playerEntityId,
+    uint32 equippedToolDamage,
+    bytes32 entityId,
+    uint8 objectTypeId,
+    VoxelCoord memory coord,
+    bytes memory extraData
+  ) external payable;
 }

@@ -1,22 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-
-import { Position, PositionData } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Health, HealthData } from "../codegen/tables/Health.sol";
-import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
-
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { GRAVITY_DAMAGE } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
-import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
-import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { regenHealth, despawnPlayer } from "../utils/PlayerUtils.sol";
+
+import { Position, PositionData } from "../../codegen/tables/Position.sol";
+import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
+import { ObjectType } from "../../codegen/tables/ObjectType.sol";
+import { Health, HealthData } from "../../codegen/tables/Health.sol";
+import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
+
+import { GRAVITY_DAMAGE } from "../../Constants.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../../Utils.sol";
+import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
+import { regenHealth, despawnPlayer } from "../../utils/PlayerUtils.sol";
 
 contract GravitySystem is System {
   function runGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) public returns (bool) {

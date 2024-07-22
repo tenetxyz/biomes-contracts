@@ -119,7 +119,7 @@ contract HitTest is MudTest, GasReporter {
 
     assertTrue(Player.get(bob) == bytes32(0), "Player already exists");
 
-    vm.expectRevert("HitSystem: hit player does not exist");
+    vm.expectRevert("Player does not exist");
     world.hit(bob);
 
     vm.stopPrank();
@@ -134,7 +134,7 @@ contract HitTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
     vm.stopPrank();
 
-    vm.expectRevert("HitSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.hit(bob);
 
     vm.stopPrank();
@@ -159,7 +159,7 @@ contract HitTest is MudTest, GasReporter {
     bytes32 playerEntityId2 = setupPlayer2(2);
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("HitSystem: hit entity is not in surrounding cube of player");
+    vm.expectRevert("Player is too far");
     world.hit(bob);
 
     vm.stopPrank();
@@ -283,7 +283,7 @@ contract HitTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("HitSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.hit(bob);
 
     world.loginPlayer(spawnCoord);
@@ -293,7 +293,7 @@ contract HitTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("HitSystem: hit player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.hit(bob);
 
     vm.stopPrank();

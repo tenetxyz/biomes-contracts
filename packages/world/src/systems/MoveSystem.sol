@@ -2,33 +2,23 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
-import { Player } from "../codegen/tables/Player.sol";
-import { PlayerMetadata, PlayerMetadataData } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
-import { addToInventoryCount, removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { PLAYER_MASS } from "../Constants.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
+import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 
 contract MoveSystem is System {
   function move(VoxelCoord[] memory newCoords) public {
-    bytes32 playerEntityId = Player._get(_msgSender());
-    require(playerEntityId != bytes32(0), "MoveSystem: player does not exist");
-    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "MoveSystem: player isn't logged in");
-
-    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
-
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId, playerCoord);
+    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
 
     VoxelCoord memory oldCoord = playerCoord;
     bytes32 finalEntityId;
@@ -62,8 +52,6 @@ contract MoveSystem is System {
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
     require(currentStamina >= staminaRequired, "MoveSystem: not enough stamina");
     Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
-
-    PlayerActivity._set(playerEntityId, block.timestamp);
 
     VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);

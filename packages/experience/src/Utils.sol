@@ -10,3 +10,11 @@ function requireChipOwner(bytes32 entityId) view {
     "Only the chip address can perform this action."
   );
 }
+
+function requireChipOwnerOrNoOwner(bytes32 entityId) view {
+  address chipAddress = Chip.getChipAddress(entityId);
+  require(
+    chipAddress == WorldContextConsumerLib._msgSender() || chipAddress == address(0),
+    "Only the chip address can perform this action."
+  );
+}

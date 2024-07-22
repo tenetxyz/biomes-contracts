@@ -6,7 +6,7 @@ export default defineWorld({
     upgradeableWorldImplementation: true,
   },
   enums: {
-    ChipType: ["None", "Chest"],
+    ChipType: ["None", "Chest", "ForceField"],
   },
   namespace: "experience",
   tables: {
@@ -48,6 +48,21 @@ export default defineWorld({
         sellObjectTypeId: "uint8",
         sellPrice: "uint256",
         balance: "uint256",
+      },
+      key: ["entityId"],
+    },
+    ForceFieldMetadata: {
+      schema: {
+        entityId: "bytes32",
+        name: "string",
+      },
+      key: ["entityId"],
+    },
+    ForceFieldApprovals: {
+      schema: {
+        entityId: "bytes32",
+        players: "address[]",
+        nfts: "address[]",
       },
       key: ["entityId"],
     },

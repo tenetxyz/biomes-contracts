@@ -165,7 +165,7 @@ contract LogoffTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
     vm.stopPrank();
 
-    vm.expectRevert("LogoffSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.logoffPlayer();
   }
 
@@ -176,7 +176,7 @@ contract LogoffTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
-    vm.expectRevert("LogoffSystem: player isn't logged in");
+    vm.expectRevert("Player isn't logged in");
     world.logoffPlayer();
 
     vm.stopPrank();
@@ -237,7 +237,7 @@ contract LogoffTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    vm.expectRevert("LogoffSystem: player does not exist");
+    vm.expectRevert("Player does not exist");
     world.logoffStalePlayer(bob);
 
     vm.stopPrank();

@@ -203,6 +203,7 @@ export const ANY_REINFORCED_LUMBER_OBJECT_ID = 161;
 
 export const CHIP_OBJECT_ID = 162;
 export const CHIP_BATTERY_OBJECT_ID = 163;
+export const FORCE_FIELD_OBJECT_ID = 164;
 
 // legacy
 export type BiomesVariantData = number;

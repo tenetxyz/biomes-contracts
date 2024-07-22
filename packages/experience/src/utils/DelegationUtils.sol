@@ -36,7 +36,7 @@ function isSystemId(ResourceId checkSystemId, bytes16 systemId) pure returns (bo
 }
 
 function getBuildCallData(uint8 objectTypeId, VoxelCoord memory coord) pure returns (bytes memory buildCallData) {
-  buildCallData = abi.encodeCall(IBuildSystem.build, (objectTypeId, coord));
+  buildCallData = abi.encodeCall(IBuildSystem.build, (objectTypeId, coord, new bytes(0)));
   return buildCallData;
 }
 
@@ -50,7 +50,7 @@ function callBuild(address delegatorAddress, uint8 objectTypeId, VoxelCoord memo
 }
 
 function getMineCallData(VoxelCoord memory coord) pure returns (bytes memory mineCallData) {
-  mineCallData = abi.encodeCall(IMineSystem.mine, (coord));
+  mineCallData = abi.encodeCall(IMineSystem.mine, (coord, new bytes(0)));
   return mineCallData;
 }
 

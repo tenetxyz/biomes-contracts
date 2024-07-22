@@ -2,49 +2,31 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
-import { Player } from "../codegen/tables/Player.sol";
-import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { Stamina } from "../codegen/tables/Stamina.sol";
 import { InventoryTool } from "../codegen/tables/InventoryTool.sol";
 import { ReverseInventoryTool } from "../codegen/tables/ReverseInventoryTool.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
-import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { NullObjectTypeId, AirObjectID, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, getUniqueEntity } from "../Utils.sol";
+import { NullObjectTypeId, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
+import { getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes } from "../utils/ObjectTypeUtils.sol";
-import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
-import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { requireValidPlayer, requireBesidePlayer } from "../utils/PlayerUtils.sol";
 
 contract CraftSystem is System {
   function craft(bytes32 recipeId, bytes32 stationEntityId) public {
-    bytes32 playerEntityId = Player._get(_msgSender());
-    require(playerEntityId != bytes32(0), "CraftSystem: player does not exist");
-    require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "CraftSystem: player isn't logged in");
-
-    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
-
-    regenHealth(playerEntityId);
-    regenStamina(playerEntityId, playerCoord);
+    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
 
     RecipesData memory recipeData = Recipes._get(recipeId);
     require(recipeData.inputObjectTypeIds.length > 0, "CraftSystem: recipe not found");
     if (recipeData.stationObjectTypeId != NullObjectTypeId) {
       require(ObjectType._get(stationEntityId) == recipeData.stationObjectTypeId, "CraftSystem: wrong station");
-      require(
-        inSurroundingCube(playerCoord, 1, positionDataToVoxelCoord(Position._get(stationEntityId))),
-        "CraftSystem: player is too far from the station"
-      );
+      requireBesidePlayer(playerCoord, stationEntityId);
     }
 
     // Require that the player has all the ingredients in its inventory
@@ -117,7 +99,5 @@ contract CraftSystem is System {
       recipeData.outputObjectTypeId,
       recipeData.outputObjectTypeAmount
     );
-
-    PlayerActivity._set(playerEntityId, block.timestamp);
   }
 }

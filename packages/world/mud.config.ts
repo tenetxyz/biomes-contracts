@@ -230,6 +230,17 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    ShardField: {
+      schema: {
+        x: "int16",
+        z: "int16",
+        forceFieldEntityId: "bytes32",
+      },
+      key: ["x", "z"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     Equipped: {
       schema: {
         ownerEntityId: "bytes32",
@@ -266,6 +277,11 @@ export default defineWorld({
   systems: {
     GravitySystem: {
       name: "GravitySystem",
+      openAccess: false,
+      accessList: [],
+    },
+    ForceFieldSystem: {
+      name: "ForceFieldSystem",
       openAccess: false,
       accessList: [],
     },

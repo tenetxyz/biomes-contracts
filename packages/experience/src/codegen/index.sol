@@ -7,6 +7,8 @@ import { ExperienceMetadata, ExperienceMetadataData } from "./tables/ExperienceM
 import { ChipMetadata, ChipMetadataData } from "./tables/ChipMetadata.sol";
 import { ChipAttachment } from "./tables/ChipAttachment.sol";
 import { Shop, ShopData } from "./tables/Shop.sol";
+import { ForceFieldMetadata } from "./tables/ForceFieldMetadata.sol";
+import { ForceFieldApprovals, ForceFieldApprovalsData } from "./tables/ForceFieldApprovals.sol";
 import { DisplayStatus } from "./tables/DisplayStatus.sol";
 import { DisplayRegisterMsg } from "./tables/DisplayRegisterMsg.sol";
 import { DisplayUnregisterMsg } from "./tables/DisplayUnregisterMsg.sol";
