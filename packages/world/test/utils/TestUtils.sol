@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { console } from "forge-std/console.sol";
-import { coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { coordToShardCoord } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 import { InventoryTool } from "../../src/codegen/tables/InventoryTool.sol";
 import { ReverseInventoryTool } from "../../src/codegen/tables/ReverseInventoryTool.sol";
@@ -80,6 +80,6 @@ function testAddToInventoryCount(
 }
 
 function getForceField(VoxelCoord memory coord) view returns (bytes32) {
-  VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(coord, FORCE_FIELD_SHARD_DIM);
-  return ShardField.get(shardCoord.x, shardCoord.z);
+  VoxelCoord memory shardCoord = coordToShardCoord(coord, FORCE_FIELD_SHARD_DIM);
+  return ShardField.get(shardCoord.x, shardCoord.y, shardCoord.z);
 }

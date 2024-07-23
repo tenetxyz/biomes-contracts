@@ -233,10 +233,11 @@ export default defineWorld({
     ShardField: {
       schema: {
         x: "int16",
+        y: "int16",
         z: "int16",
         forceFieldEntityId: "bytes32",
       },
-      key: ["x", "z"],
+      key: ["x", "y", "z"],
       codegen: {
         storeArgument: true,
       },
