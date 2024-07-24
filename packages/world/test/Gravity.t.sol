@@ -82,7 +82,7 @@ contract GravityTest is MudTest, GasReporter {
     uint16 healthBefore = Health.getHealth(playerEntityId);
 
     startGasReport("gravity via mine, fall one block");
-    world.mine(mineCoord, new bytes(0));
+    world.mine(mineCoord);
     endGasReport();
 
     assertTrue(Health.getHealth(playerEntityId) < healthBefore, "Player health not reduced");
@@ -109,14 +109,14 @@ contract GravityTest is MudTest, GasReporter {
 
     uint16 healthBefore = Health.getHealth(playerEntityId);
 
-    world.mine(mineCoord, new bytes(0));
+    world.mine(mineCoord);
 
     VoxelCoord memory mineCoord2 = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
     terrainObjectTypeId = world.getTerrainBlock(mineCoord2);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     startGasReport("gravity via mine, fall two blocks");
-    world.mine(mineCoord2, new bytes(0));
+    world.mine(mineCoord2);
     endGasReport();
 
     assertTrue(Health.getHealth(playerEntityId) < healthBefore, "Player health not reduced");
@@ -167,7 +167,7 @@ contract GravityTest is MudTest, GasReporter {
     uint16 healthBefore = Health.getHealth(playerEntityId);
 
     startGasReport("gravity via mine, fatal fall from full health");
-    world.mine(mineCoord, new bytes(0));
+    world.mine(mineCoord);
     endGasReport();
 
     assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
@@ -212,7 +212,7 @@ contract GravityTest is MudTest, GasReporter {
     uint256 health1Before = Health.getHealth(playerEntityId);
     uint256 health2Before = Health.getHealth(playerEntityId2);
 
-    world.mine(mineCoord, new bytes(0));
+    world.mine(mineCoord);
 
     assertTrue(Health.getHealth(playerEntityId) < health1Before, "Player health not reduced");
     assertTrue(Health.getHealth(playerEntityId2) < health2Before, "Player health not reduced");
@@ -266,7 +266,7 @@ contract GravityTest is MudTest, GasReporter {
     uint256 health1Before = Health.getHealth(playerEntityId);
     uint256 health2Before = Health.getHealth(playerEntityId2);
 
-    world.mine(mineCoord, new bytes(0));
+    world.mine(mineCoord);
 
     assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
     assertTrue(ReversePlayer.get(playerEntityId) == address(0), "Player not removed from world");
@@ -302,7 +302,7 @@ contract GravityTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-    world.mine(mineCoord, new bytes(0));
+    world.mine(mineCoord);
 
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
     newCoords[0] = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
@@ -341,7 +341,7 @@ contract GravityTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-    world.mine(mineCoord, new bytes(0));
+    world.mine(mineCoord);
 
     VoxelCoord[] memory newCoords = new VoxelCoord[](2);
     newCoords[0] = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
@@ -381,13 +381,13 @@ contract GravityTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord2);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-    world.mine(mineCoord2, new bytes(0));
+    world.mine(mineCoord2);
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
     terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-    world.mine(mineCoord, new bytes(0));
+    world.mine(mineCoord);
 
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
     newCoords[0] = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
@@ -534,7 +534,7 @@ contract GravityTest is MudTest, GasReporter {
   //   uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
   //   assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-  //   world.mine(mineCoord, new bytes(0));
+  //   world.mine(mineCoord);
 
   //   VoxelCoord memory newCoord = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
   //   assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");
@@ -569,13 +569,13 @@ contract GravityTest is MudTest, GasReporter {
   //   uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord2);
   //   assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-  //   world.mine(mineCoord2, new bytes(0));
+  //   world.mine(mineCoord2);
 
   //   VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z + 1);
   //   terrainObjectTypeId = world.getTerrainBlock(mineCoord);
   //   assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-  //   world.mine(mineCoord, new bytes(0));
+  //   world.mine(mineCoord);
 
   //   VoxelCoord memory newCoord = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
   //   assertTrue(world.getTerrainBlock(newCoord) == AirObjectID, "Terrain block is not air");

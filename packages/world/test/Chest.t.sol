@@ -184,7 +184,7 @@ contract ChestTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -194,7 +194,7 @@ contract ChestTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     // Should be allowed cuz we attached the chip
-    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not removed from inventory");
     assertTrue(InventorySlots.get(chestEntityId) == 1, "Inventory slot not set");
@@ -206,16 +206,16 @@ contract ChestTest is MudTest, GasReporter {
 
     // Try transferring to chest
     vm.expectRevert("TransferSystem: Player not authorized by chip to make this transfer");
-    world.transfer(playerEntityId2, chestEntityId, inputObjectTypeId1, 1, new bytes(0));
+    world.transfer(playerEntityId2, chestEntityId, inputObjectTypeId1, 1);
 
     // Try transfering from chest
     vm.expectRevert("TransferSystem: Player not authorized by chip to make this transfer");
-    world.transfer(chestEntityId, playerEntityId2, inputObjectTypeId1, 1, new bytes(0));
+    world.transfer(chestEntityId, playerEntityId2, inputObjectTypeId1, 1);
 
     assertTrue(address(testChip).balance == 0, "Balance not updated");
 
     startGasReport("transfer from chest w/ chip");
-    world.transfer{ value: 1 ether }(chestEntityId, playerEntityId2, inputObjectTypeId1, 1, new bytes(0));
+    world.transfer{ value: 1 ether }(chestEntityId, playerEntityId2, inputObjectTypeId1, 1);
     endGasReport();
 
     // ensure balance is updated

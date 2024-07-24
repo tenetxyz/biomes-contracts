@@ -163,7 +163,7 @@ contract EquipTest is MudTest, GasReporter {
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
     startGasReport("mine terrain w/ equipped");
-    world.mine(mineCoord, new bytes(0));
+    world.mine(mineCoord);
     endGasReport();
 
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
@@ -202,7 +202,7 @@ contract EquipTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-    world.mine(mineCoord, new bytes(0));
+    world.mine(mineCoord);
 
     assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
     assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 0, "Inventory count not set");
@@ -290,7 +290,7 @@ contract EquipTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-    world.mine(mineCoord, new bytes(0));
+    world.mine(mineCoord);
 
     assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not removed");
     assertTrue(Player.get(alice) == bytes32(0), "Player not removed from world");
@@ -400,8 +400,8 @@ contract EquipTest is MudTest, GasReporter {
     world.equip(newInventoryId2);
     assertTrue(Equipped.get(playerEntityId) == newInventoryId2, "Equipped not set");
 
-    world.transferTool(playerEntityId, chestEntityId, newInventoryId2, new bytes(0));
-    world.transfer(playerEntityId, chestEntityId, GrassObjectID, 1, new bytes(0));
+    world.transferTool(playerEntityId, chestEntityId, newInventoryId2);
+    world.transfer(playerEntityId, chestEntityId, GrassObjectID, 1);
 
     assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not removed");
     assertTrue(ItemMetadata.get(newInventoryId2) == durability, "Item metadata not set");

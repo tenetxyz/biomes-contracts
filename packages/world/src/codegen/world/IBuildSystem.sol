@@ -16,4 +16,6 @@ interface IBuildSystem {
     VoxelCoord memory coord,
     bytes memory extraData
   ) external payable returns (bytes32);
+
+  function build(uint8 objectTypeId, VoxelCoord memory coord) external payable returns (bytes32);
 }

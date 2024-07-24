@@ -158,7 +158,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -198,7 +198,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -208,7 +208,7 @@ contract ChipTest is MudTest, GasReporter {
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.expectRevert("MineSystem: chip must be detached first");
-    world.mine(chestCoord, new bytes(0));
+    world.mine(chestCoord);
 
     vm.stopPrank();
     vm.startPrank(worldDeployer, worldDeployer);
@@ -221,7 +221,7 @@ contract ChipTest is MudTest, GasReporter {
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip not removed");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not removed from inventory");
 
-    world.mine(chestCoord, new bytes(0));
+    world.mine(chestCoord);
 
     assertTrue(ObjectType.get(chestEntityId) == AirObjectID, "Chest not mined");
 
@@ -254,7 +254,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -295,7 +295,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -331,7 +331,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 grassEntityId = world.build(GrassObjectID, chestCoord, new bytes(0));
+    bytes32 grassEntityId = world.build(GrassObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(grassEntityId) == address(0), "Chip set");
 
@@ -366,7 +366,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -402,7 +402,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -440,7 +440,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -478,7 +478,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -519,7 +519,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -570,7 +570,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -617,7 +617,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -665,7 +665,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -714,7 +714,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -766,7 +766,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -802,7 +802,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -862,7 +862,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -907,7 +907,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -953,7 +953,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1002,7 +1002,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1038,7 +1038,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1082,7 +1082,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1136,7 +1136,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1204,7 +1204,7 @@ contract ChipTest is MudTest, GasReporter {
     world.equip(newInventoryId);
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1262,7 +1262,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1310,7 +1310,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1361,7 +1361,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1413,7 +1413,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
@@ -1468,7 +1468,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord, new bytes(0));
+    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 

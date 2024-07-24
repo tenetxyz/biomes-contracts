@@ -59,4 +59,8 @@ contract BuildSystem is System {
 
     return entityId;
   }
+
+  function build(uint8 objectTypeId, VoxelCoord memory coord) public payable returns (bytes32) {
+    return build(objectTypeId, coord, new bytes(0));
+  }
 }

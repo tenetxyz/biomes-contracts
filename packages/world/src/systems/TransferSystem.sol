@@ -103,4 +103,17 @@ contract TransferSystem is System {
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(playerEntityId, srcEntityId, dstEntityId, toolObjectTypeId, 1, toolEntityId, extraData);
   }
+
+  function transfer(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    uint8 transferObjectTypeId,
+    uint16 numToTransfer
+  ) public payable {
+    transfer(srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, new bytes(0));
+  }
+
+  function transferTool(bytes32 srcEntityId, bytes32 dstEntityId, bytes32 toolEntityId) public payable {
+    transferTool(srcEntityId, dstEntityId, toolEntityId, new bytes(0));
+  }
 }

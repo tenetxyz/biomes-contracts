@@ -24,4 +24,8 @@ contract ActivateSystem is System {
       updateChipBatteryLevel(entityId);
     }
   }
+
+  function activatePlayer(address player) public {
+    requireValidPlayer(player);
+  }
 }

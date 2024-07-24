@@ -19,6 +19,8 @@ import { IUnequipSystem } from "@biomesaw/world/src/codegen/world/IUnequipSystem
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { getObjectType } from "./EntityUtils.sol";
 
+import { BUILD_SELECTOR, BUILD_WITH_EXTRA_DATA_SELECTOR, MINE_SELECTOR, MINE_WITH_EXTRA_DATA_SELECTOR, TRANSFER_SELECTOR, TRANSFER_WITH_EXTRA_DATA_SELECTOR, TRANSFER_TOOL_SELECTOR, TRANSFER_TOOL_WITH_EXTRA_DATA_SELECTOR } from "../Constants.sol";
+
 function decodeCallData(bytes memory callData) pure returns (bytes4, bytes memory) {
   Slice selectorSlice = SliceLib.getSubslice(callData, 0, 4);
   Slice callDataArgs = SliceLib.getSubslice(callData, 4);
@@ -27,17 +29,25 @@ function decodeCallData(bytes memory callData) pure returns (bytes4, bytes memor
 
 function getBuildArgs(bytes memory callData) pure returns (uint8 objectTypeId, VoxelCoord memory coord) {
   (bytes4 selector, bytes memory args) = decodeCallData(callData);
-  require(selector == IBuildSystem.build.selector, "Invalid selector");
-  bytes memory extraData;
-  (objectTypeId, coord, extraData) = abi.decode(args, (uint8, VoxelCoord, bytes));
+  if (selector == BUILD_SELECTOR) {
+    (objectTypeId, coord) = abi.decode(args, (uint8, VoxelCoord));
+  } else if (selector == BUILD_WITH_EXTRA_DATA_SELECTOR) {
+    (objectTypeId, coord, ) = abi.decode(args, (uint8, VoxelCoord, bytes));
+  } else {
+    revert("Invalid selector");
+  }
   return (objectTypeId, coord);
 }
 
 function getMineArgs(bytes memory callData) pure returns (VoxelCoord memory coord) {
   (bytes4 selector, bytes memory args) = decodeCallData(callData);
-  require(selector == IMineSystem.mine.selector, "Invalid selector");
-  bytes memory extraData;
-  (coord, extraData) = abi.decode(args, (VoxelCoord, bytes));
+  if (selector == MINE_SELECTOR) {
+    coord = abi.decode(args, (VoxelCoord));
+  } else if (selector == MINE_WITH_EXTRA_DATA_SELECTOR) {
+    (coord, ) = abi.decode(args, (VoxelCoord, bytes));
+  } else {
+    revert("Invalid selector");
+  }
   return coord;
 }
 
@@ -82,14 +92,22 @@ function getTransferArgs(
   )
 {
   (bytes4 selector, bytes memory args) = decodeCallData(callData);
-  bytes memory extraData;
-  if (selector == ITransferSystem.transfer.selector) {
-    (srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, extraData) = abi.decode(
+  if (selector == TRANSFER_SELECTOR) {
+    (srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer) = abi.decode(
+      args,
+      (bytes32, bytes32, uint8, uint16)
+    );
+  } else if (selector == TRANSFER_WITH_EXTRA_DATA_SELECTOR) {
+    (srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, ) = abi.decode(
       args,
       (bytes32, bytes32, uint8, uint16, bytes)
     );
-  } else if (selector == ITransferSystem.transferTool.selector) {
-    (srcEntityId, dstEntityId, toolEntityId, extraData) = abi.decode(args, (bytes32, bytes32, bytes32, bytes));
+  } else if (selector == TRANSFER_TOOL_SELECTOR) {
+    (srcEntityId, dstEntityId, toolEntityId) = abi.decode(args, (bytes32, bytes32, bytes32));
+    numToTransfer = 1;
+    transferObjectTypeId = getObjectType(toolEntityId);
+  } else if (selector == TRANSFER_TOOL_WITH_EXTRA_DATA_SELECTOR) {
+    (srcEntityId, dstEntityId, toolEntityId, ) = abi.decode(args, (bytes32, bytes32, bytes32, bytes));
     numToTransfer = 1;
     transferObjectTypeId = getObjectType(toolEntityId);
   } else {

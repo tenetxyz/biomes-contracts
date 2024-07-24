@@ -22,6 +22,7 @@ import { IActivateSystem } from "@biomesaw/world/src/codegen/world/IActivateSyst
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { getObjectType } from "./EntityUtils.sol";
+import { BUILD_SELECTOR, MINE_SELECTOR, TRANSFER_SELECTOR, TRANSFER_TOOL_SELECTOR } from "../Constants.sol";
 
 function getSystemId(bytes16 systemName) pure returns (ResourceId) {
   return WorldResourceIdLib.encode({ typeId: RESOURCE_SYSTEM, namespace: "", name: systemName });
@@ -36,7 +37,7 @@ function isSystemId(ResourceId checkSystemId, bytes16 systemId) pure returns (bo
 }
 
 function getBuildCallData(uint8 objectTypeId, VoxelCoord memory coord) pure returns (bytes memory buildCallData) {
-  buildCallData = abi.encodeCall(IBuildSystem.build, (objectTypeId, coord, new bytes(0)));
+  buildCallData = abi.encodeWithSelector(BUILD_SELECTOR, objectTypeId, coord);
   return buildCallData;
 }
 
@@ -50,7 +51,7 @@ function callBuild(address delegatorAddress, uint8 objectTypeId, VoxelCoord memo
 }
 
 function getMineCallData(VoxelCoord memory coord) pure returns (bytes memory mineCallData) {
-  mineCallData = abi.encodeCall(IMineSystem.mine, (coord, new bytes(0)));
+  mineCallData = abi.encodeWithSelector(MINE_SELECTOR, coord);
   return mineCallData;
 }
 
@@ -124,15 +125,15 @@ function getTransferCallData(
   bytes32 toolEntityId
 ) pure returns (bytes memory transferCallData) {
   if (toolEntityId == bytes32(0)) {
-    transferCallData = abi.encodeCall(
-      ITransferSystem.transfer,
-      (srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, new bytes(0))
+    transferCallData = abi.encodeWithSelector(
+      TRANSFER_SELECTOR,
+      srcEntityId,
+      dstEntityId,
+      transferObjectTypeId,
+      numToTransfer
     );
   } else {
-    transferCallData = abi.encodeCall(
-      ITransferSystem.transferTool,
-      (srcEntityId, dstEntityId, toolEntityId, new bytes(0))
-    );
+    transferCallData = abi.encodeWithSelector(TRANSFER_TOOL_SELECTOR, srcEntityId, dstEntityId, toolEntityId);
   }
   return transferCallData;
 }

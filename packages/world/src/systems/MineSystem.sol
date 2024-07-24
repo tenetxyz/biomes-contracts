@@ -90,4 +90,8 @@ contract MineSystem is System {
       )
     );
   }
+
+  function mine(VoxelCoord memory coord) public payable {
+    mine(coord, new bytes(0));
+  }
 }

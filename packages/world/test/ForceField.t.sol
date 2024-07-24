@@ -175,7 +175,7 @@ contract ForceFieldTest is MudTest, GasReporter {
     assertTrue(getForceField(forceFieldCoord) == bytes32(0), "Force field already exists");
 
     startGasReport("build force field");
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord, new bytes(0));
+    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
     endGasReport();
 
     assertTrue(getForceField(forceFieldCoord) == forceFieldEntityId, "Force field not created");
@@ -185,7 +185,7 @@ contract ForceFieldTest is MudTest, GasReporter {
     assertTrue(getForceField(grassCoord) == forceFieldEntityId, "Force field not created");
     assertTrue(world.getTerrainBlock(grassCoord) == AirObjectID, "Terrain block is not air");
 
-    bytes32 buildEntityId = world.build(GrassObjectID, grassCoord, new bytes(0));
+    bytes32 buildEntityId = world.build(GrassObjectID, grassCoord);
     assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
 
     // Try mining
@@ -196,7 +196,7 @@ contract ForceFieldTest is MudTest, GasReporter {
 
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
 
-    world.mine(mineCoord, new bytes(0));
+    world.mine(mineCoord);
 
     bytes32 mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertTrue(mineEntityId != bytes32(0), "Mine entity not found");
@@ -210,7 +210,7 @@ contract ForceFieldTest is MudTest, GasReporter {
     // mine force field object
 
     startGasReport("mine force field");
-    world.mine(forceFieldCoord, new bytes(0));
+    world.mine(forceFieldCoord);
     endGasReport();
 
     assertTrue(getForceField(forceFieldCoord) == bytes32(0), "Force field still exists");
@@ -241,13 +241,13 @@ contract ForceFieldTest is MudTest, GasReporter {
 
     assertTrue(getForceField(forceFieldCoord) == bytes32(0), "Force field already exists");
 
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord, new bytes(0));
+    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
     assertTrue(getForceField(forceFieldCoord) == forceFieldEntityId, "Force field not created");
 
     forceFieldCoord = VoxelCoord(forceFieldCoord.x + 3, forceFieldCoord.y, forceFieldCoord.z);
 
     vm.expectRevert("Force field overlaps with another force field");
-    world.build(ForceFieldObjectID, forceFieldCoord, new bytes(0));
+    world.build(ForceFieldObjectID, forceFieldCoord);
 
     vm.stopPrank();
   }
@@ -287,7 +287,7 @@ contract ForceFieldTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord, new bytes(0));
+    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
     assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
     world.attachChip(forceFieldEntityId, address(testChip));
@@ -303,14 +303,14 @@ contract ForceFieldTest is MudTest, GasReporter {
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
 
     startGasReport("build in force field with chip");
-    bytes32 buildEntityId = world.build(GrassObjectID, buildCoord, new bytes(0));
+    bytes32 buildEntityId = world.build(GrassObjectID, buildCoord);
     endGasReport();
 
     assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
 
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
     startGasReport("mine in force field with chip");
-    world.mine(buildCoord, new bytes(0));
+    world.mine(buildCoord);
     endGasReport();
     uint32 staminaSpent = staminaBefore - Stamina.getStamina(playerEntityId);
     assertTrue(ObjectType.get(buildEntityId) == AirObjectID, "Object not built");
@@ -324,13 +324,13 @@ contract ForceFieldTest is MudTest, GasReporter {
     assertTrue(getForceField(buildCoord2) == forceFieldEntityId, "Force field not found");
     assertTrue(world.getTerrainBlock(buildCoord2) == AirObjectID, "Terrain block is not air");
     vm.expectRevert("Player not authorized by chip to build here");
-    world.build(GrassObjectID, buildCoord2, new bytes(0));
+    world.build(GrassObjectID, buildCoord2);
 
-    buildEntityId = world.build{ value: 1000 }(GrassObjectID, buildCoord, new bytes(0));
+    buildEntityId = world.build{ value: 1000 }(GrassObjectID, buildCoord);
     assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
 
     uint32 stamina2Before = Stamina.getStamina(playerEntityId2);
-    world.mine(buildCoord, new bytes(0));
+    world.mine(buildCoord);
     uint32 stamina2Spent = stamina2Before - Stamina.getStamina(playerEntityId2);
     assertTrue(ObjectType.get(buildEntityId) == AirObjectID, "Object not built");
 
@@ -345,11 +345,11 @@ contract ForceFieldTest is MudTest, GasReporter {
 
     // Mine force field object
     world.hitChip(forceFieldEntityId);
-    world.mine(forceFieldCoord, new bytes(0));
+    world.mine(forceFieldCoord);
     assertTrue(getForceField(forceFieldCoord) == bytes32(0), "Force field still exists");
 
     // Now build
-    buildEntityId = world.build(GrassObjectID, buildCoord, new bytes(0));
+    buildEntityId = world.build(GrassObjectID, buildCoord);
     assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
 
     vm.stopPrank();
