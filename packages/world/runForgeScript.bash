@@ -25,7 +25,7 @@ worldAddress=$(awk -v id="$chainId" -F'"' '$2 == id {getline; print $4}' worlds.
 
 echo "Using WorldAddress: $worldAddress"
 
-command="forge script $1 --sig 'run(address)' '${worldAddress}' --broadcast --rpc-url ${rpcUrl}"
+command="forge script $1 --sig 'run(address)' '${worldAddress}' --broadcast --legacy --rpc-url ${rpcUrl}"
 
 # Loop through all arguments to check for the --verbose flag
 for arg in "$@"

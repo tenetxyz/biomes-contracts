@@ -274,6 +274,23 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    // -------------------
+    // LEGACY TABLES
+    // -------------------
+    ChestMetadata: {
+      schema: {
+        chestEntityId: "bytes32",
+        owner: "address",
+        onTransferHook: "address",
+        strength: "uint256",
+        strengthenObjectTypeIds: "uint8[]",
+        strengthenObjectTypeAmounts: "uint16[]",
+      },
+      key: ["chestEntityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
   },
   systems: {
     GravitySystem: {

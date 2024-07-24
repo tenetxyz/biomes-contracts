@@ -79,6 +79,55 @@ function testAddToInventoryCount(
   }
 }
 
+function testRemoveObjectTypeIdFromInventoryObjects(bytes32 ownerEntityId, uint8 removeObjectTypeId) {
+  uint8[] memory currentObjectTypeIds = InventoryObjects.get(ownerEntityId);
+  uint8[] memory newObjectTypeIds = new uint8[](currentObjectTypeIds.length - 1);
+  uint256 j = 0;
+  for (uint256 i = 0; i < currentObjectTypeIds.length; i++) {
+    if (currentObjectTypeIds[i] != removeObjectTypeId) {
+      newObjectTypeIds[j] = currentObjectTypeIds[i];
+      j++;
+    }
+  }
+  if (newObjectTypeIds.length == 0) {
+    InventoryObjects.deleteRecord(ownerEntityId);
+  } else {
+    InventoryObjects.set(ownerEntityId, newObjectTypeIds);
+  }
+}
+
+function testRemoveFromInventoryCount(bytes32 ownerEntityId, uint8 objectTypeId, uint16 numObjectsToRemove) {
+  uint16 numInitialObjects = InventoryCount.get(ownerEntityId, objectTypeId);
+  require(numInitialObjects >= numObjectsToRemove, "Not enough objects in the inventory");
+
+  uint8 stackable = ObjectTypeMetadata.getStackable(objectTypeId);
+  require(stackable > 0, "This object type cannot be removed from the inventory");
+
+  uint16 numInitialFullStacks = numInitialObjects / stackable;
+  bool hasInitialPartialStack = numInitialObjects % stackable != 0;
+
+  uint16 numFinalObjects = numInitialObjects - numObjectsToRemove;
+  uint16 numFinalFullStacks = numFinalObjects / stackable;
+  bool hasFinalPartialStack = numFinalObjects % stackable != 0;
+
+  uint16 numInitialSlotsUsed = InventorySlots.get(ownerEntityId);
+  uint16 numFinalSlotsUsedDelta = (numInitialFullStacks + (hasInitialPartialStack ? 1 : 0)) -
+    (numFinalFullStacks + (hasFinalPartialStack ? 1 : 0));
+  uint16 numFinalSlotsUsed = numInitialSlotsUsed - numFinalSlotsUsedDelta;
+  if (numFinalSlotsUsed == 0) {
+    InventorySlots.deleteRecord(ownerEntityId);
+  } else {
+    InventorySlots.set(ownerEntityId, numFinalSlotsUsed);
+  }
+
+  if (numFinalObjects == 0) {
+    InventoryCount.deleteRecord(ownerEntityId, objectTypeId);
+    testRemoveObjectTypeIdFromInventoryObjects(ownerEntityId, objectTypeId);
+  } else {
+    InventoryCount.set(ownerEntityId, objectTypeId, numFinalObjects);
+  }
+}
+
 function getForceField(VoxelCoord memory coord) view returns (bytes32) {
   VoxelCoord memory shardCoord = coordToShardCoord(coord, FORCE_FIELD_SHARD_DIM);
   return ShardField.get(shardCoord.x, shardCoord.y, shardCoord.z);
