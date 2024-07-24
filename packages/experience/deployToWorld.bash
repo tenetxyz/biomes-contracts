@@ -3,7 +3,7 @@
 chainId="31337" # Default to dev mode chain ID
 rpcUrl="http://127.0.0.1:8545"  # Default to dev mode URL
 
-profile = ""
+profile=""
 
 # Loop through all arguments to check for the --prod flag
 if [ "$NODE_ENV" = "testnet" ]; then
