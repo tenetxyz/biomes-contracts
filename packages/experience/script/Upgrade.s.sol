@@ -8,7 +8,7 @@ import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { ChipMetadata, ChipMetadataData } from "../src/codegen/tables/ChipMetadata.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
-contract PostDeploy is Script {
+contract Upgrade is Script {
   function run(address worldAddress) external {
     // Specify a store so that you can use tables directly in PostDeploy
     StoreSwitch.setStoreAddress(worldAddress);
