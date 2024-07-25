@@ -35,6 +35,7 @@ async function main() {
       if (systemHooks.length === 0) {
         continue;
       }
+      console.log(`Got ${systemHooks.length} hooks for player ${player} and system ${systemId}`);
 
       await callTx(
         {
