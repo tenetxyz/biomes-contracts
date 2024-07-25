@@ -551,6 +551,29 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "deleteAllUserHooks",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "systemId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
+      },
+      {
+        "name": "callDataHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "deleteRecord",
     "inputs": [
       {

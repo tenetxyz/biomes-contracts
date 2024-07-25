@@ -19,6 +19,7 @@ import { IMoveSystem } from "./IMoveSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
+import { IAdminHookSystem } from "./IAdminHookSystem.sol";
 import { IAdminTerrainSystem } from "./IAdminTerrainSystem.sol";
 import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
 import { IProcGenSystem } from "./IProcGenSystem.sol";
@@ -58,6 +59,7 @@ interface IWorld is
   ISpawnSystem,
   ITransferSystem,
   IUnequipSystem,
+  IAdminHookSystem,
   IAdminTerrainSystem,
   IInitSpawnSystem,
   IProcGenSystem,

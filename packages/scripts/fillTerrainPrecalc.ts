@@ -56,7 +56,7 @@ function splitArea(area: any) {
     size: {
       ...size,
       [maxSize === x ? "x" : maxSize === y ? "y" : "z"]: Math.floor(
-        size[maxSize === x ? "x" : maxSize === y ? "y" : "z"] / 2
+        size[maxSize === x ? "x" : maxSize === y ? "y" : "z"] / 2,
       ),
     },
     objectTypeId,
@@ -70,7 +70,7 @@ function splitArea(area: any) {
 async function applyTerrainTxes(
   terrainTxes: any,
   skipExisting: boolean,
-  dryRun: boolean = false
+  dryRun: boolean = false,
 ): Promise<[number, VoxelCoord[]]> {
   const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
 
@@ -150,7 +150,7 @@ async function applyTerrainTxes(
           functionName: "setTerrainObjectTypeIds",
           args: [lowerSouthwestCorner, size, objectTypeId],
         },
-        "setTerrainObjectTypeIds area: " + areaVolume.toString()
+        "setTerrainObjectTypeIds area: " + areaVolume.toString(),
       );
     } catch (e) {
       console.log("Error setting terrain object type ids", e);
@@ -217,7 +217,7 @@ async function applyTerrainTxes(
             functionName: "setTerrainObjectTypeIds",
             args: [coordsToSend, Number(objectTypeId)],
           },
-          "setTerrainObjectTypeIds single: " + coordsToSend.length.toString()
+          "setTerrainObjectTypeIds single: " + coordsToSend.length.toString(),
         );
       } catch (e) {
         console.log("Error setting terrain object type ids", e);
@@ -230,7 +230,7 @@ async function applyTerrainTxes(
 
 async function main() {
   // Load pre-calculated tx's from terrain_txs.json
-  const terrainTxes = JSON.parse(fs.readFileSync("terrain_txs.json", "utf8"));
+  const terrainTxes = JSON.parse(fs.readFileSync("gen/terrain_txs.json", "utf8"));
   console.log("Terrain tx's read from file.");
 
   const [numTxs, coordsCovered, objectTypeTxs] = await applyTerrainTxes(terrainTxes, false, true);
