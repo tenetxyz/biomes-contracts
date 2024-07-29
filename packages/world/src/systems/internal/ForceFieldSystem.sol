@@ -63,7 +63,8 @@ contract ForceFieldSystem is System {
         updateChipBatteryLevel(forceFieldEntityId);
 
         // Forward any ether sent with the transaction to the hook
-        // Don't safe call here as we want to revert if the chip doesn't allow the mine
+        // TODO: Figure out a way to accurately estimate gas in the client to then change this to be a safe call instead
+        // since mines should not be blockable by the chip
         bool mineAllowed = IChip(chipAddress).onMine{ value: _msgValue() }(
           forceFieldEntityId,
           playerEntityId,
