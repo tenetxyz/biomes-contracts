@@ -12,6 +12,7 @@
     "watchWorld": "npx tsx watchWorld.ts",
     "writeWorld": "npx tsx writeWorld.ts",
     "setupSpawn": "npx tsx setupSpawn.ts",
+    "spawnBuild": "npx tsx spawnBuild.ts",
     "measureGas": "npx tsx gas/measureGas.ts",
     "testTerrain": "npx tsx terrain/testTerrain.ts",
     "governor": "npx tsx governor.ts"

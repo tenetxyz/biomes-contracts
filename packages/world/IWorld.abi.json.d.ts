@@ -1199,6 +1199,42 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "getObjectTypeIdAtCoordOrTerrain",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getOptionalSystemHooks",
     "inputs": [
       {
@@ -2616,6 +2652,111 @@ declare const abi: [
         "name": "fieldLayout",
         "type": "bytes32",
         "internalType": "FieldLayout"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setObjectAtCoord",
+    "inputs": [
+      {
+        "name": "objectTypeId",
+        "type": "uint8[]",
+        "internalType": "uint8[]"
+      },
+      {
+        "name": "coord",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setObjectAtCoord",
+    "inputs": [
+      {
+        "name": "objectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "coord",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setObjectAtCoord",
+    "inputs": [
+      {
+        "name": "objectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "coord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
       }
     ],
     "outputs": [],

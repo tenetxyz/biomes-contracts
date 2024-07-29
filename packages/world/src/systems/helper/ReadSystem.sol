@@ -13,6 +13,7 @@ import { Player } from "../../codegen/tables/Player.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 import { PlayerMetadata } from "../../codegen/tables/PlayerMetadata.sol";
 
+import { getTerrainObjectTypeId } from "../../Utils.sol";
 import { NullObjectTypeId } from "../../ObjectTypeIds.sol";
 
 // Public getters so clients can read the world state more easily
@@ -36,6 +37,14 @@ contract ReadSystem is System {
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       return NullObjectTypeId;
+    }
+    return ObjectType._get(entityId);
+  }
+
+  function getObjectTypeIdAtCoordOrTerrain(VoxelCoord memory coord) public view returns (uint8) {
+    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (entityId == bytes32(0)) {
+      return getTerrainObjectTypeId(coord);
     }
     return ObjectType._get(entityId);
   }
