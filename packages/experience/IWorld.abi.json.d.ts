@@ -251,6 +251,13 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__deleteNfts",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteNotifications",
     "inputs": [],
     "outputs": [],
@@ -332,6 +339,13 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__popNfts",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__popPlayers",
     "inputs": [],
     "outputs": [],
@@ -373,6 +387,19 @@ declare const abi: [
       },
       {
         "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__pushNfts",
+    "inputs": [
+      {
+        "name": "nft",
         "type": "address",
         "internalType": "address"
       }
@@ -862,6 +889,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__setNfts",
+    "inputs": [
+      {
+        "name": "nfts",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__setNotification",
     "inputs": [
       {
@@ -1068,6 +1108,24 @@ declare const abi: [
       },
       {
         "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__updateNfts",
+    "inputs": [
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "nft",
         "type": "address",
         "internalType": "address"
       }

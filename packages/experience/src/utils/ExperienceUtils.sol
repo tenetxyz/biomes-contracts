@@ -137,3 +137,23 @@ function updateTokens(uint256 index, address token) {
 function deleteTokens() {
   IWorld(WorldContextConsumerLib._world()).experience__deleteTokens();
 }
+
+function setNfts(address[] memory nfts) {
+  IWorld(WorldContextConsumerLib._world()).experience__setNfts(nfts);
+}
+
+function pushNfts(address nft) {
+  IWorld(WorldContextConsumerLib._world()).experience__pushNfts(nft);
+}
+
+function popNfts() {
+  IWorld(WorldContextConsumerLib._world()).experience__popNfts();
+}
+
+function updateNfts(uint256 index, address nft) {
+  IWorld(WorldContextConsumerLib._world()).experience__updateNfts(index, nft);
+}
+
+function deleteNfts() {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteNfts();
+}

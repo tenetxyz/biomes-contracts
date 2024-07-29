@@ -14,6 +14,7 @@ import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IExpMetadataSystem } from "./IExpMetadataSystem.sol";
 import { IFFApprovalsSystem } from "./IFFApprovalsSystem.sol";
 import { IFFMetadataSystem } from "./IFFMetadataSystem.sol";
+import { INFTSystem } from "./INFTSystem.sol";
 import { INotificationSystem } from "./INotificationSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
 import { IShopSystem } from "./IShopSystem.sol";
@@ -37,6 +38,7 @@ interface IWorld is
   IExpMetadataSystem,
   IFFApprovalsSystem,
   IFFMetadataSystem,
+  INFTSystem,
   INotificationSystem,
   IPlayerSystem,
   IShopSystem,

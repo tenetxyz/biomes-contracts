@@ -192,5 +192,15 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    NFTs: {
+      schema: {
+        experience: "address",
+        nfts: "address[]",
+      },
+      key: ["experience"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
   },
 });

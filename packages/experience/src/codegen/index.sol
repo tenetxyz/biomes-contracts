@@ -19,3 +19,4 @@ import { Builds, BuildsData } from "./tables/Builds.sol";
 import { BuildsWithPos, BuildsWithPosData } from "./tables/BuildsWithPos.sol";
 import { Countdown, CountdownData } from "./tables/Countdown.sol";
 import { Tokens } from "./tables/Tokens.sol";
+import { NFTs } from "./tables/NFTs.sol";
