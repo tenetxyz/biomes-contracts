@@ -8,7 +8,7 @@ import { coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.so
 import { Stamina } from "../../codegen/tables/Stamina.sol";
 import { Chip, ChipData } from "../../codegen/tables/Chip.sol";
 
-import { MAX_PLAYER_STAMINA, FORCE_FIELD_SHARD_DIM } from "../../Constants.sol";
+import { MAX_PLAYER_STAMINA } from "../../Constants.sol";
 import { ForceFieldObjectID } from "../../ObjectTypeIds.sol";
 import { updateChipBatteryLevel } from "../../utils/ChipUtils.sol";
 import { getForceField, setupForceField, destroyForceField } from "../../utils/ForceFieldUtils.sol";

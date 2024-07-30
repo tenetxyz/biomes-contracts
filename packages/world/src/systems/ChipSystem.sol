@@ -68,7 +68,7 @@ contract ChipSystem is System {
     removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, numBattery);
 
     // TODO: Figure out how to scale powerAmount
-    Chip._setBatteryLevel(entityId, chipData.batteryLevel + (numBattery * 100));
+    Chip._setBatteryLevel(entityId, chipData.batteryLevel + (uint256(numBattery) * 100));
     Chip._setLastUpdatedTime(entityId, block.timestamp);
 
     // TODO: Figure out a way to accurately estimate gas in the client to then change this to be a safe call instead
