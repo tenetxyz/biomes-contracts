@@ -7,6 +7,7 @@ export default defineWorld({
   },
   enums: {
     ChipType: ["None", "Chest", "ForceField"],
+    ShopType: ["None", "Buy", "Sell", "BuySell"],
   },
   namespace: "experience",
   tables: {
@@ -43,6 +44,7 @@ export default defineWorld({
     Shop: {
       schema: {
         entityId: "bytes32",
+        shopType: "ShopType",
         objectTypeId: "uint8",
         buyPrice: "uint256",
         sellPrice: "uint256",

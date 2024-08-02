@@ -992,6 +992,11 @@ declare const abi: [
         "internalType": "struct ShopData",
         "components": [
           {
+            "name": "shopType",
+            "type": "uint8",
+            "internalType": "enum ShopType"
+          },
+          {
             "name": "objectTypeId",
             "type": "uint8",
             "internalType": "uint8"

@@ -16,7 +16,11 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { ShopType } from "./../common.sol";
+
 struct ShopData {
+  ShopType shopType;
   uint8 objectTypeId;
   uint256 buyPrice;
   uint256 sellPrice;
@@ -29,12 +33,12 @@ library Shop {
   ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e63650000000053686f70000000000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0075050001202014200000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0076060001012020142000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint8, uint256, uint256, address, uint256)
-  Schema constant _valueSchema = Schema.wrap(0x00750500001f1f611f0000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint8, uint8, uint256, uint256, address, uint256)
+  Schema constant _valueSchema = Schema.wrap(0x0076060000001f1f611f00000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -50,12 +54,13 @@ library Shop {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](5);
-    fieldNames[0] = "objectTypeId";
-    fieldNames[1] = "buyPrice";
-    fieldNames[2] = "sellPrice";
-    fieldNames[3] = "paymentToken";
-    fieldNames[4] = "balance";
+    fieldNames = new string[](6);
+    fieldNames[0] = "shopType";
+    fieldNames[1] = "objectTypeId";
+    fieldNames[2] = "buyPrice";
+    fieldNames[3] = "sellPrice";
+    fieldNames[4] = "paymentToken";
+    fieldNames[5] = "balance";
   }
 
   /**
@@ -73,13 +78,55 @@ library Shop {
   }
 
   /**
+   * @notice Get shopType.
+   */
+  function getShopType(bytes32 entityId) internal view returns (ShopType shopType) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return ShopType(uint8(bytes1(_blob)));
+  }
+
+  /**
+   * @notice Get shopType.
+   */
+  function _getShopType(bytes32 entityId) internal view returns (ShopType shopType) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return ShopType(uint8(bytes1(_blob)));
+  }
+
+  /**
+   * @notice Set shopType.
+   */
+  function setShopType(bytes32 entityId, ShopType shopType) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(shopType)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set shopType.
+   */
+  function _setShopType(bytes32 entityId, ShopType shopType) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(shopType)), _fieldLayout);
+  }
+
+  /**
    * @notice Get objectTypeId.
    */
   function getObjectTypeId(bytes32 entityId) internal view returns (uint8 objectTypeId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (uint8(bytes1(_blob)));
   }
 
@@ -90,7 +137,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (uint8(bytes1(_blob)));
   }
 
@@ -101,7 +148,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((objectTypeId)), _fieldLayout);
   }
 
   /**
@@ -111,7 +158,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((objectTypeId)), _fieldLayout);
   }
 
   /**
@@ -121,7 +168,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -132,7 +179,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -143,7 +190,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((buyPrice)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((buyPrice)), _fieldLayout);
   }
 
   /**
@@ -153,7 +200,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((buyPrice)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((buyPrice)), _fieldLayout);
   }
 
   /**
@@ -163,7 +210,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -174,7 +221,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -185,7 +232,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((sellPrice)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((sellPrice)), _fieldLayout);
   }
 
   /**
@@ -195,7 +242,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((sellPrice)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((sellPrice)), _fieldLayout);
   }
 
   /**
@@ -205,7 +252,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -216,7 +263,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -227,7 +274,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((paymentToken)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((paymentToken)), _fieldLayout);
   }
 
   /**
@@ -237,7 +284,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((paymentToken)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((paymentToken)), _fieldLayout);
   }
 
   /**
@@ -247,7 +294,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -258,7 +305,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -269,7 +316,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((balance)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((balance)), _fieldLayout);
   }
 
   /**
@@ -279,7 +326,7 @@ library Shop {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((balance)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((balance)), _fieldLayout);
   }
 
   /**
@@ -317,13 +364,14 @@ library Shop {
    */
   function set(
     bytes32 entityId,
+    ShopType shopType,
     uint8 objectTypeId,
     uint256 buyPrice,
     uint256 sellPrice,
     address paymentToken,
     uint256 balance
   ) internal {
-    bytes memory _staticData = encodeStatic(objectTypeId, buyPrice, sellPrice, paymentToken, balance);
+    bytes memory _staticData = encodeStatic(shopType, objectTypeId, buyPrice, sellPrice, paymentToken, balance);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -339,13 +387,14 @@ library Shop {
    */
   function _set(
     bytes32 entityId,
+    ShopType shopType,
     uint8 objectTypeId,
     uint256 buyPrice,
     uint256 sellPrice,
     address paymentToken,
     uint256 balance
   ) internal {
-    bytes memory _staticData = encodeStatic(objectTypeId, buyPrice, sellPrice, paymentToken, balance);
+    bytes memory _staticData = encodeStatic(shopType, objectTypeId, buyPrice, sellPrice, paymentToken, balance);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -361,6 +410,7 @@ library Shop {
    */
   function set(bytes32 entityId, ShopData memory _table) internal {
     bytes memory _staticData = encodeStatic(
+      _table.shopType,
       _table.objectTypeId,
       _table.buyPrice,
       _table.sellPrice,
@@ -382,6 +432,7 @@ library Shop {
    */
   function _set(bytes32 entityId, ShopData memory _table) internal {
     bytes memory _staticData = encodeStatic(
+      _table.shopType,
       _table.objectTypeId,
       _table.buyPrice,
       _table.sellPrice,
@@ -406,17 +457,26 @@ library Shop {
   )
     internal
     pure
-    returns (uint8 objectTypeId, uint256 buyPrice, uint256 sellPrice, address paymentToken, uint256 balance)
+    returns (
+      ShopType shopType,
+      uint8 objectTypeId,
+      uint256 buyPrice,
+      uint256 sellPrice,
+      address paymentToken,
+      uint256 balance
+    )
   {
-    objectTypeId = (uint8(Bytes.getBytes1(_blob, 0)));
+    shopType = ShopType(uint8(Bytes.getBytes1(_blob, 0)));
 
-    buyPrice = (uint256(Bytes.getBytes32(_blob, 1)));
+    objectTypeId = (uint8(Bytes.getBytes1(_blob, 1)));
 
-    sellPrice = (uint256(Bytes.getBytes32(_blob, 33)));
+    buyPrice = (uint256(Bytes.getBytes32(_blob, 2)));
 
-    paymentToken = (address(Bytes.getBytes20(_blob, 65)));
+    sellPrice = (uint256(Bytes.getBytes32(_blob, 34)));
 
-    balance = (uint256(Bytes.getBytes32(_blob, 85)));
+    paymentToken = (address(Bytes.getBytes20(_blob, 66)));
+
+    balance = (uint256(Bytes.getBytes32(_blob, 86)));
   }
 
   /**
@@ -430,9 +490,14 @@ library Shop {
     EncodedLengths,
     bytes memory
   ) internal pure returns (ShopData memory _table) {
-    (_table.objectTypeId, _table.buyPrice, _table.sellPrice, _table.paymentToken, _table.balance) = decodeStatic(
-      _staticData
-    );
+    (
+      _table.shopType,
+      _table.objectTypeId,
+      _table.buyPrice,
+      _table.sellPrice,
+      _table.paymentToken,
+      _table.balance
+    ) = decodeStatic(_staticData);
   }
 
   /**
@@ -460,13 +525,14 @@ library Shop {
    * @return The static data, encoded into a sequence of bytes.
    */
   function encodeStatic(
+    ShopType shopType,
     uint8 objectTypeId,
     uint256 buyPrice,
     uint256 sellPrice,
     address paymentToken,
     uint256 balance
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(objectTypeId, buyPrice, sellPrice, paymentToken, balance);
+    return abi.encodePacked(shopType, objectTypeId, buyPrice, sellPrice, paymentToken, balance);
   }
 
   /**
@@ -476,13 +542,14 @@ library Shop {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
+    ShopType shopType,
     uint8 objectTypeId,
     uint256 buyPrice,
     uint256 sellPrice,
     address paymentToken,
     uint256 balance
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(objectTypeId, buyPrice, sellPrice, paymentToken, balance);
+    bytes memory _staticData = encodeStatic(shopType, objectTypeId, buyPrice, sellPrice, paymentToken, balance);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

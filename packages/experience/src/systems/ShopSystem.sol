@@ -6,6 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { Chip, ChipData } from "@biomesaw/world/src/codegen/tables/Chip.sol";
 import { Shop, ShopData } from "../codegen/tables/Shop.sol";
+import { ShopType } from "../codegen/common.sol";
 import { requireChipOwner, requireChipOwnerOrNoOwner } from "../Utils.sol";
 
 contract ShopSystem is System {
@@ -21,16 +22,32 @@ contract ShopSystem is System {
 
   function setBuyShop(bytes32 entityId, uint8 buyObjectTypeId, uint256 buyPrice, address paymentToken) public {
     requireChipOwner(entityId);
-    Shop.setObjectTypeId(entityId, buyObjectTypeId);
-    Shop.setBuyPrice(entityId, buyPrice);
-    Shop.setPaymentToken(entityId, paymentToken);
+    Shop.set(
+      entityId,
+      ShopData({
+        shopType: ShopType.Buy,
+        objectTypeId: buyObjectTypeId,
+        buyPrice: buyPrice,
+        paymentToken: paymentToken,
+        sellPrice: 0,
+        balance: 0
+      })
+    );
   }
 
   function setSellShop(bytes32 entityId, uint8 sellObjectTypeId, uint256 sellPrice, address paymentToken) public {
     requireChipOwner(entityId);
-    Shop.setObjectTypeId(entityId, sellObjectTypeId);
-    Shop.setSellPrice(entityId, sellPrice);
-    Shop.setPaymentToken(entityId, paymentToken);
+    Shop.set(
+      entityId,
+      ShopData({
+        shopType: ShopType.Sell,
+        objectTypeId: sellObjectTypeId,
+        sellPrice: sellPrice,
+        paymentToken: paymentToken,
+        buyPrice: 0,
+        balance: 0
+      })
+    );
   }
 
   function setShopBalance(bytes32 entityId, uint256 balance) public {

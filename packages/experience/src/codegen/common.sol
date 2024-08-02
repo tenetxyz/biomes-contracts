@@ -7,3 +7,10 @@ enum ChipType {
   Chest,
   ForceField
 }
+
+enum ShopType {
+  None,
+  Buy,
+  Sell,
+  BuySell
+}
