@@ -15,9 +15,19 @@ interface IShopSystem {
 
   function experience__deleteShop(bytes32 entityId) external;
 
-  function experience__setBuyShop(bytes32 entityId, uint8 buyObjectTypeId, uint256 buyPrice) external;
+  function experience__setBuyShop(
+    bytes32 entityId,
+    uint8 buyObjectTypeId,
+    uint256 buyPrice,
+    address paymentToken
+  ) external;
 
-  function experience__setSellShop(bytes32 entityId, uint8 sellObjectTypeId, uint256 sellPrice) external;
+  function experience__setSellShop(
+    bytes32 entityId,
+    uint8 sellObjectTypeId,
+    uint256 sellPrice,
+    address paymentToken
+  ) external;
 
   function experience__setShopBalance(bytes32 entityId, uint256 balance) external;
 }

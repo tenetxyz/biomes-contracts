@@ -19,16 +19,18 @@ contract ShopSystem is System {
     Shop.deleteRecord(entityId);
   }
 
-  function setBuyShop(bytes32 entityId, uint8 buyObjectTypeId, uint256 buyPrice) public {
+  function setBuyShop(bytes32 entityId, uint8 buyObjectTypeId, uint256 buyPrice, address paymentToken) public {
     requireChipOwner(entityId);
-    Shop.setBuyObjectTypeId(entityId, buyObjectTypeId);
+    Shop.setObjectTypeId(entityId, buyObjectTypeId);
     Shop.setBuyPrice(entityId, buyPrice);
+    Shop.setPaymentToken(entityId, paymentToken);
   }
 
-  function setSellShop(bytes32 entityId, uint8 sellObjectTypeId, uint256 sellPrice) public {
+  function setSellShop(bytes32 entityId, uint8 sellObjectTypeId, uint256 sellPrice, address paymentToken) public {
     requireChipOwner(entityId);
-    Shop.setSellObjectTypeId(entityId, sellObjectTypeId);
+    Shop.setObjectTypeId(entityId, sellObjectTypeId);
     Shop.setSellPrice(entityId, sellPrice);
+    Shop.setPaymentToken(entityId, paymentToken);
   }
 
   function setShopBalance(bytes32 entityId, uint256 balance) public {

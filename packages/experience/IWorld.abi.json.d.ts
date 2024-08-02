@@ -646,6 +646,11 @@ declare const abi: [
         "name": "buyPrice",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -962,6 +967,11 @@ declare const abi: [
         "name": "sellPrice",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -982,7 +992,7 @@ declare const abi: [
         "internalType": "struct ShopData",
         "components": [
           {
-            "name": "buyObjectTypeId",
+            "name": "objectTypeId",
             "type": "uint8",
             "internalType": "uint8"
           },
@@ -992,14 +1002,14 @@ declare const abi: [
             "internalType": "uint256"
           },
           {
-            "name": "sellObjectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
-          },
-          {
             "name": "sellPrice",
             "type": "uint256",
             "internalType": "uint256"
+          },
+          {
+            "name": "paymentToken",
+            "type": "address",
+            "internalType": "address"
           },
           {
             "name": "balance",

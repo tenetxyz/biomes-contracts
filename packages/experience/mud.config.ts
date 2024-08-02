@@ -43,10 +43,10 @@ export default defineWorld({
     Shop: {
       schema: {
         entityId: "bytes32",
-        buyObjectTypeId: "uint8",
+        objectTypeId: "uint8",
         buyPrice: "uint256",
-        sellObjectTypeId: "uint8",
         sellPrice: "uint256",
+        paymentToken: "address",
         balance: "uint256",
       },
       key: ["entityId"],

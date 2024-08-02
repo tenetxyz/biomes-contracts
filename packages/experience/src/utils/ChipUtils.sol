@@ -34,12 +34,12 @@ function deleteShop(bytes32 entityId) {
   IWorld(WorldContextConsumerLib._world()).experience__deleteShop(entityId);
 }
 
-function setBuyShop(bytes32 entityId, uint8 buyObjectTypeId, uint256 buyPrice) {
-  IWorld(WorldContextConsumerLib._world()).experience__setBuyShop(entityId, buyObjectTypeId, buyPrice);
+function setBuyShop(bytes32 entityId, uint8 buyObjectTypeId, uint256 buyPrice, address paymentToken) {
+  IWorld(WorldContextConsumerLib._world()).experience__setBuyShop(entityId, buyObjectTypeId, buyPrice, paymentToken);
 }
 
-function setSellShop(bytes32 entityId, uint8 sellObjectTypeId, uint256 sellPrice) {
-  IWorld(WorldContextConsumerLib._world()).experience__setSellShop(entityId, sellObjectTypeId, sellPrice);
+function setSellShop(bytes32 entityId, uint8 sellObjectTypeId, uint256 sellPrice, address paymentToken) {
+  IWorld(WorldContextConsumerLib._world()).experience__setSellShop(entityId, sellObjectTypeId, sellPrice, paymentToken);
 }
 
 function setShopBalance(bytes32 entityId, uint256 balance) {
