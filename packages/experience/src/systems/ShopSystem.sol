@@ -54,4 +54,19 @@ contract ShopSystem is System {
     requireChipOwner(entityId);
     Shop.setBalance(entityId, balance);
   }
+
+  function setBuyPrice(bytes32 entityId, uint256 buyPrice) public {
+    requireChipOwner(entityId);
+    Shop.setBuyPrice(entityId, buyPrice);
+  }
+
+  function setSellPrice(bytes32 entityId, uint256 sellPrice) public {
+    requireChipOwner(entityId);
+    Shop.setSellPrice(entityId, sellPrice);
+  }
+
+  function setShopObjectTypeId(bytes32 entityId, uint8 objectTypeId) public {
+    requireChipOwner(entityId);
+    Shop.setObjectTypeId(entityId, objectTypeId);
+  }
 }

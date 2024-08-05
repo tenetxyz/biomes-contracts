@@ -46,6 +46,18 @@ function setShopBalance(bytes32 entityId, uint256 balance) {
   IWorld(WorldContextConsumerLib._world()).experience__setShopBalance(entityId, balance);
 }
 
+function setBuyPrice(bytes32 entityId, uint256 buyPrice) {
+  IWorld(WorldContextConsumerLib._world()).experience__setBuyPrice(entityId, buyPrice);
+}
+
+function setSellPrice(bytes32 entityId, uint256 sellPrice) {
+  IWorld(WorldContextConsumerLib._world()).experience__setSellPrice(entityId, sellPrice);
+}
+
+function setShopObjectTypeId(bytes32 entityId, uint8 objectTypeId) {
+  IWorld(WorldContextConsumerLib._world()).experience__setShopObjectTypeId(entityId, objectTypeId);
+}
+
 function setForceFieldName(bytes32 entityId, string memory name) {
   IWorld(WorldContextConsumerLib._world()).experience__setForceFieldName(entityId, name);
 }
