@@ -53,10 +53,19 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    ForceFieldMetadata: {
+    ChestMetadata: {
       schema: {
         entityId: "bytes32",
         name: "string",
+        description: "string",
+      },
+      key: ["entityId"],
+    },
+    FFMetadata: {
+      schema: {
+        entityId: "bytes32",
+        name: "string",
+        description: "string",
       },
       key: ["entityId"],
     },

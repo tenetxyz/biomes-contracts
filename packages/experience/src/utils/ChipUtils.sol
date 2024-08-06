@@ -8,6 +8,8 @@ import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol"
 
 import { ChipMetadataData } from "../codegen/tables/ChipMetadata.sol";
 import { ItemShopData } from "../codegen/tables/ItemShop.sol";
+import { FFMetadataData } from "../codegen/tables/FFMetadata.sol";
+import { ChestMetadataData } from "../codegen/tables/ChestMetadata.sol";
 import { ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
 
 function setChipMetadata(ChipMetadataData memory metadata) {
@@ -58,8 +60,32 @@ function setShopObjectTypeId(bytes32 entityId, uint8 objectTypeId) {
   IWorld(WorldContextConsumerLib._world()).experience__setShopObjectTypeId(entityId, objectTypeId);
 }
 
+function setChestMetadata(bytes32 entityId, ChestMetadataData memory metadata) {
+  IWorld(WorldContextConsumerLib._world()).experience__setChestMetadata(entityId, metadata);
+}
+
+function setChestName(bytes32 entityId, string memory name) {
+  IWorld(WorldContextConsumerLib._world()).experience__setChestName(entityId, name);
+}
+
+function setChestDescription(bytes32 entityId, string memory description) {
+  IWorld(WorldContextConsumerLib._world()).experience__setChestDescription(entityId, description);
+}
+
+function deleteChestMetadata(bytes32 entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteChestMetadata(entityId);
+}
+
+function setForceFieldMetadata(bytes32 entityId, FFMetadataData memory metadata) {
+  IWorld(WorldContextConsumerLib._world()).experience__setForceFieldMetadata(entityId, metadata);
+}
+
 function setForceFieldName(bytes32 entityId, string memory name) {
   IWorld(WorldContextConsumerLib._world()).experience__setForceFieldName(entityId, name);
+}
+
+function setForceFieldDescription(bytes32 entityId, string memory description) {
+  IWorld(WorldContextConsumerLib._world()).experience__setForceFieldDescription(entityId, description);
 }
 
 function deleteForceFieldMetadata(bytes32 entityId) {

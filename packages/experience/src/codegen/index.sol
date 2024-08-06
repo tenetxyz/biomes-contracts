@@ -7,7 +7,8 @@ import { ExperienceMetadata, ExperienceMetadataData } from "./tables/ExperienceM
 import { ChipMetadata, ChipMetadataData } from "./tables/ChipMetadata.sol";
 import { ChipAttachment } from "./tables/ChipAttachment.sol";
 import { ItemShop, ItemShopData } from "./tables/ItemShop.sol";
-import { ForceFieldMetadata } from "./tables/ForceFieldMetadata.sol";
+import { ChestMetadata, ChestMetadataData } from "./tables/ChestMetadata.sol";
+import { FFMetadata, FFMetadataData } from "./tables/FFMetadata.sol";
 import { ForceFieldApprovals, ForceFieldApprovalsData } from "./tables/ForceFieldApprovals.sol";
 import { DisplayStatus } from "./tables/DisplayStatus.sol";
 import { DisplayRegisterMsg } from "./tables/DisplayRegisterMsg.sol";
