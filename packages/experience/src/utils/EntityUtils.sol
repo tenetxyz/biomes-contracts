@@ -128,16 +128,20 @@ function getInventoryTool(bytes32 playerEntityId) view returns (bytes32[] memory
   return ReverseInventoryTool.getToolEntityIds(playerEntityId);
 }
 
-function getInventoryObjects(bytes32 playerEntityId) view returns (uint8[] memory) {
-  return InventoryObjects.getObjectTypeIds(playerEntityId);
+function getInventoryObjects(bytes32 entityId) view returns (uint8[] memory) {
+  return InventoryObjects.getObjectTypeIds(entityId);
 }
 
-function getCount(bytes32 playerEntityId, uint8 objectTypeId) view returns (uint16) {
-  return InventoryCount.getCount(playerEntityId, objectTypeId);
+function getNumInventoryObjects(bytes32 entityId) view returns (uint256) {
+  return InventoryObjects.lengthObjectTypeIds(entityId);
 }
 
-function getNumSlotsUsed(bytes32 playerEntityId) view returns (uint16) {
-  return InventorySlots.getNumSlotsUsed(playerEntityId);
+function getCount(bytes32 entityId, uint8 objectTypeId) view returns (uint16) {
+  return InventoryCount.getCount(entityId, objectTypeId);
+}
+
+function getNumSlotsUsed(bytes32 entityId) view returns (uint16) {
+  return InventorySlots.getNumSlotsUsed(entityId);
 }
 
 function getNumUsesLeft(bytes32 toolEntityId) view returns (uint24) {
