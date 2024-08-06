@@ -42,7 +42,8 @@ contract TestScript is Script {
 
     IWorld world = IWorld(worldAddress);
 
-    bytes32 playerEntityId = Player.get(0xA641bCa760A97a293CF6001b2ca2F98E1b8A6A48);
+    bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
+    require(playerEntityId != bytes32(0), "Player entity not found");
     Stamina.set(playerEntityId, block.timestamp, 120000);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockObjectID, 4);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 10);
