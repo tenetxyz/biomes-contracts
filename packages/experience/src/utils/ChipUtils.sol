@@ -7,7 +7,7 @@ import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
 import { ChipMetadataData } from "../codegen/tables/ChipMetadata.sol";
-import { ShopData } from "../codegen/tables/Shop.sol";
+import { ItemShopData } from "../codegen/tables/ItemShop.sol";
 import { ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
 
 function setChipMetadata(ChipMetadataData memory metadata) {
@@ -26,7 +26,7 @@ function deleteChipAttacher(bytes32 entityId) {
   IWorld(WorldContextConsumerLib._world()).experience__deleteChipAttacher(entityId);
 }
 
-function setShop(bytes32 entityId, ShopData memory shopData) {
+function setShop(bytes32 entityId, ItemShopData memory shopData) {
   IWorld(WorldContextConsumerLib._world()).experience__setShop(entityId, shopData);
 }
 

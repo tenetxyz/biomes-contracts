@@ -1025,7 +1025,7 @@ declare const abi: [
       {
         "name": "shopData",
         "type": "tuple",
-        "internalType": "struct ShopData",
+        "internalType": "struct ItemShopData",
         "components": [
           {
             "name": "shopType",

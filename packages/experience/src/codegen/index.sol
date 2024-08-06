@@ -6,7 +6,7 @@ pragma solidity >=0.8.24;
 import { ExperienceMetadata, ExperienceMetadataData } from "./tables/ExperienceMetadata.sol";
 import { ChipMetadata, ChipMetadataData } from "./tables/ChipMetadata.sol";
 import { ChipAttachment } from "./tables/ChipAttachment.sol";
-import { Shop, ShopData } from "./tables/Shop.sol";
+import { ItemShop, ItemShopData } from "./tables/ItemShop.sol";
 import { ForceFieldMetadata } from "./tables/ForceFieldMetadata.sol";
 import { ForceFieldApprovals, ForceFieldApprovalsData } from "./tables/ForceFieldApprovals.sol";
 import { DisplayStatus } from "./tables/DisplayStatus.sol";

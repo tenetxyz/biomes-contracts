@@ -19,7 +19,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { ShopType } from "./../common.sol";
 
-struct ShopData {
+struct ItemShopData {
   ShopType shopType;
   uint8 objectTypeId;
   uint256 buyPrice;
@@ -28,9 +28,9 @@ struct ShopData {
   uint256 balance;
 }
 
-library Shop {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "Shop", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e63650000000053686f70000000000000000000000000);
+library ItemShop {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "ItemShop", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e6365000000004974656d53686f700000000000000000);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0076060001012020142000000000000000000000000000000000000000000000);
@@ -332,7 +332,7 @@ library Shop {
   /**
    * @notice Get the full data.
    */
-  function get(bytes32 entityId) internal view returns (ShopData memory _table) {
+  function get(bytes32 entityId) internal view returns (ItemShopData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -347,7 +347,7 @@ library Shop {
   /**
    * @notice Get the full data.
    */
-  function _get(bytes32 entityId) internal view returns (ShopData memory _table) {
+  function _get(bytes32 entityId) internal view returns (ItemShopData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -408,7 +408,7 @@ library Shop {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(bytes32 entityId, ShopData memory _table) internal {
+  function set(bytes32 entityId, ItemShopData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.shopType,
       _table.objectTypeId,
@@ -430,7 +430,7 @@ library Shop {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(bytes32 entityId, ShopData memory _table) internal {
+  function _set(bytes32 entityId, ItemShopData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.shopType,
       _table.objectTypeId,
@@ -489,7 +489,7 @@ library Shop {
     bytes memory _staticData,
     EncodedLengths,
     bytes memory
-  ) internal pure returns (ShopData memory _table) {
+  ) internal pure returns (ItemShopData memory _table) {
     (
       _table.shopType,
       _table.objectTypeId,
