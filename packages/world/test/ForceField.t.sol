@@ -293,6 +293,8 @@ contract ForceFieldTest is MudTest, GasReporter {
     world.attachChip(forceFieldEntityId, address(testChip));
     world.powerChip(forceFieldEntityId, 1);
 
+    vm.warp(block.timestamp + TIME_BEFORE_DECREASE_BATTERY_LEVEL + 1);
+
     assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(testChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 

@@ -7,6 +7,7 @@ import { coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.so
 
 import { Stamina } from "../../codegen/tables/Stamina.sol";
 import { Chip, ChipData } from "../../codegen/tables/Chip.sol";
+import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
 import { MAX_PLAYER_STAMINA } from "../../Constants.sol";
 import { ForceFieldObjectID } from "../../ObjectTypeIds.sol";
@@ -57,6 +58,8 @@ contract ForceFieldSystem is System {
     bytes memory extraData
   ) public payable {
     bytes32 forceFieldEntityId = getForceField(coord);
+    uint256 forceFieldStaminaMultiplier = 10;
+    uint256 miningDifficulty = uint256(ObjectTypeMetadata._getMiningDifficulty(objectTypeId));
     if (forceFieldEntityId != bytes32(0)) {
       address chipAddress = Chip._getChipAddress(forceFieldEntityId);
       if (chipAddress != address(0)) {
@@ -74,18 +77,40 @@ contract ForceFieldSystem is System {
         );
         if (!mineAllowed) {
           // Apply an additional stamina cost for mining inside of a force field
-          // Scale the stamina required by the chip's battery level
-          uint256 staminaRequired = (Chip._getBatteryLevel(forceFieldEntityId) * 1000) / equippedToolDamage;
-          uint32 currentStamina = Stamina._getStamina(playerEntityId);
-          require(
-            staminaRequired <= MAX_PLAYER_STAMINA,
-            "MineSystem: mining difficulty too high due to force field. Try a stronger tool."
-          );
-          uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
-          require(currentStamina >= useStamina, "MineSystem: not enough stamina due to force field");
-          Stamina._setStamina(playerEntityId, currentStamina - useStamina);
+          uint256 currentChargeLevel = Chip._getBatteryLevel(forceFieldEntityId);
+          if (currentChargeLevel < 2 days) {
+            if (miningDifficulty <= 100) {
+              forceFieldStaminaMultiplier = 2000;
+            } else if (miningDifficulty > 100 && miningDifficulty <= 1000) {
+              forceFieldStaminaMultiplier = 680;
+            } else if (miningDifficulty > 1000 && miningDifficulty <= 4000) {
+              forceFieldStaminaMultiplier = 140;
+            } else {
+              forceFieldStaminaMultiplier = 13;
+            }
+          } else {
+            if (miningDifficulty <= 100) {
+              forceFieldStaminaMultiplier = 9000;
+            } else if (miningDifficulty > 100 && miningDifficulty <= 1000) {
+              forceFieldStaminaMultiplier = 1060;
+            } else if (miningDifficulty > 1000 && miningDifficulty <= 4000) {
+              forceFieldStaminaMultiplier = 230;
+            } else {
+              forceFieldStaminaMultiplier = 17;
+            }
+          }
         }
       }
+    }
+
+    {
+      uint32 currentStamina = Stamina._getStamina(playerEntityId);
+      uint256 staminaRequired = (forceFieldStaminaMultiplier * miningDifficulty * 1000) / (equippedToolDamage * 10);
+      require(staminaRequired <= MAX_PLAYER_STAMINA, "MineSystem: mining difficulty too high. Try a stronger tool.");
+      uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
+      require(currentStamina >= useStamina, "MineSystem: not enough stamina");
+      uint32 newStamina = currentStamina - useStamina;
+      Stamina._setStamina(playerEntityId, newStamina);
     }
 
     if (objectTypeId == ForceFieldObjectID) {

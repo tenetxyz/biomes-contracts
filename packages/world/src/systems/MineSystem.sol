@@ -55,23 +55,19 @@ contract MineSystem is System {
       equippedToolDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
     }
 
-    // Spend stamina for mining
-    uint32 newStamina;
-    {
-      uint32 currentStamina = Stamina._getStamina(playerEntityId);
-      uint256 staminaRequired = (uint256(ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId)) * 1000) /
-        equippedToolDamage;
-      require(staminaRequired <= MAX_PLAYER_STAMINA, "MineSystem: mining difficulty too high. Try a stronger tool.");
-      uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
-      require(currentStamina >= useStamina, "MineSystem: not enough stamina");
-      newStamina = currentStamina - useStamina;
-      Stamina._setStamina(playerEntityId, newStamina);
-    }
+    // Note: stamina is spent in the ForceFieldSystem.requireMineAllowed call
 
     useEquipped(playerEntityId, equippedEntityId);
 
     ObjectType._set(entityId, AirObjectID);
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
+
+    callInternalSystem(
+      abi.encodeCall(
+        IForceFieldSystem.requireMineAllowed,
+        (playerEntityId, equippedToolDamage, entityId, mineObjectTypeId, coord, extraData)
+      )
+    );
 
     // Apply gravity
     {
@@ -81,14 +77,6 @@ contract MineSystem is System {
         callGravity(aboveEntityId, aboveCoord);
       }
     }
-
-    // Note: we call this after the mine state has been updated, to prevent re-entrancy attacks
-    callInternalSystem(
-      abi.encodeCall(
-        IForceFieldSystem.requireMineAllowed,
-        (playerEntityId, equippedToolDamage, entityId, mineObjectTypeId, coord, extraData)
-      )
-    );
   }
 
   function mine(VoxelCoord memory coord) public payable {
