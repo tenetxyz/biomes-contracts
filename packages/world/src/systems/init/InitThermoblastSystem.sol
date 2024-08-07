@@ -204,7 +204,7 @@ contract InitThermoblastSystem is System {
     createSingleInputWithStationRecipe(ThermoblasterObjectID, DiamondObjectID, 8, DiamondCubeObjectID, 1);
     createSingleInputWithStationRecipe(ThermoblasterObjectID, NeptuniumBarObjectID, 8, NeptuniumCubeObjectID, 1);
 
-    createDoubleInputWithStationRecipe(ThermoblasterObjectID, SandObjectID, 4, CoalOreObjectID, 2, ChipObjectID, 1);
-    createSingleInputWithStationRecipe(ThermoblasterObjectID, SandObjectID, 2, ChipBatteryObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, SandObjectID, 4, ChipObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, CoalOreObjectID, 4, ChipBatteryObjectID, 1);
   }
 }

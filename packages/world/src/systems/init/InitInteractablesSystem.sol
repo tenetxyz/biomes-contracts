@@ -7,9 +7,9 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
 import { ChestObjectID, ThermoblasterObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
-import { AnyLumberObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID } from "../../ObjectTypeIds.sol";
+import { AnyLumberObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID } from "../../ObjectTypeIds.sol";
 
-import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
+import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitInteractablesSystem is System {
   function createInteractableBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty) internal {
@@ -39,6 +39,14 @@ contract InitInteractablesSystem is System {
     createSingleInputRecipe(AnyLogObjectID, 5, WorkbenchObjectID, 1);
     createSingleInputRecipe(StoneObjectID, 9, ThermoblasterObjectID, 1);
     createDoubleInputRecipe(ClayObjectID, 4, SandObjectID, 4, DyeomaticObjectID, 1);
-    createDoubleInputRecipe(StoneObjectID, 9, CoalOreObjectID, 2, ForceFieldObjectID, 1);
+    createDoubleInputWithStationRecipe(
+      ThermoblasterObjectID,
+      StoneObjectID,
+      30,
+      GlassObjectID,
+      5,
+      ForceFieldObjectID,
+      1
+    );
   }
 }
