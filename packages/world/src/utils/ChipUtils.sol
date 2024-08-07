@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 
-import { TIME_BEFORE_DECREASE_BATTERY_LEVEL, BATTERY_DECREASE_RATE } from "../Constants.sol";
+import { TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../Constants.sol";
 
 function updateChipBatteryLevel(bytes32 entityId) returns (ChipData memory) {
   ChipData memory chipData = Chip._get(entityId);
@@ -15,9 +15,8 @@ function updateChipBatteryLevel(bytes32 entityId) returns (ChipData memory) {
       return chipData;
     }
 
-    uint256 decreaseBatteryLevel = (timeSinceLastUpdate / TIME_BEFORE_DECREASE_BATTERY_LEVEL) * BATTERY_DECREASE_RATE;
-    uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel
-      ? chipData.batteryLevel - decreaseBatteryLevel
+    uint256 newBatteryLevel = chipData.batteryLevel > timeSinceLastUpdate
+      ? chipData.batteryLevel - timeSinceLastUpdate
       : 0;
     chipData.batteryLevel = newBatteryLevel;
     Chip._setBatteryLevel(entityId, newBatteryLevel);

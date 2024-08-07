@@ -11,8 +11,8 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 
-import { PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
-import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID } from "../ObjectTypeIds.sol";
+import { PLAYER_HAND_DAMAGE, HIT_STAMINA_COST, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../Constants.sol";
+import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, ChestObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireBesidePlayer } from "../utils/PlayerUtils.sol";
 import { canAttachChip } from "../utils/ObjectTypeUtils.sol";
@@ -34,7 +34,6 @@ contract ChipSystem is System {
 
     removeFromInventoryCount(playerEntityId, ChipObjectID, 1);
 
-    // TODO: figure out initial battery level
     Chip._set(entityId, ChipData({ chipAddress: chipAddress, batteryLevel: 0, lastUpdatedTime: block.timestamp }));
 
     // Don't safe call here because we want to revert if the chip doesn't allow the attachment
@@ -67,8 +66,20 @@ contract ChipSystem is System {
 
     removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, numBattery);
 
-    // TODO: Figure out how to scale powerAmount
-    Chip._setBatteryLevel(entityId, chipData.batteryLevel + (uint256(numBattery) * 100));
+    uint8 objectTypeId = ObjectType._get(entityId);
+    uint256 increasePerBattery = 0;
+    if (objectTypeId == ForceFieldObjectID) {
+      // 1 battery adds 2 days of charge
+      increasePerBattery = 2 days;
+    } else if (objectTypeId == ChestObjectID) {
+      // 1 battery adds 1 week of charge
+      increasePerBattery = 1 weeks;
+    } else {
+      revert("ChipSystem: cannot power this object");
+    }
+    uint256 newBatteryLevel = chipData.batteryLevel + (uint256(numBattery) * increasePerBattery);
+
+    Chip._setBatteryLevel(entityId, newBatteryLevel);
     Chip._setLastUpdatedTime(entityId, block.timestamp);
 
     // TODO: Figure out a way to accurately estimate gas in the client to then change this to be a safe call instead
