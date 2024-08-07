@@ -12,10 +12,10 @@ import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
-import { NullObjectTypeId, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
+import { NullObjectTypeId, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyGlassObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
-import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes } from "../utils/ObjectTypeUtils.sol";
+import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes, getGlassObjectTypes } from "../utils/ObjectTypeUtils.sol";
 import { requireValidPlayer, requireBesidePlayer } from "../utils/PlayerUtils.sol";
 
 contract CraftSystem is System {
@@ -70,6 +70,18 @@ contract CraftSystem is System {
           }
         }
         require(numReinforcedLumberLeft == 0, "CraftSystem: not enough reinforced lumber");
+      } else if (recipeData.inputObjectTypeIds[i] == AnyGlassObjectID) {
+        uint8 numGlassLeft = recipeData.inputObjectTypeAmounts[i];
+        uint8[10] memory glassObjectTypeIds = getGlassObjectTypes();
+        for (uint256 j = 0; j < glassObjectTypeIds.length; j++) {
+          uint16 numGlass = InventoryCount._get(playerEntityId, glassObjectTypeIds[j]);
+          uint8 spendGlass = numGlass > numGlassLeft ? numGlassLeft : uint8(numGlass);
+          if (spendGlass > 0) {
+            removeFromInventoryCount(playerEntityId, glassObjectTypeIds[j], spendGlass);
+            numGlassLeft -= spendGlass;
+          }
+        }
+        require(numGlassLeft == 0, "CraftSystem: not enough glass");
       } else {
         removeFromInventoryCount(
           playerEntityId,

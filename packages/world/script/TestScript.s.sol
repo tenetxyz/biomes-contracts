@@ -24,7 +24,7 @@ import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { GrassObjectID, DirtObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
+import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testGetUniqueEntity, testAddToInventoryCount } from "../test/utils/TestUtils.sol";
@@ -49,9 +49,12 @@ contract TestScript is Script {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 10);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 2);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, OakLogObjectID, 40);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, OakLogObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 5);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, BlueGlassObjectID, 30);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, BlueGlassObjectID, 99);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, CoalOreObjectID, 99);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SandObjectID, 99);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, StoneObjectID, 99);
 
     vm.stopBroadcast();
   }

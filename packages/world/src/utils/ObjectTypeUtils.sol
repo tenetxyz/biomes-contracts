@@ -13,7 +13,9 @@ import { GoldCubeObjectID, SilverCubeObjectID, DiamondCubeObjectID, NeptuniumCub
 import { OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID, OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../ObjectTypeIds.sol";
 import { WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "../ObjectTypeIds.sol";
 import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../ObjectTypeIds.sol";
+import { GlassObjectID, BlueGlassObjectID, GreenGlassObjectID, OrangeGlassObjectID, PinkGlassObjectID, PurpleGlassObjectID, RedGlassObjectID, WhiteGlassObjectID, YellowGlassObjectID, BlackGlassObjectID } from "../ObjectTypeIds.sol";
 import { BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "../ObjectTypeIds.sol";
+
 import { ChestObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 
 function isPick(uint8 objectTypeId) pure returns (bool) {
@@ -67,6 +69,35 @@ function isLumber(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == YellowOakLumberObjectID ||
     objectTypeId == BlackOakLumberObjectID ||
     objectTypeId == SilverOakLumberObjectID;
+}
+
+function isGlass(uint8 objectTypeId) pure returns (bool) {
+  return
+    objectTypeId == GlassObjectID ||
+    objectTypeId == BlueGlassObjectID ||
+    objectTypeId == GreenGlassObjectID ||
+    objectTypeId == OrangeGlassObjectID ||
+    objectTypeId == PinkGlassObjectID ||
+    objectTypeId == PurpleGlassObjectID ||
+    objectTypeId == RedGlassObjectID ||
+    objectTypeId == WhiteGlassObjectID ||
+    objectTypeId == YellowGlassObjectID ||
+    objectTypeId == BlackGlassObjectID;
+}
+
+function getGlassObjectTypes() pure returns (uint8[10] memory) {
+  return [
+    GlassObjectID,
+    BlueGlassObjectID,
+    GreenGlassObjectID,
+    OrangeGlassObjectID,
+    PinkGlassObjectID,
+    PurpleGlassObjectID,
+    RedGlassObjectID,
+    WhiteGlassObjectID,
+    YellowGlassObjectID,
+    BlackGlassObjectID
+  ];
 }
 
 function getLumberObjectTypes() pure returns (uint8[17] memory) {

@@ -7,7 +7,7 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
 import { ChestObjectID, ThermoblasterObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
-import { AnyLumberObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID } from "../../ObjectTypeIds.sol";
+import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
@@ -43,7 +43,7 @@ contract InitInteractablesSystem is System {
       ThermoblasterObjectID,
       StoneObjectID,
       30,
-      GlassObjectID,
+      AnyGlassObjectID,
       5,
       ForceFieldObjectID,
       1
