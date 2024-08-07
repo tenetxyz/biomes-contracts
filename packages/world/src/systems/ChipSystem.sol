@@ -11,7 +11,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 
-import { PLAYER_HAND_DAMAGE, HIT_STAMINA_COST, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../Constants.sol";
+import { PLAYER_HAND_DAMAGE, HIT_CHIP_STAMINA_COST, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../Constants.sol";
 import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, ChestObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireBesidePlayer } from "../utils/PlayerUtils.sol";
@@ -95,7 +95,7 @@ contract ChipSystem is System {
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    uint16 staminaRequired = HIT_STAMINA_COST;
+    uint16 staminaRequired = HIT_CHIP_STAMINA_COST;
     require(currentStamina >= staminaRequired, "ChipSystem: player does not have enough stamina");
     Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
 
@@ -104,11 +104,21 @@ contract ChipSystem is System {
     if (equippedEntityId != bytes32(0)) {
       receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
     }
+    uint256 decreaseBatteryLevel = 0;
+    uint8 objectTypeId = ObjectType._get(entityId);
+    if (objectTypeId == ForceFieldObjectID) {
+      decreaseBatteryLevel = (72 * uint256(receiverDamage) * 60) / 120;
+    } else if (objectTypeId == ChestObjectID) {
+      decreaseBatteryLevel = (252 * uint256(receiverDamage) * 60) / 120;
+    } else {
+      revert("ChipSystem: cannot hit this object");
+    }
 
     useEquipped(playerEntityId, equippedEntityId);
 
-    uint256 currentBatteryLevel = chipData.batteryLevel;
-    uint256 newBatteryLevel = currentBatteryLevel > receiverDamage ? currentBatteryLevel - receiverDamage : 0;
+    uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel
+      ? chipData.batteryLevel - decreaseBatteryLevel
+      : 0;
     if (newBatteryLevel == 0) {
       addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 

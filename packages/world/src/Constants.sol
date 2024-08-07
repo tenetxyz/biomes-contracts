@@ -29,7 +29,7 @@ int16 constant SPAWN_SHARD_DIM = 1000;
 int16 constant FORCE_FIELD_SHARD_DIM = 32;
 
 uint16 constant MAX_PLAYER_HEALTH = 1000;
-uint32 constant MAX_PLAYER_STAMINA = 120000;
+uint32 constant MAX_PLAYER_STAMINA = 120_000;
 
 uint32 constant TIME_BEFORE_INCREASE_STAMINA = 1 minutes;
 uint32 constant STAMINA_INCREASE_RATE = 100;
@@ -41,7 +41,8 @@ uint16 constant TIME_BEFORE_DECREASE_BATTERY_LEVEL = 1 minutes;
 
 uint16 constant GRAVITY_DAMAGE = 100;
 uint16 constant PLAYER_HAND_DAMAGE = 20;
-uint16 constant HIT_STAMINA_COST = 250;
+uint16 constant HIT_PLAYER_STAMINA_COST = 250;
+uint16 constant HIT_CHIP_STAMINA_COST = 12_000;
 
 uint256 constant MIN_TIME_BEFORE_AUTO_LOGOFF = 15 minutes;
 uint256 constant MIN_TIME_TO_LOGOFF_AFTER_HIT = 1 minutes;

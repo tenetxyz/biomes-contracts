@@ -12,7 +12,7 @@ import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
-import { PLAYER_HAND_DAMAGE, HIT_STAMINA_COST } from "../Constants.sol";
+import { PLAYER_HAND_DAMAGE, HIT_PLAYER_STAMINA_COST } from "../Constants.sol";
 import { PlayerObjectID } from "../ObjectTypeIds.sol";
 import { callGravity, inSpawnArea } from "../Utils.sol";
 import { useEquipped } from "../utils/InventoryUtils.sol";
@@ -28,7 +28,7 @@ contract HitSystem is System {
 
     // Update stamina and health
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    uint16 staminaRequired = HIT_STAMINA_COST;
+    uint16 staminaRequired = HIT_PLAYER_STAMINA_COST;
     require(currentStamina >= staminaRequired, "HitSystem: player does not have enough stamina");
     Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
 
