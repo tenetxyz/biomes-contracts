@@ -1125,6 +1125,37 @@
   },
   {
     "type": "function",
+    "name": "getHealth",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct HealthData",
+        "components": [
+          {
+            "name": "lastUpdatedTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "health",
+            "type": "uint16",
+            "internalType": "uint16"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getKeySchema",
     "inputs": [
       {
@@ -1331,6 +1362,37 @@
         "name": "dynamicData",
         "type": "bytes",
         "internalType": "bytes"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getStamina",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct StaminaData",
+        "components": [
+          {
+            "name": "lastUpdatedTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "stamina",
+            "type": "uint32",
+            "internalType": "uint32"
+          }
+        ]
       }
     ],
     "stateMutability": "view"

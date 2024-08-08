@@ -10,6 +10,8 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { Player } from "../../codegen/tables/Player.sol";
+import { Health, HealthData } from "../../codegen/tables/Health.sol";
+import { Stamina, StaminaData } from "../../codegen/tables/Stamina.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 import { PlayerMetadata } from "../../codegen/tables/PlayerMetadata.sol";
 
@@ -59,5 +61,17 @@ contract ReadSystem is System {
       return 0;
     }
     return PlayerActivity._get(playerEntityId);
+  }
+
+  function getHealth(address player) public view returns (HealthData memory) {
+    bytes32 playerEntityId = Player._get(player);
+    require(playerEntityId != bytes32(0), "ReadSystem: player not found");
+    return Health._get(playerEntityId);
+  }
+
+  function getStamina(address player) public view returns (StaminaData memory) {
+    bytes32 playerEntityId = Player._get(player);
+    require(playerEntityId != bytes32(0), "ReadSystem: player not found");
+    return Stamina._get(playerEntityId);
   }
 }
