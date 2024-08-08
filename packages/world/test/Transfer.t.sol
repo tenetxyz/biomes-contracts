@@ -32,7 +32,7 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, GRAVITY_DAMAGE } from "../src/Constants.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, GRAVITY_DAMAGE } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, ChestObjectID, BlueDyeObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
@@ -459,7 +459,11 @@ contract TransferTest is MudTest, GasReporter {
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId2), "Inventory objects not set");
 
     // build chest beside player
-    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
+    VoxelCoord memory chestCoord = VoxelCoord(
+      spawnCoord.x + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1,
+      spawnCoord.y,
+      spawnCoord.z
+    );
     bytes32 chestEntityId = testGetUniqueEntity();
     ObjectType.set(chestEntityId, ChestObjectID);
     Position.set(chestEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
@@ -468,7 +472,7 @@ contract TransferTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("TransferSystem: destination out of range");
+    vm.expectRevert("TransferSystem: destination too far");
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
 
     vm.stopPrank();

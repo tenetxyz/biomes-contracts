@@ -33,7 +33,7 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../src/Constants.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../src/Constants.sol";
 import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ChestObjectID, GrassObjectID, ChipObjectID, ChipBatteryObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
@@ -482,9 +482,10 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](2);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    newCoords[1] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 2);
+    VoxelCoord[] memory newCoords = new VoxelCoord[](uint(int(MAX_PLAYER_INFLUENCE_HALF_WIDTH)) + 1);
+    for (int16 i = 0; i < MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1; i++) {
+      newCoords[uint(int(i))] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + i + 1);
+    }
     world.move(newCoords);
 
     vm.expectRevert("Player is too far");
@@ -729,9 +730,10 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](2);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    newCoords[1] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 2);
+    VoxelCoord[] memory newCoords = new VoxelCoord[](uint(int(MAX_PLAYER_INFLUENCE_HALF_WIDTH)) + 1);
+    for (int16 i = 0; i < MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1; i++) {
+      newCoords[uint(int(i))] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + i + 1);
+    }
     world.move(newCoords);
 
     vm.expectRevert("Player is too far");
@@ -965,9 +967,10 @@ contract ChipTest is MudTest, GasReporter {
     uint256 initialBatteryLevel = Chip.getBatteryLevel(chestEntityId);
     uint256 initialBatteries = InventoryCount.get(playerEntityId, ChipBatteryObjectID);
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](2);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1);
-    newCoords[1] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 2);
+    VoxelCoord[] memory newCoords = new VoxelCoord[](uint(int(MAX_PLAYER_INFLUENCE_HALF_WIDTH)) + 1);
+    for (int16 i = 0; i < MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1; i++) {
+      newCoords[uint(int(i))] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + i + 1);
+    }
     world.move(newCoords);
 
     vm.expectRevert("Player is too far");

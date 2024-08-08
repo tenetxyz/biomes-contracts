@@ -14,11 +14,11 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 
-import { MAX_PLAYER_STAMINA, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
+import { MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer } from "../utils/PlayerUtils.sol";
+import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
@@ -28,7 +28,7 @@ contract MineSystem is System {
     require(!inSpawnArea(coord), "MineSystem: cannot mine at spawn area");
 
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    require(inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, coord), "Player is too far");
+    requireInPlayerInfluence(playerCoord, coord);
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     uint8 mineObjectTypeId;

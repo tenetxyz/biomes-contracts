@@ -11,13 +11,13 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { AirObjectID, WaterObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonTool, transferInventoryTool } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireBesidePlayer } from "../utils/PlayerUtils.sol";
+import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 contract DropSystem is System {
   function dropCommon(VoxelCoord memory coord) internal returns (bytes32, bytes32) {
     require(inWorldBorder(coord), "DropSystem: cannot drop outside world border");
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    requireBesidePlayer(playerCoord, coord);
+    requireInPlayerInfluence(playerCoord, coord);
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {

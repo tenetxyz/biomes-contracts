@@ -14,6 +14,7 @@ import { positionDataToVoxelCoord } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
 
@@ -24,7 +25,10 @@ contract TransferSystem is System {
     require(dstEntityId != srcEntityId, "TransferSystem: cannot transfer to self");
     VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(srcEntityId));
     VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(dstEntityId));
-    require(inSurroundingCube(srcCoord, 1, dstCoord), "TransferSystem: destination out of range");
+    require(
+      inSurroundingCube(srcCoord, MAX_PLAYER_INFLUENCE_HALF_WIDTH, dstCoord),
+      "TransferSystem: destination too far"
+    );
 
     uint8 srcObjectTypeId = ObjectType._get(srcEntityId);
     uint8 dstObjectTypeId = ObjectType._get(dstEntityId);

@@ -16,7 +16,7 @@ import { NullObjectTypeId, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, An
 import { getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes, getGlassObjectTypes } from "../utils/ObjectTypeUtils.sol";
-import { requireValidPlayer, requireBesidePlayer } from "../utils/PlayerUtils.sol";
+import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 contract CraftSystem is System {
   function craft(bytes32 recipeId, bytes32 stationEntityId) public {
@@ -26,7 +26,7 @@ contract CraftSystem is System {
     require(recipeData.inputObjectTypeIds.length > 0, "CraftSystem: recipe not found");
     if (recipeData.stationObjectTypeId != NullObjectTypeId) {
       require(ObjectType._get(stationEntityId) == recipeData.stationObjectTypeId, "CraftSystem: wrong station");
-      requireBesidePlayer(playerCoord, stationEntityId);
+      requireInPlayerInfluence(playerCoord, stationEntityId);
     }
 
     // Require that the player has all the ingredients in its inventory

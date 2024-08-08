@@ -14,7 +14,7 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
 
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, WATER_STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "../Constants.sol";
+import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, WATER_STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID } from "../ObjectTypeIds.sol";
 import { getTerrainObjectTypeId, positionDataToVoxelCoord } from "../Utils.sol";
 
@@ -39,6 +39,16 @@ function requireBesidePlayer(VoxelCoord memory playerCoord, VoxelCoord memory co
 function requireBesidePlayer(VoxelCoord memory playerCoord, bytes32 entityId) returns (VoxelCoord memory) {
   VoxelCoord memory coord = positionDataToVoxelCoord(Position._get(entityId));
   requireBesidePlayer(playerCoord, coord);
+  return coord;
+}
+
+function requireInPlayerInfluence(VoxelCoord memory playerCoord, VoxelCoord memory coord) {
+  require(inSurroundingCube(playerCoord, MAX_PLAYER_INFLUENCE_HALF_WIDTH, coord), "Player is too far");
+}
+
+function requireInPlayerInfluence(VoxelCoord memory playerCoord, bytes32 entityId) returns (VoxelCoord memory) {
+  VoxelCoord memory coord = positionDataToVoxelCoord(Position._get(entityId));
+  requireInPlayerInfluence(playerCoord, coord);
   return coord;
 }
 

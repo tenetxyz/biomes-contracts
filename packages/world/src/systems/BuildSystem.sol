@@ -13,11 +13,11 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
-import { MAX_PLAYER_BUILD_MINE_HALF_WIDTH } from "../Constants.sol";
+import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inSpawnArea, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer } from "../utils/PlayerUtils.sol";
+import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
@@ -28,7 +28,7 @@ contract BuildSystem is System {
     require(ObjectTypeMetadata._getIsBlock(objectTypeId), "BuildSystem: object type is not a block");
 
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    require(inSurroundingCube(playerCoord, MAX_PLAYER_BUILD_MINE_HALF_WIDTH, coord), "Player is too far");
+    requireInPlayerInfluence(playerCoord, coord);
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {

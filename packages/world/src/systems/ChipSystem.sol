@@ -14,7 +14,7 @@ import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 import { PLAYER_HAND_DAMAGE, HIT_CHIP_STAMINA_COST, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../Constants.sol";
 import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, ChestObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireBesidePlayer } from "../utils/PlayerUtils.sol";
+import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { canAttachChip } from "../utils/ObjectTypeUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 
@@ -23,7 +23,7 @@ import { IChip } from "../prototypes/IChip.sol";
 contract ChipSystem is System {
   function attachChip(bytes32 entityId, address chipAddress) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    requireBesidePlayer(playerCoord, entityId);
+    requireInPlayerInfluence(playerCoord, entityId);
 
     uint8 objectTypeId = ObjectType._get(entityId);
     require(canAttachChip(objectTypeId), "ChipSystem: cannot attach a chip to this object");
@@ -42,7 +42,7 @@ contract ChipSystem is System {
 
   function detachChip(bytes32 entityId) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    requireBesidePlayer(playerCoord, entityId);
+    requireInPlayerInfluence(playerCoord, entityId);
 
     ChipData memory chipData = updateChipBatteryLevel(entityId);
     require(chipData.batteryLevel == 0, "ChipSystem: battery level is not zero");
@@ -59,7 +59,7 @@ contract ChipSystem is System {
 
   function powerChip(bytes32 entityId, uint16 numBattery) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    requireBesidePlayer(playerCoord, entityId);
+    requireInPlayerInfluence(playerCoord, entityId);
 
     ChipData memory chipData = updateChipBatteryLevel(entityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
