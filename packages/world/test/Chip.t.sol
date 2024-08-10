@@ -45,7 +45,9 @@ import { IChip } from "../src/prototypes/IChip.sol";
 contract TestChip is IChip {
   function onAttached(bytes32 playerEntityId, bytes32 entityId) external {}
 
-  function onDetached(bytes32 playerEntityId, bytes32 entityId) external {}
+  function onDetached(bytes32 playerEntityId, bytes32 entityId) external {
+    revert("Test blocking detach");
+  }
 
   function onPowered(bytes32 playerEntityId, bytes32 entityId, uint16 numBattery) external {}
 

@@ -53,6 +53,7 @@ contract TestScript is Script {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 5);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, BlueGlassObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, CoalOreObjectID, 99);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverBarObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, SandObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, StoneObjectID, 99);
 

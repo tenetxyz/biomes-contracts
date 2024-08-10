@@ -40,6 +40,19 @@ contract ChipSystem is System {
     IChip(chipAddress).onAttached(playerEntityId, entityId);
   }
 
+  // Safe as in do not block the chip tx
+  function safeCallChip(address chipAddress, bytes memory callData) internal {
+    (bool success, ) = chipAddress.call(callData);
+    if (!success) {
+      // Note: we want the TX to revert if the chip call runs out of gas, but because
+      // this is the last call in the function, we need to consume some dummy gas for it to revert
+      // See: https://github.com/dhvanipa/evm-outofgas-call
+      for (uint256 i = 0; i < 100; i++) {
+        continue;
+      }
+    }
+  }
+
   function detachChip(bytes32 entityId) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, entityId);
@@ -52,9 +65,7 @@ contract ChipSystem is System {
 
     Chip._deleteRecord(entityId);
 
-    // TODO: Figure out a way to accurately estimate gas in the client to then change this to be a safe call instead
-    // chipData.chipAddress.call(abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
-    IChip(chipData.chipAddress).onDetached(playerEntityId, entityId);
+    safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
   }
 
   function powerChip(bytes32 entityId, uint16 numBattery) public {
@@ -82,9 +93,7 @@ contract ChipSystem is System {
     Chip._setBatteryLevel(entityId, newBatteryLevel);
     Chip._setLastUpdatedTime(entityId, block.timestamp);
 
-    // TODO: Figure out a way to accurately estimate gas in the client to then change this to be a safe call instead
-    // chipData.chipAddress.call(abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
-    IChip(chipData.chipAddress).onPowered(playerEntityId, entityId, numBattery);
+    safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
   }
 
   function hitChip(bytes32 entityId) public {
@@ -94,45 +103,43 @@ contract ChipSystem is System {
     ChipData memory chipData = updateChipBatteryLevel(entityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 
-    uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    uint16 staminaRequired = HIT_CHIP_STAMINA_COST;
-    require(currentStamina >= staminaRequired, "ChipSystem: player does not have enough stamina");
-    Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
-
-    uint16 receiverDamage = PLAYER_HAND_DAMAGE;
-    bytes32 equippedEntityId = Equipped._get(playerEntityId);
-    if (equippedEntityId != bytes32(0)) {
-      receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
-    }
     uint256 decreaseBatteryLevel = 0;
-    uint8 objectTypeId = ObjectType._get(entityId);
-    if (objectTypeId == ForceFieldObjectID) {
-      decreaseBatteryLevel = (72 * uint256(receiverDamage) * 60) / 120;
-    } else if (objectTypeId == ChestObjectID) {
-      decreaseBatteryLevel = (252 * uint256(receiverDamage) * 60) / 120;
-    } else {
-      revert("ChipSystem: cannot hit this object");
+    if (chipData.batteryLevel > 0) {
+      uint32 currentStamina = Stamina._getStamina(playerEntityId);
+      uint16 staminaRequired = HIT_CHIP_STAMINA_COST;
+      require(currentStamina >= staminaRequired, "ChipSystem: player does not have enough stamina");
+      Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
+
+      uint16 receiverDamage = PLAYER_HAND_DAMAGE;
+      bytes32 equippedEntityId = Equipped._get(playerEntityId);
+      if (equippedEntityId != bytes32(0)) {
+        receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
+      }
+      uint8 objectTypeId = ObjectType._get(entityId);
+      if (objectTypeId == ForceFieldObjectID) {
+        decreaseBatteryLevel = (72 * uint256(receiverDamage) * 60) / 120;
+      } else if (objectTypeId == ChestObjectID) {
+        decreaseBatteryLevel = (252 * uint256(receiverDamage) * 60) / 120;
+      } else {
+        revert("ChipSystem: cannot hit this object");
+      }
+
+      useEquipped(playerEntityId, equippedEntityId);
     }
-
-    useEquipped(playerEntityId, equippedEntityId);
-
     uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel
       ? chipData.batteryLevel - decreaseBatteryLevel
       : 0;
+
     if (newBatteryLevel == 0) {
       addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
       Chip._deleteRecord(entityId);
 
-      // TODO: Figure out a way to accurately estimate gas in the client to then change this to be a safe call instead
-      // chipData.chipAddress.call(abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
-      IChip(chipData.chipAddress).onDetached(playerEntityId, entityId);
+      safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
     } else {
       Chip._setBatteryLevel(entityId, newBatteryLevel);
 
-      // TODO: Figure out a way to accurately estimate gas in the client to then change this to be a safe call instead
-      // chipData.chipAddress.call(abi.encodeCall(IChip.onChipHit, (playerEntityId, entityId)));
-      IChip(chipData.chipAddress).onChipHit(playerEntityId, entityId);
+      safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onChipHit, (playerEntityId, entityId)));
     }
   }
 }

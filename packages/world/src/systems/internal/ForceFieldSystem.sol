@@ -66,15 +66,11 @@ contract ForceFieldSystem is System {
         updateChipBatteryLevel(forceFieldEntityId);
 
         // Forward any ether sent with the transaction to the hook
-        // TODO: Figure out a way to accurately estimate gas in the client to then change this to be a safe call instead
         // since mines should not be blockable by the chip
-        bool mineAllowed = IChip(chipAddress).onMine{ value: _msgValue() }(
-          forceFieldEntityId,
-          playerEntityId,
-          objectTypeId,
-          coord,
-          extraData
+        (bool success, bytes memory onMineReturnValue) = chipAddress.call{ value: _msgValue() }(
+          abi.encodeCall(IChip.onMine, (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData))
         );
+        bool mineAllowed = success && abi.decode(onMineReturnValue, (bool));
         if (!mineAllowed) {
           // Apply an additional stamina cost for mining inside of a force field
           uint256 currentChargeLevel = Chip._getBatteryLevel(forceFieldEntityId);
