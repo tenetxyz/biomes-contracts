@@ -14,7 +14,7 @@ import { ForceFieldObjectID } from "../../ObjectTypeIds.sol";
 import { updateChipBatteryLevel } from "../../utils/ChipUtils.sol";
 import { getForceField, setupForceField, destroyForceField } from "../../utils/ForceFieldUtils.sol";
 
-import { IChip } from "../../prototypes/IChip.sol";
+import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 
 contract ForceFieldSystem is System {
   function requireBuildAllowed(
@@ -37,7 +37,7 @@ contract ForceFieldSystem is System {
 
         // Forward any ether sent with the transaction to the hook
         // Don't safe call here as we want to revert if the chip doesn't allow the build
-        bool buildAllowed = IChip(chipAddress).onBuild{ value: _msgValue() }(
+        bool buildAllowed = IForceFieldChip(chipAddress).onBuild{ value: _msgValue() }(
           forceFieldEntityId,
           playerEntityId,
           objectTypeId,
@@ -68,7 +68,7 @@ contract ForceFieldSystem is System {
         // Forward any ether sent with the transaction to the hook
         // since mines should not be blockable by the chip
         (bool success, bytes memory onMineReturnValue) = chipAddress.call{ value: _msgValue() }(
-          abi.encodeCall(IChip.onMine, (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData))
+          abi.encodeCall(IForceFieldChip.onMine, (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData))
         );
         bool mineAllowed = success && abi.decode(onMineReturnValue, (bool));
         if (!mineAllowed) {

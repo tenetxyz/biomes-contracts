@@ -41,8 +41,10 @@ import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolH
 
 import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
 import { IChip } from "../src/prototypes/IChip.sol";
+import { IChestChip } from "../src/prototypes/IChestChip.sol";
+import { IForceFieldChip } from "../src/prototypes/IForceFieldChip.sol";
 
-contract TestChip is IChip {
+contract TestChip is IChestChip {
   function onAttached(bytes32 playerEntityId, bytes32 entityId) external {}
 
   function onDetached(bytes32 playerEntityId, bytes32 entityId) external {
@@ -60,28 +62,10 @@ contract TestChip is IChip {
     uint16 numToTransfer,
     bytes32 toolEntityId,
     bytes memory extraData
-  ) external payable returns (bool isAllowed) {
-    return true;
-  }
-
-  function onBuild(
-    bytes32 forceFieldEntityId,
-    bytes32 playerEntityId,
-    uint8 objectTypeId,
-    VoxelCoord memory coord,
-    bytes memory extraData
-  ) external payable returns (bool isAllowed) {}
-
-  function onMine(
-    bytes32 forceFieldEntityId,
-    bytes32 playerEntityId,
-    uint8 objectTypeId,
-    VoxelCoord memory coord,
-    bytes memory extraData
   ) external payable returns (bool isAllowed) {}
 
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
-    return interfaceId == type(IChip).interfaceId || interfaceId == type(IERC165).interfaceId;
+    return interfaceId == type(IChestChip).interfaceId || interfaceId == type(IERC165).interfaceId;
   }
 }
 

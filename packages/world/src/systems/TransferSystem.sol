@@ -16,7 +16,7 @@ import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 
-import { IChip } from "../prototypes/IChip.sol";
+import { IChestChip } from "../prototypes/IChestChip.sol";
 
 contract TransferSystem is System {
   function transferCommon(bytes32 srcEntityId, bytes32 dstEntityId) internal returns (bytes32, uint8) {
@@ -61,7 +61,7 @@ contract TransferSystem is System {
 
       // Forward any ether sent with the transaction to the hook
       // Don't safe call here as we want to revert if the chip doesn't allow the transfer
-      bool transferAllowed = IChip(chipAddress).onTransfer{ value: _msgValue() }(
+      bool transferAllowed = IChestChip(chipAddress).onTransfer{ value: _msgValue() }(
         srcEntityId,
         dstEntityId,
         transferObjectTypeId,

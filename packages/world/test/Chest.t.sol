@@ -40,9 +40,9 @@ import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDE
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
 
 import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
-import { IChip } from "../src/prototypes/IChip.sol";
+import { IChestChip } from "../src/prototypes/IChestChip.sol";
 
-contract TestChip is IChip {
+contract TestChip is IChestChip {
   bytes32 private ownerEntityId;
   function onAttached(bytes32 playerEntityId, bytes32 entityId) external {
     ownerEntityId = playerEntityId;
@@ -77,24 +77,8 @@ contract TestChip is IChip {
     return false;
   }
 
-  function onBuild(
-    bytes32 forceFieldEntityId,
-    bytes32 playerEntityId,
-    uint8 objectTypeId,
-    VoxelCoord memory coord,
-    bytes memory extraData
-  ) external payable returns (bool isAllowed) {}
-
-  function onMine(
-    bytes32 forceFieldEntityId,
-    bytes32 playerEntityId,
-    uint8 objectTypeId,
-    VoxelCoord memory coord,
-    bytes memory extraData
-  ) external payable returns (bool isAllowed) {}
-
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
-    return interfaceId == type(IChip).interfaceId || interfaceId == type(IERC165).interfaceId;
+    return interfaceId == type(IChestChip).interfaceId || interfaceId == type(IERC165).interfaceId;
   }
 }
 

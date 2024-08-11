@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { requireInterface } from "@latticexyz/world/src/requireInterface.sol";
+import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -19,6 +19,8 @@ import { canAttachChip } from "../utils/ObjectTypeUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
+import { IChestChip } from "../prototypes/IChestChip.sol";
+import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
 contract ChipSystem is System {
   function attachChip(bytes32 entityId, address chipAddress) public {
@@ -30,7 +32,11 @@ contract ChipSystem is System {
     require(Chip._getChipAddress(entityId) == address(0), "ChipSystem: chip already attached");
 
     require(chipAddress != address(0), "ChipSystem: invalid chip address");
-    requireInterface(chipAddress, type(IChip).interfaceId);
+    require(
+      ERC165Checker.supportsInterface(chipAddress, type(IChestChip).interfaceId) ||
+        ERC165Checker.supportsInterface(chipAddress, type(IForceFieldChip).interfaceId),
+      "ChipSystem: chip does not implement the required interface"
+    );
 
     removeFromInventoryCount(playerEntityId, ChipObjectID, 1);
 
