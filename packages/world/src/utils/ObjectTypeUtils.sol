@@ -15,6 +15,7 @@ import { WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "..
 import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../ObjectTypeIds.sol";
 import { GlassObjectID, BlueGlassObjectID, GreenGlassObjectID, OrangeGlassObjectID, PinkGlassObjectID, PurpleGlassObjectID, RedGlassObjectID, WhiteGlassObjectID, YellowGlassObjectID, BlackGlassObjectID } from "../ObjectTypeIds.sol";
 import { BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "../ObjectTypeIds.sol";
+import { CottonBlockObjectID, BlueCottonBlockObjectID, BrownCottonBlockObjectID, GreenCottonBlockObjectID, MagentaCottonBlockObjectID, OrangeCottonBlockObjectID, PinkCottonBlockObjectID, PurpleCottonBlockObjectID, RedCottonBlockObjectID, TanCottonBlockObjectID, WhiteCottonBlockObjectID, YellowCottonBlockObjectID, BlackCottonBlockObjectID, SilverCottonBlockObjectID } from "../ObjectTypeIds.sol";
 
 import { ChestObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 
@@ -71,6 +72,28 @@ function isLumber(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == SilverOakLumberObjectID;
 }
 
+function getLumberObjectTypes() pure returns (uint8[17] memory) {
+  return [
+    OakLumberObjectID,
+    SakuraLumberObjectID,
+    RubberLumberObjectID,
+    BirchLumberObjectID,
+    BlueOakLumberObjectID,
+    BrownOakLumberObjectID,
+    GreenOakLumberObjectID,
+    MagentaOakLumberObjectID,
+    OrangeOakLumberObjectID,
+    PinkOakLumberObjectID,
+    PurpleOakLumberObjectID,
+    RedOakLumberObjectID,
+    TanOakLumberObjectID,
+    WhiteOakLumberObjectID,
+    YellowOakLumberObjectID,
+    BlackOakLumberObjectID,
+    SilverOakLumberObjectID
+  ];
+}
+
 function isGlass(uint8 objectTypeId) pure returns (bool) {
   return
     objectTypeId == GlassObjectID ||
@@ -100,25 +123,40 @@ function getGlassObjectTypes() pure returns (uint8[10] memory) {
   ];
 }
 
-function getLumberObjectTypes() pure returns (uint8[17] memory) {
+function isCottonBlock(uint8 objectTypeId) pure returns (bool) {
+  return
+    objectTypeId == CottonBlockObjectID ||
+    objectTypeId == BlueCottonBlockObjectID ||
+    objectTypeId == BrownCottonBlockObjectID ||
+    objectTypeId == GreenCottonBlockObjectID ||
+    objectTypeId == MagentaCottonBlockObjectID ||
+    objectTypeId == OrangeCottonBlockObjectID ||
+    objectTypeId == PinkCottonBlockObjectID ||
+    objectTypeId == PurpleCottonBlockObjectID ||
+    objectTypeId == RedCottonBlockObjectID ||
+    objectTypeId == TanCottonBlockObjectID ||
+    objectTypeId == WhiteCottonBlockObjectID ||
+    objectTypeId == YellowCottonBlockObjectID ||
+    objectTypeId == BlackCottonBlockObjectID ||
+    objectTypeId == SilverCottonBlockObjectID;
+}
+
+function getCottonBlockObjectTypes() pure returns (uint8[14] memory) {
   return [
-    OakLumberObjectID,
-    SakuraLumberObjectID,
-    RubberLumberObjectID,
-    BirchLumberObjectID,
-    BlueOakLumberObjectID,
-    BrownOakLumberObjectID,
-    GreenOakLumberObjectID,
-    MagentaOakLumberObjectID,
-    OrangeOakLumberObjectID,
-    PinkOakLumberObjectID,
-    PurpleOakLumberObjectID,
-    RedOakLumberObjectID,
-    TanOakLumberObjectID,
-    WhiteOakLumberObjectID,
-    YellowOakLumberObjectID,
-    BlackOakLumberObjectID,
-    SilverOakLumberObjectID
+    CottonBlockObjectID,
+    BlueCottonBlockObjectID,
+    BrownCottonBlockObjectID,
+    GreenCottonBlockObjectID,
+    MagentaCottonBlockObjectID,
+    OrangeCottonBlockObjectID,
+    PinkCottonBlockObjectID,
+    PurpleCottonBlockObjectID,
+    RedCottonBlockObjectID,
+    TanCottonBlockObjectID,
+    WhiteCottonBlockObjectID,
+    YellowCottonBlockObjectID,
+    BlackCottonBlockObjectID,
+    SilverCottonBlockObjectID
   ];
 }
 

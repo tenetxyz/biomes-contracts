@@ -12,10 +12,10 @@ import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
-import { NullObjectTypeId, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyGlassObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
+import { NullObjectTypeId, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyCottonBlockObjectID, AnyGlassObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
-import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes, getGlassObjectTypes } from "../utils/ObjectTypeUtils.sol";
+import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes, getCottonBlockObjectTypes, getGlassObjectTypes } from "../utils/ObjectTypeUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 contract CraftSystem is System {
@@ -70,6 +70,18 @@ contract CraftSystem is System {
           }
         }
         require(numReinforcedLumberLeft == 0, "CraftSystem: not enough reinforced lumber");
+      } else if (recipeData.inputObjectTypeIds[i] == AnyCottonBlockObjectID) {
+        uint8 numCottonBlockLeft = recipeData.inputObjectTypeAmounts[i];
+        uint8[14] memory cottonBlockObjectTypeIds = getCottonBlockObjectTypes();
+        for (uint256 j = 0; j < cottonBlockObjectTypeIds.length; j++) {
+          uint16 numCottonBlock = InventoryCount._get(playerEntityId, cottonBlockObjectTypeIds[j]);
+          uint8 spendCottonBlock = numCottonBlock > numCottonBlockLeft ? numCottonBlockLeft : uint8(numCottonBlock);
+          if (spendCottonBlock > 0) {
+            removeFromInventoryCount(playerEntityId, cottonBlockObjectTypeIds[j], spendCottonBlock);
+            numCottonBlockLeft -= spendCottonBlock;
+          }
+        }
+        require(numCottonBlockLeft == 0, "CraftSystem: not enough cotton blocks");
       } else if (recipeData.inputObjectTypeIds[i] == AnyGlassObjectID) {
         uint8 numGlassLeft = recipeData.inputObjectTypeAmounts[i];
         uint8[10] memory glassObjectTypeIds = getGlassObjectTypes();

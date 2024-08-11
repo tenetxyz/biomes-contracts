@@ -200,10 +200,12 @@ export const BLACK_GLASS_OBJECT_ID = 158;
 export const ANY_LOG_OBJECT_ID = 159;
 export const ANY_LUMBER_OBJECT_ID = 160;
 export const ANY_REINFORCED_LUMBER_OBJECT_ID = 161;
+export const ANY_COTTON_BLOCK_OBJECT_ID = 162;
+export const ANY_GLASS_OBJECT_ID = 163;
 
-export const CHIP_OBJECT_ID = 162;
-export const CHIP_BATTERY_OBJECT_ID = 163;
-export const FORCE_FIELD_OBJECT_ID = 164;
+export const CHIP_OBJECT_ID = 164;
+export const CHIP_BATTERY_OBJECT_ID = 165;
+export const FORCE_FIELD_OBJECT_ID = 166;
 
 // legacy
 export type BiomesVariantData = number;
