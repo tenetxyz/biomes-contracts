@@ -7,6 +7,7 @@ import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 
 import { ChipMetadata, ChipMetadataData } from "../src/codegen/tables/ChipMetadata.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { Tokens } from "../src/codegen/tables/Tokens.sol";
 
 contract Upgrade is Script {
   function run(address worldAddress) external {
@@ -19,7 +20,10 @@ contract Upgrade is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
-    address chipAddress = 0x712516e61C8B383dF4A63CFe83d7701Bce54B03e;
+    // console.logUint(Tokens.lengthTokens(0x1f820052916970Ff09150b58F2f0Fb842C5a58be));
+    // Tokens.deleteRecord(0x1f820052916970Ff09150b58F2f0Fb842C5a58be);
+
+    address chipAddress = 0x7E979136dF1D741991D4e1769B576Ab2D65aC5F3;
     console.log(ChipMetadata.getName(chipAddress));
     // ChipMetadata.deleteRecord(chipAddress);
 

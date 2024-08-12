@@ -23,11 +23,12 @@ import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { Chip } from "../src/codegen/tables/Chip.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
-import { testGetUniqueEntity, testAddToInventoryCount } from "../test/utils/TestUtils.sol";
+import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount } from "../test/utils/TestUtils.sol";
 
 contract TestScript is Script {
   function run(address worldAddress) external {
@@ -45,6 +46,7 @@ contract TestScript is Script {
     bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
     require(playerEntityId != bytes32(0), "Player entity not found");
     Stamina.set(playerEntityId, block.timestamp, 120000);
+    // testRemoveFromInventoryCount(playerEntityId, 162, 10);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockObjectID, 4);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 10);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 99);
