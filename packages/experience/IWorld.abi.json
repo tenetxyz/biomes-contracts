@@ -305,6 +305,19 @@
   },
   {
     "type": "function",
+    "name": "experience__deleteShopNotif",
+    "inputs": [
+      {
+        "name": "chestEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteStatus",
     "inputs": [],
     "outputs": [],
@@ -321,6 +334,56 @@
     "type": "function",
     "name": "experience__deleteUnregisterMsg",
     "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__emitShopNotif",
+    "inputs": [
+      {
+        "name": "chestEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "notifData",
+        "type": "tuple",
+        "internalType": "struct ItemShopNotifData",
+        "components": [
+          {
+            "name": "player",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "shopTxType",
+            "type": "uint8",
+            "internalType": "enum ShopTxType"
+          },
+          {
+            "name": "objectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "amount",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "price",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "paymentToken",
+            "type": "address",
+            "internalType": "address"
+          }
+        ]
+      }
+    ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },

@@ -67,6 +67,13 @@ library ChestMetadata {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get name.
    */
   function getName(bytes32 entityId) internal view returns (string memory name) {
@@ -85,6 +92,17 @@ library ChestMetadata {
     _keyTuple[0] = entityId;
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
+    return (string(_blob));
+  }
+
+  /**
+   * @notice Get name (using the specified store).
+   */
+  function getName(IStore _store, bytes32 entityId) internal view returns (string memory name) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 0);
     return (string(_blob));
   }
 
@@ -109,6 +127,16 @@ library ChestMetadata {
   }
 
   /**
+   * @notice Set name (using the specified store).
+   */
+  function setName(IStore _store, bytes32 entityId, string memory name) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setDynamicField(_tableId, _keyTuple, 0, bytes((name)));
+  }
+
+  /**
    * @notice Get the length of name.
    */
   function lengthName(bytes32 entityId) internal view returns (uint256) {
@@ -129,6 +157,19 @@ library ChestMetadata {
     _keyTuple[0] = entityId;
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
+    unchecked {
+      return _byteLength / 1;
+    }
+  }
+
+  /**
+   * @notice Get the length of name (using the specified store).
+   */
+  function lengthName(IStore _store, bytes32 entityId) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
       return _byteLength / 1;
     }
@@ -163,6 +204,20 @@ library ChestMetadata {
   }
 
   /**
+   * @notice Get an item of name (using the specified store).
+   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
+   */
+  function getItemName(IStore _store, bytes32 entityId, uint256 _index) internal view returns (string memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    unchecked {
+      bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
+      return (string(_blob));
+    }
+  }
+
+  /**
    * @notice Push a slice to name.
    */
   function pushName(bytes32 entityId, string memory _slice) internal {
@@ -183,6 +238,16 @@ library ChestMetadata {
   }
 
   /**
+   * @notice Push a slice to name (using the specified store).
+   */
+  function pushName(IStore _store, bytes32 entityId, string memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.pushToDynamicField(_tableId, _keyTuple, 0, bytes((_slice)));
+  }
+
+  /**
    * @notice Pop a slice from name.
    */
   function popName(bytes32 entityId) internal {
@@ -200,6 +265,16 @@ library ChestMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 1);
+  }
+
+  /**
+   * @notice Pop a slice from name (using the specified store).
+   */
+  function popName(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.popFromDynamicField(_tableId, _keyTuple, 0, 1);
   }
 
   /**
@@ -229,6 +304,19 @@ library ChestMetadata {
   }
 
   /**
+   * @notice Update a slice of name (using the specified store) at `_index`.
+   */
+  function updateName(IStore _store, bytes32 entityId, uint256 _index, string memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    unchecked {
+      bytes memory _encoded = bytes((_slice));
+      _store.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 1), uint40(_encoded.length), _encoded);
+    }
+  }
+
+  /**
    * @notice Get description.
    */
   function getDescription(bytes32 entityId) internal view returns (string memory description) {
@@ -247,6 +335,17 @@ library ChestMetadata {
     _keyTuple[0] = entityId;
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 1);
+    return (string(_blob));
+  }
+
+  /**
+   * @notice Get description (using the specified store).
+   */
+  function getDescription(IStore _store, bytes32 entityId) internal view returns (string memory description) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 1);
     return (string(_blob));
   }
 
@@ -271,6 +370,16 @@ library ChestMetadata {
   }
 
   /**
+   * @notice Set description (using the specified store).
+   */
+  function setDescription(IStore _store, bytes32 entityId, string memory description) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setDynamicField(_tableId, _keyTuple, 1, bytes((description)));
+  }
+
+  /**
    * @notice Get the length of description.
    */
   function lengthDescription(bytes32 entityId) internal view returns (uint256) {
@@ -291,6 +400,19 @@ library ChestMetadata {
     _keyTuple[0] = entityId;
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 1);
+    unchecked {
+      return _byteLength / 1;
+    }
+  }
+
+  /**
+   * @notice Get the length of description (using the specified store).
+   */
+  function lengthDescription(IStore _store, bytes32 entityId) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 1);
     unchecked {
       return _byteLength / 1;
     }
@@ -325,6 +447,20 @@ library ChestMetadata {
   }
 
   /**
+   * @notice Get an item of description (using the specified store).
+   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
+   */
+  function getItemDescription(IStore _store, bytes32 entityId, uint256 _index) internal view returns (string memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    unchecked {
+      bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 1, (_index + 1) * 1);
+      return (string(_blob));
+    }
+  }
+
+  /**
    * @notice Push a slice to description.
    */
   function pushDescription(bytes32 entityId, string memory _slice) internal {
@@ -345,6 +481,16 @@ library ChestMetadata {
   }
 
   /**
+   * @notice Push a slice to description (using the specified store).
+   */
+  function pushDescription(IStore _store, bytes32 entityId, string memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.pushToDynamicField(_tableId, _keyTuple, 1, bytes((_slice)));
+  }
+
+  /**
    * @notice Pop a slice from description.
    */
   function popDescription(bytes32 entityId) internal {
@@ -362,6 +508,16 @@ library ChestMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 1, 1);
+  }
+
+  /**
+   * @notice Pop a slice from description (using the specified store).
+   */
+  function popDescription(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.popFromDynamicField(_tableId, _keyTuple, 1, 1);
   }
 
   /**
@@ -391,6 +547,19 @@ library ChestMetadata {
   }
 
   /**
+   * @notice Update a slice of description (using the specified store) at `_index`.
+   */
+  function updateDescription(IStore _store, bytes32 entityId, uint256 _index, string memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    unchecked {
+      bytes memory _encoded = bytes((_slice));
+      _store.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 1), uint40(_encoded.length), _encoded);
+    }
+  }
+
+  /**
    * @notice Get the full data.
    */
   function get(bytes32 entityId) internal view returns (ChestMetadataData memory _table) {
@@ -413,6 +582,21 @@ library ChestMetadata {
     _keyTuple[0] = entityId;
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Get the full data (using the specified store).
+   */
+  function get(IStore _store, bytes32 entityId) internal view returns (ChestMetadataData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
       _tableId,
       _keyTuple,
       _fieldLayout
@@ -449,6 +633,20 @@ library ChestMetadata {
   }
 
   /**
+   * @notice Set the full data using individual values (using the specified store).
+   */
+  function set(IStore _store, bytes32 entityId, string memory name, string memory description) internal {
+    bytes memory _staticData;
+    EncodedLengths _encodedLengths = encodeLengths(name, description);
+    bytes memory _dynamicData = encodeDynamic(name, description);
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 entityId, ChestMetadataData memory _table) internal {
@@ -474,6 +672,20 @@ library ChestMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Set the full data using the data struct (using the specified store).
+   */
+  function set(IStore _store, bytes32 entityId, ChestMetadataData memory _table) internal {
+    bytes memory _staticData;
+    EncodedLengths _encodedLengths = encodeLengths(_table.name, _table.description);
+    bytes memory _dynamicData = encodeDynamic(_table.name, _table.description);
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
 
   /**
@@ -529,6 +741,16 @@ library ChestMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

@@ -67,6 +67,13 @@ library ForceFieldApprovals {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get players.
    */
   function getPlayers(bytes32 entityId) internal view returns (address[] memory players) {
@@ -85,6 +92,17 @@ library ForceFieldApprovals {
     _keyTuple[0] = entityId;
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_address());
+  }
+
+  /**
+   * @notice Get players (using the specified store).
+   */
+  function getPlayers(IStore _store, bytes32 entityId) internal view returns (address[] memory players) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_address());
   }
 
@@ -109,6 +127,16 @@ library ForceFieldApprovals {
   }
 
   /**
+   * @notice Set players (using the specified store).
+   */
+  function setPlayers(IStore _store, bytes32 entityId, address[] memory players) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((players)));
+  }
+
+  /**
    * @notice Get the length of players.
    */
   function lengthPlayers(bytes32 entityId) internal view returns (uint256) {
@@ -129,6 +157,19 @@ library ForceFieldApprovals {
     _keyTuple[0] = entityId;
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
+    unchecked {
+      return _byteLength / 20;
+    }
+  }
+
+  /**
+   * @notice Get the length of players (using the specified store).
+   */
+  function lengthPlayers(IStore _store, bytes32 entityId) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
       return _byteLength / 20;
     }
@@ -163,6 +204,20 @@ library ForceFieldApprovals {
   }
 
   /**
+   * @notice Get an item of players (using the specified store).
+   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
+   */
+  function getItemPlayers(IStore _store, bytes32 entityId, uint256 _index) internal view returns (address) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    unchecked {
+      bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 20, (_index + 1) * 20);
+      return (address(bytes20(_blob)));
+    }
+  }
+
+  /**
    * @notice Push an element to players.
    */
   function pushPlayers(bytes32 entityId, address _element) internal {
@@ -183,6 +238,16 @@ library ForceFieldApprovals {
   }
 
   /**
+   * @notice Push an element to players (using the specified store).
+   */
+  function pushPlayers(IStore _store, bytes32 entityId, address _element) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
+  }
+
+  /**
    * @notice Pop an element from players.
    */
   function popPlayers(bytes32 entityId) internal {
@@ -200,6 +265,16 @@ library ForceFieldApprovals {
     _keyTuple[0] = entityId;
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 20);
+  }
+
+  /**
+   * @notice Pop an element from players (using the specified store).
+   */
+  function popPlayers(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.popFromDynamicField(_tableId, _keyTuple, 0, 20);
   }
 
   /**
@@ -229,6 +304,19 @@ library ForceFieldApprovals {
   }
 
   /**
+   * @notice Update an element of players (using the specified store) at `_index`.
+   */
+  function updatePlayers(IStore _store, bytes32 entityId, uint256 _index, address _element) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    unchecked {
+      bytes memory _encoded = abi.encodePacked((_element));
+      _store.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 20), uint40(_encoded.length), _encoded);
+    }
+  }
+
+  /**
    * @notice Get nfts.
    */
   function getNfts(bytes32 entityId) internal view returns (address[] memory nfts) {
@@ -247,6 +335,17 @@ library ForceFieldApprovals {
     _keyTuple[0] = entityId;
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 1);
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_address());
+  }
+
+  /**
+   * @notice Get nfts (using the specified store).
+   */
+  function getNfts(IStore _store, bytes32 entityId) internal view returns (address[] memory nfts) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 1);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_address());
   }
 
@@ -271,6 +370,16 @@ library ForceFieldApprovals {
   }
 
   /**
+   * @notice Set nfts (using the specified store).
+   */
+  function setNfts(IStore _store, bytes32 entityId, address[] memory nfts) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setDynamicField(_tableId, _keyTuple, 1, EncodeArray.encode((nfts)));
+  }
+
+  /**
    * @notice Get the length of nfts.
    */
   function lengthNfts(bytes32 entityId) internal view returns (uint256) {
@@ -291,6 +400,19 @@ library ForceFieldApprovals {
     _keyTuple[0] = entityId;
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 1);
+    unchecked {
+      return _byteLength / 20;
+    }
+  }
+
+  /**
+   * @notice Get the length of nfts (using the specified store).
+   */
+  function lengthNfts(IStore _store, bytes32 entityId) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 1);
     unchecked {
       return _byteLength / 20;
     }
@@ -325,6 +447,20 @@ library ForceFieldApprovals {
   }
 
   /**
+   * @notice Get an item of nfts (using the specified store).
+   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
+   */
+  function getItemNfts(IStore _store, bytes32 entityId, uint256 _index) internal view returns (address) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    unchecked {
+      bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 20, (_index + 1) * 20);
+      return (address(bytes20(_blob)));
+    }
+  }
+
+  /**
    * @notice Push an element to nfts.
    */
   function pushNfts(bytes32 entityId, address _element) internal {
@@ -345,6 +481,16 @@ library ForceFieldApprovals {
   }
 
   /**
+   * @notice Push an element to nfts (using the specified store).
+   */
+  function pushNfts(IStore _store, bytes32 entityId, address _element) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.pushToDynamicField(_tableId, _keyTuple, 1, abi.encodePacked((_element)));
+  }
+
+  /**
    * @notice Pop an element from nfts.
    */
   function popNfts(bytes32 entityId) internal {
@@ -362,6 +508,16 @@ library ForceFieldApprovals {
     _keyTuple[0] = entityId;
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 1, 20);
+  }
+
+  /**
+   * @notice Pop an element from nfts (using the specified store).
+   */
+  function popNfts(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.popFromDynamicField(_tableId, _keyTuple, 1, 20);
   }
 
   /**
@@ -391,6 +547,19 @@ library ForceFieldApprovals {
   }
 
   /**
+   * @notice Update an element of nfts (using the specified store) at `_index`.
+   */
+  function updateNfts(IStore _store, bytes32 entityId, uint256 _index, address _element) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    unchecked {
+      bytes memory _encoded = abi.encodePacked((_element));
+      _store.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 20), uint40(_encoded.length), _encoded);
+    }
+  }
+
+  /**
    * @notice Get the full data.
    */
   function get(bytes32 entityId) internal view returns (ForceFieldApprovalsData memory _table) {
@@ -413,6 +582,21 @@ library ForceFieldApprovals {
     _keyTuple[0] = entityId;
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Get the full data (using the specified store).
+   */
+  function get(IStore _store, bytes32 entityId) internal view returns (ForceFieldApprovalsData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
       _tableId,
       _keyTuple,
       _fieldLayout
@@ -449,6 +633,20 @@ library ForceFieldApprovals {
   }
 
   /**
+   * @notice Set the full data using individual values (using the specified store).
+   */
+  function set(IStore _store, bytes32 entityId, address[] memory players, address[] memory nfts) internal {
+    bytes memory _staticData;
+    EncodedLengths _encodedLengths = encodeLengths(players, nfts);
+    bytes memory _dynamicData = encodeDynamic(players, nfts);
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 entityId, ForceFieldApprovalsData memory _table) internal {
@@ -474,6 +672,20 @@ library ForceFieldApprovals {
     _keyTuple[0] = entityId;
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Set the full data using the data struct (using the specified store).
+   */
+  function set(IStore _store, bytes32 entityId, ForceFieldApprovalsData memory _table) internal {
+    bytes memory _staticData;
+    EncodedLengths _encodedLengths = encodeLengths(_table.players, _table.nfts);
+    bytes memory _dynamicData = encodeDynamic(_table.players, _table.nfts);
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
 
   /**
@@ -529,6 +741,16 @@ library ForceFieldApprovals {
     _keyTuple[0] = entityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

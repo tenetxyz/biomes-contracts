@@ -14,3 +14,9 @@ enum ShopType {
   Sell,
   BuySell
 }
+
+enum ShopTxType {
+  None,
+  Buy,
+  Sell
+}

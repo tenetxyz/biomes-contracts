@@ -8,6 +8,7 @@ export default defineWorld({
   enums: {
     ChipType: ["None", "Chest", "ForceField"],
     ShopType: ["None", "Buy", "Sell", "BuySell"],
+    ShopTxType: ["None", "Buy", "Sell"],
   },
   namespace: "experience",
   tables: {
@@ -33,6 +34,9 @@ export default defineWorld({
         description: "string",
       },
       key: ["chipAddress"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     ChipAttachment: {
       schema: {
@@ -40,6 +44,9 @@ export default defineWorld({
         attacher: "address",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     ItemShop: {
       schema: {
@@ -52,6 +59,9 @@ export default defineWorld({
         balance: "uint256",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     ChestMetadata: {
       schema: {
@@ -60,6 +70,9 @@ export default defineWorld({
         description: "string",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     FFMetadata: {
       schema: {
@@ -68,6 +81,9 @@ export default defineWorld({
         description: "string",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     ForceFieldApprovals: {
       schema: {
@@ -76,6 +92,9 @@ export default defineWorld({
         nfts: "address[]",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     DisplayStatus: {
       schema: {
@@ -117,6 +136,22 @@ export default defineWorld({
         message: "string",
       },
       key: ["experience"],
+      type: "offchainTable",
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    ItemShopNotif: {
+      schema: {
+        chestEntityId: "bytes32",
+        player: "address",
+        shopTxType: "ShopTxType",
+        objectTypeId: "uint8",
+        amount: "uint16",
+        price: "uint256",
+        paymentToken: "address",
+      },
+      key: ["chestEntityId"],
       type: "offchainTable",
       codegen: {
         storeArgument: true,

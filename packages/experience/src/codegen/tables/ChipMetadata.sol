@@ -72,6 +72,13 @@ library ChipMetadata {
   }
 
   /**
+   * @notice Register the table with its config (using the specified store).
+   */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
+  }
+
+  /**
    * @notice Get chipType.
    */
   function getChipType(address chipAddress) internal view returns (ChipType chipType) {
@@ -94,6 +101,17 @@ library ChipMetadata {
   }
 
   /**
+   * @notice Get chipType (using the specified store).
+   */
+  function getChipType(IStore _store, address chipAddress) internal view returns (ChipType chipType) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return ChipType(uint8(bytes1(_blob)));
+  }
+
+  /**
    * @notice Set chipType.
    */
   function setChipType(address chipAddress, ChipType chipType) internal {
@@ -111,6 +129,16 @@ library ChipMetadata {
     _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(chipType)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set chipType (using the specified store).
+   */
+  function setChipType(IStore _store, address chipAddress, ChipType chipType) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(chipType)), _fieldLayout);
   }
 
   /**
@@ -136,6 +164,17 @@ library ChipMetadata {
   }
 
   /**
+   * @notice Get name (using the specified store).
+   */
+  function getName(IStore _store, address chipAddress) internal view returns (string memory name) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 0);
+    return (string(_blob));
+  }
+
+  /**
    * @notice Set name.
    */
   function setName(address chipAddress, string memory name) internal {
@@ -153,6 +192,16 @@ library ChipMetadata {
     _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 0, bytes((name)));
+  }
+
+  /**
+   * @notice Set name (using the specified store).
+   */
+  function setName(IStore _store, address chipAddress, string memory name) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    _store.setDynamicField(_tableId, _keyTuple, 0, bytes((name)));
   }
 
   /**
@@ -176,6 +225,19 @@ library ChipMetadata {
     _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
+    unchecked {
+      return _byteLength / 1;
+    }
+  }
+
+  /**
+   * @notice Get the length of name (using the specified store).
+   */
+  function lengthName(IStore _store, address chipAddress) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
       return _byteLength / 1;
     }
@@ -210,6 +272,20 @@ library ChipMetadata {
   }
 
   /**
+   * @notice Get an item of name (using the specified store).
+   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
+   */
+  function getItemName(IStore _store, address chipAddress, uint256 _index) internal view returns (string memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    unchecked {
+      bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
+      return (string(_blob));
+    }
+  }
+
+  /**
    * @notice Push a slice to name.
    */
   function pushName(address chipAddress, string memory _slice) internal {
@@ -230,6 +306,16 @@ library ChipMetadata {
   }
 
   /**
+   * @notice Push a slice to name (using the specified store).
+   */
+  function pushName(IStore _store, address chipAddress, string memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    _store.pushToDynamicField(_tableId, _keyTuple, 0, bytes((_slice)));
+  }
+
+  /**
    * @notice Pop a slice from name.
    */
   function popName(address chipAddress) internal {
@@ -247,6 +333,16 @@ library ChipMetadata {
     _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 1);
+  }
+
+  /**
+   * @notice Pop a slice from name (using the specified store).
+   */
+  function popName(IStore _store, address chipAddress) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    _store.popFromDynamicField(_tableId, _keyTuple, 0, 1);
   }
 
   /**
@@ -276,6 +372,19 @@ library ChipMetadata {
   }
 
   /**
+   * @notice Update a slice of name (using the specified store) at `_index`.
+   */
+  function updateName(IStore _store, address chipAddress, uint256 _index, string memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    unchecked {
+      bytes memory _encoded = bytes((_slice));
+      _store.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 1), uint40(_encoded.length), _encoded);
+    }
+  }
+
+  /**
    * @notice Get description.
    */
   function getDescription(address chipAddress) internal view returns (string memory description) {
@@ -294,6 +403,17 @@ library ChipMetadata {
     _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 1);
+    return (string(_blob));
+  }
+
+  /**
+   * @notice Get description (using the specified store).
+   */
+  function getDescription(IStore _store, address chipAddress) internal view returns (string memory description) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 1);
     return (string(_blob));
   }
 
@@ -318,6 +438,16 @@ library ChipMetadata {
   }
 
   /**
+   * @notice Set description (using the specified store).
+   */
+  function setDescription(IStore _store, address chipAddress, string memory description) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    _store.setDynamicField(_tableId, _keyTuple, 1, bytes((description)));
+  }
+
+  /**
    * @notice Get the length of description.
    */
   function lengthDescription(address chipAddress) internal view returns (uint256) {
@@ -338,6 +468,19 @@ library ChipMetadata {
     _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 1);
+    unchecked {
+      return _byteLength / 1;
+    }
+  }
+
+  /**
+   * @notice Get the length of description (using the specified store).
+   */
+  function lengthDescription(IStore _store, address chipAddress) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 1);
     unchecked {
       return _byteLength / 1;
     }
@@ -372,6 +515,24 @@ library ChipMetadata {
   }
 
   /**
+   * @notice Get an item of description (using the specified store).
+   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
+   */
+  function getItemDescription(
+    IStore _store,
+    address chipAddress,
+    uint256 _index
+  ) internal view returns (string memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    unchecked {
+      bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 1, (_index + 1) * 1);
+      return (string(_blob));
+    }
+  }
+
+  /**
    * @notice Push a slice to description.
    */
   function pushDescription(address chipAddress, string memory _slice) internal {
@@ -392,6 +553,16 @@ library ChipMetadata {
   }
 
   /**
+   * @notice Push a slice to description (using the specified store).
+   */
+  function pushDescription(IStore _store, address chipAddress, string memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    _store.pushToDynamicField(_tableId, _keyTuple, 1, bytes((_slice)));
+  }
+
+  /**
    * @notice Pop a slice from description.
    */
   function popDescription(address chipAddress) internal {
@@ -409,6 +580,16 @@ library ChipMetadata {
     _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 1, 1);
+  }
+
+  /**
+   * @notice Pop a slice from description (using the specified store).
+   */
+  function popDescription(IStore _store, address chipAddress) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    _store.popFromDynamicField(_tableId, _keyTuple, 1, 1);
   }
 
   /**
@@ -438,6 +619,19 @@ library ChipMetadata {
   }
 
   /**
+   * @notice Update a slice of description (using the specified store) at `_index`.
+   */
+  function updateDescription(IStore _store, address chipAddress, uint256 _index, string memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    unchecked {
+      bytes memory _encoded = bytes((_slice));
+      _store.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 1), uint40(_encoded.length), _encoded);
+    }
+  }
+
+  /**
    * @notice Get the full data.
    */
   function get(address chipAddress) internal view returns (ChipMetadataData memory _table) {
@@ -460,6 +654,21 @@ library ChipMetadata {
     _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Get the full data (using the specified store).
+   */
+  function get(IStore _store, address chipAddress) internal view returns (ChipMetadataData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
       _tableId,
       _keyTuple,
       _fieldLayout
@@ -498,6 +707,27 @@ library ChipMetadata {
   }
 
   /**
+   * @notice Set the full data using individual values (using the specified store).
+   */
+  function set(
+    IStore _store,
+    address chipAddress,
+    ChipType chipType,
+    string memory name,
+    string memory description
+  ) internal {
+    bytes memory _staticData = encodeStatic(chipType);
+
+    EncodedLengths _encodedLengths = encodeLengths(name, description);
+    bytes memory _dynamicData = encodeDynamic(name, description);
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
    * @notice Set the full data using the data struct.
    */
   function set(address chipAddress, ChipMetadataData memory _table) internal {
@@ -525,6 +755,21 @@ library ChipMetadata {
     _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Set the full data using the data struct (using the specified store).
+   */
+  function set(IStore _store, address chipAddress, ChipMetadataData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.chipType);
+
+    EncodedLengths _encodedLengths = encodeLengths(_table.name, _table.description);
+    bytes memory _dynamicData = encodeDynamic(_table.name, _table.description);
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
 
   /**
@@ -589,6 +834,16 @@ library ChipMetadata {
     _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
+  }
+
+  /**
+   * @notice Delete all data for given keys (using the specified store).
+   */
+  function deleteRecord(IStore _store, address chipAddress) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(chipAddress)));
+
+    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

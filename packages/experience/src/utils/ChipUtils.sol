@@ -11,6 +11,7 @@ import { ItemShopData } from "../codegen/tables/ItemShop.sol";
 import { FFMetadataData } from "../codegen/tables/FFMetadata.sol";
 import { ChestMetadataData } from "../codegen/tables/ChestMetadata.sol";
 import { ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
+import { ItemShopNotifData } from "../codegen/tables/ItemShopNotif.sol";
 
 function setChipMetadata(ChipMetadataData memory metadata) {
   IWorld(WorldContextConsumerLib._world()).experience__setChipMetadata(metadata);
@@ -130,4 +131,12 @@ function popFFApprovedNFT(bytes32 entityId) {
 
 function updateFFApprovedNFT(bytes32 entityId, uint256 index, address nft) {
   IWorld(WorldContextConsumerLib._world()).experience__updateFFApprovedNFT(entityId, index, nft);
+}
+
+function emitShopNotif(bytes32 chestEntityId, ItemShopNotifData memory notifData) {
+  IWorld(WorldContextConsumerLib._world()).experience__emitShopNotif(chestEntityId, notifData);
+}
+
+function deleteShopNotif(bytes32 chestEntityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteShopNotif(chestEntityId);
 }
