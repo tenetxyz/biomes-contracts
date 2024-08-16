@@ -11,6 +11,8 @@ import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { ActionType } from "../codegen/common.sol";
 
 import { NullObjectTypeId, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyCottonBlockObjectID, AnyGlassObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity } from "../Utils.sol";
@@ -122,6 +124,19 @@ contract CraftSystem is System {
       PlayerObjectID,
       recipeData.outputObjectTypeId,
       recipeData.outputObjectTypeAmount
+    );
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.Craft,
+        entityId: stationEntityId,
+        objectTypeId: recipeData.outputObjectTypeId,
+        coordX: playerCoord.x,
+        coordY: playerCoord.y,
+        coordZ: playerCoord.z,
+        amount: recipeData.outputObjectTypeAmount
+      })
     );
   }
 }

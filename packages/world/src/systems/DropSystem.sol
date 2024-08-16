@@ -7,6 +7,8 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { ActionType } from "../codegen/common.sol";
 
 import { AirObjectID, WaterObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
@@ -43,10 +45,36 @@ contract DropSystem is System {
   function drop(uint8 dropObjectTypeId, uint16 numToDrop, VoxelCoord memory coord) public {
     (bytes32 playerEntityId, bytes32 entityId) = dropCommon(coord);
     transferInventoryNonTool(playerEntityId, entityId, AirObjectID, dropObjectTypeId, numToDrop);
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.Drop,
+        entityId: entityId,
+        objectTypeId: dropObjectTypeId,
+        coordX: coord.x,
+        coordY: coord.y,
+        coordZ: coord.z,
+        amount: numToDrop
+      })
+    );
   }
 
   function dropTool(bytes32 toolEntityId, VoxelCoord memory coord) public {
     (bytes32 playerEntityId, bytes32 entityId) = dropCommon(coord);
-    transferInventoryTool(playerEntityId, entityId, AirObjectID, toolEntityId);
+    uint8 toolObjectTypeId = transferInventoryTool(playerEntityId, entityId, AirObjectID, toolEntityId);
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.Drop,
+        entityId: entityId,
+        objectTypeId: toolObjectTypeId,
+        coordX: coord.x,
+        coordY: coord.y,
+        coordZ: coord.z,
+        amount: 1
+      })
+    );
   }
 }

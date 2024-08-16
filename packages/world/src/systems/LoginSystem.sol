@@ -14,6 +14,8 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -62,5 +64,18 @@ contract LoginSystem is System {
 
     // We let the user pick a y coord, so we need to apply gravity
     require(!gravityApplies(respawnCoord), "LoginSystem: cannot respawn player with gravity");
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.Login,
+        entityId: playerEntityId,
+        objectTypeId: PlayerObjectID,
+        coordX: respawnCoord.x,
+        coordY: respawnCoord.y,
+        coordZ: respawnCoord.z,
+        amount: 1
+      })
+    );
   }
 }

@@ -9,6 +9,8 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
+import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { ActionType } from "../codegen/common.sol";
 
 import { PLAYER_MASS } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -58,6 +60,19 @@ contract MoveSystem is System {
     if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
       callGravity(aboveEntityId, aboveCoord);
     }
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.Move,
+        entityId: finalEntityId,
+        objectTypeId: PlayerObjectID,
+        coordX: finalCoord.x,
+        coordY: finalCoord.y,
+        coordZ: finalCoord.z,
+        amount: newCoords.length
+      })
+    );
   }
 
   function move(

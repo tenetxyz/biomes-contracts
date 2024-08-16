@@ -10,6 +10,8 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
+import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { ActionType } from "../codegen/common.sol";
 
 import { PLAYER_HAND_DAMAGE, HIT_CHIP_STAMINA_COST, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../Constants.sol";
 import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, ChestObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
@@ -25,7 +27,7 @@ import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 contract ChipSystem is System {
   function attachChip(bytes32 entityId, address chipAddress) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, entityId);
+    VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
     uint8 objectTypeId = ObjectType._get(entityId);
     require(canAttachChip(objectTypeId), "ChipSystem: cannot attach a chip to this object");
@@ -41,6 +43,19 @@ contract ChipSystem is System {
     removeFromInventoryCount(playerEntityId, ChipObjectID, 1);
 
     Chip._set(entityId, ChipData({ chipAddress: chipAddress, batteryLevel: 0, lastUpdatedTime: block.timestamp }));
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.AttachChip,
+        entityId: entityId,
+        objectTypeId: objectTypeId,
+        coordX: entityCoord.x,
+        coordY: entityCoord.y,
+        coordZ: entityCoord.z,
+        amount: 1
+      })
+    );
 
     // Don't safe call here because we want to revert if the chip doesn't allow the attachment
     IChip(chipAddress).onAttached(playerEntityId, entityId);
@@ -61,22 +76,37 @@ contract ChipSystem is System {
 
   function detachChip(bytes32 entityId) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, entityId);
+    VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
     ChipData memory chipData = updateChipBatteryLevel(entityId);
     require(chipData.batteryLevel == 0, "ChipSystem: battery level is not zero");
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 
+    uint8 objectTypeId = ObjectType._get(entityId);
+
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
     Chip._deleteRecord(entityId);
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.DetachChip,
+        entityId: entityId,
+        objectTypeId: objectTypeId,
+        coordX: entityCoord.x,
+        coordY: entityCoord.y,
+        coordZ: entityCoord.z,
+        amount: 1
+      })
+    );
 
     safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
   }
 
   function powerChip(bytes32 entityId, uint16 numBattery) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, entityId);
+    VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
     ChipData memory chipData = updateChipBatteryLevel(entityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
@@ -99,16 +129,30 @@ contract ChipSystem is System {
     Chip._setBatteryLevel(entityId, newBatteryLevel);
     Chip._setLastUpdatedTime(entityId, block.timestamp);
 
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.PowerChip,
+        entityId: entityId,
+        objectTypeId: objectTypeId,
+        coordX: entityCoord.x,
+        coordY: entityCoord.y,
+        coordZ: entityCoord.z,
+        amount: numBattery
+      })
+    );
+
     safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
   }
 
   function hitChip(bytes32 entityId) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    requireBesidePlayer(playerCoord, entityId);
+    VoxelCoord memory entityCoord = requireBesidePlayer(playerCoord, entityId);
 
     ChipData memory chipData = updateChipBatteryLevel(entityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 
+    uint8 objectTypeId = ObjectType._get(entityId);
     uint256 decreaseBatteryLevel = 0;
     if (chipData.batteryLevel > 0) {
       uint32 currentStamina = Stamina._getStamina(playerEntityId);
@@ -121,7 +165,6 @@ contract ChipSystem is System {
       if (equippedEntityId != bytes32(0)) {
         receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
       }
-      uint8 objectTypeId = ObjectType._get(entityId);
       if (objectTypeId == ForceFieldObjectID) {
         decreaseBatteryLevel = (72 * uint256(receiverDamage) * 60) / 120;
       } else if (objectTypeId == ChestObjectID) {
@@ -141,9 +184,35 @@ contract ChipSystem is System {
 
       Chip._deleteRecord(entityId);
 
+      PlayerActionNotif._set(
+        playerEntityId,
+        PlayerActionNotifData({
+          actionType: ActionType.DetachChip,
+          entityId: entityId,
+          objectTypeId: objectTypeId,
+          coordX: entityCoord.x,
+          coordY: entityCoord.y,
+          coordZ: entityCoord.z,
+          amount: 1
+        })
+      );
+
       safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
     } else {
       Chip._setBatteryLevel(entityId, newBatteryLevel);
+
+      PlayerActionNotif._set(
+        playerEntityId,
+        PlayerActionNotifData({
+          actionType: ActionType.HitChip,
+          entityId: entityId,
+          objectTypeId: objectTypeId,
+          coordX: entityCoord.x,
+          coordY: entityCoord.y,
+          coordZ: entityCoord.z,
+          amount: newBatteryLevel
+        })
+      );
 
       safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onChipHit, (playerEntityId, entityId)));
     }

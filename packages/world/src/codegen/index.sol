@@ -27,4 +27,5 @@ import { ShardField } from "./tables/ShardField.sol";
 import { Equipped } from "./tables/Equipped.sol";
 import { Health, HealthData } from "./tables/Health.sol";
 import { Stamina, StaminaData } from "./tables/Stamina.sol";
+import { PlayerActionNotif, PlayerActionNotifData } from "./tables/PlayerActionNotif.sol";
 import { ChestMetadata, ChestMetadataData } from "./tables/ChestMetadata.sol";

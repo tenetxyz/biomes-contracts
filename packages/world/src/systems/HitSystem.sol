@@ -11,6 +11,8 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { ActionType } from "../codegen/common.sol";
 
 import { PLAYER_HAND_DAMAGE, HIT_PLAYER_STAMINA_COST } from "../Constants.sol";
 import { PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -55,5 +57,18 @@ contract HitSystem is System {
     } else {
       PlayerMetadata._setLastHitTime(hitEntityId, block.timestamp);
     }
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.Hit,
+        entityId: hitEntityId,
+        objectTypeId: PlayerObjectID,
+        coordX: hitCoord.x,
+        coordY: hitCoord.y,
+        coordZ: hitCoord.z,
+        amount: newHealth
+      })
+    );
   }
 }

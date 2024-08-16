@@ -8,6 +8,8 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
+import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { ActionType } from "../codegen/common.sol";
 
 import { PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
@@ -19,7 +21,10 @@ import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 
 contract TransferSystem is System {
-  function transferCommon(bytes32 srcEntityId, bytes32 dstEntityId) internal returns (bytes32, uint8) {
+  function transferCommon(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId
+  ) internal returns (bytes32, uint8, VoxelCoord memory) {
     (bytes32 playerEntityId, ) = requireValidPlayer(_msgSender());
 
     require(dstEntityId != srcEntityId, "TransferSystem: cannot transfer to self");
@@ -42,7 +47,7 @@ contract TransferSystem is System {
       revert("TransferSystem: invalid transfer operation");
     }
 
-    return (playerEntityId, dstObjectTypeId);
+    return (playerEntityId, dstObjectTypeId, playerEntityId == srcEntityId ? dstCoord : srcCoord);
   }
 
   function requireAllowed(
@@ -80,8 +85,24 @@ contract TransferSystem is System {
     uint16 numToTransfer,
     bytes memory extraData
   ) public payable {
-    (bytes32 playerEntityId, uint8 dstObjectTypeId) = transferCommon(srcEntityId, dstEntityId);
+    (bytes32 playerEntityId, uint8 dstObjectTypeId, VoxelCoord memory chestCoord) = transferCommon(
+      srcEntityId,
+      dstEntityId
+    );
     transferInventoryNonTool(srcEntityId, dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.Transfer,
+        entityId: playerEntityId == srcEntityId ? dstEntityId : srcEntityId,
+        objectTypeId: transferObjectTypeId,
+        coordX: chestCoord.x,
+        coordY: chestCoord.y,
+        coordZ: chestCoord.z,
+        amount: numToTransfer
+      })
+    );
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
@@ -101,8 +122,24 @@ contract TransferSystem is System {
     bytes32 toolEntityId,
     bytes memory extraData
   ) public payable {
-    (bytes32 playerEntityId, uint8 dstObjectTypeId) = transferCommon(srcEntityId, dstEntityId);
+    (bytes32 playerEntityId, uint8 dstObjectTypeId, VoxelCoord memory chestCoord) = transferCommon(
+      srcEntityId,
+      dstEntityId
+    );
     uint8 toolObjectTypeId = transferInventoryTool(srcEntityId, dstEntityId, dstObjectTypeId, toolEntityId);
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.Transfer,
+        entityId: playerEntityId == srcEntityId ? dstEntityId : srcEntityId,
+        objectTypeId: toolObjectTypeId,
+        coordX: chestCoord.x,
+        coordY: chestCoord.y,
+        coordZ: chestCoord.z,
+        amount: 1
+      })
+    );
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(playerEntityId, srcEntityId, dstEntityId, toolObjectTypeId, 1, toolEntityId, extraData);

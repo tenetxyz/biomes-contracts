@@ -4,6 +4,27 @@ export default defineWorld({
   deploy: {
     upgradeableWorldImplementation: true,
   },
+  enums: {
+    ActionType: [
+      "None",
+      "Build",
+      "Mine",
+      "Move",
+      "Craft",
+      "Drop",
+      "Transfer",
+      "Equip",
+      "Unequip",
+      "Hit",
+      "Spawn",
+      "Login",
+      "Logoff",
+      "AttachChip",
+      "PowerChip",
+      "DetachChip",
+      "HitChip",
+    ],
+  },
   tables: {
     UniqueEntity: {
       schema: {
@@ -270,6 +291,23 @@ export default defineWorld({
         stamina: "uint32",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    PlayerActionNotif: {
+      schema: {
+        playerEntityId: "bytes32",
+        actionType: "ActionType",
+        entityId: "bytes32",
+        objectTypeId: "uint8",
+        coordX: "int16",
+        coordY: "int16",
+        coordZ: "int16",
+        amount: "uint256",
+      },
+      key: ["playerEntityId"],
+      type: "offchainTable",
       codegen: {
         storeArgument: true,
       },

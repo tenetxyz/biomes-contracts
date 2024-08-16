@@ -12,6 +12,8 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -51,6 +53,19 @@ contract BuildSystem is System {
 
     ObjectType._set(entityId, objectTypeId);
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.Build,
+        entityId: entityId,
+        objectTypeId: objectTypeId,
+        coordX: coord.x,
+        coordY: coord.y,
+        coordZ: coord.z,
+        amount: 1
+      })
+    );
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
     callInternalSystem(

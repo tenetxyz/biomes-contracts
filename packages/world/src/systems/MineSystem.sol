@@ -13,6 +13,8 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
+import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -61,6 +63,19 @@ contract MineSystem is System {
 
     ObjectType._set(entityId, AirObjectID);
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.Mine,
+        entityId: entityId,
+        objectTypeId: mineObjectTypeId,
+        coordX: coord.x,
+        coordY: coord.y,
+        coordZ: coord.z,
+        amount: 1
+      })
+    );
 
     callInternalSystem(
       abi.encodeCall(
