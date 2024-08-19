@@ -264,6 +264,13 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__deleteNFTMetadata",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteNfts",
     "inputs": [],
     "outputs": [],
@@ -319,6 +326,13 @@ declare const abi: [
   {
     "type": "function",
     "name": "experience__deleteStatus",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteTokenMetadata",
     "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
@@ -1102,6 +1116,46 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__setNFTMetadata",
+    "inputs": [
+      {
+        "name": "metadata",
+        "type": "tuple",
+        "internalType": "struct NFTMetadataData",
+        "components": [
+          {
+            "name": "creator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "symbol",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__setNfts",
     "inputs": [
       {
@@ -1297,6 +1351,46 @@ declare const abi: [
         "name": "status",
         "type": "string",
         "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setTokenMetadata",
+    "inputs": [
+      {
+        "name": "metadata",
+        "type": "tuple",
+        "internalType": "struct TokenMetadataData",
+        "components": [
+          {
+            "name": "creator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "symbol",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
       }
     ],
     "outputs": [],

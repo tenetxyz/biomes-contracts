@@ -16,10 +16,12 @@ import { IExpMetadataSystem } from "./IExpMetadataSystem.sol";
 import { IFFApprovalsSystem } from "./IFFApprovalsSystem.sol";
 import { IFFMetadataSystem } from "./IFFMetadataSystem.sol";
 import { IItemShopNotifSystem } from "./IItemShopNotifSystem.sol";
+import { INFTMetadataSystem } from "./INFTMetadataSystem.sol";
 import { INFTSystem } from "./INFTSystem.sol";
 import { INotificationSystem } from "./INotificationSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
 import { IShopSystem } from "./IShopSystem.sol";
+import { ITokenMetadataSystem } from "./ITokenMetadataSystem.sol";
 import { ITokenSystem } from "./ITokenSystem.sol";
 
 /**
@@ -42,9 +44,11 @@ interface IWorld is
   IFFApprovalsSystem,
   IFFMetadataSystem,
   IItemShopNotifSystem,
+  INFTMetadataSystem,
   INFTSystem,
   INotificationSystem,
   IPlayerSystem,
   IShopSystem,
+  ITokenMetadataSystem,
   ITokenSystem
 {}

@@ -248,5 +248,33 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    TokenMetadata: {
+      schema: {
+        token: "address",
+        creator: "address",
+        symbol: "string",
+        name: "string",
+        description: "string",
+        icon: "string",
+      },
+      key: ["token"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    NFTMetadata: {
+      schema: {
+        nft: "address",
+        creator: "address",
+        symbol: "string",
+        name: "string",
+        description: "string",
+        icon: "string",
+      },
+      key: ["nft"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
   },
 });

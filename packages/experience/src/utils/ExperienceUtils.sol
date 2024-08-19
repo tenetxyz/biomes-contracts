@@ -10,6 +10,8 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { CountdownData } from "../codegen/tables/Countdown.sol";
 import { ExperienceMetadataData } from "../codegen/tables/ExperienceMetadata.sol";
+import { TokenMetadataData } from "../codegen/tables/TokenMetadata.sol";
+import { NFTMetadataData } from "../codegen/tables/NFTMetadata.sol";
 
 import { Area } from "./AreaUtils.sol";
 import { Build, BuildWithPos } from "./BuildUtils.sol";
@@ -156,4 +158,20 @@ function updateNfts(uint256 index, address nft) {
 
 function deleteNfts() {
   IWorld(WorldContextConsumerLib._world()).experience__deleteNfts();
+}
+
+function setTokenMetadata(TokenMetadataData memory metadata) {
+  IWorld(WorldContextConsumerLib._world()).experience__setTokenMetadata(metadata);
+}
+
+function deleteTokenMetadata() {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteTokenMetadata();
+}
+
+function setNFTMetadata(NFTMetadataData memory metadata) {
+  IWorld(WorldContextConsumerLib._world()).experience__setNFTMetadata(metadata);
+}
+
+function deleteNFTMetadata() {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteNFTMetadata();
 }
