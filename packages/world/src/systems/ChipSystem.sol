@@ -68,7 +68,7 @@ contract ChipSystem is System {
       // Note: we want the TX to revert if the chip call runs out of gas, but because
       // this is the last call in the function, we need to consume some dummy gas for it to revert
       // See: https://github.com/dhvanipa/evm-outofgas-call
-      for (uint256 i = 0; i < 100; i++) {
+      for (uint256 i = 0; i < 1000; i++) {
         continue;
       }
     }
