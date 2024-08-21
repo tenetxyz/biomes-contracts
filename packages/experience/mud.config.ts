@@ -9,6 +9,12 @@ export default defineWorld({
     ChipType: ["None", "Chest", "ForceField"],
     ShopType: ["None", "Buy", "Sell", "BuySell"],
     ShopTxType: ["None", "Buy", "Sell"],
+    BaseTriggerKind: ["None", "All", "Any", "Seq"],
+    LeafTriggerKind: ["None", "MapBeam", "Event", "ChallengeComplete", "Collect"],
+    NavigationAidKind: ["None", "Position", "Entity"],
+    EventKind: ["None", "ItemShop", "CloseModal", "ChainPlayerAction"],
+    BasePredicateKind: ["None", "Object"],
+    LeafPredicateKind: ["None", "Value"],
   },
   namespace: "experience",
   tables: {
@@ -272,6 +278,117 @@ export default defineWorld({
         icon: "string",
       },
       key: ["nft"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    Quest: {
+      schema: {
+        id: "bytes32",
+        unlockId: "bytes32",
+        triggerId: "bytes32",
+        nameId: "string",
+        displayName: "string",
+      },
+      key: ["id"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    BaseTrigger: {
+      schema: {
+        id: "bytes32",
+        kind: "BaseTriggerKind",
+        triggerIds: "bytes32[]",
+      },
+      key: ["id"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    LeafTrigger: {
+      schema: {
+        id: "bytes32",
+        navigationAidKind: "NavigationAidKind",
+        navigationAidPosX: "int16",
+        navigationAidPosY: "int16",
+        navigationAidPosZ: "int16",
+        navigaitonAidEntity: "bytes32",
+        kind: "LeafTriggerKind",
+        name: "string",
+      },
+      key: ["id"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    MapBeamTrigger: {
+      schema: {
+        id: "bytes32",
+        posX: "int16",
+        posZ: "int16",
+        allowDefaultNavigationAid: "bool",
+      },
+      key: ["id"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    EventTrigger: {
+      schema: {
+        id: "bytes32",
+        eventKind: "EventKind",
+        count: "uint32",
+        predicateId: "bytes32",
+      },
+      key: ["id"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    ChallengeCompleteTrigger: {
+      schema: {
+        id: "bytes32",
+        challengeId: "bytes32",
+      },
+      key: ["id"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    CollectTrigger: {
+      schema: {
+        id: "bytes32",
+        objectTypeId: "bytes32",
+        count: "uint32",
+      },
+      key: ["id"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    BasePredicate: {
+      schema: {
+        id: "bytes32",
+        kind: "BasePredicateKind",
+        fieldKeys: "bytes", // string[]
+        fieldPredicateIds: "bytes32[]",
+      },
+      key: ["id"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    LeafPredicate: {
+      schema: {
+        id: "bytes32",
+        kind: "LeafPredicateKind",
+        valueNum: "uint32",
+        valueBool: "bool",
+        valueId: "bytes32",
+        valueString: "string",
+      },
+      key: ["id"],
       codegen: {
         storeArgument: true,
       },
