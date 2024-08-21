@@ -309,12 +309,12 @@ export default defineWorld({
     LeafTrigger: {
       schema: {
         id: "bytes32",
+        kind: "LeafTriggerKind",
         navigationAidKind: "NavigationAidKind",
         navigationAidPosX: "int16",
         navigationAidPosY: "int16",
         navigationAidPosZ: "int16",
         navigaitonAidEntity: "bytes32",
-        kind: "LeafTriggerKind",
         name: "string",
       },
       key: ["id"],

@@ -152,6 +152,41 @@
   },
   {
     "type": "function",
+    "name": "experience__addQuest",
+    "inputs": [
+      {
+        "name": "quest",
+        "type": "tuple",
+        "internalType": "struct QuestData",
+        "components": [
+          {
+            "name": "unlockId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "triggerId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "nameId",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "displayName",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteArea",
     "inputs": [
       {

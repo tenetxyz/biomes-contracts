@@ -17,15 +17,15 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
-import { NavigationAidKind, LeafTriggerKind } from "./../common.sol";
+import { LeafTriggerKind, NavigationAidKind } from "./../common.sol";
 
 struct LeafTriggerData {
+  LeafTriggerKind kind;
   NavigationAidKind navigationAidKind;
   int16 navigationAidPosX;
   int16 navigationAidPosY;
   int16 navigationAidPosZ;
   bytes32 navigaitonAidEntity;
-  LeafTriggerKind kind;
   string name;
 }
 
@@ -34,12 +34,12 @@ library LeafTrigger {
   ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e6365000000004c656166547269676765720000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0028060101020202200100000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0028060101010202022000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint8, int16, int16, int16, bytes32, uint8, string)
-  Schema constant _valueSchema = Schema.wrap(0x00280601002121215f00c5000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint8, uint8, int16, int16, int16, bytes32, string)
+  Schema constant _valueSchema = Schema.wrap(0x0028060100002121215fc5000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -56,12 +56,12 @@ library LeafTrigger {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](7);
-    fieldNames[0] = "navigationAidKind";
-    fieldNames[1] = "navigationAidPosX";
-    fieldNames[2] = "navigationAidPosY";
-    fieldNames[3] = "navigationAidPosZ";
-    fieldNames[4] = "navigaitonAidEntity";
-    fieldNames[5] = "kind";
+    fieldNames[0] = "kind";
+    fieldNames[1] = "navigationAidKind";
+    fieldNames[2] = "navigationAidPosX";
+    fieldNames[3] = "navigationAidPosY";
+    fieldNames[4] = "navigationAidPosZ";
+    fieldNames[5] = "navigaitonAidEntity";
     fieldNames[6] = "name";
   }
 
@@ -87,328 +87,13 @@ library LeafTrigger {
   }
 
   /**
-   * @notice Get navigationAidKind.
-   */
-  function getNavigationAidKind(bytes32 id) internal view returns (NavigationAidKind navigationAidKind) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return NavigationAidKind(uint8(bytes1(_blob)));
-  }
-
-  /**
-   * @notice Get navigationAidKind.
-   */
-  function _getNavigationAidKind(bytes32 id) internal view returns (NavigationAidKind navigationAidKind) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return NavigationAidKind(uint8(bytes1(_blob)));
-  }
-
-  /**
-   * @notice Get navigationAidKind (using the specified store).
-   */
-  function getNavigationAidKind(IStore _store, bytes32 id) internal view returns (NavigationAidKind navigationAidKind) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return NavigationAidKind(uint8(bytes1(_blob)));
-  }
-
-  /**
-   * @notice Set navigationAidKind.
-   */
-  function setNavigationAidKind(bytes32 id, NavigationAidKind navigationAidKind) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(navigationAidKind)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set navigationAidKind.
-   */
-  function _setNavigationAidKind(bytes32 id, NavigationAidKind navigationAidKind) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(navigationAidKind)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set navigationAidKind (using the specified store).
-   */
-  function setNavigationAidKind(IStore _store, bytes32 id, NavigationAidKind navigationAidKind) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(navigationAidKind)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get navigationAidPosX.
-   */
-  function getNavigationAidPosX(bytes32 id) internal view returns (int16 navigationAidPosX) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
-  }
-
-  /**
-   * @notice Get navigationAidPosX.
-   */
-  function _getNavigationAidPosX(bytes32 id) internal view returns (int16 navigationAidPosX) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
-  }
-
-  /**
-   * @notice Get navigationAidPosX (using the specified store).
-   */
-  function getNavigationAidPosX(IStore _store, bytes32 id) internal view returns (int16 navigationAidPosX) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
-  }
-
-  /**
-   * @notice Set navigationAidPosX.
-   */
-  function setNavigationAidPosX(bytes32 id, int16 navigationAidPosX) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((navigationAidPosX)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set navigationAidPosX.
-   */
-  function _setNavigationAidPosX(bytes32 id, int16 navigationAidPosX) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((navigationAidPosX)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set navigationAidPosX (using the specified store).
-   */
-  function setNavigationAidPosX(IStore _store, bytes32 id, int16 navigationAidPosX) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((navigationAidPosX)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get navigationAidPosY.
-   */
-  function getNavigationAidPosY(bytes32 id) internal view returns (int16 navigationAidPosY) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
-  }
-
-  /**
-   * @notice Get navigationAidPosY.
-   */
-  function _getNavigationAidPosY(bytes32 id) internal view returns (int16 navigationAidPosY) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
-  }
-
-  /**
-   * @notice Get navigationAidPosY (using the specified store).
-   */
-  function getNavigationAidPosY(IStore _store, bytes32 id) internal view returns (int16 navigationAidPosY) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
-  }
-
-  /**
-   * @notice Set navigationAidPosY.
-   */
-  function setNavigationAidPosY(bytes32 id, int16 navigationAidPosY) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((navigationAidPosY)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set navigationAidPosY.
-   */
-  function _setNavigationAidPosY(bytes32 id, int16 navigationAidPosY) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((navigationAidPosY)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set navigationAidPosY (using the specified store).
-   */
-  function setNavigationAidPosY(IStore _store, bytes32 id, int16 navigationAidPosY) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((navigationAidPosY)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get navigationAidPosZ.
-   */
-  function getNavigationAidPosZ(bytes32 id) internal view returns (int16 navigationAidPosZ) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
-  }
-
-  /**
-   * @notice Get navigationAidPosZ.
-   */
-  function _getNavigationAidPosZ(bytes32 id) internal view returns (int16 navigationAidPosZ) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
-  }
-
-  /**
-   * @notice Get navigationAidPosZ (using the specified store).
-   */
-  function getNavigationAidPosZ(IStore _store, bytes32 id) internal view returns (int16 navigationAidPosZ) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
-  }
-
-  /**
-   * @notice Set navigationAidPosZ.
-   */
-  function setNavigationAidPosZ(bytes32 id, int16 navigationAidPosZ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((navigationAidPosZ)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set navigationAidPosZ.
-   */
-  function _setNavigationAidPosZ(bytes32 id, int16 navigationAidPosZ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((navigationAidPosZ)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set navigationAidPosZ (using the specified store).
-   */
-  function setNavigationAidPosZ(IStore _store, bytes32 id, int16 navigationAidPosZ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    _store.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((navigationAidPosZ)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get navigaitonAidEntity.
-   */
-  function getNavigaitonAidEntity(bytes32 id) internal view returns (bytes32 navigaitonAidEntity) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
-    return (bytes32(_blob));
-  }
-
-  /**
-   * @notice Get navigaitonAidEntity.
-   */
-  function _getNavigaitonAidEntity(bytes32 id) internal view returns (bytes32 navigaitonAidEntity) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
-    return (bytes32(_blob));
-  }
-
-  /**
-   * @notice Get navigaitonAidEntity (using the specified store).
-   */
-  function getNavigaitonAidEntity(IStore _store, bytes32 id) internal view returns (bytes32 navigaitonAidEntity) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
-    return (bytes32(_blob));
-  }
-
-  /**
-   * @notice Set navigaitonAidEntity.
-   */
-  function setNavigaitonAidEntity(bytes32 id, bytes32 navigaitonAidEntity) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((navigaitonAidEntity)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set navigaitonAidEntity.
-   */
-  function _setNavigaitonAidEntity(bytes32 id, bytes32 navigaitonAidEntity) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((navigaitonAidEntity)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set navigaitonAidEntity (using the specified store).
-   */
-  function setNavigaitonAidEntity(IStore _store, bytes32 id, bytes32 navigaitonAidEntity) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    _store.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((navigaitonAidEntity)), _fieldLayout);
-  }
-
-  /**
    * @notice Get kind.
    */
   function getKind(bytes32 id) internal view returns (LeafTriggerKind kind) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return LeafTriggerKind(uint8(bytes1(_blob)));
   }
 
@@ -419,7 +104,7 @@ library LeafTrigger {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return LeafTriggerKind(uint8(bytes1(_blob)));
   }
 
@@ -430,7 +115,7 @@ library LeafTrigger {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return LeafTriggerKind(uint8(bytes1(_blob)));
   }
 
@@ -441,7 +126,7 @@ library LeafTrigger {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked(uint8(kind)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(kind)), _fieldLayout);
   }
 
   /**
@@ -451,7 +136,7 @@ library LeafTrigger {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked(uint8(kind)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(kind)), _fieldLayout);
   }
 
   /**
@@ -461,7 +146,322 @@ library LeafTrigger {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    _store.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked(uint8(kind)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(kind)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get navigationAidKind.
+   */
+  function getNavigationAidKind(bytes32 id) internal view returns (NavigationAidKind navigationAidKind) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return NavigationAidKind(uint8(bytes1(_blob)));
+  }
+
+  /**
+   * @notice Get navigationAidKind.
+   */
+  function _getNavigationAidKind(bytes32 id) internal view returns (NavigationAidKind navigationAidKind) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return NavigationAidKind(uint8(bytes1(_blob)));
+  }
+
+  /**
+   * @notice Get navigationAidKind (using the specified store).
+   */
+  function getNavigationAidKind(IStore _store, bytes32 id) internal view returns (NavigationAidKind navigationAidKind) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return NavigationAidKind(uint8(bytes1(_blob)));
+  }
+
+  /**
+   * @notice Set navigationAidKind.
+   */
+  function setNavigationAidKind(bytes32 id, NavigationAidKind navigationAidKind) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(uint8(navigationAidKind)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set navigationAidKind.
+   */
+  function _setNavigationAidKind(bytes32 id, NavigationAidKind navigationAidKind) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(uint8(navigationAidKind)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set navigationAidKind (using the specified store).
+   */
+  function setNavigationAidKind(IStore _store, bytes32 id, NavigationAidKind navigationAidKind) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(uint8(navigationAidKind)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get navigationAidPosX.
+   */
+  function getNavigationAidPosX(bytes32 id) internal view returns (int16 navigationAidPosX) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (int16(uint16(bytes2(_blob))));
+  }
+
+  /**
+   * @notice Get navigationAidPosX.
+   */
+  function _getNavigationAidPosX(bytes32 id) internal view returns (int16 navigationAidPosX) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (int16(uint16(bytes2(_blob))));
+  }
+
+  /**
+   * @notice Get navigationAidPosX (using the specified store).
+   */
+  function getNavigationAidPosX(IStore _store, bytes32 id) internal view returns (int16 navigationAidPosX) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (int16(uint16(bytes2(_blob))));
+  }
+
+  /**
+   * @notice Set navigationAidPosX.
+   */
+  function setNavigationAidPosX(bytes32 id, int16 navigationAidPosX) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((navigationAidPosX)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set navigationAidPosX.
+   */
+  function _setNavigationAidPosX(bytes32 id, int16 navigationAidPosX) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((navigationAidPosX)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set navigationAidPosX (using the specified store).
+   */
+  function setNavigationAidPosX(IStore _store, bytes32 id, int16 navigationAidPosX) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((navigationAidPosX)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get navigationAidPosY.
+   */
+  function getNavigationAidPosY(bytes32 id) internal view returns (int16 navigationAidPosY) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    return (int16(uint16(bytes2(_blob))));
+  }
+
+  /**
+   * @notice Get navigationAidPosY.
+   */
+  function _getNavigationAidPosY(bytes32 id) internal view returns (int16 navigationAidPosY) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    return (int16(uint16(bytes2(_blob))));
+  }
+
+  /**
+   * @notice Get navigationAidPosY (using the specified store).
+   */
+  function getNavigationAidPosY(IStore _store, bytes32 id) internal view returns (int16 navigationAidPosY) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    return (int16(uint16(bytes2(_blob))));
+  }
+
+  /**
+   * @notice Set navigationAidPosY.
+   */
+  function setNavigationAidPosY(bytes32 id, int16 navigationAidPosY) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((navigationAidPosY)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set navigationAidPosY.
+   */
+  function _setNavigationAidPosY(bytes32 id, int16 navigationAidPosY) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((navigationAidPosY)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set navigationAidPosY (using the specified store).
+   */
+  function setNavigationAidPosY(IStore _store, bytes32 id, int16 navigationAidPosY) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    _store.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((navigationAidPosY)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get navigationAidPosZ.
+   */
+  function getNavigationAidPosZ(bytes32 id) internal view returns (int16 navigationAidPosZ) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    return (int16(uint16(bytes2(_blob))));
+  }
+
+  /**
+   * @notice Get navigationAidPosZ.
+   */
+  function _getNavigationAidPosZ(bytes32 id) internal view returns (int16 navigationAidPosZ) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    return (int16(uint16(bytes2(_blob))));
+  }
+
+  /**
+   * @notice Get navigationAidPosZ (using the specified store).
+   */
+  function getNavigationAidPosZ(IStore _store, bytes32 id) internal view returns (int16 navigationAidPosZ) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    return (int16(uint16(bytes2(_blob))));
+  }
+
+  /**
+   * @notice Set navigationAidPosZ.
+   */
+  function setNavigationAidPosZ(bytes32 id, int16 navigationAidPosZ) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((navigationAidPosZ)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set navigationAidPosZ.
+   */
+  function _setNavigationAidPosZ(bytes32 id, int16 navigationAidPosZ) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((navigationAidPosZ)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set navigationAidPosZ (using the specified store).
+   */
+  function setNavigationAidPosZ(IStore _store, bytes32 id, int16 navigationAidPosZ) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    _store.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((navigationAidPosZ)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get navigaitonAidEntity.
+   */
+  function getNavigaitonAidEntity(bytes32 id) internal view returns (bytes32 navigaitonAidEntity) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
+   * @notice Get navigaitonAidEntity.
+   */
+  function _getNavigaitonAidEntity(bytes32 id) internal view returns (bytes32 navigaitonAidEntity) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
+   * @notice Get navigaitonAidEntity (using the specified store).
+   */
+  function getNavigaitonAidEntity(IStore _store, bytes32 id) internal view returns (bytes32 navigaitonAidEntity) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
+   * @notice Set navigaitonAidEntity.
+   */
+  function setNavigaitonAidEntity(bytes32 id, bytes32 navigaitonAidEntity) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((navigaitonAidEntity)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set navigaitonAidEntity.
+   */
+  function _setNavigaitonAidEntity(bytes32 id, bytes32 navigaitonAidEntity) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((navigaitonAidEntity)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set navigaitonAidEntity (using the specified store).
+   */
+  function setNavigaitonAidEntity(IStore _store, bytes32 id, bytes32 navigaitonAidEntity) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    _store.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((navigaitonAidEntity)), _fieldLayout);
   }
 
   /**
@@ -757,21 +757,21 @@ library LeafTrigger {
    */
   function set(
     bytes32 id,
+    LeafTriggerKind kind,
     NavigationAidKind navigationAidKind,
     int16 navigationAidPosX,
     int16 navigationAidPosY,
     int16 navigationAidPosZ,
     bytes32 navigaitonAidEntity,
-    LeafTriggerKind kind,
     string memory name
   ) internal {
     bytes memory _staticData = encodeStatic(
+      kind,
       navigationAidKind,
       navigationAidPosX,
       navigationAidPosY,
       navigationAidPosZ,
-      navigaitonAidEntity,
-      kind
+      navigaitonAidEntity
     );
 
     EncodedLengths _encodedLengths = encodeLengths(name);
@@ -788,21 +788,21 @@ library LeafTrigger {
    */
   function _set(
     bytes32 id,
+    LeafTriggerKind kind,
     NavigationAidKind navigationAidKind,
     int16 navigationAidPosX,
     int16 navigationAidPosY,
     int16 navigationAidPosZ,
     bytes32 navigaitonAidEntity,
-    LeafTriggerKind kind,
     string memory name
   ) internal {
     bytes memory _staticData = encodeStatic(
+      kind,
       navigationAidKind,
       navigationAidPosX,
       navigationAidPosY,
       navigationAidPosZ,
-      navigaitonAidEntity,
-      kind
+      navigaitonAidEntity
     );
 
     EncodedLengths _encodedLengths = encodeLengths(name);
@@ -820,21 +820,21 @@ library LeafTrigger {
   function set(
     IStore _store,
     bytes32 id,
+    LeafTriggerKind kind,
     NavigationAidKind navigationAidKind,
     int16 navigationAidPosX,
     int16 navigationAidPosY,
     int16 navigationAidPosZ,
     bytes32 navigaitonAidEntity,
-    LeafTriggerKind kind,
     string memory name
   ) internal {
     bytes memory _staticData = encodeStatic(
+      kind,
       navigationAidKind,
       navigationAidPosX,
       navigationAidPosY,
       navigationAidPosZ,
-      navigaitonAidEntity,
-      kind
+      navigaitonAidEntity
     );
 
     EncodedLengths _encodedLengths = encodeLengths(name);
@@ -851,12 +851,12 @@ library LeafTrigger {
    */
   function set(bytes32 id, LeafTriggerData memory _table) internal {
     bytes memory _staticData = encodeStatic(
+      _table.kind,
       _table.navigationAidKind,
       _table.navigationAidPosX,
       _table.navigationAidPosY,
       _table.navigationAidPosZ,
-      _table.navigaitonAidEntity,
-      _table.kind
+      _table.navigaitonAidEntity
     );
 
     EncodedLengths _encodedLengths = encodeLengths(_table.name);
@@ -873,12 +873,12 @@ library LeafTrigger {
    */
   function _set(bytes32 id, LeafTriggerData memory _table) internal {
     bytes memory _staticData = encodeStatic(
+      _table.kind,
       _table.navigationAidKind,
       _table.navigationAidPosX,
       _table.navigationAidPosY,
       _table.navigationAidPosZ,
-      _table.navigaitonAidEntity,
-      _table.kind
+      _table.navigaitonAidEntity
     );
 
     EncodedLengths _encodedLengths = encodeLengths(_table.name);
@@ -895,12 +895,12 @@ library LeafTrigger {
    */
   function set(IStore _store, bytes32 id, LeafTriggerData memory _table) internal {
     bytes memory _staticData = encodeStatic(
+      _table.kind,
       _table.navigationAidKind,
       _table.navigationAidPosX,
       _table.navigationAidPosY,
       _table.navigationAidPosZ,
-      _table.navigaitonAidEntity,
-      _table.kind
+      _table.navigaitonAidEntity
     );
 
     EncodedLengths _encodedLengths = encodeLengths(_table.name);
@@ -921,25 +921,25 @@ library LeafTrigger {
     internal
     pure
     returns (
+      LeafTriggerKind kind,
       NavigationAidKind navigationAidKind,
       int16 navigationAidPosX,
       int16 navigationAidPosY,
       int16 navigationAidPosZ,
-      bytes32 navigaitonAidEntity,
-      LeafTriggerKind kind
+      bytes32 navigaitonAidEntity
     )
   {
-    navigationAidKind = NavigationAidKind(uint8(Bytes.getBytes1(_blob, 0)));
+    kind = LeafTriggerKind(uint8(Bytes.getBytes1(_blob, 0)));
 
-    navigationAidPosX = (int16(uint16(Bytes.getBytes2(_blob, 1))));
+    navigationAidKind = NavigationAidKind(uint8(Bytes.getBytes1(_blob, 1)));
 
-    navigationAidPosY = (int16(uint16(Bytes.getBytes2(_blob, 3))));
+    navigationAidPosX = (int16(uint16(Bytes.getBytes2(_blob, 2))));
 
-    navigationAidPosZ = (int16(uint16(Bytes.getBytes2(_blob, 5))));
+    navigationAidPosY = (int16(uint16(Bytes.getBytes2(_blob, 4))));
 
-    navigaitonAidEntity = (Bytes.getBytes32(_blob, 7));
+    navigationAidPosZ = (int16(uint16(Bytes.getBytes2(_blob, 6))));
 
-    kind = LeafTriggerKind(uint8(Bytes.getBytes1(_blob, 39)));
+    navigaitonAidEntity = (Bytes.getBytes32(_blob, 8));
   }
 
   /**
@@ -969,12 +969,12 @@ library LeafTrigger {
     bytes memory _dynamicData
   ) internal pure returns (LeafTriggerData memory _table) {
     (
+      _table.kind,
       _table.navigationAidKind,
       _table.navigationAidPosX,
       _table.navigationAidPosY,
       _table.navigationAidPosZ,
-      _table.navigaitonAidEntity,
-      _table.kind
+      _table.navigaitonAidEntity
     ) = decodeStatic(_staticData);
 
     (_table.name) = decodeDynamic(_encodedLengths, _dynamicData);
@@ -1015,21 +1015,21 @@ library LeafTrigger {
    * @return The static data, encoded into a sequence of bytes.
    */
   function encodeStatic(
+    LeafTriggerKind kind,
     NavigationAidKind navigationAidKind,
     int16 navigationAidPosX,
     int16 navigationAidPosY,
     int16 navigationAidPosZ,
-    bytes32 navigaitonAidEntity,
-    LeafTriggerKind kind
+    bytes32 navigaitonAidEntity
   ) internal pure returns (bytes memory) {
     return
       abi.encodePacked(
+        kind,
         navigationAidKind,
         navigationAidPosX,
         navigationAidPosY,
         navigationAidPosZ,
-        navigaitonAidEntity,
-        kind
+        navigaitonAidEntity
       );
   }
 
@@ -1059,21 +1059,21 @@ library LeafTrigger {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
+    LeafTriggerKind kind,
     NavigationAidKind navigationAidKind,
     int16 navigationAidPosX,
     int16 navigationAidPosY,
     int16 navigationAidPosZ,
     bytes32 navigaitonAidEntity,
-    LeafTriggerKind kind,
     string memory name
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(
+      kind,
       navigationAidKind,
       navigationAidPosX,
       navigationAidPosY,
       navigationAidPosZ,
-      navigaitonAidEntity,
-      kind
+      navigaitonAidEntity
     );
 
     EncodedLengths _encodedLengths = encodeLengths(name);
