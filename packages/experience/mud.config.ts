@@ -334,18 +334,6 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    EventTrigger: {
-      schema: {
-        id: "bytes32",
-        eventKind: "EventKind",
-        count: "uint32",
-        predicateId: "bytes32",
-      },
-      key: ["id"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
     ChallengeCompleteTrigger: {
       schema: {
         id: "bytes32",
@@ -361,6 +349,18 @@ export default defineWorld({
         id: "bytes32",
         objectTypeId: "bytes32",
         count: "uint32",
+      },
+      key: ["id"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    EventTrigger: {
+      schema: {
+        id: "bytes32",
+        eventKind: "EventKind",
+        count: "uint32",
+        predicateId: "bytes32",
       },
       key: ["id"],
       codegen: {
