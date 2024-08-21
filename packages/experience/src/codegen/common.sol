@@ -20,3 +20,41 @@ enum ShopTxType {
   Buy,
   Sell
 }
+
+enum BaseTriggerKind {
+  None,
+  All,
+  Any,
+  Seq
+}
+
+enum LeafTriggerKind {
+  None,
+  MapBeam,
+  Event,
+  ChallengeComplete,
+  Collect
+}
+
+enum NavigationAidKind {
+  None,
+  Position,
+  Entity
+}
+
+enum EventKind {
+  None,
+  ItemShop,
+  CloseModal,
+  ChainPlayerAction
+}
+
+enum BasePredicateKind {
+  None,
+  Object
+}
+
+enum LeafPredicateKind {
+  None,
+  Value
+}
