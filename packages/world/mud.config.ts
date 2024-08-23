@@ -348,5 +348,10 @@ export default defineWorld({
         "@latticexyz/world-modules/out/Unstable_CallWithSignatureModule.sol/Unstable_CallWithSignatureModule.json",
       root: true,
     },
+    {
+      artifactPath: "@latticexyz/world-modules/out/PuppetModule.sol/PuppetModule.json",
+      root: false,
+      args: [],
+    },
   ],
 });
