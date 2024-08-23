@@ -256,6 +256,7 @@ export default defineWorld({
         token: "address",
         systemId: "ResourceId",
         creator: "address",
+        decimals: "uint8",
         symbol: "string",
         name: "string",
         description: "string",

@@ -22,6 +22,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 struct ERC20MetadataData {
   ResourceId systemId;
   address creator;
+  uint8 decimals;
   string symbol;
   string name;
   string description;
@@ -33,12 +34,12 @@ library ERC20Metadata {
   ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e63650000000045524332304d65746164617461000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0034020420140000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0035030420140100000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (address)
   Schema constant _keySchema = Schema.wrap(0x0014010061000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bytes32, address, string, string, string, string)
-  Schema constant _valueSchema = Schema.wrap(0x003402045f61c5c5c5c500000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32, address, uint8, string, string, string, string)
+  Schema constant _valueSchema = Schema.wrap(0x003503045f6100c5c5c5c5000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -54,13 +55,14 @@ library ERC20Metadata {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](6);
+    fieldNames = new string[](7);
     fieldNames[0] = "systemId";
     fieldNames[1] = "creator";
-    fieldNames[2] = "symbol";
-    fieldNames[3] = "name";
-    fieldNames[4] = "description";
-    fieldNames[5] = "icon";
+    fieldNames[2] = "decimals";
+    fieldNames[3] = "symbol";
+    fieldNames[4] = "name";
+    fieldNames[5] = "description";
+    fieldNames[6] = "icon";
   }
 
   /**
@@ -208,6 +210,69 @@ library ERC20Metadata {
     _keyTuple[0] = bytes32(uint256(uint160(token)));
 
     _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((creator)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get decimals.
+   */
+  function getDecimals(address token) internal view returns (uint8 decimals) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(token)));
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint8(bytes1(_blob)));
+  }
+
+  /**
+   * @notice Get decimals.
+   */
+  function _getDecimals(address token) internal view returns (uint8 decimals) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(token)));
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint8(bytes1(_blob)));
+  }
+
+  /**
+   * @notice Get decimals (using the specified store).
+   */
+  function getDecimals(IStore _store, address token) internal view returns (uint8 decimals) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(token)));
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint8(bytes1(_blob)));
+  }
+
+  /**
+   * @notice Set decimals.
+   */
+  function setDecimals(address token, uint8 decimals) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(token)));
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((decimals)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set decimals.
+   */
+  function _setDecimals(address token, uint8 decimals) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(token)));
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((decimals)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set decimals (using the specified store).
+   */
+  function setDecimals(IStore _store, address token, uint8 decimals) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(token)));
+
+    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((decimals)), _fieldLayout);
   }
 
   /**
@@ -1234,12 +1299,13 @@ library ERC20Metadata {
     address token,
     ResourceId systemId,
     address creator,
+    uint8 decimals,
     string memory symbol,
     string memory name,
     string memory description,
     string memory icon
   ) internal {
-    bytes memory _staticData = encodeStatic(systemId, creator);
+    bytes memory _staticData = encodeStatic(systemId, creator, decimals);
 
     EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, icon);
     bytes memory _dynamicData = encodeDynamic(symbol, name, description, icon);
@@ -1257,12 +1323,13 @@ library ERC20Metadata {
     address token,
     ResourceId systemId,
     address creator,
+    uint8 decimals,
     string memory symbol,
     string memory name,
     string memory description,
     string memory icon
   ) internal {
-    bytes memory _staticData = encodeStatic(systemId, creator);
+    bytes memory _staticData = encodeStatic(systemId, creator, decimals);
 
     EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, icon);
     bytes memory _dynamicData = encodeDynamic(symbol, name, description, icon);
@@ -1281,12 +1348,13 @@ library ERC20Metadata {
     address token,
     ResourceId systemId,
     address creator,
+    uint8 decimals,
     string memory symbol,
     string memory name,
     string memory description,
     string memory icon
   ) internal {
-    bytes memory _staticData = encodeStatic(systemId, creator);
+    bytes memory _staticData = encodeStatic(systemId, creator, decimals);
 
     EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, icon);
     bytes memory _dynamicData = encodeDynamic(symbol, name, description, icon);
@@ -1301,7 +1369,7 @@ library ERC20Metadata {
    * @notice Set the full data using the data struct.
    */
   function set(address token, ERC20MetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.systemId, _table.creator);
+    bytes memory _staticData = encodeStatic(_table.systemId, _table.creator, _table.decimals);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.symbol, _table.name, _table.description, _table.icon);
     bytes memory _dynamicData = encodeDynamic(_table.symbol, _table.name, _table.description, _table.icon);
@@ -1316,7 +1384,7 @@ library ERC20Metadata {
    * @notice Set the full data using the data struct.
    */
   function _set(address token, ERC20MetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.systemId, _table.creator);
+    bytes memory _staticData = encodeStatic(_table.systemId, _table.creator, _table.decimals);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.symbol, _table.name, _table.description, _table.icon);
     bytes memory _dynamicData = encodeDynamic(_table.symbol, _table.name, _table.description, _table.icon);
@@ -1331,7 +1399,7 @@ library ERC20Metadata {
    * @notice Set the full data using the data struct (using the specified store).
    */
   function set(IStore _store, address token, ERC20MetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.systemId, _table.creator);
+    bytes memory _staticData = encodeStatic(_table.systemId, _table.creator, _table.decimals);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.symbol, _table.name, _table.description, _table.icon);
     bytes memory _dynamicData = encodeDynamic(_table.symbol, _table.name, _table.description, _table.icon);
@@ -1345,10 +1413,14 @@ library ERC20Metadata {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (ResourceId systemId, address creator) {
+  function decodeStatic(
+    bytes memory _blob
+  ) internal pure returns (ResourceId systemId, address creator, uint8 decimals) {
     systemId = ResourceId.wrap(Bytes.getBytes32(_blob, 0));
 
     creator = (address(Bytes.getBytes20(_blob, 32)));
+
+    decimals = (uint8(Bytes.getBytes1(_blob, 52)));
   }
 
   /**
@@ -1395,7 +1467,7 @@ library ERC20Metadata {
     EncodedLengths _encodedLengths,
     bytes memory _dynamicData
   ) internal pure returns (ERC20MetadataData memory _table) {
-    (_table.systemId, _table.creator) = decodeStatic(_staticData);
+    (_table.systemId, _table.creator, _table.decimals) = decodeStatic(_staticData);
 
     (_table.symbol, _table.name, _table.description, _table.icon) = decodeDynamic(_encodedLengths, _dynamicData);
   }
@@ -1434,8 +1506,8 @@ library ERC20Metadata {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(ResourceId systemId, address creator) internal pure returns (bytes memory) {
-    return abi.encodePacked(systemId, creator);
+  function encodeStatic(ResourceId systemId, address creator, uint8 decimals) internal pure returns (bytes memory) {
+    return abi.encodePacked(systemId, creator, decimals);
   }
 
   /**
@@ -1481,12 +1553,13 @@ library ERC20Metadata {
   function encode(
     ResourceId systemId,
     address creator,
+    uint8 decimals,
     string memory symbol,
     string memory name,
     string memory description,
     string memory icon
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(systemId, creator);
+    bytes memory _staticData = encodeStatic(systemId, creator, decimals);
 
     EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, icon);
     bytes memory _dynamicData = encodeDynamic(symbol, name, description, icon);

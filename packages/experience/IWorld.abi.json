@@ -1139,6 +1139,11 @@
             "internalType": "address"
           },
           {
+            "name": "decimals",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
             "name": "symbol",
             "type": "string",
             "internalType": "string"
@@ -1424,6 +1429,11 @@
             "name": "creator",
             "type": "address",
             "internalType": "address"
+          },
+          {
+            "name": "decimals",
+            "type": "uint8",
+            "internalType": "uint8"
           },
           {
             "name": "symbol",
