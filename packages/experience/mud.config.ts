@@ -10,6 +10,9 @@ export default defineWorld({
     ShopType: ["None", "Buy", "Sell", "BuySell"],
     ShopTxType: ["None", "Buy", "Sell"],
   },
+  userTypes: {
+    ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", type: "bytes32" },
+  },
   namespace: "experience",
   tables: {
     ExperienceMetadata: {
@@ -248,9 +251,10 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    TokenMetadata: {
+    ERC20Metadata: {
       schema: {
         token: "address",
+        systemId: "ResourceId",
         creator: "address",
         symbol: "string",
         name: "string",

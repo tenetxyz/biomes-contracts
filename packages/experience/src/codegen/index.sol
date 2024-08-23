@@ -22,5 +22,5 @@ import { BuildsWithPos, BuildsWithPosData } from "./tables/BuildsWithPos.sol";
 import { Countdown, CountdownData } from "./tables/Countdown.sol";
 import { Tokens } from "./tables/Tokens.sol";
 import { NFTs } from "./tables/NFTs.sol";
-import { TokenMetadata, TokenMetadataData } from "./tables/TokenMetadata.sol";
+import { ERC20Metadata, ERC20MetadataData } from "./tables/ERC20Metadata.sol";
 import { NFTMetadata, NFTMetadataData } from "./tables/NFTMetadata.sol";

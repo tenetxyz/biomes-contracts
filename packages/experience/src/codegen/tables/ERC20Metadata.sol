@@ -16,7 +16,11 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-struct TokenMetadataData {
+// Import user types
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+
+struct ERC20MetadataData {
+  ResourceId systemId;
   address creator;
   string symbol;
   string name;
@@ -24,17 +28,17 @@ struct TokenMetadataData {
   string icon;
 }
 
-library TokenMetadata {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "TokenMetadata", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e636500000000546f6b656e4d65746164617461000000);
+library ERC20Metadata {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "ERC20Metadata", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e63650000000045524332304d65746164617461000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0014010414000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0034020420140000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (address)
   Schema constant _keySchema = Schema.wrap(0x0014010061000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (address, string, string, string, string)
-  Schema constant _valueSchema = Schema.wrap(0x0014010461c5c5c5c50000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32, address, string, string, string, string)
+  Schema constant _valueSchema = Schema.wrap(0x003402045f61c5c5c5c500000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -50,12 +54,13 @@ library TokenMetadata {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](5);
-    fieldNames[0] = "creator";
-    fieldNames[1] = "symbol";
-    fieldNames[2] = "name";
-    fieldNames[3] = "description";
-    fieldNames[4] = "icon";
+    fieldNames = new string[](6);
+    fieldNames[0] = "systemId";
+    fieldNames[1] = "creator";
+    fieldNames[2] = "symbol";
+    fieldNames[3] = "name";
+    fieldNames[4] = "description";
+    fieldNames[5] = "icon";
   }
 
   /**
@@ -80,13 +85,76 @@ library TokenMetadata {
   }
 
   /**
+   * @notice Get systemId.
+   */
+  function getSystemId(address token) internal view returns (ResourceId systemId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(token)));
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return ResourceId.wrap(bytes32(_blob));
+  }
+
+  /**
+   * @notice Get systemId.
+   */
+  function _getSystemId(address token) internal view returns (ResourceId systemId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(token)));
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return ResourceId.wrap(bytes32(_blob));
+  }
+
+  /**
+   * @notice Get systemId (using the specified store).
+   */
+  function getSystemId(IStore _store, address token) internal view returns (ResourceId systemId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(token)));
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return ResourceId.wrap(bytes32(_blob));
+  }
+
+  /**
+   * @notice Set systemId.
+   */
+  function setSystemId(address token, ResourceId systemId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(token)));
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(systemId)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set systemId.
+   */
+  function _setSystemId(address token, ResourceId systemId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(token)));
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(systemId)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set systemId (using the specified store).
+   */
+  function setSystemId(IStore _store, address token, ResourceId systemId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(token)));
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(systemId)), _fieldLayout);
+  }
+
+  /**
    * @notice Get creator.
    */
   function getCreator(address token) internal view returns (address creator) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(token)));
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -97,7 +165,7 @@ library TokenMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(token)));
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -108,7 +176,7 @@ library TokenMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(token)));
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -119,7 +187,7 @@ library TokenMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(token)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((creator)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((creator)), _fieldLayout);
   }
 
   /**
@@ -129,7 +197,7 @@ library TokenMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(token)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((creator)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((creator)), _fieldLayout);
   }
 
   /**
@@ -139,7 +207,7 @@ library TokenMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(token)));
 
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((creator)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((creator)), _fieldLayout);
   }
 
   /**
@@ -1117,7 +1185,7 @@ library TokenMetadata {
   /**
    * @notice Get the full data.
    */
-  function get(address token) internal view returns (TokenMetadataData memory _table) {
+  function get(address token) internal view returns (ERC20MetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(token)));
 
@@ -1132,7 +1200,7 @@ library TokenMetadata {
   /**
    * @notice Get the full data.
    */
-  function _get(address token) internal view returns (TokenMetadataData memory _table) {
+  function _get(address token) internal view returns (ERC20MetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(token)));
 
@@ -1147,7 +1215,7 @@ library TokenMetadata {
   /**
    * @notice Get the full data (using the specified store).
    */
-  function get(IStore _store, address token) internal view returns (TokenMetadataData memory _table) {
+  function get(IStore _store, address token) internal view returns (ERC20MetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(token)));
 
@@ -1164,13 +1232,14 @@ library TokenMetadata {
    */
   function set(
     address token,
+    ResourceId systemId,
     address creator,
     string memory symbol,
     string memory name,
     string memory description,
     string memory icon
   ) internal {
-    bytes memory _staticData = encodeStatic(creator);
+    bytes memory _staticData = encodeStatic(systemId, creator);
 
     EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, icon);
     bytes memory _dynamicData = encodeDynamic(symbol, name, description, icon);
@@ -1186,13 +1255,14 @@ library TokenMetadata {
    */
   function _set(
     address token,
+    ResourceId systemId,
     address creator,
     string memory symbol,
     string memory name,
     string memory description,
     string memory icon
   ) internal {
-    bytes memory _staticData = encodeStatic(creator);
+    bytes memory _staticData = encodeStatic(systemId, creator);
 
     EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, icon);
     bytes memory _dynamicData = encodeDynamic(symbol, name, description, icon);
@@ -1209,13 +1279,14 @@ library TokenMetadata {
   function set(
     IStore _store,
     address token,
+    ResourceId systemId,
     address creator,
     string memory symbol,
     string memory name,
     string memory description,
     string memory icon
   ) internal {
-    bytes memory _staticData = encodeStatic(creator);
+    bytes memory _staticData = encodeStatic(systemId, creator);
 
     EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, icon);
     bytes memory _dynamicData = encodeDynamic(symbol, name, description, icon);
@@ -1229,8 +1300,8 @@ library TokenMetadata {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(address token, TokenMetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.creator);
+  function set(address token, ERC20MetadataData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.systemId, _table.creator);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.symbol, _table.name, _table.description, _table.icon);
     bytes memory _dynamicData = encodeDynamic(_table.symbol, _table.name, _table.description, _table.icon);
@@ -1244,8 +1315,8 @@ library TokenMetadata {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(address token, TokenMetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.creator);
+  function _set(address token, ERC20MetadataData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.systemId, _table.creator);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.symbol, _table.name, _table.description, _table.icon);
     bytes memory _dynamicData = encodeDynamic(_table.symbol, _table.name, _table.description, _table.icon);
@@ -1259,8 +1330,8 @@ library TokenMetadata {
   /**
    * @notice Set the full data using the data struct (using the specified store).
    */
-  function set(IStore _store, address token, TokenMetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.creator);
+  function set(IStore _store, address token, ERC20MetadataData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.systemId, _table.creator);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.symbol, _table.name, _table.description, _table.icon);
     bytes memory _dynamicData = encodeDynamic(_table.symbol, _table.name, _table.description, _table.icon);
@@ -1274,8 +1345,10 @@ library TokenMetadata {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (address creator) {
-    creator = (address(Bytes.getBytes20(_blob, 0)));
+  function decodeStatic(bytes memory _blob) internal pure returns (ResourceId systemId, address creator) {
+    systemId = ResourceId.wrap(Bytes.getBytes32(_blob, 0));
+
+    creator = (address(Bytes.getBytes20(_blob, 32)));
   }
 
   /**
@@ -1321,8 +1394,8 @@ library TokenMetadata {
     bytes memory _staticData,
     EncodedLengths _encodedLengths,
     bytes memory _dynamicData
-  ) internal pure returns (TokenMetadataData memory _table) {
-    (_table.creator) = decodeStatic(_staticData);
+  ) internal pure returns (ERC20MetadataData memory _table) {
+    (_table.systemId, _table.creator) = decodeStatic(_staticData);
 
     (_table.symbol, _table.name, _table.description, _table.icon) = decodeDynamic(_encodedLengths, _dynamicData);
   }
@@ -1361,8 +1434,8 @@ library TokenMetadata {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(address creator) internal pure returns (bytes memory) {
-    return abi.encodePacked(creator);
+  function encodeStatic(ResourceId systemId, address creator) internal pure returns (bytes memory) {
+    return abi.encodePacked(systemId, creator);
   }
 
   /**
@@ -1406,13 +1479,14 @@ library TokenMetadata {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
+    ResourceId systemId,
     address creator,
     string memory symbol,
     string memory name,
     string memory description,
     string memory icon
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(creator);
+    bytes memory _staticData = encodeStatic(systemId, creator);
 
     EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, icon);
     bytes memory _dynamicData = encodeDynamic(symbol, name, description, icon);

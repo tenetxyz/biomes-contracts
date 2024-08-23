@@ -1126,8 +1126,13 @@ declare const abi: [
       {
         "name": "metadata",
         "type": "tuple",
-        "internalType": "struct TokenMetadataData",
+        "internalType": "struct ERC20MetadataData",
         "components": [
+          {
+            "name": "systemId",
+            "type": "bytes32",
+            "internalType": "ResourceId"
+          },
           {
             "name": "creator",
             "type": "address",
@@ -1408,8 +1413,13 @@ declare const abi: [
       {
         "name": "metadata",
         "type": "tuple",
-        "internalType": "struct TokenMetadataData",
+        "internalType": "struct ERC20MetadataData",
         "components": [
+          {
+            "name": "systemId",
+            "type": "bytes32",
+            "internalType": "ResourceId"
+          },
           {
             "name": "creator",
             "type": "address",
