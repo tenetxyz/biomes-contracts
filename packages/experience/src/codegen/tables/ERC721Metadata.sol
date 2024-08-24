@@ -16,25 +16,29 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-struct NFTMetadataData {
+// Import user types
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+
+struct ERC721MetadataData {
+  ResourceId systemId;
   address creator;
   string symbol;
   string name;
   string description;
-  string icon;
+  string baseURI;
 }
 
-library NFTMetadata {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "NFTMetadata", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e6365000000004e46544d657461646174610000000000);
+library ERC721Metadata {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "ERC721Metadata", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e6365000000004552433732314d657461646174610000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0014010414000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0034020420140000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (address)
   Schema constant _keySchema = Schema.wrap(0x0014010061000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (address, string, string, string, string)
-  Schema constant _valueSchema = Schema.wrap(0x0014010461c5c5c5c50000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32, address, string, string, string, string)
+  Schema constant _valueSchema = Schema.wrap(0x003402045f61c5c5c5c500000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -50,12 +54,13 @@ library NFTMetadata {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](5);
-    fieldNames[0] = "creator";
-    fieldNames[1] = "symbol";
-    fieldNames[2] = "name";
-    fieldNames[3] = "description";
-    fieldNames[4] = "icon";
+    fieldNames = new string[](6);
+    fieldNames[0] = "systemId";
+    fieldNames[1] = "creator";
+    fieldNames[2] = "symbol";
+    fieldNames[3] = "name";
+    fieldNames[4] = "description";
+    fieldNames[5] = "baseURI";
   }
 
   /**
@@ -80,13 +85,76 @@ library NFTMetadata {
   }
 
   /**
+   * @notice Get systemId.
+   */
+  function getSystemId(address nft) internal view returns (ResourceId systemId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(nft)));
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return ResourceId.wrap(bytes32(_blob));
+  }
+
+  /**
+   * @notice Get systemId.
+   */
+  function _getSystemId(address nft) internal view returns (ResourceId systemId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(nft)));
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return ResourceId.wrap(bytes32(_blob));
+  }
+
+  /**
+   * @notice Get systemId (using the specified store).
+   */
+  function getSystemId(IStore _store, address nft) internal view returns (ResourceId systemId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(nft)));
+
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return ResourceId.wrap(bytes32(_blob));
+  }
+
+  /**
+   * @notice Set systemId.
+   */
+  function setSystemId(address nft, ResourceId systemId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(nft)));
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(systemId)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set systemId.
+   */
+  function _setSystemId(address nft, ResourceId systemId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(nft)));
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(systemId)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set systemId (using the specified store).
+   */
+  function setSystemId(IStore _store, address nft, ResourceId systemId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(nft)));
+
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(systemId)), _fieldLayout);
+  }
+
+  /**
    * @notice Get creator.
    */
   function getCreator(address nft) internal view returns (address creator) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -97,7 +165,7 @@ library NFTMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -108,7 +176,7 @@ library NFTMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -119,7 +187,7 @@ library NFTMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((creator)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((creator)), _fieldLayout);
   }
 
   /**
@@ -129,7 +197,7 @@ library NFTMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((creator)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((creator)), _fieldLayout);
   }
 
   /**
@@ -139,7 +207,7 @@ library NFTMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((creator)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((creator)), _fieldLayout);
   }
 
   /**
@@ -872,9 +940,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Get icon.
+   * @notice Get baseURI.
    */
-  function getIcon(address nft) internal view returns (string memory icon) {
+  function getBaseURI(address nft) internal view returns (string memory baseURI) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -883,9 +951,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Get icon.
+   * @notice Get baseURI.
    */
-  function _getIcon(address nft) internal view returns (string memory icon) {
+  function _getBaseURI(address nft) internal view returns (string memory baseURI) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -894,9 +962,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Get icon (using the specified store).
+   * @notice Get baseURI (using the specified store).
    */
-  function getIcon(IStore _store, address nft) internal view returns (string memory icon) {
+  function getBaseURI(IStore _store, address nft) internal view returns (string memory baseURI) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -905,39 +973,39 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Set icon.
+   * @notice Set baseURI.
    */
-  function setIcon(address nft, string memory icon) internal {
+  function setBaseURI(address nft, string memory baseURI) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
-    StoreSwitch.setDynamicField(_tableId, _keyTuple, 3, bytes((icon)));
+    StoreSwitch.setDynamicField(_tableId, _keyTuple, 3, bytes((baseURI)));
   }
 
   /**
-   * @notice Set icon.
+   * @notice Set baseURI.
    */
-  function _setIcon(address nft, string memory icon) internal {
+  function _setBaseURI(address nft, string memory baseURI) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
-    StoreCore.setDynamicField(_tableId, _keyTuple, 3, bytes((icon)));
+    StoreCore.setDynamicField(_tableId, _keyTuple, 3, bytes((baseURI)));
   }
 
   /**
-   * @notice Set icon (using the specified store).
+   * @notice Set baseURI (using the specified store).
    */
-  function setIcon(IStore _store, address nft, string memory icon) internal {
+  function setBaseURI(IStore _store, address nft, string memory baseURI) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
-    _store.setDynamicField(_tableId, _keyTuple, 3, bytes((icon)));
+    _store.setDynamicField(_tableId, _keyTuple, 3, bytes((baseURI)));
   }
 
   /**
-   * @notice Get the length of icon.
+   * @notice Get the length of baseURI.
    */
-  function lengthIcon(address nft) internal view returns (uint256) {
+  function lengthBaseURI(address nft) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -948,9 +1016,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Get the length of icon.
+   * @notice Get the length of baseURI.
    */
-  function _lengthIcon(address nft) internal view returns (uint256) {
+  function _lengthBaseURI(address nft) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -961,9 +1029,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Get the length of icon (using the specified store).
+   * @notice Get the length of baseURI (using the specified store).
    */
-  function lengthIcon(IStore _store, address nft) internal view returns (uint256) {
+  function lengthBaseURI(IStore _store, address nft) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -974,10 +1042,10 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Get an item of icon.
+   * @notice Get an item of baseURI.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemIcon(address nft, uint256 _index) internal view returns (string memory) {
+  function getItemBaseURI(address nft, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -988,10 +1056,10 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Get an item of icon.
+   * @notice Get an item of baseURI.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemIcon(address nft, uint256 _index) internal view returns (string memory) {
+  function _getItemBaseURI(address nft, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1002,10 +1070,10 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Get an item of icon (using the specified store).
+   * @notice Get an item of baseURI (using the specified store).
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemIcon(IStore _store, address nft, uint256 _index) internal view returns (string memory) {
+  function getItemBaseURI(IStore _store, address nft, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1016,9 +1084,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Push a slice to icon.
+   * @notice Push a slice to baseURI.
    */
-  function pushIcon(address nft, string memory _slice) internal {
+  function pushBaseURI(address nft, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1026,9 +1094,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Push a slice to icon.
+   * @notice Push a slice to baseURI.
    */
-  function _pushIcon(address nft, string memory _slice) internal {
+  function _pushBaseURI(address nft, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1036,9 +1104,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Push a slice to icon (using the specified store).
+   * @notice Push a slice to baseURI (using the specified store).
    */
-  function pushIcon(IStore _store, address nft, string memory _slice) internal {
+  function pushBaseURI(IStore _store, address nft, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1046,9 +1114,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Pop a slice from icon.
+   * @notice Pop a slice from baseURI.
    */
-  function popIcon(address nft) internal {
+  function popBaseURI(address nft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1056,9 +1124,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Pop a slice from icon.
+   * @notice Pop a slice from baseURI.
    */
-  function _popIcon(address nft) internal {
+  function _popBaseURI(address nft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1066,9 +1134,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Pop a slice from icon (using the specified store).
+   * @notice Pop a slice from baseURI (using the specified store).
    */
-  function popIcon(IStore _store, address nft) internal {
+  function popBaseURI(IStore _store, address nft) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1076,9 +1144,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Update a slice of icon at `_index`.
+   * @notice Update a slice of baseURI at `_index`.
    */
-  function updateIcon(address nft, uint256 _index, string memory _slice) internal {
+  function updateBaseURI(address nft, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1089,9 +1157,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Update a slice of icon at `_index`.
+   * @notice Update a slice of baseURI at `_index`.
    */
-  function _updateIcon(address nft, uint256 _index, string memory _slice) internal {
+  function _updateBaseURI(address nft, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1102,9 +1170,9 @@ library NFTMetadata {
   }
 
   /**
-   * @notice Update a slice of icon (using the specified store) at `_index`.
+   * @notice Update a slice of baseURI (using the specified store) at `_index`.
    */
-  function updateIcon(IStore _store, address nft, uint256 _index, string memory _slice) internal {
+  function updateBaseURI(IStore _store, address nft, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1117,7 +1185,7 @@ library NFTMetadata {
   /**
    * @notice Get the full data.
    */
-  function get(address nft) internal view returns (NFTMetadataData memory _table) {
+  function get(address nft) internal view returns (ERC721MetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1132,7 +1200,7 @@ library NFTMetadata {
   /**
    * @notice Get the full data.
    */
-  function _get(address nft) internal view returns (NFTMetadataData memory _table) {
+  function _get(address nft) internal view returns (ERC721MetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1147,7 +1215,7 @@ library NFTMetadata {
   /**
    * @notice Get the full data (using the specified store).
    */
-  function get(IStore _store, address nft) internal view returns (NFTMetadataData memory _table) {
+  function get(IStore _store, address nft) internal view returns (ERC721MetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
 
@@ -1164,16 +1232,17 @@ library NFTMetadata {
    */
   function set(
     address nft,
+    ResourceId systemId,
     address creator,
     string memory symbol,
     string memory name,
     string memory description,
-    string memory icon
+    string memory baseURI
   ) internal {
-    bytes memory _staticData = encodeStatic(creator);
+    bytes memory _staticData = encodeStatic(systemId, creator);
 
-    EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, icon);
-    bytes memory _dynamicData = encodeDynamic(symbol, name, description, icon);
+    EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, baseURI);
+    bytes memory _dynamicData = encodeDynamic(symbol, name, description, baseURI);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
@@ -1186,16 +1255,17 @@ library NFTMetadata {
    */
   function _set(
     address nft,
+    ResourceId systemId,
     address creator,
     string memory symbol,
     string memory name,
     string memory description,
-    string memory icon
+    string memory baseURI
   ) internal {
-    bytes memory _staticData = encodeStatic(creator);
+    bytes memory _staticData = encodeStatic(systemId, creator);
 
-    EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, icon);
-    bytes memory _dynamicData = encodeDynamic(symbol, name, description, icon);
+    EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, baseURI);
+    bytes memory _dynamicData = encodeDynamic(symbol, name, description, baseURI);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
@@ -1209,16 +1279,17 @@ library NFTMetadata {
   function set(
     IStore _store,
     address nft,
+    ResourceId systemId,
     address creator,
     string memory symbol,
     string memory name,
     string memory description,
-    string memory icon
+    string memory baseURI
   ) internal {
-    bytes memory _staticData = encodeStatic(creator);
+    bytes memory _staticData = encodeStatic(systemId, creator);
 
-    EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, icon);
-    bytes memory _dynamicData = encodeDynamic(symbol, name, description, icon);
+    EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, baseURI);
+    bytes memory _dynamicData = encodeDynamic(symbol, name, description, baseURI);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
@@ -1229,11 +1300,11 @@ library NFTMetadata {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(address nft, NFTMetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.creator);
+  function set(address nft, ERC721MetadataData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.systemId, _table.creator);
 
-    EncodedLengths _encodedLengths = encodeLengths(_table.symbol, _table.name, _table.description, _table.icon);
-    bytes memory _dynamicData = encodeDynamic(_table.symbol, _table.name, _table.description, _table.icon);
+    EncodedLengths _encodedLengths = encodeLengths(_table.symbol, _table.name, _table.description, _table.baseURI);
+    bytes memory _dynamicData = encodeDynamic(_table.symbol, _table.name, _table.description, _table.baseURI);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
@@ -1244,11 +1315,11 @@ library NFTMetadata {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(address nft, NFTMetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.creator);
+  function _set(address nft, ERC721MetadataData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.systemId, _table.creator);
 
-    EncodedLengths _encodedLengths = encodeLengths(_table.symbol, _table.name, _table.description, _table.icon);
-    bytes memory _dynamicData = encodeDynamic(_table.symbol, _table.name, _table.description, _table.icon);
+    EncodedLengths _encodedLengths = encodeLengths(_table.symbol, _table.name, _table.description, _table.baseURI);
+    bytes memory _dynamicData = encodeDynamic(_table.symbol, _table.name, _table.description, _table.baseURI);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
@@ -1259,11 +1330,11 @@ library NFTMetadata {
   /**
    * @notice Set the full data using the data struct (using the specified store).
    */
-  function set(IStore _store, address nft, NFTMetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.creator);
+  function set(IStore _store, address nft, ERC721MetadataData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.systemId, _table.creator);
 
-    EncodedLengths _encodedLengths = encodeLengths(_table.symbol, _table.name, _table.description, _table.icon);
-    bytes memory _dynamicData = encodeDynamic(_table.symbol, _table.name, _table.description, _table.icon);
+    EncodedLengths _encodedLengths = encodeLengths(_table.symbol, _table.name, _table.description, _table.baseURI);
+    bytes memory _dynamicData = encodeDynamic(_table.symbol, _table.name, _table.description, _table.baseURI);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(nft)));
@@ -1274,8 +1345,10 @@ library NFTMetadata {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (address creator) {
-    creator = (address(Bytes.getBytes20(_blob, 0)));
+  function decodeStatic(bytes memory _blob) internal pure returns (ResourceId systemId, address creator) {
+    systemId = ResourceId.wrap(Bytes.getBytes32(_blob, 0));
+
+    creator = (address(Bytes.getBytes20(_blob, 32)));
   }
 
   /**
@@ -1284,7 +1357,7 @@ library NFTMetadata {
   function decodeDynamic(
     EncodedLengths _encodedLengths,
     bytes memory _blob
-  ) internal pure returns (string memory symbol, string memory name, string memory description, string memory icon) {
+  ) internal pure returns (string memory symbol, string memory name, string memory description, string memory baseURI) {
     uint256 _start;
     uint256 _end;
     unchecked {
@@ -1308,7 +1381,7 @@ library NFTMetadata {
     unchecked {
       _end += _encodedLengths.atIndex(3);
     }
-    icon = (string(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
+    baseURI = (string(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
   }
 
   /**
@@ -1321,10 +1394,10 @@ library NFTMetadata {
     bytes memory _staticData,
     EncodedLengths _encodedLengths,
     bytes memory _dynamicData
-  ) internal pure returns (NFTMetadataData memory _table) {
-    (_table.creator) = decodeStatic(_staticData);
+  ) internal pure returns (ERC721MetadataData memory _table) {
+    (_table.systemId, _table.creator) = decodeStatic(_staticData);
 
-    (_table.symbol, _table.name, _table.description, _table.icon) = decodeDynamic(_encodedLengths, _dynamicData);
+    (_table.symbol, _table.name, _table.description, _table.baseURI) = decodeDynamic(_encodedLengths, _dynamicData);
   }
 
   /**
@@ -1361,8 +1434,8 @@ library NFTMetadata {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(address creator) internal pure returns (bytes memory) {
-    return abi.encodePacked(creator);
+  function encodeStatic(ResourceId systemId, address creator) internal pure returns (bytes memory) {
+    return abi.encodePacked(systemId, creator);
   }
 
   /**
@@ -1373,7 +1446,7 @@ library NFTMetadata {
     string memory symbol,
     string memory name,
     string memory description,
-    string memory icon
+    string memory baseURI
   ) internal pure returns (EncodedLengths _encodedLengths) {
     // Lengths are effectively checked during copy by 2**40 bytes exceeding gas limits
     unchecked {
@@ -1381,7 +1454,7 @@ library NFTMetadata {
         bytes(symbol).length,
         bytes(name).length,
         bytes(description).length,
-        bytes(icon).length
+        bytes(baseURI).length
       );
     }
   }
@@ -1394,9 +1467,9 @@ library NFTMetadata {
     string memory symbol,
     string memory name,
     string memory description,
-    string memory icon
+    string memory baseURI
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(bytes((symbol)), bytes((name)), bytes((description)), bytes((icon)));
+    return abi.encodePacked(bytes((symbol)), bytes((name)), bytes((description)), bytes((baseURI)));
   }
 
   /**
@@ -1406,16 +1479,17 @@ library NFTMetadata {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
+    ResourceId systemId,
     address creator,
     string memory symbol,
     string memory name,
     string memory description,
-    string memory icon
+    string memory baseURI
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(creator);
+    bytes memory _staticData = encodeStatic(systemId, creator);
 
-    EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, icon);
-    bytes memory _dynamicData = encodeDynamic(symbol, name, description, icon);
+    EncodedLengths _encodedLengths = encodeLengths(symbol, name, description, baseURI);
+    bytes memory _dynamicData = encodeDynamic(symbol, name, description, baseURI);
 
     return (_staticData, _encodedLengths, _dynamicData);
   }

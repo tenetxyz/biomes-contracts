@@ -23,4 +23,4 @@ import { Countdown, CountdownData } from "./tables/Countdown.sol";
 import { Tokens } from "./tables/Tokens.sol";
 import { NFTs } from "./tables/NFTs.sol";
 import { ERC20Metadata, ERC20MetadataData } from "./tables/ERC20Metadata.sol";
-import { NFTMetadata, NFTMetadataData } from "./tables/NFTMetadata.sol";
+import { ERC721Metadata, ERC721MetadataData } from "./tables/ERC721Metadata.sol";

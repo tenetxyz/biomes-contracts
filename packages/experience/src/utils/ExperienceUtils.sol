@@ -11,7 +11,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { CountdownData } from "../codegen/tables/Countdown.sol";
 import { ExperienceMetadataData } from "../codegen/tables/ExperienceMetadata.sol";
 import { ERC20MetadataData } from "../codegen/tables/ERC20Metadata.sol";
-import { NFTMetadataData } from "../codegen/tables/NFTMetadata.sol";
+import { ERC721MetadataData } from "../codegen/tables/ERC721Metadata.sol";
 
 import { Area } from "./AreaUtils.sol";
 import { Build, BuildWithPos } from "./BuildUtils.sol";
@@ -168,7 +168,7 @@ function deleteTokenMetadata() {
   IWorld(WorldContextConsumerLib._world()).experience__deleteTokenMetadata();
 }
 
-function setNFTMetadata(NFTMetadataData memory metadata) {
+function setNFTMetadata(ERC721MetadataData memory metadata) {
   IWorld(WorldContextConsumerLib._world()).experience__setNFTMetadata(metadata);
 }
 

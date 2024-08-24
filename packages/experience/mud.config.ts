@@ -267,14 +267,15 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    NFTMetadata: {
+    ERC721Metadata: {
       schema: {
         nft: "address",
+        systemId: "ResourceId",
         creator: "address",
         symbol: "string",
         name: "string",
         description: "string",
-        icon: "string",
+        baseURI: "string",
       },
       key: ["nft"],
       codegen: {

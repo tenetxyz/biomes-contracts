@@ -1116,6 +1116,56 @@
   },
   {
     "type": "function",
+    "name": "experience__setMUDNFTMetadata",
+    "inputs": [
+      {
+        "name": "namespaceId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
+      },
+      {
+        "name": "metadata",
+        "type": "tuple",
+        "internalType": "struct ERC721MetadataData",
+        "components": [
+          {
+            "name": "systemId",
+            "type": "bytes32",
+            "internalType": "ResourceId"
+          },
+          {
+            "name": "creator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "symbol",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "baseURI",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__setMUDTokenMetadata",
     "inputs": [
       {
@@ -1176,8 +1226,13 @@
       {
         "name": "metadata",
         "type": "tuple",
-        "internalType": "struct NFTMetadataData",
+        "internalType": "struct ERC721MetadataData",
         "components": [
+          {
+            "name": "systemId",
+            "type": "bytes32",
+            "internalType": "ResourceId"
+          },
           {
             "name": "creator",
             "type": "address",
@@ -1199,7 +1254,7 @@
             "internalType": "string"
           },
           {
-            "name": "icon",
+            "name": "baseURI",
             "type": "string",
             "internalType": "string"
           }

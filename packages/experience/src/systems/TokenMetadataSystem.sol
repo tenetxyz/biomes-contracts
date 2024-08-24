@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { ResourceId, WorldResourceIdInstance } from "@latticexyz/world/src/WorldResourceId.sol";
+import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 
 import { AccessControlLib } from "@latticexyz/world-modules/src/utils/AccessControlLib.sol";
 import { ERC20Registry } from "@latticexyz/world-modules/src/modules/erc20-puppet/tables/ERC20Registry.sol";
