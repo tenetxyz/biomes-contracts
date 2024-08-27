@@ -75,21 +75,21 @@ contract ForceFieldSystem is System {
           // Apply an additional stamina cost for mining inside of a force field
           uint256 currentChargeLevel = Chip._getBatteryLevel(forceFieldEntityId);
           if (currentChargeLevel < 2 days) {
-            if (miningDifficulty <= 100) {
+            if (miningDifficulty < 100) {
               forceFieldStaminaMultiplier = 2000;
-            } else if (miningDifficulty > 100 && miningDifficulty <= 1000) {
+            } else if (miningDifficulty >= 100 && miningDifficulty < 1000) {
               forceFieldStaminaMultiplier = 680;
-            } else if (miningDifficulty > 1000 && miningDifficulty <= 4000) {
+            } else if (miningDifficulty >= 1000 && miningDifficulty <= 4000) {
               forceFieldStaminaMultiplier = 140;
             } else {
               forceFieldStaminaMultiplier = 13;
             }
           } else {
-            if (miningDifficulty <= 100) {
+            if (miningDifficulty < 100) {
               forceFieldStaminaMultiplier = 9000;
-            } else if (miningDifficulty > 100 && miningDifficulty <= 1000) {
+            } else if (miningDifficulty >= 100 && miningDifficulty < 1000) {
               forceFieldStaminaMultiplier = 1060;
-            } else if (miningDifficulty > 1000 && miningDifficulty <= 4000) {
+            } else if (miningDifficulty >= 1000 && miningDifficulty <= 4000) {
               forceFieldStaminaMultiplier = 230;
             } else {
               forceFieldStaminaMultiplier = 17;
