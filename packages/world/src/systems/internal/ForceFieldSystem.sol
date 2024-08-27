@@ -36,15 +36,25 @@ contract ForceFieldSystem is System {
         updateChipBatteryLevel(forceFieldEntityId);
 
         // Forward any ether sent with the transaction to the hook
-        // Don't safe call here as we want to revert if the chip doesn't allow the build
-        bool buildAllowed = IForceFieldChip(chipAddress).onBuild{ value: _msgValue() }(
-          forceFieldEntityId,
-          playerEntityId,
-          objectTypeId,
-          coord,
-          extraData
+        // Safe call here since builds should not be blockable by the chip
+        (bool success, bytes memory onBuildReturnValue) = chipAddress.call{ value: _msgValue() }(
+          abi.encodeCall(IForceFieldChip.onBuild, (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData))
         );
-        require(buildAllowed, "Player not authorized by chip to build here");
+        bool buildAllowed = success && abi.decode(onBuildReturnValue, (bool));
+        if (!buildAllowed) {
+          // Apply an additional stamina cost for mining inside of a force field
+          uint256 currentChargeLevel = Chip._getBatteryLevel(forceFieldEntityId);
+          uint32 staminaRequired = 0;
+          if (currentChargeLevel < 2 days) {
+            staminaRequired = 30_000;
+          } else {
+            staminaRequired = 60_000;
+          }
+          uint32 currentStamina = Stamina._getStamina(playerEntityId);
+          require(currentStamina >= staminaRequired, "BuildSystem: not enough stamina");
+          uint32 newStamina = currentStamina - staminaRequired;
+          Stamina._setStamina(playerEntityId, newStamina);
+        }
       }
     }
   }
@@ -66,7 +76,7 @@ contract ForceFieldSystem is System {
         updateChipBatteryLevel(forceFieldEntityId);
 
         // Forward any ether sent with the transaction to the hook
-        // since mines should not be blockable by the chip
+        // Safe call here since mines should not be blockable by the chip
         (bool success, bytes memory onMineReturnValue) = chipAddress.call{ value: _msgValue() }(
           abi.encodeCall(IForceFieldChip.onMine, (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData))
         );

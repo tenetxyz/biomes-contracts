@@ -258,13 +258,13 @@ contract ForceFieldTest is MudTest, GasReporter {
 
     uint8 inputObjectTypeId1 = GrassObjectID;
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
-    testAddToInventoryCount(playerEntityId2, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId2, PlayerObjectID, inputObjectTypeId1, 2);
 
     assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 2, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 4, "Inventory slot not set");
     assertTrue(InventorySlots.get(playerEntityId2) == 1, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ForceFieldObjectID), "Inventory objects not set");
@@ -285,6 +285,8 @@ contract ForceFieldTest is MudTest, GasReporter {
 
     vm.warp(block.timestamp + TIME_BEFORE_DECREASE_BATTERY_LEVEL + 1);
 
+    world.activate(playerEntityId);
+
     assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(testChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
@@ -294,19 +296,22 @@ contract ForceFieldTest is MudTest, GasReporter {
     assertTrue(getForceField(buildCoord) == forceFieldEntityId, "Force field not found");
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
 
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
     startGasReport("build in force field with chip");
     bytes32 buildEntityId = world.build(GrassObjectID, buildCoord);
     endGasReport();
+    uint32 buildStaminaSpent = staminaBefore - Stamina.getStamina(playerEntityId);
+    assertTrue(buildStaminaSpent == 0, "Stamina spent");
 
     assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
 
-    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+    staminaBefore = Stamina.getStamina(playerEntityId);
     startGasReport("mine in force field with chip");
     world.mine(buildCoord);
     endGasReport();
-    uint32 staminaSpent = staminaBefore - Stamina.getStamina(playerEntityId);
+    uint32 mineStaminaSpent = staminaBefore - Stamina.getStamina(playerEntityId);
     assertTrue(ObjectType.get(buildEntityId) == AirObjectID, "Object not built");
-    assertTrue(staminaSpent > 0, "Stamina not spent");
+    assertTrue(mineStaminaSpent > 0, "Stamina not spent");
 
     vm.stopPrank();
     vm.startPrank(bob, bob);
@@ -315,19 +320,24 @@ contract ForceFieldTest is MudTest, GasReporter {
     VoxelCoord memory buildCoord2 = VoxelCoord(forceFieldCoord.x, forceFieldCoord.y, forceFieldCoord.z - 3);
     assertTrue(getForceField(buildCoord2) == forceFieldEntityId, "Force field not found");
     assertTrue(world.getTerrainBlock(buildCoord2) == AirObjectID, "Terrain block is not air");
-    vm.expectRevert("Player not authorized by chip to build here");
+    uint32 stamina2Before = Stamina.getStamina(playerEntityId2);
     world.build(GrassObjectID, buildCoord2);
+    uint32 buildStamina2Spent = stamina2Before - Stamina.getStamina(playerEntityId2);
+    assertTrue(buildStamina2Spent > buildStaminaSpent, "Stamina not spent");
 
+    stamina2Before = Stamina.getStamina(playerEntityId2);
     buildEntityId = world.build{ value: 1000 }(GrassObjectID, buildCoord);
     assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
+    uint32 buildStamina3Spent = stamina2Before - Stamina.getStamina(playerEntityId2);
+    assertTrue(buildStamina3Spent == buildStaminaSpent, "Stamina spent");
 
-    uint32 stamina2Before = Stamina.getStamina(playerEntityId2);
+    stamina2Before = Stamina.getStamina(playerEntityId2);
     world.mine(buildCoord);
-    uint32 stamina2Spent = stamina2Before - Stamina.getStamina(playerEntityId2);
+    uint32 mineStamina2Spent = stamina2Before - Stamina.getStamina(playerEntityId2);
     assertTrue(ObjectType.get(buildEntityId) == AirObjectID, "Object not built");
 
     // It should cost more stamina to non-authorized players
-    assertTrue(stamina2Spent > staminaSpent, "Stamina not spent");
+    assertTrue(mineStamina2Spent > mineStaminaSpent, "Stamina not spent");
 
     vm.stopPrank();
     vm.startPrank(worldDeployer, worldDeployer);
