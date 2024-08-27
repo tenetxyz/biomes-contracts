@@ -12,14 +12,14 @@ import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandO
 import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitInteractablesSystem is System {
-  function createInteractableBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty) internal {
+  function createInteractableBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty, uint8 stackable) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         isBlock: true,
         isTool: false,
         miningDifficulty: miningDifficulty,
-        stackable: 1,
+        stackable: stackable,
         durability: 0,
         damage: 0
       })
@@ -27,11 +27,11 @@ contract InitInteractablesSystem is System {
   }
 
   function initInteractableObjectTypes() public {
-    createInteractableBlock(ChestObjectID, 8);
-    createInteractableBlock(ThermoblasterObjectID, 63);
-    createInteractableBlock(WorkbenchObjectID, 20);
-    createInteractableBlock(DyeomaticObjectID, 72);
-    createInteractableBlock(ForceFieldObjectID, 255);
+    createInteractableBlock(ChestObjectID, 8, 1);
+    createInteractableBlock(ThermoblasterObjectID, 63, 1);
+    createInteractableBlock(WorkbenchObjectID, 20, 1);
+    createInteractableBlock(DyeomaticObjectID, 72, 1);
+    createInteractableBlock(ForceFieldObjectID, 255, 99);
   }
 
   function initInteractablesRecipes() public {

@@ -220,7 +220,7 @@ contract ForceFieldTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 2, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ForceFieldObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
 
