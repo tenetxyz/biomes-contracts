@@ -24,9 +24,22 @@ contract MoveSystem is System {
 
     VoxelCoord memory oldCoord = playerCoord;
     bytes32 finalEntityId;
+    bool gravityApplies = false;
+    uint256 numJumps = 0;
     for (uint256 i = 0; i < newCoords.length; i++) {
       VoxelCoord memory newCoord = newCoords[i];
-      finalEntityId = move(playerEntityId, oldCoord, newCoord);
+      if (gravityApplies) {
+        VoxelCoord memory previousCoord = newCoords[i - 1];
+        if (previousCoord.y < newCoord.y) {
+          numJumps++;
+          require(numJumps <= 2, "MoveSystem: cannot jump more than 2 blocks");
+        } else {
+          // then we are falling, so should be fine
+        }
+      } else {
+        numJumps = 0;
+      }
+      (finalEntityId, gravityApplies) = move(playerEntityId, oldCoord, newCoord);
       oldCoord = newCoord;
     }
 
@@ -79,7 +92,7 @@ contract MoveSystem is System {
     bytes32 playerEntityId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
-  ) internal returns (bytes32) {
+  ) internal returns (bytes32, bool) {
     require(inWorldBorder(newCoord), "MoveSystem: cannot move outside world border");
     require(inSurroundingCube(oldCoord, 1, newCoord), "MoveSystem: new coord is not in surrounding cube of old coord");
 
@@ -99,8 +112,8 @@ contract MoveSystem is System {
       // transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
     }
 
-    require(!gravityApplies(newCoord), "MoveSystem: cannot move player with gravity");
+    // require(!gravityApplies(newCoord), "MoveSystem: cannot move player with gravity");
 
-    return newEntityId;
+    return (newEntityId, gravityApplies(newCoord));
   }
 }
