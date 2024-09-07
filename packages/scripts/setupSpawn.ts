@@ -25,50 +25,50 @@ async function main() {
         functionName: "addSpawn",
         args: [spawnCoord, SPAWN_SIZE],
       },
-      `addSpawn ${spawnCoord.x}, ${spawnCoord.y}, ${spawnCoord.z}`
+      `addSpawn ${spawnCoord.x}, ${spawnCoord.y}, ${spawnCoord.z}`,
     );
 
-    await callTx({
-      ...txOptions,
-      functionName: "initSpawnAreaTop",
-      args: [spawnCoord],
-    });
+    // await callTx({
+    //   ...txOptions,
+    //   functionName: "initSpawnAreaTop",
+    //   args: [spawnCoord],
+    // });
 
-    await callTx({
-      ...txOptions,
-      functionName: "initSpawnAreaTopPart2",
-      args: [spawnCoord],
-    });
+    // await callTx({
+    //   ...txOptions,
+    //   functionName: "initSpawnAreaTopPart2",
+    //   args: [spawnCoord],
+    // });
 
-    await callTx({
-      ...txOptions,
-      functionName: "initSpawnAreaTopAir",
-      args: [spawnCoord],
-    });
+    // await callTx({
+    //   ...txOptions,
+    //   functionName: "initSpawnAreaTopAir",
+    //   args: [spawnCoord],
+    // });
 
-    await callTx({
-      ...txOptions,
-      functionName: "initSpawnAreaTopAirPart2",
-      args: [spawnCoord],
-    });
+    // await callTx({
+    //   ...txOptions,
+    //   functionName: "initSpawnAreaTopAirPart2",
+    //   args: [spawnCoord],
+    // });
 
-    await callTx({
-      ...txOptions,
-      functionName: "initSpawnAreaBottom",
-      args: [spawnCoord],
-    });
+    // await callTx({
+    //   ...txOptions,
+    //   functionName: "initSpawnAreaBottom",
+    //   args: [spawnCoord],
+    // });
 
-    await callTx({
-      ...txOptions,
-      functionName: "initSpawnAreaBottomPart2",
-      args: [spawnCoord],
-    });
+    // await callTx({
+    //   ...txOptions,
+    //   functionName: "initSpawnAreaBottomPart2",
+    //   args: [spawnCoord],
+    // });
 
-    await callTx({
-      ...txOptions,
-      functionName: "initSpawnAreaBottomBorder",
-      args: [spawnCoord],
-    });
+    // await callTx({
+    //   ...txOptions,
+    //   functionName: "initSpawnAreaBottomBorder",
+    //   args: [spawnCoord],
+    // });
   }
 
   console.log("Spawn area setup complete.");
