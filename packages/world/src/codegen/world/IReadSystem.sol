@@ -38,5 +38,7 @@ interface IReadSystem {
 
   function getStamina(address player) external view returns (StaminaData memory);
 
+  function getInventory(address player) external view returns (InventoryObject[] memory);
+
   function getInventory(bytes32 entityId) external view returns (InventoryObject[] memory);
 }

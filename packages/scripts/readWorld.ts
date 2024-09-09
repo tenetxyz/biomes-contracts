@@ -11,6 +11,15 @@ export function isDefined<T>(argument: T | undefined): argument is T {
 async function main() {
   const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
 
+  const inventory = await publicClient.readContract({
+    address: worldAddress as Hex,
+    abi: IWorldAbi,
+    functionName: "getInventory",
+    args: ["0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a"],
+    account,
+  });
+  console.log("inventory:", inventory);
+
   const objectTypeIdAtCoord = await publicClient.readContract({
     address: worldAddress as Hex,
     abi: IWorldAbi,

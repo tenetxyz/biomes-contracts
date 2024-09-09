@@ -81,6 +81,12 @@ contract ReadSystem is System {
     return Stamina._get(playerEntityId);
   }
 
+  function getInventory(address player) public view returns (InventoryObject[] memory) {
+    bytes32 playerEntityId = Player._get(player);
+    require(playerEntityId != bytes32(0), "ReadSystem: player not found");
+    return getInventory(playerEntityId);
+  }
+
   function getInventory(bytes32 entityId) public view returns (InventoryObject[] memory) {
     uint8[] memory objectTypeIds = InventoryObjects._get(entityId);
     InventoryObject[] memory inventoryObjects = new InventoryObject[](objectTypeIds.length);
