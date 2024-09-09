@@ -7,6 +7,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { HealthData } from "./../tables/Health.sol";
 import { StaminaData } from "./../tables/Stamina.sol";
+import { InventoryObject } from "./../../Constants.sol";
 
 /**
  * @title IReadSystem
@@ -36,4 +37,6 @@ interface IReadSystem {
   function getHealth(address player) external view returns (HealthData memory);
 
   function getStamina(address player) external view returns (StaminaData memory);
+
+  function getInventory(bytes32 entityId) external view returns (InventoryObject[] memory);
 }

@@ -52,3 +52,14 @@ int16 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 5;
 
 uint16 constant MAX_PLAYER_INVENTORY_SLOTS = 36;
 uint16 constant MAX_CHEST_INVENTORY_SLOTS = 12;
+
+struct InventoryTool {
+  bytes32 entityId;
+  uint24 numUsesLeft;
+}
+
+struct InventoryObject {
+  uint8 objectTypeId;
+  uint16 numObjects;
+  InventoryTool[] tools;
+}

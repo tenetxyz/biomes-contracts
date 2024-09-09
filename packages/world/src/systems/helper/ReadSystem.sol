@@ -14,9 +14,15 @@ import { Health, HealthData } from "../../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../../codegen/tables/Stamina.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 import { PlayerMetadata } from "../../codegen/tables/PlayerMetadata.sol";
+import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
+import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
+import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
+import { ReverseInventoryTool } from "../../codegen/tables/ReverseInventoryTool.sol";
+import { ItemMetadata } from "../../codegen/tables/ItemMetadata.sol";
 
 import { getTerrainObjectTypeId } from "../../Utils.sol";
 import { NullObjectTypeId } from "../../ObjectTypeIds.sol";
+import { InventoryObject, InventoryTool } from "../../Constants.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {
@@ -73,5 +79,39 @@ contract ReadSystem is System {
     bytes32 playerEntityId = Player._get(player);
     require(playerEntityId != bytes32(0), "ReadSystem: player not found");
     return Stamina._get(playerEntityId);
+  }
+
+  function getInventory(bytes32 entityId) public view returns (InventoryObject[] memory) {
+    uint8[] memory objectTypeIds = InventoryObjects._get(entityId);
+    InventoryObject[] memory inventoryObjects = new InventoryObject[](objectTypeIds.length);
+    bytes32[] memory allInventoryTools = ReverseInventoryTool._get(entityId);
+    for (uint256 i = 0; i < objectTypeIds.length; i++) {
+      uint8 objectTypeId = objectTypeIds[i];
+      uint16 count = InventoryCount._get(entityId, objectTypeId);
+      bool isTool = ObjectTypeMetadata._getIsTool(objectTypeId);
+      uint256 numTools = 0;
+      if (isTool) {
+        for (uint256 j = 0; j < allInventoryTools.length; j++) {
+          if (ObjectType._get(allInventoryTools[j]) == objectTypeId) {
+            numTools++;
+          }
+        }
+      }
+      InventoryTool[] memory inventoryTools = new InventoryTool[](numTools);
+      if (numTools > 0) {
+        uint256 k = 0;
+        for (uint256 j = 0; j < allInventoryTools.length; j++) {
+          if (ObjectType._get(allInventoryTools[j]) == objectTypeId) {
+            inventoryTools[k] = InventoryTool({
+              entityId: allInventoryTools[j],
+              numUsesLeft: ItemMetadata._getNumUsesLeft(allInventoryTools[j])
+            });
+            k++;
+          }
+        }
+      }
+      inventoryObjects[i] = InventoryObject({ objectTypeId: objectTypeId, numObjects: count, tools: inventoryTools });
+    }
+    return inventoryObjects;
   }
 }
