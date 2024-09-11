@@ -57,6 +57,14 @@ contract ReadSystem is System {
     return ObjectType._get(entityId);
   }
 
+  function getMultipleObjectTypeIdAtCoordOrTerrain(VoxelCoord[] memory coord) public view returns (uint8[] memory) {
+    uint8[] memory objectTypes = new uint8[](coord.length);
+    for (uint256 i = 0; i < coord.length; i++) {
+      objectTypes[i] = getObjectTypeIdAtCoordOrTerrain(coord[i]);
+    }
+    return objectTypes;
+  }
+
   function getEntityIdAtCoord(VoxelCoord memory coord) public view returns (bytes32) {
     return ReversePosition._get(coord.x, coord.y, coord.z);
   }
