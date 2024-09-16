@@ -22,6 +22,8 @@ import { requireValidPlayer, requireBesidePlayer, despawnPlayer } from "../utils
 
 contract HitSystem is System {
   function hit(address hitPlayer) public {
+    revert("HitSystem: cannot hit players in the current version");
+
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     (bytes32 hitEntityId, VoxelCoord memory hitCoord) = requireValidPlayer(hitPlayer);
     require(playerEntityId != hitEntityId, "HitSystem: cannot hit yourself");
