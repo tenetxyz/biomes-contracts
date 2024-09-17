@@ -63,3 +63,9 @@ struct InventoryObject {
   uint16 numObjects;
   InventoryTool[] tools;
 }
+
+struct EntityData {
+  uint8 objectTypeId;
+  bytes32 entityId;
+  InventoryObject[] inventory;
+}

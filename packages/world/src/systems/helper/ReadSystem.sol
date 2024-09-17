@@ -22,7 +22,7 @@ import { ItemMetadata } from "../../codegen/tables/ItemMetadata.sol";
 
 import { getTerrainObjectTypeId } from "../../Utils.sol";
 import { NullObjectTypeId } from "../../ObjectTypeIds.sol";
-import { InventoryObject, InventoryTool } from "../../Constants.sol";
+import { InventoryObject, InventoryTool, EntityData } from "../../Constants.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {
@@ -67,6 +67,20 @@ contract ReadSystem is System {
 
   function getEntityIdAtCoord(VoxelCoord memory coord) public view returns (bytes32) {
     return ReversePosition._get(coord.x, coord.y, coord.z);
+  }
+
+  function getEntityDataAtCoord(VoxelCoord memory coord) public view returns (EntityData memory) {
+    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (entityId == bytes32(0)) {
+      return
+        EntityData({
+          objectTypeId: getTerrainObjectTypeId(coord),
+          entityId: bytes32(0),
+          inventory: new InventoryObject[](0)
+        });
+    }
+    return
+      EntityData({ objectTypeId: ObjectType._get(entityId), entityId: entityId, inventory: getInventory(entityId) });
   }
 
   function getLastActivityTime(address player) public view returns (uint256) {
