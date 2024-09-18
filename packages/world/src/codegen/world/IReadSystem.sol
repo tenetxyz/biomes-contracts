@@ -36,6 +36,8 @@ interface IReadSystem {
 
   function getEntityDataAtCoord(VoxelCoord memory coord) external view returns (EntityData memory);
 
+  function getMultipleEntityDataAtCoord(VoxelCoord[] memory coord) external view returns (EntityData[] memory);
+
   function getLastActivityTime(address player) external view returns (uint256);
 
   function getHealth(address player) external view returns (HealthData memory);

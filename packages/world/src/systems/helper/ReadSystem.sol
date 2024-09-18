@@ -83,6 +83,14 @@ contract ReadSystem is System {
       EntityData({ objectTypeId: ObjectType._get(entityId), entityId: entityId, inventory: getInventory(entityId) });
   }
 
+  function getMultipleEntityDataAtCoord(VoxelCoord[] memory coord) public view returns (EntityData[] memory) {
+    EntityData[] memory entityData = new EntityData[](coord.length);
+    for (uint256 i = 0; i < coord.length; i++) {
+      entityData[i] = getEntityDataAtCoord(coord[i]);
+    }
+    return entityData;
+  }
+
   function getLastActivityTime(address player) public view returns (uint256) {
     bytes32 playerEntityId = Player._get(player);
     if (PlayerMetadata._getIsLoggedOff(playerEntityId)) {
