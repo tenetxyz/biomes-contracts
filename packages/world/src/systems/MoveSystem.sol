@@ -48,7 +48,7 @@ contract MoveSystem is System {
       finalEntityId = getUniqueEntity();
       ObjectType._set(finalEntityId, AirObjectID);
     } else {
-      transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
+      // transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
     }
 
     // Swap entity ids

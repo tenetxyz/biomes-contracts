@@ -41,7 +41,7 @@ contract SpawnSystem is System {
       require(ObjectType._get(existingEntityId) == AirObjectID, "SpawnSystem: spawn coord is not air");
 
       // Transfer any dropped items
-      transferAllInventoryEntities(existingEntityId, playerEntityId, PlayerObjectID);
+      // transferAllInventoryEntities(existingEntityId, playerEntityId, PlayerObjectID);
 
       Position._deleteRecord(existingEntityId);
     }

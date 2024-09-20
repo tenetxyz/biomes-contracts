@@ -10,9 +10,9 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { AirObjectID, WaterObjectID } from "../ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
-import { transferInventoryNonTool, transferInventoryTool } from "../utils/InventoryUtils.sol";
+import { transferInventoryNonTool, transferInventoryTool, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 contract DropSystem is System {
@@ -74,6 +74,34 @@ contract DropSystem is System {
         coordY: coord.y,
         coordZ: coord.z,
         amount: 1
+      })
+    );
+  }
+
+  function pickupDrops(VoxelCoord memory coord) public {
+    require(inWorldBorder(coord), "DropSystem: cannot pickup outside world border");
+
+    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    requireInPlayerInfluence(playerCoord, coord);
+
+    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    require(entityId != bytes32(0), "DropSystem: no entity to pickup");
+
+    uint8 objectTypeId = ObjectType._get(entityId);
+    require(objectTypeId == AirObjectID, "DropSystem: cannot pickup non-air block");
+
+    uint256 numTransferred = transferAllInventoryEntities(entityId, playerEntityId, PlayerObjectID);
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.Pickup,
+        entityId: entityId,
+        objectTypeId: objectTypeId,
+        coordX: coord.x,
+        coordY: coord.y,
+        coordZ: coord.z,
+        amount: numTransferred
       })
     );
   }

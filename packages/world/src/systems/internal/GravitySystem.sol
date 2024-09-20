@@ -40,7 +40,7 @@ contract GravitySystem is System {
       }
 
       // Transfer any dropped items
-      transferAllInventoryEntities(belowEntityId, playerEntityId, PlayerObjectID);
+      // transferAllInventoryEntities(belowEntityId, playerEntityId, PlayerObjectID);
     }
 
     // Swap entity ids
