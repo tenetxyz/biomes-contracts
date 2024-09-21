@@ -10,9 +10,9 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
-import { transferInventoryNonTool, transferInventoryTool, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { transferInventoryNonTool, transferInventoryTool } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 contract DropSystem is System {
