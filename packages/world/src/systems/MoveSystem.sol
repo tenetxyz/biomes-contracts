@@ -48,7 +48,7 @@ contract MoveSystem is System {
       finalEntityId = getUniqueEntity();
       ObjectType._set(finalEntityId, AirObjectID);
     } else {
-      // transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
+      transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
     }
 
     // Swap entity ids
@@ -106,10 +106,6 @@ contract MoveSystem is System {
       );
     } else {
       require(ObjectType._get(newEntityId) == AirObjectID, "MoveSystem: cannot move to non-air block");
-
-      // Note: Turn this on if you want to transfer any drops along the path
-      // to the player. This is disabled for now for gas efficiency.
-      // transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
     }
 
     // require(!gravityApplies(newCoord), "MoveSystem: cannot move player with gravity");

@@ -47,7 +47,7 @@ contract LoginSystem is System {
       require(ObjectType._get(respawnEntityId) == AirObjectID, "LoginSystem: cannot respawn on non-air block");
 
       // Transfer any dropped items
-      // transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
+      transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
 
       Position._deleteRecord(respawnEntityId);
     }
