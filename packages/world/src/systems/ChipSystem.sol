@@ -147,7 +147,7 @@ contract ChipSystem is System {
 
   function hitChip(bytes32 entityId) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    VoxelCoord memory entityCoord = requireBesidePlayer(playerCoord, entityId);
+    VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
     ChipData memory chipData = updateChipBatteryLevel(entityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
