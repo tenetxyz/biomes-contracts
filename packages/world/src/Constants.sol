@@ -6,14 +6,6 @@ uint16 constant PLAYER_MASS = 10;
 uint8 constant MAX_BLOCK_STACKABLE = 99;
 uint8 constant MAX_TOOL_STACKABLE = 1;
 
-// Terrain
-enum Biome {
-  Mountains,
-  Desert,
-  Forest,
-  Savanna
-}
-
 int16 constant STRUCTURE_CHUNK = 5;
 int16 constant STRUCTURE_CHUNK_CENTER = STRUCTURE_CHUNK / 2 + 1;
 
@@ -52,20 +44,3 @@ int16 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
 
 uint16 constant MAX_PLAYER_INVENTORY_SLOTS = 36;
 uint16 constant MAX_CHEST_INVENTORY_SLOTS = 12;
-
-struct InventoryTool {
-  bytes32 entityId;
-  uint24 numUsesLeft;
-}
-
-struct InventoryObject {
-  uint8 objectTypeId;
-  uint16 numObjects;
-  InventoryTool[] tools;
-}
-
-struct EntityData {
-  uint8 objectTypeId;
-  bytes32 entityId;
-  InventoryObject[] inventory;
-}

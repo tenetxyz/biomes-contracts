@@ -77,32 +77,4 @@ contract DropSystem is System {
       })
     );
   }
-
-  function pickupDrops(VoxelCoord memory coord) public {
-    require(inWorldBorder(coord), "DropSystem: cannot pickup outside world border");
-
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, coord);
-
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId != bytes32(0), "DropSystem: no entity to pickup");
-
-    uint8 objectTypeId = ObjectType._get(entityId);
-    require(objectTypeId == AirObjectID, "DropSystem: cannot pickup non-air block");
-
-    uint256 numTransferred = transferAllInventoryEntities(entityId, playerEntityId, PlayerObjectID);
-
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Pickup,
-        entityId: entityId,
-        objectTypeId: objectTypeId,
-        coordX: coord.x,
-        coordY: coord.y,
-        coordZ: coord.z,
-        amount: numTransferred
-      })
-    );
-  }
 }

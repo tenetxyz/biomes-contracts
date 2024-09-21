@@ -22,7 +22,7 @@ import { ItemMetadata } from "../../codegen/tables/ItemMetadata.sol";
 
 import { getTerrainObjectTypeId } from "../../Utils.sol";
 import { NullObjectTypeId } from "../../ObjectTypeIds.sol";
-import { InventoryObject, InventoryTool, EntityData } from "../../Constants.sol";
+import { InventoryObject, InventoryTool, EntityData } from "../../Types.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {

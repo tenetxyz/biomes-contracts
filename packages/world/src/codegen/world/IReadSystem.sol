@@ -5,7 +5,7 @@ pragma solidity >=0.8.24;
 
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { EntityData, InventoryObject } from "./../../Constants.sol";
+import { EntityData, InventoryObject } from "./../../Types.sol";
 import { HealthData } from "./../tables/Health.sol";
 import { StaminaData } from "./../tables/Stamina.sol";
 
