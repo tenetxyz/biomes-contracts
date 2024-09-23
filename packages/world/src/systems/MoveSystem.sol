@@ -12,7 +12,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { PLAYER_MASS } from "../Constants.sol";
+import { PLAYER_MASS, GRAVITY_STAMINA_COST } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
@@ -110,6 +110,17 @@ contract MoveSystem is System {
 
     // require(!gravityApplies(newCoord), "MoveSystem: cannot move player with gravity");
 
-    return (newEntityId, gravityApplies(newCoord));
+    bool wouldFall = gravityApplies(newCoord);
+    // TODO: enable
+    // if (wouldFall) {
+    //   uint32 currentStamina = Stamina._getStamina(playerEntityId);
+    //   if (currentStamina > 0) {
+    //     uint16 staminaRequired = GRAVITY_STAMINA_COST;
+    //     uint32 newStamina = currentStamina > staminaRequired ? currentStamina - staminaRequired : 0;
+    //     Stamina._setStamina(playerEntityId, newStamina);
+    //   }
+    // }
+
+    return (newEntityId, wouldFall);
   }
 }
