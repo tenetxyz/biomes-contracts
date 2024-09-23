@@ -63,10 +63,10 @@ function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
   if (belowEntityId == bytes32(0)) {
     uint8 terrainObjectTypeId = getTerrainObjectTypeId(belowCoord);
-    if (terrainObjectTypeId != AirObjectID && terrainObjectTypeId != WaterObjectID) {
+    if (terrainObjectTypeId != AirObjectID) {
       return false;
     }
-  } else if (ObjectType._get(belowEntityId) != AirObjectID) {
+  } else if (ObjectType._get(belowEntityId) != AirObjectID || getTerrainObjectTypeId(belowCoord) == WaterObjectID) {
     return false;
   }
 

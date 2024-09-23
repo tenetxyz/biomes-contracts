@@ -8,9 +8,10 @@ import { Position, PositionData } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { Health, HealthData } from "../../codegen/tables/Health.sol";
+import { Stamina, StaminaData } from "../../codegen/tables/Stamina.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 
-import { GRAVITY_DAMAGE } from "../../Constants.sol";
+import { GRAVITY_DAMAGE, GRAVITY_STAMINA_COST } from "../../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
@@ -27,7 +28,7 @@ contract GravitySystem is System {
     if (belowEntityId == bytes32(0)) {
       // Check terrain block type
       uint8 terrainObjectTypeId = getTerrainObjectTypeId(belowCoord);
-      if (terrainObjectTypeId != AirObjectID && terrainObjectTypeId != WaterObjectID) {
+      if (terrainObjectTypeId != AirObjectID) {
         return false;
       }
 
@@ -35,7 +36,7 @@ contract GravitySystem is System {
       belowEntityId = getUniqueEntity();
       ObjectType._set(belowEntityId, AirObjectID);
     } else {
-      if (ObjectType._get(belowEntityId) != AirObjectID) {
+      if (ObjectType._get(belowEntityId) != AirObjectID || getTerrainObjectTypeId(belowCoord) == WaterObjectID) {
         return false;
       }
 
@@ -54,13 +55,20 @@ contract GravitySystem is System {
       PlayerActivity._set(playerEntityId, block.timestamp);
     }
 
-    uint16 currentHealth = regenHealth(playerEntityId);
-    uint16 newHealth = currentHealth > GRAVITY_DAMAGE ? currentHealth - GRAVITY_DAMAGE : 0;
-    Health._setHealth(playerEntityId, newHealth);
-
-    if (newHealth == 0) {
-      despawnPlayer(playerEntityId);
+    // TODO: Update to be health
+    uint32 currentStamina = Stamina._getStamina(playerEntityId);
+    if (currentStamina > 0) {
+      uint16 staminaRequired = GRAVITY_STAMINA_COST;
+      uint32 newStamina = currentStamina > staminaRequired ? currentStamina - staminaRequired : 0;
+      Stamina._setStamina(playerEntityId, newStamina);
     }
+
+    // uint16 currentHealth = regenHealth(playerEntityId);
+    // uint16 newHealth = currentHealth > GRAVITY_DAMAGE ? currentHealth - GRAVITY_DAMAGE : 0;
+    // Health._setHealth(playerEntityId, newHealth);
+    // if (newHealth == 0) {
+    //   despawnPlayer(playerEntityId);
+    // }
 
     // Check if entity above player is another player, if so we need to apply gravity to that player
     bytes32 aboveEntityId = ReversePosition._get(playerCoord.x, playerCoord.y + 1, playerCoord.z);
@@ -68,10 +76,10 @@ contract GravitySystem is System {
       runGravity(aboveEntityId, VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z));
     }
 
-    if (newHealth > 0) {
-      // Recursively apply gravity until the player is on the ground or dead
-      runGravity(playerEntityId, belowCoord);
-    }
+    // if (newHealth > 0) {
+    // Recursively apply gravity until the player is on the ground or dead
+    runGravity(playerEntityId, belowCoord);
+    // }
 
     return true;
   }
