@@ -12,7 +12,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { PLAYER_MASS, GRAVITY_STAMINA_COST } from "../Constants.sol";
+import { PLAYER_MASS, GRAVITY_STAMINA_COST, MAX_PLAYER_STAMINA } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
@@ -26,6 +26,7 @@ contract MoveSystem is System {
     bytes32 finalEntityId;
     bool gravityApplies = false;
     uint256 numJumps = 0;
+    uint256 numFalls = 0;
     for (uint256 i = 0; i < newCoords.length; i++) {
       VoxelCoord memory newCoord = newCoords[i];
       if (gravityApplies) {
@@ -35,6 +36,7 @@ contract MoveSystem is System {
           require(numJumps <= 2, "MoveSystem: cannot jump more than 2 blocks");
         } else {
           // then we are falling, so should be fine
+          numFalls++;
         }
       } else {
         numJumps = 0;
@@ -59,14 +61,16 @@ contract MoveSystem is System {
     Position._set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
     ReversePosition._set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
 
-    uint32 staminaRequired = (PLAYER_MASS * (uint32(newCoords.length) ** 2)) / 100;
-    if (staminaRequired == 0) {
-      staminaRequired = 1;
-    }
+    {
+      uint256 staminaRequired = (PLAYER_MASS * (newCoords.length ** 2)) / 100;
+      staminaRequired += (GRAVITY_STAMINA_COST * numFalls);
+      require(staminaRequired <= MAX_PLAYER_STAMINA, "MoveSystem: stamina required exceeds max player stamina");
+      uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
 
-    uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    require(currentStamina >= staminaRequired, "MoveSystem: not enough stamina");
-    Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
+      uint32 currentStamina = Stamina._getStamina(playerEntityId);
+      require(currentStamina >= useStamina, "MoveSystem: not enough stamina");
+      Stamina._setStamina(playerEntityId, currentStamina - useStamina);
+    }
 
     VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
@@ -110,17 +114,6 @@ contract MoveSystem is System {
 
     // require(!gravityApplies(newCoord), "MoveSystem: cannot move player with gravity");
 
-    bool wouldFall = gravityApplies(newCoord);
-    // TODO: enable
-    // if (wouldFall) {
-    //   uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    //   if (currentStamina > 0) {
-    //     uint16 staminaRequired = GRAVITY_STAMINA_COST;
-    //     uint32 newStamina = currentStamina > staminaRequired ? currentStamina - staminaRequired : 0;
-    //     Stamina._setStamina(playerEntityId, newStamina);
-    //   }
-    // }
-
-    return (newEntityId, wouldFall);
+    return (newEntityId, gravityApplies(newCoord));
   }
 }
