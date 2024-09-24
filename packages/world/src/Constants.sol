@@ -9,13 +9,13 @@ uint8 constant MAX_TOOL_STACKABLE = 1;
 int16 constant STRUCTURE_CHUNK = 5;
 int16 constant STRUCTURE_CHUNK_CENTER = STRUCTURE_CHUNK / 2 + 1;
 
-int16 constant WORLD_BORDER_LOW_X = -2000;
-int16 constant WORLD_BORDER_LOW_Y = -150;
-int16 constant WORLD_BORDER_LOW_Z = -2000;
+int16 constant WORLD_BORDER_LOW_X = -2016;
+int16 constant WORLD_BORDER_LOW_Y = -160;
+int16 constant WORLD_BORDER_LOW_Z = -2016;
 
-int16 constant WORLD_BORDER_HIGH_X = 2000;
-int16 constant WORLD_BORDER_HIGH_Y = 250;
-int16 constant WORLD_BORDER_HIGH_Z = 2000;
+int16 constant WORLD_BORDER_HIGH_X = 2016;
+int16 constant WORLD_BORDER_HIGH_Y = 256;
+int16 constant WORLD_BORDER_HIGH_Z = 2016;
 
 int16 constant SPAWN_SHARD_DIM = 1000;
 int16 constant FORCE_FIELD_SHARD_DIM = 32;
