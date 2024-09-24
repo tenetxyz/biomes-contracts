@@ -63,7 +63,7 @@ contract MoveSystem is System {
 
     {
       uint256 staminaRequired = (PLAYER_MASS * (newCoords.length ** 2)) / 100;
-      staminaRequired += (GRAVITY_STAMINA_COST * numFalls);
+      staminaRequired += numFalls > 5 ? (GRAVITY_STAMINA_COST * numFalls) : 0;
       require(staminaRequired <= MAX_PLAYER_STAMINA, "MoveSystem: stamina required exceeds max player stamina");
       uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
 
