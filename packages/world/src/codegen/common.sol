@@ -19,5 +19,6 @@ enum ActionType {
   AttachChip,
   PowerChip,
   DetachChip,
-  HitChip
+  HitChip,
+  Pickup
 }

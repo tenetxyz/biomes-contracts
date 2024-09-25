@@ -131,12 +131,18 @@ function removeObjectTypeIdFromInventoryObjects(bytes32 ownerEntityId, uint8 rem
   }
 }
 
-function transferAllInventoryEntities(bytes32 fromEntityId, bytes32 toEntityId, uint8 toObjectTypeId) {
+function transferAllInventoryEntities(
+  bytes32 fromEntityId,
+  bytes32 toEntityId,
+  uint8 toObjectTypeId
+) returns (uint256) {
+  uint256 numTransferred = 0;
   uint8[] memory fromObjectTypeIds = InventoryObjects._get(fromEntityId);
   for (uint256 i = 0; i < fromObjectTypeIds.length; i++) {
     uint16 objectTypeCount = InventoryCount._get(fromEntityId, fromObjectTypeIds[i]);
     addToInventoryCount(toEntityId, toObjectTypeId, fromObjectTypeIds[i], objectTypeCount);
     removeFromInventoryCount(fromEntityId, fromObjectTypeIds[i], objectTypeCount);
+    numTransferred += objectTypeCount;
   }
 
   bytes32[] memory fromInventoryEntityIds = ReverseInventoryTool._get(fromEntityId);
@@ -147,6 +153,8 @@ function transferAllInventoryEntities(bytes32 fromEntityId, bytes32 toEntityId, 
   if (fromInventoryEntityIds.length > 0) {
     ReverseInventoryTool._deleteRecord(fromEntityId);
   }
+
+  return numTransferred;
 }
 
 function transferInventoryNonTool(

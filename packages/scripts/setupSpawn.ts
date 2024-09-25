@@ -25,7 +25,7 @@ async function main() {
         functionName: "addSpawn",
         args: [spawnCoord, SPAWN_SIZE],
       },
-      `addSpawn ${spawnCoord.x}, ${spawnCoord.y}, ${spawnCoord.z}`
+      `addSpawn ${spawnCoord.x}, ${spawnCoord.y}, ${spawnCoord.z}`,
     );
 
     await callTx({

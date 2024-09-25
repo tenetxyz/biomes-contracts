@@ -23,6 +23,7 @@ export default defineWorld({
       "PowerChip",
       "DetachChip",
       "HitChip",
+      "Pickup",
     ],
   },
   tables: {

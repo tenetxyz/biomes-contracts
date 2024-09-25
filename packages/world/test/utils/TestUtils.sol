@@ -4,6 +4,17 @@ pragma solidity >=0.8.24;
 import { console } from "forge-std/console.sol";
 import { coordToShardCoord } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
+import { SystemCall } from "@latticexyz/world/src/SystemCall.sol";
+import { SystemRegistry } from "@latticexyz/world/src/codegen/tables/SystemRegistry.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
+import { FunctionSelectors } from "@latticexyz/world/src/codegen/tables/FunctionSelectors.sol";
+import { WorldContextProviderLib, WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
+import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
+import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
+import { Bytes } from "@latticexyz/store/src/Bytes.sol";
+
+import { ReversePosition } from "../../src/codegen/tables/ReversePosition.sol";
+import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";
 import { InventoryTool } from "../../src/codegen/tables/InventoryTool.sol";
 import { ReverseInventoryTool } from "../../src/codegen/tables/ReverseInventoryTool.sol";
 import { InventorySlots } from "../../src/codegen/tables/InventorySlots.sol";
@@ -14,10 +25,13 @@ import { ItemMetadata } from "../../src/codegen/tables/ItemMetadata.sol";
 import { ObjectTypeMetadata } from "../../src/codegen/tables/ObjectTypeMetadata.sol";
 import { UniqueEntity } from "../../src/codegen/tables/UniqueEntity.sol";
 import { ShardField } from "../../src/codegen/tables/ShardField.sol";
+import { Terrain } from "../../src/codegen/tables/Terrain.sol";
+
+import { IProcGenSystem } from "../../src/codegen/world/IProcGenSystem.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS, FORCE_FIELD_SHARD_DIM } from "../../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, ChestObjectID } from "../../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, ChestObjectID, WaterObjectID } from "../../src/ObjectTypeIds.sol";
 
 function testGetUniqueEntity() returns (bytes32) {
   uint256 uniqueEntity = UniqueEntity.get() + 1;
@@ -128,7 +142,75 @@ function testRemoveFromInventoryCount(bytes32 ownerEntityId, uint8 objectTypeId,
   }
 }
 
+function testTransferAllInventoryEntities(
+  bytes32 fromEntityId,
+  bytes32 toEntityId,
+  uint8 toObjectTypeId
+) returns (uint256) {
+  uint256 numTransferred = 0;
+  uint8[] memory fromObjectTypeIds = InventoryObjects.get(fromEntityId);
+  for (uint256 i = 0; i < fromObjectTypeIds.length; i++) {
+    uint16 objectTypeCount = InventoryCount.get(fromEntityId, fromObjectTypeIds[i]);
+    testAddToInventoryCount(toEntityId, toObjectTypeId, fromObjectTypeIds[i], objectTypeCount);
+    testRemoveFromInventoryCount(fromEntityId, fromObjectTypeIds[i], objectTypeCount);
+    numTransferred += objectTypeCount;
+  }
+
+  bytes32[] memory fromInventoryEntityIds = ReverseInventoryTool.get(fromEntityId);
+  for (uint256 i = 0; i < fromInventoryEntityIds.length; i++) {
+    InventoryTool.set(fromInventoryEntityIds[i], toEntityId);
+    ReverseInventoryTool.push(toEntityId, fromInventoryEntityIds[i]);
+  }
+  if (fromInventoryEntityIds.length > 0) {
+    ReverseInventoryTool.deleteRecord(fromEntityId);
+  }
+
+  return numTransferred;
+}
+
 function getForceField(VoxelCoord memory coord) view returns (bytes32) {
   VoxelCoord memory shardCoord = coordToShardCoord(coord, FORCE_FIELD_SHARD_DIM);
   return ShardField.get(shardCoord.x, shardCoord.y, shardCoord.z);
+}
+
+function testGetTerrainObjectTypeId(VoxelCoord memory coord) view returns (uint8) {
+  uint8 cachedObjectTypeId = Terrain.get(coord.x, coord.y, coord.z);
+  if (cachedObjectTypeId != 0) return cachedObjectTypeId;
+  return testStaticCallProcGenSystem(coord);
+}
+
+function testStaticCallProcGenSystem(VoxelCoord memory coord) view returns (uint8) {
+  return abi.decode(testStaticCallInternalSystem(abi.encodeCall(IProcGenSystem.getTerrainBlock, (coord))), (uint8));
+}
+
+function testStaticCallInternalSystem(bytes memory callData) view returns (bytes memory) {
+  (ResourceId systemId, bytes4 systemFunctionSelector) = FunctionSelectors.get(bytes4(callData));
+  (address systemAddress, ) = Systems.get(systemId);
+
+  (bool success, bytes memory returnData) = systemAddress.staticcall(
+    WorldContextProviderLib.appendContext({
+      callData: Bytes.setBytes4(callData, 0, systemFunctionSelector),
+      msgSender: WorldContextConsumerLib._msgSender(),
+      msgValue: WorldContextConsumerLib._msgValue()
+    })
+  );
+
+  if (!success) revertWithBytes(returnData);
+
+  return returnData;
+}
+
+function testGravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
+  VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
+  bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
+  if (belowEntityId == bytes32(0)) {
+    uint8 terrainObjectTypeId = testGetTerrainObjectTypeId(belowCoord);
+    if (terrainObjectTypeId != AirObjectID) {
+      return false;
+    }
+  } else if (ObjectType.get(belowEntityId) != AirObjectID || testGetTerrainObjectTypeId(belowCoord) == WaterObjectID) {
+    return false;
+  }
+
+  return true;
 }
