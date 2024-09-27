@@ -33,7 +33,7 @@ contract MoveSystem is System {
         VoxelCoord memory previousCoord = newCoords[i - 1];
         if (previousCoord.y < newCoord.y) {
           numJumps++;
-          require(numJumps <= 2, "MoveSystem: cannot jump more than 2 blocks");
+          require(numJumps <= 3, "MoveSystem: cannot jump more than 3 blocks");
         } else {
           // then we are falling, so should be fine
           numFalls++;
