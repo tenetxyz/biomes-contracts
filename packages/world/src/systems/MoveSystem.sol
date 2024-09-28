@@ -72,6 +72,10 @@ contract MoveSystem is System {
       Stamina._setStamina(playerEntityId, currentStamina - useStamina);
     }
 
+    if (gravityApplies) {
+      callGravity(playerEntityId, finalCoord);
+    }
+
     VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
     if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {

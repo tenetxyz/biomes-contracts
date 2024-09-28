@@ -29,6 +29,10 @@ async function main() {
   let numTx = 0;
 
   for (let i = 0; i < build.relativePositions.length; i++) {
+    if (i % 1000 === 0) {
+      console.log(`Complete: ${(i / build.relativePositions.length) * 100}%`);
+    }
+
     const relativePos = build.relativePositions[i];
     const objectTypeId = build.objectTypeIds[i];
 
