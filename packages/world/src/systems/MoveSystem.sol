@@ -5,6 +5,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
@@ -22,7 +24,7 @@ contract MoveSystem is System {
   function move(VoxelCoord[] memory newCoords) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
 
-    VoxelCoord memory oldCoord = playerCoord;
+    VoxelCoord memory oldCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
     bytes32 finalEntityId;
     bool gravityApplies = false;
     uint256 numJumps = 0;
@@ -35,6 +37,7 @@ contract MoveSystem is System {
           numJumps++;
           require(numJumps <= 3, "MoveSystem: cannot jump more than 3 blocks");
         } else {
+          // TODO: if it's the same, then only allow X glides
           // then we are falling, so should be fine
           numFalls++;
         }
@@ -42,7 +45,7 @@ contract MoveSystem is System {
         numJumps = 0;
       }
       (finalEntityId, gravityApplies) = move(playerEntityId, oldCoord, newCoord);
-      oldCoord = newCoord;
+      oldCoord = VoxelCoord(newCoord.x, newCoord.y, newCoord.z);
     }
 
     // Create new entity
@@ -102,7 +105,24 @@ contract MoveSystem is System {
     VoxelCoord memory newCoord
   ) internal returns (bytes32, bool) {
     require(inWorldBorder(newCoord), "MoveSystem: cannot move outside world border");
-    require(inSurroundingCube(oldCoord, 1, newCoord), "MoveSystem: new coord is not in surrounding cube of old coord");
+    require(
+      inSurroundingCube(oldCoord, 1, newCoord),
+      string.concat(
+        "MoveSystem: new coord (",
+        Strings.toString(newCoord.x),
+        ", ",
+        Strings.toString(newCoord.y),
+        ", ",
+        Strings.toString(newCoord.z),
+        ") is not in surrounding cube of old coord (",
+        Strings.toString(oldCoord.x),
+        ", ",
+        Strings.toString(oldCoord.y),
+        ", ",
+        Strings.toString(oldCoord.z),
+        ")"
+      )
+    );
 
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
@@ -110,10 +130,34 @@ contract MoveSystem is System {
       uint8 terrainObjectTypeId = getTerrainObjectTypeId(newCoord);
       require(
         terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
-        "MoveSystem: cannot move to non-air block"
+        string.concat(
+          "MoveSystem: cannot move to (",
+          Strings.toString(newCoord.x),
+          ", ",
+          Strings.toString(newCoord.y),
+          ", ",
+          Strings.toString(newCoord.z),
+          ")",
+          " with terrain object type ",
+          Strings.toString(terrainObjectTypeId)
+        )
       );
     } else {
-      require(ObjectType._get(newEntityId) == AirObjectID, "MoveSystem: cannot move to non-air block");
+      uint8 currentObjectTypeId = ObjectType._get(newEntityId);
+      require(
+        currentObjectTypeId == AirObjectID,
+        string.concat(
+          "MoveSystem: cannot move to (",
+          Strings.toString(newCoord.x),
+          ", ",
+          Strings.toString(newCoord.y),
+          ", ",
+          Strings.toString(newCoord.z),
+          ")",
+          " with object type ",
+          Strings.toString(currentObjectTypeId)
+        )
+      );
     }
 
     // require(!gravityApplies(newCoord), "MoveSystem: cannot move player with gravity");
