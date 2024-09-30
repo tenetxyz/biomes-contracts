@@ -2267,6 +2267,37 @@
   },
   {
     "type": "function",
+    "name": "jumpBuild",
+    "inputs": [
+      {
+        "name": "objectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "jumpBuild",
+    "inputs": [
+      {
+        "name": "objectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
     "name": "loginPlayer",
     "inputs": [
       {

@@ -17,5 +17,9 @@ interface IBuildSystem {
     bytes memory extraData
   ) external payable returns (bytes32);
 
+  function jumpBuild(uint8 objectTypeId, bytes memory extraData) external payable;
+
+  function jumpBuild(uint8 objectTypeId) external payable;
+
   function build(uint8 objectTypeId, VoxelCoord memory coord) external payable returns (bytes32);
 }
