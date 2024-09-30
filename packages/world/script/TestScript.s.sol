@@ -7,6 +7,7 @@ import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { InventoryTool } from "../src/codegen/tables/InventoryTool.sol";
 import { ReverseInventoryTool } from "../src/codegen/tables/ReverseInventoryTool.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
@@ -24,8 +25,9 @@ import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
+
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
+import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, NeptuniumPickObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount } from "../test/utils/TestUtils.sol";
@@ -58,6 +60,15 @@ contract TestScript is Script {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverBarObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, SandObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, StoneObjectID, 99);
+
+    bytes32 newInventoryEntityId = testGetUniqueEntity();
+    ObjectType.set(newInventoryEntityId, NeptuniumPickObjectID);
+    InventoryTool.set(newInventoryEntityId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryEntityId);
+    uint24 durability = ObjectTypeMetadata.getDurability(NeptuniumPickObjectID);
+    require(durability > 0, "Durability must be greater than 0");
+    ItemMetadata.set(newInventoryEntityId, durability);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, NeptuniumPickObjectID, 1);
 
     vm.stopBroadcast();
   }
