@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { inSurroundingCube, voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -23,6 +23,12 @@ import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 contract MoveSystem is System {
   function move(VoxelCoord[] memory newCoords) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    // no-ops
+    if (newCoords.length == 0) {
+      return;
+    } else if (newCoords.length == 1 && voxelCoordsAreEqual(playerCoord, newCoords[0])) {
+      return;
+    }
 
     VoxelCoord memory oldCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
     bytes32 finalEntityId;
@@ -48,21 +54,23 @@ contract MoveSystem is System {
       oldCoord = VoxelCoord(newCoord.x, newCoord.y, newCoord.z);
     }
 
-    // Create new entity
-    if (finalEntityId == bytes32(0)) {
-      finalEntityId = getUniqueEntity();
-      ObjectType._set(finalEntityId, AirObjectID);
-    } else {
-      transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
-    }
-
-    // Swap entity ids
-    ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, finalEntityId);
-    Position._set(finalEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
-
     VoxelCoord memory finalCoord = newCoords[newCoords.length - 1];
-    Position._set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
-    ReversePosition._set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+    if (finalEntityId != playerEntityId) {
+      // Create new entity
+      if (finalEntityId == bytes32(0)) {
+        finalEntityId = getUniqueEntity();
+        ObjectType._set(finalEntityId, AirObjectID);
+      } else {
+        transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
+      }
+
+      // Swap entity ids
+      ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, finalEntityId);
+      Position._set(finalEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
+
+      Position._set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+      ReversePosition._set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+    }
 
     {
       uint256 staminaRequired = (PLAYER_MASS * (newCoords.length ** 2)) / 100;
@@ -143,21 +151,25 @@ contract MoveSystem is System {
         )
       );
     } else {
-      uint8 currentObjectTypeId = ObjectType._get(newEntityId);
-      require(
-        currentObjectTypeId == AirObjectID,
-        string.concat(
-          "MoveSystem: cannot move to (",
-          Strings.toString(newCoord.x),
-          ", ",
-          Strings.toString(newCoord.y),
-          ", ",
-          Strings.toString(newCoord.z),
-          ")",
-          " with object type ",
-          Strings.toString(currentObjectTypeId)
-        )
-      );
+      // If the entity we're moving into is this player, then it's fine as
+      // the player will be moved from the old position to the new position
+      if (playerEntityId != newEntityId) {
+        uint8 currentObjectTypeId = ObjectType._get(newEntityId);
+        require(
+          currentObjectTypeId == AirObjectID,
+          string.concat(
+            "MoveSystem: cannot move to (",
+            Strings.toString(newCoord.x),
+            ", ",
+            Strings.toString(newCoord.y),
+            ", ",
+            Strings.toString(newCoord.z),
+            ")",
+            " with object type ",
+            Strings.toString(currentObjectTypeId)
+          )
+        );
+      }
     }
 
     // require(!gravityApplies(newCoord), "MoveSystem: cannot move player with gravity");
