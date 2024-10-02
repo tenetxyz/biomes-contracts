@@ -10,7 +10,7 @@ import { Unstable_CallWithSignatureSystem } from "@latticexyz/world-modules/src/
 import { DELEGATION_SYSTEM_ID } from "@latticexyz/world-modules/src/modules/callwithsignature/constants.sol";
 import { Recipes } from "../src/codegen/tables/Recipes.sol";
 import { ChestMetadata, ChestMetadataData } from "../src/codegen/tables/ChestMetadata.sol";
-import { BedrockObjectID, ChestObjectID, AnyReinforcedLumberObjectID } from "../src/ObjectTypeIds.sol";
+import { BedrockObjectID, ChestObjectID, AnyReinforcedLumberObjectID, CoalOreObjectID, ChipBatteryObjectID } from "../src/ObjectTypeIds.sol";
 
 import { IERC165 } from "@latticexyz/store/src/IERC165.sol";
 
@@ -44,19 +44,12 @@ contract Upgrade is Script {
     // IWorld(worldAddress).registerSystem(DELEGATION_SYSTEM_ID, newUpgradedSystem, true);
 
     // IWorld(worldAddress).initThermoblastObjectTypes();
-    IWorld(worldAddress).initInteractableObjectTypes();
+    // IWorld(worldAddress).initThermoblastRecipes();
 
-    bytes32 bedrockChestRecipeId = keccak256(
-      abi.encodePacked(BedrockObjectID, uint8(1), ChestObjectID, uint8(1), uint8(163), uint8(1))
-    );
-    bytes32 reinforcedChestRecipeId = keccak256(
-      abi.encodePacked(ChestObjectID, uint8(1), AnyReinforcedLumberObjectID, uint8(1), uint8(162), uint8(1))
-    );
+    bytes32 recipeId = keccak256(abi.encodePacked(CoalOreObjectID, uint8(4), ChipBatteryObjectID, uint8(1)));
     console.log("recipe");
-    console.logUint(Recipes.getOutputObjectTypeId(bedrockChestRecipeId));
-    console.logUint(Recipes.getOutputObjectTypeId(reinforcedChestRecipeId));
-    // Recipes.deleteRecord(bedrockChestRecipeId);
-    // Recipes.deleteRecord(reinforcedChestRecipeId);
+    console.logUint(Recipes.getOutputObjectTypeId(recipeId));
+    // Recipes.deleteRecord(recipeId);
 
     // bytes32[] memory entityIds = new bytes32[](2);
     // entityIds[0] = 0x00000000000000000000000000000000000000000000000000000000000005fe;
