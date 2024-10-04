@@ -35,22 +35,27 @@ contract MoveSystem is System {
     bool gravityApplies = false;
     uint256 numJumps = 0;
     uint256 numFalls = 0;
+    uint256 numGlides = 0;
     for (uint256 i = 0; i < newCoords.length; i++) {
       VoxelCoord memory newCoord = newCoords[i];
+      (finalEntityId, gravityApplies) = move(playerEntityId, oldCoord, newCoord);
       if (gravityApplies) {
-        VoxelCoord memory previousCoord = newCoords[i - 1];
-        if (previousCoord.y < newCoord.y) {
+        if (oldCoord.y < newCoord.y) {
           numJumps++;
           require(numJumps <= 3, "MoveSystem: cannot jump more than 3 blocks");
-        } else {
-          // TODO: if it's the same, then only allow X glides
+        } else if (oldCoord.y > newCoord.y) {
           // then we are falling, so should be fine
           numFalls++;
+          numGlides = 0;
+        } else {
+          // we are gliding
+          numGlides++;
+          require(numGlides <= 10, "MoveSystem: cannot glide more than 10 blocks");
         }
       } else {
         numJumps = 0;
+        numGlides = 0;
       }
-      (finalEntityId, gravityApplies) = move(playerEntityId, oldCoord, newCoord);
       oldCoord = VoxelCoord(newCoord.x, newCoord.y, newCoord.z);
     }
 

@@ -205,6 +205,88 @@ contract MoveTest is MudTest, GasReporter {
     testMoveMultipleBlocks(100, false);
   }
 
+  function testMoveJump() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
+    for (uint i = 0; i < newCoords.length; i++) {
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
+
+    world.move(newCoords);
+
+    // Expect it to fall down
+    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
+    assertTrue(playerCoord.x == spawnCoord.x && playerCoord.z == spawnCoord.z, "Player did not move to new coords");
+    assertTrue(playerCoord.y == spawnCoord.y, "Player did not fall down");
+
+    vm.stopPrank();
+  }
+
+  function testMoveGlide() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](3);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
+    newCoords[1] = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z + 1);
+    newCoords[2] = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z + 2);
+    for (uint i = 0; i < newCoords.length; i++) {
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
+
+    world.move(newCoords);
+
+    // Expect it to fall down
+    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
+    assertTrue(playerCoord.x == spawnCoord.x && playerCoord.z == spawnCoord.z + 2, "Player did not move to new coords");
+    assertTrue(playerCoord.y == spawnCoord.y, "Player did not fall down");
+
+    vm.stopPrank();
+  }
+
+  function testMoveInvalidJump() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    uint256 numJumps = 5;
+    VoxelCoord[] memory newCoords = new VoxelCoord[](numJumps);
+    for (uint i = 0; i < numJumps; i++) {
+      newCoords[i] = VoxelCoord(spawnCoord.x, spawnCoord.y + int16(int(uint(i))) + 1, spawnCoord.z);
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
+
+    vm.expectRevert("MoveSystem: cannot jump more than 3 blocks");
+    world.move(newCoords);
+
+    vm.stopPrank();
+  }
+
+  function testMoveInvalidGlide() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    uint256 numGlides = 11;
+    VoxelCoord[] memory newCoords = new VoxelCoord[](numGlides + 1);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
+    assertTrue(world.getTerrainBlock(newCoords[0]) == AirObjectID, "Terrain block is not air");
+    for (uint i = 1; i < newCoords.length; i++) {
+      newCoords[i] = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z + int16(int(uint(i))));
+      assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
+    }
+
+    vm.expectRevert("MoveSystem: cannot glide more than 10 blocks");
+    world.move(newCoords);
+
+    vm.stopPrank();
+  }
+
   function testMoveWithoutPlayer() public {
     vm.startPrank(alice, alice);
 
@@ -232,7 +314,7 @@ contract MoveTest is MudTest, GasReporter {
     //   assertTrue(world.getTerrainBlock(newCoords[i]) != AirObjectID, "Terrain block is not air");
     // }
 
-    vm.expectRevert("MoveSystem: cannot move to non-air block");
+    vm.expectRevert("MoveSystem: cannot move to (363, 17, -224) with object type 57");
     world.move(newCoords);
 
     vm.stopPrank();
@@ -250,7 +332,7 @@ contract MoveTest is MudTest, GasReporter {
       assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
     }
 
-    vm.expectRevert("MoveSystem: new coord is not in surrounding cube of old coord");
+    vm.expectRevert("MoveSystem: new coord (363, 18, -222) is not in surrounding cube of old coord (363, 18, -224)");
     world.move(newCoords);
 
     vm.stopPrank();
