@@ -22,6 +22,7 @@ import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
+import { LastKnownPosition } from "../src/codegen/tables/LastKnownPosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
@@ -44,11 +45,9 @@ contract MoveScript is Script {
     IWorld world = IWorld(worldAddress);
 
     bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
-    VoxelCoord memory finalCoord = VoxelCoord(23, 4, -151);
+    VoxelCoord memory finalCoord = VoxelCoord(-604, -44, -754);
 
     require(playerEntityId != bytes32(0), "Player entity not found");
-    require(!PlayerMetadata.getIsLoggedOff(playerEntityId), "Player isn't logged in");
-    VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
     bytes32 finalEntityId = ReversePosition.get(finalCoord.x, finalCoord.y, finalCoord.z);
     if (finalEntityId == bytes32(0)) {
       // Check terrain block type
@@ -65,11 +64,17 @@ contract MoveScript is Script {
     }
     require(!testGravityApplies(finalCoord), "MoveSystem: gravity applies to player");
 
-    ReversePosition.set(playerCoord.x, playerCoord.y, playerCoord.z, finalEntityId);
-    Position.set(finalEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
+    if (PlayerMetadata.getIsLoggedOff(playerEntityId)) {
+      LastKnownPosition.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    } else {
+      VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position.get(playerEntityId));
 
-    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
-    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+      ReversePosition.set(playerCoord.x, playerCoord.y, playerCoord.z, finalEntityId);
+      Position.set(finalEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
+
+      Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+      ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+    }
 
     vm.stopBroadcast();
   }
