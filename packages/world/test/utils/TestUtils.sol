@@ -168,6 +168,23 @@ function testTransferAllInventoryEntities(
   return numTransferred;
 }
 
+function testRemoveEntityIdFromReverseInventoryTool(bytes32 ownerEntityId, bytes32 removeInventoryEntityId) {
+  bytes32[] memory inventoryEntityIds = ReverseInventoryTool.get(ownerEntityId);
+  bytes32[] memory newInventoryEntityIds = new bytes32[](inventoryEntityIds.length - 1);
+  uint256 j = 0;
+  for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
+    if (inventoryEntityIds[i] != removeInventoryEntityId) {
+      newInventoryEntityIds[j] = inventoryEntityIds[i];
+      j++;
+    }
+  }
+  if (newInventoryEntityIds.length == 0) {
+    ReverseInventoryTool.deleteRecord(ownerEntityId);
+  } else {
+    ReverseInventoryTool.set(ownerEntityId, newInventoryEntityIds);
+  }
+}
+
 function getForceField(VoxelCoord memory coord) view returns (bytes32) {
   VoxelCoord memory shardCoord = coordToShardCoord(coord, FORCE_FIELD_SHARD_DIM);
   return ShardField.get(shardCoord.x, shardCoord.y, shardCoord.z);

@@ -30,7 +30,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, NeptuniumPickObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
-import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount } from "../test/utils/TestUtils.sol";
+import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount, testRemoveEntityIdFromReverseInventoryTool } from "../test/utils/TestUtils.sol";
 
 contract TestScript is Script {
   function run(address worldAddress) external {
@@ -61,14 +61,13 @@ contract TestScript is Script {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, SandObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, StoneObjectID, 99);
 
-    bytes32 newInventoryEntityId = testGetUniqueEntity();
-    ObjectType.set(newInventoryEntityId, NeptuniumPickObjectID);
-    InventoryTool.set(newInventoryEntityId, playerEntityId);
-    ReverseInventoryTool.push(playerEntityId, newInventoryEntityId);
-    uint24 durability = ObjectTypeMetadata.getDurability(NeptuniumPickObjectID);
-    require(durability > 0, "Durability must be greater than 0");
-    ItemMetadata.set(newInventoryEntityId, durability);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, NeptuniumPickObjectID, 1);
+    // Destroy equipped item
+    // bytes32 inventoryEntityId = 0x000000000000000000000000000000000000000000000000000000000004bbb3;
+    // testRemoveFromInventoryCount(playerEntityId, NeptuniumPickObjectID, 1);
+    // ItemMetadata.deleteRecord(inventoryEntityId);
+    // InventoryTool.deleteRecord(inventoryEntityId);
+    // testRemoveEntityIdFromReverseInventoryTool(playerEntityId, inventoryEntityId);
+    // Equipped.deleteRecord(playerEntityId);
 
     vm.stopBroadcast();
   }

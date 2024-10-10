@@ -11,6 +11,7 @@ import { Tokens } from "../src/codegen/tables/Tokens.sol";
 import { NFTs } from "../src/codegen/tables/NFTs.sol";
 import { ERC20Metadata } from "../src/codegen/tables/ERC20Metadata.sol";
 import { ERC721Metadata } from "../src/codegen/tables/ERC721Metadata.sol";
+import { ItemShop } from "../src/codegen/tables/ItemShop.sol";
 
 contract Upgrade is Script {
   function run(address worldAddress) external {
@@ -22,6 +23,10 @@ contract Upgrade is Script {
 
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
+
+    console.logUint(ItemShop.getBalance(0x000000000000000000000000000000000000000000000000000000000002ec2d));
+    console.log(ItemShop.getPaymentToken(0x000000000000000000000000000000000000000000000000000000000002ec2d));
+    // ItemShop.setBalance(0x000000000000000000000000000000000000000000000000000000000002ec2d, type(uint256).max);
 
     // console.logUint(NFTs.lengthNfts(0x3A971f521dde3434B6a3409ABCb77066Dd5123C3));
     // NFTs.deleteRecord(0x3A971f521dde3434B6a3409ABCb77066Dd5123C3);
