@@ -21,6 +21,7 @@ import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol
 import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
@@ -63,6 +64,8 @@ contract MineSystem is System {
 
     ObjectType._set(entityId, AirObjectID);
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
+
+    mintXP(playerEntityId, 1);
 
     PlayerActionNotif._set(
       playerEntityId,

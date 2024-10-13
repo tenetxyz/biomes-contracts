@@ -14,6 +14,8 @@ import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol
 import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonTool, transferInventoryTool, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
+
 import { PickupData } from "../Types.sol";
 
 contract PickupSystem is System {
@@ -28,6 +30,8 @@ contract PickupSystem is System {
 
     uint8 objectTypeId = ObjectType._get(entityId);
     require(objectTypeId == AirObjectID, "PickupSystem: cannot pickup from non-air block");
+
+    mintXP(playerEntityId, 1);
 
     return (playerEntityId, entityId);
   }

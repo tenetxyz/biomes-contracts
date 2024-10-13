@@ -21,6 +21,7 @@ import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol
 import { inSpawnArea, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
@@ -54,6 +55,8 @@ contract BuildSystem is System {
 
     ObjectType._set(entityId, objectTypeId);
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
+
+    mintXP(playerEntityId, 1);
 
     PlayerActionNotif._set(
       playerEntityId,

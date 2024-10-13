@@ -19,6 +19,7 @@ import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol
 import { callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 
 contract MoveSystem is System {
   function move(VoxelCoord[] memory newCoords) public {
@@ -97,6 +98,8 @@ contract MoveSystem is System {
     if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
       callGravity(aboveEntityId, aboveCoord);
     }
+
+    mintXP(playerEntityId, 1);
 
     PlayerActionNotif._set(
       playerEntityId,

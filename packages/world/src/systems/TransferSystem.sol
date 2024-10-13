@@ -17,6 +17,7 @@ import { transferInventoryTool, transferInventoryNonTool } from "../utils/Invent
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 
 import { IChestChip } from "../prototypes/IChestChip.sol";
 
@@ -46,6 +47,8 @@ contract TransferSystem is System {
     } else {
       revert("TransferSystem: invalid transfer operation");
     }
+
+    mintXP(playerEntityId, 1);
 
     return (playerEntityId, dstObjectTypeId, playerEntityId == srcEntityId ? dstCoord : srcCoord);
   }

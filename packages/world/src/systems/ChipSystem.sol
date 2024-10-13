@@ -19,6 +19,7 @@ import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../u
 import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { canAttachChip } from "../utils/ObjectTypeUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
@@ -43,6 +44,8 @@ contract ChipSystem is System {
     removeFromInventoryCount(playerEntityId, ChipObjectID, 1);
 
     Chip._set(entityId, ChipData({ chipAddress: chipAddress, batteryLevel: 0, lastUpdatedTime: block.timestamp }));
+
+    mintXP(playerEntityId, 1);
 
     PlayerActionNotif._set(
       playerEntityId,
@@ -88,6 +91,8 @@ contract ChipSystem is System {
 
     Chip._deleteRecord(entityId);
 
+    mintXP(playerEntityId, 1);
+
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
@@ -128,6 +133,8 @@ contract ChipSystem is System {
 
     Chip._setBatteryLevel(entityId, newBatteryLevel);
     Chip._setLastUpdatedTime(entityId, block.timestamp);
+
+    mintXP(playerEntityId, 1);
 
     PlayerActionNotif._set(
       playerEntityId,
@@ -175,6 +182,9 @@ contract ChipSystem is System {
 
       useEquipped(playerEntityId, equippedEntityId);
     }
+
+    mintXP(playerEntityId, 1);
+
     uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel
       ? chipData.batteryLevel - decreaseBatteryLevel
       : 0;

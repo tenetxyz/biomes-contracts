@@ -14,6 +14,7 @@ import { AirObjectID, WaterObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonTool, transferInventoryTool } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 
 contract DropSystem is System {
   function dropCommon(VoxelCoord memory coord) internal returns (bytes32, bytes32) {
@@ -38,6 +39,8 @@ contract DropSystem is System {
     } else {
       require(ObjectType._get(entityId) == AirObjectID, "DropSystem: cannot drop on non-air block");
     }
+
+    mintXP(playerEntityId, 1);
 
     return (playerEntityId, entityId);
   }
