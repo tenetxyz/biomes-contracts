@@ -13,6 +13,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
+import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, WATER_STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID } from "../ObjectTypeIds.sol";
@@ -106,6 +107,8 @@ function despawnPlayer(bytes32 playerEntityId) {
 
   Health._deleteRecord(playerEntityId);
   Stamina._deleteRecord(playerEntityId);
+  ExperiencePoints._deleteRecord(playerEntityId);
+
   if (Equipped._get(playerEntityId) != bytes32(0)) {
     Equipped._deleteRecord(playerEntityId);
   }
