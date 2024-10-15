@@ -31,8 +31,8 @@ import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, AnyLogObjectID, DyeomaticObjectID, WorkbenchObjectID, GrassObjectID, OakLogObjectID, SakuraLogObjectID, OakLumberObjectID, BlueDyeObjectID, BlueOakLumberObjectID, DiamondOreObjectID, DiamondObjectID, WoodenPickObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID } from "../src/ObjectTypeIds.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, NUM_XP_FOR_FULL_BATTERY } from "../src/Constants.sol";
+import { AirObjectID, PlayerObjectID, AnyLogObjectID, DyeomaticObjectID, WorkbenchObjectID, PowerStoneObjectID, ChipBatteryObjectID, GrassObjectID, OakLogObjectID, SakuraLogObjectID, OakLumberObjectID, BlueDyeObjectID, BlueOakLumberObjectID, DiamondOreObjectID, DiamondObjectID, WoodenPickObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
@@ -89,6 +89,211 @@ contract XPTest is MudTest, GasReporter {
     world.build(terrainObjectTypeId, buildCoord);
 
     assertTrue(ExperiencePoints.get(playerEntityId) > xpAfter, "XP not earned");
+
+    vm.stopPrank();
+  }
+
+  function testLogoutXPPenalty() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ExperiencePoints.set(playerEntityId, 1000);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint256 xpBefore = ExperiencePoints.get(playerEntityId);
+    world.logoffPlayer();
+
+    vm.warp(block.timestamp + 1 days);
+
+    // Should not penalize
+    world.loginPlayer(spawnCoord);
+    assertTrue(ExperiencePoints.get(playerEntityId) == xpBefore, "XP not penalized");
+
+    world.logoffPlayer();
+
+    vm.warp(block.timestamp + 10 days);
+
+    // Should penalize
+    world.loginPlayer(spawnCoord);
+    assertTrue(ExperiencePoints.get(playerEntityId) < xpBefore, "XP not penalized");
+
+    vm.stopPrank();
+  }
+
+  function testXPToBattery() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ExperiencePoints.set(playerEntityId, NUM_XP_FOR_FULL_BATTERY * 2);
+
+    // build statin beside player
+    VoxelCoord memory stationCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 stationEntityId = testGetUniqueEntity();
+    ObjectType.set(stationEntityId, PowerStoneObjectID);
+    Position.set(stationEntityId, stationCoord.x, stationCoord.y, stationCoord.z);
+    ReversePosition.set(stationCoord.x, stationCoord.y, stationCoord.z, stationEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 0, "Input object not removed from inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    uint256 xpBefore = ExperiencePoints.get(playerEntityId);
+    world.craftChipBattery(2, stationEntityId);
+    assertTrue(ExperiencePoints.get(playerEntityId) == (xpBefore - (NUM_XP_FOR_FULL_BATTERY * 2)), "XP not consumed");
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 2, "Input object not removed from inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    vm.stopPrank();
+  }
+
+  function testXPToBatteryNotEnoughXP() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ExperiencePoints.set(playerEntityId, NUM_XP_FOR_FULL_BATTERY - 10);
+
+    // build statin beside player
+    VoxelCoord memory stationCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 stationEntityId = testGetUniqueEntity();
+    ObjectType.set(stationEntityId, PowerStoneObjectID);
+    Position.set(stationEntityId, stationCoord.x, stationCoord.y, stationCoord.z);
+    ReversePosition.set(stationCoord.x, stationCoord.y, stationCoord.z, stationEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 0, "Input object not removed from inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    vm.expectRevert("XPSystem: not enough XP");
+    world.craftChipBattery(1, stationEntityId);
+
+    vm.stopPrank();
+  }
+
+  function testXPToBatteryInvalidStation() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ExperiencePoints.set(playerEntityId, NUM_XP_FOR_FULL_BATTERY * 2);
+
+    // build statin beside player
+    VoxelCoord memory stationCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 stationEntityId = testGetUniqueEntity();
+    ObjectType.set(stationEntityId, DyeomaticObjectID);
+    Position.set(stationEntityId, stationCoord.x, stationCoord.y, stationCoord.z);
+    ReversePosition.set(stationCoord.x, stationCoord.y, stationCoord.z, stationEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 0, "Input object not removed from inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    vm.expectRevert("XPSystem: not a power station");
+    world.craftChipBattery(2, stationEntityId);
+
+    vm.expectRevert("XPSystem: not a power station");
+    world.craftChipBattery(2, bytes32(0));
+
+    vm.stopPrank();
+  }
+
+  function testXPToBatteryTooFar() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ExperiencePoints.set(playerEntityId, NUM_XP_FOR_FULL_BATTERY * 2);
+
+    // build statin beside player
+    VoxelCoord memory stationCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 stationEntityId = testGetUniqueEntity();
+    ObjectType.set(stationEntityId, PowerStoneObjectID);
+    Position.set(stationEntityId, stationCoord.x, stationCoord.y, stationCoord.z);
+    ReversePosition.set(stationCoord.x, stationCoord.y, stationCoord.z, stationEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](uint(int(MAX_PLAYER_INFLUENCE_HALF_WIDTH)) + 1);
+    for (int16 i = 0; i < MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1; i++) {
+      newCoords[uint(int(i))] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + i + 1);
+    }
+    world.move(newCoords);
+
+    vm.expectRevert("Player is too far");
+    world.craftChipBattery(2, stationEntityId);
+
+    vm.stopPrank();
+  }
+
+  function testXPToBatteryWithoutPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ExperiencePoints.set(playerEntityId, NUM_XP_FOR_FULL_BATTERY * 2);
+
+    // build statin beside player
+    VoxelCoord memory stationCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 stationEntityId = testGetUniqueEntity();
+    ObjectType.set(stationEntityId, PowerStoneObjectID);
+    Position.set(stationEntityId, stationCoord.x, stationCoord.y, stationCoord.z);
+    ReversePosition.set(stationCoord.x, stationCoord.y, stationCoord.z, stationEntityId);
+
+    vm.stopPrank();
+
+    vm.expectRevert("Player does not exist");
+    world.craftChipBattery(2, stationEntityId);
+
+    vm.stopPrank();
+  }
+
+  function testXPToBatteryLoggedOffPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    ExperiencePoints.set(playerEntityId, NUM_XP_FOR_FULL_BATTERY * 2);
+
+    // build statin beside player
+    VoxelCoord memory stationCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 stationEntityId = testGetUniqueEntity();
+    ObjectType.set(stationEntityId, PowerStoneObjectID);
+    Position.set(stationEntityId, stationCoord.x, stationCoord.y, stationCoord.z);
+    ReversePosition.set(stationCoord.x, stationCoord.y, stationCoord.z, stationEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 0, "Input object not removed from inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    world.logoffPlayer();
+
+    vm.expectRevert("Player isn't logged in");
+    world.craftChipBattery(2, stationEntityId);
 
     vm.stopPrank();
   }
