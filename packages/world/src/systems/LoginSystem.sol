@@ -14,6 +14,7 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Health } from "../codegen/tables/Health.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
@@ -56,6 +57,18 @@ contract LoginSystem is System {
     ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);
     LastKnownPosition._deleteRecord(playerEntityId);
     PlayerMetadata._setIsLoggedOff(playerEntityId, false);
+
+    uint256 timeSinceLogoff = block.timestamp - PlayerActivity._get(playerEntityId);
+    // After a grace period of 5 days, the player loses 75% of their XP every day
+    uint256 daysSinceLogoff = timeSinceLogoff / 1 days;
+    if (daysSinceLogoff > 5) {
+      uint256 newXP = ExperiencePoints._get(playerEntityId);
+      for (uint256 i = 0; i < daysSinceLogoff - 5; i++) {
+        newXP = (newXP * 3) / 4;
+      }
+      ExperiencePoints._set(playerEntityId, newXP);
+    }
+
     PlayerActivity._set(playerEntityId, block.timestamp);
 
     // Reset update time to current time
