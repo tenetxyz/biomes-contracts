@@ -165,32 +165,32 @@ contract InitThermoblastSystem is System {
     createDoubleInputWithStationRecipe(
       ThermoblasterObjectID,
       CoalOreObjectID,
-      4,
+      1,
       StoneObjectID,
-      4,
+      8,
       EmberstoneObjectID,
-      4
+      8
     );
     createDoubleInputWithStationRecipe(
       ThermoblasterObjectID,
       CoalOreObjectID,
-      4,
+      1,
       QuartziteObjectID,
-      4,
+      8,
       MoonstoneObjectID,
-      4
+      8
     );
     createDoubleInputWithStationRecipe(
       ThermoblasterObjectID,
       CoalOreObjectID,
-      4,
+      1,
       LimestoneObjectID,
-      4,
+      8,
       SunstoneObjectID,
-      4
+      8
     );
 
-    createDoubleInputWithStationRecipe(ThermoblasterObjectID, SandObjectID, 2, CoalOreObjectID, 1, GlassObjectID, 1);
+    createDoubleInputWithStationRecipe(ThermoblasterObjectID, SandObjectID, 16, CoalOreObjectID, 1, GlassObjectID, 16);
 
     createSingleInputWithStationRecipe(ThermoblasterObjectID, RedMushroomObjectID, 4, MushroomLeatherBlockObjectID, 1);
 
@@ -200,9 +200,16 @@ contract InitThermoblastSystem is System {
     createSingleInputWithStationRecipe(ThermoblasterObjectID, NeptuniumOreObjectID, 4, NeptuniumBarObjectID, 1);
 
     createSingleInputWithStationRecipe(ThermoblasterObjectID, GoldBarObjectID, 8, GoldCubeObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, GoldCubeObjectID, 1, GoldBarObjectID, 8);
+
     createSingleInputWithStationRecipe(ThermoblasterObjectID, SilverBarObjectID, 8, SilverCubeObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, SilverCubeObjectID, 1, SilverBarObjectID, 8);
+
     createSingleInputWithStationRecipe(ThermoblasterObjectID, DiamondObjectID, 8, DiamondCubeObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, DiamondCubeObjectID, 1, DiamondObjectID, 8);
+
     createSingleInputWithStationRecipe(ThermoblasterObjectID, NeptuniumBarObjectID, 8, NeptuniumCubeObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, NeptuniumCubeObjectID, 1, NeptuniumBarObjectID, 8);
 
     createSingleInputWithStationRecipe(ThermoblasterObjectID, SandObjectID, 4, ChipObjectID, 1);
   }
