@@ -27,6 +27,8 @@ import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord, bytes memory extraData) public payable {
+    uint256 initialGas = gasleft();
+
     require(inWorldBorder(coord), "MineSystem: cannot mine outside world border");
     require(!inSpawnArea(coord), "MineSystem: cannot mine at spawn area");
 
@@ -65,8 +67,6 @@ contract MineSystem is System {
     ObjectType._set(entityId, AirObjectID);
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
-    mintXP(playerEntityId, 1);
-
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
@@ -79,6 +79,8 @@ contract MineSystem is System {
         amount: 1
       })
     );
+
+    mintXP(playerEntityId, initialGas);
 
     callInternalSystem(
       abi.encodeCall(

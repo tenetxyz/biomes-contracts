@@ -48,8 +48,6 @@ contract TransferSystem is System {
       revert("TransferSystem: invalid transfer operation");
     }
 
-    mintXP(playerEntityId, 1);
-
     return (playerEntityId, dstObjectTypeId, playerEntityId == srcEntityId ? dstCoord : srcCoord);
   }
 
@@ -88,6 +86,8 @@ contract TransferSystem is System {
     uint16 numToTransfer,
     bytes memory extraData
   ) public payable {
+    uint256 initialGas = gasleft();
+
     (bytes32 playerEntityId, uint8 dstObjectTypeId, VoxelCoord memory chestCoord) = transferCommon(
       srcEntityId,
       dstEntityId
@@ -107,6 +107,8 @@ contract TransferSystem is System {
       })
     );
 
+    mintXP(playerEntityId, initialGas);
+
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
       playerEntityId,
@@ -125,6 +127,8 @@ contract TransferSystem is System {
     bytes32 toolEntityId,
     bytes memory extraData
   ) public payable {
+    uint256 initialGas = gasleft();
+
     (bytes32 playerEntityId, uint8 dstObjectTypeId, VoxelCoord memory chestCoord) = transferCommon(
       srcEntityId,
       dstEntityId
@@ -143,6 +147,8 @@ contract TransferSystem is System {
         amount: 1
       })
     );
+
+    mintXP(playerEntityId, initialGas);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(playerEntityId, srcEntityId, dstEntityId, toolObjectTypeId, 1, toolEntityId, extraData);

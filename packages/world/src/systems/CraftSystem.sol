@@ -23,6 +23,8 @@ import { mintXP } from "../utils/XPUtils.sol";
 
 contract CraftSystem is System {
   function craft(bytes32 recipeId, bytes32 stationEntityId) public {
+    uint256 initialGas = gasleft();
+
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
 
     RecipesData memory recipeData = Recipes._get(recipeId);
@@ -127,8 +129,6 @@ contract CraftSystem is System {
       recipeData.outputObjectTypeAmount
     );
 
-    mintXP(playerEntityId, 1);
-
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
@@ -141,5 +141,7 @@ contract CraftSystem is System {
         amount: recipeData.outputObjectTypeAmount
       })
     );
+
+    mintXP(playerEntityId, initialGas);
   }
 }

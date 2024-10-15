@@ -27,6 +27,8 @@ import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
 contract BuildSystem is System {
   function build(uint8 objectTypeId, VoxelCoord memory coord, bytes memory extraData) public payable returns (bytes32) {
+    uint256 initialGas = gasleft();
+
     require(inWorldBorder(coord), "BuildSystem: cannot build outside world border");
     require(!inSpawnArea(coord), "BuildSystem: cannot build at spawn area");
     require(ObjectTypeMetadata._getIsBlock(objectTypeId), "BuildSystem: object type is not a block");
@@ -56,8 +58,6 @@ contract BuildSystem is System {
     ObjectType._set(entityId, objectTypeId);
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
 
-    mintXP(playerEntityId, 1);
-
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
@@ -70,6 +70,8 @@ contract BuildSystem is System {
         amount: 1
       })
     );
+
+    mintXP(playerEntityId, initialGas);
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
     callInternalSystem(

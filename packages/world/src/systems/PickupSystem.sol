@@ -31,14 +31,13 @@ contract PickupSystem is System {
     uint8 objectTypeId = ObjectType._get(entityId);
     require(objectTypeId == AirObjectID, "PickupSystem: cannot pickup from non-air block");
 
-    mintXP(playerEntityId, 1);
-
     return (playerEntityId, entityId);
   }
 
   function pickupAll(VoxelCoord memory coord) public {
-    (bytes32 playerEntityId, bytes32 entityId) = pickupCommon(coord);
+    uint256 initialGas = gasleft();
 
+    (bytes32 playerEntityId, bytes32 entityId) = pickupCommon(coord);
     uint256 numTransferred = transferAllInventoryEntities(entityId, playerEntityId, PlayerObjectID);
 
     PlayerActionNotif._set(
@@ -53,11 +52,14 @@ contract PickupSystem is System {
         amount: numTransferred
       })
     );
+
+    mintXP(playerEntityId, initialGas);
   }
 
   function pickup(uint8 pickupObjectTypeId, uint16 numToPickup, VoxelCoord memory coord) public {
-    (bytes32 playerEntityId, bytes32 entityId) = pickupCommon(coord);
+    uint256 initialGas = gasleft();
 
+    (bytes32 playerEntityId, bytes32 entityId) = pickupCommon(coord);
     transferInventoryNonTool(entityId, playerEntityId, PlayerObjectID, pickupObjectTypeId, numToPickup);
 
     PlayerActionNotif._set(
@@ -72,11 +74,14 @@ contract PickupSystem is System {
         amount: numToPickup
       })
     );
+
+    mintXP(playerEntityId, initialGas);
   }
 
   function pickupTool(bytes32 toolEntityId, VoxelCoord memory coord) public {
-    (bytes32 playerEntityId, bytes32 entityId) = pickupCommon(coord);
+    uint256 initialGas = gasleft();
 
+    (bytes32 playerEntityId, bytes32 entityId) = pickupCommon(coord);
     uint8 toolObjectTypeId = transferInventoryTool(entityId, playerEntityId, PlayerObjectID, toolEntityId);
 
     PlayerActionNotif._set(
@@ -91,6 +96,8 @@ contract PickupSystem is System {
         amount: 1
       })
     );
+
+    mintXP(playerEntityId, initialGas);
   }
 
   function pickupMultiple(
@@ -98,6 +105,8 @@ contract PickupSystem is System {
     bytes32[] memory pickupTools,
     VoxelCoord memory coord
   ) public {
+    uint256 initialGas = gasleft();
+
     (bytes32 playerEntityId, bytes32 entityId) = pickupCommon(coord);
 
     for (uint256 i = 0; i < pickupObjects.length; i++) {
@@ -140,5 +149,7 @@ contract PickupSystem is System {
         })
       );
     }
+
+    mintXP(playerEntityId, initialGas);
   }
 }

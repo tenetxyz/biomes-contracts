@@ -40,12 +40,12 @@ contract DropSystem is System {
       require(ObjectType._get(entityId) == AirObjectID, "DropSystem: cannot drop on non-air block");
     }
 
-    mintXP(playerEntityId, 1);
-
     return (playerEntityId, entityId);
   }
 
   function drop(uint8 dropObjectTypeId, uint16 numToDrop, VoxelCoord memory coord) public {
+    uint256 initialGas = gasleft();
+
     (bytes32 playerEntityId, bytes32 entityId) = dropCommon(coord);
     transferInventoryNonTool(playerEntityId, entityId, AirObjectID, dropObjectTypeId, numToDrop);
 
@@ -61,9 +61,13 @@ contract DropSystem is System {
         amount: numToDrop
       })
     );
+
+    mintXP(playerEntityId, initialGas);
   }
 
   function dropTool(bytes32 toolEntityId, VoxelCoord memory coord) public {
+    uint256 initialGas = gasleft();
+
     (bytes32 playerEntityId, bytes32 entityId) = dropCommon(coord);
     uint8 toolObjectTypeId = transferInventoryTool(playerEntityId, entityId, AirObjectID, toolEntityId);
 
@@ -79,5 +83,7 @@ contract DropSystem is System {
         amount: 1
       })
     );
+
+    mintXP(playerEntityId, initialGas);
   }
 }
