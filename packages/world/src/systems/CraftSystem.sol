@@ -19,9 +19,12 @@ import { getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes, getCottonBlockObjectTypes, getGlassObjectTypes } from "../utils/ObjectTypeUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 
 contract CraftSystem is System {
   function craft(bytes32 recipeId, bytes32 stationEntityId) public {
+    uint256 initialGas = gasleft();
+
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
 
     RecipesData memory recipeData = Recipes._get(recipeId);
@@ -138,5 +141,7 @@ contract CraftSystem is System {
         amount: recipeData.outputObjectTypeAmount
       })
     );
+
+    mintXP(playerEntityId, initialGas);
   }
 }

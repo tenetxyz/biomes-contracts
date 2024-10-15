@@ -296,6 +296,16 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    ExperiencePoints: {
+      schema: {
+        entityId: "bytes32",
+        xp: "uint256",
+      },
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     PlayerActionNotif: {
       schema: {
         playerEntityId: "bytes32",

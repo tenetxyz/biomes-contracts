@@ -21,11 +21,14 @@ import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol
 import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord, bytes memory extraData) public payable {
+    uint256 initialGas = gasleft();
+
     require(inWorldBorder(coord), "MineSystem: cannot mine outside world border");
     require(!inSpawnArea(coord), "MineSystem: cannot mine at spawn area");
 
@@ -76,6 +79,8 @@ contract MineSystem is System {
         amount: 1
       })
     );
+
+    mintXP(playerEntityId, initialGas);
 
     callInternalSystem(
       abi.encodeCall(

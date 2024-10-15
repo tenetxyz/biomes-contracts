@@ -56,6 +56,7 @@ contract SpawnSystem is System {
 
     Health._set(playerEntityId, block.timestamp, MAX_PLAYER_HEALTH);
     Stamina._set(playerEntityId, block.timestamp, MAX_PLAYER_STAMINA);
+    // initial ExperiencePoints is 0
 
     PlayerActivity._set(playerEntityId, block.timestamp);
     PlayerMetadata._set(playerEntityId, false, 0);

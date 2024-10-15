@@ -209,3 +209,4 @@ uint8 constant AnyGlassObjectID = 163;
 uint8 constant ChipObjectID = 164;
 uint8 constant ChipBatteryObjectID = 165;
 uint8 constant ForceFieldObjectID = 166;
+uint8 constant PowerStoneObjectID = 167;

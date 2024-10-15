@@ -19,6 +19,7 @@ import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../u
 import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { canAttachChip } from "../utils/ObjectTypeUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
@@ -26,6 +27,8 @@ import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
 contract ChipSystem is System {
   function attachChip(bytes32 entityId, address chipAddress) public {
+    uint256 initialGas = gasleft();
+
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
@@ -57,6 +60,8 @@ contract ChipSystem is System {
       })
     );
 
+    mintXP(playerEntityId, initialGas);
+
     // Don't safe call here because we want to revert if the chip doesn't allow the attachment
     IChip(chipAddress).onAttached(playerEntityId, entityId);
   }
@@ -75,6 +80,8 @@ contract ChipSystem is System {
   }
 
   function detachChip(bytes32 entityId) public {
+    uint256 initialGas = gasleft();
+
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
@@ -101,10 +108,14 @@ contract ChipSystem is System {
       })
     );
 
+    mintXP(playerEntityId, initialGas);
+
     safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
   }
 
   function powerChip(bytes32 entityId, uint16 numBattery) public {
+    uint256 initialGas = gasleft();
+
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
@@ -142,10 +153,14 @@ contract ChipSystem is System {
       })
     );
 
+    mintXP(playerEntityId, initialGas);
+
     safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
   }
 
   function hitChip(bytes32 entityId) public {
+    uint256 initialGas = gasleft();
+
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
@@ -175,6 +190,7 @@ contract ChipSystem is System {
 
       useEquipped(playerEntityId, equippedEntityId);
     }
+
     uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel
       ? chipData.batteryLevel - decreaseBatteryLevel
       : 0;
@@ -197,6 +213,8 @@ contract ChipSystem is System {
         })
       );
 
+      mintXP(playerEntityId, initialGas);
+
       safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
     } else {
       Chip._setBatteryLevel(entityId, newBatteryLevel);
@@ -213,6 +231,8 @@ contract ChipSystem is System {
           amount: newBatteryLevel
         })
       );
+
+      mintXP(playerEntityId, initialGas);
 
       safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onChipHit, (playerEntityId, entityId)));
     }

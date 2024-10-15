@@ -19,9 +19,12 @@ import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol
 import { callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
+import { mintXP } from "../utils/XPUtils.sol";
 
 contract MoveSystem is System {
   function move(VoxelCoord[] memory newCoords) public {
+    uint256 initialGas = gasleft();
+
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     // no-ops
     if (newCoords.length == 0) {
@@ -92,10 +95,12 @@ contract MoveSystem is System {
       callGravity(playerEntityId, finalCoord);
     }
 
-    VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-    bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-    if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
-      callGravity(aboveEntityId, aboveCoord);
+    {
+      VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+      bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+      if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+        callGravity(aboveEntityId, aboveCoord);
+      }
     }
 
     PlayerActionNotif._set(
@@ -110,6 +115,8 @@ contract MoveSystem is System {
         amount: newCoords.length
       })
     );
+
+    mintXP(playerEntityId, initialGas);
   }
 
   function move(
