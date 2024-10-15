@@ -32,12 +32,12 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, GrassObjectID, ChestObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, OakLumberObjectID, OakLogObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, AnyLogObjectID, DyeomaticObjectID, WorkbenchObjectID, GrassObjectID, OakLogObjectID, SakuraLogObjectID, OakLumberObjectID, BlueDyeObjectID, BlueOakLumberObjectID, DiamondOreObjectID, DiamondObjectID, WoodenPickObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
 
-contract UnequipTest is MudTest, GasReporter {
+contract XPTest is MudTest, GasReporter {
   IWorld private world;
   address payable internal worldDeployer;
   address payable internal alice;
@@ -70,88 +70,25 @@ contract UnequipTest is MudTest, GasReporter {
     return playerEntityId;
   }
 
-  function testUnequip() public {
+  function testEarnXP() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
-    vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = testGetUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
-    InventoryTool.set(newInventoryId, playerEntityId);
-    ReverseInventoryTool.push(playerEntityId, newInventoryId);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint24 durability = 10;
-    ItemMetadata.set(newInventoryId, durability);
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, WoodenPickObjectID), "Inventory objects not set");
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
+    uint256 xpBefore = ExperiencePoints.get(playerEntityId);
 
-    world.equip(newInventoryId);
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
+    uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
 
-    startGasReport("unequip");
-    world.unequip();
-    endGasReport();
-    assertTrue(Equipped.get(playerEntityId) == bytes32(0), "Equipped not unset");
+    world.mine(mineCoord);
+    uint256 xpAfter = ExperiencePoints.get(playerEntityId);
+    assertTrue(xpAfter > xpBefore, "XP not earned");
 
-    vm.stopPrank();
-  }
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    world.build(terrainObjectTypeId, buildCoord);
 
-  function testUnequipWithoutPlayer() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = testGetUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
-    InventoryTool.set(newInventoryId, playerEntityId);
-    ReverseInventoryTool.push(playerEntityId, newInventoryId);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, WoodenPickObjectID), "Inventory objects not set");
-    uint24 durability = 10;
-    ItemMetadata.set(newInventoryId, durability);
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    world.equip(newInventoryId);
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
-    vm.stopPrank();
-
-    vm.expectRevert("Player does not exist");
-    world.unequip();
-
-    vm.stopPrank();
-  }
-
-  function testUnequipWithLoggedOffPlayer() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    bytes32 newInventoryId = testGetUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
-    InventoryTool.set(newInventoryId, playerEntityId);
-    ReverseInventoryTool.push(playerEntityId, newInventoryId);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, WoodenPickObjectID), "Inventory objects not set");
-    uint24 durability = 10;
-    ItemMetadata.set(newInventoryId, durability);
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    world.equip(newInventoryId);
-    assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
-
-    world.logoffPlayer();
-
-    vm.expectRevert("Player isn't logged in");
-    world.unequip();
+    assertTrue(ExperiencePoints.get(playerEntityId) > xpAfter, "XP not earned");
 
     vm.stopPrank();
   }

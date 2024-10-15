@@ -22,8 +22,7 @@ import { ReverseInventoryTool } from "../src/codegen/tables/ReverseInventoryTool
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
-import { Equipped } from "../src/codegen/tables/Equipped.sol";
-import { Equipped } from "../src/codegen/tables/Equipped.sol";
+import { ExperiencePoints } from "../src/codegen/tables/ExperiencePoints.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 import { Chip, ChipData } from "../src/codegen/tables/Chip.sol";
 import { ShardField } from "../src/codegen/tables/ShardField.sol";
