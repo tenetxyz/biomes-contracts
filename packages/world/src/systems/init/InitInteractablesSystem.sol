@@ -6,8 +6,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
-import { ChestObjectID, ThermoblasterObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
-import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID } from "../../ObjectTypeIds.sol";
+import { ChestObjectID, ThermoblasterObjectID, PowerStoneObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
+import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID, MoonstoneObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
@@ -31,6 +31,7 @@ contract InitInteractablesSystem is System {
     createInteractableBlock(ThermoblasterObjectID, 63, 1);
     createInteractableBlock(WorkbenchObjectID, 20, 1);
     createInteractableBlock(DyeomaticObjectID, 72, 1);
+    createInteractableBlock(PowerStoneObjectID, 123, 1);
     createInteractableBlock(ForceFieldObjectID, 255, 99);
   }
 
@@ -39,6 +40,7 @@ contract InitInteractablesSystem is System {
     createSingleInputRecipe(AnyLogObjectID, 5, WorkbenchObjectID, 1);
     createSingleInputRecipe(StoneObjectID, 9, ThermoblasterObjectID, 1);
     createDoubleInputRecipe(ClayObjectID, 4, SandObjectID, 4, DyeomaticObjectID, 1);
+    createDoubleInputRecipe(StoneObjectID, 6, MoonstoneObjectID, 2, PowerStoneObjectID, 1);
     createDoubleInputWithStationRecipe(
       ThermoblasterObjectID,
       StoneObjectID,

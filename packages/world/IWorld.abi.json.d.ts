@@ -538,6 +538,24 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "craftChipBattery",
+    "inputs": [
+      {
+        "name": "numBatteries",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "stationEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "creator",
     "inputs": [],
     "outputs": [

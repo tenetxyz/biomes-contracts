@@ -206,6 +206,7 @@ export const ANY_GLASS_OBJECT_ID = 163;
 export const CHIP_OBJECT_ID = 164;
 export const CHIP_BATTERY_OBJECT_ID = 165;
 export const FORCE_FIELD_OBJECT_ID = 166;
+export const POWERSTONE_OBJECT_ID = 167;
 
 // legacy
 export type BiomesVariantData = number;
