@@ -71,7 +71,7 @@ contract BuildSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
     callInternalSystem(

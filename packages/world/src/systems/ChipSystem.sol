@@ -60,7 +60,7 @@ contract ChipSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
 
     // Don't safe call here because we want to revert if the chip doesn't allow the attachment
     IChip(chipAddress).onAttached(playerEntityId, entityId);
@@ -108,7 +108,7 @@ contract ChipSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
 
     safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
   }
@@ -153,7 +153,7 @@ contract ChipSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
 
     safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
   }
@@ -213,7 +213,7 @@ contract ChipSystem is System {
         })
       );
 
-      mintXP(playerEntityId, initialGas);
+      mintXP(playerEntityId, initialGas, 1);
 
       safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
     } else {
@@ -232,7 +232,7 @@ contract ChipSystem is System {
         })
       );
 
-      mintXP(playerEntityId, initialGas);
+      mintXP(playerEntityId, initialGas, 1);
 
       safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onChipHit, (playerEntityId, entityId)));
     }

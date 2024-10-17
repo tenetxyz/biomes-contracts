@@ -116,7 +116,7 @@ contract MoveSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 10);
   }
 
   function move(

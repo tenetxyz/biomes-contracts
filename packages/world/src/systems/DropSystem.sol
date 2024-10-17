@@ -62,7 +62,7 @@ contract DropSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
   }
 
   function dropTool(bytes32 toolEntityId, VoxelCoord memory coord) public {
@@ -84,6 +84,6 @@ contract DropSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
   }
 }

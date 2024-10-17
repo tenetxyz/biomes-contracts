@@ -3,10 +3,10 @@ pragma solidity >=0.8.24;
 
 import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 
-function mintXP(bytes32 playerEntityId, uint256 initialGas) {
+function mintXP(bytes32 playerEntityId, uint256 initialGas, uint256 multiplier) {
   uint256 gasUsed = initialGas - gasleft();
   uint256 txFeeWei = gasUsed * block.basefee;
-  uint256 xpToMint = txFeeWei / 4200000;
+  uint256 xpToMint = txFeeWei / (4200000 * multiplier);
   uint256 currentXP = ExperiencePoints._get(playerEntityId);
   ExperiencePoints._set(playerEntityId, currentXP + xpToMint);
 }

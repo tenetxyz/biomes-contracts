@@ -53,7 +53,7 @@ contract PickupSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
   }
 
   function pickup(uint8 pickupObjectTypeId, uint16 numToPickup, VoxelCoord memory coord) public {
@@ -75,7 +75,7 @@ contract PickupSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
   }
 
   function pickupTool(bytes32 toolEntityId, VoxelCoord memory coord) public {
@@ -97,7 +97,7 @@ contract PickupSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
   }
 
   function pickupMultiple(
@@ -150,6 +150,6 @@ contract PickupSystem is System {
       );
     }
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
   }
 }

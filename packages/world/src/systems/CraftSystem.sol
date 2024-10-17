@@ -142,6 +142,6 @@ contract CraftSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
   }
 }

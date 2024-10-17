@@ -107,7 +107,7 @@ contract TransferSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
@@ -148,7 +148,7 @@ contract TransferSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(playerEntityId, srcEntityId, dstEntityId, toolObjectTypeId, 1, toolEntityId, extraData);

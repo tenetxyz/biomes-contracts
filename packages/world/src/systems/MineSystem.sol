@@ -80,7 +80,7 @@ contract MineSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas);
+    mintXP(playerEntityId, initialGas, 1);
 
     callInternalSystem(
       abi.encodeCall(
