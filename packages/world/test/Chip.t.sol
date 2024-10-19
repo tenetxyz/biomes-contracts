@@ -43,11 +43,90 @@ import { IChip } from "../src/prototypes/IChip.sol";
 import { IChestChip } from "../src/prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../src/prototypes/IForceFieldChip.sol";
 
-contract TestChip is IChestChip {
-  function onAttached(bytes32 playerEntityId, bytes32 entityId) external {}
+contract TestForceFieldChip is IForceFieldChip {
+  function onAttached(
+    bytes32 playerEntityId,
+    bytes32 entityId,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    return true;
+  }
 
-  function onDetached(bytes32 playerEntityId, bytes32 entityId) external {
-    revert("Test blocking detach");
+  function onDetached(
+    bytes32 playerEntityId,
+    bytes32 entityId,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    return true;
+  }
+
+  function onPowered(bytes32 playerEntityId, bytes32 entityId, uint16 numBattery) external {}
+
+  function onChipHit(bytes32 playerEntityId, bytes32 entityId) external {}
+
+  function onBuild(
+    bytes32 forceFieldEntityId,
+    bytes32 playerEntityId,
+    uint8 objectTypeId,
+    VoxelCoord memory coord,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    address player = ReversePlayer.get(playerEntityId);
+    if (player == 0x70997970C51812dc3A010C7d01b50e0d17dc79C8) {
+      isAllowed = true;
+    }
+
+    if (msg.value > 0) {
+      return true;
+    }
+
+    // else: default is false
+  }
+
+  function onMine(
+    bytes32 forceFieldEntityId,
+    bytes32 playerEntityId,
+    uint8 objectTypeId,
+    VoxelCoord memory coord,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    address player = ReversePlayer.get(playerEntityId);
+    if (player == 0x70997970C51812dc3A010C7d01b50e0d17dc79C8) {
+      isAllowed = true;
+    }
+
+    // else: default is false
+  }
+
+  function onHit(
+    bytes32 forceFieldEntityId,
+    bytes32 playerEntityId,
+    address hitPlayer,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    return true;
+  }
+
+  function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
+    return interfaceId == type(IForceFieldChip).interfaceId || interfaceId == type(IERC165).interfaceId;
+  }
+}
+
+contract TestChestChip is IChestChip {
+  function onAttached(
+    bytes32 playerEntityId,
+    bytes32 entityId,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    return true;
+  }
+
+  function onDetached(
+    bytes32 playerEntityId,
+    bytes32 entityId,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    return false;
   }
 
   function onPowered(bytes32 playerEntityId, bytes32 entityId, uint16 numBattery) external {}
@@ -74,7 +153,8 @@ contract ChipTest is MudTest, GasReporter {
   address payable internal alice;
   address payable internal bob;
   VoxelCoord spawnCoord;
-  TestChip testChip;
+  TestChestChip testChestChip;
+  TestForceFieldChip testForceFieldChip;
 
   function setUp() public override {
     super.setUp();
@@ -84,7 +164,8 @@ contract ChipTest is MudTest, GasReporter {
     alice = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
     bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
-    testChip = new TestChip();
+    testChestChip = new TestChestChip();
+    testForceFieldChip = new TestForceFieldChip();
   }
 
   function setupPlayer() public returns (bytes32) {
@@ -148,10 +229,10 @@ contract ChipTest is MudTest, GasReporter {
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
     startGasReport("attach chip");
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
     endGasReport();
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();
@@ -187,9 +268,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.expectRevert("MineSystem: chip must be detached first");
@@ -243,13 +324,13 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.expectRevert("ChipSystem: chip already attached");
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
     vm.stopPrank();
   }
@@ -321,7 +402,7 @@ contract ChipTest is MudTest, GasReporter {
     assertTrue(Chip.getChipAddress(grassEntityId) == address(0), "Chip set");
 
     vm.expectRevert("ChipSystem: cannot attach a chip to this object");
-    world.attachChip(grassEntityId, address(0));
+    world.attachChip(grassEntityId, address(testChestChip));
 
     vm.stopPrank();
   }
@@ -356,7 +437,7 @@ contract ChipTest is MudTest, GasReporter {
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
     vm.expectRevert("Not enough objects in the inventory");
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
     vm.stopPrank();
   }
@@ -394,7 +475,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
 
     vm.expectRevert("Player does not exist");
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
     vm.stopPrank();
   }
@@ -432,7 +513,7 @@ contract ChipTest is MudTest, GasReporter {
     world.logoffPlayer();
 
     vm.expectRevert("Player isn't logged in");
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
     vm.stopPrank();
   }
@@ -474,7 +555,7 @@ contract ChipTest is MudTest, GasReporter {
     world.move(newCoords);
 
     vm.expectRevert("Player is too far");
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
     vm.stopPrank();
   }
@@ -509,9 +590,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();
@@ -560,9 +641,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();
@@ -571,8 +652,9 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("ChipSystem: battery level is not zero");
     world.detachChip(chestEntityId);
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip not removed");
+    assertTrue(Chip.getBatteryLevel(chestEntityId) > 0, "Battery level not set");
 
     vm.stopPrank();
   }
@@ -607,9 +689,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();
@@ -655,9 +737,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();
@@ -704,9 +786,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();
@@ -793,9 +875,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     uint256 initialBatteryLevel = Chip.getBatteryLevel(chestEntityId);
@@ -853,9 +935,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     uint256 initialBatteryLevel = Chip.getBatteryLevel(chestEntityId);
@@ -898,9 +980,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     uint256 initialBatteryLevel = Chip.getBatteryLevel(chestEntityId);
@@ -944,9 +1026,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     uint256 initialBatteryLevel = Chip.getBatteryLevel(chestEntityId);
@@ -1030,9 +1112,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     uint256 initialBatteryLevel = Chip.getBatteryLevel(chestEntityId);
@@ -1074,9 +1156,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();
@@ -1128,9 +1210,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();
@@ -1196,9 +1278,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();
@@ -1254,9 +1336,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();
@@ -1302,9 +1384,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();
@@ -1353,9 +1435,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();
@@ -1405,9 +1487,9 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChip));
+    world.attachChip(chestEntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     vm.stopPrank();

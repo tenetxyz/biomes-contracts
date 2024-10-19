@@ -2,10 +2,10 @@
 pragma solidity >=0.8.24;
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { IChip } from "./IChip.sol";
+import { IV1Chip } from "./IV1Chip.sol";
 
 // Interface for a force field chip
-interface IForceFieldChip is IChip {
+interface IForceFieldV1Chip is IV1Chip {
   function onBuild(
     bytes32 forceFieldEntityId,
     bytes32 playerEntityId,
@@ -19,13 +19,6 @@ interface IForceFieldChip is IChip {
     bytes32 playerEntityId,
     uint8 objectTypeId,
     VoxelCoord memory coord,
-    bytes memory extraData
-  ) external payable returns (bool isAllowed);
-
-  function onHit(
-    bytes32 forceFieldEntityId,
-    bytes32 playerEntityId,
-    address hitPlayer,
     bytes memory extraData
   ) external payable returns (bool isAllowed);
 }
