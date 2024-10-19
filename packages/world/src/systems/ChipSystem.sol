@@ -148,6 +148,7 @@ contract ChipSystem is System {
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
     ChipData memory chipData = updateChipBatteryLevel(entityId);
+    require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
     removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, numBattery);
 
     uint8 objectTypeId = ObjectType._get(entityId);

@@ -48,10 +48,10 @@ contract MineSystem is System {
     } else {
       mineObjectTypeId = ObjectType._get(entityId);
       ChipData memory chipData = Chip._get(entityId);
-      require(chipData.batteryLevel == 0, "MineSystem: chip battery level is not 0");
-      if (chipData.chipAddress != address(0)) {
-        Chip._deleteRecord(entityId);
-      }
+      require(
+        chipData.chipAddress == address(0) && chipData.batteryLevel == 0,
+        "MineSystem: chip is attached to entity"
+      );
     }
     require(ObjectTypeMetadata._getIsBlock(mineObjectTypeId), "MineSystem: object type is not a block");
     require(mineObjectTypeId != AirObjectID, "MineSystem: cannot mine air");
