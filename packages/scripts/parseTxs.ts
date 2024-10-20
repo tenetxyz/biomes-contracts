@@ -114,13 +114,12 @@ async function main() {
         if (numProcessed % 100 === 0) {
           console.log("Processed", numProcessed, "transactions.");
         }
-
-        if (numProcessed > 1000) {
-          break;
-        }
       }
 
       const totalFee = totalL2Fee + totalL1Fee;
+      console.log("Total L1 Fee:", formatEther(totalL1Fee));
+      console.log("Total L2 Fee:", formatEther(totalL2Fee));
+      console.log("Total Fee:", formatEther(totalFee));
       console.log("Total % L1 Fee:", (Number(totalL1Fee) / Number(totalFee)) * 100);
       console.log("Total % L2 Fee:", (Number(totalL2Fee) / Number(totalFee)) * 100);
 
