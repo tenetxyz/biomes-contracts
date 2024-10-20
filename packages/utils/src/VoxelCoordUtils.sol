@@ -1,8 +1,101 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "./Types.sol";
+import { VoxelCoord, VoxelCoordDirection } from "./Types.sol";
 import { floorDiv } from "./MathUtils.sol";
+
+// Function to get the new VoxelCoord based on the direction
+function transformVoxelCoord(
+  VoxelCoord memory originalCoord,
+  VoxelCoordDirection direction
+) pure returns (VoxelCoord memory) {
+  VoxelCoord memory newCoord = VoxelCoord({ x: originalCoord.x, y: originalCoord.y, z: originalCoord.z });
+
+  // Update newCoord based on the direction
+  if (direction == VoxelCoordDirection.PositiveX) {
+    newCoord.x += 1;
+  } else if (direction == VoxelCoordDirection.NegativeX) {
+    newCoord.x -= 1;
+  } else if (direction == VoxelCoordDirection.PositiveY) {
+    newCoord.y += 1;
+  } else if (direction == VoxelCoordDirection.NegativeY) {
+    newCoord.y -= 1;
+  } else if (direction == VoxelCoordDirection.PositiveZ) {
+    newCoord.z += 1;
+  } else if (direction == VoxelCoordDirection.NegativeZ) {
+    newCoord.z -= 1;
+  } else if (direction == VoxelCoordDirection.PositiveXPositiveY) {
+    newCoord.x += 1;
+    newCoord.y += 1;
+  } else if (direction == VoxelCoordDirection.PositiveXNegativeY) {
+    newCoord.x += 1;
+    newCoord.y -= 1;
+  } else if (direction == VoxelCoordDirection.PositiveXPositiveZ) {
+    newCoord.x += 1;
+    newCoord.z += 1;
+  } else if (direction == VoxelCoordDirection.PositiveXNegativeZ) {
+    newCoord.x += 1;
+    newCoord.z -= 1;
+  } else if (direction == VoxelCoordDirection.NegativeXPositiveY) {
+    newCoord.x -= 1;
+    newCoord.y += 1;
+  } else if (direction == VoxelCoordDirection.NegativeXNegativeY) {
+    newCoord.x -= 1;
+    newCoord.y -= 1;
+  } else if (direction == VoxelCoordDirection.NegativeXPositiveZ) {
+    newCoord.x -= 1;
+    newCoord.z += 1;
+  } else if (direction == VoxelCoordDirection.NegativeXNegativeZ) {
+    newCoord.x -= 1;
+    newCoord.z -= 1;
+  } else if (direction == VoxelCoordDirection.PositiveYPositiveZ) {
+    newCoord.y += 1;
+    newCoord.z += 1;
+  } else if (direction == VoxelCoordDirection.PositiveYNegativeZ) {
+    newCoord.y += 1;
+    newCoord.z -= 1;
+  } else if (direction == VoxelCoordDirection.NegativeYPositiveZ) {
+    newCoord.y -= 1;
+    newCoord.z += 1;
+  } else if (direction == VoxelCoordDirection.NegativeYNegativeZ) {
+    newCoord.y -= 1;
+    newCoord.z -= 1;
+  } else if (direction == VoxelCoordDirection.PositiveXPositiveYPositiveZ) {
+    newCoord.x += 1;
+    newCoord.y += 1;
+    newCoord.z += 1;
+  } else if (direction == VoxelCoordDirection.PositiveXPositiveYNegativeZ) {
+    newCoord.x += 1;
+    newCoord.y += 1;
+    newCoord.z -= 1;
+  } else if (direction == VoxelCoordDirection.PositiveXNegativeYPositiveZ) {
+    newCoord.x += 1;
+    newCoord.y -= 1;
+    newCoord.z += 1;
+  } else if (direction == VoxelCoordDirection.PositiveXNegativeYNegativeZ) {
+    newCoord.x += 1;
+    newCoord.y -= 1;
+    newCoord.z -= 1;
+  } else if (direction == VoxelCoordDirection.NegativeXPositiveYPositiveZ) {
+    newCoord.x -= 1;
+    newCoord.y += 1;
+    newCoord.z += 1;
+  } else if (direction == VoxelCoordDirection.NegativeXPositiveYNegativeZ) {
+    newCoord.x -= 1;
+    newCoord.y += 1;
+    newCoord.z -= 1;
+  } else if (direction == VoxelCoordDirection.NegativeXNegativeYPositiveZ) {
+    newCoord.x -= 1;
+    newCoord.y -= 1;
+    newCoord.z += 1;
+  } else if (direction == VoxelCoordDirection.NegativeXNegativeYNegativeZ) {
+    newCoord.x -= 1;
+    newCoord.y -= 1;
+    newCoord.z -= 1;
+  }
+
+  return newCoord; // Return the updated coordinates
+}
 
 function voxelCoordsAreEqual(VoxelCoord memory c1, VoxelCoord memory c2) pure returns (bool) {
   return c1.x == c2.x && c1.y == c2.y && c1.z == c2.z;

@@ -2461,6 +2461,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "move",
+    "inputs": [
+      {
+        "name": "directions",
+        "type": "uint8[]",
+        "internalType": "enum VoxelCoordDirection[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "pickup",
     "inputs": [
       {

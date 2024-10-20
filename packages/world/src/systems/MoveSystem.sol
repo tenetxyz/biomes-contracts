@@ -2,8 +2,8 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { inSurroundingCube, voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { VoxelCoord, VoxelCoordDirection } from "@biomesaw/utils/src/Types.sol";
+import { inSurroundingCube, voxelCoordsAreEqual, transformVoxelCoord } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -23,9 +23,28 @@ import { mintXP } from "../utils/XPUtils.sol";
 
 contract MoveSystem is System {
   function move(VoxelCoord[] memory newCoords) public {
-    uint256 initialGas = gasleft();
+    // uint256 initialGas = gasleft();
+    // (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    // moveCommon(initialGas, playerEntityId, playerCoord, newCoords);
+  }
 
+  function move(VoxelCoordDirection[] memory directions) public {
+    uint256 initialGas = gasleft();
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    VoxelCoord[] memory newCoords = new VoxelCoord[](directions.length);
+    VoxelCoord memory newCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
+    for (uint256 i = 0; i < directions.length; i++) {
+      newCoords[i] = transformVoxelCoord(i == 0 ? playerCoord : newCoords[i - 1], directions[i]);
+    }
+    moveCommon(initialGas, playerEntityId, playerCoord, newCoords);
+  }
+
+  function moveCommon(
+    uint256 initialGas,
+    bytes32 playerEntityId,
+    VoxelCoord memory playerCoord,
+    VoxelCoord[] memory newCoords
+  ) internal {
     // no-ops
     if (newCoords.length == 0) {
       return;
