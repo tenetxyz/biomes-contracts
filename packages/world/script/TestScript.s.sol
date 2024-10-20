@@ -62,6 +62,15 @@ contract TestScript is Script {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, SandObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, StoneObjectID, 99);
 
+    bytes32 newInventoryEntityId = testGetUniqueEntity();
+    ObjectType.set(newInventoryEntityId, NeptuniumPickObjectID);
+    InventoryTool.set(newInventoryEntityId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryEntityId);
+    uint24 durability = ObjectTypeMetadata.getDurability(NeptuniumPickObjectID);
+    require(durability > 0, "Durability must be greater than 0");
+    ItemMetadata.set(newInventoryEntityId, durability);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, NeptuniumPickObjectID, 1);
+
     // Destroy equipped item
     // bytes32 inventoryEntityId = 0x000000000000000000000000000000000000000000000000000000000004bbb3;
     // testRemoveFromInventoryCount(playerEntityId, NeptuniumPickObjectID, 1);
