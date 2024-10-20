@@ -1983,6 +1983,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "hitForceField",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "initDyedObjectTypes",
     "inputs": [],
     "outputs": [],

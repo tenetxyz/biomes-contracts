@@ -1499,9 +1499,6 @@ contract ChipTest is MudTest, GasReporter {
 
     bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
 
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
-
-    vm.expectRevert("ChipSystem: chip has no battery");
     world.hitChip(forceFieldEntityId);
 
     vm.stopPrank();
