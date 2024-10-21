@@ -1986,9 +1986,26 @@ declare const abi: [
     "name": "hitForceField",
     "inputs": [
       {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
+        "name": "entityCoord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
       }
     ],
     "outputs": [],

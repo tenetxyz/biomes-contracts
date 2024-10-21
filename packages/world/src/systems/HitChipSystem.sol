@@ -93,11 +93,11 @@ contract HitChipSystem is System {
     hitChipCommon(initialGas, playerEntityId, entityId, entityCoord);
   }
 
-  function hitForceField(bytes32 entityId) public {
+  function hitForceField(VoxelCoord memory entityCoord) public {
     uint256 initialGas = gasleft();
 
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
+    requireInPlayerInfluence(playerCoord, entityCoord);
     bytes32 forceFieldEntityId = getForceField(entityCoord);
     require(forceFieldEntityId != bytes32(0), "ChipSystem: no force field at this location");
     VoxelCoord memory forceFieldCoord = positionDataToVoxelCoord(Position._get(forceFieldEntityId));
