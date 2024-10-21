@@ -22,10 +22,11 @@ interface IForceFieldChip is IChip {
     bytes memory extraData
   ) external payable returns (bool isAllowed);
 
-  function onHit(
-    bytes32 forceFieldEntityId,
-    bytes32 playerEntityId,
-    address hitPlayer,
-    bytes memory extraData
-  ) external payable returns (bool isAllowed);
+  // TODO: decide if we want force fields to control hits or not
+  // function onHit(
+  //   bytes32 forceFieldEntityId,
+  //   bytes32 playerEntityId,
+  //   address hitPlayer,
+  //   bytes memory extraData
+  // ) external payable returns (bool isAllowed);
 }

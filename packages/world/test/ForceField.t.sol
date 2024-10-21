@@ -98,15 +98,6 @@ contract TestForceFieldChip is IForceFieldChip {
     // else: default is false
   }
 
-  function onHit(
-    bytes32 forceFieldEntityId,
-    bytes32 playerEntityId,
-    address hitPlayer,
-    bytes memory extraData
-  ) external payable returns (bool isAllowed) {
-    return true;
-  }
-
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
     return interfaceId == type(IForceFieldChip).interfaceId || interfaceId == type(IERC165).interfaceId;
   }
