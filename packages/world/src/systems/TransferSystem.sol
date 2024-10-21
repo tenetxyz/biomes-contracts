@@ -18,6 +18,7 @@ import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { mintXP } from "../utils/XPUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
 
 import { IChestChip } from "../prototypes/IChestChip.sol";
 
@@ -52,6 +53,7 @@ contract TransferSystem is System {
   }
 
   function requireAllowed(
+    bytes32 forceFieldEntityId,
     bytes32 playerEntityId,
     bytes32 srcEntityId,
     bytes32 dstEntityId,
@@ -61,13 +63,16 @@ contract TransferSystem is System {
     bytes memory extraData
   ) internal {
     bytes32 chestEntityId = playerEntityId == srcEntityId ? dstEntityId : srcEntityId;
-    address chipAddress = Chip._getChipAddress(chestEntityId);
-    if (chipAddress != address(0)) {
-      updateChipBatteryLevel(chestEntityId);
-
+    ChipData memory chipData = updateChipBatteryLevel(chestEntityId);
+    uint256 batteryLevel = chipData.batteryLevel;
+    if (forceFieldEntityId != bytes32(0)) {
+      ChipData memory forceFieldChipData = updateChipBatteryLevel(forceFieldEntityId);
+      batteryLevel += forceFieldChipData.batteryLevel;
+    }
+    if (chipData.chipAddress != address(0) && batteryLevel > 0) {
       // Forward any ether sent with the transaction to the hook
       // Don't safe call here as we want to revert if the chip doesn't allow the transfer
-      bool transferAllowed = IChestChip(chipAddress).onTransfer{ value: _msgValue() }(
+      bool transferAllowed = IChestChip(chipData.chipAddress).onTransfer{ value: _msgValue() }(
         srcEntityId,
         dstEntityId,
         transferObjectTypeId,
@@ -111,6 +116,7 @@ contract TransferSystem is System {
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
+      getForceField(chestCoord),
       playerEntityId,
       srcEntityId,
       dstEntityId,
@@ -151,7 +157,16 @@ contract TransferSystem is System {
     mintXP(playerEntityId, initialGas, 1);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    requireAllowed(playerEntityId, srcEntityId, dstEntityId, toolObjectTypeId, 1, toolEntityId, extraData);
+    requireAllowed(
+      getForceField(chestCoord),
+      playerEntityId,
+      srcEntityId,
+      dstEntityId,
+      toolObjectTypeId,
+      1,
+      toolEntityId,
+      extraData
+    );
   }
 
   function transfer(

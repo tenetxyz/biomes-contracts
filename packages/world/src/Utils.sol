@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem, staticCallInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
 import { Position, PositionData } from "./codegen/tables/Position.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
@@ -88,4 +89,20 @@ function getUniqueEntity() returns (bytes32) {
   UniqueEntity._set(uniqueEntity);
 
   return bytes32(uniqueEntity);
+}
+
+// Safe as in do not block the chip tx
+function safeCallChip(address chipAddress, bytes memory callData) {
+  if (chipAddress == address(0)) {
+    return;
+  }
+  (bool success, ) = chipAddress.call{ value: WorldContextConsumerLib._msgValue() }(callData);
+  if (!success) {
+    // Note: we want the TX to revert if the chip call runs out of gas, but because
+    // this is the last call in the function, we need to consume some dummy gas for it to revert
+    // See: https://github.com/dhvanipa/evm-outofgas-call
+    for (uint256 i = 0; i < 1000; i++) {
+      continue;
+    }
+  }
 }

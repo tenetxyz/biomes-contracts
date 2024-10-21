@@ -21,6 +21,7 @@ import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol
 import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { mintXP } from "../utils/XPUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
@@ -47,8 +48,11 @@ contract MineSystem is System {
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
     } else {
       mineObjectTypeId = ObjectType._get(entityId);
-
-      require(Chip._getChipAddress(entityId) == address(0), "MineSystem: chip must be detached first");
+      ChipData memory chipData = updateChipBatteryLevel(entityId);
+      require(
+        chipData.chipAddress == address(0) && chipData.batteryLevel == 0,
+        "MineSystem: chip is attached to entity"
+      );
     }
     require(ObjectTypeMetadata._getIsBlock(mineObjectTypeId), "MineSystem: object type is not a block");
     require(mineObjectTypeId != AirObjectID, "MineSystem: cannot mine air");
@@ -59,10 +63,18 @@ contract MineSystem is System {
     if (equippedEntityId != bytes32(0)) {
       equippedToolDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
     }
+    {
+      uint256 miningDifficulty = uint256(ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId));
+      uint32 currentStamina = Stamina._getStamina(playerEntityId);
+      uint256 staminaRequired = (miningDifficulty * 1000) / (equippedToolDamage);
+      require(staminaRequired <= MAX_PLAYER_STAMINA, "MineSystem: mining difficulty too high. Try a stronger tool.");
+      uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
+      require(currentStamina >= useStamina, "MineSystem: not enough stamina");
+      uint32 newStamina = currentStamina - useStamina;
+      Stamina._setStamina(playerEntityId, newStamina);
 
-    // Note: stamina is spent in the ForceFieldSystem.requireMineAllowed call
-
-    useEquipped(playerEntityId, equippedEntityId);
+      useEquipped(playerEntityId, equippedEntityId);
+    }
 
     ObjectType._set(entityId, AirObjectID);
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);

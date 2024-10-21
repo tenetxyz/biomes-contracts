@@ -11,6 +11,7 @@ import { IChipSystem } from "./IChipSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
+import { IHitChipSystem } from "./IHitChipSystem.sol";
 import { IHitSystem } from "./IHitSystem.sol";
 import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
@@ -54,6 +55,7 @@ interface IWorld is
   ICraftSystem,
   IDropSystem,
   IEquipSystem,
+  IHitChipSystem,
   IHitSystem,
   ILoginSystem,
   ILogoffSystem,

@@ -17,35 +17,43 @@ import { PLAYER_HAND_DAMAGE, HIT_CHIP_STAMINA_COST, TIME_BEFORE_DECREASE_BATTERY
 import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, ChestObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { canAttachChip } from "../utils/ObjectTypeUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { mintXP } from "../utils/XPUtils.sol";
+import { safeCallChip } from "../Utils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
 contract ChipSystem is System {
-  function attachChip(bytes32 entityId, address chipAddress) public {
+  function attachChip(bytes32 entityId, address chipAddress, bytes memory extraData) public payable {
     uint256 initialGas = gasleft();
 
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
     uint8 objectTypeId = ObjectType._get(entityId);
-    require(canAttachChip(objectTypeId), "ChipSystem: cannot attach a chip to this object");
-    require(Chip._getChipAddress(entityId) == address(0), "ChipSystem: chip already attached");
-
+    ChipData memory chipData = updateChipBatteryLevel(entityId);
+    require(chipData.chipAddress == address(0), "ChipSystem: chip already attached");
     require(chipAddress != address(0), "ChipSystem: invalid chip address");
-    require(
-      ERC165Checker.supportsInterface(chipAddress, type(IChestChip).interfaceId) ||
+
+    if (objectTypeId == ChestObjectID) {
+      require(
+        ERC165Checker.supportsInterface(chipAddress, type(IChestChip).interfaceId),
+        "ChipSystem: chip does not implement the required interface"
+      );
+    } else if (objectTypeId == ForceFieldObjectID) {
+      require(
         ERC165Checker.supportsInterface(chipAddress, type(IForceFieldChip).interfaceId),
-      "ChipSystem: chip does not implement the required interface"
-    );
+        "ChipSystem: chip does not implement the required interface"
+      );
+    } else {
+      revert("ChipSystem: cannot attach a chip to this object");
+    }
 
     removeFromInventoryCount(playerEntityId, ChipObjectID, 1);
 
-    Chip._set(entityId, ChipData({ chipAddress: chipAddress, batteryLevel: 0, lastUpdatedTime: block.timestamp }));
+    Chip._setChipAddress(entityId, chipAddress);
 
     PlayerActionNotif._set(
       playerEntityId,
@@ -63,37 +71,28 @@ contract ChipSystem is System {
     mintXP(playerEntityId, initialGas, 1);
 
     // Don't safe call here because we want to revert if the chip doesn't allow the attachment
-    IChip(chipAddress).onAttached(playerEntityId, entityId);
+    bool isAllowed = IChip(chipAddress).onAttached{ value: _msgValue() }(playerEntityId, entityId, extraData);
+    require(isAllowed, "ChipSystem: chip does not allow attachment");
   }
 
-  // Safe as in do not block the chip tx
-  function safeCallChip(address chipAddress, bytes memory callData) internal {
-    (bool success, ) = chipAddress.call(callData);
-    if (!success) {
-      // Note: we want the TX to revert if the chip call runs out of gas, but because
-      // this is the last call in the function, we need to consume some dummy gas for it to revert
-      // See: https://github.com/dhvanipa/evm-outofgas-call
-      for (uint256 i = 0; i < 1000; i++) {
-        continue;
-      }
-    }
+  function attachChip(bytes32 entityId, address chipAddress) public {
+    attachChip(entityId, chipAddress, new bytes(0));
   }
 
-  function detachChip(bytes32 entityId) public {
+  function detachChip(bytes32 entityId, bytes memory extraData) public payable {
     uint256 initialGas = gasleft();
 
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
     ChipData memory chipData = updateChipBatteryLevel(entityId);
-    require(chipData.batteryLevel == 0, "ChipSystem: battery level is not zero");
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 
     uint8 objectTypeId = ObjectType._get(entityId);
 
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
-    Chip._deleteRecord(entityId);
+    Chip._setChipAddress(entityId, address(0));
 
     PlayerActionNotif._set(
       playerEntityId,
@@ -110,7 +109,21 @@ contract ChipSystem is System {
 
     mintXP(playerEntityId, initialGas, 1);
 
-    safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
+    if (chipData.batteryLevel > 0) {
+      // Don't safe call here because we want to revert if the chip doesn't allow the detachment
+      bool isAllowed = IChip(chipData.chipAddress).onDetached{ value: _msgValue() }(
+        playerEntityId,
+        entityId,
+        extraData
+      );
+      require(isAllowed, "ChipSystem: chip does not allow detachment");
+    } else {
+      safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, entityId, extraData)));
+    }
+  }
+
+  function detachChip(bytes32 entityId) public {
+    detachChip(entityId, new bytes(0));
   }
 
   function powerChip(bytes32 entityId, uint16 numBattery) public {
@@ -121,11 +134,11 @@ contract ChipSystem is System {
 
     ChipData memory chipData = updateChipBatteryLevel(entityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
-
     removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, numBattery);
 
     uint8 objectTypeId = ObjectType._get(entityId);
     uint256 increasePerBattery = 0;
+    require(objectTypeId == ForceFieldObjectID, "ChipSystem: cannot power this object");
     if (objectTypeId == ForceFieldObjectID) {
       // 1 battery adds 2 days of charge
       increasePerBattery = 2 days;
@@ -156,85 +169,5 @@ contract ChipSystem is System {
     mintXP(playerEntityId, initialGas, 1);
 
     safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
-  }
-
-  function hitChip(bytes32 entityId) public {
-    uint256 initialGas = gasleft();
-
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
-
-    ChipData memory chipData = updateChipBatteryLevel(entityId);
-    require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
-
-    uint8 objectTypeId = ObjectType._get(entityId);
-    uint256 decreaseBatteryLevel = 0;
-    if (chipData.batteryLevel > 0) {
-      uint32 currentStamina = Stamina._getStamina(playerEntityId);
-      uint16 staminaRequired = HIT_CHIP_STAMINA_COST;
-      require(currentStamina >= staminaRequired, "ChipSystem: player does not have enough stamina");
-      Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
-
-      uint16 receiverDamage = PLAYER_HAND_DAMAGE;
-      bytes32 equippedEntityId = Equipped._get(playerEntityId);
-      if (equippedEntityId != bytes32(0)) {
-        receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
-      }
-      if (objectTypeId == ForceFieldObjectID) {
-        decreaseBatteryLevel = (72 * uint256(receiverDamage) * 60) / 120;
-      } else if (objectTypeId == ChestObjectID) {
-        decreaseBatteryLevel = (252 * uint256(receiverDamage) * 60) / 120;
-      } else {
-        revert("ChipSystem: cannot hit this object");
-      }
-
-      useEquipped(playerEntityId, equippedEntityId);
-    }
-
-    uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel
-      ? chipData.batteryLevel - decreaseBatteryLevel
-      : 0;
-
-    if (newBatteryLevel == 0) {
-      addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
-
-      Chip._deleteRecord(entityId);
-
-      PlayerActionNotif._set(
-        playerEntityId,
-        PlayerActionNotifData({
-          actionType: ActionType.DetachChip,
-          entityId: entityId,
-          objectTypeId: objectTypeId,
-          coordX: entityCoord.x,
-          coordY: entityCoord.y,
-          coordZ: entityCoord.z,
-          amount: 1
-        })
-      );
-
-      mintXP(playerEntityId, initialGas, 1);
-
-      safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, entityId)));
-    } else {
-      Chip._setBatteryLevel(entityId, newBatteryLevel);
-
-      PlayerActionNotif._set(
-        playerEntityId,
-        PlayerActionNotifData({
-          actionType: ActionType.HitChip,
-          entityId: entityId,
-          objectTypeId: objectTypeId,
-          coordX: entityCoord.x,
-          coordY: entityCoord.y,
-          coordZ: entityCoord.z,
-          amount: newBatteryLevel
-        })
-      );
-
-      mintXP(playerEntityId, initialGas, 1);
-
-      safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onChipHit, (playerEntityId, entityId)));
-    }
   }
 }

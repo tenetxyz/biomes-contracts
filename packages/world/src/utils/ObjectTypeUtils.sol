@@ -181,7 +181,3 @@ function isStone(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == QuartziteObjectID ||
     objectTypeId == LimestoneObjectID;
 }
-
-function canAttachChip(uint8 objectTypeId) pure returns (bool) {
-  return objectTypeId == ChestObjectID || objectTypeId == ForceFieldObjectID;
-}

@@ -31,30 +31,16 @@ contract ForceFieldSystem is System {
     }
 
     if (forceFieldEntityId != bytes32(0)) {
-      address chipAddress = Chip._getChipAddress(forceFieldEntityId);
-      if (chipAddress != address(0)) {
-        updateChipBatteryLevel(forceFieldEntityId);
-
-        // Forward any ether sent with the transaction to the hook
-        // Safe call here since builds should not be blockable by the chip
-        (bool success, bytes memory onBuildReturnValue) = chipAddress.call{ value: _msgValue() }(
-          abi.encodeCall(IForceFieldChip.onBuild, (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData))
+      ChipData memory chipData = updateChipBatteryLevel(forceFieldEntityId);
+      if (chipData.chipAddress != address(0) && chipData.batteryLevel > 0) {
+        bool buildAllowed = IForceFieldChip(chipData.chipAddress).onBuild{ value: _msgValue() }(
+          forceFieldEntityId,
+          playerEntityId,
+          objectTypeId,
+          coord,
+          extraData
         );
-        bool buildAllowed = success && abi.decode(onBuildReturnValue, (bool));
-        if (!buildAllowed) {
-          // Apply an additional stamina cost for mining inside of a force field
-          uint256 currentChargeLevel = Chip._getBatteryLevel(forceFieldEntityId);
-          uint32 staminaRequired = 0;
-          if (currentChargeLevel < 2 days) {
-            staminaRequired = 30_000;
-          } else {
-            staminaRequired = 60_000;
-          }
-          uint32 currentStamina = Stamina._getStamina(playerEntityId);
-          require(currentStamina >= staminaRequired, "BuildSystem: not enough stamina");
-          uint32 newStamina = currentStamina - staminaRequired;
-          Stamina._setStamina(playerEntityId, newStamina);
-        }
+        require(buildAllowed, "ForceFieldSystem: build not allowed by force field");
       }
     }
   }
@@ -68,55 +54,18 @@ contract ForceFieldSystem is System {
     bytes memory extraData
   ) public payable {
     bytes32 forceFieldEntityId = getForceField(coord);
-    uint256 forceFieldStaminaMultiplier = 10;
-    uint256 miningDifficulty = uint256(ObjectTypeMetadata._getMiningDifficulty(objectTypeId));
     if (forceFieldEntityId != bytes32(0)) {
-      address chipAddress = Chip._getChipAddress(forceFieldEntityId);
-      if (chipAddress != address(0)) {
-        updateChipBatteryLevel(forceFieldEntityId);
-
-        // Forward any ether sent with the transaction to the hook
-        // Safe call here since mines should not be blockable by the chip
-        (bool success, bytes memory onMineReturnValue) = chipAddress.call{ value: _msgValue() }(
-          abi.encodeCall(IForceFieldChip.onMine, (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData))
+      ChipData memory chipData = updateChipBatteryLevel(forceFieldEntityId);
+      if (chipData.chipAddress != address(0) && chipData.batteryLevel > 0) {
+        bool mineAllowed = IForceFieldChip(chipData.chipAddress).onMine{ value: _msgValue() }(
+          forceFieldEntityId,
+          playerEntityId,
+          objectTypeId,
+          coord,
+          extraData
         );
-        bool mineAllowed = success && abi.decode(onMineReturnValue, (bool));
-        if (!mineAllowed) {
-          // Apply an additional stamina cost for mining inside of a force field
-          uint256 currentChargeLevel = Chip._getBatteryLevel(forceFieldEntityId);
-          if (currentChargeLevel < 2 days) {
-            if (miningDifficulty < 100) {
-              forceFieldStaminaMultiplier = 2000;
-            } else if (miningDifficulty >= 100 && miningDifficulty < 1000) {
-              forceFieldStaminaMultiplier = 680;
-            } else if (miningDifficulty >= 1000 && miningDifficulty <= 4000) {
-              forceFieldStaminaMultiplier = 140;
-            } else {
-              forceFieldStaminaMultiplier = 13;
-            }
-          } else {
-            if (miningDifficulty < 100) {
-              forceFieldStaminaMultiplier = 9000;
-            } else if (miningDifficulty >= 100 && miningDifficulty < 1000) {
-              forceFieldStaminaMultiplier = 1060;
-            } else if (miningDifficulty >= 1000 && miningDifficulty <= 4000) {
-              forceFieldStaminaMultiplier = 230;
-            } else {
-              forceFieldStaminaMultiplier = 17;
-            }
-          }
-        }
+        require(mineAllowed, "ForceFieldSystem: mine not allowed by force field");
       }
-    }
-
-    {
-      uint32 currentStamina = Stamina._getStamina(playerEntityId);
-      uint256 staminaRequired = (forceFieldStaminaMultiplier * miningDifficulty * 1000) / (equippedToolDamage * 10);
-      require(staminaRequired <= MAX_PLAYER_STAMINA, "MineSystem: mining difficulty too high. Try a stronger tool.");
-      uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
-      require(currentStamina >= useStamina, "MineSystem: not enough stamina");
-      uint32 newStamina = currentStamina - useStamina;
-      Stamina._setStamina(playerEntityId, newStamina);
     }
 
     if (objectTypeId == ForceFieldObjectID) {
