@@ -15,6 +15,7 @@ import { Chip, ChipData } from "../../codegen/tables/Chip.sol";
 
 import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../../Utils.sol";
 import { PlayerObjectID, WaterObjectID, ChestObjectID, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
+import { updateChipBatteryLevel } from "../../utils/ChipUtils.sol";
 
 contract AdminSpawnSystem is System {
   function setObjectAtCoord(uint8 objectTypeId, VoxelCoord memory coord) public {
@@ -33,7 +34,11 @@ contract AdminSpawnSystem is System {
         InventoryObjects._lengthObjectTypeIds(entityId) == 0,
         "AdminTerrainSystem: Cannot build where there are dropped objects"
       );
-      require(Chip._getChipAddress(entityId) == address(0), "AdminTerrainSystem: chip must be detached first");
+      ChipData memory chipData = updateChipBatteryLevel(entityId);
+      require(
+        chipData.chipAddress == address(0) && chipData.batteryLevel == 0,
+        "AdminTerrainSystem: chip is attached to entity"
+      );
       require(
         currentObjectTypeId != PlayerObjectID &&
           currentObjectTypeId != ChestObjectID &&

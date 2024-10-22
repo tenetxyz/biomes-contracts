@@ -43,10 +43,22 @@ import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
 
 import { IForceFieldChip } from "../src/prototypes/IForceFieldChip.sol";
 
-contract TestChip is IForceFieldChip {
-  function onAttached(bytes32 playerEntityId, bytes32 entityId) external {}
+contract TestForceFieldChip is IForceFieldChip {
+  function onAttached(
+    bytes32 playerEntityId,
+    bytes32 entityId,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    return true;
+  }
 
-  function onDetached(bytes32 playerEntityId, bytes32 entityId) external {}
+  function onDetached(
+    bytes32 playerEntityId,
+    bytes32 entityId,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    return true;
+  }
 
   function onPowered(bytes32 playerEntityId, bytes32 entityId, uint16 numBattery) external {}
 
@@ -97,7 +109,7 @@ contract ForceFieldTest is MudTest, GasReporter {
   address payable internal alice;
   address payable internal bob;
   VoxelCoord spawnCoord;
-  TestChip testChip;
+  TestForceFieldChip testForceFieldChip;
 
   function setUp() public override {
     super.setUp();
@@ -107,7 +119,7 @@ contract ForceFieldTest is MudTest, GasReporter {
     alice = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
     bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
-    testChip = new TestChip();
+    testForceFieldChip = new TestForceFieldChip();
   }
 
   function setupPlayer() public returns (bytes32) {
@@ -279,14 +291,14 @@ contract ForceFieldTest is MudTest, GasReporter {
     bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
     assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testChip));
+    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
     world.powerChip(forceFieldEntityId, 1);
 
     vm.warp(block.timestamp + TIME_BEFORE_DECREASE_BATTERY_LEVEL + 1);
 
     world.activate(playerEntityId);
 
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(testChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(testForceFieldChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     // Try building with allowed player
@@ -319,24 +331,24 @@ contract ForceFieldTest is MudTest, GasReporter {
     VoxelCoord memory buildCoord2 = VoxelCoord(forceFieldCoord.x, forceFieldCoord.y, forceFieldCoord.z - 3);
     assertTrue(getForceField(buildCoord2) == forceFieldEntityId, "Force field not found");
     assertTrue(world.getTerrainBlock(buildCoord2) == AirObjectID, "Terrain block is not air");
-    uint32 stamina2Before = Stamina.getStamina(playerEntityId2);
-    world.build(GrassObjectID, buildCoord2);
-    uint32 buildStamina2Spent = stamina2Before - Stamina.getStamina(playerEntityId2);
-    assertTrue(buildStamina2Spent > buildStaminaSpent, "Stamina not spent");
 
-    stamina2Before = Stamina.getStamina(playerEntityId2);
+    vm.expectRevert("ForceFieldSystem: build not allowed by force field");
+    world.build(GrassObjectID, buildCoord2);
+
     buildEntityId = world.build{ value: 1000 }(GrassObjectID, buildCoord);
     assertTrue(ObjectType.get(buildEntityId) == GrassObjectID, "Object not built");
-    uint32 buildStamina3Spent = stamina2Before - Stamina.getStamina(playerEntityId2);
-    assertTrue(buildStamina3Spent == buildStaminaSpent, "Stamina spent");
 
-    stamina2Before = Stamina.getStamina(playerEntityId2);
+    vm.expectRevert("ForceFieldSystem: mine not allowed by force field");
     world.mine(buildCoord);
-    uint32 mineStamina2Spent = stamina2Before - Stamina.getStamina(playerEntityId2);
-    assertTrue(ObjectType.get(buildEntityId) == AirObjectID, "Object not built");
 
-    // It should cost more stamina to non-authorized players
-    assertTrue(mineStamina2Spent > mineStaminaSpent, "Stamina not spent");
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+    Chip.setBatteryLevel(forceFieldEntityId, 0);
+    vm.stopPrank();
+    vm.startPrank(bob, bob);
+
+    world.mine(buildCoord);
+    assertTrue(ObjectType.get(buildEntityId) == AirObjectID, "Object not built");
 
     vm.stopPrank();
     vm.startPrank(worldDeployer, worldDeployer);
@@ -346,6 +358,7 @@ contract ForceFieldTest is MudTest, GasReporter {
 
     // Mine force field object
     world.hitChip(forceFieldEntityId);
+    world.detachChip(forceFieldEntityId);
     world.mine(forceFieldCoord);
     assertTrue(getForceField(forceFieldCoord) == bytes32(0), "Force field still exists");
 
