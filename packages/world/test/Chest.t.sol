@@ -131,7 +131,7 @@ contract TestChestChip is IChestChip {
     bytes32 dstEntityId,
     uint8 transferObjectTypeId,
     uint16 numToTransfer,
-    bytes32 toolEntityId,
+    bytes32[] memory toolEntityIds,
     bytes memory extraData
   ) external payable returns (bool isAllowed) {
     bool isDeposit = ObjectType.get(IStore(msg.sender), srcEntityId) == PlayerObjectID;
