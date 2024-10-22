@@ -1180,6 +1180,70 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testHitForceField() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 airEntityId = testGetUniqueEntity();
+    ObjectType.set(airEntityId, AirObjectID);
+    Position.set(airEntityId, forceFieldCoord.x, forceFieldCoord.y, forceFieldCoord.z);
+    ReversePosition.set(forceFieldCoord.x, forceFieldCoord.y, forceFieldCoord.z, airEntityId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+
+    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+
+    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+
+    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(testForceFieldChip), "Chip not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+    Chip.setBatteryLevel(forceFieldEntityId, 100);
+    Chip.setLastUpdatedTime(forceFieldEntityId, block.timestamp);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint256 initialBatteryLevel = Chip.getBatteryLevel(forceFieldEntityId);
+    uint32 playerStaminaBefore = Stamina.getStamina(playerEntityId);
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](uint(int(MAX_PLAYER_INFLUENCE_HALF_WIDTH)) + 1);
+    for (int16 i = 0; i < MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1; i++) {
+      newCoords[uint(int(i))] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + i + 1);
+    }
+    world.move(newCoords);
+
+    vm.expectRevert("ChipSystem: no force field at this location");
+    world.hitForceField(newCoords[newCoords.length - 1]);
+
+    startGasReport("hit force field");
+    world.hitForceField(VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + 1));
+    endGasReport();
+
+    assertTrue(Chip.getBatteryLevel(forceFieldEntityId) < initialBatteryLevel, "Battery level not decreased");
+    assertTrue(Stamina.getStamina(playerEntityId) < playerStaminaBefore, "Player stamina did not decrease");
+
+    vm.stopPrank();
+  }
+
   function testHitChipWithEquipped() public {
     vm.startPrank(alice, alice);
 
