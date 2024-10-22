@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+
 enum Biome {
   Mountains,
   Desert,
@@ -23,6 +25,7 @@ struct EntityData {
   uint8 objectTypeId;
   bytes32 entityId;
   InventoryObject[] inventory;
+  VoxelCoord position;
 }
 
 struct PickupData {

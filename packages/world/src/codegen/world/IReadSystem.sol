@@ -34,6 +34,8 @@ interface IReadSystem {
 
   function getEntityIdAtCoord(VoxelCoord memory coord) external view returns (bytes32);
 
+  function getEntityData(bytes32 entityId) external view returns (EntityData memory);
+
   function getEntityDataAtCoord(VoxelCoord memory coord) external view returns (EntityData memory);
 
   function getMultipleEntityDataAtCoord(VoxelCoord[] memory coord) external view returns (EntityData[] memory);
@@ -47,4 +49,8 @@ interface IReadSystem {
   function getInventory(address player) external view returns (InventoryObject[] memory);
 
   function getInventory(bytes32 entityId) external view returns (InventoryObject[] memory);
+
+  function getCoordForEntityId(bytes32 entityId) external view returns (VoxelCoord memory);
+
+  function getPlayerCoord(address player) external view returns (VoxelCoord memory);
 }

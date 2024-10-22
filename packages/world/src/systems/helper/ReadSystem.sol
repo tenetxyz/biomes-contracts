@@ -8,7 +8,9 @@ import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/User
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
+import { Position } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
+import { LastKnownPosition } from "../../codegen/tables/LastKnownPosition.sol";
 import { Player } from "../../codegen/tables/Player.sol";
 import { Health, HealthData } from "../../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../../codegen/tables/Stamina.sol";
@@ -20,8 +22,8 @@ import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
 import { ReverseInventoryTool } from "../../codegen/tables/ReverseInventoryTool.sol";
 import { ItemMetadata } from "../../codegen/tables/ItemMetadata.sol";
 
-import { getTerrainObjectTypeId } from "../../Utils.sol";
-import { NullObjectTypeId } from "../../ObjectTypeIds.sol";
+import { getTerrainObjectTypeId, lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
+import { NullObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { InventoryObject, InventoryTool, EntityData } from "../../Types.sol";
 
 // Public getters so clients can read the world state more easily
@@ -69,6 +71,26 @@ contract ReadSystem is System {
     return ReversePosition._get(coord.x, coord.y, coord.z);
   }
 
+  function getEntityData(bytes32 entityId) public view returns (EntityData memory) {
+    if (entityId == bytes32(0)) {
+      return
+        EntityData({
+          objectTypeId: NullObjectTypeId,
+          entityId: bytes32(0),
+          inventory: new InventoryObject[](0),
+          position: VoxelCoord(0, 0, 0)
+        });
+    }
+
+    return
+      EntityData({
+        objectTypeId: ObjectType._get(entityId),
+        entityId: entityId,
+        inventory: getInventory(entityId),
+        position: getCoordForEntityId(entityId)
+      });
+  }
+
   function getEntityDataAtCoord(VoxelCoord memory coord) public view returns (EntityData memory) {
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
@@ -76,11 +98,17 @@ contract ReadSystem is System {
         EntityData({
           objectTypeId: getTerrainObjectTypeId(coord),
           entityId: bytes32(0),
-          inventory: new InventoryObject[](0)
+          inventory: new InventoryObject[](0),
+          position: coord
         });
     }
     return
-      EntityData({ objectTypeId: ObjectType._get(entityId), entityId: entityId, inventory: getInventory(entityId) });
+      EntityData({
+        objectTypeId: ObjectType._get(entityId),
+        entityId: entityId,
+        inventory: getInventory(entityId),
+        position: coord
+      });
   }
 
   function getMultipleEntityDataAtCoord(VoxelCoord[] memory coord) public view returns (EntityData[] memory) {
@@ -149,5 +177,20 @@ contract ReadSystem is System {
       inventoryObjects[i] = InventoryObject({ objectTypeId: objectTypeId, numObjects: count, tools: inventoryTools });
     }
     return inventoryObjects;
+  }
+
+  function getCoordForEntityId(bytes32 entityId) public view returns (VoxelCoord memory) {
+    uint8 objectTypeId = ObjectType._get(entityId);
+    if (objectTypeId == PlayerObjectID && PlayerMetadata._getIsLoggedOff(entityId)) {
+      return lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(entityId));
+    } else {
+      return positionDataToVoxelCoord(Position._get(entityId));
+    }
+  }
+
+  function getPlayerCoord(address player) public view returns (VoxelCoord memory) {
+    bytes32 playerEntityId = Player._get(player);
+    require(playerEntityId != bytes32(0), "ReadSystem: player not found");
+    return getCoordForEntityId(playerEntityId);
   }
 }
