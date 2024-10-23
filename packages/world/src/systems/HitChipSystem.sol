@@ -86,7 +86,7 @@ contract HitChipSystem is System {
     safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onChipHit, (playerEntityId, chipEntityId)));
   }
 
-  function hitChip(bytes32 entityId) public {
+  function hitChippedEntity(bytes32 entityId) public {
     uint256 initialGas = gasleft();
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);

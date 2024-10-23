@@ -170,4 +170,8 @@ contract ChipSystem is System {
 
     safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
   }
+
+  function hitChip(bytes32 entityId) public {
+    revert("ChipSystem: renamed to hitChippedEntity");
+  }
 }
