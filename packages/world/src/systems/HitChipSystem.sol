@@ -55,14 +55,7 @@ contract HitChipSystem is System {
     }
     useEquipped(playerEntityId, equippedEntityId);
 
-    uint256 decreaseBatteryLevel = 0;
-    if (objectTypeId == ForceFieldObjectID) {
-      decreaseBatteryLevel = (72 * uint256(receiverDamage) * 60) / 120;
-    } else if (objectTypeId == ChestObjectID) {
-      decreaseBatteryLevel = (252 * uint256(receiverDamage) * 60) / 120;
-    } else {
-      revert("ChipSystem: cannot hit this object");
-    }
+    uint256 decreaseBatteryLevel = (receiverDamage * 20) / 100;
     uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel
       ? chipData.batteryLevel - decreaseBatteryLevel
       : 0;

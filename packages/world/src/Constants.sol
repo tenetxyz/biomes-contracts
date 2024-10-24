@@ -36,7 +36,7 @@ uint16 constant GRAVITY_DAMAGE = 100;
 uint16 constant PLAYER_HAND_DAMAGE = 20;
 uint16 constant HIT_PLAYER_STAMINA_COST = 250;
 uint16 constant GRAVITY_STAMINA_COST = 10;
-uint16 constant HIT_CHIP_STAMINA_COST = 12_000;
+uint16 constant HIT_CHIP_STAMINA_COST = 500;
 
 uint256 constant MIN_TIME_BEFORE_AUTO_LOGOFF = 15 minutes;
 uint256 constant MIN_TIME_TO_LOGOFF_AFTER_HIT = 1 minutes;
