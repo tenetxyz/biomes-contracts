@@ -24,8 +24,8 @@ const chainId =
   process.env.NODE_ENV === "mainnet"
     ? PROD_CHAIN_ID
     : process.env.NODE_ENV === "testnet"
-    ? TESNET_CHAIN_ID
-    : DEV_CHAIN_ID;
+      ? TESNET_CHAIN_ID
+      : DEV_CHAIN_ID;
 
 export type SetupNetwork = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -47,6 +47,7 @@ export async function setupNetwork() {
     throw new Error("Missing worldAddress in worlds.json file");
   }
   console.log("Using WorldAddress:", worldAddress);
+  const fromBlock = worldsJson[chain.id]?.blockNumber ?? 0;
 
   const account = privateKeyToAccount(privateKey as Hex);
 
@@ -80,10 +81,10 @@ export async function setupNetwork() {
     abi extends Abi | readonly unknown[],
     functionName extends ContractFunctionName<abi, "nonpayable" | "payable">,
     args extends ContractFunctionArgs<abi, "nonpayable" | "payable", functionName>,
-    chainOverride extends Chain | undefined
+    chainOverride extends Chain | undefined,
   >(
     txData: WriteContractParameters<abi, functionName, args, chain, account, chainOverride>,
-    label: string | undefined = undefined
+    label: string | undefined = undefined,
   ) {
     const txHash = await walletClient.writeContract(txData);
     console.log(`${label ?? txData.functionName} txHash: ${txHash}`);
@@ -114,5 +115,6 @@ export async function setupNetwork() {
     txOptions,
     callTx,
     account,
+    fromBlock,
   };
 }
