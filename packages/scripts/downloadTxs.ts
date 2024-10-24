@@ -85,7 +85,7 @@ async function main() {
 
         // Save progress periodically
         if (numBlocksProcessed > 0 && numBlocksProcessed % 1000 === 0) {
-          await saveToJson(transactions, contractAddress, fromBlock, i, "progress");
+          await saveToJson(transactions, worldAddress, fromBlock, i, "progress");
         }
       } catch (error) {
         console.error(`Error processing blocks ${i} to ${toBlock}:`, error);
@@ -95,7 +95,7 @@ async function main() {
     console.log("Total transactions found:", transactions.length);
 
     // Save final results
-    await saveToJson(transactions, contractAddress, fromBlock, currentBlock);
+    await saveToJson(transactions, worldAddress, fromBlock, currentBlock);
   } catch (error) {
     console.error("Error:", error);
   }
