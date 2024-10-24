@@ -81,6 +81,7 @@ async function main() {
         transactions.push(...txHashes);
 
         console.log(`Processed blocks ${i} to ${toBlock}. Found ${txHashes.length} transactions in this batch.`);
+        numBlocksProcessed++;
 
         // Save progress periodically
         if (numBlocksProcessed > 0 && numBlocksProcessed % 1000 === 0) {
