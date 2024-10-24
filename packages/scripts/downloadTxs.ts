@@ -95,7 +95,7 @@ async function main() {
     console.log("Total transactions found:", transactions.length);
 
     // Save final results
-    await saveToJson(transactions, contractAddress, fromBlock);
+    await saveToJson(transactions, contractAddress, fromBlock, currentBlock);
   } catch (error) {
     console.error("Error:", error);
   }
