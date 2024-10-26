@@ -41,7 +41,13 @@ async function saveDetailedTransactions(
     }
 
     const filePath = path.join(outputDir, fileName);
-    await fs.promises.writeFile(filePath, JSON.stringify(data, replacer, 2));
+
+    // Efficiently stringify the transactions array by joining each element
+    const transactionsJson = "[" + transactions.map((el) => JSON.stringify(el, replacer, 2)).join(",") + "]";
+
+    const finalData = JSON.stringify({ ...data, transactions: JSON.parse(transactionsJson) }, replacer, 2);
+
+    await fs.promises.writeFile(filePath, finalData);
     console.log(`Saved detailed transactions to ${filePath}`);
   } catch (error) {
     console.error("Error saving to JSON:", error);
