@@ -81,6 +81,10 @@ async function main() {
             publicClient.getTransactionReceipt({ hash }),
           ]);
 
+          // delete logs and logsBloom from transactionReceipt
+          delete transactionReceipt.logs;
+          delete transactionReceipt.logsBloom;
+
           return {
             hash,
             transaction,
