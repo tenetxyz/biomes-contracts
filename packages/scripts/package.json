@@ -15,6 +15,7 @@
     "spawnBuild": "npx tsx spawnBuild.ts",
     "measureGas": "npx tsx gas/measureGas.ts",
     "testTerrain": "npx tsx terrain/testTerrain.ts",
+    "downloadTxHashes": "npx tsx downloadTxHashes.ts",
     "downloadTxs": "npx tsx downloadTxs.ts",
     "parseTxs": "npx tsx parseTxs.ts",
     "governor": "npx tsx governor.ts"

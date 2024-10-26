@@ -1,51 +1,48 @@
-import { Hex, decodeFunctionData, formatEther } from "viem";
+import { Hex } from "viem";
 import { setupNetwork } from "./setupNetwork";
-import { resourceToHex } from "@latticexyz/common";
-import { storeEventsAbi } from "@latticexyz/store";
-import prompts from "prompts";
-import fs from "fs";
-import csv from "csv-parser";
 
-import { createPublicClient, http } from "viem";
-import { mainnet } from "viem/chains";
 import fs from "fs";
 import path from "path";
+import { replacer } from "./utils";
 
-// Configure the client
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http("YOUR_RPC_URL"),
-});
+async function loadTransactionHashes(inputFilePath: string): Promise<{
+  transactions: Hex[];
+  contractAddress: Hex;
+  fromBlock: string;
+  toBlock: string;
+}> {
+  const fileContent = await fs.promises.readFile(inputFilePath, "utf-8");
+  return JSON.parse(fileContent);
+}
 
-async function saveToJson(
-  transactions: Hex[],
+async function saveDetailedTransactions(
+  transactions: any[],
   contractAddress: Hex,
-  fromBlock: number,
-  toBlock: number,
-  suffix = "final",
+  fromBlock: string,
+  toBlock: string,
+  suffix = "detailed",
 ) {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const fileName = `txs_${contractAddress}_from${fromBlock}_to${toBlock}_${suffix}_${timestamp}.json`;
+  const fileName = `detailed_txs_${contractAddress}_from${fromBlock}_to${toBlock}_${suffix}_${timestamp}.json`;
 
   const data = {
     contractAddress,
-    fromBlock: fromBlock.toString(),
-    toBlock: toBlock.toString(),
+    fromBlock,
+    toBlock,
     totalTransactions: transactions.length,
     scanCompletedAt: new Date().toISOString(),
     transactions,
   };
 
   try {
-    // Create 'output' directory if it doesn't exist
     const outputDir = path.join(process.cwd(), "gen");
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir);
     }
 
     const filePath = path.join(outputDir, fileName);
-    await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
-    console.log(`Saved transactions to ${filePath}`);
+    await fs.promises.writeFile(filePath, JSON.stringify(data, replacer, 2));
+    console.log(`Saved detailed transactions to ${filePath}`);
   } catch (error) {
     console.error("Error saving to JSON:", error);
   }
@@ -54,48 +51,66 @@ async function saveToJson(
 async function main() {
   const { publicClient, fromBlock, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
 
-  // Read worlds JSON
-
   try {
-    const currentBlock = Number(await publicClient.getBlockNumber());
-    const transactions = [];
-    const batchSize = 100; // Adjust based on RPC provider limits
+    // Get the input file path from command line arguments or use a default
+    const inputFile = process.argv[2] || path.join(process.cwd(), "gen", "latest_transactions.json");
+    console.log(`Reading from: ${inputFile}`);
 
-    console.log(`Starting scan from block ${fromBlock} to ${currentBlock}`);
+    const { transactions: txHashes, contractAddress, fromBlock, toBlock } = await loadTransactionHashes(inputFile);
+    console.log(`Processing ${txHashes.length} transactions...`);
 
-    // Process blocks in batches to avoid RPC timeout
-    let numBlocksProcessed = 0;
-    for (let i = fromBlock; i <= currentBlock; i += batchSize) {
-      const toBlock = Math.min(i + batchSize - 1, currentBlock);
+    const detailedTransactions = [];
+    const batchSize = 100; // Adjust based on RPC rate limits
 
-      try {
-        const logs = await publicClient.getLogs({
-          address: worldAddress,
-          fromBlock: BigInt(i),
-          toBlock: BigInt(toBlock),
-        });
-        // console.log(logs);
+    // Process transactions in batches
+    for (let i = 0; i < txHashes.length; i += batchSize) {
+      const batch = txHashes.slice(i, i + batchSize);
 
-        // Get unique transaction hashes from the logs
-        const txHashes = [...new Set(logs.map((log) => log.transactionHash))];
-        transactions.push(...txHashes);
+      console.log(`Processing batch ${i / batchSize + 1} of ${Math.ceil(txHashes.length / batchSize)}`);
 
-        console.log(`Processed blocks ${i} to ${toBlock}. Found ${txHashes.length} transactions in this batch.`);
-        numBlocksProcessed++;
+      const batchPromises = batch.map(async (hash) => {
+        try {
+          const [transaction, transactionReceipt] = await Promise.all([
+            publicClient.getTransaction({ hash }),
+            publicClient.getTransactionReceipt({ hash }),
+          ]);
 
-        // Save progress periodically
-        if (numBlocksProcessed > 0 && numBlocksProcessed % 1000 === 0) {
-          await saveToJson(transactions, worldAddress, fromBlock, i, "progress");
+          return {
+            hash,
+            transaction,
+            receipt: transactionReceipt,
+          };
+        } catch (error) {
+          console.error(`Error processing transaction ${hash}:`, error);
+          return {
+            hash,
+            error: error.message,
+          };
         }
-      } catch (error) {
-        console.error(`Error processing blocks ${i} to ${toBlock}:`, error);
+      });
+
+      const batchResults = await Promise.all(batchPromises);
+      detailedTransactions.push(...batchResults);
+
+      // Save progress periodically
+      if ((i + batchSize) % 100 === 0 || i + batchSize >= txHashes.length) {
+        await saveDetailedTransactions(
+          detailedTransactions,
+          contractAddress,
+          fromBlock,
+          toBlock,
+          `progress_${i + batchSize}`,
+        );
       }
+
+      // Add a small delay between batches to avoid rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    console.log("Total transactions found:", transactions.length);
-
     // Save final results
-    await saveToJson(transactions, worldAddress, fromBlock, currentBlock);
+    await saveDetailedTransactions(detailedTransactions, contractAddress, fromBlock, toBlock);
+
+    console.log("Processing completed!");
   } catch (error) {
     console.error("Error:", error);
   }
