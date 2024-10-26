@@ -42,11 +42,11 @@ async function saveDetailedTransactions(
 
     const filePath = path.join(outputDir, fileName);
 
-    // Efficiently stringify the transactions array by joining each element
-    const transactionsJson = "[" + transactions.map((el) => JSON.stringify(el, replacer, 2)).join(",") + "]";
-
-    const finalData = JSON.stringify({ ...data, transactions: JSON.parse(transactionsJson) }, replacer, 2);
-
+    const finalData =
+      `{"contractAddress": "${contractAddress}", "fromBlock": "${fromBlock}", "toBlock": "${toBlock}", "totalTransactions": ${transactions.length}, ` +
+      `"scanCompletedAt": "${new Date().toISOString()}", "transactions": [` +
+      transactions.map((el) => JSON.stringify(el, replacer, 2)).join(",") +
+      "]}";
     await fs.promises.writeFile(filePath, finalData);
     console.log(`Saved detailed transactions to ${filePath}`);
   } catch (error) {
@@ -66,7 +66,7 @@ async function main() {
     console.log(`Processing ${txHashes.length} transactions...`);
 
     const detailedTransactions = [];
-    const batchSize = 100; // Adjust based on RPC rate limits
+    const batchSize = 50; // Adjust based on RPC rate limits
 
     // Process transactions in batches
     for (let i = 0; i < txHashes.length; i += batchSize) {
@@ -110,7 +110,7 @@ async function main() {
       }
 
       // Add a small delay between batches to avoid rate limiting
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     }
 
     // Save final results
