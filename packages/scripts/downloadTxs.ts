@@ -102,9 +102,7 @@ async function main() {
       const batchResults = await Promise.all(batchPromises);
 
       // Save progress periodically
-      if ((i + batchSize) % 100 === 0 || i + batchSize >= txHashes.length) {
-        await saveDetailedTransactionsBatch(batchResults, contractAddress, fromBlock, toBlock, batchNumber);
-      }
+      await saveDetailedTransactionsBatch(batchResults, contractAddress, fromBlock, toBlock, batchNumber);
 
       // Add a small delay between batches to avoid rate limiting
       await new Promise((resolve) => setTimeout(resolve, 3000));
