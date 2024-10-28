@@ -4,12 +4,13 @@ import path from "path";
 import { formatEther } from "viem";
 import { setupNetwork } from "./setupNetwork";
 import os from "os";
+import { replacer } from "./utils";
 
 // Number of CPU cores to use (leave one core free for system processes)
 const NUM_WORKERS = Math.max(1, os.cpus().length - 1);
 const BATCH_SIZE = 100; // Number of files to process in each batch
 
-async function createWorker(filesToProcess, IWorldAbi) {
+async function createWorker(allWork) {
   return new Promise((resolve, reject) => {
     const worker = new Worker("./workerCode.cjs");
     worker.on("message", resolve);
@@ -18,10 +19,7 @@ async function createWorker(filesToProcess, IWorldAbi) {
       if (code !== 0) reject(new Error(`Worker stopped with exit code ${code}`));
     });
 
-    worker.postMessage({
-      filesToProcess,
-      IWorldAbi,
-    });
+    worker.postMessage(allWork);
   });
 }
 
@@ -29,7 +27,14 @@ async function main() {
   const startTime = Date.now();
 
   // Setup initial configuration
-  const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
+  const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx, fromBlock } = await setupNetwork();
+
+  const referenceStartBlock = BigInt(fromBlock);
+  const block = await publicClient.getBlock({
+    blockNumber: referenceStartBlock,
+  });
+  const referenceStartTimestamp = block.timestamp;
+  console.log(`Block ${fromBlock} timestamp: ${referenceStartTimestamp}`);
 
   // Get list of files to process
   const dirPath = path.join(process.cwd(), "gen/server_gen");
@@ -62,7 +67,12 @@ async function main() {
 
     const results = [];
     for (const batch of workerBatches) {
-      const result = await createWorker(batch, IWorldAbi);
+      const result = await createWorker({
+        filesToProcess: batch,
+        IWorldAbi,
+        referenceStartBlock: referenceStartBlock,
+        referenceStartTimestamp: referenceStartTimestamp,
+      });
       if (result.error) {
         throw new Error(`Worker ${index} error: ${result.error}`);
       }
@@ -82,6 +92,7 @@ async function main() {
     totalFeeSum: BigInt(0),
   };
   const finalTxCounts = new Map();
+  const finalDailyStats = new Map();
 
   let totalTransactions = 0;
   let finalEarliestFromBlock = Infinity;
@@ -103,9 +114,22 @@ async function main() {
 
     finalEarliestFromBlock = Math.min(finalEarliestFromBlock, result.fromBlock);
     finalLatestToBlock = Math.max(finalLatestToBlock, result.toBlock);
-  });
 
-  const endTime = Date.now();
+    // dailyStat = { txCount: 0, fees: BigInt(0), users: new Set() };
+
+    for (const [date, resultDailyStat] of result.dailyStats.entries()) {
+      let dailyStat = finalDailyStats.get(date);
+      if (dailyStat === undefined) {
+        dailyStat = { txCount: 0, fees: BigInt(0), users: new Set() };
+      }
+      dailyStat.txCount += resultDailyStat.txCount;
+      dailyStat.fees += resultDailyStat.fees;
+      for (const user of resultDailyStat.users) {
+        dailyStat.users.add(user);
+      }
+      finalDailyStats.set(date, dailyStat);
+    }
+  });
 
   // Print results
   console.log("\nProcessing completed!");
@@ -122,6 +146,29 @@ async function main() {
   for (const [txType, count] of finalTxCounts.entries()) {
     console.log(`${txType}: ${count}`);
   }
+
+  // console.log("\nDaily Statistics:");
+  // for (const [date, dailyStat] of finalDailyStats.entries()) {
+  //   console.log(`${date}:`);
+  //   console.log(`  Transactions: ${dailyStat.txCount}`);
+  //   console.log(`  Fees: ${formatEther(dailyStat.fees)}`);
+  //   console.log(`  Unique users: ${dailyStat.users.size}`);
+  // }
+
+  // Write these stats to a file
+  const stats = {
+    fromBlock: finalEarliestFromBlock,
+    toBlock: finalLatestToBlock,
+    totalTransactions,
+    aggregatedFees: finalResults,
+    txCounts: Object.fromEntries(finalTxCounts),
+    dailyStats: Object.fromEntries(
+      Array.from(finalDailyStats.entries()).map(([date, dailyStat]) => {
+        return [date, { ...dailyStat, users: Array.from(dailyStat.users) }];
+      }),
+    ),
+  };
+  fs.writeFileSync("gen/stats.json", JSON.stringify(stats, replacer, 2));
 
   console.log("Finished!");
 }
