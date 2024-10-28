@@ -18,6 +18,7 @@
     "downloadTxHashes": "npx tsx downloadTxHashes.ts",
     "downloadTxs": "npx tsx downloadTxs.ts",
     "parseTxs": "npx tsx parseTxs.ts",
+    "parseSavedTxs": "npx tsx parseSavedTxs.ts",
     "governor": "npx tsx governor.ts"
   },
   "dependencies": {
