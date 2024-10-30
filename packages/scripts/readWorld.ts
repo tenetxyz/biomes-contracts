@@ -11,6 +11,15 @@ export function isDefined<T>(argument: T | undefined): argument is T {
 async function main() {
   const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
 
+  const l1BaseFee = await publicClient.readContract({
+    address: "0x420000000000000000000000000000000000000F" as Hex,
+    abi: parseAbi(["function l1BaseFee() view returns (uint256)"]),
+    functionName: "l1BaseFee",
+    args: [],
+    account,
+  });
+  console.log("l1BaseFee", l1BaseFee);
+
   const inventory = await publicClient.readContract({
     address: worldAddress as Hex,
     abi: IWorldAbi,
