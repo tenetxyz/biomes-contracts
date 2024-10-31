@@ -15,11 +15,12 @@ import { Spawn, SpawnData } from "./codegen/tables/Spawn.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
 
 import { SPAWN_SHARD_DIM } from "./Constants.sol";
-import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "./Constants.sol";
+import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z, OP_L1_GAS_ORACLE } from "./Constants.sol";
 import { AirObjectID, WaterObjectID } from "./ObjectTypeIds.sol";
 
 import { IGravitySystem } from "./codegen/world/IGravitySystem.sol";
 import { IProcGenSystem } from "./codegen/world/IProcGenSystem.sol";
+import { IMintXPSystem } from "./codegen/world/IMintXPSystem.sol";
 
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);
@@ -57,6 +58,10 @@ function callGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) retu
   bytes memory callData = abi.encodeCall(IGravitySystem.runGravity, (playerEntityId, playerCoord));
   bytes memory returnData = callInternalSystem(callData);
   return abi.decode(returnData, (bool));
+}
+
+function callMintXP(bytes32 playerEntityId, uint256 initialGas, uint256 multiplier) {
+  callInternalSystem(abi.encodeCall(IMintXPSystem.mintXP, (playerEntityId, initialGas, multiplier)));
 }
 
 function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
@@ -105,4 +110,22 @@ function safeCallChip(address chipAddress, bytes memory callData) {
       continue;
     }
   }
+}
+
+function getL1GasPrice() view returns (uint256) {
+  uint256 l1GasPriceWei = 0;
+  uint32 codeSize;
+  assembly {
+    codeSize := extcodesize(OP_L1_GAS_ORACLE)
+  }
+  if (codeSize == 0) {
+    return l1GasPriceWei;
+  }
+  (bool oracleSuccess, bytes memory oracleReturnData) = OP_L1_GAS_ORACLE.staticcall(
+    abi.encodeWithSignature("l1BaseFee()")
+  );
+  if (oracleSuccess) {
+    l1GasPriceWei = abi.decode(oracleReturnData, (uint256));
+  }
+  return l1GasPriceWei;
 }

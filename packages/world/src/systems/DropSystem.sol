@@ -11,10 +11,9 @@ import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/Play
 import { ActionType } from "../codegen/common.sol";
 
 import { AirObjectID, WaterObjectID } from "../ObjectTypeIds.sol";
-import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
+import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity, callMintXP } from "../Utils.sol";
 import { transferInventoryNonTool, transferInventoryTool } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { mintXP } from "../utils/XPUtils.sol";
 
 contract DropSystem is System {
   function dropCommon(VoxelCoord memory coord) internal returns (bytes32, bytes32) {
@@ -62,7 +61,7 @@ contract DropSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
   }
 
   function dropTool(bytes32 toolEntityId, VoxelCoord memory coord) public {
@@ -84,6 +83,6 @@ contract DropSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
   }
 }

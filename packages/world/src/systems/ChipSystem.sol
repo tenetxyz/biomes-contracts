@@ -18,8 +18,7 @@ import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, ChestObjectID, Force
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
-import { mintXP } from "../utils/XPUtils.sol";
-import { safeCallChip } from "../Utils.sol";
+import { safeCallChip, callMintXP } from "../Utils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
@@ -68,7 +67,7 @@ contract ChipSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
 
     // Don't safe call here because we want to revert if the chip doesn't allow the attachment
     bool isAllowed = IChip(chipAddress).onAttached{ value: _msgValue() }(playerEntityId, entityId, extraData);
@@ -107,7 +106,7 @@ contract ChipSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
 
     if (chipData.batteryLevel > 0) {
       // Don't safe call here because we want to revert if the chip doesn't allow the detachment
@@ -166,7 +165,7 @@ contract ChipSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
 
     safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
   }

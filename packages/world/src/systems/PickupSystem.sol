@@ -11,10 +11,9 @@ import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/Play
 import { ActionType } from "../codegen/common.sol";
 
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
+import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity, callMintXP } from "../Utils.sol";
 import { transferInventoryNonTool, transferInventoryTool, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { mintXP } from "../utils/XPUtils.sol";
 
 import { PickupData } from "../Types.sol";
 
@@ -53,7 +52,7 @@ contract PickupSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
   }
 
   function pickup(uint8 pickupObjectTypeId, uint16 numToPickup, VoxelCoord memory coord) public {
@@ -75,7 +74,7 @@ contract PickupSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
   }
 
   function pickupTool(bytes32 toolEntityId, VoxelCoord memory coord) public {
@@ -97,7 +96,7 @@ contract PickupSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
   }
 
   function pickupMultiple(
@@ -150,6 +149,6 @@ contract PickupSystem is System {
       );
     }
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
   }
 }

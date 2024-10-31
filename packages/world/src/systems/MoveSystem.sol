@@ -16,10 +16,9 @@ import { ActionType } from "../codegen/common.sol";
 
 import { PLAYER_MASS, GRAVITY_STAMINA_COST, MAX_PLAYER_STAMINA } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
+import { callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity, callMintXP } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
-import { mintXP } from "../utils/XPUtils.sol";
 
 contract MoveSystem is System {
   function move(VoxelCoord[] memory newCoords) public {
@@ -116,7 +115,7 @@ contract MoveSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 10);
+    callMintXP(playerEntityId, initialGas, 10);
   }
 
   function move(

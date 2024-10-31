@@ -15,11 +15,10 @@ import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/Play
 import { ActionType } from "../codegen/common.sol";
 
 import { NullObjectTypeId, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyCottonBlockObjectID, AnyGlassObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
-import { getUniqueEntity } from "../Utils.sol";
+import { getUniqueEntity, callMintXP } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes, getCottonBlockObjectTypes, getGlassObjectTypes } from "../utils/ObjectTypeUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { mintXP } from "../utils/XPUtils.sol";
 
 contract CraftSystem is System {
   function craft(bytes32 recipeId, bytes32 stationEntityId) public {
@@ -142,6 +141,6 @@ contract CraftSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
   }
 }

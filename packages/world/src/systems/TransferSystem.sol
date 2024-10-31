@@ -12,12 +12,11 @@ import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/Play
 import { ActionType } from "../codegen/common.sol";
 
 import { PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord } from "../Utils.sol";
+import { positionDataToVoxelCoord, callMintXP } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
-import { mintXP } from "../utils/XPUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 
 import { IChestChip } from "../prototypes/IChestChip.sol";
@@ -112,7 +111,7 @@ contract TransferSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
@@ -179,7 +178,7 @@ contract TransferSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(

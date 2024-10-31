@@ -18,10 +18,9 @@ import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { inSpawnArea, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
+import { inSpawnArea, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity, callMintXP } from "../Utils.sol";
 import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { mintXP } from "../utils/XPUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
@@ -71,7 +70,7 @@ contract BuildSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
     callInternalSystem(

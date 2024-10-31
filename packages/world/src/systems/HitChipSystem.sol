@@ -20,8 +20,7 @@ import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../u
 import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { mintXP } from "../utils/XPUtils.sol";
-import { positionDataToVoxelCoord, safeCallChip } from "../Utils.sol";
+import { positionDataToVoxelCoord, safeCallChip, callMintXP, getL1GasPrice } from "../Utils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
@@ -55,7 +54,13 @@ contract HitChipSystem is System {
     }
     useEquipped(playerEntityId, equippedEntityId);
 
-    uint256 decreaseBatteryLevel = (receiverDamage * 40) / 100;
+    uint256 l1GasPriceWei = getL1GasPrice();
+    // Ensure that the gas price is at least 8 gwei
+    if (l1GasPriceWei < 8 gwei) {
+      l1GasPriceWei = 8 gwei;
+    }
+
+    uint256 decreaseBatteryLevel = (receiverDamage * 117 * l1GasPriceWei) / (100 * 8 gwei);
     uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel
       ? chipData.batteryLevel - decreaseBatteryLevel
       : 0;
@@ -74,7 +79,7 @@ contract HitChipSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
 
     safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onChipHit, (playerEntityId, chipEntityId)));
   }

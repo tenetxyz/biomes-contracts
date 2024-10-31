@@ -352,6 +352,11 @@ export default defineWorld({
       openAccess: false,
       accessList: [],
     },
+    MintXPSystem: {
+      name: "MintXPSystem",
+      openAccess: false,
+      accessList: [],
+    },
   },
   modules: [
     {

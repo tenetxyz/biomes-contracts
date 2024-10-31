@@ -18,11 +18,10 @@ import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
+import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity, callMintXP } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
-import { mintXP } from "../utils/XPUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
@@ -92,7 +91,7 @@ contract MineSystem is System {
       })
     );
 
-    mintXP(playerEntityId, initialGas, 1);
+    callMintXP(playerEntityId, initialGas, 1);
 
     callInternalSystem(
       abi.encodeCall(

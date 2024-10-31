@@ -297,4 +297,15 @@ contract XPTest is MudTest, GasReporter {
 
     vm.stopPrank();
   }
+
+  function testDirectCallMintXP() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.expectRevert();
+    world.mintXP(playerEntityId, 100, 1);
+
+    vm.stopPrank();
+  }
 }
