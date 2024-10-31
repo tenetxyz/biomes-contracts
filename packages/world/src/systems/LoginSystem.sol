@@ -18,13 +18,14 @@ import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
+import { MAX_PLAYER_RESPAWN_HALF_WIDTH, IN_MAINTENANCE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, getTerrainObjectTypeId } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 
 contract LoginSystem is System {
   function loginPlayer(VoxelCoord memory respawnCoord) public {
+    require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
     bytes32 playerEntityId = Player._get(_msgSender());
     require(playerEntityId != bytes32(0), "Player does not exist");
     require(PlayerMetadata._getIsLoggedOff(playerEntityId), "LoginSystem: player already logged in");
