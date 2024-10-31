@@ -48,7 +48,13 @@ contract ReadScript is Script {
 
     IWorld world = IWorld(worldAddress);
 
-    VoxelCoord memory coord = VoxelCoord(-18, 6, -524);
+    bytes32 playerEntityId = Player.get(0xb3276CBA4bE10EaC610192cE83c1D1A4132380aE);
+    require(playerEntityId != bytes32(0), "Player entity not found");
+    console.log("Player");
+    console.logBytes32(playerEntityId);
+    console.logBool(PlayerMetadata.getIsLoggedOff(playerEntityId));
+
+    VoxelCoord memory coord = VoxelCoord(-23, 9, -436);
     VoxelCoord memory shardCoord = coordToShardCoord(coord, FORCE_FIELD_SHARD_DIM);
     bytes32 forceFieldEntityId = ShardField.get(shardCoord.x, shardCoord.y, shardCoord.z);
     require(forceFieldEntityId != bytes32(0), "Force field not found");
