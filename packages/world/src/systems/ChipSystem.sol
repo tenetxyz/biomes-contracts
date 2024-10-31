@@ -140,8 +140,8 @@ contract ChipSystem is System {
     uint256 increasePerBattery = 0;
     require(objectTypeId == ForceFieldObjectID, "ChipSystem: cannot power this object");
     if (objectTypeId == ForceFieldObjectID) {
-      // 1 battery adds 2 days of charge
-      increasePerBattery = 2 days;
+      // 1 battery adds 4 days of charge
+      increasePerBattery = 4 days;
     } else if (objectTypeId == ChestObjectID) {
       // 1 battery adds 1 week of charge
       increasePerBattery = 1 weeks;

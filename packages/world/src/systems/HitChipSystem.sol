@@ -55,7 +55,7 @@ contract HitChipSystem is System {
     }
     useEquipped(playerEntityId, equippedEntityId);
 
-    uint256 decreaseBatteryLevel = (receiverDamage * 20) / 100;
+    uint256 decreaseBatteryLevel = (receiverDamage * 40) / 100;
     uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel
       ? chipData.batteryLevel - decreaseBatteryLevel
       : 0;

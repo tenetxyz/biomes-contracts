@@ -36,7 +36,7 @@ uint16 constant GRAVITY_DAMAGE = 100;
 uint16 constant PLAYER_HAND_DAMAGE = 20;
 uint16 constant HIT_PLAYER_STAMINA_COST = 250;
 uint16 constant GRAVITY_STAMINA_COST = 10;
-uint16 constant HIT_CHIP_STAMINA_COST = 500;
+uint16 constant HIT_CHIP_STAMINA_COST = 1000;
 
 uint256 constant MIN_TIME_BEFORE_AUTO_LOGOFF = 15 minutes;
 uint256 constant MIN_TIME_TO_LOGOFF_AFTER_HIT = 1 minutes;
@@ -47,4 +47,4 @@ int16 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
 uint16 constant MAX_PLAYER_INVENTORY_SLOTS = 36;
 uint16 constant MAX_CHEST_INVENTORY_SLOTS = 12;
 
-uint256 constant NUM_XP_FOR_FULL_BATTERY = 10_000;
+uint256 constant NUM_XP_FOR_FULL_BATTERY = 5_000;
