@@ -43,9 +43,9 @@ async function main() {
 
   // This will store all the rows to be processed serially
   const rows: any[] = [
-    // {
-    //   TxHash: "0xa63aa54d272467638f479f620befafbf7b39596ef045145a8ede445553d3a8fe",
-    // },
+    {
+      TxHash: "0x3cbc1dab0b2e4bad13add1eac9ac49a1cd614e9729177c894ce82bc9fc81d55d",
+    },
   ];
 
   let totalL2Fee = 0n;
@@ -55,7 +55,7 @@ async function main() {
   fs.createReadStream(csvFilePath)
     .pipe(csv())
     .on("data", (row) => {
-      rows.push(row);
+      // rows.push(row);
     })
     .on("end", async () => {
       console.log("CSV file successfully processed. Starting transaction processing...");

@@ -16,13 +16,14 @@ import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../Constants.sol";
+import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, IN_MAINTENANCE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity, gravityApplies, inWorldBorder, inSpawnArea, getTerrainObjectTypeId } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 
 contract SpawnSystem is System {
   function spawnPlayer(VoxelCoord memory spawnCoord) public returns (bytes32) {
+    require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
     require(inWorldBorder(spawnCoord), "SpawnSystem: cannot spawn outside world border");
     require(inSpawnArea(spawnCoord), "SpawnSystem: cannot spawn outside spawn area");
 
