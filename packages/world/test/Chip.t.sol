@@ -1171,7 +1171,7 @@ contract ChipTest is MudTest, GasReporter {
     uint32 playerStaminaBefore = Stamina.getStamina(playerEntityId);
 
     startGasReport("hit chip");
-    world.hitChip(forceFieldEntityId);
+    world.hitChippedEntity(forceFieldEntityId);
     endGasReport();
 
     assertTrue(Chip.getBatteryLevel(forceFieldEntityId) < initialBatteryLevel, "Battery level not decreased");
@@ -1304,7 +1304,7 @@ contract ChipTest is MudTest, GasReporter {
     uint32 playerStaminaBefore = Stamina.getStamina(playerEntityId);
 
     startGasReport("hit chip w/ equipped");
-    world.hitChip(forceFieldEntityId);
+    world.hitChippedEntity(forceFieldEntityId);
     endGasReport();
 
     assertTrue(Chip.getBatteryLevel(forceFieldEntityId) < initialBatteryLevel, "Battery level not decreased");
@@ -1359,7 +1359,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     vm.expectRevert("ChipSystem: player does not have enough stamina");
-    world.hitChip(forceFieldEntityId);
+    world.hitChippedEntity(forceFieldEntityId);
 
     vm.stopPrank();
   }
@@ -1411,7 +1411,7 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
 
     vm.expectRevert("Player does not exist");
-    world.hitChip(forceFieldEntityId);
+    world.hitChippedEntity(forceFieldEntityId);
 
     vm.stopPrank();
   }
@@ -1464,7 +1464,7 @@ contract ChipTest is MudTest, GasReporter {
     world.logoffPlayer();
 
     vm.expectRevert("Player isn't logged in");
-    world.hitChip(forceFieldEntityId);
+    world.hitChippedEntity(forceFieldEntityId);
 
     vm.stopPrank();
   }
@@ -1521,7 +1521,7 @@ contract ChipTest is MudTest, GasReporter {
     world.move(newCoords);
 
     vm.expectRevert("Player is too far");
-    world.hitChip(forceFieldEntityId);
+    world.hitChippedEntity(forceFieldEntityId);
 
     vm.stopPrank();
   }
@@ -1554,7 +1554,7 @@ contract ChipTest is MudTest, GasReporter {
 
     bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
 
-    world.hitChip(forceFieldEntityId);
+    world.hitChippedEntity(forceFieldEntityId);
 
     vm.stopPrank();
   }

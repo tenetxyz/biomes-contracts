@@ -144,6 +144,7 @@ contract TransferSystem is System {
     bytes memory extraData
   ) public payable {
     uint256 initialGas = gasleft();
+    require(toolEntityIds.length > 0, "TransferSystem: must transfer at least one tool");
     require(toolEntityIds.length < type(uint16).max, "TransferSystem: too many tools to transfer");
 
     (bytes32 playerEntityId, uint8 dstObjectTypeId, VoxelCoord memory chestCoord) = transferCommon(

@@ -7,7 +7,7 @@ import { ExperiencePoints } from "../../codegen/tables/ExperiencePoints.sol";
 import { getL1GasPrice } from "../../Utils.sol";
 
 contract MintXPSystem is System {
-  function mintXP(bytes32 playerEntityId, uint256 initialGas, uint256 multiplier) public {
+  function mintXP(bytes32 playerEntityId, uint256 initialGas, uint256 multiplier) public payable {
     uint256 l1GasPriceWei = getL1GasPrice();
     // Ensure that the gas price is at least 8 gwei
     if (l1GasPriceWei < 8 gwei) {

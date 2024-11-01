@@ -357,7 +357,7 @@ contract ForceFieldTest is MudTest, GasReporter {
     vm.startPrank(bob, bob);
 
     // Mine force field object
-    world.hitChip(forceFieldEntityId);
+    world.hitChippedEntity(forceFieldEntityId);
     world.detachChip(forceFieldEntityId);
     world.mine(forceFieldCoord);
     assertTrue(getForceField(forceFieldCoord) == bytes32(0), "Force field still exists");
