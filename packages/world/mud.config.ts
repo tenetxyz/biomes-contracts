@@ -65,18 +65,6 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    Terrain: {
-      schema: {
-        x: "int16",
-        y: "int16",
-        z: "int16",
-        objectTypeId: "uint8",
-      },
-      key: ["x", "y", "z"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
     Spawn: {
       schema: {
         x: "int16",
@@ -324,8 +312,20 @@ export default defineWorld({
       },
     },
     // -------------------
-    // LEGACY TABLES
+    // DEPRECATED TABLES
     // -------------------
+    Terrain: {
+      schema: {
+        x: "int16",
+        y: "int16",
+        z: "int16",
+        objectTypeId: "uint8",
+      },
+      key: ["x", "y", "z"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     ChestMetadata: {
       schema: {
         chestEntityId: "bytes32",
