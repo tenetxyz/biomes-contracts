@@ -48,22 +48,28 @@ contract ReadScript is Script {
 
     IWorld world = IWorld(worldAddress);
 
-    bytes32 playerEntityId = Player.get(0xb3276CBA4bE10EaC610192cE83c1D1A4132380aE);
+    bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
     require(playerEntityId != bytes32(0), "Player entity not found");
     console.log("Player");
     console.logBytes32(playerEntityId);
     console.logBool(PlayerMetadata.getIsLoggedOff(playerEntityId));
 
-    VoxelCoord memory coord = VoxelCoord(-23, 9, -436);
+    VoxelCoord memory coord = VoxelCoord(-35, 22, -211);
+    bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
+    console.log("Entity at position:");
+    console.logBytes32(entityId);
     VoxelCoord memory shardCoord = coordToShardCoord(coord, FORCE_FIELD_SHARD_DIM);
     bytes32 forceFieldEntityId = ShardField.get(shardCoord.x, shardCoord.y, shardCoord.z);
-    require(forceFieldEntityId != bytes32(0), "Force field not found");
-    PositionData memory positionData = Position.get(forceFieldEntityId);
-    console.log("Force field position:");
-    console.logBytes32(forceFieldEntityId);
-    console.logInt(positionData.x);
-    console.logInt(positionData.y);
-    console.logInt(positionData.z);
+    if (forceFieldEntityId == bytes32(0)) {
+      console.log("No force field found at position");
+    } else {
+      PositionData memory positionData = Position.get(forceFieldEntityId);
+      console.log("Force field position:");
+      console.logBytes32(forceFieldEntityId);
+      console.logInt(positionData.x);
+      console.logInt(positionData.y);
+      console.logInt(positionData.z);
+    }
 
     vm.stopBroadcast();
   }
