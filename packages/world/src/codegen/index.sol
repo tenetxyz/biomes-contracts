@@ -5,8 +5,10 @@ pragma solidity >=0.8.24;
 
 import { UniqueEntity } from "./tables/UniqueEntity.sol";
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "./tables/ObjectTypeMetadata.sol";
+import { ObjectTypeSchema, ObjectTypeSchemaData } from "./tables/ObjectTypeSchema.sol";
 import { Recipes, RecipesData } from "./tables/Recipes.sol";
 import { Spawn, SpawnData } from "./tables/Spawn.sol";
+import { BaseEntity } from "./tables/BaseEntity.sol";
 import { ObjectType } from "./tables/ObjectType.sol";
 import { Position, PositionData } from "./tables/Position.sol";
 import { ReversePosition } from "./tables/ReversePosition.sol";

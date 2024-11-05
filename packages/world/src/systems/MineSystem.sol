@@ -7,6 +7,7 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
@@ -52,6 +53,7 @@ contract MineSystem is System {
         chipData.chipAddress == address(0) && chipData.batteryLevel == 0,
         "MineSystem: chip is attached to entity"
       );
+      bytes32 baseEntityId = BaseEntity._get(entityId);
     }
     require(ObjectTypeMetadata._getIsBlock(mineObjectTypeId), "MineSystem: object type is not a block");
     require(mineObjectTypeId != AirObjectID, "MineSystem: cannot mine air");

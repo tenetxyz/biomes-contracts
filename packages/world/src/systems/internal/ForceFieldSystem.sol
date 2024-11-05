@@ -19,30 +19,33 @@ import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 contract ForceFieldSystem is System {
   function requireBuildAllowed(
     bytes32 playerEntityId,
-    bytes32 entityId,
+    bytes32 baseEntityId,
     uint8 objectTypeId,
-    VoxelCoord memory coord,
+    VoxelCoord[] memory coords,
     bytes memory extraData
   ) public payable {
-    bytes32 forceFieldEntityId = getForceField(coord);
-    if (objectTypeId == ForceFieldObjectID) {
-      require(forceFieldEntityId == bytes32(0), "Force field overlaps with another force field");
-      setupForceField(entityId, coord);
-    }
-
-    if (forceFieldEntityId != bytes32(0)) {
-      ChipData memory chipData = updateChipBatteryLevel(forceFieldEntityId);
-      if (chipData.chipAddress != address(0) && chipData.batteryLevel > 0) {
-        bool buildAllowed = IForceFieldChip(chipData.chipAddress).onBuild{ value: _msgValue() }(
-          forceFieldEntityId,
-          playerEntityId,
-          objectTypeId,
-          coord,
-          extraData
-        );
-        require(buildAllowed, "ForceFieldSystem: build not allowed by force field");
+    for (uint256 i = 0; i < coords.length; i++) {
+      VoxelCoord memory coord = coords[i];
+      bytes32 forceFieldEntityId = getForceField(coord);
+      if (forceFieldEntityId != bytes32(0)) {
+        ChipData memory chipData = updateChipBatteryLevel(forceFieldEntityId);
+        if (chipData.chipAddress != address(0) && chipData.batteryLevel > 0) {
+          bool buildAllowed = IForceFieldChip(chipData.chipAddress).onBuild{ value: _msgValue() }(
+            forceFieldEntityId,
+            playerEntityId,
+            objectTypeId,
+            coord,
+            extraData
+          );
+          require(buildAllowed, "ForceFieldSystem: build not allowed by force field");
+        }
       }
     }
+    // bytes32 forceFieldEntityId = getForceField(coord);
+    // if (objectTypeId == ForceFieldObjectID) {
+    //   require(forceFieldEntityId == bytes32(0), "Force field overlaps with another force field");
+    //   setupForceField(baseEntityId, coord);
+    // }
   }
 
   function requireMineAllowed(
@@ -71,5 +74,16 @@ contract ForceFieldSystem is System {
     if (objectTypeId == ForceFieldObjectID) {
       destroyForceField(entityId, coord);
     }
+  }
+
+  // Deprecated
+  function requireBuildAllowed(
+    bytes32 playerEntityId,
+    bytes32 entityId,
+    uint8 objectTypeId,
+    VoxelCoord memory coord,
+    bytes memory extraData
+  ) public payable {
+    revert("ForceFieldSystem: deprecated function");
   }
 }

@@ -8,6 +8,8 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
@@ -25,16 +27,9 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
 contract BuildSystem is System {
-  function build(uint8 objectTypeId, VoxelCoord memory coord, bytes memory extraData) public payable returns (bytes32) {
-    uint256 initialGas = gasleft();
-
+  function buildCommon(uint8 objectTypeId, VoxelCoord memory coord) internal returns (bytes32) {
     require(inWorldBorder(coord), "BuildSystem: cannot build outside world border");
     require(!inSpawnArea(coord), "BuildSystem: cannot build at spawn area");
-    require(ObjectTypeMetadata._getIsBlock(objectTypeId), "BuildSystem: object type is not a block");
-
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, coord);
-
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type
@@ -55,13 +50,39 @@ contract BuildSystem is System {
     }
 
     ObjectType._set(entityId, objectTypeId);
+    return entityId;
+  }
+  function build(uint8 objectTypeId, VoxelCoord memory coord, bytes memory extraData) public payable returns (bytes32) {
+    uint256 initialGas = gasleft();
+
+    require(ObjectTypeMetadata._getIsBlock(objectTypeId), "BuildSystem: object type is not a block");
+    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    requireInPlayerInfluence(playerCoord, coord);
+
+    bytes32 baseEntityId = buildCommon(objectTypeId, coord);
+    uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(objectTypeId);
+    if (numRelativePositions > 0) {
+      ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(objectTypeId);
+      for (uint256 i = 0; i < numRelativePositions; i++) {
+        VoxelCoord memory relativeCoord = VoxelCoord(
+          coord.x + schemaData.relativePositionsX[i],
+          coord.y + schemaData.relativePositionsY[i],
+          coord.z + schemaData.relativePositionsZ[i]
+        );
+        bytes32 entityId = buildCommon(objectTypeId, relativeCoord);
+        BaseEntity._set(entityId, baseEntityId);
+      }
+    }
+
+    buildCommon(objectTypeId, coord);
+
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
 
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.Build,
-        entityId: entityId,
+        entityId: baseEntityId,
         objectTypeId: objectTypeId,
         coordX: coord.x,
         coordY: coord.y,
@@ -74,10 +95,13 @@ contract BuildSystem is System {
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
     callInternalSystem(
-      abi.encodeCall(IForceFieldSystem.requireBuildAllowed, (playerEntityId, entityId, objectTypeId, coord, extraData))
+      abi.encodeCall(
+        IForceFieldSystem.requireBuildAllowed,
+        (playerEntityId, baseEntityId, objectTypeId, coord, extraData)
+      )
     );
 
-    return entityId;
+    return baseEntityId;
   }
 
   function jumpBuild(uint8 objectTypeId, bytes memory extraData) public payable {
