@@ -6,7 +6,7 @@ export default defineWorld({
     upgradeableWorldImplementation: true,
   },
   enums: {
-    ChipType: ["None", "Chest", "ForceField"],
+    ChipType: ["None", "Chest", "ForceField", "Display"],
     ShopType: ["None", "Buy", "Sell", "BuySell"],
     ShopTxType: ["None", "Buy", "Sell"],
   },
