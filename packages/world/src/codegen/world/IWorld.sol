@@ -9,6 +9,7 @@ import { IActivateSystem } from "./IActivateSystem.sol";
 import { IBuildSystem } from "./IBuildSystem.sol";
 import { IChipSystem } from "./IChipSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
+import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
 import { IHitChipSystem } from "./IHitChipSystem.sol";
@@ -55,6 +56,7 @@ interface IWorld is
   IBuildSystem,
   IChipSystem,
   ICraftSystem,
+  IDisplaySystem,
   IDropSystem,
   IEquipSystem,
   IHitChipSystem,

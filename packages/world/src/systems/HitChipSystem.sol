@@ -24,8 +24,6 @@ import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { positionDataToVoxelCoord, safeCallChip, callMintXP, getL1GasPrice } from "../Utils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
-import { IChestChip } from "../prototypes/IChestChip.sol";
-import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
 contract HitChipSystem is System {
   function hitChipCommon(

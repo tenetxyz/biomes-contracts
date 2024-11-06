@@ -942,6 +942,37 @@
   },
   {
     "type": "function",
+    "name": "getDisplayContent",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct DisplayContent",
+        "components": [
+          {
+            "name": "contentType",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "content",
+            "type": "bytes",
+            "internalType": "bytes"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getDynamicField",
     "inputs": [
       {

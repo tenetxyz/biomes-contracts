@@ -32,3 +32,8 @@ struct PickupData {
   uint8 objectTypeId;
   uint16 numToPickup;
 }
+
+struct DisplayContent {
+  uint8 contentType;
+  bytes content;
+}

@@ -15,7 +15,7 @@ import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/Play
 import { ActionType } from "../codegen/common.sol";
 
 import { PLAYER_HAND_DAMAGE, HIT_CHIP_STAMINA_COST, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../Constants.sol";
-import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, ChestObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
+import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, ChestObjectID, ForceFieldObjectID, TextSignObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
@@ -24,6 +24,7 @@ import { safeCallChip, callMintXP } from "../Utils.sol";
 import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 
 contract ChipSystem is System {
   function attachChip(bytes32 entityId, address chipAddress, bytes memory extraData) public payable {
@@ -47,6 +48,11 @@ contract ChipSystem is System {
     } else if (objectTypeId == ForceFieldObjectID) {
       require(
         ERC165Checker.supportsInterface(chipAddress, type(IForceFieldChip).interfaceId),
+        "ChipSystem: chip does not implement the required interface"
+      );
+    } else if (objectTypeId == TextSignObjectID) {
+      require(
+        ERC165Checker.supportsInterface(chipAddress, type(IDisplayChip).interfaceId),
         "ChipSystem: chip does not implement the required interface"
       );
     } else {
@@ -144,17 +150,8 @@ contract ChipSystem is System {
     removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, numBattery);
 
     uint8 objectTypeId = ObjectType._get(baseEntityId);
-    uint256 increasePerBattery = 0;
     require(objectTypeId == ForceFieldObjectID, "ChipSystem: cannot power this object");
-    if (objectTypeId == ForceFieldObjectID) {
-      // 1 battery adds 4 days of charge
-      increasePerBattery = 4 days;
-    } else if (objectTypeId == ChestObjectID) {
-      // 1 battery adds 1 week of charge
-      increasePerBattery = 1 weeks;
-    } else {
-      revert("ChipSystem: cannot power this object");
-    }
+    uint256 increasePerBattery = 4 days;
     uint256 newBatteryLevel = chipData.batteryLevel + (uint256(numBattery) * increasePerBattery);
 
     Chip._setBatteryLevel(baseEntityId, newBatteryLevel);
