@@ -90,9 +90,9 @@ contract HitChipSystem is System {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     bytes32 baseEntityId = BaseEntity._get(entityId);
-    bytes32 useEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+    baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
 
-    hitChipCommon(initialGas, playerEntityId, useEntityId, entityCoord);
+    hitChipCommon(initialGas, playerEntityId, baseEntityId, entityCoord);
   }
 
   function hitForceField(VoxelCoord memory entityCoord) public {

@@ -18,9 +18,9 @@ import { NUM_XP_FOR_FULL_BATTERY } from "../Constants.sol";
 contract XPSystem is System {
   function craftChipBattery(uint16 numBatteries, bytes32 stationEntityId) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    bytes32 baseEntityId = BaseEntity._get(stationEntityId);
-    bytes32 useStationEntityId = baseEntityId == bytes32(0) ? stationEntityId : baseEntityId;
-    require(ObjectType._get(useStationEntityId) == PowerStoneObjectID, "XPSystem: not a power station");
+    bytes32 baseStationEntityId = BaseEntity._get(stationEntityId);
+    baseStationEntityId = baseStationEntityId == bytes32(0) ? stationEntityId : baseStationEntityId;
+    require(ObjectType._get(baseStationEntityId) == PowerStoneObjectID, "XPSystem: not a power station");
     requireInPlayerInfluence(playerCoord, stationEntityId);
 
     uint256 xpRequired = numBatteries * NUM_XP_FOR_FULL_BATTERY;
@@ -34,7 +34,7 @@ contract XPSystem is System {
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.Craft,
-        entityId: useStationEntityId,
+        entityId: baseStationEntityId,
         objectTypeId: ChipBatteryObjectID,
         coordX: playerCoord.x,
         coordY: playerCoord.y,

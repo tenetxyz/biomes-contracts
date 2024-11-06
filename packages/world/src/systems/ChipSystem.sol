@@ -32,10 +32,10 @@ contract ChipSystem is System {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     bytes32 baseEntityId = BaseEntity._get(entityId);
-    bytes32 useEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+    baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
 
-    uint8 objectTypeId = ObjectType._get(useEntityId);
-    ChipData memory chipData = updateChipBatteryLevel(useEntityId);
+    uint8 objectTypeId = ObjectType._get(baseEntityId);
+    ChipData memory chipData = updateChipBatteryLevel(baseEntityId);
     require(chipData.chipAddress == address(0), "ChipSystem: chip already attached");
     require(chipAddress != address(0), "ChipSystem: invalid chip address");
 
@@ -55,13 +55,13 @@ contract ChipSystem is System {
 
     removeFromInventoryCount(playerEntityId, ChipObjectID, 1);
 
-    Chip._setChipAddress(useEntityId, chipAddress);
+    Chip._setChipAddress(baseEntityId, chipAddress);
 
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.AttachChip,
-        entityId: useEntityId,
+        entityId: baseEntityId,
         objectTypeId: objectTypeId,
         coordX: entityCoord.x,
         coordY: entityCoord.y,
@@ -73,7 +73,7 @@ contract ChipSystem is System {
     callMintXP(playerEntityId, initialGas, 1);
 
     // Don't safe call here because we want to revert if the chip doesn't allow the attachment
-    bool isAllowed = IChip(chipAddress).onAttached{ value: _msgValue() }(playerEntityId, useEntityId, extraData);
+    bool isAllowed = IChip(chipAddress).onAttached{ value: _msgValue() }(playerEntityId, baseEntityId, extraData);
     require(isAllowed, "ChipSystem: chip does not allow attachment");
   }
 
@@ -87,22 +87,22 @@ contract ChipSystem is System {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     bytes32 baseEntityId = BaseEntity._get(entityId);
-    bytes32 useEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+    baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
 
-    ChipData memory chipData = updateChipBatteryLevel(useEntityId);
+    ChipData memory chipData = updateChipBatteryLevel(baseEntityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 
-    uint8 objectTypeId = ObjectType._get(useEntityId);
+    uint8 objectTypeId = ObjectType._get(baseEntityId);
 
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
-    Chip._setChipAddress(useEntityId, address(0));
+    Chip._setChipAddress(baseEntityId, address(0));
 
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.DetachChip,
-        entityId: useEntityId,
+        entityId: baseEntityId,
         objectTypeId: objectTypeId,
         coordX: entityCoord.x,
         coordY: entityCoord.y,
@@ -117,12 +117,12 @@ contract ChipSystem is System {
       // Don't safe call here because we want to revert if the chip doesn't allow the detachment
       bool isAllowed = IChip(chipData.chipAddress).onDetached{ value: _msgValue() }(
         playerEntityId,
-        useEntityId,
+        baseEntityId,
         extraData
       );
       require(isAllowed, "ChipSystem: chip does not allow detachment");
     } else {
-      safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, useEntityId, extraData)));
+      safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, baseEntityId, extraData)));
     }
   }
 
@@ -137,13 +137,13 @@ contract ChipSystem is System {
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
     bytes32 baseEntityId = BaseEntity._get(entityId);
-    bytes32 useEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+    baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
 
-    ChipData memory chipData = updateChipBatteryLevel(useEntityId);
+    ChipData memory chipData = updateChipBatteryLevel(baseEntityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
     removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, numBattery);
 
-    uint8 objectTypeId = ObjectType._get(useEntityId);
+    uint8 objectTypeId = ObjectType._get(baseEntityId);
     uint256 increasePerBattery = 0;
     require(objectTypeId == ForceFieldObjectID, "ChipSystem: cannot power this object");
     if (objectTypeId == ForceFieldObjectID) {
@@ -157,14 +157,14 @@ contract ChipSystem is System {
     }
     uint256 newBatteryLevel = chipData.batteryLevel + (uint256(numBattery) * increasePerBattery);
 
-    Chip._setBatteryLevel(useEntityId, newBatteryLevel);
-    Chip._setLastUpdatedTime(useEntityId, block.timestamp);
+    Chip._setBatteryLevel(baseEntityId, newBatteryLevel);
+    Chip._setLastUpdatedTime(baseEntityId, block.timestamp);
 
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.PowerChip,
-        entityId: useEntityId,
+        entityId: baseEntityId,
         objectTypeId: objectTypeId,
         coordX: entityCoord.x,
         coordY: entityCoord.y,
@@ -175,7 +175,7 @@ contract ChipSystem is System {
 
     callMintXP(playerEntityId, initialGas, 1);
 
-    safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onPowered, (playerEntityId, useEntityId, numBattery)));
+    safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onPowered, (playerEntityId, baseEntityId, numBattery)));
   }
 
   function hitChip(bytes32 entityId) public {

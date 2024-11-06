@@ -26,8 +26,8 @@ contract ActivateSystem is System {
     } else {
       // if there's no chip, it'll just do nothing
       bytes32 baseEntityId = BaseEntity._get(entityId);
-      bytes32 useEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
-      updateChipBatteryLevel(useEntityId);
+      baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+      updateChipBatteryLevel(baseEntityId);
     }
   }
 

@@ -6,6 +6,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
@@ -25,30 +26,42 @@ contract TransferSystem is System {
   function transferCommon(
     bytes32 srcEntityId,
     bytes32 dstEntityId
-  ) internal returns (bytes32, uint8, VoxelCoord memory) {
+  ) internal returns (bytes32, uint8, bytes32, bytes32, VoxelCoord memory) {
     (bytes32 playerEntityId, ) = requireValidPlayer(_msgSender());
 
-    require(dstEntityId != srcEntityId, "TransferSystem: cannot transfer to self");
-    VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(srcEntityId));
-    VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(dstEntityId));
+    bytes32 baseSrcEntityId = BaseEntity._get(srcEntityId);
+    baseSrcEntityId = baseSrcEntityId == bytes32(0) ? srcEntityId : baseSrcEntityId;
+
+    bytes32 baseDstEntityId = BaseEntity._get(dstEntityId);
+    baseDstEntityId = baseDstEntityId == bytes32(0) ? dstEntityId : baseDstEntityId;
+
+    require(baseDstEntityId != baseSrcEntityId, "TransferSystem: cannot transfer to self");
+    VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(baseSrcEntityId));
+    VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(baseDstEntityId));
     require(
       inSurroundingCube(srcCoord, MAX_PLAYER_INFLUENCE_HALF_WIDTH, dstCoord),
       "TransferSystem: destination too far"
     );
 
-    uint8 srcObjectTypeId = ObjectType._get(srcEntityId);
-    uint8 dstObjectTypeId = ObjectType._get(dstEntityId);
+    uint8 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
+    uint8 dstObjectTypeId = ObjectType._get(baseDstEntityId);
     if (srcObjectTypeId == PlayerObjectID) {
-      require(playerEntityId == srcEntityId, "TransferSystem: player does not own source inventory");
+      require(playerEntityId == baseSrcEntityId, "TransferSystem: player does not own source inventory");
       require(dstObjectTypeId == ChestObjectID, "TransferSystem: cannot transfer to non-chest");
     } else if (dstObjectTypeId == PlayerObjectID) {
-      require(playerEntityId == dstEntityId, "TransferSystem: player does not own destination inventory");
+      require(playerEntityId == baseDstEntityId, "TransferSystem: player does not own destination inventory");
       require(srcObjectTypeId == ChestObjectID, "TransferSystem: cannot transfer from non-chest");
     } else {
       revert("TransferSystem: invalid transfer operation");
     }
 
-    return (playerEntityId, dstObjectTypeId, playerEntityId == srcEntityId ? dstCoord : srcCoord);
+    return (
+      playerEntityId,
+      dstObjectTypeId,
+      baseSrcEntityId,
+      baseDstEntityId,
+      playerEntityId == baseSrcEntityId ? dstCoord : srcCoord
+    );
   }
 
   function requireAllowed(
@@ -92,17 +105,20 @@ contract TransferSystem is System {
   ) public payable {
     uint256 initialGas = gasleft();
 
-    (bytes32 playerEntityId, uint8 dstObjectTypeId, VoxelCoord memory chestCoord) = transferCommon(
-      srcEntityId,
-      dstEntityId
-    );
-    transferInventoryNonTool(srcEntityId, dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
+    (
+      bytes32 playerEntityId,
+      uint8 dstObjectTypeId,
+      bytes32 baseSrcEntityId,
+      bytes32 baseDstEntityId,
+      VoxelCoord memory chestCoord
+    ) = transferCommon(srcEntityId, dstEntityId);
+    transferInventoryNonTool(baseSrcEntityId, baseDstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
 
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.Transfer,
-        entityId: playerEntityId == srcEntityId ? dstEntityId : srcEntityId,
+        entityId: playerEntityId == baseSrcEntityId ? baseDstEntityId : baseSrcEntityId,
         objectTypeId: transferObjectTypeId,
         coordX: chestCoord.x,
         coordY: chestCoord.y,
@@ -117,8 +133,8 @@ contract TransferSystem is System {
     requireAllowed(
       getForceField(chestCoord),
       playerEntityId,
-      srcEntityId,
-      dstEntityId,
+      baseSrcEntityId,
+      baseDstEntityId,
       transferObjectTypeId,
       numToTransfer,
       new bytes32[](0),
@@ -147,15 +163,18 @@ contract TransferSystem is System {
     require(toolEntityIds.length > 0, "TransferSystem: must transfer at least one tool");
     require(toolEntityIds.length < type(uint16).max, "TransferSystem: too many tools to transfer");
 
-    (bytes32 playerEntityId, uint8 dstObjectTypeId, VoxelCoord memory chestCoord) = transferCommon(
-      srcEntityId,
-      dstEntityId
-    );
+    (
+      bytes32 playerEntityId,
+      uint8 dstObjectTypeId,
+      bytes32 baseSrcEntityId,
+      bytes32 baseDstEntityId,
+      VoxelCoord memory chestCoord
+    ) = transferCommon(srcEntityId, dstEntityId);
     uint8 toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
       uint8 currentToolObjectTypeId = transferInventoryTool(
-        srcEntityId,
-        dstEntityId,
+        baseSrcEntityId,
+        baseDstEntityId,
         dstObjectTypeId,
         toolEntityIds[i]
       );
@@ -170,7 +189,7 @@ contract TransferSystem is System {
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.Transfer,
-        entityId: playerEntityId == srcEntityId ? dstEntityId : srcEntityId,
+        entityId: playerEntityId == baseSrcEntityId ? baseDstEntityId : baseSrcEntityId,
         objectTypeId: toolObjectTypeId,
         coordX: chestCoord.x,
         coordY: chestCoord.y,
@@ -185,8 +204,8 @@ contract TransferSystem is System {
     requireAllowed(
       getForceField(chestCoord),
       playerEntityId,
-      srcEntityId,
-      dstEntityId,
+      baseSrcEntityId,
+      baseDstEntityId,
       toolObjectTypeId,
       uint16(toolEntityIds.length),
       toolEntityIds,
