@@ -219,6 +219,20 @@ contract MineTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
+    vm.startPrank(worldDeployer, worldDeployer);
+    VoxelCoord memory finalCoord = VoxelCoord(WORLD_BORDER_LOW_X + 1, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
     VoxelCoord memory mineCoord = VoxelCoord(WORLD_BORDER_LOW_X - 1, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z);
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
     assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");

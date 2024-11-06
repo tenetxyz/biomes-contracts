@@ -48,37 +48,50 @@ contract ForceFieldSystem is System {
     }
   }
 
-  function requireMineAllowed(
+  function requireMinesAllowed(
     bytes32 playerEntityId,
-    uint32 equippedToolDamage,
-    bytes32 entityId,
+    bytes32 baseEntityId,
     uint8 objectTypeId,
-    VoxelCoord memory coord,
+    VoxelCoord[] memory coords,
     bytes memory extraData
   ) public payable {
-    bytes32 forceFieldEntityId = getForceField(coord);
-    if (forceFieldEntityId != bytes32(0)) {
-      ChipData memory chipData = updateChipBatteryLevel(forceFieldEntityId);
-      if (chipData.chipAddress != address(0) && chipData.batteryLevel > 0) {
-        bool mineAllowed = IForceFieldChip(chipData.chipAddress).onMine{ value: _msgValue() }(
-          forceFieldEntityId,
-          playerEntityId,
-          objectTypeId,
-          coord,
-          extraData
-        );
-        require(mineAllowed, "ForceFieldSystem: mine not allowed by force field");
+    for (uint256 i = 0; i < coords.length; i++) {
+      VoxelCoord memory coord = coords[i];
+      bytes32 forceFieldEntityId = getForceField(coord);
+      if (forceFieldEntityId != bytes32(0)) {
+        ChipData memory chipData = updateChipBatteryLevel(forceFieldEntityId);
+        if (chipData.chipAddress != address(0) && chipData.batteryLevel > 0) {
+          bool mineAllowed = IForceFieldChip(chipData.chipAddress).onMine{ value: _msgValue() }(
+            forceFieldEntityId,
+            playerEntityId,
+            objectTypeId,
+            coord,
+            extraData
+          );
+          require(mineAllowed, "ForceFieldSystem: mine not allowed by force field");
+        }
       }
-    }
 
-    if (objectTypeId == ForceFieldObjectID) {
-      destroyForceField(entityId, coord);
+      if (objectTypeId == ForceFieldObjectID) {
+        destroyForceField(baseEntityId, coord);
+      }
     }
   }
 
   // Deprecated
   function requireBuildAllowed(
     bytes32 playerEntityId,
+    bytes32 entityId,
+    uint8 objectTypeId,
+    VoxelCoord memory coord,
+    bytes memory extraData
+  ) public payable {
+    revert("ForceFieldSystem: deprecated function");
+  }
+
+  function requireMineAllowed(
+    bytes32 playerEntityId,
+    uint32 equippedToolDamage,
     bytes32 entityId,
     uint8 objectTypeId,
     VoxelCoord memory coord,

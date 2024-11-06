@@ -38,6 +38,7 @@ import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
 import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
 import { IForceFieldSystem } from "./IForceFieldSystem.sol";
 import { IGravitySystem } from "./IGravitySystem.sol";
+import { IMineHelperSystem } from "./IMineHelperSystem.sol";
 import { IMintXPSystem } from "./IMintXPSystem.sol";
 import { IChestSystem } from "./IChestSystem.sol";
 
@@ -83,6 +84,7 @@ interface IWorld is
   IInitWorkbenchSystem,
   IForceFieldSystem,
   IGravitySystem,
+  IMineHelperSystem,
   IMintXPSystem,
   IChestSystem
 {}

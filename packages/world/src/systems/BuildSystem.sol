@@ -27,7 +27,7 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
 contract BuildSystem is System {
-  function buildCommon(uint8 objectTypeId, VoxelCoord memory coord) internal returns (bytes32) {
+  function buildObjectAtCoord(uint8 objectTypeId, VoxelCoord memory coord) internal returns (bytes32) {
     require(inWorldBorder(coord), "BuildSystem: cannot build outside world border");
     require(!inSpawnArea(coord), "BuildSystem: cannot build at spawn area");
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
@@ -60,7 +60,7 @@ contract BuildSystem is System {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    bytes32 baseEntityId = buildCommon(objectTypeId, coord);
+    bytes32 baseEntityId = buildObjectAtCoord(objectTypeId, coord);
     uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(objectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
     coords[0] = coord;
@@ -73,7 +73,7 @@ contract BuildSystem is System {
           coord.z + schemaData.relativePositionsZ[i]
         );
         coords[i + 1] = relativeCoord;
-        bytes32 entityId = buildCommon(objectTypeId, relativeCoord);
+        bytes32 entityId = buildObjectAtCoord(objectTypeId, relativeCoord);
         BaseEntity._set(entityId, baseEntityId);
       }
     }

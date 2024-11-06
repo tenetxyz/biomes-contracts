@@ -2771,6 +2771,51 @@
   },
   {
     "type": "function",
+    "name": "onMine",
+    "inputs": [
+      {
+        "name": "playerEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "baseEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "mineObjectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "coords",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "pickup",
     "inputs": [
       {
@@ -3388,6 +3433,56 @@
         "name": "coord",
         "type": "tuple",
         "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "requireMinesAllowed",
+    "inputs": [
+      {
+        "name": "playerEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "baseEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "objectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "coords",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
         "components": [
           {
             "name": "x",
