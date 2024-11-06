@@ -52,6 +52,7 @@ contract BuildSystem is System {
     ObjectType._set(entityId, objectTypeId);
     return entityId;
   }
+
   function build(uint8 objectTypeId, VoxelCoord memory coord, bytes memory extraData) public payable returns (bytes32) {
     uint256 initialGas = gasleft();
 
@@ -61,6 +62,8 @@ contract BuildSystem is System {
 
     bytes32 baseEntityId = buildCommon(objectTypeId, coord);
     uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(objectTypeId);
+    VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
+    coords[0] = coord;
     if (numRelativePositions > 0) {
       ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(objectTypeId);
       for (uint256 i = 0; i < numRelativePositions; i++) {
@@ -69,12 +72,11 @@ contract BuildSystem is System {
           coord.y + schemaData.relativePositionsY[i],
           coord.z + schemaData.relativePositionsZ[i]
         );
+        coords[i + 1] = relativeCoord;
         bytes32 entityId = buildCommon(objectTypeId, relativeCoord);
         BaseEntity._set(entityId, baseEntityId);
       }
     }
-
-    buildCommon(objectTypeId, coord);
 
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
 
@@ -96,8 +98,8 @@ contract BuildSystem is System {
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
     callInternalSystem(
       abi.encodeCall(
-        IForceFieldSystem.requireBuildAllowed,
-        (playerEntityId, baseEntityId, objectTypeId, coord, extraData)
+        IForceFieldSystem.requireBuildsAllowed,
+        (playerEntityId, baseEntityId, objectTypeId, coords, extraData)
       )
     );
 

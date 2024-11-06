@@ -17,7 +17,7 @@ import { getForceField, setupForceField, destroyForceField } from "../../utils/F
 import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 
 contract ForceFieldSystem is System {
-  function requireBuildAllowed(
+  function requireBuildsAllowed(
     bytes32 playerEntityId,
     bytes32 baseEntityId,
     uint8 objectTypeId,
@@ -27,6 +27,11 @@ contract ForceFieldSystem is System {
     for (uint256 i = 0; i < coords.length; i++) {
       VoxelCoord memory coord = coords[i];
       bytes32 forceFieldEntityId = getForceField(coord);
+      if (objectTypeId == ForceFieldObjectID) {
+        require(forceFieldEntityId == bytes32(0), "Force field overlaps with another force field");
+        setupForceField(baseEntityId, coord);
+      }
+
       if (forceFieldEntityId != bytes32(0)) {
         ChipData memory chipData = updateChipBatteryLevel(forceFieldEntityId);
         if (chipData.chipAddress != address(0) && chipData.batteryLevel > 0) {
@@ -41,11 +46,6 @@ contract ForceFieldSystem is System {
         }
       }
     }
-    // bytes32 forceFieldEntityId = getForceField(coord);
-    // if (objectTypeId == ForceFieldObjectID) {
-    //   require(forceFieldEntityId == bytes32(0), "Force field overlaps with another force field");
-    //   setupForceField(baseEntityId, coord);
-    // }
   }
 
   function requireMineAllowed(
