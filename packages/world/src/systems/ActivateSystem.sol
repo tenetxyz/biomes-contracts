@@ -5,6 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 
 import { IN_MAINTENANCE } from "../Constants.sol";
@@ -24,7 +25,9 @@ contract ActivateSystem is System {
       requireValidPlayer(ReversePlayer._get(entityId));
     } else {
       // if there's no chip, it'll just do nothing
-      updateChipBatteryLevel(entityId);
+      bytes32 baseEntityId = BaseEntity._get(entityId);
+      bytes32 useEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+      updateChipBatteryLevel(useEntityId);
     }
   }
 

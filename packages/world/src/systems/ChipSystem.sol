@@ -6,6 +6,7 @@ import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
@@ -30,9 +31,11 @@ contract ChipSystem is System {
 
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+    bytes32 useEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
 
-    uint8 objectTypeId = ObjectType._get(entityId);
-    ChipData memory chipData = updateChipBatteryLevel(entityId);
+    uint8 objectTypeId = ObjectType._get(useEntityId);
+    ChipData memory chipData = updateChipBatteryLevel(useEntityId);
     require(chipData.chipAddress == address(0), "ChipSystem: chip already attached");
     require(chipAddress != address(0), "ChipSystem: invalid chip address");
 
@@ -52,13 +55,13 @@ contract ChipSystem is System {
 
     removeFromInventoryCount(playerEntityId, ChipObjectID, 1);
 
-    Chip._setChipAddress(entityId, chipAddress);
+    Chip._setChipAddress(useEntityId, chipAddress);
 
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.AttachChip,
-        entityId: entityId,
+        entityId: useEntityId,
         objectTypeId: objectTypeId,
         coordX: entityCoord.x,
         coordY: entityCoord.y,
@@ -70,7 +73,7 @@ contract ChipSystem is System {
     callMintXP(playerEntityId, initialGas, 1);
 
     // Don't safe call here because we want to revert if the chip doesn't allow the attachment
-    bool isAllowed = IChip(chipAddress).onAttached{ value: _msgValue() }(playerEntityId, entityId, extraData);
+    bool isAllowed = IChip(chipAddress).onAttached{ value: _msgValue() }(playerEntityId, useEntityId, extraData);
     require(isAllowed, "ChipSystem: chip does not allow attachment");
   }
 
@@ -83,21 +86,23 @@ contract ChipSystem is System {
 
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+    bytes32 useEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
 
-    ChipData memory chipData = updateChipBatteryLevel(entityId);
+    ChipData memory chipData = updateChipBatteryLevel(useEntityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
 
-    uint8 objectTypeId = ObjectType._get(entityId);
+    uint8 objectTypeId = ObjectType._get(useEntityId);
 
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
-    Chip._setChipAddress(entityId, address(0));
+    Chip._setChipAddress(useEntityId, address(0));
 
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.DetachChip,
-        entityId: entityId,
+        entityId: useEntityId,
         objectTypeId: objectTypeId,
         coordX: entityCoord.x,
         coordY: entityCoord.y,
@@ -112,12 +117,12 @@ contract ChipSystem is System {
       // Don't safe call here because we want to revert if the chip doesn't allow the detachment
       bool isAllowed = IChip(chipData.chipAddress).onDetached{ value: _msgValue() }(
         playerEntityId,
-        entityId,
+        useEntityId,
         extraData
       );
       require(isAllowed, "ChipSystem: chip does not allow detachment");
     } else {
-      safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, entityId, extraData)));
+      safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, useEntityId, extraData)));
     }
   }
 
@@ -131,11 +136,14 @@ contract ChipSystem is System {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
-    ChipData memory chipData = updateChipBatteryLevel(entityId);
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+    bytes32 useEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+
+    ChipData memory chipData = updateChipBatteryLevel(useEntityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
     removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, numBattery);
 
-    uint8 objectTypeId = ObjectType._get(entityId);
+    uint8 objectTypeId = ObjectType._get(useEntityId);
     uint256 increasePerBattery = 0;
     require(objectTypeId == ForceFieldObjectID, "ChipSystem: cannot power this object");
     if (objectTypeId == ForceFieldObjectID) {
@@ -149,14 +157,14 @@ contract ChipSystem is System {
     }
     uint256 newBatteryLevel = chipData.batteryLevel + (uint256(numBattery) * increasePerBattery);
 
-    Chip._setBatteryLevel(entityId, newBatteryLevel);
-    Chip._setLastUpdatedTime(entityId, block.timestamp);
+    Chip._setBatteryLevel(useEntityId, newBatteryLevel);
+    Chip._setLastUpdatedTime(useEntityId, block.timestamp);
 
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.PowerChip,
-        entityId: entityId,
+        entityId: useEntityId,
         objectTypeId: objectTypeId,
         coordX: entityCoord.x,
         coordY: entityCoord.y,
@@ -167,7 +175,7 @@ contract ChipSystem is System {
 
     callMintXP(playerEntityId, initialGas, 1);
 
-    safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onPowered, (playerEntityId, entityId, numBattery)));
+    safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onPowered, (playerEntityId, useEntityId, numBattery)));
   }
 
   function hitChip(bytes32 entityId) public {
