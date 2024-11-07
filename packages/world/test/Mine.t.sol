@@ -12,6 +12,7 @@ import { Player } from "../src/codegen/tables/Player.sol";
 import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
@@ -32,7 +33,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, NeptuniumCubeObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, NeptuniumCubeObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
@@ -134,6 +135,115 @@ contract MineTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testMineMultiSize() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, TextSignObjectID, 1);
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+    bytes32 buildEntityId = world.build(TextSignObjectID, buildCoord);
+
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(buildEntityId)), buildCoord),
+      "Position not set"
+    );
+    assertTrue(
+      ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z) == buildEntityId,
+      "Reverse position not set"
+    );
+    assertTrue(ObjectType.get(buildEntityId) == TextSignObjectID, "Object not built");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, TextSignObjectID), "Inventory objects not set");
+    assertTrue(InventoryCount.get(playerEntityId, TextSignObjectID) == 0, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    VoxelCoord memory topCoord = VoxelCoord(buildCoord.x, buildCoord.y + 1, buildCoord.z);
+    bytes32 topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    require(topEntityId != bytes32(0), "Top entity not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(topEntityId)), topCoord),
+      "Top position not set"
+    );
+    assertTrue(ObjectType.get(topEntityId) == TextSignObjectID, "Top object not built");
+    assertTrue(BaseEntity.get(topEntityId) == buildEntityId, "Top entity not linked");
+
+    startGasReport("mine multi size 2");
+    world.mine(buildCoord);
+    endGasReport();
+
+    bytes32 mineEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    assertTrue(mineEntityId != bytes32(0), "Mine entity not found");
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Object not mined");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(mineEntityId)), buildCoord),
+      "Mine position not set"
+    );
+    bytes32 mineTopEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    assertTrue(mineTopEntityId != bytes32(0), "Top mine entity not found");
+    assertTrue(ObjectType.get(mineTopEntityId) == AirObjectID, "Top object not mined");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(mineTopEntityId)), topCoord),
+      "Top mine position not set"
+    );
+    assertTrue(BaseEntity.get(mineTopEntityId) == bytes32(0), "Top mine entity still linked");
+    assertTrue(InventoryCount.get(playerEntityId, TextSignObjectID) == 1, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, TextSignObjectID), "Inventory objects not set");
+
+    buildEntityId = world.build(TextSignObjectID, buildCoord);
+
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(buildEntityId)), buildCoord),
+      "Position not set"
+    );
+    assertTrue(
+      ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z) == buildEntityId,
+      "Reverse position not set"
+    );
+    assertTrue(ObjectType.get(buildEntityId) == TextSignObjectID, "Object not built");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, TextSignObjectID), "Inventory objects not set");
+    assertTrue(InventoryCount.get(playerEntityId, TextSignObjectID) == 0, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    require(topEntityId != bytes32(0), "Top entity not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(topEntityId)), topCoord),
+      "Top position not set"
+    );
+    assertTrue(ObjectType.get(topEntityId) == TextSignObjectID, "Top object not built");
+    assertTrue(BaseEntity.get(topEntityId) == buildEntityId, "Top entity not linked");
+
+    world.mine(topCoord);
+
+    mineEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    assertTrue(mineEntityId != bytes32(0), "Mine entity not found");
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Object not mined");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(mineEntityId)), buildCoord),
+      "Mine position not set"
+    );
+    mineTopEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    assertTrue(mineTopEntityId != bytes32(0), "Top mine entity not found");
+    assertTrue(ObjectType.get(mineTopEntityId) == AirObjectID, "Top object not mined");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(mineTopEntityId)), topCoord),
+      "Top mine position not set"
+    );
+    assertTrue(BaseEntity.get(mineTopEntityId) == bytes32(0), "Top mine entity still linked");
+    assertTrue(InventoryCount.get(playerEntityId, TextSignObjectID) == 1, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, TextSignObjectID), "Inventory objects not set");
+
+    vm.stopPrank();
+  }
+
   function testMineTooDifficultWithHand() public {
     vm.startPrank(alice, alice);
 
@@ -218,6 +328,20 @@ contract MineTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    VoxelCoord memory finalCoord = VoxelCoord(WORLD_BORDER_LOW_X + 1, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
 
     VoxelCoord memory mineCoord = VoxelCoord(WORLD_BORDER_LOW_X - 1, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z);
     uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);

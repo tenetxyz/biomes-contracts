@@ -5,6 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
@@ -17,7 +18,9 @@ import { NUM_XP_FOR_FULL_BATTERY } from "../Constants.sol";
 contract XPSystem is System {
   function craftChipBattery(uint16 numBatteries, bytes32 stationEntityId) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    require(ObjectType._get(stationEntityId) == PowerStoneObjectID, "XPSystem: not a power station");
+    bytes32 baseStationEntityId = BaseEntity._get(stationEntityId);
+    baseStationEntityId = baseStationEntityId == bytes32(0) ? stationEntityId : baseStationEntityId;
+    require(ObjectType._get(baseStationEntityId) == PowerStoneObjectID, "XPSystem: not a power station");
     requireInPlayerInfluence(playerCoord, stationEntityId);
 
     uint256 xpRequired = numBatteries * NUM_XP_FOR_FULL_BATTERY;
@@ -31,7 +34,7 @@ contract XPSystem is System {
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.Craft,
-        entityId: stationEntityId,
+        entityId: baseStationEntityId,
         objectTypeId: ChipBatteryObjectID,
         coordX: playerCoord.x,
         coordY: playerCoord.y,

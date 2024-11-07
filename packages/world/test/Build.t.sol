@@ -12,6 +12,7 @@ import { Player } from "../src/codegen/tables/Player.sol";
 import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
@@ -33,7 +34,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
@@ -153,6 +154,49 @@ contract BuildTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testBuildMultiSize() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, TextSignObjectID, 1);
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+    startGasReport("build multi size 2");
+    bytes32 buildEntityId = world.build(TextSignObjectID, buildCoord);
+    endGasReport();
+
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(buildEntityId)), buildCoord),
+      "Position not set"
+    );
+    assertTrue(
+      ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z) == buildEntityId,
+      "Reverse position not set"
+    );
+    assertTrue(ObjectType.get(buildEntityId) == TextSignObjectID, "Object not built");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, TextSignObjectID), "Inventory objects not set");
+    assertTrue(InventoryCount.get(playerEntityId, TextSignObjectID) == 0, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    VoxelCoord memory topCoord = VoxelCoord(buildCoord.x, buildCoord.y + 1, buildCoord.z);
+    bytes32 topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    require(topEntityId != bytes32(0), "Top entity not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(topEntityId)), topCoord),
+      "Top position not set"
+    );
+    assertTrue(ObjectType.get(topEntityId) == TextSignObjectID, "Top object not built");
+    assertTrue(BaseEntity.get(topEntityId) == buildEntityId, "Top entity not linked");
+
+    vm.stopPrank();
+  }
+
   function testBuildInsideSpawn() public {
     vm.startPrank(alice, alice);
 
@@ -187,6 +231,17 @@ contract BuildTest is MudTest, GasReporter {
     vm.startPrank(worldDeployer, worldDeployer);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+
+    VoxelCoord memory finalCoord = VoxelCoord(WORLD_BORDER_LOW_X + 1, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
     vm.stopPrank();
     vm.startPrank(alice, alice);
 

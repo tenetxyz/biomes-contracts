@@ -28,7 +28,20 @@ struct EntityData {
   VoxelCoord position;
 }
 
+struct EntityDataWithBaseEntity {
+  uint8 objectTypeId;
+  bytes32 entityId;
+  bytes32 baseEntityId;
+  InventoryObject[] inventory;
+  VoxelCoord position;
+}
+
 struct PickupData {
   uint8 objectTypeId;
   uint16 numToPickup;
+}
+
+struct DisplayContent {
+  uint8 contentType;
+  bytes content;
 }

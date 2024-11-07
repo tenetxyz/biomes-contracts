@@ -5,6 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { InventoryTool } from "../codegen/tables/InventoryTool.sol";
 import { ReverseInventoryTool } from "../codegen/tables/ReverseInventoryTool.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
@@ -26,10 +27,13 @@ contract CraftSystem is System {
 
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
 
+    bytes32 baseStationEntityId = BaseEntity._get(stationEntityId);
+    baseStationEntityId = baseStationEntityId == bytes32(0) ? stationEntityId : baseStationEntityId;
+
     RecipesData memory recipeData = Recipes._get(recipeId);
     require(recipeData.inputObjectTypeIds.length > 0, "CraftSystem: recipe not found");
     if (recipeData.stationObjectTypeId != NullObjectTypeId) {
-      require(ObjectType._get(stationEntityId) == recipeData.stationObjectTypeId, "CraftSystem: wrong station");
+      require(ObjectType._get(baseStationEntityId) == recipeData.stationObjectTypeId, "CraftSystem: wrong station");
       requireInPlayerInfluence(playerCoord, stationEntityId);
     }
 
@@ -132,7 +136,7 @@ contract CraftSystem is System {
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.Craft,
-        entityId: stationEntityId,
+        entityId: baseStationEntityId,
         objectTypeId: recipeData.outputObjectTypeId,
         coordX: playerCoord.x,
         coordY: playerCoord.y,

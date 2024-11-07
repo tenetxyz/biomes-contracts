@@ -17,6 +17,68 @@ import { getForceField, setupForceField, destroyForceField } from "../../utils/F
 import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 
 contract ForceFieldSystem is System {
+  function requireBuildsAllowed(
+    bytes32 playerEntityId,
+    bytes32 baseEntityId,
+    uint8 objectTypeId,
+    VoxelCoord[] memory coords,
+    bytes memory extraData
+  ) public payable {
+    for (uint256 i = 0; i < coords.length; i++) {
+      VoxelCoord memory coord = coords[i];
+      bytes32 forceFieldEntityId = getForceField(coord);
+      if (objectTypeId == ForceFieldObjectID) {
+        require(forceFieldEntityId == bytes32(0), "Force field overlaps with another force field");
+        setupForceField(baseEntityId, coord);
+      }
+
+      if (forceFieldEntityId != bytes32(0)) {
+        ChipData memory chipData = updateChipBatteryLevel(forceFieldEntityId);
+        if (chipData.chipAddress != address(0) && chipData.batteryLevel > 0) {
+          bool buildAllowed = IForceFieldChip(chipData.chipAddress).onBuild{ value: _msgValue() }(
+            forceFieldEntityId,
+            playerEntityId,
+            objectTypeId,
+            coord,
+            extraData
+          );
+          require(buildAllowed, "ForceFieldSystem: build not allowed by force field");
+        }
+      }
+    }
+  }
+
+  function requireMinesAllowed(
+    bytes32 playerEntityId,
+    bytes32 baseEntityId,
+    uint8 objectTypeId,
+    VoxelCoord[] memory coords,
+    bytes memory extraData
+  ) public payable {
+    for (uint256 i = 0; i < coords.length; i++) {
+      VoxelCoord memory coord = coords[i];
+      bytes32 forceFieldEntityId = getForceField(coord);
+      if (forceFieldEntityId != bytes32(0)) {
+        ChipData memory chipData = updateChipBatteryLevel(forceFieldEntityId);
+        if (chipData.chipAddress != address(0) && chipData.batteryLevel > 0) {
+          bool mineAllowed = IForceFieldChip(chipData.chipAddress).onMine{ value: _msgValue() }(
+            forceFieldEntityId,
+            playerEntityId,
+            objectTypeId,
+            coord,
+            extraData
+          );
+          require(mineAllowed, "ForceFieldSystem: mine not allowed by force field");
+        }
+      }
+
+      if (objectTypeId == ForceFieldObjectID) {
+        destroyForceField(baseEntityId, coord);
+      }
+    }
+  }
+
+  // Deprecated
   function requireBuildAllowed(
     bytes32 playerEntityId,
     bytes32 entityId,
@@ -24,25 +86,7 @@ contract ForceFieldSystem is System {
     VoxelCoord memory coord,
     bytes memory extraData
   ) public payable {
-    bytes32 forceFieldEntityId = getForceField(coord);
-    if (objectTypeId == ForceFieldObjectID) {
-      require(forceFieldEntityId == bytes32(0), "Force field overlaps with another force field");
-      setupForceField(entityId, coord);
-    }
-
-    if (forceFieldEntityId != bytes32(0)) {
-      ChipData memory chipData = updateChipBatteryLevel(forceFieldEntityId);
-      if (chipData.chipAddress != address(0) && chipData.batteryLevel > 0) {
-        bool buildAllowed = IForceFieldChip(chipData.chipAddress).onBuild{ value: _msgValue() }(
-          forceFieldEntityId,
-          playerEntityId,
-          objectTypeId,
-          coord,
-          extraData
-        );
-        require(buildAllowed, "ForceFieldSystem: build not allowed by force field");
-      }
-    }
+    revert("ForceFieldSystem: deprecated function");
   }
 
   function requireMineAllowed(
@@ -53,23 +97,6 @@ contract ForceFieldSystem is System {
     VoxelCoord memory coord,
     bytes memory extraData
   ) public payable {
-    bytes32 forceFieldEntityId = getForceField(coord);
-    if (forceFieldEntityId != bytes32(0)) {
-      ChipData memory chipData = updateChipBatteryLevel(forceFieldEntityId);
-      if (chipData.chipAddress != address(0) && chipData.batteryLevel > 0) {
-        bool mineAllowed = IForceFieldChip(chipData.chipAddress).onMine{ value: _msgValue() }(
-          forceFieldEntityId,
-          playerEntityId,
-          objectTypeId,
-          coord,
-          extraData
-        );
-        require(mineAllowed, "ForceFieldSystem: mine not allowed by force field");
-      }
-    }
-
-    if (objectTypeId == ForceFieldObjectID) {
-      destroyForceField(entityId, coord);
-    }
+    revert("ForceFieldSystem: deprecated function");
   }
 }

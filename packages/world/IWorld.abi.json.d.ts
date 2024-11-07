@@ -942,6 +942,37 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "getDisplayContent",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct DisplayContent",
+        "components": [
+          {
+            "name": "contentType",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "content",
+            "type": "bytes",
+            "internalType": "bytes"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getDynamicField",
     "inputs": [
       {
@@ -1164,6 +1195,207 @@ declare const abi: [
           },
           {
             "name": "entityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "inventory",
+            "type": "tuple[]",
+            "internalType": "struct InventoryObject[]",
+            "components": [
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "numObjects",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "tools",
+                "type": "tuple[]",
+                "internalType": "struct InventoryTool[]",
+                "components": [
+                  {
+                    "name": "entityId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "numUsesLeft",
+                    "type": "uint24",
+                    "internalType": "uint24"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "position",
+            "type": "tuple",
+            "internalType": "struct VoxelCoord",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getEntityDataWithBaseEntity",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct EntityDataWithBaseEntity",
+        "components": [
+          {
+            "name": "objectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "entityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "baseEntityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "inventory",
+            "type": "tuple[]",
+            "internalType": "struct InventoryObject[]",
+            "components": [
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "numObjects",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "tools",
+                "type": "tuple[]",
+                "internalType": "struct InventoryTool[]",
+                "components": [
+                  {
+                    "name": "entityId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "numUsesLeft",
+                    "type": "uint24",
+                    "internalType": "uint24"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "position",
+            "type": "tuple",
+            "internalType": "struct VoxelCoord",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getEntityDataWithBaseEntityAtCoord",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct EntityDataWithBaseEntity",
+        "components": [
+          {
+            "name": "objectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "entityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "baseEntityId",
             "type": "bytes32",
             "internalType": "bytes32"
           },
@@ -1614,6 +1846,115 @@ declare const abi: [
           },
           {
             "name": "entityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "inventory",
+            "type": "tuple[]",
+            "internalType": "struct InventoryObject[]",
+            "components": [
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "numObjects",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "tools",
+                "type": "tuple[]",
+                "internalType": "struct InventoryTool[]",
+                "components": [
+                  {
+                    "name": "entityId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "numUsesLeft",
+                    "type": "uint24",
+                    "internalType": "uint24"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "position",
+            "type": "tuple",
+            "internalType": "struct VoxelCoord",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMultipleEntityDataWithBaseEntityAtCoord",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "internalType": "struct EntityDataWithBaseEntity[]",
+        "components": [
+          {
+            "name": "objectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "entityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "baseEntityId",
             "type": "bytes32",
             "internalType": "bytes32"
           },
@@ -2771,6 +3112,51 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "onMine",
+    "inputs": [
+      {
+        "name": "playerEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "baseEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "mineObjectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "coords",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "pickup",
     "inputs": [
       {
@@ -3312,6 +3698,56 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "requireBuildsAllowed",
+    "inputs": [
+      {
+        "name": "playerEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "baseEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "objectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "coords",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
     "name": "requireMineAllowed",
     "inputs": [
       {
@@ -3338,6 +3774,56 @@ declare const abi: [
         "name": "coord",
         "type": "tuple",
         "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "requireMinesAllowed",
+    "inputs": [
+      {
+        "name": "playerEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "baseEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "objectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "coords",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
         "components": [
           {
             "name": "x",

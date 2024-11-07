@@ -51,6 +51,18 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    ObjectTypeSchema: {
+      schema: {
+        objectTypeId: "uint8",
+        relativePositionsX: "int16[]",
+        relativePositionsY: "int16[]",
+        relativePositionsZ: "int16[]",
+      },
+      key: ["objectTypeId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     Recipes: {
       schema: {
         recipeId: "bytes32",
@@ -76,6 +88,16 @@ export default defineWorld({
         spawnHighZ: "int16",
       },
       key: ["x", "z"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    BaseEntity: {
+      schema: {
+        entityId: "bytes32",
+        baseEntityId: "bytes32",
+      },
+      key: ["entityId"],
       codegen: {
         storeArgument: true,
       },
@@ -354,6 +376,11 @@ export default defineWorld({
     },
     MintXPSystem: {
       name: "MintXPSystem",
+      openAccess: false,
+      accessList: [],
+    },
+    MineHelperSystem: {
+      name: "MineHelperSystem",
       openAccess: false,
       accessList: [],
     },

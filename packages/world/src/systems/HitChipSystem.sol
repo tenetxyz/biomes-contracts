@@ -6,6 +6,7 @@ import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
@@ -23,8 +24,6 @@ import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { positionDataToVoxelCoord, safeCallChip, callMintXP, getL1GasPrice } from "../Utils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
-import { IChestChip } from "../prototypes/IChestChip.sol";
-import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
 contract HitChipSystem is System {
   function hitChipCommon(
@@ -88,7 +87,10 @@ contract HitChipSystem is System {
     uint256 initialGas = gasleft();
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
-    hitChipCommon(initialGas, playerEntityId, entityId, entityCoord);
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+    baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+
+    hitChipCommon(initialGas, playerEntityId, baseEntityId, entityCoord);
   }
 
   function hitForceField(VoxelCoord memory entityCoord) public {

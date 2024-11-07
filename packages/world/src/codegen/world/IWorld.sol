@@ -9,6 +9,7 @@ import { IActivateSystem } from "./IActivateSystem.sol";
 import { IBuildSystem } from "./IBuildSystem.sol";
 import { IChipSystem } from "./IChipSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
+import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
 import { IHitChipSystem } from "./IHitChipSystem.sol";
@@ -38,6 +39,7 @@ import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
 import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
 import { IForceFieldSystem } from "./IForceFieldSystem.sol";
 import { IGravitySystem } from "./IGravitySystem.sol";
+import { IMineHelperSystem } from "./IMineHelperSystem.sol";
 import { IMintXPSystem } from "./IMintXPSystem.sol";
 import { IChestSystem } from "./IChestSystem.sol";
 
@@ -54,6 +56,7 @@ interface IWorld is
   IBuildSystem,
   IChipSystem,
   ICraftSystem,
+  IDisplaySystem,
   IDropSystem,
   IEquipSystem,
   IHitChipSystem,
@@ -83,6 +86,7 @@ interface IWorld is
   IInitWorkbenchSystem,
   IForceFieldSystem,
   IGravitySystem,
+  IMineHelperSystem,
   IMintXPSystem,
   IChestSystem
 {}

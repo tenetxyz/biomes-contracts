@@ -5,7 +5,8 @@ pragma solidity >=0.8.24;
 enum ChipType {
   None,
   Chest,
-  ForceField
+  ForceField,
+  Display
 }
 
 enum ShopType {

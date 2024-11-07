@@ -11,6 +11,22 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IForceFieldSystem {
+  function requireBuildsAllowed(
+    bytes32 playerEntityId,
+    bytes32 baseEntityId,
+    uint8 objectTypeId,
+    VoxelCoord[] memory coords,
+    bytes memory extraData
+  ) external payable;
+
+  function requireMinesAllowed(
+    bytes32 playerEntityId,
+    bytes32 baseEntityId,
+    uint8 objectTypeId,
+    VoxelCoord[] memory coords,
+    bytes memory extraData
+  ) external payable;
+
   function requireBuildAllowed(
     bytes32 playerEntityId,
     bytes32 entityId,
