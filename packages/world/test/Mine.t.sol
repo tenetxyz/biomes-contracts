@@ -196,6 +196,51 @@ contract MineTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, TextSignObjectID), "Inventory objects not set");
 
+    buildEntityId = world.build(TextSignObjectID, buildCoord);
+
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(buildEntityId)), buildCoord),
+      "Position not set"
+    );
+    assertTrue(
+      ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z) == buildEntityId,
+      "Reverse position not set"
+    );
+    assertTrue(ObjectType.get(buildEntityId) == TextSignObjectID, "Object not built");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, TextSignObjectID), "Inventory objects not set");
+    assertTrue(InventoryCount.get(playerEntityId, TextSignObjectID) == 0, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    require(topEntityId != bytes32(0), "Top entity not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(topEntityId)), topCoord),
+      "Top position not set"
+    );
+    assertTrue(ObjectType.get(topEntityId) == TextSignObjectID, "Top object not built");
+    assertTrue(BaseEntity.get(topEntityId) == buildEntityId, "Top entity not linked");
+
+    world.mine(topCoord);
+
+    mineEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    assertTrue(mineEntityId != bytes32(0), "Mine entity not found");
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Object not mined");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(mineEntityId)), buildCoord),
+      "Mine position not set"
+    );
+    mineTopEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    assertTrue(mineTopEntityId != bytes32(0), "Top mine entity not found");
+    assertTrue(ObjectType.get(mineTopEntityId) == AirObjectID, "Top object not mined");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(mineTopEntityId)), topCoord),
+      "Top mine position not set"
+    );
+    assertTrue(BaseEntity.get(mineTopEntityId) == bytes32(0), "Top mine entity still linked");
+    assertTrue(InventoryCount.get(playerEntityId, TextSignObjectID) == 1, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, TextSignObjectID), "Inventory objects not set");
+
     vm.stopPrank();
   }
 
