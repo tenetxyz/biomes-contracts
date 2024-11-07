@@ -8,6 +8,7 @@ import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/User
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
+import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Position } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { LastKnownPosition } from "../../codegen/tables/LastKnownPosition.sol";
@@ -24,7 +25,7 @@ import { ItemMetadata } from "../../codegen/tables/ItemMetadata.sol";
 
 import { getTerrainObjectTypeId, lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
 import { NullObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
-import { InventoryObject, InventoryTool, EntityData } from "../../Types.sol";
+import { InventoryObject, InventoryTool, EntityData, EntityDataWithBaseEntity } from "../../Types.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {
@@ -115,6 +116,67 @@ contract ReadSystem is System {
     EntityData[] memory entityData = new EntityData[](coord.length);
     for (uint256 i = 0; i < coord.length; i++) {
       entityData[i] = getEntityDataAtCoord(coord[i]);
+    }
+    return entityData;
+  }
+
+  function getEntityDataWithBaseEntity(bytes32 entityId) public view returns (EntityDataWithBaseEntity memory) {
+    if (entityId == bytes32(0)) {
+      return
+        EntityDataWithBaseEntity({
+          objectTypeId: NullObjectTypeId,
+          entityId: bytes32(0),
+          baseEntityId: bytes32(0),
+          inventory: new InventoryObject[](0),
+          position: VoxelCoord(0, 0, 0)
+        });
+    }
+
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+
+    return
+      EntityDataWithBaseEntity({
+        objectTypeId: ObjectType._get(entityId),
+        entityId: entityId,
+        baseEntityId: baseEntityId,
+        inventory: getInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
+        position: getCoordForEntityId(entityId)
+      });
+  }
+
+  function getEntityDataWithBaseEntityAtCoord(
+    VoxelCoord memory coord
+  ) public view returns (EntityDataWithBaseEntity memory) {
+    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (entityId == bytes32(0)) {
+      return
+        EntityDataWithBaseEntity({
+          objectTypeId: getTerrainObjectTypeId(coord),
+          entityId: bytes32(0),
+          baseEntityId: bytes32(0),
+          inventory: new InventoryObject[](0),
+          position: coord
+        });
+    }
+
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+
+    return
+      EntityDataWithBaseEntity({
+        objectTypeId: ObjectType._get(entityId),
+        entityId: entityId,
+        baseEntityId: baseEntityId,
+        inventory: getInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
+        position: coord
+      });
+  }
+
+  function getMultipleEntityDataWithBaseEntityAtCoord(
+    VoxelCoord[] memory coord
+  ) public view returns (EntityDataWithBaseEntity[] memory) {
+    EntityDataWithBaseEntity[] memory entityData = new EntityDataWithBaseEntity[](coord.length);
+    for (uint256 i = 0; i < coord.length; i++) {
+      entityData[i] = getEntityDataWithBaseEntityAtCoord(coord[i]);
     }
     return entityData;
   }
