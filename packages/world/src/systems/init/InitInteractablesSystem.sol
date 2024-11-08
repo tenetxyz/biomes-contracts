@@ -32,15 +32,17 @@ contract InitInteractablesSystem is System {
       })
     );
 
-    int16[] memory relativePositionsX = new int16[](relativePositions.length);
-    int16[] memory relativePositionsY = new int16[](relativePositions.length);
-    int16[] memory relativePositionsZ = new int16[](relativePositions.length);
-    for (uint i = 0; i < relativePositions.length; i++) {
-      relativePositionsX[i] = relativePositions[i].x;
-      relativePositionsY[i] = relativePositions[i].y;
-      relativePositionsZ[i] = relativePositions[i].z;
+    if (relativePositions.length > 0) {
+      int16[] memory relativePositionsX = new int16[](relativePositions.length);
+      int16[] memory relativePositionsY = new int16[](relativePositions.length);
+      int16[] memory relativePositionsZ = new int16[](relativePositions.length);
+      for (uint i = 0; i < relativePositions.length; i++) {
+        relativePositionsX[i] = relativePositions[i].x;
+        relativePositionsY[i] = relativePositions[i].y;
+        relativePositionsZ[i] = relativePositions[i].z;
+      }
+      ObjectTypeSchema._set(objectTypeId, relativePositionsX, relativePositionsY, relativePositionsZ);
     }
-    ObjectTypeSchema._set(objectTypeId, relativePositionsX, relativePositionsY, relativePositionsZ);
   }
 
   function initInteractableObjectTypes() public {
