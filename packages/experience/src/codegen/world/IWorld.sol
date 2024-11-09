@@ -10,6 +10,7 @@ import { IBuildsSystem } from "./IBuildsSystem.sol";
 import { IChestMetadataSystem } from "./IChestMetadataSystem.sol";
 import { IChipAttachmentSystem } from "./IChipAttachmentSystem.sol";
 import { IChipMetadataSystem } from "./IChipMetadataSystem.sol";
+import { IChipNamespaceSystem } from "./IChipNamespaceSystem.sol";
 import { ICountdownSystem } from "./ICountdownSystem.sol";
 import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IExpMetadataSystem } from "./IExpMetadataSystem.sol";
@@ -38,6 +39,7 @@ interface IWorld is
   IChestMetadataSystem,
   IChipAttachmentSystem,
   IChipMetadataSystem,
+  IChipNamespaceSystem,
   ICountdownSystem,
   IDisplaySystem,
   IExpMetadataSystem,

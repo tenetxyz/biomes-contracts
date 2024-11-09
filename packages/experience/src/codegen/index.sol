@@ -5,6 +5,7 @@ pragma solidity >=0.8.24;
 
 import { ExperienceMetadata, ExperienceMetadataData } from "./tables/ExperienceMetadata.sol";
 import { ChipMetadata, ChipMetadataData } from "./tables/ChipMetadata.sol";
+import { ChipNamespace } from "./tables/ChipNamespace.sol";
 import { ChipAttachment } from "./tables/ChipAttachment.sol";
 import { ItemShop, ItemShopData } from "./tables/ItemShop.sol";
 import { ChestMetadata, ChestMetadataData } from "./tables/ChestMetadata.sol";

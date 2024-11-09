@@ -41,6 +41,16 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    ChipNamespace: {
+      schema: {
+        chipAddress: "address",
+        namespaceId: "ResourceId",
+      },
+      key: ["chipAddress"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     ChipAttachment: {
       schema: {
         entityId: "bytes32",

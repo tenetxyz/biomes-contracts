@@ -224,6 +224,13 @@
   },
   {
     "type": "function",
+    "name": "experience__deleteChipNamespace",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteCountdown",
     "inputs": [],
     "outputs": [],
@@ -873,6 +880,19 @@
             "internalType": "string"
           }
         ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setChipNamespace",
+    "inputs": [
+      {
+        "name": "namespaceId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
       }
     ],
     "outputs": [],

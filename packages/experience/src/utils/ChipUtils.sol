@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { IWorld } from "../codegen/world/IWorld.sol";
 
 import { Utils } from "@latticexyz/world/src/Utils.sol";
+import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
 import { ChipMetadataData } from "../codegen/tables/ChipMetadata.sol";
@@ -19,6 +20,14 @@ function setChipMetadata(ChipMetadataData memory metadata) {
 
 function deleteChipMetadata() {
   IWorld(WorldContextConsumerLib._world()).experience__deleteChipMetadata();
+}
+
+function setChipNamespace(ResourceId namespaceId) {
+  IWorld(WorldContextConsumerLib._world()).experience__setChipNamespace(namespaceId);
+}
+
+function deleteChipNamespace() {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteChipNamespace();
 }
 
 function setChipAttacher(bytes32 entityId, address attacher) {
