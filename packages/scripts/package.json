@@ -19,7 +19,8 @@
     "downloadTxs": "npx tsx downloadTxs.ts",
     "parseTxs": "npx tsx parseTxs.ts",
     "parseSavedTxs": "npx tsx parseSavedTxs.ts",
-    "governor": "npx tsx governor.ts"
+    "governor": "npx tsx governor.ts",
+    "dozer": "npx tsx dozer.ts"
   },
   "dependencies": {
     "@biomesaw/world": "workspace:*",
