@@ -30,12 +30,13 @@ async function main() {
   const content = await response.json();
   // console.log(content);
   for (const row of content.result[0]) {
-    if (row[1].toLowerCase() == "0xC20fc20006D8FAD1a60978aAab3Fa4fFDD2D92d3".toLowerCase()) {
+    if (row[1].toLowerCase() == "0xD45bE5726Da3347eab4F7Cb151E3bc9De3a18749".toLowerCase()) {
       entityIds.add(row[0]);
     }
   }
 
   console.log("entityIds", entityIds);
+  console.log(`bytes32[] memory entityIds = new bytes32[](${entityIds.size});`);
   let i = 0;
   for (const entityId of entityIds) {
     console.log(`entityIds[${i}] = ${entityId};`);
