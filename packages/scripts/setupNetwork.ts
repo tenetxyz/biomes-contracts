@@ -27,6 +27,13 @@ const chainId =
       ? TESNET_CHAIN_ID
       : DEV_CHAIN_ID;
 
+const indexerUrl =
+  process.env.NODE_ENV === "mainnet"
+    ? "https://indexer.mud.redstonechain.com/q"
+    : process.env.NODE_ENV === "testnet"
+      ? "https://indexer.mud.garnetchain.com/q"
+      : "";
+
 export type SetupNetwork = Awaited<ReturnType<typeof setupNetwork>>;
 
 export async function setupNetwork() {
@@ -113,6 +120,7 @@ export async function setupNetwork() {
     walletClient,
     publicClient,
     txOptions,
+    indexerUrl,
     callTx,
     account,
     fromBlock,

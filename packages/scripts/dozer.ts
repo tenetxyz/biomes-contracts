@@ -6,16 +6,15 @@ import path from "path";
 import { replacer } from "./utils";
 
 async function main() {
-  const { publicClient, fromBlock, worldAddress, IWorldAbi, account, txOptions, callTx } = await setupNetwork();
+  const { publicClient, fromBlock, worldAddress, IWorldAbi, account, txOptions, callTx, indexerUrl } =
+    await setupNetwork();
 
   const query = [
     {
-      address: "0xf75b1b7bdb6932e487c4aa8d210f4a682abeacf0",
+      address: worldAddress,
       query: 'SELECT "entityId", "chipAddress" FROM Chip;',
     },
   ];
-
-  const indexerUrl = "https://indexer.mud.redstonechain.com/q";
 
   const entityIds = new Set();
 
