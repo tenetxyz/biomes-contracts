@@ -2,6 +2,9 @@
 pragma solidity >=0.8.24;
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { PlayerMetadataData } from "./codegen/tables/PlayerMetadata.sol";
+import { HealthData } from "./codegen/tables/Health.sol";
+import { StaminaData } from "./codegen/tables/Stamina.sol";
 
 enum Biome {
   Mountains,
@@ -19,6 +22,18 @@ struct InventoryObject {
   uint8 objectTypeId;
   uint16 numObjects;
   InventoryTool[] tools;
+}
+
+struct PlayerEntityData {
+  bytes32 entityId;
+  VoxelCoord position;
+  PlayerMetadataData metadata;
+  bytes32 equippedEntityId;
+  InventoryObject[] inventory;
+  HealthData health;
+  StaminaData stamina;
+  uint256 xp;
+  uint256 lastActionTime;
 }
 
 struct EntityData {

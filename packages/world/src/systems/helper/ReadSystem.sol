@@ -24,6 +24,7 @@ import { ReverseInventoryTool } from "../../codegen/tables/ReverseInventoryTool.
 import { ItemMetadata } from "../../codegen/tables/ItemMetadata.sol";
 
 import { getTerrainObjectTypeId, lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
+import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { NullObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { InventoryObject, InventoryTool, EntityData, EntityDataWithBaseEntity } from "../../Types.sol";
 
@@ -208,37 +209,7 @@ contract ReadSystem is System {
   }
 
   function getInventory(bytes32 entityId) public view returns (InventoryObject[] memory) {
-    uint8[] memory objectTypeIds = InventoryObjects._get(entityId);
-    InventoryObject[] memory inventoryObjects = new InventoryObject[](objectTypeIds.length);
-    bytes32[] memory allInventoryTools = ReverseInventoryTool._get(entityId);
-    for (uint256 i = 0; i < objectTypeIds.length; i++) {
-      uint8 objectTypeId = objectTypeIds[i];
-      uint16 count = InventoryCount._get(entityId, objectTypeId);
-      bool isTool = ObjectTypeMetadata._getIsTool(objectTypeId);
-      uint256 numTools = 0;
-      if (isTool) {
-        for (uint256 j = 0; j < allInventoryTools.length; j++) {
-          if (ObjectType._get(allInventoryTools[j]) == objectTypeId) {
-            numTools++;
-          }
-        }
-      }
-      InventoryTool[] memory inventoryTools = new InventoryTool[](numTools);
-      if (numTools > 0) {
-        uint256 k = 0;
-        for (uint256 j = 0; j < allInventoryTools.length; j++) {
-          if (ObjectType._get(allInventoryTools[j]) == objectTypeId) {
-            inventoryTools[k] = InventoryTool({
-              entityId: allInventoryTools[j],
-              numUsesLeft: ItemMetadata._getNumUsesLeft(allInventoryTools[j])
-            });
-            k++;
-          }
-        }
-      }
-      inventoryObjects[i] = InventoryObject({ objectTypeId: objectTypeId, numObjects: count, tools: inventoryTools });
-    }
-    return inventoryObjects;
+    return getEntityInventory(entityId);
   }
 
   function getCoordForEntityId(bytes32 entityId) public view returns (VoxelCoord memory) {

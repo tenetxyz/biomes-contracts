@@ -29,6 +29,7 @@ import { IAdminTerrainSystem } from "./IAdminTerrainSystem.sol";
 import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
 import { IProcGenSystem } from "./IProcGenSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
+import { IReadTwoSystem } from "./IReadTwoSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { IInitDyedBlocksSystem } from "./IInitDyedBlocksSystem.sol";
 import { IInitHandBlocksSystem } from "./IInitHandBlocksSystem.sol";
@@ -76,6 +77,7 @@ interface IWorld is
   IInitSpawnSystem,
   IProcGenSystem,
   IReadSystem,
+  IReadTwoSystem,
   ITerrainSystem,
   IInitDyedBlocksSystem,
   IInitHandBlocksSystem,

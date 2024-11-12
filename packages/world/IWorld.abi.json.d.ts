@@ -2194,6 +2194,154 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "getPlayerEntityData",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct PlayerEntityData",
+        "components": [
+          {
+            "name": "entityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "position",
+            "type": "tuple",
+            "internalType": "struct VoxelCoord",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          },
+          {
+            "name": "metadata",
+            "type": "tuple",
+            "internalType": "struct PlayerMetadataData",
+            "components": [
+              {
+                "name": "isLoggedOff",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "lastHitTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "equippedEntityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "inventory",
+            "type": "tuple[]",
+            "internalType": "struct InventoryObject[]",
+            "components": [
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "numObjects",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "tools",
+                "type": "tuple[]",
+                "internalType": "struct InventoryTool[]",
+                "components": [
+                  {
+                    "name": "entityId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "numUsesLeft",
+                    "type": "uint24",
+                    "internalType": "uint24"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "health",
+            "type": "tuple",
+            "internalType": "struct HealthData",
+            "components": [
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "health",
+                "type": "uint16",
+                "internalType": "uint16"
+              }
+            ]
+          },
+          {
+            "name": "stamina",
+            "type": "tuple",
+            "internalType": "struct StaminaData",
+            "components": [
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "stamina",
+                "type": "uint32",
+                "internalType": "uint32"
+              }
+            ]
+          },
+          {
+            "name": "xp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastActionTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getRecord",
     "inputs": [
       {
