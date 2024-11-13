@@ -870,6 +870,234 @@
   },
   {
     "type": "function",
+    "name": "getBlockEntityData",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct BlockEntityData",
+        "components": [
+          {
+            "name": "entityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "baseEntityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "objectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "position",
+            "type": "tuple",
+            "internalType": "struct VoxelCoord",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          },
+          {
+            "name": "inventory",
+            "type": "tuple[]",
+            "internalType": "struct InventoryObject[]",
+            "components": [
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "numObjects",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "tools",
+                "type": "tuple[]",
+                "internalType": "struct InventoryTool[]",
+                "components": [
+                  {
+                    "name": "entityId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "numUsesLeft",
+                    "type": "uint24",
+                    "internalType": "uint24"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "chip",
+            "type": "tuple",
+            "internalType": "struct ChipData",
+            "components": [
+              {
+                "name": "chipAddress",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "batteryLevel",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getBlocksEntityData",
+    "inputs": [
+      {
+        "name": "entityIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "internalType": "struct BlockEntityData[]",
+        "components": [
+          {
+            "name": "entityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "baseEntityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "objectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "position",
+            "type": "tuple",
+            "internalType": "struct VoxelCoord",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          },
+          {
+            "name": "inventory",
+            "type": "tuple[]",
+            "internalType": "struct InventoryObject[]",
+            "components": [
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "numObjects",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "tools",
+                "type": "tuple[]",
+                "internalType": "struct InventoryTool[]",
+                "components": [
+                  {
+                    "name": "entityId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "numUsesLeft",
+                    "type": "uint24",
+                    "internalType": "uint24"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "chip",
+            "type": "tuple",
+            "internalType": "struct ChipData",
+            "components": [
+              {
+                "name": "chipAddress",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "batteryLevel",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getCachedTerrainObjectTypeId",
     "inputs": [
       {

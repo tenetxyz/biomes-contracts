@@ -21,6 +21,7 @@ import { INFTMetadataSystem } from "./INFTMetadataSystem.sol";
 import { INFTSystem } from "./INFTSystem.sol";
 import { INotificationSystem } from "./INotificationSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
+import { IReadSystem } from "./IReadSystem.sol";
 import { IShopSystem } from "./IShopSystem.sol";
 import { ITokenMetadataSystem } from "./ITokenMetadataSystem.sol";
 import { ITokenSystem } from "./ITokenSystem.sol";
@@ -50,6 +51,7 @@ interface IWorld is
   INFTSystem,
   INotificationSystem,
   IPlayerSystem,
+  IReadSystem,
   IShopSystem,
   ITokenMetadataSystem,
   ITokenSystem

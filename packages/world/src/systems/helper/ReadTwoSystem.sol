@@ -25,10 +25,10 @@ import { ReverseInventoryTool } from "../../codegen/tables/ReverseInventoryTool.
 import { ItemMetadata } from "../../codegen/tables/ItemMetadata.sol";
 import { Equipped } from "../../codegen/tables/Equipped.sol";
 import { ExperiencePoints } from "../../codegen/tables/ExperiencePoints.sol";
-
+import { Chip, ChipData } from "../../codegen/tables/Chip.sol";
 import { getTerrainObjectTypeId, lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
-import { InventoryObject, PlayerEntityData } from "../../Types.sol";
+import { InventoryObject, PlayerEntityData, BlockEntityData } from "../../Types.sol";
 
 import { IReadSystem } from "../../codegen/world/IReadSystem.sol";
 
@@ -78,5 +78,38 @@ contract ReadTwoSystem is System {
       playersEntityData[i] = getPlayerEntityData(players[i]);
     }
     return playersEntityData;
+  }
+
+  function getBlockEntityData(bytes32 entityId) public view returns (BlockEntityData memory) {
+    if (entityId == bytes32(0)) {
+      return
+        BlockEntityData({
+          entityId: bytes32(0),
+          baseEntityId: bytes32(0),
+          objectTypeId: 0,
+          position: VoxelCoord(0, 0, 0),
+          inventory: new InventoryObject[](0),
+          chip: ChipData({ chipAddress: address(0), batteryLevel: 0, lastUpdatedTime: 0 })
+        });
+    }
+
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+    return
+      BlockEntityData({
+        entityId: entityId,
+        baseEntityId: baseEntityId,
+        objectTypeId: ObjectType._get(entityId),
+        position: positionDataToVoxelCoord(Position._get(entityId)),
+        inventory: getEntityInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
+        chip: Chip._get(baseEntityId == bytes32(0) ? entityId : baseEntityId)
+      });
+  }
+
+  function getBlocksEntityData(bytes32[] memory entityIds) public view returns (BlockEntityData[] memory) {
+    BlockEntityData[] memory blocksEntityData = new BlockEntityData[](entityIds.length);
+    for (uint256 i = 0; i < entityIds.length; i++) {
+      blocksEntityData[i] = getBlockEntityData(entityIds[i]);
+    }
+    return blocksEntityData;
   }
 }

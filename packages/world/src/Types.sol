@@ -5,6 +5,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { PlayerMetadataData } from "./codegen/tables/PlayerMetadata.sol";
 import { HealthData } from "./codegen/tables/Health.sol";
 import { StaminaData } from "./codegen/tables/Stamina.sol";
+import { ChipData } from "./codegen/tables/Chip.sol";
 
 enum Biome {
   Mountains,
@@ -35,6 +36,15 @@ struct PlayerEntityData {
   StaminaData stamina;
   uint256 xp;
   uint256 lastActionTime;
+}
+
+struct BlockEntityData {
+  bytes32 entityId;
+  bytes32 baseEntityId;
+  uint8 objectTypeId;
+  VoxelCoord position;
+  InventoryObject[] inventory;
+  ChipData chip;
 }
 
 struct EntityData {
