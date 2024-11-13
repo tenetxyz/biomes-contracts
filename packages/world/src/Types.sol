@@ -25,6 +25,7 @@ struct InventoryObject {
 }
 
 struct PlayerEntityData {
+  address playerAddress;
   bytes32 entityId;
   VoxelCoord position;
   PlayerMetadataData metadata;

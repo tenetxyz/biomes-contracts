@@ -12,4 +12,6 @@ import { PlayerEntityData } from "./../../Types.sol";
  */
 interface IReadTwoSystem {
   function getPlayerEntityData(address player) external view returns (PlayerEntityData memory);
+
+  function getPlayersEntityData(address[] memory players) external view returns (PlayerEntityData[] memory);
 }

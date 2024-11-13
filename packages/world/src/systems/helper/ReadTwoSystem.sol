@@ -39,6 +39,7 @@ contract ReadTwoSystem is System {
     if (entityId == bytes32(0)) {
       return
         PlayerEntityData({
+          playerAddress: player,
           entityId: bytes32(0),
           position: VoxelCoord(0, 0, 0),
           metadata: PlayerMetadataData({ isLoggedOff: false, lastHitTime: 0 }),
@@ -58,6 +59,7 @@ contract ReadTwoSystem is System {
 
     return
       PlayerEntityData({
+        playerAddress: player,
         entityId: entityId,
         position: playerPos,
         metadata: metadata,
@@ -68,5 +70,13 @@ contract ReadTwoSystem is System {
         xp: ExperiencePoints._get(entityId),
         lastActionTime: PlayerActivity._get(entityId)
       });
+  }
+
+  function getPlayersEntityData(address[] memory players) public view returns (PlayerEntityData[] memory) {
+    PlayerEntityData[] memory playersEntityData = new PlayerEntityData[](players.length);
+    for (uint256 i = 0; i < players.length; i++) {
+      playersEntityData[i] = getPlayerEntityData(players[i]);
+    }
+    return playersEntityData;
   }
 }
