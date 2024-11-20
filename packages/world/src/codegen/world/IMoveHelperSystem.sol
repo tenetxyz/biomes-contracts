@@ -16,13 +16,4 @@ interface IMoveHelperSystem {
     VoxelCoord memory playerCoord,
     VoxelCoord[] memory newCoords
   ) external returns (bytes32[] memory finalEntityIds, VoxelCoord[] memory finalCoords, bool gravityApplies);
-
-  function checkMovePath(
-    bytes32 playerEntityId,
-    VoxelCoord memory playerCoord,
-    VoxelCoord[] memory newCoords
-  )
-    external
-    view
-    returns (bytes32[] memory finalEntityIds, VoxelCoord[] memory finalCoords, bool gravityApplies, uint256 numFalls);
 }

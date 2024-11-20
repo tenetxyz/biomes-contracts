@@ -68,7 +68,7 @@ contract LoginSystem is System {
       "LoginSystem: respawn coord too far from last known position"
     );
 
-    bytes32 basePlayerEntityId = placePlayerAtCoord(playerEntityId, playerEntityId, respawnCoord);
+    placePlayerAtCoord(playerEntityId, playerEntityId, respawnCoord);
     ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
     for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
       VoxelCoord memory relativeCoord = VoxelCoord(
@@ -77,8 +77,8 @@ contract LoginSystem is System {
         respawnCoord.z + schemaData.relativePositionsZ[i]
       );
       bytes32 relativeEntityId = ReversePosition._get(relativeCoord.x, relativeCoord.y, relativeCoord.z);
-      require(BaseEntity._get(relativeEntityId) == basePlayerEntityId, "LoginSystem: base player entity id mismatch");
-      placePlayerAtCoord(basePlayerEntityId, relativeEntityId, relativeCoord);
+      require(BaseEntity._get(relativeEntityId) == playerEntityId, "LoginSystem: base player entity id mismatch");
+      placePlayerAtCoord(playerEntityId, relativeEntityId, relativeCoord);
     }
 
     LastKnownPosition._deleteRecord(playerEntityId);

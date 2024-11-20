@@ -45,7 +45,7 @@ contract MoveHelperSystem is System {
     }
 
     uint256 numFalls;
-    (finalEntityIds, finalCoords, gravityApplies, numFalls) = checkMovePath(playerEntityId, playerCoord, newCoords);
+    (finalEntityIds, finalCoords, gravityApplies, numFalls) = checkMovePath(initialEntityIds, playerCoord, newCoords);
     require(
       finalEntityIds.length == initialEntityIds.length && finalCoords.length == initialCoords.length,
       "MoveSystem: final entity ids length mismatch"
@@ -88,11 +88,11 @@ contract MoveHelperSystem is System {
   }
 
   function checkMovePath(
-    bytes32 playerEntityId,
+    bytes32[] memory initialEntityIds,
     VoxelCoord memory playerCoord,
     VoxelCoord[] memory newCoords
   )
-    public
+    internal
     view
     returns (bytes32[] memory finalEntityIds, VoxelCoord[] memory finalCoords, bool gravityApplies, uint256 numFalls)
   {
@@ -103,7 +103,7 @@ contract MoveHelperSystem is System {
     uint256 numGlides = 0;
     for (uint256 i = 0; i < newCoords.length; i++) {
       VoxelCoord memory newCoord = newCoords[i];
-      (finalEntityIds, finalCoords, gravityApplies) = checkMove(playerEntityId, oldCoord, newCoord, schemaData);
+      (finalEntityIds, finalCoords, gravityApplies) = checkMove(initialEntityIds, oldCoord, newCoord, schemaData);
       if (gravityApplies) {
         if (oldCoord.y < newCoord.y) {
           numJumps++;
@@ -172,7 +172,7 @@ contract MoveHelperSystem is System {
   }
 
   function checkMove(
-    bytes32 playerEntityId,
+    bytes32[] memory initialEntityIds,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     ObjectTypeSchemaData memory schemaData
@@ -198,7 +198,7 @@ contract MoveHelperSystem is System {
     );
 
     bytes32[] memory newEntityIds = new bytes32[](schemaData.relativePositionsX.length + 1);
-    bytes32 newEntityId = moveInto(playerEntityId, newCoord);
+    bytes32 newEntityId = moveInto(initialEntityIds[0], newCoord);
     newEntityIds[0] = newEntityId;
     VoxelCoord[] memory newCoords = new VoxelCoord[](schemaData.relativePositionsX.length + 1);
     newCoords[0] = newCoord;
@@ -209,7 +209,7 @@ contract MoveHelperSystem is System {
         newCoord.y + schemaData.relativePositionsY[i],
         newCoord.z + schemaData.relativePositionsZ[i]
       );
-      newEntityIds[i + 1] = moveInto(playerEntityId, relativeCoord);
+      newEntityIds[i + 1] = moveInto(initialEntityIds[i + 1], relativeCoord);
       newCoords[i + 1] = relativeCoord;
     }
 
