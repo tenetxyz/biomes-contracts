@@ -201,7 +201,7 @@ contract GravityTest is MudTest, GasReporter {
 
     // move on top of player entity id 1
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 2, spawnCoord.z);
     world.move(newCoords);
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
@@ -255,7 +255,7 @@ contract GravityTest is MudTest, GasReporter {
 
     // move on top of player entity id 1
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 2, spawnCoord.z);
     world.move(newCoords);
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
@@ -487,7 +487,7 @@ contract GravityTest is MudTest, GasReporter {
 
     // move on top of player entity id 1
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 2, spawnCoord.z);
     world.move(newCoords);
 
     vm.stopPrank();
@@ -667,7 +667,7 @@ contract GravityTest is MudTest, GasReporter {
 
   //   // move on top of player entity id 1
   //   VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-  //   newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
+  //   newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 2, spawnCoord.z);
   //   world.move(newCoords);
 
   //   vm.stopPrank();
@@ -727,7 +727,7 @@ contract GravityTest is MudTest, GasReporter {
 
     // move on top of player entity id 1
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
+    newCoords[0] = VoxelCoord(spawnCoord.x, spawnCoord.y + 2, spawnCoord.z);
     world.move(newCoords);
     world.hit(alice);
 

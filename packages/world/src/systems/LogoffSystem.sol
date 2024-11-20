@@ -53,6 +53,8 @@ contract LogoffSystem is System {
       bytes32 relativeEntityId = ReversePosition._get(relativeCoord.x, relativeCoord.y, relativeCoord.z);
       require(BaseEntity._get(relativeEntityId) == playerEntityId, "LogoffSystem: relative entity id mismatch");
       removePlayerFromCoord(relativeEntityId, relativeCoord);
+      ObjectType._deleteRecord(relativeEntityId);
+      BaseEntity._deleteRecord(relativeEntityId);
     }
 
     PlayerActionNotif._set(

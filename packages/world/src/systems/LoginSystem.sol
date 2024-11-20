@@ -22,7 +22,7 @@ import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, IN_MAINTENANCE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, getTerrainObjectTypeId } from "../Utils.sol";
+import { lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 
 contract LoginSystem is System {
@@ -76,9 +76,10 @@ contract LoginSystem is System {
         respawnCoord.y + schemaData.relativePositionsY[i],
         respawnCoord.z + schemaData.relativePositionsZ[i]
       );
-      bytes32 relativeEntityId = ReversePosition._get(relativeCoord.x, relativeCoord.y, relativeCoord.z);
-      require(BaseEntity._get(relativeEntityId) == playerEntityId, "LoginSystem: base player entity id mismatch");
-      placePlayerAtCoord(playerEntityId, relativeEntityId, relativeCoord);
+      bytes32 newRelativeEntityId = getUniqueEntity();
+      placePlayerAtCoord(playerEntityId, newRelativeEntityId, relativeCoord);
+      ObjectType._set(newRelativeEntityId, PlayerObjectID);
+      BaseEntity._set(newRelativeEntityId, playerEntityId);
     }
 
     LastKnownPosition._deleteRecord(playerEntityId);

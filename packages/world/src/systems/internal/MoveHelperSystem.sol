@@ -127,7 +127,7 @@ contract MoveHelperSystem is System {
     return (finalEntityIds, finalCoords, gravityApplies, numFalls);
   }
 
-  function moveInto(bytes32 playerEntityId, VoxelCoord memory newCoord) internal view returns (bytes32) {
+  function moveInto(bytes32[] memory playerEntityIds, VoxelCoord memory newCoord) internal view returns (bytes32) {
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
@@ -149,7 +149,15 @@ contract MoveHelperSystem is System {
     } else {
       // If the entity we're moving into is this player, then it's fine as
       // the player will be moved from the old position to the new position
-      if (playerEntityId != newEntityId) {
+      bool isSelf = false;
+      for (uint256 i = 0; i < playerEntityIds.length; i++) {
+        if (playerEntityIds[i] == newEntityId) {
+          isSelf = true;
+          break;
+        }
+      }
+
+      if (!isSelf) {
         uint8 currentObjectTypeId = ObjectType._get(newEntityId);
         require(
           currentObjectTypeId == AirObjectID,
@@ -198,7 +206,7 @@ contract MoveHelperSystem is System {
     );
 
     bytes32[] memory newEntityIds = new bytes32[](schemaData.relativePositionsX.length + 1);
-    bytes32 newEntityId = moveInto(initialEntityIds[0], newCoord);
+    bytes32 newEntityId = moveInto(initialEntityIds, newCoord);
     newEntityIds[0] = newEntityId;
     VoxelCoord[] memory newCoords = new VoxelCoord[](schemaData.relativePositionsX.length + 1);
     newCoords[0] = newCoord;
@@ -209,7 +217,7 @@ contract MoveHelperSystem is System {
         newCoord.y + schemaData.relativePositionsY[i],
         newCoord.z + schemaData.relativePositionsZ[i]
       );
-      newEntityIds[i + 1] = moveInto(initialEntityIds[i + 1], relativeCoord);
+      newEntityIds[i + 1] = moveInto(initialEntityIds, relativeCoord);
       newCoords[i + 1] = relativeCoord;
     }
 

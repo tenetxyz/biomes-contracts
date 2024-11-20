@@ -25,8 +25,8 @@ import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 
 contract SpawnSystem is System {
   function placePlayerAtCoord(bytes32 basePlayerEntityId, VoxelCoord memory coord) internal returns (bytes32) {
-    require(inWorldBorder(coord), "BuildSystem: cannot spawn outside world border");
-    require(inSpawnArea(coord), "BuildSystem: cannot spawn outside spawn area");
+    require(inWorldBorder(coord), "SpawnSystem: cannot spawn outside world border");
+    require(inSpawnArea(coord), "SpawnSystem: cannot spawn outside spawn area");
 
     bytes32 playerEntityId = getUniqueEntity();
 
