@@ -7,6 +7,7 @@ import { inSurroundingCubeIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.so
 
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
@@ -16,6 +17,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, IN_MAINTENANCE } from "../Constants.sol";
@@ -24,18 +26,12 @@ import { lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, getTe
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 
 contract LoginSystem is System {
-  function loginPlayer(VoxelCoord memory respawnCoord) public {
-    require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
-    bytes32 playerEntityId = Player._get(_msgSender());
-    require(playerEntityId != bytes32(0), "Player does not exist");
-    require(PlayerMetadata._getIsLoggedOff(playerEntityId), "LoginSystem: player already logged in");
-
-    VoxelCoord memory lastKnownCoord = lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(playerEntityId));
+  function placePlayerAtCoord(
+    bytes32 basePlayerEntityId,
+    bytes32 playerEntityId,
+    VoxelCoord memory respawnCoord
+  ) internal returns (bytes32) {
     require(inWorldBorder(respawnCoord), "LoginSystem: cannot respawn outside world border");
-    require(
-      inSurroundingCubeIgnoreY(lastKnownCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH, respawnCoord),
-      "LoginSystem: respawn coord too far from last known position"
-    );
 
     bytes32 respawnEntityId = ReversePosition._get(respawnCoord.x, respawnCoord.y, respawnCoord.z);
     if (respawnEntityId == bytes32(0)) {
@@ -49,13 +45,42 @@ contract LoginSystem is System {
       require(ObjectType._get(respawnEntityId) == AirObjectID, "LoginSystem: cannot respawn on non-air block");
 
       // Transfer any dropped items
-      transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
+      transferAllInventoryEntities(respawnEntityId, basePlayerEntityId, PlayerObjectID);
 
       Position._deleteRecord(respawnEntityId);
     }
 
     Position._set(playerEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
     ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);
+
+    return respawnEntityId;
+  }
+
+  function loginPlayer(VoxelCoord memory respawnCoord) public {
+    require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
+    bytes32 playerEntityId = Player._get(_msgSender());
+    require(playerEntityId != bytes32(0), "Player does not exist");
+    require(PlayerMetadata._getIsLoggedOff(playerEntityId), "LoginSystem: player already logged in");
+
+    VoxelCoord memory lastKnownCoord = lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(playerEntityId));
+    require(
+      inSurroundingCubeIgnoreY(lastKnownCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH, respawnCoord),
+      "LoginSystem: respawn coord too far from last known position"
+    );
+
+    bytes32 basePlayerEntityId = placePlayerAtCoord(playerEntityId, playerEntityId, respawnCoord);
+    ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
+    for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+      VoxelCoord memory relativeCoord = VoxelCoord(
+        respawnCoord.x + schemaData.relativePositionsX[i],
+        respawnCoord.y + schemaData.relativePositionsY[i],
+        respawnCoord.z + schemaData.relativePositionsZ[i]
+      );
+      bytes32 relativeEntityId = ReversePosition._get(relativeCoord.x, relativeCoord.y, relativeCoord.z);
+      require(BaseEntity._get(relativeEntityId) == basePlayerEntityId, "LoginSystem: base player entity id mismatch");
+      placePlayerAtCoord(basePlayerEntityId, relativeEntityId, relativeCoord);
+    }
+
     LastKnownPosition._deleteRecord(playerEntityId);
     PlayerMetadata._setIsLoggedOff(playerEntityId, false);
 

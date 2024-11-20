@@ -108,6 +108,8 @@ contract BuildSystem is System {
 
   function jumpBuild(uint8 objectTypeId, bytes memory extraData) public payable {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     require(inWorldBorder(jumpCoord), "BuildSystem: cannot jump outside world border");
     bytes32 newEntityId = ReversePosition._get(jumpCoord.x, jumpCoord.y, jumpCoord.z);

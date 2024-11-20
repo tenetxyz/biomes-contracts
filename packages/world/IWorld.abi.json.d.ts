@@ -543,6 +543,96 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "checkMovePath",
+    "inputs": [
+      {
+        "name": "playerEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "playerCoord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "newCoords",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "finalEntityIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "finalCoords",
+        "type": "tuple[]",
+        "internalType": "struct VoxelCoord[]",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "gravityApplies",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "craft",
     "inputs": [
       {
