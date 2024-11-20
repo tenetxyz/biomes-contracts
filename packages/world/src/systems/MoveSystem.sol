@@ -35,66 +35,22 @@ contract MoveSystem is System {
       return;
     }
 
-    ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
-    bytes32[] memory initialEntityIds = new bytes32[](schemaData.relativePositionsX.length + 1);
-    initialEntityIds[0] = playerEntityId;
-    VoxelCoord[] memory initialCoords = new VoxelCoord[](schemaData.relativePositionsX.length + 1);
-    initialCoords[0] = playerCoord;
-    for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
-      VoxelCoord memory relativeCoord = VoxelCoord(
-        playerCoord.x + schemaData.relativePositionsX[i],
-        playerCoord.y + schemaData.relativePositionsY[i],
-        playerCoord.z + schemaData.relativePositionsZ[i]
-      );
-      initialEntityIds[i + 1] = ReversePosition._get(relativeCoord.x, relativeCoord.y, relativeCoord.z);
-      require(BaseEntity._get(initialEntityIds[i + 1]) == playerEntityId, "MoveSystem: initial entity id mismatch");
-      initialCoords[i + 1] = relativeCoord;
-    }
-
     bytes memory moveResult = callInternalSystem(
-      abi.encodeCall(IMoveHelperSystem.checkMovePath, (playerEntityId, playerCoord, newCoords))
+      abi.encodeCall(IMoveHelperSystem.movePlayer, (playerEntityId, playerCoord, newCoords))
     );
     (bytes32[] memory finalEntityIds, VoxelCoord[] memory finalCoords, bool gravityApplies) = abi.decode(
       moveResult,
       (bytes32[], VoxelCoord[], bool)
     );
-    require(
-      finalEntityIds.length == initialEntityIds.length && finalCoords.length == initialCoords.length,
-      "MoveSystem: final entity ids length mismatch"
-    );
-
-    if (finalEntityIds[0] != playerEntityId) {
-      for (uint256 i = 0; i < finalEntityIds.length; i++) {
-        bytes32 finalEntityId = finalEntityIds[i];
-        VoxelCoord memory finalCoord = finalCoords[i];
-        if (finalEntityId == bytes32(0)) {
-          finalEntityId = getUniqueEntity();
-          ObjectType._set(finalEntityId, AirObjectID);
-        } else {
-          transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
-        }
-        bytes32 initialEntityId = initialEntityIds[i];
-        VoxelCoord memory initialCoord = initialCoords[i];
-
-        // Swap entity ids
-        ReversePosition._set(initialCoord.x, initialCoord.y, initialCoord.z, finalEntityId);
-        Position._set(finalEntityId, initialCoord.x, initialCoord.y, initialCoord.z);
-
-        Position._set(initialEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
-        ReversePosition._set(finalCoord.x, finalCoord.y, finalCoord.z, initialEntityId);
-      }
-    }
 
     if (gravityApplies) {
       callGravity(playerEntityId, finalCoords[0]);
     }
 
-    {
-      VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 2, playerCoord.z);
-      bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-      if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
-        callGravity(aboveEntityId, aboveCoord);
-      }
+    VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 2, playerCoord.z);
+    bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+    if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+      callGravity(aboveEntityId, aboveCoord);
     }
 
     PlayerActionNotif._set(

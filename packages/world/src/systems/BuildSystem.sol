@@ -25,6 +25,7 @@ import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
+import { IMoveHelperSystem } from "../codegen/world/IMoveHelperSystem.sol";
 
 contract BuildSystem is System {
   function buildObjectAtCoord(uint8 objectTypeId, VoxelCoord memory coord) internal returns (bytes32) {
@@ -108,48 +109,28 @@ contract BuildSystem is System {
 
   function jumpBuild(uint8 objectTypeId, bytes memory extraData) public payable {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+
+    // Jump up one block
+    // This avoids the gravity check so we're able to build
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
     newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-    VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-    require(inWorldBorder(jumpCoord), "BuildSystem: cannot jump outside world border");
-    bytes32 newEntityId = ReversePosition._get(jumpCoord.x, jumpCoord.y, jumpCoord.z);
-    if (newEntityId == bytes32(0)) {
-      // Check terrain block type
-      uint8 terrainObjectTypeId = getTerrainObjectTypeId(jumpCoord);
-      require(
-        terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
-        "BuildSystem: cannot move to non-air block"
-      );
-      newEntityId = getUniqueEntity();
-      ObjectType._set(newEntityId, AirObjectID);
-    } else {
-      require(ObjectType._get(newEntityId) == AirObjectID, "BuildSystem: cannot move to non-air block");
-      transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
-    }
-
-    // Swap entity ids
-    ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, newEntityId);
-    Position._set(newEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
-
-    Position._set(playerEntityId, jumpCoord.x, jumpCoord.y, jumpCoord.z);
-    ReversePosition._set(jumpCoord.x, jumpCoord.y, jumpCoord.z, playerEntityId);
-
-    {
-      uint32 useStamina = 1;
-      uint32 currentStamina = Stamina._getStamina(playerEntityId);
-      require(currentStamina >= useStamina, "BuildSystem: not enough stamina");
-      Stamina._setStamina(playerEntityId, currentStamina - useStamina);
-    }
+    bytes memory moveResult = callInternalSystem(
+      abi.encodeCall(IMoveHelperSystem.movePlayer, (playerEntityId, playerCoord, newCoords))
+    );
+    (bytes32[] memory finalEntityIds, VoxelCoord[] memory finalCoords, ) = abi.decode(
+      moveResult,
+      (bytes32[], VoxelCoord[], bool)
+    );
 
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.Move,
-        entityId: newEntityId,
+        entityId: finalEntityIds[0],
         objectTypeId: PlayerObjectID,
-        coordX: jumpCoord.x,
-        coordY: jumpCoord.y,
-        coordZ: jumpCoord.z,
+        coordX: finalCoords[0].x,
+        coordY: finalCoords[0].y,
+        coordZ: finalCoords[0].z,
         amount: 1
       })
     );

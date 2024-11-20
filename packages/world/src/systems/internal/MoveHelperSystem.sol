@@ -23,15 +23,82 @@ import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 
 contract MoveHelperSystem is System {
-  function checkMovePath(
+  function movePlayer(
     bytes32 playerEntityId,
     VoxelCoord memory playerCoord,
     VoxelCoord[] memory newCoords
   ) public returns (bytes32[] memory finalEntityIds, VoxelCoord[] memory finalCoords, bool gravityApplies) {
+    ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
+    bytes32[] memory initialEntityIds = new bytes32[](schemaData.relativePositionsX.length + 1);
+    initialEntityIds[0] = playerEntityId;
+    VoxelCoord[] memory initialCoords = new VoxelCoord[](schemaData.relativePositionsX.length + 1);
+    initialCoords[0] = playerCoord;
+    for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+      VoxelCoord memory relativeCoord = VoxelCoord(
+        playerCoord.x + schemaData.relativePositionsX[i],
+        playerCoord.y + schemaData.relativePositionsY[i],
+        playerCoord.z + schemaData.relativePositionsZ[i]
+      );
+      initialEntityIds[i + 1] = ReversePosition._get(relativeCoord.x, relativeCoord.y, relativeCoord.z);
+      require(BaseEntity._get(initialEntityIds[i + 1]) == playerEntityId, "MoveSystem: initial entity id mismatch");
+      initialCoords[i + 1] = relativeCoord;
+    }
+
+    uint256 numFalls;
+    (finalEntityIds, finalCoords, gravityApplies, numFalls) = checkMovePath(playerEntityId, playerCoord, newCoords);
+    require(
+      finalEntityIds.length == initialEntityIds.length && finalCoords.length == initialCoords.length,
+      "MoveSystem: final entity ids length mismatch"
+    );
+
+    {
+      uint256 staminaRequired = (PLAYER_MASS * (newCoords.length ** 2)) / 100;
+      staminaRequired += numFalls > 5 ? (GRAVITY_STAMINA_COST * numFalls) : 0;
+      require(staminaRequired <= MAX_PLAYER_STAMINA, "MoveSystem: stamina required exceeds max player stamina");
+      uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
+
+      uint32 currentStamina = Stamina._getStamina(playerEntityId);
+      require(currentStamina >= useStamina, "MoveSystem: not enough stamina");
+      Stamina._setStamina(playerEntityId, currentStamina - useStamina);
+    }
+
+    if (finalEntityIds[0] != playerEntityId) {
+      for (uint256 i = 0; i < finalEntityIds.length; i++) {
+        bytes32 finalEntityId = finalEntityIds[i];
+        VoxelCoord memory finalCoord = finalCoords[i];
+        if (finalEntityId == bytes32(0)) {
+          finalEntityId = getUniqueEntity();
+          ObjectType._set(finalEntityId, AirObjectID);
+        } else {
+          transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
+        }
+        bytes32 initialEntityId = initialEntityIds[i];
+        VoxelCoord memory initialCoord = initialCoords[i];
+
+        // Swap entity ids
+        ReversePosition._set(initialCoord.x, initialCoord.y, initialCoord.z, finalEntityId);
+        Position._set(finalEntityId, initialCoord.x, initialCoord.y, initialCoord.z);
+
+        Position._set(initialEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+        ReversePosition._set(finalCoord.x, finalCoord.y, finalCoord.z, initialEntityId);
+      }
+    }
+
+    return (finalEntityIds, finalCoords, gravityApplies);
+  }
+
+  function checkMovePath(
+    bytes32 playerEntityId,
+    VoxelCoord memory playerCoord,
+    VoxelCoord[] memory newCoords
+  )
+    public
+    view
+    returns (bytes32[] memory finalEntityIds, VoxelCoord[] memory finalCoords, bool gravityApplies, uint256 numFalls)
+  {
     VoxelCoord memory oldCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
     ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
 
-    uint256 numFalls = 0;
     uint256 numJumps = 0;
     uint256 numGlides = 0;
     for (uint256 i = 0; i < newCoords.length; i++) {
@@ -57,18 +124,7 @@ contract MoveHelperSystem is System {
       oldCoord = VoxelCoord(newCoord.x, newCoord.y, newCoord.z);
     }
 
-    {
-      uint256 staminaRequired = (PLAYER_MASS * (newCoords.length ** 2)) / 100;
-      staminaRequired += numFalls > 5 ? (GRAVITY_STAMINA_COST * numFalls) : 0;
-      require(staminaRequired <= MAX_PLAYER_STAMINA, "MoveSystem: stamina required exceeds max player stamina");
-      uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
-
-      uint32 currentStamina = Stamina._getStamina(playerEntityId);
-      require(currentStamina >= useStamina, "MoveSystem: not enough stamina");
-      Stamina._setStamina(playerEntityId, currentStamina - useStamina);
-    }
-
-    return (finalEntityIds, finalCoords, gravityApplies);
+    return (finalEntityIds, finalCoords, gravityApplies, numFalls);
   }
 
   function moveInto(bytes32 playerEntityId, VoxelCoord memory newCoord) internal view returns (bytes32) {
