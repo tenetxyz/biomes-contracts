@@ -103,7 +103,8 @@ contract LoginSystem is System {
     Stamina._setLastUpdatedTime(playerEntityId, block.timestamp);
 
     // We let the user pick a y coord, so we need to apply gravity
-    require(!gravityApplies(respawnCoord), "LoginSystem: cannot respawn player with gravity");
+    (bool gravityApplies, ) = gravityApplies(respawnCoord);
+    require(!gravityApplies, "LoginSystem: cannot respawn player with gravity");
 
     PlayerActionNotif._set(
       playerEntityId,

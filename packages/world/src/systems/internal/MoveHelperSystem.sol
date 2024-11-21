@@ -18,7 +18,7 @@ import { ObjectTypeSchema, ObjectTypeSchemaData } from "../../codegen/tables/Obj
 
 import { PLAYER_MASS, GRAVITY_STAMINA_COST, MAX_PLAYER_STAMINA } from "../../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
-import { callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity, callMintXP } from "../../Utils.sol";
+import { callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity, callMintXP, positionDataToVoxelCoord } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 
@@ -31,8 +31,6 @@ contract MoveHelperSystem is System {
     ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
     bytes32[] memory initialEntityIds = new bytes32[](schemaData.relativePositionsX.length + 1);
     initialEntityIds[0] = playerEntityId;
-    VoxelCoord[] memory initialCoords = new VoxelCoord[](schemaData.relativePositionsX.length + 1);
-    initialCoords[0] = playerCoord;
     for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
       VoxelCoord memory relativeCoord = VoxelCoord(
         playerCoord.x + schemaData.relativePositionsX[i],
@@ -41,15 +39,11 @@ contract MoveHelperSystem is System {
       );
       initialEntityIds[i + 1] = ReversePosition._get(relativeCoord.x, relativeCoord.y, relativeCoord.z);
       require(BaseEntity._get(initialEntityIds[i + 1]) == playerEntityId, "MoveSystem: initial entity id mismatch");
-      initialCoords[i + 1] = relativeCoord;
     }
 
     uint256 numFalls;
     (finalEntityIds, finalCoords, gravityApplies, numFalls) = checkMovePath(initialEntityIds, playerCoord, newCoords);
-    require(
-      finalEntityIds.length == initialEntityIds.length && finalCoords.length == initialCoords.length,
-      "MoveSystem: final entity ids length mismatch"
-    );
+    require(finalEntityIds.length == initialEntityIds.length, "MoveSystem: final entity ids length mismatch");
 
     {
       uint256 staminaRequired = (PLAYER_MASS * (newCoords.length ** 2)) / 100;
@@ -73,7 +67,7 @@ contract MoveHelperSystem is System {
           transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
         }
         bytes32 initialEntityId = initialEntityIds[i];
-        VoxelCoord memory initialCoord = initialCoords[i];
+        VoxelCoord memory initialCoord = positionDataToVoxelCoord(Position._get(initialEntityId));
 
         // Swap entity ids
         ReversePosition._set(initialCoord.x, initialCoord.y, initialCoord.z, finalEntityId);
@@ -223,6 +217,16 @@ contract MoveHelperSystem is System {
 
     // require(!gravityApplies(newCoord), "MoveSystem: cannot move player with gravity");
 
-    return (newEntityIds, newCoords, gravityApplies(newCoord));
+    (bool gravityApplies, bytes32 belowEntityId) = gravityApplies(newCoord);
+    if (!gravityApplies && belowEntityId != bytes32(0)) {
+      for (uint256 i = 0; i < initialEntityIds.length; i++) {
+        if (initialEntityIds[i] == belowEntityId) {
+          gravityApplies = true;
+          break;
+        }
+      }
+    }
+
+    return (newEntityIds, newCoords, gravityApplies);
   }
 }

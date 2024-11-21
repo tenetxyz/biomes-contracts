@@ -62,7 +62,8 @@ contract MoveScript is Script {
       require(ObjectType.get(finalEntityId) == AirObjectID, "MoveSystem: cannot move to non-air block");
       testTransferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
     }
-    require(!testGravityApplies(finalCoord), "MoveSystem: gravity applies to player");
+    (bool gravityApplies, ) = testGravityApplies(finalCoord);
+    require(!gravityApplies, "MoveSystem: gravity applies to player");
 
     if (PlayerMetadata.getIsLoggedOff(playerEntityId)) {
       LastKnownPosition.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);

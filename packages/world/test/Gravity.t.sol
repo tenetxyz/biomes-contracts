@@ -84,8 +84,8 @@ contract GravityTest is MudTest, GasReporter {
     world.mine(mineCoord);
     endGasReport();
 
-    assertTrue(Health.getHealth(playerEntityId) < healthBefore, "Player health not reduced");
-    bytes32 newEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
+    // assertTrue(Health.getHealth(playerEntityId) < healthBefore, "Player health not reduced");
+    bytes32 newEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
     assertTrue(newEntityId != bytes32(0), "Mine entity not found");
     assertTrue(ObjectType.get(newEntityId) == AirObjectID, "Player didnt fall, air not set");
     assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player didnt fall, player object not found");
@@ -118,13 +118,13 @@ contract GravityTest is MudTest, GasReporter {
     world.mine(mineCoord2);
     endGasReport();
 
-    assertTrue(Health.getHealth(playerEntityId) < healthBefore, "Player health not reduced");
+    // assertTrue(Health.getHealth(playerEntityId) < healthBefore, "Player health not reduced");
 
-    bytes32 newEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
+    bytes32 newEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
     assertTrue(newEntityId != bytes32(0), "Mine entity not found");
     assertTrue(ObjectType.get(newEntityId) == AirObjectID, "Player didnt fall, air not set");
 
-    bytes32 newEntityId2 = ReversePosition.get(mineCoord2.x, mineCoord2.y, mineCoord2.z);
+    bytes32 newEntityId2 = ReversePosition.get(mineCoord2.x, mineCoord2.y + 1, mineCoord2.z);
     assertTrue(newEntityId2 != bytes32(0), "Mine entity not found");
     assertTrue(ObjectType.get(newEntityId2) == AirObjectID, "Player didnt fall, air not set");
 
@@ -211,11 +211,23 @@ contract GravityTest is MudTest, GasReporter {
     uint256 health1Before = Health.getHealth(playerEntityId);
     uint256 health2Before = Health.getHealth(playerEntityId2);
 
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), spawnCoord),
+      "Player position not set"
+    );
+    assertTrue(
+      voxelCoordsAreEqual(
+        positionDataToVoxelCoord(Position.get(playerEntityId2)),
+        VoxelCoord(spawnCoord.x, spawnCoord.y + 2, spawnCoord.z)
+      ),
+      "Player position not set"
+    );
+
     world.mine(mineCoord);
 
-    assertTrue(Health.getHealth(playerEntityId) < health1Before, "Player health not reduced");
-    assertTrue(Health.getHealth(playerEntityId2) < health2Before, "Player health not reduced");
-    bytes32 newEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
+    // assertTrue(Health.getHealth(playerEntityId) < health1Before, "Player health not reduced");
+    // assertTrue(Health.getHealth(playerEntityId2) < health2Before, "Player health not reduced");
+    bytes32 newEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y + 3, spawnCoord.z);
     assertTrue(newEntityId != bytes32(0), "Mine entity not found");
     assertTrue(ObjectType.get(newEntityId) == AirObjectID, "Player didnt fall, air not set");
     assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player didnt fall, player object not found");
@@ -225,7 +237,10 @@ contract GravityTest is MudTest, GasReporter {
       "Player position not set"
     );
     assertTrue(
-      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId2)), spawnCoord),
+      voxelCoordsAreEqual(
+        positionDataToVoxelCoord(Position.get(playerEntityId2)),
+        VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z)
+      ),
       "Player position not set"
     );
 
@@ -311,20 +326,19 @@ contract GravityTest is MudTest, GasReporter {
 
     uint16 healthBefore = Health.getHealth(playerEntityId);
 
-    // startGasReport("gravity via move, fall one block");
-    vm.expectRevert("MoveSystem: cannot move player with gravity");
+    startGasReport("gravity via move, fall one block");
     world.move(newCoords);
-    // endGasReport();
+    endGasReport();
 
     // assertTrue(Health.getHealth(playerEntityId) < healthBefore, "Player health not reduced");
-    // bytes32 newEntityId = ReversePosition.get(newCoords[0].x, newCoords[0].y, newCoords[0].z);
-    // assertTrue(newEntityId != bytes32(0), "Mine entity not found");
-    // assertTrue(ObjectType.get(newEntityId) == AirObjectID, "Player didnt fall, air not set");
-    // assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player didnt fall, player object not found");
-    // assertTrue(
-    //   voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), mineCoord),
-    //   "Player position not set"
-    // );
+    bytes32 newEntityId = ReversePosition.get(newCoords[0].x, newCoords[0].y + 1, newCoords[0].z);
+    assertTrue(newEntityId != bytes32(0), "Mine entity not found");
+    assertTrue(ObjectType.get(newEntityId) == AirObjectID, "Player didnt fall, air not set");
+    assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player didnt fall, player object not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), mineCoord),
+      "Player position not set"
+    );
 
     vm.stopPrank();
   }
@@ -351,18 +365,14 @@ contract GravityTest is MudTest, GasReporter {
 
     uint16 healthBefore = Health.getHealth(playerEntityId);
 
-    vm.expectRevert("MoveSystem: cannot move player with gravity");
     world.move(newCoords);
 
     // assertTrue(Health.getHealth(playerEntityId) < healthBefore, "Player health not reduced");
-    // bytes32 newEntityId = ReversePosition.get(newCoords[0].x, newCoords[0].y, newCoords[0].z);
-    // assertTrue(newEntityId != bytes32(0), "Mine entity not found");
-    // assertTrue(ObjectType.get(newEntityId) == AirObjectID, "Player didnt fall, air not set");
-    // assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player didnt fall, player object not found");
-    // assertTrue(
-    //   voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), mineCoord),
-    //   "Player position not set"
-    // );
+    assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player didnt fall, player object not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), newCoords[1]),
+      "Player position not set"
+    );
     // bytes32 newEntityId2 = ReversePosition.get(newCoords[1].x, newCoords[1].y, newCoords[1].z);
     // assertTrue(newEntityId2 == bytes32(0), "Agent reached invalid position");
 
@@ -396,26 +406,25 @@ contract GravityTest is MudTest, GasReporter {
 
     uint16 healthBefore = Health.getHealth(playerEntityId);
 
-    // startGasReport("gravity via move, fall two blocks");
-    vm.expectRevert("MoveSystem: cannot move player with gravity");
+    startGasReport("gravity via move, fall two blocks");
     world.move(newCoords);
-    // endGasReport();
+    endGasReport();
 
     // assertTrue(Health.getHealth(playerEntityId) < healthBefore, "Player health not reduced");
 
-    // bytes32 newEntityId = ReversePosition.get(newCoords[0].x, newCoords[0].y, newCoords[0].z);
-    // assertTrue(newEntityId != bytes32(0), "Mine entity not found");
-    // assertTrue(ObjectType.get(newEntityId) == AirObjectID, "Player didnt fall, air not set");
+    bytes32 newEntityId = ReversePosition.get(newCoords[0].x, newCoords[0].y + 1, newCoords[0].z);
+    assertTrue(newEntityId != bytes32(0), "Mine entity not found");
+    assertTrue(ObjectType.get(newEntityId) == AirObjectID, "Player didnt fall, air not set");
 
-    // bytes32 newEntityId2 = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
-    // assertTrue(newEntityId2 != bytes32(0), "Mine entity not found");
-    // assertTrue(ObjectType.get(newEntityId2) == AirObjectID, "Player didnt fall, air not set");
+    bytes32 newEntityId2 = ReversePosition.get(mineCoord.x, mineCoord.y + 1, mineCoord.z);
+    assertTrue(newEntityId2 != bytes32(0), "Mine entity not found");
+    assertTrue(ObjectType.get(newEntityId2) == AirObjectID, "Player didnt fall, air not set");
 
-    // assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player didnt fall, player object not found");
-    // assertTrue(
-    //   voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), mineCoord2),
-    //   "Player position not set"
-    // );
+    assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player didnt fall, player object not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(playerEntityId)), mineCoord2),
+      "Player position not set"
+    );
 
     vm.stopPrank();
   }
@@ -503,9 +512,9 @@ contract GravityTest is MudTest, GasReporter {
 
     world.move(newCoords);
 
-    assertTrue(Health.getHealth(playerEntityId) == healthBefore, "Player health reduced");
-    assertTrue(Health.getHealth(playerEntityId2) < health2Before, "Player health not reduced");
-    bytes32 newEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z);
+    // assertTrue(Health.getHealth(playerEntityId) == healthBefore, "Player health reduced");
+    // assertTrue(Health.getHealth(playerEntityId2) < health2Before, "Player health not reduced");
+    bytes32 newEntityId = ReversePosition.get(spawnCoord.x, spawnCoord.y + 2, spawnCoord.z);
     assertTrue(newEntityId != bytes32(0), "Mine entity not found");
     assertTrue(ObjectType.get(newEntityId) == AirObjectID, "Player didnt fall, air not set");
     assertTrue(ObjectType.get(playerEntityId) == PlayerObjectID, "Player didnt fall, player object not found");

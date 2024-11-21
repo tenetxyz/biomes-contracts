@@ -21,7 +21,10 @@ import { regenHealth, despawnPlayer } from "../../utils/PlayerUtils.sol";
 
 contract GravitySystem is System {
   function runGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) public returns (bool) {
-    require(BaseEntity._get(playerEntityId) == bytes32(0), "GravitySystem: invalid player entity id");
+    if (BaseEntity._get(playerEntityId) != bytes32(0)) {
+      return false;
+    }
+
     VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
     if (!inWorldBorder(belowCoord)) {
       return false;
