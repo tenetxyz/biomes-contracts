@@ -21,12 +21,12 @@ contract ActivateSystem is System {
     uint8 objectTypeId = ObjectType._get(entityId);
     require(objectTypeId != NullObjectTypeId, "ActivateSystem: entity has no object type");
 
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+    baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
     if (objectTypeId == PlayerObjectID) {
-      requireValidPlayer(ReversePlayer._get(entityId));
+      requireValidPlayer(ReversePlayer._get(baseEntityId));
     } else {
       // if there's no chip, it'll just do nothing
-      bytes32 baseEntityId = BaseEntity._get(entityId);
-      baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
       updateChipBatteryLevel(baseEntityId);
     }
   }

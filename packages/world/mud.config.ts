@@ -384,6 +384,11 @@ export default defineWorld({
       openAccess: false,
       accessList: [],
     },
+    MoveHelperSystem: {
+      name: "MoveHelperSystem",
+      openAccess: false,
+      accessList: [],
+    },
   },
   modules: [
     {

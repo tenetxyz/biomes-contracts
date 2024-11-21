@@ -64,19 +64,19 @@ function callMintXP(bytes32 playerEntityId, uint256 initialGas, uint256 multipli
   callInternalSystem(abi.encodeCall(IMintXPSystem.mintXP, (playerEntityId, initialGas, multiplier)));
 }
 
-function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
+function gravityApplies(VoxelCoord memory playerCoord) view returns (bool, bytes32) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
   bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
   if (belowEntityId == bytes32(0)) {
     uint8 terrainObjectTypeId = getTerrainObjectTypeId(belowCoord);
     if (terrainObjectTypeId != AirObjectID) {
-      return false;
+      return (false, belowEntityId);
     }
   } else if (ObjectType._get(belowEntityId) != AirObjectID || getTerrainObjectTypeId(belowCoord) == WaterObjectID) {
-    return false;
+    return (false, belowEntityId);
   }
 
-  return true;
+  return (true, belowEntityId);
 }
 
 function getTerrainObjectTypeId(VoxelCoord memory coord) view returns (uint8) {

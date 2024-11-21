@@ -242,6 +242,16 @@ contract LoginTest is MudTest, GasReporter {
 
     world.logoffPlayer();
 
+    vm.startPrank(worldDeployer, worldDeployer);
+    VoxelCoord memory finalCoord = VoxelCoord(WORLD_BORDER_LOW_X + 1, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+    Position.set(finalEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, finalEntityId);
+    LastKnownPosition.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
     VoxelCoord memory respawnCoord = VoxelCoord(WORLD_BORDER_LOW_X - 1, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z);
 
     vm.expectRevert("LoginSystem: cannot respawn outside world border");

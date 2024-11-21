@@ -217,17 +217,17 @@ function testStaticCallInternalSystem(bytes memory callData) view returns (bytes
   return returnData;
 }
 
-function testGravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
+function testGravityApplies(VoxelCoord memory playerCoord) view returns (bool, bytes32) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
   bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
   if (belowEntityId == bytes32(0)) {
     uint8 terrainObjectTypeId = testGetTerrainObjectTypeId(belowCoord);
     if (terrainObjectTypeId != AirObjectID) {
-      return false;
+      return (false, belowEntityId);
     }
   } else if (ObjectType.get(belowEntityId) != AirObjectID || testGetTerrainObjectTypeId(belowCoord) == WaterObjectID) {
-    return false;
+    return (false, belowEntityId);
   }
 
-  return true;
+  return (true, belowEntityId);
 }
