@@ -253,7 +253,7 @@ contract MoveTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    uint256 numJumps = 5;
+    uint256 numJumps = 6;
     VoxelCoord[] memory newCoords = new VoxelCoord[](numJumps);
     for (uint i = 0; i < numJumps; i++) {
       newCoords[i] = VoxelCoord(spawnCoord.x, spawnCoord.y + int16(int(uint(i))) + 1, spawnCoord.z);
