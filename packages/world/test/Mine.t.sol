@@ -35,7 +35,7 @@ import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { rotationToOrientation } from "../src/utils/OrientationUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, NeptuniumCubeObjectID, TextSignObjectID, WoodenFrameMediumObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, NeptuniumCubeObjectID, TextSignObjectID, WoodFrameMediumObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
@@ -234,7 +234,7 @@ contract MineTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     vm.startPrank(worldDeployer, worldDeployer);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenFrameMediumObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodFrameMediumObjectID, 1);
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
     vm.stopPrank();
     vm.startPrank(alice, alice);
@@ -242,7 +242,7 @@ contract MineTest is MudTest, GasReporter {
     VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y + 2, spawnCoord.z - 2);
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
     OrientationData memory orientation = rotationToOrientation(Rotation.X_NEG);
-    bytes32 buildEntityId = world.buildWithOrientation(WoodenFrameMediumObjectID, buildCoord, orientation);
+    bytes32 buildEntityId = world.buildWithOrientation(WoodFrameMediumObjectID, buildCoord, orientation);
 
     assertTrue(Orientation.getPitch(buildEntityId) == orientation.pitch, "Pitch not set");
     assertTrue(Orientation.getYaw(buildEntityId) == orientation.yaw, "Yaw not set");
@@ -255,12 +255,12 @@ contract MineTest is MudTest, GasReporter {
       ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z) == buildEntityId,
       "Reverse position not set"
     );
-    assertTrue(ObjectType.get(buildEntityId) == WoodenFrameMediumObjectID, "Object not built");
+    assertTrue(ObjectType.get(buildEntityId) == WoodFrameMediumObjectID, "Object not built");
     assertTrue(
-      !testInventoryObjectsHasObjectType(playerEntityId, WoodenFrameMediumObjectID),
+      !testInventoryObjectsHasObjectType(playerEntityId, WoodFrameMediumObjectID),
       "Inventory objects not set"
     );
-    assertTrue(InventoryCount.get(playerEntityId, WoodenFrameMediumObjectID) == 0, "Inventory count not set");
+    assertTrue(InventoryCount.get(playerEntityId, WoodFrameMediumObjectID) == 0, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
     VoxelCoord memory topCoord = VoxelCoord(buildCoord.x, buildCoord.y + 1, buildCoord.z);
@@ -270,7 +270,7 @@ contract MineTest is MudTest, GasReporter {
       voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(topEntityId)), topCoord),
       "Top position not set"
     );
-    assertTrue(ObjectType.get(topEntityId) == WoodenFrameMediumObjectID, "Top object not built");
+    assertTrue(ObjectType.get(topEntityId) == WoodFrameMediumObjectID, "Top object not built");
     assertTrue(BaseEntity.get(topEntityId) == buildEntityId, "Top entity not linked");
 
     VoxelCoord memory rightCoord = VoxelCoord(buildCoord.x, buildCoord.y, buildCoord.z + 1);
@@ -280,7 +280,7 @@ contract MineTest is MudTest, GasReporter {
       voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(rightEntityId)), rightCoord),
       "Right position not set"
     );
-    assertTrue(ObjectType.get(rightEntityId) == WoodenFrameMediumObjectID, "Right object not built");
+    assertTrue(ObjectType.get(rightEntityId) == WoodFrameMediumObjectID, "Right object not built");
     assertTrue(BaseEntity.get(rightEntityId) == buildEntityId, "Right entity not linked");
 
     VoxelCoord memory rightTopCoord = VoxelCoord(buildCoord.x, buildCoord.y + 1, buildCoord.z + 1);
@@ -290,7 +290,7 @@ contract MineTest is MudTest, GasReporter {
       voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(rightTopEntityId)), rightTopCoord),
       "Right top position not set"
     );
-    assertTrue(ObjectType.get(rightTopEntityId) == WoodenFrameMediumObjectID, "Right top object not built");
+    assertTrue(ObjectType.get(rightTopEntityId) == WoodFrameMediumObjectID, "Right top object not built");
     assertTrue(BaseEntity.get(rightTopEntityId) == buildEntityId, "Right top entity not linked");
 
     vm.expectRevert("MineSystem: Mine the base block to mine this block");
@@ -309,12 +309,9 @@ contract MineTest is MudTest, GasReporter {
     assertTrue(Orientation.getPitch(buildEntityId) == 0, "Pitch not reset");
     assertTrue(Orientation.getYaw(buildEntityId) == 0, "Yaw not reset");
 
-    assertTrue(InventoryCount.get(playerEntityId, WoodenFrameMediumObjectID) == 1, "Inventory count not set");
+    assertTrue(InventoryCount.get(playerEntityId, WoodFrameMediumObjectID) == 1, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    assertTrue(
-      testInventoryObjectsHasObjectType(playerEntityId, WoodenFrameMediumObjectID),
-      "Inventory objects not set"
-    );
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, WoodFrameMediumObjectID), "Inventory objects not set");
 
     bytes32 mineEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(mineEntityId != bytes32(0), "Mine entity not found");

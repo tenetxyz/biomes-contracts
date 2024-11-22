@@ -15,7 +15,7 @@ import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/Play
 import { ActionType } from "../codegen/common.sol";
 
 import { PLAYER_HAND_DAMAGE, HIT_CHIP_STAMINA_COST, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../Constants.sol";
-import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, ChestObjectID, ForceFieldObjectID, TextSignObjectID, WoodenFrameMediumObjectID } from "../ObjectTypeIds.sol";
+import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, ChestObjectID, ForceFieldObjectID, TextSignObjectID, WoodFrameSmallObjectID, WoodFrameMediumObjectID, WoodFrameLargeObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
@@ -50,7 +50,12 @@ contract ChipSystem is System {
         ERC165Checker.supportsInterface(chipAddress, type(IForceFieldChip).interfaceId),
         "ChipSystem: chip does not implement the required interface"
       );
-    } else if (objectTypeId == TextSignObjectID || objectTypeId == WoodenFrameMediumObjectID) {
+    } else if (
+      objectTypeId == TextSignObjectID ||
+      objectTypeId == WoodFrameSmallObjectID ||
+      objectTypeId == WoodFrameMediumObjectID ||
+      objectTypeId == WoodFrameLargeObjectID
+    ) {
       require(
         ERC165Checker.supportsInterface(chipAddress, type(IDisplayChip).interfaceId),
         "ChipSystem: chip does not implement the required interface"

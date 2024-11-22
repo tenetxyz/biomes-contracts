@@ -27,7 +27,7 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, NeptuniumPickObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID, TextSignObjectID, WoodenFrameMediumObjectID } from "../src/ObjectTypeIds.sol";
+import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, NeptuniumPickObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID, TextSignObjectID, WoodFrameSmallObjectID, WoodFrameMediumObjectID, WoodFrameLargeObjectID } from "../src/ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID, PowerStoneObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount, testRemoveEntityIdFromReverseInventoryTool } from "../test/utils/TestUtils.sol";
@@ -54,7 +54,9 @@ contract TestScript is Script {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 2);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, TextSignObjectID, 30);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenFrameMediumObjectID, 30);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodFrameSmallObjectID, 30);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodFrameMediumObjectID, 30);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodFrameLargeObjectID, 30);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, PowerStoneObjectID, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, OakLogObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 5);
