@@ -10,13 +10,13 @@ async function main() {
     // (0, 0)
     { x: 236, y: 16, z: 332 },
     // (0, -1)
-    { x: 363, y: 17, z: -225 },
+    { x: 2, y: 9, z: -517 },
     // (-1, 0)
     { x: -111, y: 27, z: 421 },
     // (-1, -1)
     { x: -35, y: 21, z: -206 },
   ];
-  const SPAWN_SIZE = { x: 20, y: 0, z: 20 };
+  const SPAWN_SIZE = { x: 40, y: 0, z: 40 };
 
   for (const spawnCoord of SPAWN_COORDS) {
     await callTx(
