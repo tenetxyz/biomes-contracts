@@ -54,7 +54,7 @@ contract InitInteractablesSystem is System {
     VoxelCoord[] memory woodenFrameMediumRelativePositions = new VoxelCoord[](3);
     woodenFrameMediumRelativePositions[0] = VoxelCoord(0, 1, 0);
     woodenFrameMediumRelativePositions[1] = VoxelCoord(1, 0, 0);
-    woodenFrameMediumRelativePositions[3] = VoxelCoord(1, 1, 0);
+    woodenFrameMediumRelativePositions[2] = VoxelCoord(1, 1, 0);
     createInteractableBlock(WoodenFrameMediumObjectID, 5, 99, woodenFrameMediumRelativePositions);
 
     createInteractableBlock(ThermoblasterObjectID, 63, 1, new VoxelCoord[](0));
