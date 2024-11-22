@@ -6,6 +6,7 @@ import { PlayerMetadataData } from "./codegen/tables/PlayerMetadata.sol";
 import { HealthData } from "./codegen/tables/Health.sol";
 import { StaminaData } from "./codegen/tables/Stamina.sol";
 import { ChipData } from "./codegen/tables/Chip.sol";
+import { OrientationData } from "./codegen/tables/Orientation.sol";
 
 enum Biome {
   Mountains,
@@ -47,6 +48,16 @@ struct BlockEntityData {
   ChipData chip;
 }
 
+struct BlockEntityDataWithOrientation {
+  bytes32 entityId;
+  bytes32 baseEntityId;
+  uint8 objectTypeId;
+  VoxelCoord position;
+  InventoryObject[] inventory;
+  ChipData chip;
+  OrientationData orientation;
+}
+
 struct EntityData {
   uint8 objectTypeId;
   bytes32 entityId;
@@ -60,6 +71,15 @@ struct EntityDataWithBaseEntity {
   bytes32 baseEntityId;
   InventoryObject[] inventory;
   VoxelCoord position;
+}
+
+struct EntityDataWithOrientation {
+  uint8 objectTypeId;
+  bytes32 entityId;
+  bytes32 baseEntityId;
+  InventoryObject[] inventory;
+  VoxelCoord position;
+  OrientationData orientation;
 }
 
 struct PickupData {

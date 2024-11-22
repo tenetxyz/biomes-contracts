@@ -11,6 +11,7 @@ import { staticCallInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Position } from "../../codegen/tables/Position.sol";
+import { Orientation, OrientationData } from "../../codegen/tables/Orientation.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { LastKnownPosition } from "../../codegen/tables/LastKnownPosition.sol";
 import { Player } from "../../codegen/tables/Player.sol";
@@ -28,7 +29,7 @@ import { ExperiencePoints } from "../../codegen/tables/ExperiencePoints.sol";
 import { Chip, ChipData } from "../../codegen/tables/Chip.sol";
 import { getTerrainObjectTypeId, lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
-import { InventoryObject, PlayerEntityData, BlockEntityData } from "../../Types.sol";
+import { InventoryObject, PlayerEntityData, BlockEntityData, BlockEntityDataWithOrientation } from "../../Types.sol";
 
 import { IReadSystem } from "../../codegen/world/IReadSystem.sol";
 
@@ -109,6 +110,45 @@ contract ReadTwoSystem is System {
     BlockEntityData[] memory blocksEntityData = new BlockEntityData[](entityIds.length);
     for (uint256 i = 0; i < entityIds.length; i++) {
       blocksEntityData[i] = getBlockEntityData(entityIds[i]);
+    }
+    return blocksEntityData;
+  }
+
+  function getBlockEntityDataWithOrientation(
+    bytes32 entityId
+  ) public view returns (BlockEntityDataWithOrientation memory) {
+    if (entityId == bytes32(0)) {
+      return
+        BlockEntityDataWithOrientation({
+          entityId: bytes32(0),
+          baseEntityId: bytes32(0),
+          objectTypeId: 0,
+          position: VoxelCoord(0, 0, 0),
+          inventory: new InventoryObject[](0),
+          chip: ChipData({ chipAddress: address(0), batteryLevel: 0, lastUpdatedTime: 0 }),
+          orientation: OrientationData(0, 0)
+        });
+    }
+
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+    return
+      BlockEntityDataWithOrientation({
+        entityId: entityId,
+        baseEntityId: baseEntityId,
+        objectTypeId: ObjectType._get(entityId),
+        position: positionDataToVoxelCoord(Position._get(entityId)),
+        inventory: getEntityInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
+        chip: Chip._get(baseEntityId == bytes32(0) ? entityId : baseEntityId),
+        orientation: Orientation._get(baseEntityId == bytes32(0) ? entityId : baseEntityId)
+      });
+  }
+
+  function getBlocksEntityDataWithOrientation(
+    bytes32[] memory entityIds
+  ) public view returns (BlockEntityDataWithOrientation[] memory) {
+    BlockEntityDataWithOrientation[] memory blocksEntityData = new BlockEntityDataWithOrientation[](entityIds.length);
+    for (uint256 i = 0; i < entityIds.length; i++) {
+      blocksEntityData[i] = getBlockEntityDataWithOrientation(entityIds[i]);
     }
     return blocksEntityData;
   }
