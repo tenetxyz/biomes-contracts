@@ -14,6 +14,13 @@ enum Biome {
   Savanna
 }
 
+enum Rotation {
+  Z_NEG,
+  X_NEG,
+  Z_POS,
+  X_POS
+}
+
 struct InventoryTool {
   bytes32 entityId;
   uint24 numUsesLeft;
