@@ -42,7 +42,7 @@ import { FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
 
 import { IGravitySystem } from "../src/codegen/world/IGravitySystem.sol";
 
-contract ReadScript is Script {
+contract DebugScript is Script {
   function run(address worldAddress) external {
     // Specify a store so that you can use tables directly in PostDeploy
     StoreSwitch.setStoreAddress(worldAddress);
