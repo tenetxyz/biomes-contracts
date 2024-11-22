@@ -14,6 +14,7 @@ import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
+import { Orientation, OrientationData } from "../src/codegen/tables/Orientation.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../src/codegen/tables/Health.sol";
@@ -29,11 +30,12 @@ import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { VoxelCoord, Rotation } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
+import { rotationToOrientation } from "../src/utils/OrientationUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, NeptuniumCubeObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, NeptuniumCubeObjectID, TextSignObjectID, WoodenFrameMediumObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
@@ -220,16 +222,109 @@ contract MineTest is MudTest, GasReporter {
     assertTrue(ObjectType.get(topEntityId) == TextSignObjectID, "Top object not built");
     assertTrue(BaseEntity.get(topEntityId) == buildEntityId, "Top entity not linked");
 
+    vm.expectRevert("MineSystem: Mine the base block to mine this block");
     world.mine(topCoord);
 
-    mineEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    vm.stopPrank();
+  }
+
+  function testMineMultiSizeWithOrientation() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenFrameMediumObjectID, 1);
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y + 2, spawnCoord.z - 2);
+    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
+    OrientationData memory orientation = rotationToOrientation(Rotation.X_NEG);
+    bytes32 buildEntityId = world.buildWithOrientation(WoodenFrameMediumObjectID, buildCoord, orientation);
+
+    assertTrue(Orientation.getPitch(buildEntityId) == orientation.pitch, "Pitch not set");
+    assertTrue(Orientation.getYaw(buildEntityId) == orientation.yaw, "Yaw not set");
+
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(buildEntityId)), buildCoord),
+      "Position not set"
+    );
+    assertTrue(
+      ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z) == buildEntityId,
+      "Reverse position not set"
+    );
+    assertTrue(ObjectType.get(buildEntityId) == WoodenFrameMediumObjectID, "Object not built");
+    assertTrue(
+      !testInventoryObjectsHasObjectType(playerEntityId, WoodenFrameMediumObjectID),
+      "Inventory objects not set"
+    );
+    assertTrue(InventoryCount.get(playerEntityId, WoodenFrameMediumObjectID) == 0, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    VoxelCoord memory topCoord = VoxelCoord(buildCoord.x, buildCoord.y + 1, buildCoord.z);
+    bytes32 topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    require(topEntityId != bytes32(0), "Top entity not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(topEntityId)), topCoord),
+      "Top position not set"
+    );
+    assertTrue(ObjectType.get(topEntityId) == WoodenFrameMediumObjectID, "Top object not built");
+    assertTrue(BaseEntity.get(topEntityId) == buildEntityId, "Top entity not linked");
+
+    VoxelCoord memory rightCoord = VoxelCoord(buildCoord.x, buildCoord.y, buildCoord.z + 1);
+    bytes32 rightEntityId = ReversePosition.get(rightCoord.x, rightCoord.y, rightCoord.z);
+    require(rightEntityId != bytes32(0), "Right entity not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(rightEntityId)), rightCoord),
+      "Right position not set"
+    );
+    assertTrue(ObjectType.get(rightEntityId) == WoodenFrameMediumObjectID, "Right object not built");
+    assertTrue(BaseEntity.get(rightEntityId) == buildEntityId, "Right entity not linked");
+
+    VoxelCoord memory rightTopCoord = VoxelCoord(buildCoord.x, buildCoord.y + 1, buildCoord.z + 1);
+    bytes32 rightTopEntityId = ReversePosition.get(rightTopCoord.x, rightTopCoord.y, rightTopCoord.z);
+    require(rightTopEntityId != bytes32(0), "Right top entity not found");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(rightTopEntityId)), rightTopCoord),
+      "Right top position not set"
+    );
+    assertTrue(ObjectType.get(rightTopEntityId) == WoodenFrameMediumObjectID, "Right top object not built");
+    assertTrue(BaseEntity.get(rightTopEntityId) == buildEntityId, "Right top entity not linked");
+
+    vm.expectRevert("MineSystem: Mine the base block to mine this block");
+    world.mine(topCoord);
+
+    vm.expectRevert("MineSystem: Mine the base block to mine this block");
+    world.mine(rightCoord);
+
+    vm.expectRevert("MineSystem: Mine the base block to mine this block");
+    world.mine(rightTopCoord);
+
+    startGasReport("mine multi size 2 with orientation");
+    world.mine(buildCoord);
+    endGasReport();
+
+    assertTrue(Orientation.getPitch(buildEntityId) == 0, "Pitch not reset");
+    assertTrue(Orientation.getYaw(buildEntityId) == 0, "Yaw not reset");
+
+    assertTrue(InventoryCount.get(playerEntityId, WoodenFrameMediumObjectID) == 1, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(
+      testInventoryObjectsHasObjectType(playerEntityId, WoodenFrameMediumObjectID),
+      "Inventory objects not set"
+    );
+
+    bytes32 mineEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(mineEntityId != bytes32(0), "Mine entity not found");
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Object not mined");
     assertTrue(
       voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(mineEntityId)), buildCoord),
       "Mine position not set"
     );
-    mineTopEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+
+    bytes32 mineTopEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
     assertTrue(mineTopEntityId != bytes32(0), "Top mine entity not found");
     assertTrue(ObjectType.get(mineTopEntityId) == AirObjectID, "Top object not mined");
     assertTrue(
@@ -237,9 +332,24 @@ contract MineTest is MudTest, GasReporter {
       "Top mine position not set"
     );
     assertTrue(BaseEntity.get(mineTopEntityId) == bytes32(0), "Top mine entity still linked");
-    assertTrue(InventoryCount.get(playerEntityId, TextSignObjectID) == 1, "Inventory count not set");
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, TextSignObjectID), "Inventory objects not set");
+
+    bytes32 mineRightEntityId = ReversePosition.get(rightCoord.x, rightCoord.y, rightCoord.z);
+    assertTrue(mineRightEntityId != bytes32(0), "Right mine entity not found");
+    assertTrue(ObjectType.get(mineRightEntityId) == AirObjectID, "Right object not mined");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(mineRightEntityId)), rightCoord),
+      "Right mine position not set"
+    );
+    assertTrue(BaseEntity.get(mineRightEntityId) == bytes32(0), "Right mine entity still linked");
+
+    bytes32 mineRightTopEntityId = ReversePosition.get(rightTopCoord.x, rightTopCoord.y, rightTopCoord.z);
+    assertTrue(mineRightTopEntityId != bytes32(0), "Right top mine entity not found");
+    assertTrue(ObjectType.get(mineRightTopEntityId) == AirObjectID, "Right top object not mined");
+    assertTrue(
+      voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(mineRightTopEntityId)), rightTopCoord),
+      "Right top mine position not set"
+    );
+    assertTrue(BaseEntity.get(mineRightTopEntityId) == bytes32(0), "Right top mine entity still linked");
 
     vm.stopPrank();
   }
