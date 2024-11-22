@@ -16,7 +16,7 @@ async function main() {
     // (-1, -1)
     { x: -35, y: 21, z: -206 },
   ];
-  const SPAWN_SIZE = { x: 40, y: 0, z: 40 };
+  const SPAWN_SIZE = { x: 20, y: 0, z: 20 };
 
   for (const spawnCoord of SPAWN_COORDS) {
     await callTx(
