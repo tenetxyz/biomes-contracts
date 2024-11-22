@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { VoxelCoord, Rotation } from "@biomesaw/utils/src/Types.sol";
 import { inSurroundingCube, voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
@@ -11,6 +11,7 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Position } from "../codegen/tables/Position.sol";
+import { Orientation, OrientationData } from "../codegen/tables/Orientation.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
@@ -24,6 +25,7 @@ import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUni
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { getRelativeCoord, orientationToRotation } from "../utils/OrientationUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 import { IMineHelperSystem } from "../codegen/world/IMineHelperSystem.sol";
@@ -65,52 +67,49 @@ contract MineSystem is System {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    (bytes32 firstEntityId, uint8 mineObjectTypeId) = mineObjectAtCoord(coord);
+    (bytes32 baseEntityId, uint8 mineObjectTypeId) = mineObjectAtCoord(coord);
+    require(BaseEntity._get(baseEntityId) == bytes32(0), "MineSystem: Mine the base block to mine this block");
+
     uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(mineObjectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
+    coords[0] = coord;
 
-    VoxelCoord memory baseCoord = coord;
-    bytes32 baseEntityId = BaseEntity._get(firstEntityId);
-    if (baseEntityId != bytes32(0)) {
-      baseCoord = positionDataToVoxelCoord(Position._get(baseEntityId));
-      mineObjectAtCoord(baseCoord);
-      BaseEntity._deleteRecord(firstEntityId);
-    }
-    coords[0] = baseCoord;
-
+    OrientationData memory orientation = Orientation._get(baseEntityId);
     if (numRelativePositions > 0) {
+      Rotation rotation = orientationToRotation(orientation);
       ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(mineObjectTypeId);
       for (uint256 i = 0; i < numRelativePositions; i++) {
-        VoxelCoord memory relativeCoord = VoxelCoord(
-          baseCoord.x + schemaData.relativePositionsX[i],
-          baseCoord.y + schemaData.relativePositionsY[i],
-          baseCoord.z + schemaData.relativePositionsZ[i]
+        VoxelCoord memory relativeCoord = getRelativeCoord(
+          coord,
+          rotation,
+          VoxelCoord(
+            schemaData.relativePositionsX[i],
+            schemaData.relativePositionsY[i],
+            schemaData.relativePositionsZ[i]
+          )
         );
         coords[i + 1] = relativeCoord;
-        if (voxelCoordsAreEqual(relativeCoord, coord)) {
-          continue;
-        }
         (bytes32 relativeEntityId, ) = mineObjectAtCoord(relativeCoord);
         BaseEntity._deleteRecord(relativeEntityId);
       }
     }
+    if (orientation.pitch != 0 || orientation.yaw != 0) {
+      Orientation._deleteRecord(baseEntityId);
+    }
 
     callInternalSystem(
-      abi.encodeCall(
-        IMineHelperSystem.onMine,
-        (playerEntityId, baseEntityId != bytes32(0) ? baseEntityId : firstEntityId, mineObjectTypeId, coords)
-      )
+      abi.encodeCall(IMineHelperSystem.onMine, (playerEntityId, baseEntityId, mineObjectTypeId, coords))
     );
 
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.Mine,
-        entityId: baseEntityId != bytes32(0) ? baseEntityId : firstEntityId,
+        entityId: baseEntityId,
         objectTypeId: mineObjectTypeId,
-        coordX: baseCoord.x,
-        coordY: baseCoord.y,
-        coordZ: baseCoord.z,
+        coordX: coord.x,
+        coordY: coord.y,
+        coordZ: coord.z,
         amount: 1
       })
     );
@@ -120,7 +119,7 @@ contract MineSystem is System {
     callInternalSystem(
       abi.encodeCall(
         IForceFieldSystem.requireMinesAllowed,
-        (playerEntityId, baseEntityId != bytes32(0) ? baseEntityId : firstEntityId, mineObjectTypeId, coords, extraData)
+        (playerEntityId, baseEntityId, mineObjectTypeId, coords, extraData)
       )
     );
   }

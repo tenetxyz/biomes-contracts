@@ -490,6 +490,127 @@
   },
   {
     "type": "function",
+    "name": "buildWithOrientation",
+    "inputs": [
+      {
+        "name": "objectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "coord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "orientation",
+        "type": "tuple",
+        "internalType": "struct OrientationData",
+        "components": [
+          {
+            "name": "pitch",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "yaw",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "buildWithOrientationWithExtraData",
+    "inputs": [
+      {
+        "name": "objectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "coord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "orientation",
+        "type": "tuple",
+        "internalType": "struct OrientationData",
+        "components": [
+          {
+            "name": "pitch",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "yaw",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
     "name": "call",
     "inputs": [
       {

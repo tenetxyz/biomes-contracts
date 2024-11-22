@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { Rotation } from "../Types.sol";
+import { VoxelCoord, Rotation } from "@biomesaw/utils/src/Types.sol";
 import { OrientationData } from "../codegen/tables/Orientation.sol";
 
 int32 constant PI_SCALED = 3.1416 * 10_000;
@@ -18,4 +18,16 @@ function orientationToRotation(OrientationData memory orientation) pure returns 
   uint8 normalized = uint8(((uint32(rotationIndex) % 4) + 4) % 4);
 
   return Rotation(normalized);
+}
+
+function getRelativeCoord(
+  VoxelCoord memory baseCoord,
+  Rotation rotation,
+  VoxelCoord memory offset
+) pure returns (VoxelCoord memory) {
+  if (rotation == Rotation.Z_NEG || rotation == Rotation.Z_POS) {
+    return VoxelCoord(baseCoord.x + offset.x, baseCoord.y + offset.y, baseCoord.z + offset.z);
+  } else {
+    return VoxelCoord(baseCoord.x + offset.z, baseCoord.y + offset.y, baseCoord.z + offset.x);
+  }
 }
