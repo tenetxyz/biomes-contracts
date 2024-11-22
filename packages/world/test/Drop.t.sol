@@ -511,14 +511,13 @@ contract DropTest is MudTest, GasReporter {
     newCoords[0] = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
     assertTrue(world.getTerrainBlock(newCoords[0]) == AirObjectID, "Terrain block is not air");
 
-    vm.expectRevert("MoveSystem: cannot move player with gravity");
     world.move(newCoords);
 
-    // assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
-    // assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
-    // assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
-    // assertTrue(!testInventoryObjectsHasObjectType(airEntityId, GrassObjectID), "Inventory objects not set");
-    // assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
+    assertTrue(InventoryCount.get(airEntityId, GrassObjectID) == 0, "Inventory count not set properly");
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
+    assertTrue(!testInventoryObjectsHasObjectType(airEntityId, GrassObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
 
     vm.stopPrank();
   }

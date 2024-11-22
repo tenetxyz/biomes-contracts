@@ -164,25 +164,6 @@ contract HitTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testHitInsideSpawn() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    vm.startPrank(bob, bob);
-    VoxelCoord memory spawnCoord2 = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y + 1, SPAWN_LOW_Z);
-    assertTrue(world.getTerrainBlock(spawnCoord2) == AirObjectID, "Terrain block is not air");
-    bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
-
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    vm.expectRevert("HitSystem: cannot hit players in spawn area");
-    world.hit(bob);
-
-    vm.stopPrank();
-  }
-
   function testHitNotEnoughStamina() public {
     vm.startPrank(alice, alice);
 

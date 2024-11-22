@@ -27,7 +27,6 @@ contract HitSystem is System {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     (bytes32 hitEntityId, VoxelCoord memory hitCoord) = requireValidPlayer(hitPlayer);
     require(playerEntityId != hitEntityId, "HitSystem: cannot hit yourself");
-    require(!inSpawnArea(hitCoord), "HitSystem: cannot hit players in spawn area");
     requireBesidePlayer(playerCoord, hitCoord);
 
     // Update stamina and health

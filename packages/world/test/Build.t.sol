@@ -197,32 +197,6 @@ contract BuildTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testBuildInsideSpawn() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    VoxelCoord memory buildCoord = VoxelCoord(SPAWN_LOW_X + 1, SPAWN_GROUND_Y, SPAWN_LOW_Z);
-    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
-
-    vm.expectRevert("BuildSystem: cannot build at spawn area");
-    world.build(GrassObjectID, buildCoord);
-
-    buildCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z + 1);
-    assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
-
-    vm.expectRevert("BuildSystem: cannot build at spawn area");
-    world.build(GrassObjectID, buildCoord);
-
-    vm.stopPrank();
-  }
-
   function testBuildOutsideWorldBorder() public {
     vm.startPrank(alice, alice);
 

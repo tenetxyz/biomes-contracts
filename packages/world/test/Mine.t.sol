@@ -306,24 +306,6 @@ contract MineTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testMineInsideSpawn() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    VoxelCoord memory mineCoord = VoxelCoord(SPAWN_LOW_X + 1, SPAWN_GROUND_Y - 1, SPAWN_LOW_Z);
-
-    vm.expectRevert("MineSystem: cannot mine at spawn area");
-    world.mine(mineCoord);
-
-    mineCoord = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y, SPAWN_LOW_Z + 1);
-
-    vm.expectRevert("MineSystem: cannot mine at spawn area");
-    world.mine(mineCoord);
-
-    vm.stopPrank();
-  }
-
   function testMineOutsideWorldBorder() public {
     vm.startPrank(alice, alice);
 

@@ -29,7 +29,6 @@ import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 contract BuildSystem is System {
   function buildObjectAtCoord(uint8 objectTypeId, VoxelCoord memory coord) internal returns (bytes32) {
     require(inWorldBorder(coord), "BuildSystem: cannot build outside world border");
-    require(!inSpawnArea(coord), "BuildSystem: cannot build at spawn area");
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       // Check terrain block type

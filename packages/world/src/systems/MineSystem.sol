@@ -31,7 +31,6 @@ import { IMineHelperSystem } from "../codegen/world/IMineHelperSystem.sol";
 contract MineSystem is System {
   function mineObjectAtCoord(VoxelCoord memory coord) internal returns (bytes32, uint8) {
     require(inWorldBorder(coord), "MineSystem: cannot mine outside world border");
-    require(!inSpawnArea(coord), "MineSystem: cannot mine at spawn area");
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     uint8 mineObjectTypeId;
