@@ -19,6 +19,7 @@
     "downloadTxs": "npx tsx downloadTxs.ts",
     "parseTxs": "npx tsx parseTxs.ts",
     "parseSavedTxs": "npx tsx parseSavedTxs.ts",
+    "parseTxData": "npx tsx parseTxData.ts",
     "governor": "npx tsx governor.ts",
     "dozer": "npx tsx dozer.ts"
   },
