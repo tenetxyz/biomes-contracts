@@ -237,6 +237,11 @@ contract XPTest is MudTest, GasReporter {
     for (int16 i = 0; i < MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1; i++) {
       newCoords[uint(int(i))] = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z + i + 1);
     }
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+    world.setTerrainObjectTypeIds(newCoords, AirObjectID);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
     world.move(newCoords);
 
     vm.expectRevert("Player is too far");

@@ -313,7 +313,7 @@ contract MoveTest is MudTest, GasReporter {
     //   assertTrue(world.getTerrainBlock(newCoords[i]) != AirObjectID, "Terrain block is not air");
     // }
 
-    vm.expectRevert("MoveSystem: cannot move to (363, 17, -224) with object type 57");
+    vm.expectRevert("MoveSystem: cannot move to (236, 16, 333) with object type 57");
     world.move(newCoords);
 
     vm.stopPrank();
@@ -331,7 +331,7 @@ contract MoveTest is MudTest, GasReporter {
       assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
     }
 
-    vm.expectRevert("MoveSystem: new coord (363, 18, -222) is not in surrounding cube of old coord (363, 18, -224)");
+    vm.expectRevert("MoveSystem: new coord (236, 17, 335) is not in surrounding cube of old coord (236, 17, 333)");
     world.move(newCoords);
 
     vm.stopPrank();

@@ -716,20 +716,23 @@ contract DropTest is MudTest, GasReporter {
 
     bytes32 playerEntityId = setupPlayer();
 
-    vm.startPrank(worldDeployer, worldDeployer);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
-
     VoxelCoord memory dropCoord = VoxelCoord(
       spawnCoord.x,
       spawnCoord.y,
       spawnCoord.z + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1
     );
-    assertTrue(world.getTerrainBlock(dropCoord) == AirObjectID, "Terrain block is not air");
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
+    VoxelCoord[] memory coords = new VoxelCoord[](1);
+    coords[0] = dropCoord;
+    world.setTerrainObjectTypeIds(coords, AirObjectID);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    assertTrue(InventoryCount.get(playerEntityId, GrassObjectID) == 1, "Inventory count not set properly");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slots not set correctly");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, GrassObjectID), "Inventory objects not set");
 
     vm.expectRevert("Player is too far");
     world.drop(GrassObjectID, 1, dropCoord);

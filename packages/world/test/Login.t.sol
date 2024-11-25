@@ -227,7 +227,13 @@ contract LoginTest is MudTest, GasReporter {
       spawnCoord.y,
       spawnCoord.z + (MAX_PLAYER_RESPAWN_HALF_WIDTH + 1)
     );
-    assertTrue(world.getTerrainBlock(respawnCoord) == AirObjectID, "Terrain block is not air");
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+    VoxelCoord[] memory coords = new VoxelCoord[](1);
+    coords[0] = respawnCoord;
+    world.setTerrainObjectTypeIds(coords, AirObjectID);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
 
     vm.expectRevert("LoginSystem: respawn coord too far from last known position");
     world.loginPlayer(respawnCoord);
