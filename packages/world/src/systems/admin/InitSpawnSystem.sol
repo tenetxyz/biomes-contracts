@@ -22,10 +22,10 @@ contract InitSpawnSystem is System {
 
     require(inWorldBorder(lowerSouthwestCorner), "InitSpawnSystem: cannot place spawn outside world border");
     VoxelCoord memory spawnCoord = coordToShardCoordIgnoreY(lowerSouthwestCorner, SPAWN_SHARD_DIM);
-    require(
-      !Spawn._get(spawnCoord.x, spawnCoord.z).initialized,
-      "InitSpawnSystem: spawn already exists for this shard"
-    );
+    // require(
+    //   !Spawn._get(spawnCoord.x, spawnCoord.z).initialized,
+    //   "InitSpawnSystem: spawn already exists for this shard"
+    // );
     require(size.x > 0 && size.z > 0, "InitSpawnSystem: size must be positive");
 
     Spawn._set(
