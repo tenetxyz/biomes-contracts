@@ -53,13 +53,13 @@ contract HitChipSystem is System {
     }
     useEquipped(playerEntityId, equippedEntityId);
 
-    uint256 l1GasPriceWei = getL1GasPrice();
-    // Ensure that the gas price is at least 8 gwei
-    if (l1GasPriceWei < 8 gwei) {
-      l1GasPriceWei = 8 gwei;
-    }
+    // uint256 l1GasPriceWei = getL1GasPrice();
+    // // Ensure that the gas price is at least 8 gwei
+    // if (l1GasPriceWei < 8 gwei) {
+    //   l1GasPriceWei = 8 gwei;
+    // }
 
-    uint256 decreaseBatteryLevel = (receiverDamage * 117 * l1GasPriceWei) / (100 * 8 gwei);
+    uint256 decreaseBatteryLevel = (receiverDamage * 117) / 100;
     uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel
       ? chipData.batteryLevel - decreaseBatteryLevel
       : 0;
