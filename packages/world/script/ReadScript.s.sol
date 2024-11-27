@@ -24,6 +24,7 @@ import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { Position, PositionData } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
 import { ShardField } from "../src/codegen/tables/ShardField.sol";
 
@@ -54,10 +55,14 @@ contract ReadScript is Script {
     console.logBytes32(playerEntityId);
     console.logBool(PlayerMetadata.getIsLoggedOff(playerEntityId));
 
-    VoxelCoord memory coord = VoxelCoord(-35, 22, -211);
+    VoxelCoord memory coord = VoxelCoord(-40, 23, -213);
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     console.log("Entity at position:");
     console.logBytes32(entityId);
+    console.log("Object type id:");
+    console.logUint(ObjectType.get(entityId));
+    console.log("Base entity id:");
+    console.logBytes32(BaseEntity.get(entityId));
     VoxelCoord memory shardCoord = coordToShardCoord(coord, FORCE_FIELD_SHARD_DIM);
     bytes32 forceFieldEntityId = ShardField.get(shardCoord.x, shardCoord.y, shardCoord.z);
     if (forceFieldEntityId == bytes32(0)) {

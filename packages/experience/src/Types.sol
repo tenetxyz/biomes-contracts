@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { BlockEntityData } from "@biomesaw/world/src/Types.sol";
+import { BlockEntityData, BlockEntityDataWithOrientation } from "@biomesaw/world/src/Types.sol";
 
 import { ItemShopData } from "./codegen/tables/ItemShop.sol";
 import { ChestMetadataData } from "./codegen/tables/ChestMetadata.sol";
@@ -11,6 +11,15 @@ import { ForceFieldApprovalsData } from "./codegen/tables/ForceFieldApprovals.so
 
 struct BlockExperienceEntityData {
   BlockEntityData worldEntityData;
+  address chipAttacher;
+  ChestMetadataData chestMetadata;
+  ItemShopData itemShopData;
+  FFMetadataData ffMetadata;
+  ForceFieldApprovalsData forceFieldApprovalsData;
+}
+
+struct BlockExperienceEntityDataWithOrientation {
+  BlockEntityDataWithOrientation worldEntityData;
   address chipAttacher;
   ChestMetadataData chestMetadata;
   ItemShopData itemShopData;

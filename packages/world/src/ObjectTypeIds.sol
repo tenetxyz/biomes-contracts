@@ -211,3 +211,6 @@ uint8 constant ChipBatteryObjectID = 165;
 uint8 constant ForceFieldObjectID = 166;
 uint8 constant PowerStoneObjectID = 167;
 uint8 constant TextSignObjectID = 168;
+uint8 constant WoodFrameSmallObjectID = 169;
+uint8 constant WoodFrameMediumObjectID = 170;
+uint8 constant WoodFrameLargeObjectID = 171;

@@ -148,6 +148,17 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    Orientation: {
+      schema: {
+        entityId: "bytes32",
+        pitch: "int32", // vertical angle * 10000
+        yaw: "int32", // horizontal angle * 10000
+      },
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     Player: {
       schema: {
         player: "address",

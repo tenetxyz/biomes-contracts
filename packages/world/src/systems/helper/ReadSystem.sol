@@ -10,6 +10,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Position } from "../../codegen/tables/Position.sol";
+import { Orientation, OrientationData } from "../../codegen/tables/Orientation.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { LastKnownPosition } from "../../codegen/tables/LastKnownPosition.sol";
 import { Player } from "../../codegen/tables/Player.sol";
@@ -26,7 +27,7 @@ import { ItemMetadata } from "../../codegen/tables/ItemMetadata.sol";
 import { getTerrainObjectTypeId, lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { NullObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
-import { InventoryObject, InventoryTool, EntityData, EntityDataWithBaseEntity } from "../../Types.sol";
+import { InventoryObject, InventoryTool, EntityData, EntityDataWithBaseEntity, EntityDataWithOrientation } from "../../Types.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {
@@ -178,6 +179,71 @@ contract ReadSystem is System {
     EntityDataWithBaseEntity[] memory entityData = new EntityDataWithBaseEntity[](coord.length);
     for (uint256 i = 0; i < coord.length; i++) {
       entityData[i] = getEntityDataWithBaseEntityAtCoord(coord[i]);
+    }
+    return entityData;
+  }
+
+  function getEntityDataWithOrientation(bytes32 entityId) public view returns (EntityDataWithOrientation memory) {
+    if (entityId == bytes32(0)) {
+      return
+        EntityDataWithOrientation({
+          objectTypeId: NullObjectTypeId,
+          entityId: bytes32(0),
+          baseEntityId: bytes32(0),
+          inventory: new InventoryObject[](0),
+          position: VoxelCoord(0, 0, 0),
+          orientation: OrientationData(0, 0)
+        });
+    }
+
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+
+    return
+      EntityDataWithOrientation({
+        objectTypeId: ObjectType._get(entityId),
+        entityId: entityId,
+        baseEntityId: baseEntityId,
+        inventory: getInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
+        position: getCoordForEntityId(entityId),
+        orientation: Orientation._get(baseEntityId == bytes32(0) ? entityId : baseEntityId)
+      });
+  }
+
+  function getEntityDataWithOrientationAtCoord(
+    VoxelCoord memory coord
+  ) public view returns (EntityDataWithOrientation memory) {
+    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (entityId == bytes32(0)) {
+      return
+        EntityDataWithOrientation({
+          objectTypeId: getTerrainObjectTypeId(coord),
+          entityId: bytes32(0),
+          baseEntityId: bytes32(0),
+          inventory: new InventoryObject[](0),
+          position: coord,
+          orientation: OrientationData(0, 0)
+        });
+    }
+
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+
+    return
+      EntityDataWithOrientation({
+        objectTypeId: ObjectType._get(entityId),
+        entityId: entityId,
+        baseEntityId: baseEntityId,
+        inventory: getInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
+        position: coord,
+        orientation: Orientation._get(baseEntityId == bytes32(0) ? entityId : baseEntityId)
+      });
+  }
+
+  function getMultipleEntityDataWithOrientationAtCoord(
+    VoxelCoord[] memory coord
+  ) public view returns (EntityDataWithOrientation[] memory) {
+    EntityDataWithOrientation[] memory entityData = new EntityDataWithOrientation[](coord.length);
+    for (uint256 i = 0; i < coord.length; i++) {
+      entityData[i] = getEntityDataWithOrientationAtCoord(coord[i]);
     }
     return entityData;
   }

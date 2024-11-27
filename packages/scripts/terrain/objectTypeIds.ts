@@ -208,6 +208,9 @@ export const CHIP_BATTERY_OBJECT_ID = 165;
 export const FORCE_FIELD_OBJECT_ID = 166;
 export const POWERSTONE_OBJECT_ID = 167;
 export const TEXT_SIGN_OBJECT_ID = 168;
+export const WOOD_FRAME_SMALL_OBJECT_ID = 169;
+export const WOOD_FRAME_MEDIUM_OBJECT_ID = 170;
+export const WOOD_FRAME_LARGE_OBJECT_ID = 171;
 
 // legacy
 export type BiomesVariantData = number;
