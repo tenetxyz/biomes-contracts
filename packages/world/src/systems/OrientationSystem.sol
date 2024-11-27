@@ -8,6 +8,8 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
@@ -37,14 +39,40 @@ contract OrientationSystem is System {
       // Check terrain block type
       uint8 terrainObjectTypeId = getTerrainObjectTypeId(coord);
       require(terrainObjectTypeId != WaterObjectID, "BuildSystem: cannot build on water block");
-      require(terrainObjectTypeId == AirObjectID, "BuildSystem: cannot build on terrain non-air block");
+      require(
+        terrainObjectTypeId == AirObjectID,
+        string.concat(
+          "BuildSystem: cannot build on terrain non-air block (",
+          Strings.toString(terrainObjectTypeId),
+          ") at coord (",
+          Strings.toString(coord.x),
+          ", ",
+          Strings.toString(coord.y),
+          ", ",
+          Strings.toString(coord.z),
+          ")"
+        )
+      );
 
       entityId = getUniqueEntity();
       Position._set(entityId, coord.x, coord.y, coord.z);
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
     } else {
       require(getTerrainObjectTypeId(coord) != WaterObjectID, "BuildSystem: cannot build on water block");
-      require(ObjectType._get(entityId) == AirObjectID, "BuildSystem: cannot build on non-air block");
+      require(
+        ObjectType._get(entityId) == AirObjectID,
+        string.concat(
+          "BuildSystem: cannot build on non-air block (",
+          Strings.toString(ObjectType._get(entityId)),
+          ") at coord (",
+          Strings.toString(coord.x),
+          ", ",
+          Strings.toString(coord.y),
+          ", ",
+          Strings.toString(coord.z),
+          ")"
+        )
+      );
       require(
         InventoryObjects._lengthObjectTypeIds(entityId) == 0,
         "BuildSystem: Cannot build where there are dropped objects"
