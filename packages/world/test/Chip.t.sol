@@ -548,7 +548,7 @@ contract ChipTest is MudTest, GasReporter {
     }
     vm.stopPrank();
     vm.startPrank(worldDeployer, worldDeployer);
-    world.setTerrainObjectTypeIds(newCoords, AirObjectID);
+    world.setObjectAtCoord(AirObjectID, newCoords);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     world.move(newCoords);
@@ -807,7 +807,7 @@ contract ChipTest is MudTest, GasReporter {
     }
     vm.stopPrank();
     vm.startPrank(worldDeployer, worldDeployer);
-    world.setTerrainObjectTypeIds(newCoords, AirObjectID);
+    world.setObjectAtCoord(AirObjectID, newCoords);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     world.move(newCoords);
@@ -1049,7 +1049,7 @@ contract ChipTest is MudTest, GasReporter {
     }
     vm.stopPrank();
     vm.startPrank(worldDeployer, worldDeployer);
-    world.setTerrainObjectTypeIds(newCoords, AirObjectID);
+    world.setObjectAtCoord(AirObjectID, newCoords);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     world.move(newCoords);
@@ -1246,7 +1246,7 @@ contract ChipTest is MudTest, GasReporter {
     }
     vm.stopPrank();
     vm.startPrank(worldDeployer, worldDeployer);
-    world.setTerrainObjectTypeIds(newCoords, AirObjectID);
+    world.setObjectAtCoord(AirObjectID, newCoords);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     world.move(newCoords);
@@ -1547,7 +1547,7 @@ contract ChipTest is MudTest, GasReporter {
     }
     vm.stopPrank();
     vm.startPrank(worldDeployer, worldDeployer);
-    world.setTerrainObjectTypeIds(newCoords, AirObjectID);
+    world.setObjectAtCoord(AirObjectID, newCoords);
     vm.stopPrank();
     vm.startPrank(alice, alice);
     world.move(newCoords);

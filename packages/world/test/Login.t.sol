@@ -231,7 +231,7 @@ contract LoginTest is MudTest, GasReporter {
     vm.startPrank(worldDeployer, worldDeployer);
     VoxelCoord[] memory coords = new VoxelCoord[](1);
     coords[0] = respawnCoord;
-    world.setTerrainObjectTypeIds(coords, AirObjectID);
+    world.setObjectAtCoord(AirObjectID, coords);
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
