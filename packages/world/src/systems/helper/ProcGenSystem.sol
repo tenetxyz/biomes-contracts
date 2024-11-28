@@ -7,7 +7,7 @@ import { Perlin } from "@biomesaw/utils/src/libraries/Perlin.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { floorDiv } from "@biomesaw/utils/src/MathUtils.sol";
 
-import { NullObjectTypeId, WaterObjectID, SandObjectID, BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../../ObjectTypeIds.sol";
+import { NullObjectTypeId, WaterObjectID, SandObjectID, BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, AnyOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../../ObjectTypeIds.sol";
 import { Biome } from "../../Types.sol";
 import { STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../../Constants.sol";
 
@@ -622,11 +622,11 @@ contract ProcGenSystem is System {
     // REGION 1: Coal is Abundant, Silver is Rare
     if (hash1 <= 20 || hash1 > 40) {
       if (hash1 <= 15 && hash2 <= 15) {
-        return SilverOreObjectID;
+        return AnyOreObjectID;
       }
     } else {
       if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
+        return AnyOreObjectID;
       }
     }
     return NullObjectTypeId;
@@ -639,13 +639,13 @@ contract ProcGenSystem is System {
     // REGION 1: Coal is Abundant, Silver is Rare, Boost Gold Lightly
     if (hash1 <= 20 || hash1 > 40) {
       if (hash1 <= 15 && hash2 <= 15) {
-        return SilverOreObjectID;
+        return AnyOreObjectID;
       } else if (hash1 <= 5 && hash2 <= 5) {
-        return GoldOreObjectID;
+        return AnyOreObjectID;
       }
     } else {
       if (hash2 > 0 && hash2 <= 15) {
-        return CoalOreObjectID;
+        return AnyOreObjectID;
       }
     }
     return NullObjectTypeId;
@@ -658,11 +658,11 @@ contract ProcGenSystem is System {
     // REGION 1: Coal is Abundant, Silver is Rare But Boosted
     if (hash1 <= 20 || hash1 > 40) {
       if (hash1 <= 20 && hash2 <= 20) {
-        return SilverOreObjectID;
+        return AnyOreObjectID;
       }
     } else {
       if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
+        return AnyOreObjectID;
       }
     }
     return NullObjectTypeId;
@@ -675,17 +675,17 @@ contract ProcGenSystem is System {
     // REGION 2: Coal and Silver Equally Abundant, Gold is Rare, Diamond is Even More Rare
     if (hash1 <= 30) {
       if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 20 && hash1 <= 55) {
       if (hash2 > 10 && hash2 <= 35) {
-        return SilverOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 40 && hash1 <= 65) {
       if (hash2 > 25 && hash2 <= 45) {
-        return GoldOreObjectID;
+        return AnyOreObjectID;
       } else if (hash2 > 35 && hash2 <= 50) {
-        return DiamondOreObjectID;
+        return AnyOreObjectID;
       }
     }
     return NullObjectTypeId;
@@ -698,17 +698,17 @@ contract ProcGenSystem is System {
     // REGION 2: Coal and Silver Equally Abundant, Gold is Rare But Boosted, Diamond is Even More Rare
     if (hash1 <= 30) {
       if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 20 && hash1 <= 55) {
       if (hash2 > 10 && hash2 <= 35) {
-        return SilverOreObjectID;
+        return AnyOreObjectID;
       } else if (hash2 > 25 && hash2 <= 45) {
-        return GoldOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 40 && hash1 <= 65) {
       if (hash2 > 40 && hash2 <= 55) {
-        return DiamondOreObjectID;
+        return AnyOreObjectID;
       }
     }
     return NullObjectTypeId;
@@ -721,17 +721,17 @@ contract ProcGenSystem is System {
     // REGION 2: Coal and Silver Equally Abundant, Gold is Rare, Diamond is Even More Rare but Boosted
     if (hash1 <= 20) {
       if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 20 && hash1 <= 55) {
       if (hash2 > 10 && hash2 <= 35) {
-        return SilverOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 40 && hash1 <= 65) {
       if (hash2 > 25 && hash2 <= 45) {
-        return GoldOreObjectID;
+        return AnyOreObjectID;
       } else if (hash2 > 35 && hash2 <= 60) {
-        return DiamondOreObjectID;
+        return AnyOreObjectID;
       }
     }
     return NullObjectTypeId;
@@ -744,21 +744,21 @@ contract ProcGenSystem is System {
     // REGION 3: Coal, Silver, and Gold Equally Abundant, Diamond is Rare, Neptunium is Even More Rare
     if (hash1 <= 30) {
       if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 20 && hash1 <= 55) {
       if (hash2 > 10 && hash2 <= 35) {
-        return SilverOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 45 && hash1 <= 80) {
       if (hash2 > 25 && hash2 <= 50) {
-        return GoldOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 70 && hash1 <= 95) {
       if (hash2 > 40 && hash2 <= 60) {
-        return DiamondOreObjectID;
+        return AnyOreObjectID;
       } else if (hash2 > 50 && hash2 <= 65) {
-        return NeptuniumOreObjectID;
+        return AnyOreObjectID;
       }
     }
     return NullObjectTypeId;
@@ -771,21 +771,21 @@ contract ProcGenSystem is System {
     // REGION 3: Coal, Silver, and Gold Equally Abundant But Boosted Even More, Diamond is Rare, Neptunium is Even More Rare
     if (hash1 <= 30) {
       if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 20 && hash1 <= 55) {
       if (hash2 > 10 && hash2 <= 35) {
-        return SilverOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 45 && hash1 <= 80) {
       if (hash2 > 25 && hash2 <= 60) {
-        return GoldOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 70 && hash1 <= 95) {
       if (hash2 > 50 && hash2 <= 70) {
-        return DiamondOreObjectID;
+        return AnyOreObjectID;
       } else if (hash2 > 60 && hash2 <= 75) {
-        return NeptuniumOreObjectID;
+        return AnyOreObjectID;
       }
     }
     return NullObjectTypeId;
@@ -798,21 +798,21 @@ contract ProcGenSystem is System {
     // REGION 3: Coal, Silver, and Gold Equally Abundant, Diamond is Rare, Neptunium is Even More Rare
     if (hash1 <= 30) {
       if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 20 && hash1 <= 55) {
       if (hash2 > 10 && hash2 <= 35) {
-        return SilverOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 45 && hash1 <= 80) {
       if (hash2 > 25 && hash2 <= 50) {
-        return GoldOreObjectID;
+        return AnyOreObjectID;
       }
     } else if (hash1 > 70 && hash1 <= 95) {
       if (hash2 > 40 && hash2 <= 60) {
-        return DiamondOreObjectID;
+        return AnyOreObjectID;
       } else if (hash2 > 50 && hash2 <= 75) {
-        return NeptuniumOreObjectID;
+        return AnyOreObjectID;
       }
     }
     return NullObjectTypeId;
