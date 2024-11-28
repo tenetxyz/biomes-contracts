@@ -16,6 +16,8 @@ import { UniqueEntity } from "./codegen/tables/UniqueEntity.sol";
 import { Spawn, SpawnData } from "./codegen/tables/Spawn.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
 import { BlockHash } from "./codegen/tables/BlockHash.sol";
+import { BlockPrevrandao } from "./codegen/tables/BlockPrevrandao.sol";
+
 import { SPAWN_SHARD_DIM } from "./Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z, OP_L1_GAS_ORACLE } from "./Constants.sol";
 import { AirObjectID, WaterObjectID } from "./ObjectTypeIds.sol";
@@ -150,8 +152,10 @@ function getRandomNumberBetween0And99(uint256 blockNumber) view returns (uint256
     string.concat("getRandomNumber: block hash is 0 for block ", Strings.toString(blockNumber))
   );
 
-  // Use the block hash to generate a random number by converting it to uint256 and applying modulo
-  uint256 randomNumber = uint256(blockHash) % 100;
+  uint256 blockPrevrandao = BlockPrevrandao._get(blockNumber);
+
+  // Use the block hash and prevrandao to generate a random number by converting it to uint256 and applying modulo
+  uint256 randomNumber = uint256(keccak256(abi.encodePacked(blockHash, blockPrevrandao))) % 100;
 
   return randomNumber;
 }

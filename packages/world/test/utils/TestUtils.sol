@@ -241,20 +241,3 @@ function testGravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
 
   return true;
 }
-
-// Random number between 0 and 99
-function testGetRandomNumberBetween0And99(uint256 blockNumber) view returns (uint256) {
-  bytes32 blockHash = blockhash(blockNumber);
-  if (blockHash == bytes32(0)) {
-    blockHash = BlockHash.get(blockNumber);
-  }
-  require(
-    blockHash != bytes32(0),
-    string.concat("getRandomNumber: block hash is 0 for block ", Strings.toString(blockNumber))
-  );
-
-  // Use the block hash to generate a random number by converting it to uint256 and applying modulo
-  uint256 randomNumber = uint256(blockHash) % 100;
-
-  return randomNumber;
-}

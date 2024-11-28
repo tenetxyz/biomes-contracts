@@ -10,4 +10,6 @@ pragma solidity >=0.8.24;
  */
 interface IOracleSystem {
   function setBlockHash(uint256 blockNumber, bytes32 blockHash) external;
+
+  function setBlockPrevrandao(uint256 blockNumber, uint256 blockPrevrandao) external;
 }

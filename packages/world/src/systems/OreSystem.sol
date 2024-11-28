@@ -19,6 +19,7 @@ import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/Play
 import { ActionType } from "../codegen/common.sol";
 import { TerrainCommitment, TerrainCommitmentData } from "../codegen/tables/TerrainCommitment.sol";
 import { Commitment } from "../codegen/tables/Commitment.sol";
+import { BlockPrevrandao } from "../codegen/tables/BlockPrevrandao.sol";
 
 import { MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID } from "../ObjectTypeIds.sol";
@@ -50,6 +51,7 @@ contract OreSystem is System {
 
     TerrainCommitment._set(coord.x, coord.y, coord.z, block.number, playerEntityId);
     Commitment._set(playerEntityId, true, coord.x, coord.y, coord.z);
+    BlockPrevrandao._set(block.number, block.prevrandao);
 
     callMintXP(playerEntityId, initialGas, 1);
   }

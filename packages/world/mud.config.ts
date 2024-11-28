@@ -369,6 +369,16 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    BlockPrevrandao: {
+      schema: {
+        blockNumber: "uint256",
+        blockPrevrandao: "uint256",
+      },
+      key: ["blockNumber"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     // -------------------
     // DEPRECATED TABLES
     // -------------------

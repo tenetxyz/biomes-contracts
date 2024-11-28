@@ -28,6 +28,7 @@ import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 import { TerrainCommitment } from "../src/codegen/tables/TerrainCommitment.sol";
 import { Commitment } from "../src/codegen/tables/Commitment.sol";
 import { BlockHash } from "../src/codegen/tables/BlockHash.sol";
+import { BlockPrevrandao } from "../src/codegen/tables/BlockPrevrandao.sol";
 
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
@@ -39,7 +40,7 @@ import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH,
 import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, NeptuniumCubeObjectID, TextSignObjectID, AnyOreObjectID, LavaObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
-import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType, testGetRandomNumberBetween0And99 } from "./utils/TestUtils.sol";
+import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
 
 contract OreTest is MudTest, GasReporter {
   IWorld private world;
@@ -199,6 +200,7 @@ contract OreTest is MudTest, GasReporter {
 
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
+    vm.prevrandao(bytes32(uint256(40)));
     world.commitOre(lavaOreCoord);
 
     uint256 commitBlockNumber = block.number;
