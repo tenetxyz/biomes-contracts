@@ -37,6 +37,7 @@ contract MineSystem is System {
     if (entityId == bytes32(0)) {
       // Check terrain block type
       mineObjectTypeId = getTerrainObjectTypeId(coord);
+      require(mineObjectTypeId != AnyOreObjectID, "MineSystem: ore must be computed to before it can be mined");
 
       // Create new entity
       entityId = getUniqueEntity();

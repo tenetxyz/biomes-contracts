@@ -191,13 +191,20 @@ function getForceField(VoxelCoord memory coord) view returns (bytes32) {
 }
 
 function testGetTerrainObjectTypeId(VoxelCoord memory coord) view returns (uint8) {
-  uint8 cachedObjectTypeId = Terrain.get(coord.x, coord.y, coord.z);
-  if (cachedObjectTypeId != 0) return cachedObjectTypeId;
-  return testStaticCallProcGenSystem(coord);
+  (uint8 terrainObjectTypeId, ) = testGetTerrainAndOreObjectTypeId(coord, 0);
+  return terrainObjectTypeId;
 }
 
-function testStaticCallProcGenSystem(VoxelCoord memory coord) view returns (uint8) {
-  return abi.decode(testStaticCallInternalSystem(abi.encodeCall(IProcGenSystem.getTerrainBlock, (coord))), (uint8));
+function testGetTerrainAndOreObjectTypeId(VoxelCoord memory coord, uint256 randomNumber) view returns (uint8, uint8) {
+  return testStaticCallProcGenSystem(coord, randomNumber);
+}
+
+function testStaticCallProcGenSystem(VoxelCoord memory coord, uint256 randomNumber) view returns (uint8, uint8) {
+  return
+    abi.decode(
+      testStaticCallInternalSystem(abi.encodeCall(IProcGenSystem.getTerrainBlockWithRandomness, (coord, randomNumber))),
+      (uint8, uint8)
+    );
 }
 
 function testStaticCallInternalSystem(bytes memory callData) view returns (bytes memory) {
