@@ -407,24 +407,24 @@ contract ProcGenSystem is System {
     uint8 oreObjectTypeId = NullObjectTypeId;
 
     objectTypeId = Water(coord.y, height);
-    if (objectTypeId != NullObjectTypeId) return (objectTypeId, oreObjectTypeId);
+    if (objectTypeId != NullObjectTypeId) return (objectTypeId, NullObjectTypeId);
 
     objectTypeId = Air(coord.y, height);
-    if (objectTypeId != NullObjectTypeId) return (objectTypeId, oreObjectTypeId);
+    if (objectTypeId != NullObjectTypeId) return (objectTypeId, NullObjectTypeId);
 
     (objectTypeId, oreObjectTypeId) = getOres(coord, height, biome, distanceFromHeight, randomNumber);
     if (objectTypeId != NullObjectTypeId) return (objectTypeId, oreObjectTypeId);
 
     objectTypeId = TerrainBlocks(coord.x, coord.y, coord.z, height, biome, distanceFromHeight);
-    if (objectTypeId != NullObjectTypeId) return (objectTypeId, oreObjectTypeId);
+    if (objectTypeId != NullObjectTypeId) return (objectTypeId, NullObjectTypeId);
 
     objectTypeId = Trees(coord.x, coord.y, coord.z, height, biome, distanceFromHeight);
-    if (objectTypeId != NullObjectTypeId) return (objectTypeId, oreObjectTypeId);
+    if (objectTypeId != NullObjectTypeId) return (objectTypeId, NullObjectTypeId);
 
     objectTypeId = Flora(coord.x, coord.y, coord.z, height, biome);
-    if (objectTypeId != NullObjectTypeId) return (objectTypeId, oreObjectTypeId);
+    if (objectTypeId != NullObjectTypeId) return (objectTypeId, NullObjectTypeId);
 
-    return (AirObjectID, oreObjectTypeId);
+    return (AirObjectID, NullObjectTypeId);
   }
 
   function Air(VoxelCoord memory coord) public view returns (uint8) {
