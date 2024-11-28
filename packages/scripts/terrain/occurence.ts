@@ -24,7 +24,7 @@ import {
   STONE_OBJECT_ID,
   WATER_OBJECT_ID,
   getBiomesVariantDataStrict,
-} from "@/shared/indexer/config";
+} from "./objectTypeIds";
 import { Biome, STRUCTURE_CHUNK } from "./constants";
 import { BirchTree, OakTree, RubberTree, SakuraTree, defineHashedPatch, getStructureBlock } from "./structures";
 import { TerrainState } from "./types";
