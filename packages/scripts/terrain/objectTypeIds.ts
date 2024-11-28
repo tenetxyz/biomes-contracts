@@ -209,6 +209,11 @@ export const FORCE_FIELD_OBJECT_ID = 166;
 export const POWERSTONE_OBJECT_ID = 167;
 export const TEXT_SIGN_OBJECT_ID = 168;
 
+// Used for Procedural Terrain Only
+export const ANY_ORE_OBJECT_ID = 169;
+
+export const LAVA_OBJECT_ID = 170;
+
 // legacy
 export type BiomesVariantData = number;
 export const getBiomesVariantDataStrict = (id: number): BiomesVariantData => {
