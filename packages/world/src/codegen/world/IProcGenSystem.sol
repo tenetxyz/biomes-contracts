@@ -13,11 +13,18 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 interface IProcGenSystem {
   function getTerrainBlock(VoxelCoord memory coord) external view returns (uint8);
 
+  function getTerrainBlockWithRandomness(
+    VoxelCoord memory coord,
+    uint256 randomNumber
+  ) external view returns (uint8, uint8);
+
   function Air(VoxelCoord memory coord) external view returns (uint8);
 
   function Water(VoxelCoord memory coord) external view returns (uint8);
 
   function Ores(VoxelCoord memory coord) external view returns (uint8);
+
+  function Ores(VoxelCoord memory coord, uint256 randomNumber) external view returns (uint8, uint8);
 
   function Trees(VoxelCoord memory coord) external view returns (uint8);
 

@@ -27,6 +27,7 @@ import { IAdminHookSystem } from "./IAdminHookSystem.sol";
 import { IAdminSpawnSystem } from "./IAdminSpawnSystem.sol";
 import { IAdminTerrainSystem } from "./IAdminTerrainSystem.sol";
 import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
+import { IProcGenOreSystem } from "./IProcGenOreSystem.sol";
 import { IProcGenSystem } from "./IProcGenSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
 import { IReadTwoSystem } from "./IReadTwoSystem.sol";
@@ -75,6 +76,7 @@ interface IWorld is
   IAdminSpawnSystem,
   IAdminTerrainSystem,
   IInitSpawnSystem,
+  IProcGenOreSystem,
   IProcGenSystem,
   IReadSystem,
   IReadTwoSystem,
