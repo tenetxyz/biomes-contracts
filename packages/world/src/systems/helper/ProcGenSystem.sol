@@ -2,7 +2,10 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { staticCallInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
+import { ResourceId, WorldResourceIdLib, WorldResourceIdInstance } from "@latticexyz/world/src/WorldResourceId.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
+import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { ABDKMath64x64 as Math } from "@biomesaw/utils/src/libraries/ABDKMath64x64.sol";
 import { Perlin } from "@biomesaw/utils/src/libraries/Perlin.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
@@ -11,6 +14,8 @@ import { floorDiv } from "@biomesaw/utils/src/MathUtils.sol";
 import { NullObjectTypeId, WaterObjectID, SandObjectID, BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, AnyOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID, LavaObjectID } from "../../ObjectTypeIds.sol";
 import { Biome } from "../../Types.sol";
 import { STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../../Constants.sol";
+
+import { IProcGenOreSystem } from "../../codegen/world/IProcGenOreSystem.sol";
 
 struct Tuple {
   int128 x;
@@ -42,8 +47,6 @@ int128 constant _4 = 4 * 2 ** 64;
 int128 constant _5 = 5 * 2 ** 64;
 int128 constant _10 = 10 * 2 ** 64;
 int128 constant _16 = 16 * 2 ** 64;
-
-import { IProcGenOreSystem } from "../../codegen/world/IProcGenOreSystem.sol";
 
 contract ProcGenSystem is System {
   //////////////////////////////////////////////////////////////////////////////////////
@@ -364,9 +367,31 @@ contract ProcGenSystem is System {
   // Occurences
   //////////////////////////////////////////////////////////////////////////////////////
 
-  // Deprecated
   function getTerrainBlock(VoxelCoord memory coord) public view returns (uint8) {
-    revert("getTerrainBlock: randomNumber is required");
+    (uint8 terrainObjectTypeId, ) = getTerrainBlockWithRandomness(coord, 0);
+    return terrainObjectTypeId;
+  }
+
+  function getOres(
+    VoxelCoord memory coord,
+    int16 height,
+    uint8 biome,
+    int16 distanceFromHeight,
+    uint256 randomNumber
+  ) internal view returns (uint8, uint8) {
+    address oreSystemAddress = Systems.getSystem(
+      WorldResourceIdLib.encode({ typeId: RESOURCE_SYSTEM, namespace: "", name: "ProcGenOreSystem" })
+    );
+    (bool success, bytes memory returnData) = oreSystemAddress.staticcall(
+      abi.encodeCall(
+        IProcGenOreSystem.Ores,
+        (coord.x, coord.y, coord.z, height, biome, distanceFromHeight, randomNumber)
+      )
+    );
+
+    if (!success) revertWithBytes(returnData);
+
+    return abi.decode(returnData, (uint8, uint8));
   }
 
   function getTerrainBlockWithRandomness(
@@ -387,15 +412,7 @@ contract ProcGenSystem is System {
     objectTypeId = Air(coord.y, height);
     if (objectTypeId != NullObjectTypeId) return (objectTypeId, oreObjectTypeId);
 
-    (objectTypeId, oreObjectTypeId) = abi.decode(
-      staticCallInternalSystem(
-        abi.encodeCall(
-          IProcGenOreSystem.Ores,
-          (coord.x, coord.y, coord.z, height, biome, distanceFromHeight, randomNumber)
-        )
-      ),
-      (uint8, uint8)
-    );
+    (objectTypeId, oreObjectTypeId) = getOres(coord, height, biome, distanceFromHeight, randomNumber);
     if (objectTypeId != NullObjectTypeId) return (objectTypeId, oreObjectTypeId);
 
     objectTypeId = TerrainBlocks(coord.x, coord.y, coord.z, height, biome, distanceFromHeight);
@@ -434,9 +451,9 @@ contract ProcGenSystem is System {
     return NullObjectTypeId;
   }
 
-  // Deprecated
   function Ores(VoxelCoord memory coord) public view returns (uint8) {
-    revert("Ores: randomNumber is required");
+    (uint8 oreObjectTypeId, ) = Ores(coord, 0);
+    return oreObjectTypeId;
   }
 
   function Ores(VoxelCoord memory coord, uint256 randomNumber) public view returns (uint8, uint8) {
@@ -446,16 +463,7 @@ contract ProcGenSystem is System {
     uint8 biome = getMaxBiome(biomeValues);
     int16 distanceFromHeight = height - coord.y;
 
-    return
-      abi.decode(
-        staticCallInternalSystem(
-          abi.encodeCall(
-            IProcGenOreSystem.Ores,
-            (coord.x, coord.y, coord.z, height, biome, distanceFromHeight, randomNumber)
-          )
-        ),
-        (uint8, uint8)
-      );
+    return getOres(coord, height, biome, distanceFromHeight, randomNumber);
   }
 
   function Trees(VoxelCoord memory coord) public view returns (uint8) {
