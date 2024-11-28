@@ -13,7 +13,6 @@ import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
-import { Commitment } from "../codegen/tables/Commitment.sol";
 
 import { MIN_TIME_TO_LOGOFF_AFTER_HIT, MIN_TIME_BEFORE_AUTO_LOGOFF } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";

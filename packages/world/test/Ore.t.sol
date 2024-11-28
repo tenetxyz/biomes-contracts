@@ -36,7 +36,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, NeptuniumCubeObjectID, TextSignObjectID, AnyOreObjectID, LavaObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, GrassObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, NeptuniumCubeObjectID, TextSignObjectID, AnyOreObjectID, LavaObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType, testGetRandomNumberBetween0And99 } from "./utils/TestUtils.sol";
@@ -354,12 +354,74 @@ contract OreTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testMineOreWithCommitWithoutReveal() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+    bytes32 playerEntityId2 = setupPlayer2(1);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord = VoxelCoord(oreCoord.x + 1, oreCoord.y, oreCoord.z + 1);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    VoxelCoord memory finalCoord2 = VoxelCoord(oreCoord.x + 2, oreCoord.y, oreCoord.z + 2);
+    bytes32 finalEntityId2 = testGetUniqueEntity();
+    ObjectType.set(finalEntityId2, AirObjectID);
+
+    ReversePosition.set(spawnCoord2.x, spawnCoord2.y, spawnCoord2.z, finalEntityId2);
+    Position.set(finalEntityId2, spawnCoord2.x, spawnCoord2.y, spawnCoord2.z);
+
+    Position.set(playerEntityId2, finalCoord2.x, finalCoord2.y, finalCoord2.z);
+    ReversePosition.set(finalCoord2.x, finalCoord2.y, finalCoord2.z, playerEntityId2);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
+    assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
+
+    world.commitOre(oreCoord);
+
+    assertTrue(
+      TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == block.number,
+      "Ore not committed"
+    );
+    assertTrue(
+      TerrainCommitment.getCommitterEntityId(oreCoord.x, oreCoord.y, oreCoord.z) == playerEntityId,
+      "Ore not committed by player"
+    );
+    assertTrue(Commitment.getHasCommitted(playerEntityId), "Commitment not set");
+    assertTrue(Commitment.getX(playerEntityId) == oreCoord.x, "X not set");
+    assertTrue(Commitment.getY(playerEntityId) == oreCoord.y, "Y not set");
+    assertTrue(Commitment.getZ(playerEntityId) == oreCoord.z, "Z not set");
+
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    vm.stopPrank();
+    vm.startPrank(bob, bob);
+
+    vm.expectRevert("MineSystem: ore must be computed before it can be mined");
+    world.mine(oreCoord);
+
+    vm.stopPrank();
+  }
+
   function testCommitOreInACommitment() public {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
 
     vm.startPrank(worldDeployer, worldDeployer);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 2);
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
 
     VoxelCoord memory finalCoord = VoxelCoord(oreCoord.x + 1, oreCoord.y, oreCoord.z + 1);
     bytes32 finalEntityId = testGetUniqueEntity();
@@ -392,8 +454,6 @@ contract OreTest is MudTest, GasReporter {
     assertTrue(Commitment.getY(playerEntityId) == oreCoord.y, "Y not set");
     assertTrue(Commitment.getZ(playerEntityId) == oreCoord.z, "Z not set");
 
-    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
-
     vm.startPrank(worldDeployer, worldDeployer);
 
     VoxelCoord memory finalCoord2 = VoxelCoord(oreCoord2.x - 1, oreCoord2.y, oreCoord2.z - 1);
@@ -411,6 +471,21 @@ contract OreTest is MudTest, GasReporter {
 
     vm.expectRevert("Player is in a commitment");
     world.commitOre(oreCoord2);
+
+    vm.expectRevert("Player is in a commitment");
+    world.mine(VoxelCoord(oreCoord.x, oreCoord.y - 1, oreCoord.z));
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(finalCoord.x, finalCoord.y, finalCoord.z + 1);
+
+    vm.expectRevert("Player is in a commitment");
+    world.move(newCoords);
+
+    vm.expectRevert("Player is in a commitment");
+    world.logoffPlayer();
+
+    vm.expectRevert("Player is in a commitment");
+    world.build(GrassObjectID, VoxelCoord(finalCoord.x, finalCoord.y, finalCoord.z + 1));
 
     vm.stopPrank();
   }
