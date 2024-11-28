@@ -47,7 +47,10 @@ contract OreTest is MudTest, GasReporter {
   address payable internal alice;
   address payable internal bob;
   VoxelCoord spawnCoord;
+  VoxelCoord spawnCoord2;
   VoxelCoord oreCoord;
+  VoxelCoord oreCoord2;
+  VoxelCoord lavaOreCoord;
 
   function setUp() public override {
     super.setUp();
@@ -58,6 +61,8 @@ contract OreTest is MudTest, GasReporter {
     bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
     oreCoord = VoxelCoord(-127, 27, -625);
+    oreCoord2 = VoxelCoord(-189, 37, -574);
+    lavaOreCoord = VoxelCoord(-250, 58, -583);
   }
 
   function setupPlayer() public returns (bytes32) {
@@ -74,6 +79,22 @@ contract OreTest is MudTest, GasReporter {
     spawnCoord = path[1];
 
     return playerEntityId;
+  }
+
+  function setupPlayer2(int16 zOffset) public returns (bytes32) {
+    vm.startPrank(bob, bob);
+    spawnCoord2 = VoxelCoord(SPAWN_LOW_X, SPAWN_GROUND_Y + 1, SPAWN_LOW_Z + zOffset);
+    assertTrue(world.getTerrainBlock(spawnCoord2) == AirObjectID, "Terrain block is not air");
+    bytes32 playerEntityId2 = world.spawnPlayer(spawnCoord2);
+
+    VoxelCoord[] memory path = new VoxelCoord[](1);
+    path[0] = VoxelCoord(spawnCoord2.x - 1, spawnCoord2.y - 1, spawnCoord2.z - 1);
+    world.move(path);
+
+    spawnCoord2 = path[0];
+
+    vm.stopPrank();
+    return playerEntityId2;
   }
 
   function testMineOre() public {
@@ -129,7 +150,6 @@ contract OreTest is MudTest, GasReporter {
     assertTrue(mineEntityId != bytes32(0), "Entity id not set");
     uint8 oreObjectTypeId = ObjectType.get(mineEntityId);
     assertTrue(oreObjectTypeId != AnyOreObjectID, "Object type not set");
-    assertTrue(oreObjectTypeId != LavaObjectID, "Object type not set");
 
     // commitments cleared
     assertTrue(TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == 0, "Ore commitment not cleared");
@@ -150,6 +170,582 @@ contract OreTest is MudTest, GasReporter {
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, oreObjectTypeId), "Inventory objects not set");
     assertTrue(Stamina.getStamina(playerEntityId) < staminaBefore, "Stamina not decremented");
     assertTrue(Stamina.getLastUpdatedTime(playerEntityId) == block.timestamp, "Stamina last update time not set");
+
+    vm.stopPrank();
+  }
+
+  function testMineOreLava() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord = VoxelCoord(lavaOreCoord.x + 1, lavaOreCoord.y - 2, lavaOreCoord.z);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint8 terrainObjectTypeId = world.getTerrainBlock(lavaOreCoord);
+    assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
+
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    world.commitOre(lavaOreCoord);
+
+    uint256 commitBlockNumber = block.number;
+    assertTrue(
+      TerrainCommitment.getBlockNumber(lavaOreCoord.x, lavaOreCoord.y, lavaOreCoord.z) == block.number,
+      "Ore not committed"
+    );
+    assertTrue(
+      TerrainCommitment.getCommitterEntityId(lavaOreCoord.x, lavaOreCoord.y, lavaOreCoord.z) == playerEntityId,
+      "Ore not committed by player"
+    );
+    assertTrue(Commitment.getHasCommitted(playerEntityId), "Commitment not set");
+    assertTrue(Commitment.getX(playerEntityId) == lavaOreCoord.x, "X not set");
+    assertTrue(Commitment.getY(playerEntityId) == lavaOreCoord.y, "Y not set");
+    assertTrue(Commitment.getZ(playerEntityId) == lavaOreCoord.z, "Z not set");
+
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    vm.roll(block.number + 10000);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    world.setBlockHash(commitBlockNumber, bytes32(uint256(99)));
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    world.revealOre(lavaOreCoord);
+
+    assertTrue(Stamina.getStamina(playerEntityId) == 0, "Stamina not set");
+
+    bytes32 mineEntityId = ReversePosition.get(lavaOreCoord.x, lavaOreCoord.y, lavaOreCoord.z);
+    assertTrue(mineEntityId != bytes32(0), "Entity id not set");
+    uint8 oreObjectTypeId = ObjectType.get(mineEntityId);
+    assertTrue(oreObjectTypeId == LavaObjectID, "Object type not set");
+
+    // commitments cleared
+    assertTrue(
+      TerrainCommitment.getBlockNumber(lavaOreCoord.x, lavaOreCoord.y, lavaOreCoord.z) == 0,
+      "Ore commitment not cleared"
+    );
+    assertTrue(
+      TerrainCommitment.getCommitterEntityId(lavaOreCoord.x, lavaOreCoord.y, lavaOreCoord.z) == bytes32(0),
+      "Ore committer not cleared"
+    );
+    assertTrue(Commitment.getHasCommitted(playerEntityId) == false, "Commitment not cleared");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    vm.stopPrank();
+  }
+
+  function testMineOreWithDifferentRevealer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord = VoxelCoord(oreCoord.x + 1, oreCoord.y, oreCoord.z + 1);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
+    assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
+
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    world.commitOre(oreCoord);
+
+    assertTrue(
+      TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == block.number,
+      "Ore not committed"
+    );
+    assertTrue(
+      TerrainCommitment.getCommitterEntityId(oreCoord.x, oreCoord.y, oreCoord.z) == playerEntityId,
+      "Ore not committed by player"
+    );
+    assertTrue(Commitment.getHasCommitted(playerEntityId), "Commitment not set");
+    assertTrue(Commitment.getX(playerEntityId) == oreCoord.x, "X not set");
+    assertTrue(Commitment.getY(playerEntityId) == oreCoord.y, "Y not set");
+    assertTrue(Commitment.getZ(playerEntityId) == oreCoord.z, "Z not set");
+
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    vm.stopPrank();
+    vm.startPrank(bob, bob);
+    vm.roll(block.number + 1);
+    world.revealOre(oreCoord);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 mineEntityId = ReversePosition.get(oreCoord.x, oreCoord.y, oreCoord.z);
+    assertTrue(mineEntityId != bytes32(0), "Entity id not set");
+    uint8 oreObjectTypeId = ObjectType.get(mineEntityId);
+    assertTrue(oreObjectTypeId != AnyOreObjectID, "Object type not set");
+
+    // commitments cleared
+    assertTrue(TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == 0, "Ore commitment not cleared");
+    assertTrue(
+      TerrainCommitment.getCommitterEntityId(oreCoord.x, oreCoord.y, oreCoord.z) == bytes32(0),
+      "Ore committer not cleared"
+    );
+    assertTrue(Commitment.getHasCommitted(playerEntityId) == false, "Commitment not cleared");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+
+    world.mine(oreCoord);
+
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Object not mined");
+    assertTrue(InventoryCount.get(playerEntityId, oreObjectTypeId) == 1, "Inventory count not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, oreObjectTypeId), "Inventory objects not set");
+    assertTrue(Stamina.getStamina(playerEntityId) < staminaBefore, "Stamina not decremented");
+    assertTrue(Stamina.getLastUpdatedTime(playerEntityId) == block.timestamp, "Stamina last update time not set");
+
+    vm.stopPrank();
+  }
+
+  function testMineOreWithoutReveal() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord = VoxelCoord(oreCoord.x + 1, oreCoord.y, oreCoord.z + 1);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
+    assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
+
+    vm.expectRevert("MineSystem: ore must be computed before it can be mined");
+    world.mine(oreCoord);
+
+    vm.stopPrank();
+  }
+
+  function testCommitOreInACommitment() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord = VoxelCoord(oreCoord.x + 1, oreCoord.y, oreCoord.z + 1);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
+    assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
+
+    world.commitOre(oreCoord);
+
+    assertTrue(
+      TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == block.number,
+      "Ore not committed"
+    );
+    assertTrue(
+      TerrainCommitment.getCommitterEntityId(oreCoord.x, oreCoord.y, oreCoord.z) == playerEntityId,
+      "Ore not committed by player"
+    );
+    assertTrue(Commitment.getHasCommitted(playerEntityId), "Commitment not set");
+    assertTrue(Commitment.getX(playerEntityId) == oreCoord.x, "X not set");
+    assertTrue(Commitment.getY(playerEntityId) == oreCoord.y, "Y not set");
+    assertTrue(Commitment.getZ(playerEntityId) == oreCoord.z, "Z not set");
+
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord2 = VoxelCoord(oreCoord2.x - 1, oreCoord2.y, oreCoord2.z - 1);
+    finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, finalEntityId);
+    Position.set(finalEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+
+    Position.set(playerEntityId, finalCoord2.x, finalCoord2.y, finalCoord2.z);
+    ReversePosition.set(finalCoord2.x, finalCoord2.y, finalCoord2.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    vm.expectRevert("Player is in a commitment");
+    world.commitOre(oreCoord2);
+
+    vm.stopPrank();
+  }
+
+  function testCommitOreAlreadyCommitment() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+    bytes32 playerEntityId2 = setupPlayer2(1);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord = VoxelCoord(oreCoord.x + 1, oreCoord.y, oreCoord.z + 1);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    VoxelCoord memory finalCoord2 = VoxelCoord(oreCoord.x + 2, oreCoord.y, oreCoord.z + 2);
+    bytes32 finalEntityId2 = testGetUniqueEntity();
+    ObjectType.set(finalEntityId2, AirObjectID);
+
+    ReversePosition.set(spawnCoord2.x, spawnCoord2.y, spawnCoord2.z, finalEntityId2);
+    Position.set(finalEntityId2, spawnCoord2.x, spawnCoord2.y, spawnCoord2.z);
+
+    Position.set(playerEntityId2, finalCoord2.x, finalCoord2.y, finalCoord2.z);
+    ReversePosition.set(finalCoord2.x, finalCoord2.y, finalCoord2.z, playerEntityId2);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
+    assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
+
+    world.commitOre(oreCoord);
+
+    assertTrue(
+      TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == block.number,
+      "Ore not committed"
+    );
+    assertTrue(
+      TerrainCommitment.getCommitterEntityId(oreCoord.x, oreCoord.y, oreCoord.z) == playerEntityId,
+      "Ore not committed by player"
+    );
+    assertTrue(Commitment.getHasCommitted(playerEntityId), "Commitment not set");
+    assertTrue(Commitment.getX(playerEntityId) == oreCoord.x, "X not set");
+    assertTrue(Commitment.getY(playerEntityId) == oreCoord.y, "Y not set");
+    assertTrue(Commitment.getZ(playerEntityId) == oreCoord.z, "Z not set");
+
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    vm.stopPrank();
+    vm.startPrank(bob, bob);
+
+    vm.expectRevert("OreSystem: terrain commitment already committed");
+    world.commitOre(oreCoord);
+
+    vm.stopPrank();
+  }
+
+  function testCommitOreAlreadyRevealed() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord = VoxelCoord(oreCoord.x + 1, oreCoord.y, oreCoord.z + 1);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
+    assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
+
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    world.commitOre(oreCoord);
+
+    assertTrue(
+      TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == block.number,
+      "Ore not committed"
+    );
+    assertTrue(
+      TerrainCommitment.getCommitterEntityId(oreCoord.x, oreCoord.y, oreCoord.z) == playerEntityId,
+      "Ore not committed by player"
+    );
+    assertTrue(Commitment.getHasCommitted(playerEntityId), "Commitment not set");
+    assertTrue(Commitment.getX(playerEntityId) == oreCoord.x, "X not set");
+    assertTrue(Commitment.getY(playerEntityId) == oreCoord.y, "Y not set");
+    assertTrue(Commitment.getZ(playerEntityId) == oreCoord.z, "Z not set");
+
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    vm.roll(block.number + 1);
+    world.revealOre(oreCoord);
+
+    bytes32 mineEntityId = ReversePosition.get(oreCoord.x, oreCoord.y, oreCoord.z);
+    assertTrue(mineEntityId != bytes32(0), "Entity id not set");
+    uint8 oreObjectTypeId = ObjectType.get(mineEntityId);
+    assertTrue(oreObjectTypeId != AnyOreObjectID, "Object type not set");
+
+    // commitments cleared
+    assertTrue(TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == 0, "Ore commitment not cleared");
+    assertTrue(
+      TerrainCommitment.getCommitterEntityId(oreCoord.x, oreCoord.y, oreCoord.z) == bytes32(0),
+      "Ore committer not cleared"
+    );
+    assertTrue(Commitment.getHasCommitted(playerEntityId) == false, "Commitment not cleared");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+
+    vm.expectRevert("OreSystem: ore already revealed");
+    world.commitOre(oreCoord);
+
+    vm.stopPrank();
+  }
+
+  function testCommitOreNonOre() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord = VoxelCoord(oreCoord.x + 1, oreCoord.y, oreCoord.z + 1);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory mineCoord = VoxelCoord(oreCoord.x, oreCoord.y - 1, oreCoord.z);
+    uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
+    assertTrue(terrainObjectTypeId != AnyOreObjectID, "Terrain block is not an ore");
+
+    vm.expectRevert("OreSystem: terrain is not an ore");
+    world.commitOre(mineCoord);
+
+    vm.stopPrank();
+  }
+
+  function testCommitOreWithoutPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord = VoxelCoord(oreCoord.x + 1, oreCoord.y, oreCoord.z + 1);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
+    assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
+
+    vm.stopPrank();
+
+    vm.expectRevert("Player does not exist");
+    world.commitOre(oreCoord);
+
+    vm.stopPrank();
+  }
+
+  function testCommitOreTooFar() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
+    assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
+
+    vm.expectRevert("Player is too far");
+    world.commitOre(oreCoord);
+
+    vm.stopPrank();
+  }
+
+  function testCommitOreWithLoggedOffPlayer() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord = VoxelCoord(oreCoord.x + 1, oreCoord.y, oreCoord.z + 1);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
+    assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
+
+    world.logoffPlayer();
+
+    vm.expectRevert("Player isn't logged in");
+    world.commitOre(oreCoord);
+
+    vm.stopPrank();
+  }
+
+  function testRevealOreNotComitted() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord = VoxelCoord(oreCoord.x + 1, oreCoord.y, oreCoord.z + 1);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
+    assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
+
+    vm.expectRevert("OreSystem: terrain commitment not found");
+    world.revealOre(oreCoord);
+
+    vm.stopPrank();
+  }
+
+  function testRevealOrePastBlockHashWindow() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    VoxelCoord memory finalCoord = VoxelCoord(oreCoord.x + 1, oreCoord.y, oreCoord.z + 1);
+    bytes32 finalEntityId = testGetUniqueEntity();
+    ObjectType.set(finalEntityId, AirObjectID);
+
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, finalEntityId);
+    Position.set(finalEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+
+    Position.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePosition.set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
+    assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
+
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    world.commitOre(oreCoord);
+
+    uint256 commitBlockNumber = block.number;
+
+    assertTrue(
+      TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == block.number,
+      "Ore not committed"
+    );
+    assertTrue(
+      TerrainCommitment.getCommitterEntityId(oreCoord.x, oreCoord.y, oreCoord.z) == playerEntityId,
+      "Ore not committed by player"
+    );
+    assertTrue(Commitment.getHasCommitted(playerEntityId), "Commitment not set");
+    assertTrue(Commitment.getX(playerEntityId) == oreCoord.x, "X not set");
+    assertTrue(Commitment.getY(playerEntityId) == oreCoord.y, "Y not set");
+    assertTrue(Commitment.getZ(playerEntityId) == oreCoord.z, "Z not set");
+
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
+
+    vm.roll(block.number + 10000);
+
+    vm.expectRevert();
+    world.revealOre(oreCoord);
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    world.setBlockHash(commitBlockNumber, bytes32(uint256(10)));
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    world.revealOre(oreCoord);
+
+    bytes32 mineEntityId = ReversePosition.get(oreCoord.x, oreCoord.y, oreCoord.z);
+    assertTrue(mineEntityId != bytes32(0), "Entity id not set");
+    uint8 oreObjectTypeId = ObjectType.get(mineEntityId);
+    assertTrue(oreObjectTypeId != AnyOreObjectID, "Object type not set");
+
+    // commitments cleared
+    assertTrue(TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == 0, "Ore commitment not cleared");
+    assertTrue(
+      TerrainCommitment.getCommitterEntityId(oreCoord.x, oreCoord.y, oreCoord.z) == bytes32(0),
+      "Ore committer not cleared"
+    );
+    assertTrue(Commitment.getHasCommitted(playerEntityId) == false, "Commitment not cleared");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
     vm.stopPrank();
   }
