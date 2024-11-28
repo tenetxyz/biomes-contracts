@@ -4,6 +4,8 @@ pragma solidity >=0.8.24;
 import { console } from "forge-std/console.sol";
 import { coordToShardCoord } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+
 import { SystemCall } from "@latticexyz/world/src/SystemCall.sol";
 import { SystemRegistry } from "@latticexyz/world/src/codegen/tables/SystemRegistry.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
@@ -26,6 +28,7 @@ import { ObjectTypeMetadata } from "../../src/codegen/tables/ObjectTypeMetadata.
 import { UniqueEntity } from "../../src/codegen/tables/UniqueEntity.sol";
 import { ShardField } from "../../src/codegen/tables/ShardField.sol";
 import { Terrain } from "../../src/codegen/tables/Terrain.sol";
+import { BlockHash } from "../../src/codegen/tables/BlockHash.sol";
 
 import { IProcGenSystem } from "../../src/codegen/world/IProcGenSystem.sol";
 
@@ -237,4 +240,21 @@ function testGravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   }
 
   return true;
+}
+
+// Random number between 0 and 99
+function testGetRandomNumberBetween0And99(uint256 blockNumber) view returns (uint256) {
+  bytes32 blockHash = blockhash(blockNumber);
+  if (blockHash == bytes32(0)) {
+    blockHash = BlockHash.get(blockNumber);
+  }
+  require(
+    blockHash != bytes32(0),
+    string.concat("getRandomNumber: block hash is 0 for block ", Strings.toString(blockNumber))
+  );
+
+  // Use the block hash to generate a random number by converting it to uint256 and applying modulo
+  uint256 randomNumber = uint256(blockHash) % 100;
+
+  return randomNumber;
 }
