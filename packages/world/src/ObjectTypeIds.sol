@@ -211,3 +211,8 @@ uint8 constant ChipBatteryObjectID = 165;
 uint8 constant ForceFieldObjectID = 166;
 uint8 constant PowerStoneObjectID = 167;
 uint8 constant TextSignObjectID = 168;
+
+// Used for Procedural Terrain Only
+uint8 constant AnyOreObjectID = 169;
+
+uint8 constant LavaObjectID = 170;

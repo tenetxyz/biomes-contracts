@@ -4,6 +4,8 @@ pragma solidity >=0.8.24;
 import { console } from "forge-std/console.sol";
 import { coordToShardCoord } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+
 import { SystemCall } from "@latticexyz/world/src/SystemCall.sol";
 import { SystemRegistry } from "@latticexyz/world/src/codegen/tables/SystemRegistry.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
@@ -26,6 +28,7 @@ import { ObjectTypeMetadata } from "../../src/codegen/tables/ObjectTypeMetadata.
 import { UniqueEntity } from "../../src/codegen/tables/UniqueEntity.sol";
 import { ShardField } from "../../src/codegen/tables/ShardField.sol";
 import { Terrain } from "../../src/codegen/tables/Terrain.sol";
+import { BlockHash } from "../../src/codegen/tables/BlockHash.sol";
 
 import { IProcGenSystem } from "../../src/codegen/world/IProcGenSystem.sol";
 
@@ -191,13 +194,20 @@ function getForceField(VoxelCoord memory coord) view returns (bytes32) {
 }
 
 function testGetTerrainObjectTypeId(VoxelCoord memory coord) view returns (uint8) {
-  uint8 cachedObjectTypeId = Terrain.get(coord.x, coord.y, coord.z);
-  if (cachedObjectTypeId != 0) return cachedObjectTypeId;
-  return testStaticCallProcGenSystem(coord);
+  (uint8 terrainObjectTypeId, ) = testGetTerrainAndOreObjectTypeId(coord, 0);
+  return terrainObjectTypeId;
 }
 
-function testStaticCallProcGenSystem(VoxelCoord memory coord) view returns (uint8) {
-  return abi.decode(testStaticCallInternalSystem(abi.encodeCall(IProcGenSystem.getTerrainBlock, (coord))), (uint8));
+function testGetTerrainAndOreObjectTypeId(VoxelCoord memory coord, uint256 randomNumber) view returns (uint8, uint8) {
+  return testStaticCallProcGenSystem(coord, randomNumber);
+}
+
+function testStaticCallProcGenSystem(VoxelCoord memory coord, uint256 randomNumber) view returns (uint8, uint8) {
+  return
+    abi.decode(
+      testStaticCallInternalSystem(abi.encodeCall(IProcGenSystem.getTerrainBlockWithRandomness, (coord, randomNumber))),
+      (uint8, uint8)
+    );
 }
 
 function testStaticCallInternalSystem(bytes memory callData) view returns (bytes memory) {

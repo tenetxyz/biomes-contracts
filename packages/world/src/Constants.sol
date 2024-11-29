@@ -27,8 +27,8 @@ uint32 constant MAX_PLAYER_STAMINA = 120_000;
 
 uint32 constant TIME_BEFORE_INCREASE_STAMINA = 1 minutes;
 // Note: temporarily stamina increase rate is 2000 per minute, until we add food
-uint32 constant STAMINA_INCREASE_RATE = 2000;
-uint32 constant WATER_STAMINA_INCREASE_RATE = 2000;
+uint32 constant STAMINA_INCREASE_RATE = 1000;
+uint32 constant WATER_STAMINA_INCREASE_RATE = 1000;
 uint16 constant TIME_BEFORE_INCREASE_HEALTH = 1 minutes;
 uint16 constant HEALTH_INCREASE_RATE = 20;
 

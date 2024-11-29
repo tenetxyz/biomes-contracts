@@ -14,6 +14,7 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Health, HealthData } from "../codegen/tables/Health.sol";
 import { Stamina, StaminaData } from "../codegen/tables/Stamina.sol";
 import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
+import { Commitment } from "../codegen/tables/Commitment.sol";
 
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, WATER_STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE, IN_MAINTENANCE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID } from "../ObjectTypeIds.sol";
@@ -24,6 +25,7 @@ function requireValidPlayer(address player) returns (bytes32, VoxelCoord memory)
   bytes32 playerEntityId = Player._get(player);
   require(playerEntityId != bytes32(0), "Player does not exist");
   require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "Player isn't logged in");
+  require(!Commitment._getHasCommitted(playerEntityId), "Player is in a commitment");
   VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
 
   regenHealth(playerEntityId);

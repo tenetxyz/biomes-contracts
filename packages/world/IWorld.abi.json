@@ -109,6 +109,106 @@
   },
   {
     "type": "function",
+    "name": "Ores",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "randomNumber",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "Ores",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "int16",
+        "internalType": "int16"
+      },
+      {
+        "name": "y",
+        "type": "int16",
+        "internalType": "int16"
+      },
+      {
+        "name": "z",
+        "type": "int16",
+        "internalType": "int16"
+      },
+      {
+        "name": "height",
+        "type": "int16",
+        "internalType": "int16"
+      },
+      {
+        "name": "biome",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "distanceFromHeight",
+        "type": "int16",
+        "internalType": "int16"
+      },
+      {
+        "name": "randomNumber",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "TerrainBlocks",
     "inputs": [
       {
@@ -2575,6 +2675,186 @@
   },
   {
     "type": "function",
+    "name": "getPlayerEntityDataWithCommitment",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct PlayerEntityDataWithCommitment",
+        "components": [
+          {
+            "name": "playerAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "entityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "position",
+            "type": "tuple",
+            "internalType": "struct VoxelCoord",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          },
+          {
+            "name": "metadata",
+            "type": "tuple",
+            "internalType": "struct PlayerMetadataData",
+            "components": [
+              {
+                "name": "isLoggedOff",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "lastHitTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "equippedEntityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "inventory",
+            "type": "tuple[]",
+            "internalType": "struct InventoryObject[]",
+            "components": [
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "numObjects",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "tools",
+                "type": "tuple[]",
+                "internalType": "struct InventoryTool[]",
+                "components": [
+                  {
+                    "name": "entityId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "numUsesLeft",
+                    "type": "uint24",
+                    "internalType": "uint24"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "health",
+            "type": "tuple",
+            "internalType": "struct HealthData",
+            "components": [
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "health",
+                "type": "uint16",
+                "internalType": "uint16"
+              }
+            ]
+          },
+          {
+            "name": "stamina",
+            "type": "tuple",
+            "internalType": "struct StaminaData",
+            "components": [
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "stamina",
+                "type": "uint32",
+                "internalType": "uint32"
+              }
+            ]
+          },
+          {
+            "name": "xp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastActionTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "commitment",
+            "type": "tuple",
+            "internalType": "struct CommitmentData",
+            "components": [
+              {
+                "name": "hasCommitted",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getPlayersEntityData",
     "inputs": [
       {
@@ -2720,6 +3000,186 @@
             "name": "lastActionTime",
             "type": "uint256",
             "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPlayersEntityDataWithCommitment",
+    "inputs": [
+      {
+        "name": "players",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "internalType": "struct PlayerEntityDataWithCommitment[]",
+        "components": [
+          {
+            "name": "playerAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "entityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "position",
+            "type": "tuple",
+            "internalType": "struct VoxelCoord",
+            "components": [
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
+          },
+          {
+            "name": "metadata",
+            "type": "tuple",
+            "internalType": "struct PlayerMetadataData",
+            "components": [
+              {
+                "name": "isLoggedOff",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "lastHitTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "equippedEntityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "inventory",
+            "type": "tuple[]",
+            "internalType": "struct InventoryObject[]",
+            "components": [
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "numObjects",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "tools",
+                "type": "tuple[]",
+                "internalType": "struct InventoryTool[]",
+                "components": [
+                  {
+                    "name": "entityId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "numUsesLeft",
+                    "type": "uint24",
+                    "internalType": "uint24"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "health",
+            "type": "tuple",
+            "internalType": "struct HealthData",
+            "components": [
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "health",
+                "type": "uint16",
+                "internalType": "uint16"
+              }
+            ]
+          },
+          {
+            "name": "stamina",
+            "type": "tuple",
+            "internalType": "struct StaminaData",
+            "components": [
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "stamina",
+                "type": "uint32",
+                "internalType": "uint32"
+              }
+            ]
+          },
+          {
+            "name": "xp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastActionTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "commitment",
+            "type": "tuple",
+            "internalType": "struct CommitmentData",
+            "components": [
+              {
+                "name": "hasCommitted",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "x",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "y",
+                "type": "int16",
+                "internalType": "int16"
+              },
+              {
+                "name": "z",
+                "type": "int16",
+                "internalType": "int16"
+              }
+            ]
           }
         ]
       }
@@ -2892,6 +3352,52 @@
       }
     ],
     "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTerrainBlockWithRandomness",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      },
+      {
+        "name": "randomNumber",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
       {
         "name": "",
         "type": "uint8",
@@ -3404,6 +3910,36 @@
         "name": "initModule",
         "type": "address",
         "internalType": "contract IModule"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "initiateOreReveal",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
       }
     ],
     "outputs": [],
@@ -4387,6 +4923,42 @@
   },
   {
     "type": "function",
+    "name": "revealOre",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "revokeAccess",
     "inputs": [
       {
@@ -4442,6 +5014,42 @@
         "internalType": "bool"
       }
     ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setBlockHash",
+    "inputs": [
+      {
+        "name": "blockNumber",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "blockHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setBlockPrevrandao",
+    "inputs": [
+      {
+        "name": "blockNumber",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "blockPrevrandao",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
     "stateMutability": "nonpayable"
   },
   {

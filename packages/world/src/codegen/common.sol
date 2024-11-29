@@ -20,5 +20,7 @@ enum ActionType {
   PowerChip,
   DetachChip,
   HitChip,
-  Pickup
+  Pickup,
+  InitiateOreReveal,
+  RevealOre
 }

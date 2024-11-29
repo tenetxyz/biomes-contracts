@@ -19,7 +19,7 @@ import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/Play
 import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID } from "../ObjectTypeIds.sol";
 import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity, callMintXP, positionDataToVoxelCoord } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -37,6 +37,7 @@ contract MineSystem is System {
     if (entityId == bytes32(0)) {
       // Check terrain block type
       mineObjectTypeId = getTerrainObjectTypeId(coord);
+      require(mineObjectTypeId != AnyOreObjectID, "MineSystem: ore must be computed before it can be mined");
 
       // Create new entity
       entityId = getUniqueEntity();

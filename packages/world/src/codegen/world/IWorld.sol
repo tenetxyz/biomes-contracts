@@ -18,6 +18,7 @@ import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
+import { IOreSystem } from "./IOreSystem.sol";
 import { IPickupSystem } from "./IPickupSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
@@ -27,6 +28,8 @@ import { IAdminHookSystem } from "./IAdminHookSystem.sol";
 import { IAdminSpawnSystem } from "./IAdminSpawnSystem.sol";
 import { IAdminTerrainSystem } from "./IAdminTerrainSystem.sol";
 import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
+import { IOracleSystem } from "./IOracleSystem.sol";
+import { IProcGenOreSystem } from "./IProcGenOreSystem.sol";
 import { IProcGenSystem } from "./IProcGenSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
 import { IReadTwoSystem } from "./IReadTwoSystem.sol";
@@ -66,6 +69,7 @@ interface IWorld is
   ILogoffSystem,
   IMineSystem,
   IMoveSystem,
+  IOreSystem,
   IPickupSystem,
   ISpawnSystem,
   ITransferSystem,
@@ -75,6 +79,8 @@ interface IWorld is
   IAdminSpawnSystem,
   IAdminTerrainSystem,
   IInitSpawnSystem,
+  IOracleSystem,
+  IProcGenOreSystem,
   IProcGenSystem,
   IReadSystem,
   IReadTwoSystem,

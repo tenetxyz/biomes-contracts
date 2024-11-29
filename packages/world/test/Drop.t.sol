@@ -726,7 +726,7 @@ contract DropTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, GrassObjectID, 1);
     VoxelCoord[] memory coords = new VoxelCoord[](1);
     coords[0] = dropCoord;
-    world.setTerrainObjectTypeIds(coords, AirObjectID);
+    world.setObjectAtCoord(AirObjectID, coords);
 
     vm.stopPrank();
     vm.startPrank(alice, alice);

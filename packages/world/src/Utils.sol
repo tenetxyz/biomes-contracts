@@ -6,6 +6,8 @@ import { coordToShardCoordIgnoreY } from "@biomesaw/utils/src/VoxelCoordUtils.so
 import { callInternalSystem, staticCallInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+
 import { Position, PositionData } from "./codegen/tables/Position.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
@@ -13,6 +15,8 @@ import { Terrain } from "./codegen/tables/Terrain.sol";
 import { UniqueEntity } from "./codegen/tables/UniqueEntity.sol";
 import { Spawn, SpawnData } from "./codegen/tables/Spawn.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
+import { BlockHash } from "./codegen/tables/BlockHash.sol";
+import { BlockPrevrandao } from "./codegen/tables/BlockPrevrandao.sol";
 
 import { SPAWN_SHARD_DIM } from "./Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z, OP_L1_GAS_ORACLE } from "./Constants.sol";
@@ -80,13 +84,20 @@ function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
 }
 
 function getTerrainObjectTypeId(VoxelCoord memory coord) view returns (uint8) {
-  uint8 cachedObjectTypeId = Terrain._get(coord.x, coord.y, coord.z);
-  if (cachedObjectTypeId != 0) return cachedObjectTypeId;
-  return staticCallProcGenSystem(coord);
+  (uint8 terrainObjectTypeId, ) = getTerrainAndOreObjectTypeId(coord, 0);
+  return terrainObjectTypeId;
 }
 
-function staticCallProcGenSystem(VoxelCoord memory coord) view returns (uint8) {
-  return abi.decode(staticCallInternalSystem(abi.encodeCall(IProcGenSystem.getTerrainBlock, (coord))), (uint8));
+function getTerrainAndOreObjectTypeId(VoxelCoord memory coord, uint256 randomNumber) view returns (uint8, uint8) {
+  return staticCallProcGenSystem(coord, randomNumber);
+}
+
+function staticCallProcGenSystem(VoxelCoord memory coord, uint256 randomNumber) view returns (uint8, uint8) {
+  return
+    abi.decode(
+      staticCallInternalSystem(abi.encodeCall(IProcGenSystem.getTerrainBlockWithRandomness, (coord, randomNumber))),
+      (uint8, uint8)
+    );
 }
 
 function getUniqueEntity() returns (bytes32) {
@@ -128,4 +139,23 @@ function getL1GasPrice() view returns (uint256) {
     l1GasPriceWei = abi.decode(oracleReturnData, (uint256));
   }
   return l1GasPriceWei;
+}
+
+// Random number between 0 and 99
+function getRandomNumberBetween0And99(uint256 blockNumber) view returns (uint256) {
+  bytes32 blockHash = blockhash(blockNumber);
+  if (blockHash == bytes32(0)) {
+    blockHash = BlockHash._get(blockNumber);
+  }
+  require(
+    blockHash != bytes32(0),
+    string.concat("getRandomNumber: block hash is 0 for block ", Strings.toString(blockNumber))
+  );
+
+  uint256 blockPrevrandao = BlockPrevrandao._get(blockNumber);
+
+  // Use the block hash and prevrandao to generate a random number by converting it to uint256 and applying modulo
+  uint256 randomNumber = uint256(keccak256(abi.encodePacked(blockHash, blockPrevrandao))) % 100;
+
+  return randomNumber;
 }

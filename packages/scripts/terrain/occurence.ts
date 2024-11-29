@@ -1,30 +1,26 @@
 import {
   AIR_OBJECT_ID,
+  ANY_ORE_OBJECT_ID,
   AZALEA_OBJECT_ID,
   BASALT_OBJECT_ID,
   BEDROCK_OBJECT_ID,
   BELLFLOWER_OBJECT_ID,
   BiomesVariantData,
   CACTUS_OBJECT_ID,
-  COAL_ORE_OBJECT_ID,
   COTTON_BUSH_OBJECT_ID,
   DANDELION_OBJECT_ID,
   DAYLILY_OBJECT_ID,
-  DIAMOND_ORE_OBJECT_ID,
   DIRT_OBJECT_ID,
-  GOLD_ORE_OBJECT_ID,
   GRANITE_OBJECT_ID,
   GRASS_OBJECT_ID,
   GRAVEL_OBJECT_ID,
   LILAC_OBJECT_ID,
   LIMESTONE_OBJECT_ID,
-  MOSS_BLOCK_OBJECT_ID,
-  NEPTUNIUM_ORE_OBJECT_ID,
+  MOSS_OBJECT_ID,
   QUARTZITE_OBJECT_ID,
   RED_MUSHROOM_OBJECT_ID,
   ROSE_OBJECT_ID,
   SAND_OBJECT_ID,
-  SILVER_ORE_OBJECT_ID,
   STONE_OBJECT_ID,
   WATER_OBJECT_ID,
   getBiomesVariantDataStrict,
@@ -62,7 +58,7 @@ export function TerrainBlocks(state: TerrainState): BiomesVariantData | undefine
       if (biome == Biome.Savanna) return getBiomesVariantDataStrict(GRASS_OBJECT_ID);
     }
     if (biome == Biome.Mountains) return getBiomesVariantDataStrict(STONE_OBJECT_ID);
-    else if (biome == Biome.Forest && y > 0) return getBiomesVariantDataStrict(MOSS_BLOCK_OBJECT_ID);
+    else if (biome == Biome.Forest && y > 0) return getBiomesVariantDataStrict(MOSS_OBJECT_ID);
   }
 
   if (biome == Biome.Mountains) {
@@ -209,11 +205,11 @@ function oreRegion1(state: TerrainState): BiomesVariantData | undefined {
 
   if (hash1 <= 20 || hash1 > 40) {
     if (hash1 <= 15 && hash2 <= 15) {
-      return getBiomesVariantDataStrict(SILVER_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else {
     if (hash2 > 0 && hash2 <= 20) {
-      return getBiomesVariantDataStrict(COAL_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   }
 
@@ -228,13 +224,13 @@ function oreRegion1Desert(state: TerrainState): BiomesVariantData | undefined {
 
   if (hash1 <= 20 || hash1 > 40) {
     if (hash1 <= 15 && hash2 <= 15) {
-      return getBiomesVariantDataStrict(SILVER_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     } else if (hash1 <= 5 && hash2 <= 5) {
-      return getBiomesVariantDataStrict(GOLD_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else {
     if (hash2 > 0 && hash2 <= 15) {
-      return getBiomesVariantDataStrict(COAL_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   }
 
@@ -249,11 +245,11 @@ function oreRegion1Mount(state: TerrainState): BiomesVariantData | undefined {
 
   if (hash1 <= 20 || hash1 > 40) {
     if (hash1 <= 20 && hash2 <= 20) {
-      return getBiomesVariantDataStrict(SILVER_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else {
     if (hash2 > 0 && hash2 <= 20) {
-      return getBiomesVariantDataStrict(COAL_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   }
 
@@ -268,17 +264,17 @@ function oreRegion2Desert(state: TerrainState): BiomesVariantData | undefined {
 
   if (hash1 <= 30) {
     if (hash2 > 0 && hash2 <= 20) {
-      return getBiomesVariantDataStrict(COAL_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 20 && hash1 <= 55) {
     if (hash2 > 10 && hash2 <= 35) {
-      return getBiomesVariantDataStrict(SILVER_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     } else if (hash2 > 25 && hash2 <= 45) {
-      return getBiomesVariantDataStrict(GOLD_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 40 && hash1 <= 65) {
     if (hash2 > 40 && hash2 <= 55) {
-      return getBiomesVariantDataStrict(DIAMOND_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   }
 
@@ -293,17 +289,17 @@ function oreRegion2(state: TerrainState): BiomesVariantData | undefined {
 
   if (hash1 <= 30) {
     if (hash2 > 0 && hash2 <= 20) {
-      return getBiomesVariantDataStrict(COAL_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 20 && hash1 <= 55) {
     if (hash2 > 10 && hash2 <= 35) {
-      return getBiomesVariantDataStrict(SILVER_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 40 && hash1 <= 65) {
     if (hash2 > 25 && hash2 <= 45) {
-      return getBiomesVariantDataStrict(GOLD_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     } else if (hash2 > 35 && hash2 <= 50) {
-      return getBiomesVariantDataStrict(DIAMOND_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   }
 
@@ -318,17 +314,17 @@ function oreRegion2Mount(state: TerrainState): BiomesVariantData | undefined {
 
   if (hash1 <= 20) {
     if (hash2 > 0 && hash2 <= 20) {
-      return getBiomesVariantDataStrict(COAL_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 20 && hash1 <= 55) {
     if (hash2 > 10 && hash2 <= 35) {
-      return getBiomesVariantDataStrict(SILVER_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 40 && hash1 <= 65) {
     if (hash2 > 25 && hash2 <= 45) {
-      return getBiomesVariantDataStrict(GOLD_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     } else if (hash2 > 35 && hash2 <= 60) {
-      return getBiomesVariantDataStrict(DIAMOND_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   }
 
@@ -343,21 +339,21 @@ function oreRegion3(state: TerrainState): BiomesVariantData | undefined {
 
   if (hash1 <= 30) {
     if (hash2 > 0 && hash2 <= 20) {
-      return getBiomesVariantDataStrict(COAL_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 20 && hash1 <= 55) {
     if (hash2 > 10 && hash2 <= 35) {
-      return getBiomesVariantDataStrict(SILVER_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 45 && hash1 <= 80) {
     if (hash2 > 25 && hash2 <= 50) {
-      return getBiomesVariantDataStrict(GOLD_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 70 && hash1 <= 95) {
     if (hash2 > 40 && hash2 <= 60) {
-      return getBiomesVariantDataStrict(DIAMOND_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     } else if (hash2 > 50 && hash2 <= 65) {
-      return getBiomesVariantDataStrict(NEPTUNIUM_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   }
 
@@ -372,21 +368,21 @@ function oreRegion3Desert(state: TerrainState): BiomesVariantData | undefined {
 
   if (hash1 <= 30) {
     if (hash2 > 0 && hash2 <= 20) {
-      return getBiomesVariantDataStrict(COAL_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 20 && hash1 <= 55) {
     if (hash2 > 10 && hash2 <= 35) {
-      return getBiomesVariantDataStrict(SILVER_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 45 && hash1 <= 80) {
     if (hash2 > 25 && hash2 <= 60) {
-      return getBiomesVariantDataStrict(GOLD_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 70 && hash1 <= 95) {
     if (hash2 > 50 && hash2 <= 70) {
-      return getBiomesVariantDataStrict(DIAMOND_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     } else if (hash2 > 60 && hash2 <= 75) {
-      return getBiomesVariantDataStrict(NEPTUNIUM_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   }
 
@@ -401,21 +397,21 @@ function oreRegion3Mount(state: TerrainState): BiomesVariantData | undefined {
 
   if (hash1 <= 30) {
     if (hash2 > 0 && hash2 <= 20) {
-      return getBiomesVariantDataStrict(COAL_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 20 && hash1 <= 55) {
     if (hash2 > 10 && hash2 <= 35) {
-      return getBiomesVariantDataStrict(SILVER_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 45 && hash1 <= 80) {
     if (hash2 > 25 && hash2 <= 50) {
-      return getBiomesVariantDataStrict(GOLD_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   } else if (hash1 > 70 && hash1 <= 95) {
     if (hash2 > 40 && hash2 <= 60) {
-      return getBiomesVariantDataStrict(DIAMOND_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     } else if (hash2 > 50 && hash2 <= 75) {
-      return getBiomesVariantDataStrict(NEPTUNIUM_ORE_OBJECT_ID);
+      return getBiomesVariantDataStrict(ANY_ORE_OBJECT_ID);
     }
   }
 

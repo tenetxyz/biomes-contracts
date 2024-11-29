@@ -2,14 +2,20 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
+import { ResourceId, WorldResourceIdLib, WorldResourceIdInstance } from "@latticexyz/world/src/WorldResourceId.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
+import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { ABDKMath64x64 as Math } from "@biomesaw/utils/src/libraries/ABDKMath64x64.sol";
 import { Perlin } from "@biomesaw/utils/src/libraries/Perlin.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { floorDiv } from "@biomesaw/utils/src/MathUtils.sol";
 
-import { NullObjectTypeId, WaterObjectID, SandObjectID, BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../../ObjectTypeIds.sol";
+import { NullObjectTypeId, WaterObjectID, SandObjectID, BellflowerObjectID, DandelionObjectID, DaylilyObjectID, RedMushroomObjectID, LilacObjectID, RoseObjectID, AzaleaObjectID, CactusObjectID, AirObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, CottonBlockObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, AnyOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, CottonBushObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID, LavaObjectID } from "../../ObjectTypeIds.sol";
 import { Biome } from "../../Types.sol";
 import { STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../../Constants.sol";
+
+import { IProcGenOreSystem } from "../../codegen/world/IProcGenOreSystem.sol";
 
 struct Tuple {
   int128 x;
@@ -362,32 +368,63 @@ contract ProcGenSystem is System {
   //////////////////////////////////////////////////////////////////////////////////////
 
   function getTerrainBlock(VoxelCoord memory coord) public view returns (uint8) {
+    (uint8 terrainObjectTypeId, ) = getTerrainBlockWithRandomness(coord, 0);
+    return terrainObjectTypeId;
+  }
+
+  function getOres(
+    VoxelCoord memory coord,
+    int16 height,
+    uint8 biome,
+    int16 distanceFromHeight,
+    uint256 randomNumber
+  ) internal view returns (uint8, uint8) {
+    address oreSystemAddress = Systems.getSystem(
+      WorldResourceIdLib.encode({ typeId: RESOURCE_SYSTEM, namespace: "", name: "ProcGenOreSystem" })
+    );
+    (bool success, bytes memory returnData) = oreSystemAddress.staticcall(
+      abi.encodeCall(
+        IProcGenOreSystem.Ores,
+        (coord.x, coord.y, coord.z, height, biome, distanceFromHeight, randomNumber)
+      )
+    );
+
+    if (!success) revertWithBytes(returnData);
+
+    return abi.decode(returnData, (uint8, uint8));
+  }
+
+  function getTerrainBlockWithRandomness(
+    VoxelCoord memory coord,
+    uint256 randomNumber
+  ) public view returns (uint8, uint8) {
     int128[4] memory biomeValues = getBiome(coord.x, coord.z);
     int16 height = getHeight(coord.x, coord.z, biomeValues);
     uint8 biome = getMaxBiome(biomeValues);
     int16 distanceFromHeight = height - coord.y;
 
     uint8 objectTypeId;
+    uint8 oreObjectTypeId = NullObjectTypeId;
 
     objectTypeId = Water(coord.y, height);
-    if (objectTypeId != NullObjectTypeId) return objectTypeId;
+    if (objectTypeId != NullObjectTypeId) return (objectTypeId, NullObjectTypeId);
 
     objectTypeId = Air(coord.y, height);
-    if (objectTypeId != NullObjectTypeId) return objectTypeId;
+    if (objectTypeId != NullObjectTypeId) return (objectTypeId, NullObjectTypeId);
 
-    objectTypeId = Ores(coord.x, coord.y, coord.z, height, biome, distanceFromHeight);
-    if (objectTypeId != NullObjectTypeId) return objectTypeId;
+    (objectTypeId, oreObjectTypeId) = getOres(coord, height, biome, distanceFromHeight, randomNumber);
+    if (objectTypeId != NullObjectTypeId) return (objectTypeId, oreObjectTypeId);
 
     objectTypeId = TerrainBlocks(coord.x, coord.y, coord.z, height, biome, distanceFromHeight);
-    if (objectTypeId != NullObjectTypeId) return objectTypeId;
+    if (objectTypeId != NullObjectTypeId) return (objectTypeId, NullObjectTypeId);
 
     objectTypeId = Trees(coord.x, coord.y, coord.z, height, biome, distanceFromHeight);
-    if (objectTypeId != NullObjectTypeId) return objectTypeId;
+    if (objectTypeId != NullObjectTypeId) return (objectTypeId, NullObjectTypeId);
 
     objectTypeId = Flora(coord.x, coord.y, coord.z, height, biome);
-    if (objectTypeId != NullObjectTypeId) return objectTypeId;
+    if (objectTypeId != NullObjectTypeId) return (objectTypeId, NullObjectTypeId);
 
-    return AirObjectID;
+    return (AirObjectID, NullObjectTypeId);
   }
 
   function Air(VoxelCoord memory coord) public view returns (uint8) {
@@ -415,13 +452,18 @@ contract ProcGenSystem is System {
   }
 
   function Ores(VoxelCoord memory coord) public view returns (uint8) {
+    (uint8 oreObjectTypeId, ) = Ores(coord, 0);
+    return oreObjectTypeId;
+  }
+
+  function Ores(VoxelCoord memory coord, uint256 randomNumber) public view returns (uint8, uint8) {
     int128[4] memory biomeValues = getBiome(coord.x, coord.z);
     int16 height = getHeight(coord.x, coord.z, biomeValues);
 
     uint8 biome = getMaxBiome(biomeValues);
     int16 distanceFromHeight = height - coord.y;
 
-    return Ores(coord.x, coord.y, coord.z, height, biome, distanceFromHeight);
+    return getOres(coord, height, biome, distanceFromHeight, randomNumber);
   }
 
   function Trees(VoxelCoord memory coord) public view returns (uint8) {
@@ -568,253 +610,6 @@ contract ProcGenSystem is System {
       return DirtObjectID;
     }
 
-    return NullObjectTypeId;
-  }
-
-  function Ores(
-    int16 x,
-    int16 y,
-    int16 z,
-    int16 height,
-    uint8 biome,
-    int16 distanceFromHeight
-  ) internal view returns (uint8) {
-    if (y >= height) return NullObjectTypeId;
-
-    // Checking biome conditions and distance from height for ore generation
-    if (biome == uint8(Biome.Mountains)) {
-      if (y > 10 && y <= 40) {
-        return oreRegion1Mount(x, y, z);
-      } else if (y > 40 && y <= 80) {
-        return oreRegion2Mount(x, y, z);
-      } else if (y > 80) {
-        return oreRegion3Mount(x, y, z);
-      }
-    } else {
-      if (distanceFromHeight >= 5 && distanceFromHeight <= 17) {
-        if (biome == uint8(Biome.Desert)) {
-          return oreRegion1Desert(x, y, z);
-        } else {
-          return oreRegion1(x, y, z);
-        }
-      } else if (distanceFromHeight > 17 && distanceFromHeight <= 40) {
-        if (biome == uint8(Biome.Desert)) {
-          return oreRegion2Desert(x, y, z);
-        } else {
-          return oreRegion2(x, y, z);
-        }
-      } else if (distanceFromHeight > 40) {
-        if (biome == uint8(Biome.Desert)) {
-          return oreRegion3Desert(x, y, z);
-        } else {
-          return oreRegion3(x, y, z);
-        }
-      }
-    }
-
-    return NullObjectTypeId;
-  }
-
-  function oreRegion1(int16 x, int16 y, int16 z) internal view returns (uint8) {
-    uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, x + z);
-
-    // REGION 1: Coal is Abundant, Silver is Rare
-    if (hash1 <= 20 || hash1 > 40) {
-      if (hash1 <= 15 && hash2 <= 15) {
-        return SilverOreObjectID;
-      }
-    } else {
-      if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
-      }
-    }
-    return NullObjectTypeId;
-  }
-
-  function oreRegion1Desert(int16 x, int16 y, int16 z) internal view returns (uint8) {
-    uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, x + z);
-
-    // REGION 1: Coal is Abundant, Silver is Rare, Boost Gold Lightly
-    if (hash1 <= 20 || hash1 > 40) {
-      if (hash1 <= 15 && hash2 <= 15) {
-        return SilverOreObjectID;
-      } else if (hash1 <= 5 && hash2 <= 5) {
-        return GoldOreObjectID;
-      }
-    } else {
-      if (hash2 > 0 && hash2 <= 15) {
-        return CoalOreObjectID;
-      }
-    }
-    return NullObjectTypeId;
-  }
-
-  function oreRegion1Mount(int16 x, int16 y, int16 z) internal view returns (uint8) {
-    uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, x + z);
-
-    // REGION 1: Coal is Abundant, Silver is Rare But Boosted
-    if (hash1 <= 20 || hash1 > 40) {
-      if (hash1 <= 20 && hash2 <= 20) {
-        return SilverOreObjectID;
-      }
-    } else {
-      if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
-      }
-    }
-    return NullObjectTypeId;
-  }
-
-  function oreRegion2(int16 x, int16 y, int16 z) internal view returns (uint8) {
-    uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, x + z);
-
-    // REGION 2: Coal and Silver Equally Abundant, Gold is Rare, Diamond is Even More Rare
-    if (hash1 <= 30) {
-      if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
-      }
-    } else if (hash1 > 20 && hash1 <= 55) {
-      if (hash2 > 10 && hash2 <= 35) {
-        return SilverOreObjectID;
-      }
-    } else if (hash1 > 40 && hash1 <= 65) {
-      if (hash2 > 25 && hash2 <= 45) {
-        return GoldOreObjectID;
-      } else if (hash2 > 35 && hash2 <= 50) {
-        return DiamondOreObjectID;
-      }
-    }
-    return NullObjectTypeId;
-  }
-
-  function oreRegion2Desert(int16 x, int16 y, int16 z) internal view returns (uint8) {
-    uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, x + z);
-
-    // REGION 2: Coal and Silver Equally Abundant, Gold is Rare But Boosted, Diamond is Even More Rare
-    if (hash1 <= 30) {
-      if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
-      }
-    } else if (hash1 > 20 && hash1 <= 55) {
-      if (hash2 > 10 && hash2 <= 35) {
-        return SilverOreObjectID;
-      } else if (hash2 > 25 && hash2 <= 45) {
-        return GoldOreObjectID;
-      }
-    } else if (hash1 > 40 && hash1 <= 65) {
-      if (hash2 > 40 && hash2 <= 55) {
-        return DiamondOreObjectID;
-      }
-    }
-    return NullObjectTypeId;
-  }
-
-  function oreRegion2Mount(int16 x, int16 y, int16 z) internal view returns (uint8) {
-    uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, x + z);
-
-    // REGION 2: Coal and Silver Equally Abundant, Gold is Rare, Diamond is Even More Rare but Boosted
-    if (hash1 <= 20) {
-      if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
-      }
-    } else if (hash1 > 20 && hash1 <= 55) {
-      if (hash2 > 10 && hash2 <= 35) {
-        return SilverOreObjectID;
-      }
-    } else if (hash1 > 40 && hash1 <= 65) {
-      if (hash2 > 25 && hash2 <= 45) {
-        return GoldOreObjectID;
-      } else if (hash2 > 35 && hash2 <= 60) {
-        return DiamondOreObjectID;
-      }
-    }
-    return NullObjectTypeId;
-  }
-
-  function oreRegion3(int16 x, int16 y, int16 z) internal view returns (uint8) {
-    uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, x + z);
-
-    // REGION 3: Coal, Silver, and Gold Equally Abundant, Diamond is Rare, Neptunium is Even More Rare
-    if (hash1 <= 30) {
-      if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
-      }
-    } else if (hash1 > 20 && hash1 <= 55) {
-      if (hash2 > 10 && hash2 <= 35) {
-        return SilverOreObjectID;
-      }
-    } else if (hash1 > 45 && hash1 <= 80) {
-      if (hash2 > 25 && hash2 <= 50) {
-        return GoldOreObjectID;
-      }
-    } else if (hash1 > 70 && hash1 <= 95) {
-      if (hash2 > 40 && hash2 <= 60) {
-        return DiamondOreObjectID;
-      } else if (hash2 > 50 && hash2 <= 65) {
-        return NeptuniumOreObjectID;
-      }
-    }
-    return NullObjectTypeId;
-  }
-
-  function oreRegion3Desert(int16 x, int16 y, int16 z) internal view returns (uint8) {
-    uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, x + z);
-
-    // REGION 3: Coal, Silver, and Gold Equally Abundant But Boosted Even More, Diamond is Rare, Neptunium is Even More Rare
-    if (hash1 <= 30) {
-      if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
-      }
-    } else if (hash1 > 20 && hash1 <= 55) {
-      if (hash2 > 10 && hash2 <= 35) {
-        return SilverOreObjectID;
-      }
-    } else if (hash1 > 45 && hash1 <= 80) {
-      if (hash2 > 25 && hash2 <= 60) {
-        return GoldOreObjectID;
-      }
-    } else if (hash1 > 70 && hash1 <= 95) {
-      if (hash2 > 50 && hash2 <= 70) {
-        return DiamondOreObjectID;
-      } else if (hash2 > 60 && hash2 <= 75) {
-        return NeptuniumOreObjectID;
-      }
-    }
-    return NullObjectTypeId;
-  }
-
-  function oreRegion3Mount(int16 x, int16 y, int16 z) internal view returns (uint8) {
-    uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, x + z);
-
-    // REGION 3: Coal, Silver, and Gold Equally Abundant, Diamond is Rare, Neptunium is Even More Rare
-    if (hash1 <= 30) {
-      if (hash2 > 0 && hash2 <= 20) {
-        return CoalOreObjectID;
-      }
-    } else if (hash1 > 20 && hash1 <= 55) {
-      if (hash2 > 10 && hash2 <= 35) {
-        return SilverOreObjectID;
-      }
-    } else if (hash1 > 45 && hash1 <= 80) {
-      if (hash2 > 25 && hash2 <= 50) {
-        return GoldOreObjectID;
-      }
-    } else if (hash1 > 70 && hash1 <= 95) {
-      if (hash2 > 40 && hash2 <= 60) {
-        return DiamondOreObjectID;
-      } else if (hash2 > 50 && hash2 <= 75) {
-        return NeptuniumOreObjectID;
-      }
-    }
     return NullObjectTypeId;
   }
 }

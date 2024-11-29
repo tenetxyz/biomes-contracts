@@ -50,7 +50,7 @@ export const GRASS_OBJECT_ID = 35;
 export const MUCK_GRASS_OBJECT_ID = 36; // unused
 export const DIRT_OBJECT_ID = 37;
 export const MUCK_DIRT_OBJECT_ID = 38; // unused
-export const MOSS_BLOCK_OBJECT_ID = 39;
+export const MOSS_OBJECT_ID = 39;
 export const SNOW_OBJECT_ID = 40; // unused
 export const GRAVEL_OBJECT_ID = 41;
 export const SAND_OBJECT_ID = 42;
@@ -208,6 +208,11 @@ export const CHIP_BATTERY_OBJECT_ID = 165;
 export const FORCE_FIELD_OBJECT_ID = 166;
 export const POWERSTONE_OBJECT_ID = 167;
 export const TEXT_SIGN_OBJECT_ID = 168;
+
+// Used for Procedural Terrain Only
+export const ANY_ORE_OBJECT_ID = 169;
+
+export const LAVA_OBJECT_ID = 170;
 
 // legacy
 export type BiomesVariantData = number;

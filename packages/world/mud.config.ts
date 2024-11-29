@@ -24,6 +24,8 @@ export default defineWorld({
       "DetachChip",
       "HitChip",
       "Pickup",
+      "InitiateOreReveal",
+      "RevealOre",
     ],
   },
   tables: {
@@ -329,6 +331,52 @@ export default defineWorld({
       },
       key: ["playerEntityId"],
       type: "offchainTable",
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    TerrainCommitment: {
+      schema: {
+        x: "int16",
+        y: "int16",
+        z: "int16",
+        blockNumber: "uint256",
+        committerEntityId: "bytes32",
+      },
+      key: ["x", "y", "z"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    Commitment: {
+      schema: {
+        entityId: "bytes32",
+        hasCommitted: "bool",
+        x: "int16",
+        y: "int16",
+        z: "int16",
+      },
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    BlockHash: {
+      schema: {
+        blockNumber: "uint256",
+        blockHash: "bytes32",
+      },
+      key: ["blockNumber"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    BlockPrevrandao: {
+      schema: {
+        blockNumber: "uint256",
+        blockPrevrandao: "uint256",
+      },
+      key: ["blockNumber"],
       codegen: {
         storeArgument: true,
       },
