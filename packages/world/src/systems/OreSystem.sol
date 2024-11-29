@@ -8,6 +8,7 @@ import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { Player } from "../codegen/tables/Player.sol";
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Position } from "../codegen/tables/Position.sol";
@@ -54,6 +55,19 @@ contract OreSystem is System {
     BlockPrevrandao._set(block.number, block.prevrandao);
 
     callMintXP(playerEntityId, initialGas, 1);
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.InitiateOreReveal,
+        entityId: playerEntityId,
+        objectTypeId: mineObjectTypeId,
+        coordX: coord.x,
+        coordY: coord.y,
+        coordZ: coord.z,
+        amount: block.number
+      })
+    );
   }
 
   // Can be called by anyone
@@ -78,12 +92,40 @@ contract OreSystem is System {
       // Apply consequences of lava
       if (ObjectType._get(terrainCommitmentData.committerEntityId) == PlayerObjectID) {
         Stamina._set(terrainCommitmentData.committerEntityId, block.timestamp, 0);
+        PlayerActionNotif._set(
+          terrainCommitmentData.committerEntityId,
+          PlayerActionNotifData({
+            actionType: ActionType.RevealOre,
+            entityId: terrainCommitmentData.committerEntityId,
+            objectTypeId: oreObjectTypeId,
+            coordX: coord.x,
+            coordY: coord.y,
+            coordZ: coord.z,
+            amount: 0
+          })
+        );
       } // else: the player died, no need to do anything
     }
 
     // Clear commitment data
     TerrainCommitment._deleteRecord(coord.x, coord.y, coord.z);
     Commitment._deleteRecord(terrainCommitmentData.committerEntityId);
+
+    bytes32 playerEntityId = Player._get(_msgSender());
+    if (playerEntityId != bytes32(0)) {
+      PlayerActionNotif._set(
+        playerEntityId,
+        PlayerActionNotifData({
+          actionType: ActionType.RevealOre,
+          entityId: terrainCommitmentData.committerEntityId,
+          objectTypeId: oreObjectTypeId,
+          coordX: coord.x,
+          coordY: coord.y,
+          coordZ: coord.z,
+          amount: terrainCommitmentData.blockNumber
+        })
+      );
+    }
 
     return oreObjectTypeId;
   }

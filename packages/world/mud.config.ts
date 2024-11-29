@@ -24,6 +24,8 @@ export default defineWorld({
       "DetachChip",
       "HitChip",
       "Pickup",
+      "InitiateOreReveal",
+      "RevealOre",
     ],
   },
   tables: {
