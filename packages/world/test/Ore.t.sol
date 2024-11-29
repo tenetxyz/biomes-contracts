@@ -123,8 +123,8 @@ contract OreTest is MudTest, GasReporter {
 
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
-    startGasReport("commit ore");
-    world.commitOre(oreCoord);
+    startGasReport("initiate ore reveal");
+    world.initiateOreReveal(oreCoord);
     endGasReport();
 
     assertTrue(
@@ -201,7 +201,7 @@ contract OreTest is MudTest, GasReporter {
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
     vm.prevrandao(bytes32(uint256(40)));
-    world.commitOre(lavaOreCoord);
+    world.initiateOreReveal(lavaOreCoord);
 
     uint256 commitBlockNumber = block.number;
     assertTrue(
@@ -275,7 +275,7 @@ contract OreTest is MudTest, GasReporter {
 
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
-    world.commitOre(oreCoord);
+    world.initiateOreReveal(oreCoord);
 
     assertTrue(
       TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == block.number,
@@ -390,7 +390,7 @@ contract OreTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
     assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
 
-    world.commitOre(oreCoord);
+    world.initiateOreReveal(oreCoord);
 
     assertTrue(
       TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == block.number,
@@ -441,7 +441,7 @@ contract OreTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
     assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
 
-    world.commitOre(oreCoord);
+    world.initiateOreReveal(oreCoord);
 
     assertTrue(
       TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == block.number,
@@ -472,7 +472,7 @@ contract OreTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     vm.expectRevert("Player is in a commitment");
-    world.commitOre(oreCoord2);
+    world.initiateOreReveal(oreCoord2);
 
     vm.expectRevert("Player is in a commitment");
     world.mine(VoxelCoord(oreCoord.x, oreCoord.y - 1, oreCoord.z));
@@ -526,7 +526,7 @@ contract OreTest is MudTest, GasReporter {
     uint8 terrainObjectTypeId = world.getTerrainBlock(oreCoord);
     assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
 
-    world.commitOre(oreCoord);
+    world.initiateOreReveal(oreCoord);
 
     assertTrue(
       TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == block.number,
@@ -546,8 +546,23 @@ contract OreTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(bob, bob);
 
-    vm.expectRevert("OreSystem: terrain commitment already committed");
-    world.commitOre(oreCoord);
+    // Should reveal
+    vm.roll(block.number + 1);
+    world.initiateOreReveal(oreCoord);
+
+    bytes32 mineEntityId = ReversePosition.get(oreCoord.x, oreCoord.y, oreCoord.z);
+    assertTrue(mineEntityId != bytes32(0), "Entity id not set");
+    uint8 oreObjectTypeId = ObjectType.get(mineEntityId);
+    assertTrue(oreObjectTypeId != AnyOreObjectID, "Object type not set");
+
+    // commitments cleared
+    assertTrue(TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == 0, "Ore commitment not cleared");
+    assertTrue(
+      TerrainCommitment.getCommitterEntityId(oreCoord.x, oreCoord.y, oreCoord.z) == bytes32(0),
+      "Ore committer not cleared"
+    );
+    assertTrue(Commitment.getHasCommitted(playerEntityId) == false, "Commitment not cleared");
+    assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
     vm.stopPrank();
   }
@@ -577,7 +592,7 @@ contract OreTest is MudTest, GasReporter {
 
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
-    world.commitOre(oreCoord);
+    world.initiateOreReveal(oreCoord);
 
     assertTrue(
       TerrainCommitment.getBlockNumber(oreCoord.x, oreCoord.y, oreCoord.z) == block.number,
@@ -614,7 +629,7 @@ contract OreTest is MudTest, GasReporter {
     uint32 staminaBefore = Stamina.getStamina(playerEntityId);
 
     vm.expectRevert("OreSystem: ore already revealed");
-    world.commitOre(oreCoord);
+    world.initiateOreReveal(oreCoord);
 
     vm.stopPrank();
   }
@@ -644,7 +659,7 @@ contract OreTest is MudTest, GasReporter {
     assertTrue(terrainObjectTypeId != AnyOreObjectID, "Terrain block is not an ore");
 
     vm.expectRevert("OreSystem: terrain is not an ore");
-    world.commitOre(mineCoord);
+    world.initiateOreReveal(mineCoord);
 
     vm.stopPrank();
   }
@@ -675,7 +690,7 @@ contract OreTest is MudTest, GasReporter {
     vm.stopPrank();
 
     vm.expectRevert("Player does not exist");
-    world.commitOre(oreCoord);
+    world.initiateOreReveal(oreCoord);
 
     vm.stopPrank();
   }
@@ -689,7 +704,7 @@ contract OreTest is MudTest, GasReporter {
     assertTrue(terrainObjectTypeId == AnyOreObjectID, "Terrain block is not an ore");
 
     vm.expectRevert("Player is too far");
-    world.commitOre(oreCoord);
+    world.initiateOreReveal(oreCoord);
 
     vm.stopPrank();
   }
@@ -720,7 +735,7 @@ contract OreTest is MudTest, GasReporter {
     world.logoffPlayer();
 
     vm.expectRevert("Player isn't logged in");
-    world.commitOre(oreCoord);
+    world.initiateOreReveal(oreCoord);
 
     vm.stopPrank();
   }
@@ -779,7 +794,7 @@ contract OreTest is MudTest, GasReporter {
 
     assertTrue(InventorySlots.get(playerEntityId) == 0, "Inventory slot not set");
 
-    world.commitOre(oreCoord);
+    world.initiateOreReveal(oreCoord);
 
     uint256 commitBlockNumber = block.number;
 

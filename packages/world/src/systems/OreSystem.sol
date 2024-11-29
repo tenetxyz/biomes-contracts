@@ -32,17 +32,16 @@ import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 import { IMineHelperSystem } from "../codegen/world/IMineHelperSystem.sol";
 
 contract OreSystem is System {
-  function commitOre(VoxelCoord memory coord) public {
+  function initiateOreReveal(VoxelCoord memory coord) public {
+    if (TerrainCommitment._getBlockNumber(coord.x, coord.y, coord.z) != 0) {
+      revealOre(coord);
+      return;
+    }
     uint256 initialGas = gasleft();
-    require(inWorldBorder(coord), "OreSystem: cannot commit ore outside world border");
+    require(inWorldBorder(coord), "OreSystem: cannot reveal ore outside world border");
 
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
-
-    require(
-      TerrainCommitment._getBlockNumber(coord.x, coord.y, coord.z) == 0,
-      "OreSystem: terrain commitment already committed"
-    );
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     require(entityId == bytes32(0), "OreSystem: ore already revealed");

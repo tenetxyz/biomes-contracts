@@ -11,7 +11,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IOreSystem {
-  function commitOre(VoxelCoord memory coord) external;
+  function initiateOreReveal(VoxelCoord memory coord) external;
 
   function revealOre(VoxelCoord memory coord) external returns (uint8);
 }

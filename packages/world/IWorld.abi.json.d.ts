@@ -643,36 +643,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "commitOre",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "craft",
     "inputs": [
       {
@@ -3940,6 +3910,36 @@ declare const abi: [
         "name": "initModule",
         "type": "address",
         "internalType": "contract IModule"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "initiateOreReveal",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "y",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "z",
+            "type": "int16",
+            "internalType": "int16"
+          }
+        ]
       }
     ],
     "outputs": [],
