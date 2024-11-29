@@ -6,6 +6,7 @@ import { PlayerMetadataData } from "./codegen/tables/PlayerMetadata.sol";
 import { HealthData } from "./codegen/tables/Health.sol";
 import { StaminaData } from "./codegen/tables/Stamina.sol";
 import { ChipData } from "./codegen/tables/Chip.sol";
+import { CommitmentData } from "./codegen/tables/Commitment.sol";
 
 enum Biome {
   Mountains,
@@ -36,6 +37,20 @@ struct PlayerEntityData {
   StaminaData stamina;
   uint256 xp;
   uint256 lastActionTime;
+}
+
+struct PlayerEntityDataWithCommitment {
+  address playerAddress;
+  bytes32 entityId;
+  VoxelCoord position;
+  PlayerMetadataData metadata;
+  bytes32 equippedEntityId;
+  InventoryObject[] inventory;
+  HealthData health;
+  StaminaData stamina;
+  uint256 xp;
+  uint256 lastActionTime;
+  CommitmentData commitment;
 }
 
 struct BlockEntityData {
