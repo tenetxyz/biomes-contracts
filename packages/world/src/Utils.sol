@@ -149,7 +149,7 @@ function getRandomNumberBetween0And99(uint256 blockNumber) view returns (uint256
   }
   require(
     blockHash != bytes32(0),
-    string.concat("getRandomNumber: block hash is 0 for block ", Strings.toString(blockNumber))
+    string.concat("getRandomNumber: block hash is missing for block ", Strings.toString(blockNumber))
   );
 
   uint256 blockPrevrandao = BlockPrevrandao._get(blockNumber);
