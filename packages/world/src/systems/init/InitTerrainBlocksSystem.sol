@@ -29,21 +29,21 @@ contract InitTerrainBlocksSystem is System {
   function initTerrainBlockObjectTypes() public {
     createTerrainBlock(AirObjectID, 0);
     createTerrainBlock(WaterObjectID, 0);
-    createTerrainBlock(LavaObjectID, 4);
-    createTerrainBlock(GrassObjectID, 4);
+    createTerrainBlock(LavaObjectID, 115);
+    createTerrainBlock(GrassObjectID, 12);
     // createTerrainBlock(MuckGrassObjectID, 4);
-    createTerrainBlock(DirtObjectID, 4);
+    createTerrainBlock(DirtObjectID, 40);
     // createTerrainBlock(MuckDirtObjectID, 4);
-    createTerrainBlock(MossBlockObjectID, 4);
+    createTerrainBlock(MossBlockObjectID, 35);
     createTerrainBlock(GravelObjectID, 5);
-    createTerrainBlock(SandObjectID, 2);
+    createTerrainBlock(SandObjectID, 35);
     createTerrainBlock(BedrockObjectID, 1000);
 
-    createTerrainBlock(StoneObjectID, 7);
-    createTerrainBlock(BasaltObjectID, 9);
-    createTerrainBlock(GraniteObjectID, 11);
-    createTerrainBlock(QuartziteObjectID, 10);
-    createTerrainBlock(LimestoneObjectID, 7);
+    createTerrainBlock(StoneObjectID, 50);
+    createTerrainBlock(BasaltObjectID, 60);
+    createTerrainBlock(GraniteObjectID, 65);
+    createTerrainBlock(QuartziteObjectID, 70);
+    createTerrainBlock(LimestoneObjectID, 35);
 
     createTerrainBlock(CactusObjectID, 1);
     createTerrainBlock(LilacObjectID, 1);
@@ -56,19 +56,19 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(AzaleaObjectID, 1);
     createTerrainBlock(RoseObjectID, 1);
 
-    createTerrainBlock(OakLogObjectID, 4);
-    createTerrainBlock(BirchLogObjectID, 4);
-    createTerrainBlock(SakuraLogObjectID, 4);
-    createTerrainBlock(RubberLogObjectID, 4);
+    createTerrainBlock(OakLogObjectID, 20);
+    createTerrainBlock(BirchLogObjectID, 20);
+    createTerrainBlock(SakuraLogObjectID, 20);
+    createTerrainBlock(RubberLogObjectID, 20);
     createTerrainBlock(OakLeafObjectID, 1);
     createTerrainBlock(BirchLeafObjectID, 1);
     createTerrainBlock(SakuraLeafObjectID, 1);
     createTerrainBlock(RubberLeafObjectID, 1);
 
-    createTerrainBlock(CoalOreObjectID, 7);
-    createTerrainBlock(GoldOreObjectID, 10);
-    createTerrainBlock(SilverOreObjectID, 9);
-    createTerrainBlock(DiamondOreObjectID, 15);
-    createTerrainBlock(NeptuniumOreObjectID, 20);
+    createTerrainBlock(CoalOreObjectID, 80);
+    createTerrainBlock(GoldOreObjectID, 200);
+    createTerrainBlock(SilverOreObjectID, 120);
+    createTerrainBlock(DiamondOreObjectID, 350);
+    createTerrainBlock(NeptuniumOreObjectID, 500);
   }
 }

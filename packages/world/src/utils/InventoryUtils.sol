@@ -79,21 +79,20 @@ function removeFromInventoryCount(bytes32 ownerEntityId, uint8 objectTypeId, uin
   }
 }
 
-function useEquipped(bytes32 entityId, bytes32 inventoryEntityId) {
+function useEquipped(bytes32 entityId, bytes32 inventoryEntityId, uint24 durabilityDecrease) {
   if (inventoryEntityId != bytes32(0)) {
-    uint24 numUsesLeft = ItemMetadata._get(inventoryEntityId);
-    if (numUsesLeft > 0) {
-      if (numUsesLeft == 1) {
-        // Destroy equipped item
-        removeFromInventoryCount(entityId, ObjectType._get(inventoryEntityId), 1);
-        ItemMetadata._deleteRecord(inventoryEntityId);
-        InventoryTool._deleteRecord(inventoryEntityId);
-        removeEntityIdFromReverseInventoryTool(entityId, inventoryEntityId);
-        Equipped._deleteRecord(entityId);
-      } else {
-        ItemMetadata._set(inventoryEntityId, numUsesLeft - 1);
-      }
-    } // 0 = unlimited uses
+    uint24 durabilityLeft = ItemMetadata._get(inventoryEntityId);
+    require(durabilityLeft >= durabilityDecrease, "Not enough durability");
+    if (durabilityLeft == durabilityDecrease) {
+      // Destroy equipped item
+      removeFromInventoryCount(entityId, ObjectType._get(inventoryEntityId), 1);
+      ItemMetadata._deleteRecord(inventoryEntityId);
+      InventoryTool._deleteRecord(inventoryEntityId);
+      removeEntityIdFromReverseInventoryTool(entityId, inventoryEntityId);
+      Equipped._deleteRecord(entityId);
+    } else {
+      ItemMetadata._set(inventoryEntityId, durabilityLeft - durabilityDecrease);
+    }
   }
 }
 

@@ -51,7 +51,7 @@ contract HitChipSystem is System {
     if (equippedEntityId != bytes32(0)) {
       receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
     }
-    useEquipped(playerEntityId, equippedEntityId);
+    useEquipped(playerEntityId, equippedEntityId, 10);
 
     // uint256 l1GasPriceWei = getL1GasPrice();
     // // Ensure that the gas price is at least 8 gwei

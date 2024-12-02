@@ -13,7 +13,7 @@ import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { Stamina } from "../../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
-import { MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../../Constants.sol";
+import { MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_HAND_DAMAGE, MINE_STAMINA_COST } from "../../Constants.sol";
 import { PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { callGravity } from "../../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../../utils/InventoryUtils.sol";
@@ -30,16 +30,13 @@ contract MineHelperSystem is System {
     if (equippedEntityId != bytes32(0)) {
       equippedToolDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
     }
-    uint256 miningDifficulty = uint256(ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId));
+    uint16 miningDifficulty = ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId);
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    uint256 staminaRequired = (miningDifficulty * 1000) / (equippedToolDamage);
-    require(staminaRequired <= MAX_PLAYER_STAMINA, "MineSystem: mining difficulty too high. Try a stronger tool.");
-    uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
-    require(currentStamina >= useStamina, "MineSystem: not enough stamina");
-    uint32 newStamina = currentStamina - useStamina;
-    Stamina._setStamina(playerEntityId, newStamina);
+    uint32 staminaRequired = MINE_STAMINA_COST;
+    require(currentStamina >= staminaRequired, "MineSystem: not enough stamina");
+    Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
 
-    useEquipped(playerEntityId, equippedEntityId);
+    useEquipped(playerEntityId, equippedEntityId, uint24((miningDifficulty * 1000) / equippedToolDamage));
 
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 

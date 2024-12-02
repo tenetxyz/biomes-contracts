@@ -46,15 +46,15 @@ contract InitInteractablesSystem is System {
   }
 
   function initInteractableObjectTypes() public {
-    createInteractableBlock(ChestObjectID, 8, 1, new VoxelCoord[](0));
+    createInteractableBlock(ChestObjectID, 20, 1, new VoxelCoord[](0));
     VoxelCoord[] memory textSignRelativePositions = new VoxelCoord[](1);
     textSignRelativePositions[0] = VoxelCoord(0, 1, 0);
-    createInteractableBlock(TextSignObjectID, 5, 99, textSignRelativePositions);
-    createInteractableBlock(ThermoblasterObjectID, 63, 1, new VoxelCoord[](0));
+    createInteractableBlock(TextSignObjectID, 20, 99, textSignRelativePositions);
+    createInteractableBlock(ThermoblasterObjectID, 80, 1, new VoxelCoord[](0));
     createInteractableBlock(WorkbenchObjectID, 20, 1, new VoxelCoord[](0));
-    createInteractableBlock(DyeomaticObjectID, 72, 1, new VoxelCoord[](0));
-    createInteractableBlock(PowerStoneObjectID, 123, 1, new VoxelCoord[](0));
-    createInteractableBlock(ForceFieldObjectID, 255, 99, new VoxelCoord[](0));
+    createInteractableBlock(DyeomaticObjectID, 80, 1, new VoxelCoord[](0));
+    createInteractableBlock(PowerStoneObjectID, 80, 1, new VoxelCoord[](0));
+    createInteractableBlock(ForceFieldObjectID, 80, 99, new VoxelCoord[](0));
   }
 
   function initInteractablesRecipes() public {

@@ -45,7 +45,7 @@ contract HitSystem is System {
     uint16 newHealth = currentHealth > receiverDamage ? currentHealth - receiverDamage : 0;
     Health._setHealth(hitEntityId, newHealth);
 
-    useEquipped(playerEntityId, equippedEntityId);
+    useEquipped(playerEntityId, equippedEntityId, 10);
 
     if (newHealth == 0) {
       despawnPlayer(hitEntityId);

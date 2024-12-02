@@ -59,9 +59,9 @@ contract InitHandBlocksSystem is System {
   }
 
   function initHandcraftedObjectTypes() public {
-    createHandcraftedBlock(CobblestoneObjectID, 2);
-    createHandcraftedBlock(ClayObjectID, 16);
-    createHandcraftedBlock(CottonBlockObjectID, 4);
+    createHandcraftedBlock(CobblestoneObjectID, 55);
+    createHandcraftedBlock(ClayObjectID, 10);
+    createHandcraftedBlock(CottonBlockObjectID, 5);
 
     createHandcraftedItem(BlueDyeObjectID);
     createHandcraftedItem(BrownDyeObjectID);
@@ -77,14 +77,14 @@ contract InitHandBlocksSystem is System {
     createHandcraftedItem(BlackDyeObjectID);
     createHandcraftedItem(SilverDyeObjectID);
 
-    createHandcraftedTool(WoodenPickObjectID, 50, 80);
-    createHandcraftedTool(WoodenAxeObjectID, 50, 80);
-    createHandcraftedTool(WoodenWhackerObjectID, 10, 100);
+    createHandcraftedTool(WoodenPickObjectID, 18750, 80);
+    createHandcraftedTool(WoodenAxeObjectID, 18750, 80);
+    createHandcraftedTool(WoodenWhackerObjectID, 18750, 80);
 
-    createHandcraftedBlock(OakLumberObjectID, 2);
-    createHandcraftedBlock(SakuraLumberObjectID, 2);
-    createHandcraftedBlock(RubberLumberObjectID, 2);
-    createHandcraftedBlock(BirchLumberObjectID, 2);
+    createHandcraftedBlock(OakLumberObjectID, 20);
+    createHandcraftedBlock(SakuraLumberObjectID, 20);
+    createHandcraftedBlock(RubberLumberObjectID, 20);
+    createHandcraftedBlock(BirchLumberObjectID, 20);
   }
 
   function initHandcrafedRecipes() public {

@@ -52,47 +52,47 @@ contract InitThermoblastSystem is System {
   }
 
   function initThermoblastObjectTypes() public {
-    createBlock(CobblestoneBrickObjectID, 84);
-    createBlock(CobblestoneCarvedObjectID, 84);
-    createBlock(CobblestonePolishedObjectID, 84);
-    createBlock(CobblestoneShinglesObjectID, 84);
+    createBlock(CobblestoneBrickObjectID, 65);
+    createBlock(CobblestoneCarvedObjectID, 65);
+    createBlock(CobblestonePolishedObjectID, 65);
+    createBlock(CobblestoneShinglesObjectID, 65);
 
-    createBlock(StoneBrickObjectID, 84);
-    createBlock(StoneCarvedObjectID, 84);
-    createBlock(StonePolishedObjectID, 84);
-    createBlock(StoneShinglesObjectID, 84);
+    createBlock(StoneBrickObjectID, 60);
+    createBlock(StoneCarvedObjectID, 60);
+    createBlock(StonePolishedObjectID, 60);
+    createBlock(StoneShinglesObjectID, 60);
 
-    createBlock(BasaltBrickObjectID, 132);
-    createBlock(BasaltCarvedObjectID, 132);
-    createBlock(BasaltPolishedObjectID, 132);
-    createBlock(BasaltShinglesObjectID, 132);
+    createBlock(BasaltBrickObjectID, 66);
+    createBlock(BasaltCarvedObjectID, 66);
+    createBlock(BasaltPolishedObjectID, 66);
+    createBlock(BasaltShinglesObjectID, 66);
 
-    createBlock(ClayBrickObjectID, 192);
-    createBlock(ClayCarvedObjectID, 192);
-    createBlock(ClayPolishedObjectID, 192);
-    createBlock(ClayShinglesObjectID, 192);
+    createBlock(ClayBrickObjectID, 30);
+    createBlock(ClayCarvedObjectID, 30);
+    createBlock(ClayPolishedObjectID, 30);
+    createBlock(ClayShinglesObjectID, 30);
 
-    createBlock(GraniteBrickObjectID, 132);
-    createBlock(GraniteCarvedObjectID, 132);
-    createBlock(GranitePolishedObjectID, 132);
-    createBlock(GraniteShinglesObjectID, 132);
+    createBlock(GraniteBrickObjectID, 71);
+    createBlock(GraniteCarvedObjectID, 71);
+    createBlock(GranitePolishedObjectID, 71);
+    createBlock(GraniteShinglesObjectID, 71);
 
-    createBlock(QuartziteBrickObjectID, 120);
-    createBlock(QuartziteCarvedObjectID, 120);
-    createBlock(QuartzitePolishedObjectID, 120);
-    createBlock(QuartziteShinglesObjectID, 120);
+    createBlock(QuartziteBrickObjectID, 77);
+    createBlock(QuartziteCarvedObjectID, 77);
+    createBlock(QuartzitePolishedObjectID, 77);
+    createBlock(QuartziteShinglesObjectID, 77);
 
-    createBlock(LimestoneBrickObjectID, 84);
-    createBlock(LimestoneCarvedObjectID, 84);
-    createBlock(LimestonePolishedObjectID, 84);
-    createBlock(LimestoneShinglesObjectID, 84);
+    createBlock(LimestoneBrickObjectID, 42);
+    createBlock(LimestoneCarvedObjectID, 42);
+    createBlock(LimestonePolishedObjectID, 42);
+    createBlock(LimestoneShinglesObjectID, 42);
 
-    createBlock(EmberstoneObjectID, 14);
-    createBlock(MoonstoneObjectID, 17);
-    createBlock(SunstoneObjectID, 14);
+    createBlock(EmberstoneObjectID, 130);
+    createBlock(MoonstoneObjectID, 157);
+    createBlock(SunstoneObjectID, 115);
 
-    createBlock(GlassObjectID, 11);
-    createBlock(MushroomLeatherBlockObjectID, 8);
+    createBlock(GlassObjectID, 7);
+    createBlock(MushroomLeatherBlockObjectID, 10);
 
     createItem(SilverBarObjectID);
     createItem(GoldBarObjectID);
@@ -102,10 +102,10 @@ contract InitThermoblastSystem is System {
     createItem(ChipObjectID);
     createItem(ChipBatteryObjectID);
 
-    createBlock(SilverCubeObjectID, 4608);
-    createBlock(GoldCubeObjectID, 6400);
-    createBlock(DiamondCubeObjectID, 11520);
-    createBlock(NeptuniumCubeObjectID, 17920);
+    createBlock(SilverCubeObjectID, 140);
+    createBlock(GoldCubeObjectID, 140);
+    createBlock(DiamondCubeObjectID, 140);
+    createBlock(NeptuniumCubeObjectID, 140);
   }
 
   function initThermoblastRecipes() public {
@@ -194,10 +194,10 @@ contract InitThermoblastSystem is System {
 
     createSingleInputWithStationRecipe(ThermoblasterObjectID, RedMushroomObjectID, 4, MushroomLeatherBlockObjectID, 1);
 
-    createSingleInputWithStationRecipe(ThermoblasterObjectID, SilverOreObjectID, 4, SilverBarObjectID, 1);
-    createSingleInputWithStationRecipe(ThermoblasterObjectID, GoldOreObjectID, 4, GoldBarObjectID, 1);
-    createSingleInputWithStationRecipe(ThermoblasterObjectID, DiamondOreObjectID, 4, DiamondObjectID, 1);
-    createSingleInputWithStationRecipe(ThermoblasterObjectID, NeptuniumOreObjectID, 4, NeptuniumBarObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, SilverOreObjectID, 1, SilverBarObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, GoldOreObjectID, 1, GoldBarObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, DiamondOreObjectID, 1, DiamondObjectID, 1);
+    createSingleInputWithStationRecipe(ThermoblasterObjectID, NeptuniumOreObjectID, 1, NeptuniumBarObjectID, 1);
 
     createSingleInputWithStationRecipe(ThermoblasterObjectID, GoldBarObjectID, 8, GoldCubeObjectID, 1);
     createSingleInputWithStationRecipe(ThermoblasterObjectID, GoldCubeObjectID, 1, GoldBarObjectID, 8);
