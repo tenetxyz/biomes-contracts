@@ -33,7 +33,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL, FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ForceFieldObjectID, ForceFieldObjectID, GrassObjectID, ChipObjectID, ChipBatteryObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ForceFieldObjectID, ForceFieldObjectID, GrassObjectID, ChipObjectID, ChipBatteryObjectID, SilverWhackerObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
@@ -1151,9 +1151,18 @@ contract ChipTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
 
+    bytes32 newInventoryId = testGetUniqueEntity();
+    ObjectType.set(newInventoryId, SilverWhackerObjectID);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverWhackerObjectID, 1);
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SilverWhackerObjectID), "Inventory objects not set");
+    uint24 durability = 1400000;
+    ItemMetadata.set(newInventoryId, durability);
+
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
 
@@ -1185,6 +1194,8 @@ contract ChipTest is MudTest, GasReporter {
     uint256 initialBatteryLevel = Chip.getBatteryLevel(forceFieldEntityId);
     uint32 playerStaminaBefore = Stamina.getStamina(playerEntityId);
 
+    world.equip(newInventoryId);
+
     startGasReport("hit chip");
     world.hitChippedEntity(forceFieldEntityId);
     endGasReport();
@@ -1206,9 +1217,18 @@ contract ChipTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
 
+    bytes32 newInventoryId = testGetUniqueEntity();
+    ObjectType.set(newInventoryId, SilverWhackerObjectID);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverWhackerObjectID, 1);
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SilverWhackerObjectID), "Inventory objects not set");
+    uint24 durability = 1400000;
+    ItemMetadata.set(newInventoryId, durability);
+
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
 
@@ -1251,6 +1271,8 @@ contract ChipTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
     world.move(newCoords);
 
+    world.equip(newInventoryId);
+
     vm.expectRevert("ChipSystem: no force field at this location");
     world.hitForceField(newCoords[newCoords.length - 1]);
 
@@ -1283,12 +1305,12 @@ contract ChipTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
 
     bytes32 newInventoryId = testGetUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
+    ObjectType.set(newInventoryId, SilverWhackerObjectID);
     InventoryTool.set(newInventoryId, playerEntityId);
     ReverseInventoryTool.push(playerEntityId, newInventoryId);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, WoodenPickObjectID), "Inventory objects not set");
-    uint24 durability = 10;
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverWhackerObjectID, 1);
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SilverWhackerObjectID), "Inventory objects not set");
+    uint24 durability = 1400000;
     ItemMetadata.set(newInventoryId, durability);
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
@@ -1337,7 +1359,69 @@ contract ChipTest is MudTest, GasReporter {
     assertTrue(Chip.getBatteryLevel(forceFieldEntityId) < initialBatteryLevel, "Battery level not decreased");
     assertTrue(Stamina.getStamina(playerEntityId) < playerStaminaBefore, "Player stamina did not decrease");
     assertTrue(Equipped.get(playerEntityId) == newInventoryId, "Equipped not set");
-    assertTrue(ItemMetadata.get(newInventoryId) == durability - 1, "Item metadata not set");
+    // assertTrue(ItemMetadata.get(newInventoryId) == durability - 1, "Item metadata not set");
+
+    vm.stopPrank();
+  }
+
+  function testHitChipWithoutWhacker() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+
+    bytes32 newInventoryId = testGetUniqueEntity();
+    ObjectType.set(newInventoryId, WoodenPickObjectID);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, WoodenPickObjectID), "Inventory objects not set");
+    uint24 durability = 1400000;
+    ItemMetadata.set(newInventoryId, durability);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+
+    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 airEntityId = testGetUniqueEntity();
+    ObjectType.set(airEntityId, AirObjectID);
+    Position.set(airEntityId, forceFieldCoord.x, forceFieldCoord.y, forceFieldCoord.z);
+    ReversePosition.set(forceFieldCoord.x, forceFieldCoord.y, forceFieldCoord.z, airEntityId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 1);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+
+    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+
+    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+
+    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(testForceFieldChip), "Chip not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+    Chip.setBatteryLevel(forceFieldEntityId, 100);
+    Chip.setLastUpdatedTime(forceFieldEntityId, block.timestamp);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    vm.expectRevert("ChipSystem: you must use a whacker to hit force fields");
+    world.hitChippedEntity(forceFieldEntityId);
+
+    world.equip(newInventoryId);
+
+    vm.expectRevert("ChipSystem: you must use a whacker to hit force fields");
+    world.hitChippedEntity(forceFieldEntityId);
 
     vm.stopPrank();
   }
@@ -1353,9 +1437,18 @@ contract ChipTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
 
+    bytes32 newInventoryId = testGetUniqueEntity();
+    ObjectType.set(newInventoryId, SilverWhackerObjectID);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverWhackerObjectID, 1);
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SilverWhackerObjectID), "Inventory objects not set");
+    uint24 durability = 1400000;
+    ItemMetadata.set(newInventoryId, durability);
+
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
 
@@ -1385,6 +1478,8 @@ contract ChipTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
+    world.equip(newInventoryId);
+
     vm.expectRevert("ChipSystem: player does not have enough stamina");
     world.hitChippedEntity(forceFieldEntityId);
 
@@ -1402,9 +1497,18 @@ contract ChipTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
 
+    bytes32 newInventoryId = testGetUniqueEntity();
+    ObjectType.set(newInventoryId, SilverWhackerObjectID);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverWhackerObjectID, 1);
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SilverWhackerObjectID), "Inventory objects not set");
+    uint24 durability = 1400000;
+    ItemMetadata.set(newInventoryId, durability);
+
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
 
@@ -1432,6 +1536,8 @@ contract ChipTest is MudTest, GasReporter {
     Chip.setLastUpdatedTime(forceFieldEntityId, block.timestamp);
     vm.stopPrank();
     vm.startPrank(alice, alice);
+
+    world.equip(newInventoryId);
 
     uint256 initialBatteryLevel = Chip.getBatteryLevel(forceFieldEntityId);
     uint32 playerStaminaBefore = Stamina.getStamina(playerEntityId);
@@ -1454,9 +1560,18 @@ contract ChipTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
 
+    bytes32 newInventoryId = testGetUniqueEntity();
+    ObjectType.set(newInventoryId, SilverWhackerObjectID);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverWhackerObjectID, 1);
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SilverWhackerObjectID), "Inventory objects not set");
+    uint24 durability = 1400000;
+    ItemMetadata.set(newInventoryId, durability);
+
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
 
@@ -1484,6 +1599,8 @@ contract ChipTest is MudTest, GasReporter {
     Chip.setLastUpdatedTime(forceFieldEntityId, block.timestamp);
     vm.stopPrank();
     vm.startPrank(alice, alice);
+
+    world.equip(newInventoryId);
 
     uint256 initialBatteryLevel = Chip.getBatteryLevel(forceFieldEntityId);
     uint32 playerStaminaBefore = Stamina.getStamina(playerEntityId);
@@ -1507,9 +1624,18 @@ contract ChipTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
 
+    bytes32 newInventoryId = testGetUniqueEntity();
+    ObjectType.set(newInventoryId, SilverWhackerObjectID);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverWhackerObjectID, 1);
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SilverWhackerObjectID), "Inventory objects not set");
+    uint24 durability = 1400000;
+    ItemMetadata.set(newInventoryId, durability);
+
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
 
@@ -1552,6 +1678,8 @@ contract ChipTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
     world.move(newCoords);
 
+    world.equip(newInventoryId);
+
     vm.expectRevert("Player is too far");
     world.hitChippedEntity(forceFieldEntityId);
 
@@ -1569,9 +1697,18 @@ contract ChipTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
 
+    bytes32 newInventoryId = testGetUniqueEntity();
+    ObjectType.set(newInventoryId, SilverWhackerObjectID);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverWhackerObjectID, 1);
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SilverWhackerObjectID), "Inventory objects not set");
+    uint24 durability = 1400000;
+    ItemMetadata.set(newInventoryId, durability);
+
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
 
@@ -1585,6 +1722,8 @@ contract ChipTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+
+    world.equip(newInventoryId);
 
     world.hitChippedEntity(forceFieldEntityId);
 

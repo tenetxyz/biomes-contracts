@@ -34,7 +34,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL, FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ChestObjectID, GrassObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ChestObjectID, GrassObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, SilverWhackerObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType, getForceField } from "./utils/TestUtils.sol";
@@ -271,13 +271,22 @@ contract ForceFieldTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
     testAddToInventoryCount(playerEntityId2, PlayerObjectID, inputObjectTypeId1, 2);
 
+    bytes32 newInventoryId = testGetUniqueEntity();
+    ObjectType.set(newInventoryId, SilverWhackerObjectID);
+    InventoryTool.set(newInventoryId, playerEntityId2);
+    ReverseInventoryTool.push(playerEntityId2, newInventoryId);
+    testAddToInventoryCount(playerEntityId2, PlayerObjectID, SilverWhackerObjectID, 1);
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId2, SilverWhackerObjectID), "Inventory objects not set");
+    uint24 durability = 1400000;
+    ItemMetadata.set(newInventoryId, durability);
+
     assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 2, "Input object not added to inventory");
     assertTrue(InventorySlots.get(playerEntityId) == 4, "Inventory slot not set");
-    assertTrue(InventorySlots.get(playerEntityId2) == 1, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId2) == 2, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ForceFieldObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
@@ -357,6 +366,7 @@ contract ForceFieldTest is MudTest, GasReporter {
     vm.startPrank(bob, bob);
 
     // Mine force field object
+    world.equip(newInventoryId);
     world.hitChippedEntity(forceFieldEntityId);
     world.detachChip(forceFieldEntityId);
     world.mine(forceFieldCoord);

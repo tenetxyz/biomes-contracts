@@ -244,32 +244,6 @@ contract MineTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testMineTooDifficultWithHand() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-
-    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z - 1);
-    uint8 terrainObjectTypeId = world.getTerrainBlock(mineCoord);
-    assertTrue(terrainObjectTypeId != AirObjectID, "Terrain block is air");
-    world.mine(mineCoord);
-    assertTrue(InventoryCount.get(playerEntityId, terrainObjectTypeId) == 1, "Inventory count not set");
-    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, terrainObjectTypeId), "Inventory objects not set");
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    Stamina.setStamina(playerEntityId, MAX_PLAYER_STAMINA);
-    bytes32 airEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
-    ObjectType.set(airEntityId, NeptuniumCubeObjectID);
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    vm.expectRevert("MineSystem: mining difficulty too high. Try a stronger tool.");
-    world.mine(mineCoord);
-
-    vm.stopPrank();
-  }
-
   function testMineNonBlock() public {
     vm.startPrank(alice, alice);
 

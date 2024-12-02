@@ -27,8 +27,10 @@ contract MineHelperSystem is System {
   ) public {
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
     uint16 equippedToolDamage = PLAYER_HAND_DAMAGE;
+    uint8 equippedObjectTypeId;
     if (equippedEntityId != bytes32(0)) {
-      equippedToolDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
+      equippedObjectTypeId = ObjectType._get(equippedEntityId);
+      equippedToolDamage = ObjectTypeMetadata._getDamage(equippedObjectTypeId);
     }
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
     uint32 staminaRequired = MINE_STAMINA_COST;
@@ -39,7 +41,7 @@ contract MineHelperSystem is System {
     useEquipped(
       playerEntityId,
       equippedEntityId,
-      mineObjectTypeId,
+      equippedObjectTypeId,
       (uint24(miningDifficulty) * uint24(1000)) / equippedToolDamage
     );
 
