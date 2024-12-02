@@ -26,17 +26,22 @@ contract MineHelperSystem is System {
     VoxelCoord[] memory coords
   ) public {
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
-    uint32 equippedToolDamage = PLAYER_HAND_DAMAGE;
+    uint16 equippedToolDamage = PLAYER_HAND_DAMAGE;
     if (equippedEntityId != bytes32(0)) {
       equippedToolDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
     }
-    uint16 miningDifficulty = ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId);
     uint32 currentStamina = Stamina._getStamina(playerEntityId);
     uint32 staminaRequired = MINE_STAMINA_COST;
     require(currentStamina >= staminaRequired, "MineSystem: not enough stamina");
     Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
 
-    useEquipped(playerEntityId, equippedEntityId, uint24((miningDifficulty * 1000) / equippedToolDamage));
+    uint16 miningDifficulty = ObjectTypeMetadata._getMiningDifficulty(mineObjectTypeId);
+    useEquipped(
+      playerEntityId,
+      equippedEntityId,
+      mineObjectTypeId,
+      (uint24(miningDifficulty) * uint24(1000)) / equippedToolDamage
+    );
 
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 

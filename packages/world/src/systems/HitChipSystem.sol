@@ -53,7 +53,7 @@ contract HitChipSystem is System {
     uint8 equippedObjectTypeId = ObjectType._get(equippedEntityId);
     require(isWhacker(equippedObjectTypeId), "ChipSystem: you must use a whacker to hit force fields");
     uint16 receiverDamage = ObjectTypeMetadata._getDamage(equippedObjectTypeId);
-    useEquipped(playerEntityId, equippedEntityId, 10);
+    useEquipped(playerEntityId, equippedEntityId, equippedObjectTypeId, 10);
 
     // uint256 l1GasPriceWei = getL1GasPrice();
     // // Ensure that the gas price is at least 8 gwei

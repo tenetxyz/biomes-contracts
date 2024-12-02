@@ -79,7 +79,12 @@ function removeFromInventoryCount(bytes32 ownerEntityId, uint8 objectTypeId, uin
   }
 }
 
-function useEquipped(bytes32 entityId, bytes32 inventoryEntityId, uint24 durabilityDecrease) {
+function useEquipped(
+  bytes32 entityId,
+  bytes32 inventoryEntityId,
+  uint8 inventoryObjectTypeId,
+  uint24 durabilityDecrease
+) {
   if (inventoryEntityId != bytes32(0)) {
     uint24 durabilityLeft = ItemMetadata._get(inventoryEntityId);
     // Allow mining even if durability is exactly or less than required, then break the tool
@@ -88,7 +93,7 @@ function useEquipped(bytes32 entityId, bytes32 inventoryEntityId, uint24 durabil
     if (durabilityLeft <= durabilityDecrease) {
       // Tool will break after this use, but allow mining
       // Destroy equipped item
-      removeFromInventoryCount(entityId, ObjectType._get(inventoryEntityId), 1);
+      removeFromInventoryCount(entityId, inventoryObjectTypeId, 1);
       ItemMetadata._deleteRecord(inventoryEntityId);
       InventoryTool._deleteRecord(inventoryEntityId);
       removeEntityIdFromReverseInventoryTool(entityId, inventoryEntityId);
