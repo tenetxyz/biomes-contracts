@@ -58,6 +58,7 @@ contract ReadScript is Script {
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     console.log("Entity at position:");
     console.logBytes32(entityId);
+    console.logUint(ObjectType.get(entityId));
     ChipData memory chipData = Chip.get(entityId);
     console.log("Chip data:");
     console.logAddress(chipData.chipAddress);
