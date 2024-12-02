@@ -82,8 +82,11 @@ function removeFromInventoryCount(bytes32 ownerEntityId, uint8 objectTypeId, uin
 function useEquipped(bytes32 entityId, bytes32 inventoryEntityId, uint24 durabilityDecrease) {
   if (inventoryEntityId != bytes32(0)) {
     uint24 durabilityLeft = ItemMetadata._get(inventoryEntityId);
-    require(durabilityLeft >= durabilityDecrease, "Not enough durability");
-    if (durabilityLeft == durabilityDecrease) {
+    // Allow mining even if durability is exactly or less than required, then break the tool
+    require(durabilityLeft > 0, "Tool is already broken");
+
+    if (durabilityLeft <= durabilityDecrease) {
+      // Tool will break after this use, but allow mining
       // Destroy equipped item
       removeFromInventoryCount(entityId, ObjectType._get(inventoryEntityId), 1);
       ItemMetadata._deleteRecord(inventoryEntityId);
