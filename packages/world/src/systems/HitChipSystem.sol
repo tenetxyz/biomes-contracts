@@ -21,6 +21,7 @@ import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../u
 import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { isWhacker } from "../utils/ObjectTypeUtils.sol";
 import { positionDataToVoxelCoord, safeCallChip, callMintXP, getL1GasPrice } from "../Utils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
@@ -46,11 +47,12 @@ contract HitChipSystem is System {
       Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
     }
 
-    uint16 receiverDamage = PLAYER_HAND_DAMAGE;
+    // uint16 receiverDamage = PLAYER_HAND_DAMAGE;
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
-    if (equippedEntityId != bytes32(0)) {
-      receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
-    }
+    require(equippedEntityId != bytes32(0), "ChipSystem: you must use a whacker to hit force fields");
+    uint8 equippedObjectTypeId = ObjectType._get(equippedEntityId);
+    require(isWhacker(equippedObjectTypeId), "ChipSystem: you must use a whacker to hit force fields");
+    uint16 receiverDamage = ObjectTypeMetadata._getDamage(equippedObjectTypeId);
     useEquipped(playerEntityId, equippedEntityId, 10);
 
     // uint256 l1GasPriceWei = getL1GasPrice();
