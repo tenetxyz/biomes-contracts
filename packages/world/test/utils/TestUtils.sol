@@ -211,12 +211,9 @@ function testStaticCallProcGenSystem(VoxelCoord memory coord, uint256 randomNumb
 }
 
 function testStaticCallInternalSystem(bytes memory callData) view returns (bytes memory) {
-  (ResourceId systemId, bytes4 systemFunctionSelector) = FunctionSelectors.get(bytes4(callData));
-  (address systemAddress, ) = Systems.get(systemId);
-
-  (bool success, bytes memory returnData) = systemAddress.staticcall(
+  (bool success, bytes memory returnData) = WorldContextConsumerLib._world().staticcall(
     WorldContextProviderLib.appendContext({
-      callData: Bytes.setBytes4(callData, 0, systemFunctionSelector),
+      callData: callData,
       msgSender: WorldContextConsumerLib._msgSender(),
       msgValue: WorldContextConsumerLib._msgValue()
     })

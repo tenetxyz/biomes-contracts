@@ -24,7 +24,7 @@ import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { Position, PositionData } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { Chip } from "../src/codegen/tables/Chip.sol";
+import { Chip, ChipData } from "../src/codegen/tables/Chip.sol";
 import { ShardField } from "../src/codegen/tables/ShardField.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
@@ -54,10 +54,14 @@ contract ReadScript is Script {
     console.logBytes32(playerEntityId);
     console.logBool(PlayerMetadata.getIsLoggedOff(playerEntityId));
 
-    VoxelCoord memory coord = VoxelCoord(-35, 22, -211);
+    VoxelCoord memory coord = VoxelCoord(150, 1, -160);
     bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
     console.log("Entity at position:");
     console.logBytes32(entityId);
+    ChipData memory chipData = Chip.get(entityId);
+    console.log("Chip data:");
+    console.logAddress(chipData.chipAddress);
+    console.logUint(chipData.batteryLevel);
     VoxelCoord memory shardCoord = coordToShardCoord(coord, FORCE_FIELD_SHARD_DIM);
     bytes32 forceFieldEntityId = ShardField.get(shardCoord.x, shardCoord.y, shardCoord.z);
     if (forceFieldEntityId == bytes32(0)) {
