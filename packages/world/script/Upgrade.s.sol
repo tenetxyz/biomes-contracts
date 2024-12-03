@@ -10,7 +10,7 @@ import { Unstable_CallWithSignatureSystem } from "@latticexyz/world-modules/src/
 import { DELEGATION_SYSTEM_ID } from "@latticexyz/world-modules/src/modules/callwithsignature/constants.sol";
 import { Recipes } from "../src/codegen/tables/Recipes.sol";
 import { ChestMetadata, ChestMetadataData } from "../src/codegen/tables/ChestMetadata.sol";
-import { BedrockObjectID, ChestObjectID, AnyReinforcedLumberObjectID, SandObjectID, CoalOreObjectID, ChipBatteryObjectID, GlassObjectID, StoneObjectID, QuartziteObjectID, LimestoneObjectID, EmberstoneObjectID, MoonstoneObjectID, SunstoneObjectID } from "../src/ObjectTypeIds.sol";
+import { BedrockObjectID, ChestObjectID, AnyReinforcedLumberObjectID, SandObjectID, CoalOreObjectID, ChipBatteryObjectID, GlassObjectID, StoneObjectID, QuartziteObjectID, LimestoneObjectID, EmberstoneObjectID, MoonstoneObjectID, SunstoneObjectID, GoldOreObjectID, GoldBarObjectID, SilverOreObjectID, SilverBarObjectID, DiamondOreObjectID, DiamondObjectID, NeptuniumOreObjectID, NeptuniumBarObjectID } from "../src/ObjectTypeIds.sol";
 
 import { IERC165 } from "@latticexyz/store/src/IERC165.sol";
 
@@ -46,26 +46,20 @@ contract Upgrade is Script {
     // IWorld(worldAddress).initThermoblastObjectTypes();
     // IWorld(worldAddress).initThermoblastRecipes();
 
-    bytes32 recipeId1 = keccak256(abi.encodePacked(CoalOreObjectID, uint8(1), ChipBatteryObjectID, uint8(1)));
-    bytes32 recipeId2 = keccak256(
-      abi.encodePacked(SandObjectID, uint8(2), CoalOreObjectID, uint8(1), GlassObjectID, uint8(1))
-    );
-    bytes32 recipeId3 = keccak256(
-      abi.encodePacked(StoneObjectID, uint8(4), CoalOreObjectID, uint8(4), EmberstoneObjectID, uint8(4))
-    );
-    bytes32 recipeId4 = keccak256(
-      abi.encodePacked(QuartziteObjectID, uint8(4), CoalOreObjectID, uint8(4), MoonstoneObjectID, uint8(4))
-    );
-    bytes32 recipeId5 = keccak256(
-      abi.encodePacked(LimestoneObjectID, uint8(4), CoalOreObjectID, uint8(4), SunstoneObjectID, uint8(4))
-    );
+    bytes32 recipeId1 = keccak256(abi.encodePacked(GoldOreObjectID, uint8(4), GoldBarObjectID, uint8(1)));
+    bytes32 recipeId2 = keccak256(abi.encodePacked(SilverOreObjectID, uint8(4), SilverBarObjectID, uint8(1)));
+    bytes32 recipeId3 = keccak256(abi.encodePacked(DiamondOreObjectID, uint8(4), DiamondObjectID, uint8(1)));
+    bytes32 recipeId4 = keccak256(abi.encodePacked(NeptuniumOreObjectID, uint8(4), NeptuniumBarObjectID, uint8(1)));
+    // bytes32 recipeId5 = keccak256(
+    //   abi.encodePacked(LimestoneObjectID, uint8(4), CoalOreObjectID, uint8(4), SunstoneObjectID, uint8(4))
+    // );
 
     console.log("recipe");
     console.logUint(Recipes.getOutputObjectTypeId(recipeId1));
     console.logUint(Recipes.getOutputObjectTypeId(recipeId2));
     console.logUint(Recipes.getOutputObjectTypeId(recipeId3));
     console.logUint(Recipes.getOutputObjectTypeId(recipeId4));
-    console.logUint(Recipes.getOutputObjectTypeId(recipeId5));
+    // console.logUint(Recipes.getOutputObjectTypeId(recipeId5));
 
     // Recipes.deleteRecord(recipeId1);
     // Recipes.deleteRecord(recipeId2);

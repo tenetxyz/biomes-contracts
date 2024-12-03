@@ -33,6 +33,7 @@ import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObj
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID, PowerStoneObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount, testRemoveEntityIdFromReverseInventoryTool } from "../test/utils/TestUtils.sol";
+import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
 
 contract ReadScript is Script {
@@ -54,11 +55,16 @@ contract ReadScript is Script {
     console.logBytes32(playerEntityId);
     console.logBool(PlayerMetadata.getIsLoggedOff(playerEntityId));
 
-    VoxelCoord memory coord = VoxelCoord(150, 1, -160);
-    bytes32 entityId = ReversePosition.get(coord.x, coord.y, coord.z);
+    // VoxelCoord memory coord = VoxelCoord(150, 1, -160);
+    bytes32 entityId = 0x00000000000000000000000000000000000000000000000000000000002a4960;
     console.log("Entity at position:");
     console.logBytes32(entityId);
     console.logUint(ObjectType.get(entityId));
+    VoxelCoord memory coord = positionDataToVoxelCoord(Position.get(entityId));
+    console.log("Coord");
+    console.logInt(coord.x);
+    console.logInt(coord.y);
+    console.logInt(coord.z);
     ChipData memory chipData = Chip.get(entityId);
     console.log("Chip data:");
     console.logAddress(chipData.chipAddress);
