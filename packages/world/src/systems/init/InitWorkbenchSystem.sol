@@ -44,26 +44,26 @@ contract InitWorkbenchSystem is System {
   }
 
   function initWorkbenchObjectTypes() public {
-    createTool(StonePickObjectID, 900, 120);
-    createTool(StoneAxeObjectID, 900, 120);
-    createTool(StoneWhackerObjectID, 10, 120);
+    createTool(StonePickObjectID, 100000, 120);
+    createTool(StoneAxeObjectID, 100000, 120);
+    createTool(StoneWhackerObjectID, 100000, 120);
 
-    createTool(SilverPickObjectID, 3600, 160);
-    createTool(SilverAxeObjectID, 3600, 160);
-    createTool(SilverWhackerObjectID, 15, 160);
+    createTool(SilverPickObjectID, 1400000, 160);
+    createTool(SilverAxeObjectID, 1400000, 160);
+    createTool(SilverWhackerObjectID, 1400000, 160);
 
-    createTool(GoldPickObjectID, 14400, 200);
-    createTool(GoldAxeObjectID, 14400, 200);
+    createTool(GoldPickObjectID, 1200000, 200);
+    createTool(GoldAxeObjectID, 1200000, 200);
 
-    createTool(DiamondPickObjectID, 57600, 230);
-    createTool(DiamondAxeObjectID, 57600, 240);
+    createTool(DiamondPickObjectID, 1900000, 240);
+    createTool(DiamondAxeObjectID, 1900000, 240);
 
-    createTool(NeptuniumPickObjectID, 230400, 280);
-    createTool(NeptuniumAxeObjectID, 230400, 280);
+    createTool(NeptuniumPickObjectID, 5500000, 280);
+    createTool(NeptuniumAxeObjectID, 5500000, 280);
 
-    createBlock(ReinforcedOakLumberObjectID, 24);
-    createBlock(ReinforcedRubberLumberObjectID, 8);
-    createBlock(ReinforcedBirchLumberObjectID, 24);
+    createBlock(ReinforcedOakLumberObjectID, 140);
+    createBlock(ReinforcedRubberLumberObjectID, 140);
+    createBlock(ReinforcedBirchLumberObjectID, 140);
   }
 
   function initWorkbenchRecipes() public {

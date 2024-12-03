@@ -21,6 +21,7 @@ import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../u
 import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { isWhacker } from "../utils/ObjectTypeUtils.sol";
 import { positionDataToVoxelCoord, safeCallChip, callMintXP, getL1GasPrice } from "../Utils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
@@ -38,6 +39,7 @@ contract HitChipSystem is System {
     }
 
     uint8 objectTypeId = ObjectType._get(chipEntityId);
+    uint16 miningDifficulty = ObjectTypeMetadata._getMiningDifficulty(objectTypeId);
 
     {
       uint32 currentStamina = Stamina._getStamina(playerEntityId);
@@ -46,12 +48,17 @@ contract HitChipSystem is System {
       Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
     }
 
-    uint16 receiverDamage = PLAYER_HAND_DAMAGE;
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
-    if (equippedEntityId != bytes32(0)) {
-      receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
-    }
-    useEquipped(playerEntityId, equippedEntityId);
+    require(equippedEntityId != bytes32(0), "ChipSystem: you must use a whacker to hit force fields");
+    uint8 equippedObjectTypeId = ObjectType._get(equippedEntityId);
+    require(isWhacker(equippedObjectTypeId), "ChipSystem: you must use a whacker to hit force fields");
+    uint16 equippedToolDamage = ObjectTypeMetadata._getDamage(equippedObjectTypeId);
+    useEquipped(
+      playerEntityId,
+      equippedEntityId,
+      equippedObjectTypeId,
+      (uint24(miningDifficulty) * uint24(1000)) / equippedToolDamage
+    );
 
     // uint256 l1GasPriceWei = getL1GasPrice();
     // // Ensure that the gas price is at least 8 gwei
@@ -59,7 +66,7 @@ contract HitChipSystem is System {
     //   l1GasPriceWei = 8 gwei;
     // }
 
-    uint256 decreaseBatteryLevel = (receiverDamage * 117) / 100;
+    uint256 decreaseBatteryLevel = (equippedToolDamage * 117) / 100;
     uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel
       ? chipData.batteryLevel - decreaseBatteryLevel
       : 0;

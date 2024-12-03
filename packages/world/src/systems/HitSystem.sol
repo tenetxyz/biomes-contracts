@@ -24,52 +24,52 @@ contract HitSystem is System {
   function hit(address hitPlayer) public {
     revert("HitSystem: cannot hit players in the current version");
 
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    (bytes32 hitEntityId, VoxelCoord memory hitCoord) = requireValidPlayer(hitPlayer);
-    require(playerEntityId != hitEntityId, "HitSystem: cannot hit yourself");
-    requireBesidePlayer(playerCoord, hitCoord);
+    // (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    // (bytes32 hitEntityId, VoxelCoord memory hitCoord) = requireValidPlayer(hitPlayer);
+    // require(playerEntityId != hitEntityId, "HitSystem: cannot hit yourself");
+    // requireBesidePlayer(playerCoord, hitCoord);
 
-    // Update stamina and health
-    uint32 currentStamina = Stamina._getStamina(playerEntityId);
-    uint16 staminaRequired = HIT_PLAYER_STAMINA_COST;
-    require(currentStamina >= staminaRequired, "HitSystem: player does not have enough stamina");
-    Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
+    // // Update stamina and health
+    // uint32 currentStamina = Stamina._getStamina(playerEntityId);
+    // uint16 staminaRequired = HIT_PLAYER_STAMINA_COST;
+    // require(currentStamina >= staminaRequired, "HitSystem: player does not have enough stamina");
+    // Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
 
-    uint16 receiverDamage = PLAYER_HAND_DAMAGE;
-    bytes32 equippedEntityId = Equipped._get(playerEntityId);
-    if (equippedEntityId != bytes32(0)) {
-      receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
-    }
+    // uint16 receiverDamage = PLAYER_HAND_DAMAGE;
+    // bytes32 equippedEntityId = Equipped._get(playerEntityId);
+    // if (equippedEntityId != bytes32(0)) {
+    //   receiverDamage = ObjectTypeMetadata._getDamage(ObjectType._get(equippedEntityId));
+    // }
 
-    uint16 currentHealth = Health._getHealth(hitEntityId);
-    uint16 newHealth = currentHealth > receiverDamage ? currentHealth - receiverDamage : 0;
-    Health._setHealth(hitEntityId, newHealth);
+    // uint16 currentHealth = Health._getHealth(hitEntityId);
+    // uint16 newHealth = currentHealth > receiverDamage ? currentHealth - receiverDamage : 0;
+    // Health._setHealth(hitEntityId, newHealth);
 
-    useEquipped(playerEntityId, equippedEntityId);
+    // useEquipped(playerEntityId, equippedEntityId, 10);
 
-    if (newHealth == 0) {
-      despawnPlayer(hitEntityId);
+    // if (newHealth == 0) {
+    //   despawnPlayer(hitEntityId);
 
-      VoxelCoord memory aboveCoord = VoxelCoord(hitCoord.x, hitCoord.y + 1, hitCoord.z);
-      bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-      if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
-        callGravity(aboveEntityId, aboveCoord);
-      }
-    } else {
-      PlayerMetadata._setLastHitTime(hitEntityId, block.timestamp);
-    }
+    //   VoxelCoord memory aboveCoord = VoxelCoord(hitCoord.x, hitCoord.y + 1, hitCoord.z);
+    //   bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+    //   if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+    //     callGravity(aboveEntityId, aboveCoord);
+    //   }
+    // } else {
+    //   PlayerMetadata._setLastHitTime(hitEntityId, block.timestamp);
+    // }
 
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Hit,
-        entityId: hitEntityId,
-        objectTypeId: PlayerObjectID,
-        coordX: hitCoord.x,
-        coordY: hitCoord.y,
-        coordZ: hitCoord.z,
-        amount: newHealth
-      })
-    );
+    // PlayerActionNotif._set(
+    //   playerEntityId,
+    //   PlayerActionNotifData({
+    //     actionType: ActionType.Hit,
+    //     entityId: hitEntityId,
+    //     objectTypeId: PlayerObjectID,
+    //     coordX: hitCoord.x,
+    //     coordY: hitCoord.y,
+    //     coordZ: hitCoord.z,
+    //     amount: newHealth
+    //   })
+    // );
   }
 }

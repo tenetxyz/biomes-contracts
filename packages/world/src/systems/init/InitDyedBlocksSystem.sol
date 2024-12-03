@@ -31,19 +31,19 @@ contract InitDyedBlocksSystem is System {
   }
 
   function initDyedObjectTypes() public {
-    createDyedBlock(BlueOakLumberObjectID, 3);
-    createDyedBlock(BrownOakLumberObjectID, 3);
-    createDyedBlock(GreenOakLumberObjectID, 3);
-    createDyedBlock(MagentaOakLumberObjectID, 3);
-    createDyedBlock(OrangeOakLumberObjectID, 3);
-    createDyedBlock(PinkOakLumberObjectID, 3);
-    createDyedBlock(PurpleOakLumberObjectID, 3);
-    createDyedBlock(RedOakLumberObjectID, 3);
-    createDyedBlock(TanOakLumberObjectID, 3);
-    createDyedBlock(WhiteOakLumberObjectID, 3);
-    createDyedBlock(YellowOakLumberObjectID, 3);
-    createDyedBlock(BlackOakLumberObjectID, 3);
-    createDyedBlock(SilverOakLumberObjectID, 3);
+    createDyedBlock(BlueOakLumberObjectID, 20);
+    createDyedBlock(BrownOakLumberObjectID, 20);
+    createDyedBlock(GreenOakLumberObjectID, 20);
+    createDyedBlock(MagentaOakLumberObjectID, 20);
+    createDyedBlock(OrangeOakLumberObjectID, 20);
+    createDyedBlock(PinkOakLumberObjectID, 20);
+    createDyedBlock(PurpleOakLumberObjectID, 20);
+    createDyedBlock(RedOakLumberObjectID, 20);
+    createDyedBlock(TanOakLumberObjectID, 20);
+    createDyedBlock(WhiteOakLumberObjectID, 20);
+    createDyedBlock(YellowOakLumberObjectID, 20);
+    createDyedBlock(BlackOakLumberObjectID, 20);
+    createDyedBlock(SilverOakLumberObjectID, 20);
 
     createDyedBlock(BlueCottonBlockObjectID, 5);
     createDyedBlock(BrownCottonBlockObjectID, 5);
@@ -59,15 +59,15 @@ contract InitDyedBlocksSystem is System {
     createDyedBlock(BlackCottonBlockObjectID, 5);
     createDyedBlock(SilverCottonBlockObjectID, 5);
 
-    createDyedBlock(BlueGlassObjectID, 12);
-    createDyedBlock(GreenGlassObjectID, 12);
-    createDyedBlock(OrangeGlassObjectID, 12);
-    createDyedBlock(PinkGlassObjectID, 12);
-    createDyedBlock(PurpleGlassObjectID, 12);
-    createDyedBlock(RedGlassObjectID, 12);
-    createDyedBlock(WhiteGlassObjectID, 12);
-    createDyedBlock(YellowGlassObjectID, 12);
-    createDyedBlock(BlackGlassObjectID, 12);
+    createDyedBlock(BlueGlassObjectID, 7);
+    createDyedBlock(GreenGlassObjectID, 7);
+    createDyedBlock(OrangeGlassObjectID, 7);
+    createDyedBlock(PinkGlassObjectID, 7);
+    createDyedBlock(PurpleGlassObjectID, 7);
+    createDyedBlock(RedGlassObjectID, 7);
+    createDyedBlock(WhiteGlassObjectID, 7);
+    createDyedBlock(YellowGlassObjectID, 7);
+    createDyedBlock(BlackGlassObjectID, 7);
   }
 
   function initDyedRecipes() public {

@@ -39,6 +39,13 @@ function isAxe(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == DiamondAxeObjectID;
 }
 
+function isWhacker(uint8 objectTypeId) pure returns (bool) {
+  return
+    objectTypeId == WoodenWhackerObjectID ||
+    objectTypeId == StoneWhackerObjectID ||
+    objectTypeId == SilverWhackerObjectID;
+}
+
 function isLog(uint8 objectTypeId) pure returns (bool) {
   return
     objectTypeId == OakLogObjectID ||
