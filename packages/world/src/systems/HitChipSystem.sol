@@ -85,7 +85,7 @@ contract HitChipSystem is System {
       })
     );
 
-    callMintXP(playerEntityId, initialGas, 1);
+    // callMintXP(playerEntityId, initialGas, 1);
 
     safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onChipHit, (playerEntityId, chipEntityId)));
   }
