@@ -35,7 +35,7 @@ uint16 constant HEALTH_INCREASE_RATE = 20;
 uint16 constant TIME_BEFORE_DECREASE_BATTERY_LEVEL = 1 minutes;
 
 uint16 constant GRAVITY_DAMAGE = 100;
-uint16 constant PLAYER_HAND_DAMAGE = 20;
+uint16 constant PLAYER_HAND_DAMAGE = 200;
 uint16 constant HIT_PLAYER_STAMINA_COST = 250;
 uint16 constant GRAVITY_STAMINA_COST = 10;
 uint16 constant MINE_STAMINA_COST = 60;
