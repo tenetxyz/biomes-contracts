@@ -22,6 +22,7 @@ import { MAX_PLAYER_RESPAWN_HALF_WIDTH, IN_MAINTENANCE } from "../Constants.sol"
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, getTerrainObjectTypeId } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 
 contract LoginSystem is System {
   function loginPlayer(VoxelCoord memory respawnCoord) public {
@@ -72,9 +73,13 @@ contract LoginSystem is System {
 
     PlayerActivity._set(playerEntityId, block.timestamp);
 
+    // TODO: Remove after farming update
+    regenHealth(playerEntityId);
+    regenStamina(playerEntityId, respawnCoord);
+
     // Reset update time to current time
-    Health._setLastUpdatedTime(playerEntityId, block.timestamp);
-    Stamina._setLastUpdatedTime(playerEntityId, block.timestamp);
+    // Health._setLastUpdatedTime(playerEntityId, block.timestamp);
+    // Stamina._setLastUpdatedTime(playerEntityId, block.timestamp);
 
     // We let the user pick a y coord, so we need to apply gravity
     require(!gravityApplies(respawnCoord), "LoginSystem: cannot respawn player with gravity");

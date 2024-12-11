@@ -91,7 +91,9 @@ function regenStamina(bytes32 entityId, VoxelCoord memory entityCoord) {
   }
 
   // Calculate the new stamina
-  bool isInWater = getTerrainObjectTypeId(entityCoord) == WaterObjectID;
+  // bool isInWater = getTerrainObjectTypeId(entityCoord) == WaterObjectID;
+  // TODO: Update after farming update
+  bool isInWater = false;
 
   // Calculate the new stamina
   uint256 numAddStamina = (timeSinceLastUpdate / TIME_BEFORE_INCREASE_STAMINA) *
