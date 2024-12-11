@@ -93,7 +93,13 @@ export async function setupNetwork() {
     txData: WriteContractParameters<abi, functionName, args, chain, account, chainOverride>,
     label: string | undefined = undefined,
   ) {
-    const txHash = await walletClient.writeContract(txData);
+    let txHash: Hex;
+    try {
+      txHash = await walletClient.writeContract(txData);
+    } catch (e) {
+      console.error(e);
+      return [false, e];
+    }
     console.log(`${label ?? txData.functionName} txHash: ${txHash}`);
     const receipt = await publicClient.waitForTransactionReceipt({
       hash: txHash,
@@ -108,10 +114,11 @@ export async function setupNetwork() {
         await publicClient.simulateContract(txData);
       } catch (e) {
         console.error(e);
-        throw new Error(`Failed to simulate ${txData.functionName}`);
+        return [false, e];
       }
     }
     console.log(`${label ?? txData.functionName} gasUsed: ${receipt.gasUsed.toLocaleString()}`);
+    return [true, receipt];
   }
 
   return {
