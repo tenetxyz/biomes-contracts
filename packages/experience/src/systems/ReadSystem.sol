@@ -57,7 +57,6 @@ contract ReadSystem is System {
         worldEntityData: blockEntityData,
         chipAttacher: ChipAttachment.get(entityId),
         chestMetadata: ChestMetadata.get(entityId),
-        itemShopData: ItemShop.get(entityId),
         ffMetadata: FFMetadata.get(entityId),
         forceFieldApprovalsData: ForceFieldApprovals.get(entityId),
         gateApprovalsData: GateApprovals.get(entityId),
