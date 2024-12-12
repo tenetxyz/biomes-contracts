@@ -637,6 +637,237 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__getBlockEntityDataWithGateApprovals",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct BlockExperienceEntityDataWithGateApprovals",
+        "components": [
+          {
+            "name": "worldEntityData",
+            "type": "tuple",
+            "internalType": "struct BlockEntityData",
+            "components": [
+              {
+                "name": "entityId",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "baseEntityId",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "position",
+                "type": "tuple",
+                "internalType": "struct VoxelCoord",
+                "components": [
+                  {
+                    "name": "x",
+                    "type": "int16",
+                    "internalType": "int16"
+                  },
+                  {
+                    "name": "y",
+                    "type": "int16",
+                    "internalType": "int16"
+                  },
+                  {
+                    "name": "z",
+                    "type": "int16",
+                    "internalType": "int16"
+                  }
+                ]
+              },
+              {
+                "name": "inventory",
+                "type": "tuple[]",
+                "internalType": "struct InventoryObject[]",
+                "components": [
+                  {
+                    "name": "objectTypeId",
+                    "type": "uint8",
+                    "internalType": "uint8"
+                  },
+                  {
+                    "name": "numObjects",
+                    "type": "uint16",
+                    "internalType": "uint16"
+                  },
+                  {
+                    "name": "tools",
+                    "type": "tuple[]",
+                    "internalType": "struct InventoryTool[]",
+                    "components": [
+                      {
+                        "name": "entityId",
+                        "type": "bytes32",
+                        "internalType": "bytes32"
+                      },
+                      {
+                        "name": "numUsesLeft",
+                        "type": "uint24",
+                        "internalType": "uint24"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "chip",
+                "type": "tuple",
+                "internalType": "struct ChipData",
+                "components": [
+                  {
+                    "name": "chipAddress",
+                    "type": "address",
+                    "internalType": "address"
+                  },
+                  {
+                    "name": "batteryLevel",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "lastUpdatedTime",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "chipAttacher",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "chestMetadata",
+            "type": "tuple",
+            "internalType": "struct ChestMetadataData",
+            "components": [
+              {
+                "name": "name",
+                "type": "string",
+                "internalType": "string"
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "internalType": "string"
+              }
+            ]
+          },
+          {
+            "name": "itemShopData",
+            "type": "tuple",
+            "internalType": "struct ItemShopData",
+            "components": [
+              {
+                "name": "shopType",
+                "type": "uint8",
+                "internalType": "enum ShopType"
+              },
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "buyPrice",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "sellPrice",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "paymentToken",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "balance",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "ffMetadata",
+            "type": "tuple",
+            "internalType": "struct FFMetadataData",
+            "components": [
+              {
+                "name": "name",
+                "type": "string",
+                "internalType": "string"
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "internalType": "string"
+              }
+            ]
+          },
+          {
+            "name": "forceFieldApprovalsData",
+            "type": "tuple",
+            "internalType": "struct ForceFieldApprovalsData",
+            "components": [
+              {
+                "name": "players",
+                "type": "address[]",
+                "internalType": "address[]"
+              },
+              {
+                "name": "nfts",
+                "type": "address[]",
+                "internalType": "address[]"
+              }
+            ]
+          },
+          {
+            "name": "gateApprovalsData",
+            "type": "tuple",
+            "internalType": "struct GateApprovalsData",
+            "components": [
+              {
+                "name": "players",
+                "type": "address[]",
+                "internalType": "address[]"
+              },
+              {
+                "name": "nfts",
+                "type": "address[]",
+                "internalType": "address[]"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "experience__getBlocksEntityData",
     "inputs": [
       {
@@ -831,6 +1062,237 @@ declare const abi: [
             "name": "forceFieldApprovalsData",
             "type": "tuple",
             "internalType": "struct ForceFieldApprovalsData",
+            "components": [
+              {
+                "name": "players",
+                "type": "address[]",
+                "internalType": "address[]"
+              },
+              {
+                "name": "nfts",
+                "type": "address[]",
+                "internalType": "address[]"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "experience__getBlocksEntityDataWithGateApprovals",
+    "inputs": [
+      {
+        "name": "entityIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "internalType": "struct BlockExperienceEntityDataWithGateApprovals[]",
+        "components": [
+          {
+            "name": "worldEntityData",
+            "type": "tuple",
+            "internalType": "struct BlockEntityData",
+            "components": [
+              {
+                "name": "entityId",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "baseEntityId",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "position",
+                "type": "tuple",
+                "internalType": "struct VoxelCoord",
+                "components": [
+                  {
+                    "name": "x",
+                    "type": "int16",
+                    "internalType": "int16"
+                  },
+                  {
+                    "name": "y",
+                    "type": "int16",
+                    "internalType": "int16"
+                  },
+                  {
+                    "name": "z",
+                    "type": "int16",
+                    "internalType": "int16"
+                  }
+                ]
+              },
+              {
+                "name": "inventory",
+                "type": "tuple[]",
+                "internalType": "struct InventoryObject[]",
+                "components": [
+                  {
+                    "name": "objectTypeId",
+                    "type": "uint8",
+                    "internalType": "uint8"
+                  },
+                  {
+                    "name": "numObjects",
+                    "type": "uint16",
+                    "internalType": "uint16"
+                  },
+                  {
+                    "name": "tools",
+                    "type": "tuple[]",
+                    "internalType": "struct InventoryTool[]",
+                    "components": [
+                      {
+                        "name": "entityId",
+                        "type": "bytes32",
+                        "internalType": "bytes32"
+                      },
+                      {
+                        "name": "numUsesLeft",
+                        "type": "uint24",
+                        "internalType": "uint24"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "chip",
+                "type": "tuple",
+                "internalType": "struct ChipData",
+                "components": [
+                  {
+                    "name": "chipAddress",
+                    "type": "address",
+                    "internalType": "address"
+                  },
+                  {
+                    "name": "batteryLevel",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "lastUpdatedTime",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "chipAttacher",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "chestMetadata",
+            "type": "tuple",
+            "internalType": "struct ChestMetadataData",
+            "components": [
+              {
+                "name": "name",
+                "type": "string",
+                "internalType": "string"
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "internalType": "string"
+              }
+            ]
+          },
+          {
+            "name": "itemShopData",
+            "type": "tuple",
+            "internalType": "struct ItemShopData",
+            "components": [
+              {
+                "name": "shopType",
+                "type": "uint8",
+                "internalType": "enum ShopType"
+              },
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "buyPrice",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "sellPrice",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "paymentToken",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "balance",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "ffMetadata",
+            "type": "tuple",
+            "internalType": "struct FFMetadataData",
+            "components": [
+              {
+                "name": "name",
+                "type": "string",
+                "internalType": "string"
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "internalType": "string"
+              }
+            ]
+          },
+          {
+            "name": "forceFieldApprovalsData",
+            "type": "tuple",
+            "internalType": "struct ForceFieldApprovalsData",
+            "components": [
+              {
+                "name": "players",
+                "type": "address[]",
+                "internalType": "address[]"
+              },
+              {
+                "name": "nfts",
+                "type": "address[]",
+                "internalType": "address[]"
+              }
+            ]
+          },
+          {
+            "name": "gateApprovalsData",
+            "type": "tuple",
+            "internalType": "struct GateApprovalsData",
             "components": [
               {
                 "name": "players",
