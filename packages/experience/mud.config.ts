@@ -8,6 +8,7 @@ export default defineWorld({
   enums: {
     ChipType: ["None", "Chest", "ForceField", "Display"],
     ShopType: ["None", "Buy", "Sell", "BuySell"],
+    ExchangeType: ["None", "In", "Out", "InOut"],
     ShopTxType: ["None", "Buy", "Sell"],
   },
   userTypes: {
@@ -61,15 +62,19 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    ItemShop: {
+    ExchangeChest: {
       schema: {
         entityId: "bytes32",
-        shopType: "ShopType",
-        objectTypeId: "uint8",
-        buyPrice: "uint256",
-        sellPrice: "uint256",
-        paymentToken: "address",
-        balance: "uint256",
+        exchangeType: "ExchangeType",
+        inToken: "address",
+        inNFT: "address",
+        inObjectTypeId: "uint8",
+        inAmount: "uint256",
+        outToken: "address",
+        outNFT: "address",
+        outObjectTypeId: "uint8",
+        outAmount: "uint256",
+        outBalance: "uint256",
       },
       key: ["entityId"],
       codegen: {
@@ -174,6 +179,26 @@ export default defineWorld({
         amount: "uint16",
         price: "uint256",
         paymentToken: "address",
+      },
+      key: ["chestEntityId"],
+      type: "offchainTable",
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    ExchangeChestNotif: {
+      schema: {
+        chestEntityId: "bytes32",
+        player: "address",
+        exchangeType: "ExchangeType",
+        inToken: "address",
+        inNFT: "address",
+        inObjectTypeId: "uint8",
+        inAmount: "uint256",
+        outToken: "address",
+        outNFT: "address",
+        outObjectTypeId: "uint8",
+        outAmount: "uint256",
       },
       key: ["chestEntityId"],
       type: "offchainTable",
@@ -299,6 +324,24 @@ export default defineWorld({
         baseURI: "string",
       },
       key: ["nft"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    // -------------------
+    // DEPRECATED TABLES
+    // -------------------
+    ItemShop: {
+      schema: {
+        entityId: "bytes32",
+        shopType: "ShopType",
+        objectTypeId: "uint8",
+        buyPrice: "uint256",
+        sellPrice: "uint256",
+        paymentToken: "address",
+        balance: "uint256",
+      },
+      key: ["entityId"],
       codegen: {
         storeArgument: true,
       },

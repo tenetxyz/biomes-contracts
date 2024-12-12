@@ -12,7 +12,8 @@ import { ChestMetadata, ChestMetadata } from "../codegen/tables/ChestMetadata.so
 import { FFMetadata } from "../codegen/tables/FFMetadata.sol";
 import { ForceFieldApprovals, ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
 import { GateApprovals, GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
-import { BlockExperienceEntityData, BlockExperienceEntityDataWithGateApprovals } from "../Types.sol";
+import { ExchangeChest, ExchangeChestData } from "../codegen/tables/ExchangeChest.sol";
+import { BlockExperienceEntityData, BlockExperienceEntityDataWithGateApprovals, BlockExperienceEntityDataWithExchangeChest } from "../Types.sol";
 
 contract ReadSystem is System {
   function getBlockEntityData(bytes32 entityId) public view returns (BlockExperienceEntityData memory) {
@@ -46,6 +47,24 @@ contract ReadSystem is System {
       });
   }
 
+  function getBlockEntityDataWithExchangeChest(
+    bytes32 entityId
+  ) public view returns (BlockExperienceEntityDataWithExchangeChest memory) {
+    BlockEntityData memory blockEntityData = IWorld(_world()).getBlockEntityData(entityId);
+
+    return
+      BlockExperienceEntityDataWithExchangeChest({
+        worldEntityData: blockEntityData,
+        chipAttacher: ChipAttachment.get(entityId),
+        chestMetadata: ChestMetadata.get(entityId),
+        itemShopData: ItemShop.get(entityId),
+        ffMetadata: FFMetadata.get(entityId),
+        forceFieldApprovalsData: ForceFieldApprovals.get(entityId),
+        gateApprovalsData: GateApprovals.get(entityId),
+        exchangeChestData: ExchangeChest.get(entityId)
+      });
+  }
+
   function getBlocksEntityData(bytes32[] memory entityIds) public view returns (BlockExperienceEntityData[] memory) {
     BlockExperienceEntityData[] memory blockExperienceEntityData = new BlockExperienceEntityData[](entityIds.length);
     for (uint256 i = 0; i < entityIds.length; i++) {
@@ -61,6 +80,17 @@ contract ReadSystem is System {
       memory blockExperienceEntityData = new BlockExperienceEntityDataWithGateApprovals[](entityIds.length);
     for (uint256 i = 0; i < entityIds.length; i++) {
       blockExperienceEntityData[i] = getBlockEntityDataWithGateApprovals(entityIds[i]);
+    }
+    return blockExperienceEntityData;
+  }
+
+  function getBlocksEntityDataWithExchangeChest(
+    bytes32[] memory entityIds
+  ) public view returns (BlockExperienceEntityDataWithExchangeChest[] memory) {
+    BlockExperienceEntityDataWithExchangeChest[]
+      memory blockExperienceEntityData = new BlockExperienceEntityDataWithExchangeChest[](entityIds.length);
+    for (uint256 i = 0; i < entityIds.length; i++) {
+      blockExperienceEntityData[i] = getBlockEntityDataWithExchangeChest(entityIds[i]);
     }
     return blockExperienceEntityData;
   }

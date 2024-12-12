@@ -238,6 +238,19 @@
   },
   {
     "type": "function",
+    "name": "experience__deleteExchangeChest",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteExperienceMetadata",
     "inputs": [],
     "outputs": [],
@@ -1907,6 +1920,130 @@
     "inputs": [
       {
         "name": "countdownEndTimestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeChest",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeChestData",
+        "type": "tuple",
+        "internalType": "struct ExchangeChestData",
+        "components": [
+          {
+            "name": "exchangeType",
+            "type": "uint8",
+            "internalType": "enum ExchangeType"
+          },
+          {
+            "name": "inToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "inNFT",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "inObjectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "inAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "outToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "outNFT",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "outObjectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "outAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "outBalance",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeChestInAmount",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "inAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeChestOutAmount",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "outAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeChestOutBalance",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "balance",
         "type": "uint256",
         "internalType": "uint256"
       }
