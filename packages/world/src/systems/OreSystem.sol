@@ -12,7 +12,9 @@ import { Player } from "../codegen/tables/Player.sol";
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Position } from "../codegen/tables/Position.sol";
+import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
@@ -24,9 +26,9 @@ import { BlockPrevrandao } from "../codegen/tables/BlockPrevrandao.sol";
 
 import { MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID } from "../ObjectTypeIds.sol";
-import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getTerrainAndOreObjectTypeId, getUniqueEntity, callMintXP, positionDataToVoxelCoord, getRandomNumberBetween0And99 } from "../Utils.sol";
+import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getTerrainAndOreObjectTypeId, getUniqueEntity, callMintXP, positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getRandomNumberBetween0And99 } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { requireValidPlayer, requireInPlayerInfluence, regenStamina } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
@@ -91,7 +93,15 @@ contract OreSystem is System {
     if (oreObjectTypeId == LavaObjectID) {
       // Apply consequences of lava
       if (ObjectType._get(terrainCommitmentData.committerEntityId) == PlayerObjectID) {
-        Stamina._set(terrainCommitmentData.committerEntityId, block.timestamp, 0);
+        VoxelCoord memory committerCoord = PlayerMetadata._getIsLoggedOff(terrainCommitmentData.committerEntityId)
+          ? lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(terrainCommitmentData.committerEntityId))
+          : positionDataToVoxelCoord(Position._get(terrainCommitmentData.committerEntityId));
+        uint32 currentStamina = regenStamina(terrainCommitmentData.committerEntityId, committerCoord);
+
+        uint32 staminaRequired = MAX_PLAYER_STAMINA / 2;
+        uint32 newStamina = currentStamina > staminaRequired ? currentStamina - staminaRequired : 0;
+        Stamina._set(terrainCommitmentData.committerEntityId, block.timestamp, newStamina);
+
         PlayerActionNotif._set(
           terrainCommitmentData.committerEntityId,
           PlayerActionNotifData({

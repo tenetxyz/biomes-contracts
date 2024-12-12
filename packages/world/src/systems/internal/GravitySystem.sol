@@ -15,7 +15,7 @@ import { GRAVITY_DAMAGE, GRAVITY_STAMINA_COST } from "../../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
-import { regenHealth, despawnPlayer } from "../../utils/PlayerUtils.sol";
+import { regenHealth, regenStamina, despawnPlayer } from "../../utils/PlayerUtils.sol";
 
 contract GravitySystem is System {
   function runGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) public returns (bool) {
@@ -56,7 +56,7 @@ contract GravitySystem is System {
     }
 
     // TODO: Update to be health
-    uint32 currentStamina = Stamina._getStamina(playerEntityId);
+    uint32 currentStamina = regenStamina(playerEntityId, belowCoord);
     if (currentStamina > 0) {
       uint16 staminaRequired = GRAVITY_STAMINA_COST;
       uint32 newStamina = currentStamina > staminaRequired ? currentStamina - staminaRequired : 0;

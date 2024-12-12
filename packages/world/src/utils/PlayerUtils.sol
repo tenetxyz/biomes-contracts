@@ -78,16 +78,16 @@ function regenHealth(bytes32 entityId) returns (uint16) {
   return newHealth;
 }
 
-function regenStamina(bytes32 entityId, VoxelCoord memory entityCoord) {
+function regenStamina(bytes32 entityId, VoxelCoord memory entityCoord) returns (uint32) {
   StaminaData memory staminaData = Stamina._get(entityId);
   if (staminaData.stamina >= MAX_PLAYER_STAMINA) {
-    return;
+    return staminaData.stamina;
   }
 
   // Calculate how much time has passed since last update
   uint256 timeSinceLastUpdate = block.timestamp - staminaData.lastUpdatedTime;
   if (timeSinceLastUpdate <= TIME_BEFORE_INCREASE_STAMINA) {
-    return;
+    return staminaData.stamina;
   }
 
   // Calculate the new stamina
@@ -103,6 +103,7 @@ function regenStamina(bytes32 entityId, VoxelCoord memory entityCoord) {
     : staminaData.stamina + uint32(numAddStamina);
 
   Stamina._set(entityId, StaminaData({ stamina: newStamina, lastUpdatedTime: block.timestamp }));
+  return newStamina;
 }
 
 function despawnPlayer(bytes32 playerEntityId) {

@@ -226,9 +226,11 @@ contract OreTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
+    uint32 staminaBefore = Stamina.getStamina(playerEntityId);
+
     world.revealOre(lavaOreCoord);
 
-    assertTrue(Stamina.getStamina(playerEntityId) == 0, "Stamina not set");
+    assertTrue(Stamina.getStamina(playerEntityId) == staminaBefore - MAX_PLAYER_STAMINA / 2, "Stamina not set");
 
     bytes32 mineEntityId = ReversePosition.get(lavaOreCoord.x, lavaOreCoord.y, lavaOreCoord.z);
     assertTrue(mineEntityId != bytes32(0), "Entity id not set");
