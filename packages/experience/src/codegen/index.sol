@@ -10,6 +10,7 @@ import { ChipAttachment } from "./tables/ChipAttachment.sol";
 import { ItemShop, ItemShopData } from "./tables/ItemShop.sol";
 import { ChestMetadata, ChestMetadataData } from "./tables/ChestMetadata.sol";
 import { FFMetadata, FFMetadataData } from "./tables/FFMetadata.sol";
+import { GateApprovals, GateApprovalsData } from "./tables/GateApprovals.sol";
 import { ForceFieldApprovals, ForceFieldApprovalsData } from "./tables/ForceFieldApprovals.sol";
 import { DisplayStatus } from "./tables/DisplayStatus.sol";
 import { DisplayRegisterMsg } from "./tables/DisplayRegisterMsg.sol";

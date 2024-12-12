@@ -12,6 +12,7 @@ import { ItemShopData } from "../codegen/tables/ItemShop.sol";
 import { FFMetadataData } from "../codegen/tables/FFMetadata.sol";
 import { ChestMetadataData } from "../codegen/tables/ChestMetadata.sol";
 import { ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
+import { GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
 import { ItemShopNotifData } from "../codegen/tables/ItemShopNotif.sol";
 
 function setChipMetadata(ChipMetadataData memory metadata) {
@@ -148,4 +149,44 @@ function emitShopNotif(bytes32 chestEntityId, ItemShopNotifData memory notifData
 
 function deleteShopNotif(bytes32 chestEntityId) {
   IWorld(WorldContextConsumerLib._world()).experience__deleteShopNotif(chestEntityId);
+}
+
+function setGateApprovals(bytes32 entityId, GateApprovalsData memory approvals) {
+  IWorld(WorldContextConsumerLib._world()).experience__setGateApprovals(entityId, approvals);
+}
+
+function deleteGateApprovals(bytes32 entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteGateApprovals(entityId);
+}
+
+function setGateApprovedPlayers(bytes32 entityId, address[] memory players) {
+  IWorld(WorldContextConsumerLib._world()).experience__setGateApprovedPlayers(entityId, players);
+}
+
+function pushGateApprovedPlayer(bytes32 entityId, address player) {
+  IWorld(WorldContextConsumerLib._world()).experience__pushGateApprovedPlayer(entityId, player);
+}
+
+function popGateApprovedPlayer(bytes32 entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__popGateApprovedPlayer(entityId);
+}
+
+function updateGateApprovedPlayer(bytes32 entityId, uint256 index, address player) {
+  IWorld(WorldContextConsumerLib._world()).experience__updateGateApprovedPlayer(entityId, index, player);
+}
+
+function setGateApprovedNFT(bytes32 entityId, address[] memory nfts) {
+  IWorld(WorldContextConsumerLib._world()).experience__setGateApprovedNFT(entityId, nfts);
+}
+
+function pushGateApprovedNFT(bytes32 entityId, address nft) {
+  IWorld(WorldContextConsumerLib._world()).experience__pushGateApprovedNFT(entityId, nft);
+}
+
+function popGateApprovedNFT(bytes32 entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__popGateApprovedNFT(entityId);
+}
+
+function updateGateApprovedNFT(bytes32 entityId, uint256 index, address nft) {
+  IWorld(WorldContextConsumerLib._world()).experience__updateGateApprovedNFT(entityId, index, nft);
 }

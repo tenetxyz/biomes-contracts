@@ -98,6 +98,17 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    GateApprovals: {
+      schema: {
+        entityId: "bytes32",
+        players: "address[]",
+        nfts: "address[]",
+      },
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     ForceFieldApprovals: {
       schema: {
         entityId: "bytes32",
