@@ -4,33 +4,58 @@ pragma solidity >=0.8.24;
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { ExchangeChest, ExchangeChestData } from "../codegen/tables/ExchangeChest.sol";
-import { ExchangeType } from "../codegen/common.sol";
+import { ExchangeInChest, ExchangeInChestData } from "../codegen/tables/ExchangeInChest.sol";
+import { ExchangeOutChest, ExchangeOutChestData } from "../codegen/tables/ExchangeOutChest.sol";
 import { requireChipOwner, requireChipOwnerOrNoOwner } from "../Utils.sol";
 
 contract ExchangeSystem is System {
-  function setExchangeChest(bytes32 entityId, ExchangeChestData memory exchangeChestData) public {
+  function setExchangeInChest(bytes32 entityId, ExchangeInChestData memory exchangeInChestData) public {
     requireChipOwner(entityId);
-    ExchangeChest.set(entityId, exchangeChestData);
+    ExchangeInChest.set(entityId, exchangeInChestData);
   }
 
-  function deleteExchangeChest(bytes32 entityId) public {
+  function deleteExchangeInChest(bytes32 entityId) public {
     requireChipOwnerOrNoOwner(entityId);
-    ExchangeChest.deleteRecord(entityId);
+    ExchangeInChest.deleteRecord(entityId);
   }
 
-  function setExchangeChestOutBalance(bytes32 entityId, uint256 balance) public {
+  function setExchangeOutChest(bytes32 entityId, ExchangeOutChestData memory exchangeOutChestData) public {
     requireChipOwner(entityId);
-    ExchangeChest.setOutBalance(entityId, balance);
+    ExchangeOutChest.set(entityId, exchangeOutChestData);
   }
 
-  function setExchangeChestInAmount(bytes32 entityId, uint256 inAmount) public {
-    requireChipOwner(entityId);
-    ExchangeChest.setInAmount(entityId, inAmount);
+  function deleteExchangeOutChest(bytes32 entityId) public {
+    requireChipOwnerOrNoOwner(entityId);
+    ExchangeOutChest.deleteRecord(entityId);
   }
 
-  function setExchangeChestOutAmount(bytes32 entityId, uint256 outAmount) public {
+  function setExchangeInChestInUnitAmount(bytes32 entityId, uint256 inUnitAmount) public {
     requireChipOwner(entityId);
-    ExchangeChest.setOutAmount(entityId, outAmount);
+    ExchangeInChest.setInUnitAmount(entityId, inUnitAmount);
+  }
+
+  function setExchangeInChestOutUnitAmount(bytes32 entityId, uint256 outUnitAmount) public {
+    requireChipOwner(entityId);
+    ExchangeInChest.setOutUnitAmount(entityId, outUnitAmount);
+  }
+
+  function setExchangeInChestOutBalance(bytes32 entityId, uint256 balance) public {
+    requireChipOwner(entityId);
+    ExchangeInChest.setOutBalance(entityId, balance);
+  }
+
+  function setExchangeOutChestInUnitAmount(bytes32 entityId, uint256 inUnitAmount) public {
+    requireChipOwner(entityId);
+    ExchangeOutChest.setInUnitAmount(entityId, inUnitAmount);
+  }
+
+  function setExchangeOutChestOutUnitAmount(bytes32 entityId, uint256 outUnitAmount) public {
+    requireChipOwner(entityId);
+    ExchangeOutChest.setOutUnitAmount(entityId, outUnitAmount);
+  }
+
+  function setExchangeOutChestOutBalance(bytes32 entityId, uint256 balance) public {
+    requireChipOwner(entityId);
+    ExchangeOutChest.setOutBalance(entityId, balance);
   }
 }

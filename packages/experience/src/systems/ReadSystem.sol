@@ -12,7 +12,8 @@ import { ChestMetadata, ChestMetadata } from "../codegen/tables/ChestMetadata.so
 import { FFMetadata } from "../codegen/tables/FFMetadata.sol";
 import { ForceFieldApprovals, ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
 import { GateApprovals, GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
-import { ExchangeChest, ExchangeChestData } from "../codegen/tables/ExchangeChest.sol";
+import { ExchangeInChest, ExchangeInChestData } from "../codegen/tables/ExchangeInChest.sol";
+import { ExchangeOutChest, ExchangeOutChestData } from "../codegen/tables/ExchangeOutChest.sol";
 import { BlockExperienceEntityData, BlockExperienceEntityDataWithGateApprovals, BlockExperienceEntityDataWithExchangeChest } from "../Types.sol";
 
 contract ReadSystem is System {
@@ -60,7 +61,8 @@ contract ReadSystem is System {
         ffMetadata: FFMetadata.get(entityId),
         forceFieldApprovalsData: ForceFieldApprovals.get(entityId),
         gateApprovalsData: GateApprovals.get(entityId),
-        exchangeChestData: ExchangeChest.get(entityId)
+        exchangeInChestData: ExchangeInChest.get(entityId),
+        exchangeOutChestData: ExchangeOutChest.get(entityId)
       });
   }
 

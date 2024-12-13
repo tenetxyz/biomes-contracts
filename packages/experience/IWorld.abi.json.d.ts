@@ -238,7 +238,20 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__deleteExchangeChest",
+    "name": "experience__deleteExchangeInChest",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteExchangeOutChest",
     "inputs": [
       {
         "name": "entityId",
@@ -838,15 +851,10 @@ declare const abi: [
             ]
           },
           {
-            "name": "exchangeChestData",
+            "name": "exchangeInChestData",
             "type": "tuple",
-            "internalType": "struct ExchangeChestData",
+            "internalType": "struct ExchangeInChestData",
             "components": [
-              {
-                "name": "exchangeType",
-                "type": "uint8",
-                "internalType": "enum ExchangeType"
-              },
               {
                 "name": "inToken",
                 "type": "address",
@@ -863,7 +871,7 @@ declare const abi: [
                 "internalType": "uint8"
               },
               {
-                "name": "inAmount",
+                "name": "inUnitAmount",
                 "type": "uint256",
                 "internalType": "uint256"
               },
@@ -883,7 +891,59 @@ declare const abi: [
                 "internalType": "uint8"
               },
               {
-                "name": "outAmount",
+                "name": "outUnitAmount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "outBalance",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "exchangeOutChestData",
+            "type": "tuple",
+            "internalType": "struct ExchangeOutChestData",
+            "components": [
+              {
+                "name": "inToken",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "inNFT",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "inObjectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "inUnitAmount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "outToken",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "outNFT",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "outObjectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "outUnitAmount",
                 "type": "uint256",
                 "internalType": "uint256"
               },
@@ -1534,15 +1594,10 @@ declare const abi: [
             ]
           },
           {
-            "name": "exchangeChestData",
+            "name": "exchangeInChestData",
             "type": "tuple",
-            "internalType": "struct ExchangeChestData",
+            "internalType": "struct ExchangeInChestData",
             "components": [
-              {
-                "name": "exchangeType",
-                "type": "uint8",
-                "internalType": "enum ExchangeType"
-              },
               {
                 "name": "inToken",
                 "type": "address",
@@ -1559,7 +1614,7 @@ declare const abi: [
                 "internalType": "uint8"
               },
               {
-                "name": "inAmount",
+                "name": "inUnitAmount",
                 "type": "uint256",
                 "internalType": "uint256"
               },
@@ -1579,7 +1634,59 @@ declare const abi: [
                 "internalType": "uint8"
               },
               {
-                "name": "outAmount",
+                "name": "outUnitAmount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "outBalance",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "exchangeOutChestData",
+            "type": "tuple",
+            "internalType": "struct ExchangeOutChestData",
+            "components": [
+              {
+                "name": "inToken",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "inNFT",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "inObjectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "inUnitAmount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "outToken",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "outNFT",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "outObjectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "outUnitAmount",
                 "type": "uint256",
                 "internalType": "uint256"
               },
@@ -2431,7 +2538,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__setExchangeChest",
+    "name": "experience__setExchangeInChest",
     "inputs": [
       {
         "name": "entityId",
@@ -2439,15 +2546,10 @@ declare const abi: [
         "internalType": "bytes32"
       },
       {
-        "name": "exchangeChestData",
+        "name": "exchangeInChestData",
         "type": "tuple",
-        "internalType": "struct ExchangeChestData",
+        "internalType": "struct ExchangeInChestData",
         "components": [
-          {
-            "name": "exchangeType",
-            "type": "uint8",
-            "internalType": "enum ExchangeType"
-          },
           {
             "name": "inToken",
             "type": "address",
@@ -2464,7 +2566,7 @@ declare const abi: [
             "internalType": "uint8"
           },
           {
-            "name": "inAmount",
+            "name": "inUnitAmount",
             "type": "uint256",
             "internalType": "uint256"
           },
@@ -2484,7 +2586,7 @@ declare const abi: [
             "internalType": "uint8"
           },
           {
-            "name": "outAmount",
+            "name": "outUnitAmount",
             "type": "uint256",
             "internalType": "uint256"
           },
@@ -2501,7 +2603,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__setExchangeChestInAmount",
+    "name": "experience__setExchangeInChestInUnitAmount",
     "inputs": [
       {
         "name": "entityId",
@@ -2509,7 +2611,7 @@ declare const abi: [
         "internalType": "bytes32"
       },
       {
-        "name": "inAmount",
+        "name": "inUnitAmount",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -2519,25 +2621,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__setExchangeChestOutAmount",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "outAmount",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "experience__setExchangeChestOutBalance",
+    "name": "experience__setExchangeInChestOutBalance",
     "inputs": [
       {
         "name": "entityId",
@@ -2546,6 +2630,143 @@ declare const abi: [
       },
       {
         "name": "balance",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeInChestOutUnitAmount",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "outUnitAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeOutChest",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeOutChestData",
+        "type": "tuple",
+        "internalType": "struct ExchangeOutChestData",
+        "components": [
+          {
+            "name": "inToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "inNFT",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "inObjectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "inUnitAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "outToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "outNFT",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "outObjectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "outUnitAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "outBalance",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeOutChestInUnitAmount",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "inUnitAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeOutChestOutBalance",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "balance",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeOutChestOutUnitAmount",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "outUnitAmount",
         "type": "uint256",
         "internalType": "uint256"
       }

@@ -16,12 +16,8 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-// Import user types
-import { ExchangeType } from "./../common.sol";
-
 struct ExchangeChestNotifData {
   address player;
-  ExchangeType exchangeType;
   address inToken;
   address inNFT;
   uint8 inObjectTypeId;
@@ -37,12 +33,12 @@ library ExchangeChestNotif {
   ResourceId constant _tableId = ResourceId.wrap(0x6f74657870657269656e63650000000045786368616e676543686573744e6f74);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x00a70a0014011414012014140120000000000000000000000000000000000000);
+    FieldLayout.wrap(0x00a6090014141401201414012000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (address, uint8, address, address, uint8, uint256, address, address, uint8, uint256)
-  Schema constant _valueSchema = Schema.wrap(0x00a70a0061006161001f6161001f000000000000000000000000000000000000);
+  // Hex-encoded value schema of (address, address, address, uint8, uint256, address, address, uint8, uint256)
+  Schema constant _valueSchema = Schema.wrap(0x00a60900616161001f6161001f00000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -58,17 +54,16 @@ library ExchangeChestNotif {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](10);
+    fieldNames = new string[](9);
     fieldNames[0] = "player";
-    fieldNames[1] = "exchangeType";
-    fieldNames[2] = "inToken";
-    fieldNames[3] = "inNFT";
-    fieldNames[4] = "inObjectTypeId";
-    fieldNames[5] = "inAmount";
-    fieldNames[6] = "outToken";
-    fieldNames[7] = "outNFT";
-    fieldNames[8] = "outObjectTypeId";
-    fieldNames[9] = "outAmount";
+    fieldNames[1] = "inToken";
+    fieldNames[2] = "inNFT";
+    fieldNames[3] = "inObjectTypeId";
+    fieldNames[4] = "inAmount";
+    fieldNames[5] = "outToken";
+    fieldNames[6] = "outNFT";
+    fieldNames[7] = "outObjectTypeId";
+    fieldNames[8] = "outAmount";
   }
 
   /**
@@ -123,43 +118,13 @@ library ExchangeChestNotif {
   }
 
   /**
-   * @notice Set exchangeType.
-   */
-  function setExchangeType(bytes32 chestEntityId, ExchangeType exchangeType) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = chestEntityId;
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(uint8(exchangeType)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set exchangeType.
-   */
-  function _setExchangeType(bytes32 chestEntityId, ExchangeType exchangeType) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = chestEntityId;
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(uint8(exchangeType)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set exchangeType (using the specified store).
-   */
-  function setExchangeType(IStore _store, bytes32 chestEntityId, ExchangeType exchangeType) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = chestEntityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(uint8(exchangeType)), _fieldLayout);
-  }
-
-  /**
    * @notice Set inToken.
    */
   function setInToken(bytes32 chestEntityId, address inToken) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((inToken)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((inToken)), _fieldLayout);
   }
 
   /**
@@ -169,7 +134,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((inToken)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((inToken)), _fieldLayout);
   }
 
   /**
@@ -179,7 +144,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((inToken)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((inToken)), _fieldLayout);
   }
 
   /**
@@ -189,7 +154,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((inNFT)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((inNFT)), _fieldLayout);
   }
 
   /**
@@ -199,7 +164,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((inNFT)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((inNFT)), _fieldLayout);
   }
 
   /**
@@ -209,7 +174,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((inNFT)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((inNFT)), _fieldLayout);
   }
 
   /**
@@ -219,7 +184,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((inObjectTypeId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((inObjectTypeId)), _fieldLayout);
   }
 
   /**
@@ -229,7 +194,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((inObjectTypeId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((inObjectTypeId)), _fieldLayout);
   }
 
   /**
@@ -239,7 +204,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((inObjectTypeId)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((inObjectTypeId)), _fieldLayout);
   }
 
   /**
@@ -249,7 +214,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((inAmount)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((inAmount)), _fieldLayout);
   }
 
   /**
@@ -259,7 +224,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((inAmount)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((inAmount)), _fieldLayout);
   }
 
   /**
@@ -269,7 +234,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((inAmount)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((inAmount)), _fieldLayout);
   }
 
   /**
@@ -279,7 +244,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((outToken)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((outToken)), _fieldLayout);
   }
 
   /**
@@ -289,7 +254,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((outToken)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((outToken)), _fieldLayout);
   }
 
   /**
@@ -299,7 +264,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((outToken)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((outToken)), _fieldLayout);
   }
 
   /**
@@ -309,7 +274,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((outNFT)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((outNFT)), _fieldLayout);
   }
 
   /**
@@ -319,7 +284,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((outNFT)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((outNFT)), _fieldLayout);
   }
 
   /**
@@ -329,7 +294,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((outNFT)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((outNFT)), _fieldLayout);
   }
 
   /**
@@ -339,7 +304,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((outObjectTypeId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((outObjectTypeId)), _fieldLayout);
   }
 
   /**
@@ -349,7 +314,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((outObjectTypeId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((outObjectTypeId)), _fieldLayout);
   }
 
   /**
@@ -359,7 +324,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((outObjectTypeId)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((outObjectTypeId)), _fieldLayout);
   }
 
   /**
@@ -369,7 +334,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 9, abi.encodePacked((outAmount)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((outAmount)), _fieldLayout);
   }
 
   /**
@@ -379,7 +344,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 9, abi.encodePacked((outAmount)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((outAmount)), _fieldLayout);
   }
 
   /**
@@ -389,7 +354,7 @@ library ExchangeChestNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 9, abi.encodePacked((outAmount)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((outAmount)), _fieldLayout);
   }
 
   /**
@@ -398,7 +363,6 @@ library ExchangeChestNotif {
   function set(
     bytes32 chestEntityId,
     address player,
-    ExchangeType exchangeType,
     address inToken,
     address inNFT,
     uint8 inObjectTypeId,
@@ -410,7 +374,6 @@ library ExchangeChestNotif {
   ) internal {
     bytes memory _staticData = encodeStatic(
       player,
-      exchangeType,
       inToken,
       inNFT,
       inObjectTypeId,
@@ -436,7 +399,6 @@ library ExchangeChestNotif {
   function _set(
     bytes32 chestEntityId,
     address player,
-    ExchangeType exchangeType,
     address inToken,
     address inNFT,
     uint8 inObjectTypeId,
@@ -448,7 +410,6 @@ library ExchangeChestNotif {
   ) internal {
     bytes memory _staticData = encodeStatic(
       player,
-      exchangeType,
       inToken,
       inNFT,
       inObjectTypeId,
@@ -475,7 +436,6 @@ library ExchangeChestNotif {
     IStore _store,
     bytes32 chestEntityId,
     address player,
-    ExchangeType exchangeType,
     address inToken,
     address inNFT,
     uint8 inObjectTypeId,
@@ -487,7 +447,6 @@ library ExchangeChestNotif {
   ) internal {
     bytes memory _staticData = encodeStatic(
       player,
-      exchangeType,
       inToken,
       inNFT,
       inObjectTypeId,
@@ -513,7 +472,6 @@ library ExchangeChestNotif {
   function set(bytes32 chestEntityId, ExchangeChestNotifData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.player,
-      _table.exchangeType,
       _table.inToken,
       _table.inNFT,
       _table.inObjectTypeId,
@@ -539,7 +497,6 @@ library ExchangeChestNotif {
   function _set(bytes32 chestEntityId, ExchangeChestNotifData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.player,
-      _table.exchangeType,
       _table.inToken,
       _table.inNFT,
       _table.inObjectTypeId,
@@ -565,7 +522,6 @@ library ExchangeChestNotif {
   function set(IStore _store, bytes32 chestEntityId, ExchangeChestNotifData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.player,
-      _table.exchangeType,
       _table.inToken,
       _table.inNFT,
       _table.inObjectTypeId,
@@ -595,7 +551,6 @@ library ExchangeChestNotif {
     pure
     returns (
       address player,
-      ExchangeType exchangeType,
       address inToken,
       address inNFT,
       uint8 inObjectTypeId,
@@ -608,23 +563,21 @@ library ExchangeChestNotif {
   {
     player = (address(Bytes.getBytes20(_blob, 0)));
 
-    exchangeType = ExchangeType(uint8(Bytes.getBytes1(_blob, 20)));
+    inToken = (address(Bytes.getBytes20(_blob, 20)));
 
-    inToken = (address(Bytes.getBytes20(_blob, 21)));
+    inNFT = (address(Bytes.getBytes20(_blob, 40)));
 
-    inNFT = (address(Bytes.getBytes20(_blob, 41)));
+    inObjectTypeId = (uint8(Bytes.getBytes1(_blob, 60)));
 
-    inObjectTypeId = (uint8(Bytes.getBytes1(_blob, 61)));
+    inAmount = (uint256(Bytes.getBytes32(_blob, 61)));
 
-    inAmount = (uint256(Bytes.getBytes32(_blob, 62)));
+    outToken = (address(Bytes.getBytes20(_blob, 93)));
 
-    outToken = (address(Bytes.getBytes20(_blob, 94)));
+    outNFT = (address(Bytes.getBytes20(_blob, 113)));
 
-    outNFT = (address(Bytes.getBytes20(_blob, 114)));
+    outObjectTypeId = (uint8(Bytes.getBytes1(_blob, 133)));
 
-    outObjectTypeId = (uint8(Bytes.getBytes1(_blob, 134)));
-
-    outAmount = (uint256(Bytes.getBytes32(_blob, 135)));
+    outAmount = (uint256(Bytes.getBytes32(_blob, 134)));
   }
 
   /**
@@ -640,7 +593,6 @@ library ExchangeChestNotif {
   ) internal pure returns (ExchangeChestNotifData memory _table) {
     (
       _table.player,
-      _table.exchangeType,
       _table.inToken,
       _table.inNFT,
       _table.inObjectTypeId,
@@ -688,7 +640,6 @@ library ExchangeChestNotif {
    */
   function encodeStatic(
     address player,
-    ExchangeType exchangeType,
     address inToken,
     address inNFT,
     uint8 inObjectTypeId,
@@ -699,18 +650,7 @@ library ExchangeChestNotif {
     uint256 outAmount
   ) internal pure returns (bytes memory) {
     return
-      abi.encodePacked(
-        player,
-        exchangeType,
-        inToken,
-        inNFT,
-        inObjectTypeId,
-        inAmount,
-        outToken,
-        outNFT,
-        outObjectTypeId,
-        outAmount
-      );
+      abi.encodePacked(player, inToken, inNFT, inObjectTypeId, inAmount, outToken, outNFT, outObjectTypeId, outAmount);
   }
 
   /**
@@ -721,7 +661,6 @@ library ExchangeChestNotif {
    */
   function encode(
     address player,
-    ExchangeType exchangeType,
     address inToken,
     address inNFT,
     uint8 inObjectTypeId,
@@ -733,7 +672,6 @@ library ExchangeChestNotif {
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(
       player,
-      exchangeType,
       inToken,
       inNFT,
       inObjectTypeId,

@@ -16,13 +16,6 @@ enum ShopType {
   BuySell
 }
 
-enum ExchangeType {
-  None,
-  In,
-  Out,
-  InOut
-}
-
 enum ShopTxType {
   None,
   Buy,

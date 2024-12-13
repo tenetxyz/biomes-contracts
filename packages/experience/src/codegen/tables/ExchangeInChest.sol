@@ -16,33 +16,29 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-// Import user types
-import { ExchangeType } from "./../common.sol";
-
-struct ExchangeChestData {
-  ExchangeType exchangeType;
+struct ExchangeInChestData {
   address inToken;
   address inNFT;
   uint8 inObjectTypeId;
-  uint256 inAmount;
+  uint256 inUnitAmount;
   address outToken;
   address outNFT;
   uint8 outObjectTypeId;
-  uint256 outAmount;
+  uint256 outUnitAmount;
   uint256 outBalance;
 }
 
-library ExchangeChest {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "ExchangeChest", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e63650000000045786368616e67654368657374000000);
+library ExchangeInChest {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "ExchangeInChest", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e63650000000045786368616e6765496e436865737400);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x00b30a0001141401201414012020000000000000000000000000000000000000);
+    FieldLayout.wrap(0x00b2090014140120141401202000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint8, address, address, uint8, uint256, address, address, uint8, uint256, uint256)
-  Schema constant _valueSchema = Schema.wrap(0x00b30a00006161001f6161001f1f000000000000000000000000000000000000);
+  // Hex-encoded value schema of (address, address, uint8, uint256, address, address, uint8, uint256, uint256)
+  Schema constant _valueSchema = Schema.wrap(0x00b209006161001f6161001f1f00000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -58,17 +54,16 @@ library ExchangeChest {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](10);
-    fieldNames[0] = "exchangeType";
-    fieldNames[1] = "inToken";
-    fieldNames[2] = "inNFT";
-    fieldNames[3] = "inObjectTypeId";
-    fieldNames[4] = "inAmount";
-    fieldNames[5] = "outToken";
-    fieldNames[6] = "outNFT";
-    fieldNames[7] = "outObjectTypeId";
-    fieldNames[8] = "outAmount";
-    fieldNames[9] = "outBalance";
+    fieldNames = new string[](9);
+    fieldNames[0] = "inToken";
+    fieldNames[1] = "inNFT";
+    fieldNames[2] = "inObjectTypeId";
+    fieldNames[3] = "inUnitAmount";
+    fieldNames[4] = "outToken";
+    fieldNames[5] = "outNFT";
+    fieldNames[6] = "outObjectTypeId";
+    fieldNames[7] = "outUnitAmount";
+    fieldNames[8] = "outBalance";
   }
 
   /**
@@ -93,76 +88,13 @@ library ExchangeChest {
   }
 
   /**
-   * @notice Get exchangeType.
-   */
-  function getExchangeType(bytes32 entityId) internal view returns (ExchangeType exchangeType) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ExchangeType(uint8(bytes1(_blob)));
-  }
-
-  /**
-   * @notice Get exchangeType.
-   */
-  function _getExchangeType(bytes32 entityId) internal view returns (ExchangeType exchangeType) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ExchangeType(uint8(bytes1(_blob)));
-  }
-
-  /**
-   * @notice Get exchangeType (using the specified store).
-   */
-  function getExchangeType(IStore _store, bytes32 entityId) internal view returns (ExchangeType exchangeType) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ExchangeType(uint8(bytes1(_blob)));
-  }
-
-  /**
-   * @notice Set exchangeType.
-   */
-  function setExchangeType(bytes32 entityId, ExchangeType exchangeType) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(exchangeType)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set exchangeType.
-   */
-  function _setExchangeType(bytes32 entityId, ExchangeType exchangeType) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(exchangeType)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set exchangeType (using the specified store).
-   */
-  function setExchangeType(IStore _store, bytes32 entityId, ExchangeType exchangeType) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(exchangeType)), _fieldLayout);
-  }
-
-  /**
    * @notice Get inToken.
    */
   function getInToken(bytes32 entityId) internal view returns (address inToken) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -173,7 +105,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -184,7 +116,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -195,7 +127,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((inToken)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((inToken)), _fieldLayout);
   }
 
   /**
@@ -205,7 +137,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((inToken)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((inToken)), _fieldLayout);
   }
 
   /**
@@ -215,7 +147,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((inToken)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((inToken)), _fieldLayout);
   }
 
   /**
@@ -225,7 +157,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -236,7 +168,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -247,7 +179,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -258,7 +190,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((inNFT)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((inNFT)), _fieldLayout);
   }
 
   /**
@@ -268,7 +200,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((inNFT)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((inNFT)), _fieldLayout);
   }
 
   /**
@@ -278,7 +210,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((inNFT)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((inNFT)), _fieldLayout);
   }
 
   /**
@@ -288,7 +220,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (uint8(bytes1(_blob)));
   }
 
@@ -299,7 +231,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (uint8(bytes1(_blob)));
   }
 
@@ -310,7 +242,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (uint8(bytes1(_blob)));
   }
 
@@ -321,7 +253,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((inObjectTypeId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((inObjectTypeId)), _fieldLayout);
   }
 
   /**
@@ -331,7 +263,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((inObjectTypeId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((inObjectTypeId)), _fieldLayout);
   }
 
   /**
@@ -341,70 +273,70 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((inObjectTypeId)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((inObjectTypeId)), _fieldLayout);
   }
 
   /**
-   * @notice Get inAmount.
+   * @notice Get inUnitAmount.
    */
-  function getInAmount(bytes32 entityId) internal view returns (uint256 inAmount) {
+  function getInUnitAmount(bytes32 entityId) internal view returns (uint256 inUnitAmount) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
   /**
-   * @notice Get inAmount.
+   * @notice Get inUnitAmount.
    */
-  function _getInAmount(bytes32 entityId) internal view returns (uint256 inAmount) {
+  function _getInUnitAmount(bytes32 entityId) internal view returns (uint256 inUnitAmount) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
   /**
-   * @notice Get inAmount (using the specified store).
+   * @notice Get inUnitAmount (using the specified store).
    */
-  function getInAmount(IStore _store, bytes32 entityId) internal view returns (uint256 inAmount) {
+  function getInUnitAmount(IStore _store, bytes32 entityId) internal view returns (uint256 inUnitAmount) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
   /**
-   * @notice Set inAmount.
+   * @notice Set inUnitAmount.
    */
-  function setInAmount(bytes32 entityId, uint256 inAmount) internal {
+  function setInUnitAmount(bytes32 entityId, uint256 inUnitAmount) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((inAmount)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((inUnitAmount)), _fieldLayout);
   }
 
   /**
-   * @notice Set inAmount.
+   * @notice Set inUnitAmount.
    */
-  function _setInAmount(bytes32 entityId, uint256 inAmount) internal {
+  function _setInUnitAmount(bytes32 entityId, uint256 inUnitAmount) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((inAmount)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((inUnitAmount)), _fieldLayout);
   }
 
   /**
-   * @notice Set inAmount (using the specified store).
+   * @notice Set inUnitAmount (using the specified store).
    */
-  function setInAmount(IStore _store, bytes32 entityId, uint256 inAmount) internal {
+  function setInUnitAmount(IStore _store, bytes32 entityId, uint256 inUnitAmount) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((inAmount)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((inUnitAmount)), _fieldLayout);
   }
 
   /**
@@ -414,7 +346,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -425,7 +357,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -436,7 +368,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -447,7 +379,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((outToken)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((outToken)), _fieldLayout);
   }
 
   /**
@@ -457,7 +389,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((outToken)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((outToken)), _fieldLayout);
   }
 
   /**
@@ -467,7 +399,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((outToken)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((outToken)), _fieldLayout);
   }
 
   /**
@@ -477,7 +409,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 6, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -488,7 +420,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 6, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -499,7 +431,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 6, _fieldLayout);
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
     return (address(bytes20(_blob)));
   }
 
@@ -510,7 +442,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((outNFT)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((outNFT)), _fieldLayout);
   }
 
   /**
@@ -520,7 +452,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((outNFT)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((outNFT)), _fieldLayout);
   }
 
   /**
@@ -530,7 +462,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((outNFT)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((outNFT)), _fieldLayout);
   }
 
   /**
@@ -540,7 +472,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 7, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 6, _fieldLayout);
     return (uint8(bytes1(_blob)));
   }
 
@@ -551,7 +483,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 7, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 6, _fieldLayout);
     return (uint8(bytes1(_blob)));
   }
 
@@ -562,7 +494,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 7, _fieldLayout);
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 6, _fieldLayout);
     return (uint8(bytes1(_blob)));
   }
 
@@ -573,7 +505,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((outObjectTypeId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((outObjectTypeId)), _fieldLayout);
   }
 
   /**
@@ -583,7 +515,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((outObjectTypeId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((outObjectTypeId)), _fieldLayout);
   }
 
   /**
@@ -593,70 +525,70 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((outObjectTypeId)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((outObjectTypeId)), _fieldLayout);
   }
 
   /**
-   * @notice Get outAmount.
+   * @notice Get outUnitAmount.
    */
-  function getOutAmount(bytes32 entityId) internal view returns (uint256 outAmount) {
+  function getOutUnitAmount(bytes32 entityId) internal view returns (uint256 outUnitAmount) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 8, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 7, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
   /**
-   * @notice Get outAmount.
+   * @notice Get outUnitAmount.
    */
-  function _getOutAmount(bytes32 entityId) internal view returns (uint256 outAmount) {
+  function _getOutUnitAmount(bytes32 entityId) internal view returns (uint256 outUnitAmount) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 8, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 7, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
   /**
-   * @notice Get outAmount (using the specified store).
+   * @notice Get outUnitAmount (using the specified store).
    */
-  function getOutAmount(IStore _store, bytes32 entityId) internal view returns (uint256 outAmount) {
+  function getOutUnitAmount(IStore _store, bytes32 entityId) internal view returns (uint256 outUnitAmount) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 8, _fieldLayout);
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 7, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
   /**
-   * @notice Set outAmount.
+   * @notice Set outUnitAmount.
    */
-  function setOutAmount(bytes32 entityId, uint256 outAmount) internal {
+  function setOutUnitAmount(bytes32 entityId, uint256 outUnitAmount) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((outAmount)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((outUnitAmount)), _fieldLayout);
   }
 
   /**
-   * @notice Set outAmount.
+   * @notice Set outUnitAmount.
    */
-  function _setOutAmount(bytes32 entityId, uint256 outAmount) internal {
+  function _setOutUnitAmount(bytes32 entityId, uint256 outUnitAmount) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((outAmount)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((outUnitAmount)), _fieldLayout);
   }
 
   /**
-   * @notice Set outAmount (using the specified store).
+   * @notice Set outUnitAmount (using the specified store).
    */
-  function setOutAmount(IStore _store, bytes32 entityId, uint256 outAmount) internal {
+  function setOutUnitAmount(IStore _store, bytes32 entityId, uint256 outUnitAmount) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((outAmount)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((outUnitAmount)), _fieldLayout);
   }
 
   /**
@@ -666,7 +598,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 9, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 8, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -677,7 +609,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 9, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 8, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -688,7 +620,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 9, _fieldLayout);
+    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 8, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -699,7 +631,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 9, abi.encodePacked((outBalance)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((outBalance)), _fieldLayout);
   }
 
   /**
@@ -709,7 +641,7 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 9, abi.encodePacked((outBalance)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((outBalance)), _fieldLayout);
   }
 
   /**
@@ -719,13 +651,13 @@ library ExchangeChest {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 9, abi.encodePacked((outBalance)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 8, abi.encodePacked((outBalance)), _fieldLayout);
   }
 
   /**
    * @notice Get the full data.
    */
-  function get(bytes32 entityId) internal view returns (ExchangeChestData memory _table) {
+  function get(bytes32 entityId) internal view returns (ExchangeInChestData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -740,7 +672,7 @@ library ExchangeChest {
   /**
    * @notice Get the full data.
    */
-  function _get(bytes32 entityId) internal view returns (ExchangeChestData memory _table) {
+  function _get(bytes32 entityId) internal view returns (ExchangeInChestData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -755,7 +687,7 @@ library ExchangeChest {
   /**
    * @notice Get the full data (using the specified store).
    */
-  function get(IStore _store, bytes32 entityId) internal view returns (ExchangeChestData memory _table) {
+  function get(IStore _store, bytes32 entityId) internal view returns (ExchangeInChestData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -772,27 +704,25 @@ library ExchangeChest {
    */
   function set(
     bytes32 entityId,
-    ExchangeType exchangeType,
     address inToken,
     address inNFT,
     uint8 inObjectTypeId,
-    uint256 inAmount,
+    uint256 inUnitAmount,
     address outToken,
     address outNFT,
     uint8 outObjectTypeId,
-    uint256 outAmount,
+    uint256 outUnitAmount,
     uint256 outBalance
   ) internal {
     bytes memory _staticData = encodeStatic(
-      exchangeType,
       inToken,
       inNFT,
       inObjectTypeId,
-      inAmount,
+      inUnitAmount,
       outToken,
       outNFT,
       outObjectTypeId,
-      outAmount,
+      outUnitAmount,
       outBalance
     );
 
@@ -810,27 +740,25 @@ library ExchangeChest {
    */
   function _set(
     bytes32 entityId,
-    ExchangeType exchangeType,
     address inToken,
     address inNFT,
     uint8 inObjectTypeId,
-    uint256 inAmount,
+    uint256 inUnitAmount,
     address outToken,
     address outNFT,
     uint8 outObjectTypeId,
-    uint256 outAmount,
+    uint256 outUnitAmount,
     uint256 outBalance
   ) internal {
     bytes memory _staticData = encodeStatic(
-      exchangeType,
       inToken,
       inNFT,
       inObjectTypeId,
-      inAmount,
+      inUnitAmount,
       outToken,
       outNFT,
       outObjectTypeId,
-      outAmount,
+      outUnitAmount,
       outBalance
     );
 
@@ -849,27 +777,25 @@ library ExchangeChest {
   function set(
     IStore _store,
     bytes32 entityId,
-    ExchangeType exchangeType,
     address inToken,
     address inNFT,
     uint8 inObjectTypeId,
-    uint256 inAmount,
+    uint256 inUnitAmount,
     address outToken,
     address outNFT,
     uint8 outObjectTypeId,
-    uint256 outAmount,
+    uint256 outUnitAmount,
     uint256 outBalance
   ) internal {
     bytes memory _staticData = encodeStatic(
-      exchangeType,
       inToken,
       inNFT,
       inObjectTypeId,
-      inAmount,
+      inUnitAmount,
       outToken,
       outNFT,
       outObjectTypeId,
-      outAmount,
+      outUnitAmount,
       outBalance
     );
 
@@ -885,17 +811,16 @@ library ExchangeChest {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(bytes32 entityId, ExchangeChestData memory _table) internal {
+  function set(bytes32 entityId, ExchangeInChestData memory _table) internal {
     bytes memory _staticData = encodeStatic(
-      _table.exchangeType,
       _table.inToken,
       _table.inNFT,
       _table.inObjectTypeId,
-      _table.inAmount,
+      _table.inUnitAmount,
       _table.outToken,
       _table.outNFT,
       _table.outObjectTypeId,
-      _table.outAmount,
+      _table.outUnitAmount,
       _table.outBalance
     );
 
@@ -911,17 +836,16 @@ library ExchangeChest {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(bytes32 entityId, ExchangeChestData memory _table) internal {
+  function _set(bytes32 entityId, ExchangeInChestData memory _table) internal {
     bytes memory _staticData = encodeStatic(
-      _table.exchangeType,
       _table.inToken,
       _table.inNFT,
       _table.inObjectTypeId,
-      _table.inAmount,
+      _table.inUnitAmount,
       _table.outToken,
       _table.outNFT,
       _table.outObjectTypeId,
-      _table.outAmount,
+      _table.outUnitAmount,
       _table.outBalance
     );
 
@@ -937,17 +861,16 @@ library ExchangeChest {
   /**
    * @notice Set the full data using the data struct (using the specified store).
    */
-  function set(IStore _store, bytes32 entityId, ExchangeChestData memory _table) internal {
+  function set(IStore _store, bytes32 entityId, ExchangeInChestData memory _table) internal {
     bytes memory _staticData = encodeStatic(
-      _table.exchangeType,
       _table.inToken,
       _table.inNFT,
       _table.inObjectTypeId,
-      _table.inAmount,
+      _table.inUnitAmount,
       _table.outToken,
       _table.outNFT,
       _table.outObjectTypeId,
-      _table.outAmount,
+      _table.outUnitAmount,
       _table.outBalance
     );
 
@@ -969,37 +892,34 @@ library ExchangeChest {
     internal
     pure
     returns (
-      ExchangeType exchangeType,
       address inToken,
       address inNFT,
       uint8 inObjectTypeId,
-      uint256 inAmount,
+      uint256 inUnitAmount,
       address outToken,
       address outNFT,
       uint8 outObjectTypeId,
-      uint256 outAmount,
+      uint256 outUnitAmount,
       uint256 outBalance
     )
   {
-    exchangeType = ExchangeType(uint8(Bytes.getBytes1(_blob, 0)));
+    inToken = (address(Bytes.getBytes20(_blob, 0)));
 
-    inToken = (address(Bytes.getBytes20(_blob, 1)));
+    inNFT = (address(Bytes.getBytes20(_blob, 20)));
 
-    inNFT = (address(Bytes.getBytes20(_blob, 21)));
+    inObjectTypeId = (uint8(Bytes.getBytes1(_blob, 40)));
 
-    inObjectTypeId = (uint8(Bytes.getBytes1(_blob, 41)));
+    inUnitAmount = (uint256(Bytes.getBytes32(_blob, 41)));
 
-    inAmount = (uint256(Bytes.getBytes32(_blob, 42)));
+    outToken = (address(Bytes.getBytes20(_blob, 73)));
 
-    outToken = (address(Bytes.getBytes20(_blob, 74)));
+    outNFT = (address(Bytes.getBytes20(_blob, 93)));
 
-    outNFT = (address(Bytes.getBytes20(_blob, 94)));
+    outObjectTypeId = (uint8(Bytes.getBytes1(_blob, 113)));
 
-    outObjectTypeId = (uint8(Bytes.getBytes1(_blob, 114)));
+    outUnitAmount = (uint256(Bytes.getBytes32(_blob, 114)));
 
-    outAmount = (uint256(Bytes.getBytes32(_blob, 115)));
-
-    outBalance = (uint256(Bytes.getBytes32(_blob, 147)));
+    outBalance = (uint256(Bytes.getBytes32(_blob, 146)));
   }
 
   /**
@@ -1012,17 +932,16 @@ library ExchangeChest {
     bytes memory _staticData,
     EncodedLengths,
     bytes memory
-  ) internal pure returns (ExchangeChestData memory _table) {
+  ) internal pure returns (ExchangeInChestData memory _table) {
     (
-      _table.exchangeType,
       _table.inToken,
       _table.inNFT,
       _table.inObjectTypeId,
-      _table.inAmount,
+      _table.inUnitAmount,
       _table.outToken,
       _table.outNFT,
       _table.outObjectTypeId,
-      _table.outAmount,
+      _table.outUnitAmount,
       _table.outBalance
     ) = decodeStatic(_staticData);
   }
@@ -1062,28 +981,26 @@ library ExchangeChest {
    * @return The static data, encoded into a sequence of bytes.
    */
   function encodeStatic(
-    ExchangeType exchangeType,
     address inToken,
     address inNFT,
     uint8 inObjectTypeId,
-    uint256 inAmount,
+    uint256 inUnitAmount,
     address outToken,
     address outNFT,
     uint8 outObjectTypeId,
-    uint256 outAmount,
+    uint256 outUnitAmount,
     uint256 outBalance
   ) internal pure returns (bytes memory) {
     return
       abi.encodePacked(
-        exchangeType,
         inToken,
         inNFT,
         inObjectTypeId,
-        inAmount,
+        inUnitAmount,
         outToken,
         outNFT,
         outObjectTypeId,
-        outAmount,
+        outUnitAmount,
         outBalance
       );
   }
@@ -1095,27 +1012,25 @@ library ExchangeChest {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
-    ExchangeType exchangeType,
     address inToken,
     address inNFT,
     uint8 inObjectTypeId,
-    uint256 inAmount,
+    uint256 inUnitAmount,
     address outToken,
     address outNFT,
     uint8 outObjectTypeId,
-    uint256 outAmount,
+    uint256 outUnitAmount,
     uint256 outBalance
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(
-      exchangeType,
       inToken,
       inNFT,
       inObjectTypeId,
-      inAmount,
+      inUnitAmount,
       outToken,
       outNFT,
       outObjectTypeId,
-      outAmount,
+      outUnitAmount,
       outBalance
     );
 

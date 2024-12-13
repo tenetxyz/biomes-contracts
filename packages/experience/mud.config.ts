@@ -8,7 +8,6 @@ export default defineWorld({
   enums: {
     ChipType: ["None", "Chest", "ForceField", "Display"],
     ShopType: ["None", "Buy", "Sell", "BuySell"],
-    ExchangeType: ["None", "In", "Out", "InOut"],
     ShopTxType: ["None", "Buy", "Sell"],
   },
   userTypes: {
@@ -62,18 +61,35 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    ExchangeChest: {
+    ExchangeInChest: {
       schema: {
         entityId: "bytes32",
-        exchangeType: "ExchangeType",
         inToken: "address",
         inNFT: "address",
         inObjectTypeId: "uint8",
-        inAmount: "uint256",
+        inUnitAmount: "uint256",
         outToken: "address",
         outNFT: "address",
         outObjectTypeId: "uint8",
-        outAmount: "uint256",
+        outUnitAmount: "uint256",
+        outBalance: "uint256",
+      },
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    ExchangeOutChest: {
+      schema: {
+        entityId: "bytes32",
+        inToken: "address",
+        inNFT: "address",
+        inObjectTypeId: "uint8",
+        inUnitAmount: "uint256",
+        outToken: "address",
+        outNFT: "address",
+        outObjectTypeId: "uint8",
+        outUnitAmount: "uint256",
         outBalance: "uint256",
       },
       key: ["entityId"],
@@ -190,7 +206,6 @@ export default defineWorld({
       schema: {
         chestEntityId: "bytes32",
         player: "address",
-        exchangeType: "ExchangeType",
         inToken: "address",
         inNFT: "address",
         inObjectTypeId: "uint8",
