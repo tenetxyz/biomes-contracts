@@ -9,7 +9,7 @@ export default defineWorld({
     ChipType: ["None", "Chest", "ForceField", "Display"],
     ShopType: ["None", "Buy", "Sell", "BuySell"],
     ShopTxType: ["None", "Buy", "Sell"],
-    ResourceType: ["None", "Object", "ERC20", "ERC721"],
+    ResourceType: ["None", "Object", "NativeCurrency", "ERC20", "ERC721"],
   },
   userTypes: {
     ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", type: "bytes32" },
