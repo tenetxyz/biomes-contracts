@@ -11,6 +11,11 @@ import { ForceFieldApprovalsData } from "./codegen/tables/ForceFieldApprovals.so
 import { GateApprovalsData } from "./codegen/tables/GateApprovals.sol";
 import { ExchangeInfoData } from "./codegen/tables/ExchangeInfo.sol";
 
+struct ExchangeInfoDataWithExchangeId {
+  bytes32 exchangeId;
+  ExchangeInfoData exchangeInfoData;
+}
+
 struct BlockExperienceEntityData {
   BlockEntityData worldEntityData;
   address chipAttacher;
@@ -37,5 +42,5 @@ struct BlockExperienceEntityDataWithExchanges {
   FFMetadataData ffMetadata;
   ForceFieldApprovalsData forceFieldApprovalsData;
   GateApprovalsData gateApprovalsData;
-  ExchangeInfoData[] exchanges;
+  ExchangeInfoDataWithExchangeId[] exchanges;
 }

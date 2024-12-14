@@ -991,47 +991,59 @@ declare const abi: [
           {
             "name": "exchanges",
             "type": "tuple[]",
-            "internalType": "struct ExchangeInfoData[]",
+            "internalType": "struct ExchangeInfoDataWithExchangeId[]",
             "components": [
               {
-                "name": "inResourceType",
-                "type": "uint8",
-                "internalType": "enum ResourceType"
-              },
-              {
-                "name": "inResourceId",
+                "name": "exchangeId",
                 "type": "bytes32",
                 "internalType": "bytes32"
               },
               {
-                "name": "inUnitAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "inMaxAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "outResourceType",
-                "type": "uint8",
-                "internalType": "enum ResourceType"
-              },
-              {
-                "name": "outResourceId",
-                "type": "bytes32",
-                "internalType": "bytes32"
-              },
-              {
-                "name": "outUnitAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "outMaxAmount",
-                "type": "uint256",
-                "internalType": "uint256"
+                "name": "exchangeInfoData",
+                "type": "tuple",
+                "internalType": "struct ExchangeInfoData",
+                "components": [
+                  {
+                    "name": "inResourceType",
+                    "type": "uint8",
+                    "internalType": "enum ResourceType"
+                  },
+                  {
+                    "name": "inResourceId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "inUnitAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "inMaxAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "outResourceType",
+                    "type": "uint8",
+                    "internalType": "enum ResourceType"
+                  },
+                  {
+                    "name": "outResourceId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "outUnitAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "outMaxAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  }
+                ]
               }
             ]
           }
@@ -1677,47 +1689,59 @@ declare const abi: [
           {
             "name": "exchanges",
             "type": "tuple[]",
-            "internalType": "struct ExchangeInfoData[]",
+            "internalType": "struct ExchangeInfoDataWithExchangeId[]",
             "components": [
               {
-                "name": "inResourceType",
-                "type": "uint8",
-                "internalType": "enum ResourceType"
-              },
-              {
-                "name": "inResourceId",
+                "name": "exchangeId",
                 "type": "bytes32",
                 "internalType": "bytes32"
               },
               {
-                "name": "inUnitAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "inMaxAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "outResourceType",
-                "type": "uint8",
-                "internalType": "enum ResourceType"
-              },
-              {
-                "name": "outResourceId",
-                "type": "bytes32",
-                "internalType": "bytes32"
-              },
-              {
-                "name": "outUnitAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "outMaxAmount",
-                "type": "uint256",
-                "internalType": "uint256"
+                "name": "exchangeInfoData",
+                "type": "tuple",
+                "internalType": "struct ExchangeInfoData",
+                "components": [
+                  {
+                    "name": "inResourceType",
+                    "type": "uint8",
+                    "internalType": "enum ResourceType"
+                  },
+                  {
+                    "name": "inResourceId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "inUnitAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "inMaxAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "outResourceType",
+                    "type": "uint8",
+                    "internalType": "enum ResourceType"
+                  },
+                  {
+                    "name": "outResourceId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "outUnitAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "outMaxAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  }
+                ]
               }
             ]
           }

@@ -14,7 +14,7 @@ import { ForceFieldApprovals, ForceFieldApprovalsData } from "../codegen/tables/
 import { GateApprovals, GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
 import { ExchangeInfo, ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
 import { Exchanges } from "../codegen/tables/Exchanges.sol";
-import { BlockExperienceEntityData, BlockExperienceEntityDataWithGateApprovals, BlockExperienceEntityDataWithExchanges } from "../Types.sol";
+import { BlockExperienceEntityData, BlockExperienceEntityDataWithGateApprovals, BlockExperienceEntityDataWithExchanges, ExchangeInfoDataWithExchangeId } from "../Types.sol";
 
 contract ReadSystem is System {
   function getBlockEntityData(bytes32 entityId) public view returns (BlockExperienceEntityData memory) {
@@ -53,9 +53,12 @@ contract ReadSystem is System {
   ) public view returns (BlockExperienceEntityDataWithExchanges memory) {
     BlockEntityData memory blockEntityData = IWorld(_world()).getBlockEntityData(entityId);
     bytes32[] memory exchangeIds = Exchanges.get(entityId);
-    ExchangeInfoData[] memory exchangeInfoData = new ExchangeInfoData[](exchangeIds.length);
+    ExchangeInfoDataWithExchangeId[] memory exchangeInfoData = new ExchangeInfoDataWithExchangeId[](exchangeIds.length);
     for (uint256 i = 0; i < exchangeIds.length; i++) {
-      exchangeInfoData[i] = ExchangeInfo.get(entityId, exchangeIds[i]);
+      exchangeInfoData[i] = ExchangeInfoDataWithExchangeId({
+        exchangeId: exchangeIds[i],
+        exchangeInfoData: ExchangeInfo.get(entityId, exchangeIds[i])
+      });
     }
 
     return
