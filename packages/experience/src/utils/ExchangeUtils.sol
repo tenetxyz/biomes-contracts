@@ -8,20 +8,21 @@ import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
 import { ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
+import { ExchangeNotifData } from "../codegen/tables/ExchangeNotif.sol";
 
-function encodeAddressResourceId(address resourceAddress) pure returns (bytes32) {
+function encodeAddressExchangeResourceId(address resourceAddress) pure returns (bytes32) {
   return bytes32(uint256(uint160(resourceAddress)));
 }
 
-function decodeAddressResourceId(bytes32 resourceId) pure returns (address) {
+function decodeAddressExchangeResourceId(bytes32 resourceId) pure returns (address) {
   return address(uint160(uint256(resourceId)));
 }
 
-function encodeObjectResourceId(uint8 objectTypeId) pure returns (bytes32) {
+function encodeObjectExchangeResourceId(uint8 objectTypeId) pure returns (bytes32) {
   return bytes32(uint256(objectTypeId));
 }
 
-function decodeObjectResourceId(bytes32 resourceId) pure returns (uint8) {
+function decodeObjectExchangeResourceId(bytes32 resourceId) pure returns (uint8) {
   return uint8(uint256(resourceId));
 }
 
@@ -55,4 +56,12 @@ function setExchangeInMaxAmount(bytes32 entityId, bytes32 exchangeId, uint256 in
 
 function setExchangeOutMaxAmount(bytes32 entityId, bytes32 exchangeId, uint256 outMaxAmount) {
   IWorld(WorldContextConsumerLib._world()).experience__setExchangeOutMaxAmount(entityId, exchangeId, outMaxAmount);
+}
+
+function emitExchangeNotif(bytes32 entityId, ExchangeNotifData memory notifData) {
+  IWorld(WorldContextConsumerLib._world()).experience__emitExchangeNotif(entityId, notifData);
+}
+
+function deleteExchangeNotif(bytes32 entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteExchangeNotif(entityId);
 }

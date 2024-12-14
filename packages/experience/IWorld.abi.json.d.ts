@@ -321,6 +321,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__deleteExchangeNotif",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteExchanges",
     "inputs": [
       {
@@ -464,6 +477,61 @@ declare const abi: [
     "type": "function",
     "name": "experience__deleteUnregisterMsg",
     "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__emitExchangeNotif",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "notifData",
+        "type": "tuple",
+        "internalType": "struct ExchangeNotifData",
+        "components": [
+          {
+            "name": "player",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "inResourceType",
+            "type": "uint8",
+            "internalType": "enum ResourceType"
+          },
+          {
+            "name": "inResourceId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "inAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "outResourceType",
+            "type": "uint8",
+            "internalType": "enum ResourceType"
+          },
+          {
+            "name": "outResourceId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "outAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },

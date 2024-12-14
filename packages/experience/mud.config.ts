@@ -179,36 +179,18 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    ItemShopNotif: {
+    ExchangeNotif: {
       schema: {
-        chestEntityId: "bytes32",
+        entityId: "bytes32",
         player: "address",
-        shopTxType: "ShopTxType",
-        objectTypeId: "uint8",
-        amount: "uint16",
-        price: "uint256",
-        paymentToken: "address",
-      },
-      key: ["chestEntityId"],
-      type: "offchainTable",
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    ExchangeChestNotif: {
-      schema: {
-        chestEntityId: "bytes32",
-        player: "address",
-        inToken: "address",
-        inNFT: "address",
-        inObjectTypeId: "uint8",
+        inResourceType: "ResourceType",
+        inResourceId: "bytes32",
         inAmount: "uint256",
-        outToken: "address",
-        outNFT: "address",
-        outObjectTypeId: "uint8",
+        outResourceType: "ResourceType",
+        outResourceId: "bytes32",
         outAmount: "uint256",
       },
-      key: ["chestEntityId"],
+      key: ["entityId"],
       type: "offchainTable",
       codegen: {
         storeArgument: true,
@@ -350,6 +332,22 @@ export default defineWorld({
         balance: "uint256",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    ItemShopNotif: {
+      schema: {
+        chestEntityId: "bytes32",
+        player: "address",
+        shopTxType: "ShopTxType",
+        objectTypeId: "uint8",
+        amount: "uint16",
+        price: "uint256",
+        paymentToken: "address",
+      },
+      key: ["chestEntityId"],
+      type: "offchainTable",
       codegen: {
         storeArgument: true,
       },
