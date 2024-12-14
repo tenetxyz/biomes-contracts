@@ -12,9 +12,9 @@ import { ChestMetadata, ChestMetadata } from "../codegen/tables/ChestMetadata.so
 import { FFMetadata } from "../codegen/tables/FFMetadata.sol";
 import { ForceFieldApprovals, ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
 import { GateApprovals, GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
-import { ExchangeInChest, ExchangeInChestData } from "../codegen/tables/ExchangeInChest.sol";
-import { ExchangeOutChest, ExchangeOutChestData } from "../codegen/tables/ExchangeOutChest.sol";
-import { BlockExperienceEntityData, BlockExperienceEntityDataWithGateApprovals, BlockExperienceEntityDataWithExchangeChest } from "../Types.sol";
+import { ExchangeInfo, ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
+import { Exchanges } from "../codegen/tables/Exchanges.sol";
+import { BlockExperienceEntityData, BlockExperienceEntityDataWithGateApprovals, BlockExperienceEntityDataWithExchanges } from "../Types.sol";
 
 contract ReadSystem is System {
   function getBlockEntityData(bytes32 entityId) public view returns (BlockExperienceEntityData memory) {
@@ -48,21 +48,25 @@ contract ReadSystem is System {
       });
   }
 
-  function getBlockEntityDataWithExchangeChest(
+  function getBlockEntityDataWithExchanges(
     bytes32 entityId
-  ) public view returns (BlockExperienceEntityDataWithExchangeChest memory) {
+  ) public view returns (BlockExperienceEntityDataWithExchanges memory) {
     BlockEntityData memory blockEntityData = IWorld(_world()).getBlockEntityData(entityId);
+    bytes32[] memory exchangeIds = Exchanges.get(entityId);
+    ExchangeInfoData[] memory exchangeInfoData = new ExchangeInfoData[](exchangeIds.length);
+    for (uint256 i = 0; i < exchangeIds.length; i++) {
+      exchangeInfoData[i] = ExchangeInfo.get(entityId, exchangeIds[i]);
+    }
 
     return
-      BlockExperienceEntityDataWithExchangeChest({
+      BlockExperienceEntityDataWithExchanges({
         worldEntityData: blockEntityData,
         chipAttacher: ChipAttachment.get(entityId),
         chestMetadata: ChestMetadata.get(entityId),
         ffMetadata: FFMetadata.get(entityId),
         forceFieldApprovalsData: ForceFieldApprovals.get(entityId),
         gateApprovalsData: GateApprovals.get(entityId),
-        exchangeInChestData: ExchangeInChest.get(entityId),
-        exchangeOutChestData: ExchangeOutChest.get(entityId)
+        exchanges: exchangeInfoData
       });
   }
 
@@ -85,13 +89,13 @@ contract ReadSystem is System {
     return blockExperienceEntityData;
   }
 
-  function getBlocksEntityDataWithExchangeChest(
+  function getBlocksEntityDataWithExchanges(
     bytes32[] memory entityIds
-  ) public view returns (BlockExperienceEntityDataWithExchangeChest[] memory) {
-    BlockExperienceEntityDataWithExchangeChest[]
-      memory blockExperienceEntityData = new BlockExperienceEntityDataWithExchangeChest[](entityIds.length);
+  ) public view returns (BlockExperienceEntityDataWithExchanges[] memory) {
+    BlockExperienceEntityDataWithExchanges[]
+      memory blockExperienceEntityData = new BlockExperienceEntityDataWithExchanges[](entityIds.length);
     for (uint256 i = 0; i < entityIds.length; i++) {
-      blockExperienceEntityData[i] = getBlockEntityDataWithExchangeChest(entityIds[i]);
+      blockExperienceEntityData[i] = getBlockEntityDataWithExchanges(entityIds[i]);
     }
     return blockExperienceEntityData;
   }

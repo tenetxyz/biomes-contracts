@@ -7,8 +7,8 @@ import { ExperienceMetadata, ExperienceMetadataData } from "./tables/ExperienceM
 import { ChipMetadata, ChipMetadataData } from "./tables/ChipMetadata.sol";
 import { ChipNamespace } from "./tables/ChipNamespace.sol";
 import { ChipAttachment } from "./tables/ChipAttachment.sol";
-import { ExchangeInChest, ExchangeInChestData } from "./tables/ExchangeInChest.sol";
-import { ExchangeOutChest, ExchangeOutChestData } from "./tables/ExchangeOutChest.sol";
+import { ExchangeInfo, ExchangeInfoData } from "./tables/ExchangeInfo.sol";
+import { Exchanges } from "./tables/Exchanges.sol";
 import { ChestMetadata, ChestMetadataData } from "./tables/ChestMetadata.sol";
 import { FFMetadata, FFMetadataData } from "./tables/FFMetadata.sol";
 import { GateApprovals, GateApprovalsData } from "./tables/GateApprovals.sol";

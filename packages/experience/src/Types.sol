@@ -9,8 +9,7 @@ import { ChestMetadataData } from "./codegen/tables/ChestMetadata.sol";
 import { FFMetadataData } from "./codegen/tables/FFMetadata.sol";
 import { ForceFieldApprovalsData } from "./codegen/tables/ForceFieldApprovals.sol";
 import { GateApprovalsData } from "./codegen/tables/GateApprovals.sol";
-import { ExchangeInChestData } from "./codegen/tables/ExchangeInChest.sol";
-import { ExchangeOutChestData } from "./codegen/tables/ExchangeOutChest.sol";
+import { ExchangeInfoData } from "./codegen/tables/ExchangeInfo.sol";
 
 struct BlockExperienceEntityData {
   BlockEntityData worldEntityData;
@@ -31,13 +30,12 @@ struct BlockExperienceEntityDataWithGateApprovals {
   GateApprovalsData gateApprovalsData;
 }
 
-struct BlockExperienceEntityDataWithExchangeChest {
+struct BlockExperienceEntityDataWithExchanges {
   BlockEntityData worldEntityData;
   address chipAttacher;
   ChestMetadataData chestMetadata;
   FFMetadataData ffMetadata;
   ForceFieldApprovalsData forceFieldApprovalsData;
   GateApprovalsData gateApprovalsData;
-  ExchangeInChestData exchangeInChestData;
-  ExchangeOutChestData exchangeOutChestData;
+  ExchangeInfoData[] exchanges;
 }

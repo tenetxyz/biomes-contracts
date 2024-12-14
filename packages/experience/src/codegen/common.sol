@@ -21,3 +21,10 @@ enum ShopTxType {
   Buy,
   Sell
 }
+
+enum ResourceType {
+  None,
+  Object,
+  ERC20,
+  ERC721
+}

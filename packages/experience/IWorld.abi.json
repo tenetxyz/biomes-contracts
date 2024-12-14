@@ -152,6 +152,71 @@
   },
   {
     "type": "function",
+    "name": "experience__addExchange",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeInfoData",
+        "type": "tuple",
+        "internalType": "struct ExchangeInfoData",
+        "components": [
+          {
+            "name": "inResourceType",
+            "type": "uint8",
+            "internalType": "enum ResourceType"
+          },
+          {
+            "name": "inResourceId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "inUnitAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "inMaxAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "outResourceType",
+            "type": "uint8",
+            "internalType": "enum ResourceType"
+          },
+          {
+            "name": "outResourceId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "outUnitAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "outMaxAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteArea",
     "inputs": [
       {
@@ -238,10 +303,15 @@
   },
   {
     "type": "function",
-    "name": "experience__deleteExchangeInChest",
+    "name": "experience__deleteExchange",
     "inputs": [
       {
         "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeId",
         "type": "bytes32",
         "internalType": "bytes32"
       }
@@ -251,7 +321,7 @@
   },
   {
     "type": "function",
-    "name": "experience__deleteExchangeOutChest",
+    "name": "experience__deleteExchanges",
     "inputs": [
       {
         "name": "entityId",
@@ -663,7 +733,7 @@
   },
   {
     "type": "function",
-    "name": "experience__getBlockEntityDataWithExchangeChest",
+    "name": "experience__getBlockEntityDataWithExchanges",
     "inputs": [
       {
         "name": "entityId",
@@ -675,7 +745,7 @@
       {
         "name": "",
         "type": "tuple",
-        "internalType": "struct BlockExperienceEntityDataWithExchangeChest",
+        "internalType": "struct BlockExperienceEntityDataWithExchanges",
         "components": [
           {
             "name": "worldEntityData",
@@ -851,24 +921,19 @@
             ]
           },
           {
-            "name": "exchangeInChestData",
-            "type": "tuple",
-            "internalType": "struct ExchangeInChestData",
+            "name": "exchanges",
+            "type": "tuple[]",
+            "internalType": "struct ExchangeInfoData[]",
             "components": [
               {
-                "name": "inToken",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "inNFT",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "inObjectTypeId",
+                "name": "inResourceType",
                 "type": "uint8",
-                "internalType": "uint8"
+                "internalType": "enum ResourceType"
+              },
+              {
+                "name": "inResourceId",
+                "type": "bytes32",
+                "internalType": "bytes32"
               },
               {
                 "name": "inUnitAmount",
@@ -876,19 +941,19 @@
                 "internalType": "uint256"
               },
               {
-                "name": "outToken",
-                "type": "address",
-                "internalType": "address"
+                "name": "inMaxAmount",
+                "type": "uint256",
+                "internalType": "uint256"
               },
               {
-                "name": "outNFT",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "outObjectTypeId",
+                "name": "outResourceType",
                 "type": "uint8",
-                "internalType": "uint8"
+                "internalType": "enum ResourceType"
+              },
+              {
+                "name": "outResourceId",
+                "type": "bytes32",
+                "internalType": "bytes32"
               },
               {
                 "name": "outUnitAmount",
@@ -896,59 +961,7 @@
                 "internalType": "uint256"
               },
               {
-                "name": "outBalance",
-                "type": "uint256",
-                "internalType": "uint256"
-              }
-            ]
-          },
-          {
-            "name": "exchangeOutChestData",
-            "type": "tuple",
-            "internalType": "struct ExchangeOutChestData",
-            "components": [
-              {
-                "name": "inToken",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "inNFT",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "inObjectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
-              },
-              {
-                "name": "inUnitAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "outToken",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "outNFT",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "outObjectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
-              },
-              {
-                "name": "outUnitAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "outBalance",
+                "name": "outMaxAmount",
                 "type": "uint256",
                 "internalType": "uint256"
               }
@@ -1406,7 +1419,7 @@
   },
   {
     "type": "function",
-    "name": "experience__getBlocksEntityDataWithExchangeChest",
+    "name": "experience__getBlocksEntityDataWithExchanges",
     "inputs": [
       {
         "name": "entityIds",
@@ -1418,7 +1431,7 @@
       {
         "name": "",
         "type": "tuple[]",
-        "internalType": "struct BlockExperienceEntityDataWithExchangeChest[]",
+        "internalType": "struct BlockExperienceEntityDataWithExchanges[]",
         "components": [
           {
             "name": "worldEntityData",
@@ -1594,24 +1607,19 @@
             ]
           },
           {
-            "name": "exchangeInChestData",
-            "type": "tuple",
-            "internalType": "struct ExchangeInChestData",
+            "name": "exchanges",
+            "type": "tuple[]",
+            "internalType": "struct ExchangeInfoData[]",
             "components": [
               {
-                "name": "inToken",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "inNFT",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "inObjectTypeId",
+                "name": "inResourceType",
                 "type": "uint8",
-                "internalType": "uint8"
+                "internalType": "enum ResourceType"
+              },
+              {
+                "name": "inResourceId",
+                "type": "bytes32",
+                "internalType": "bytes32"
               },
               {
                 "name": "inUnitAmount",
@@ -1619,19 +1627,19 @@
                 "internalType": "uint256"
               },
               {
-                "name": "outToken",
-                "type": "address",
-                "internalType": "address"
+                "name": "inMaxAmount",
+                "type": "uint256",
+                "internalType": "uint256"
               },
               {
-                "name": "outNFT",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "outObjectTypeId",
+                "name": "outResourceType",
                 "type": "uint8",
-                "internalType": "uint8"
+                "internalType": "enum ResourceType"
+              },
+              {
+                "name": "outResourceId",
+                "type": "bytes32",
+                "internalType": "bytes32"
               },
               {
                 "name": "outUnitAmount",
@@ -1639,59 +1647,7 @@
                 "internalType": "uint256"
               },
               {
-                "name": "outBalance",
-                "type": "uint256",
-                "internalType": "uint256"
-              }
-            ]
-          },
-          {
-            "name": "exchangeOutChestData",
-            "type": "tuple",
-            "internalType": "struct ExchangeOutChestData",
-            "components": [
-              {
-                "name": "inToken",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "inNFT",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "inObjectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
-              },
-              {
-                "name": "inUnitAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "outToken",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "outNFT",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "outObjectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
-              },
-              {
-                "name": "outUnitAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "outBalance",
+                "name": "outMaxAmount",
                 "type": "uint256",
                 "internalType": "uint256"
               }
@@ -2538,7 +2494,7 @@
   },
   {
     "type": "function",
-    "name": "experience__setExchangeInChest",
+    "name": "experience__setExchangeInMaxAmount",
     "inputs": [
       {
         "name": "entityId",
@@ -2546,56 +2502,14 @@
         "internalType": "bytes32"
       },
       {
-        "name": "exchangeInChestData",
-        "type": "tuple",
-        "internalType": "struct ExchangeInChestData",
-        "components": [
-          {
-            "name": "inToken",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "inNFT",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "inObjectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
-          },
-          {
-            "name": "inUnitAmount",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "outToken",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "outNFT",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "outObjectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
-          },
-          {
-            "name": "outUnitAmount",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "outBalance",
-            "type": "uint256",
-            "internalType": "uint256"
-          }
-        ]
+        "name": "exchangeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "inMaxAmount",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
@@ -2603,10 +2517,15 @@
   },
   {
     "type": "function",
-    "name": "experience__setExchangeInChestInUnitAmount",
+    "name": "experience__setExchangeInUnitAmount",
     "inputs": [
       {
         "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeId",
         "type": "bytes32",
         "internalType": "bytes32"
       },
@@ -2621,7 +2540,7 @@
   },
   {
     "type": "function",
-    "name": "experience__setExchangeInChestOutBalance",
+    "name": "experience__setExchangeOutMaxAmount",
     "inputs": [
       {
         "name": "entityId",
@@ -2629,7 +2548,12 @@
         "internalType": "bytes32"
       },
       {
-        "name": "balance",
+        "name": "exchangeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "outMaxAmount",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -2639,10 +2563,15 @@
   },
   {
     "type": "function",
-    "name": "experience__setExchangeInChestOutUnitAmount",
+    "name": "experience__setExchangeOutUnitAmount",
     "inputs": [
       {
         "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeId",
         "type": "bytes32",
         "internalType": "bytes32"
       },
@@ -2657,7 +2586,7 @@
   },
   {
     "type": "function",
-    "name": "experience__setExchangeOutChest",
+    "name": "experience__setExchanges",
     "inputs": [
       {
         "name": "entityId",
@@ -2665,24 +2594,24 @@
         "internalType": "bytes32"
       },
       {
-        "name": "exchangeOutChestData",
-        "type": "tuple",
-        "internalType": "struct ExchangeOutChestData",
+        "name": "exchangeIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "exchangeInfoData",
+        "type": "tuple[]",
+        "internalType": "struct ExchangeInfoData[]",
         "components": [
           {
-            "name": "inToken",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "inNFT",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "inObjectTypeId",
+            "name": "inResourceType",
             "type": "uint8",
-            "internalType": "uint8"
+            "internalType": "enum ResourceType"
+          },
+          {
+            "name": "inResourceId",
+            "type": "bytes32",
+            "internalType": "bytes32"
           },
           {
             "name": "inUnitAmount",
@@ -2690,19 +2619,19 @@
             "internalType": "uint256"
           },
           {
-            "name": "outToken",
-            "type": "address",
-            "internalType": "address"
+            "name": "inMaxAmount",
+            "type": "uint256",
+            "internalType": "uint256"
           },
           {
-            "name": "outNFT",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "outObjectTypeId",
+            "name": "outResourceType",
             "type": "uint8",
-            "internalType": "uint8"
+            "internalType": "enum ResourceType"
+          },
+          {
+            "name": "outResourceId",
+            "type": "bytes32",
+            "internalType": "bytes32"
           },
           {
             "name": "outUnitAmount",
@@ -2710,65 +2639,11 @@
             "internalType": "uint256"
           },
           {
-            "name": "outBalance",
+            "name": "outMaxAmount",
             "type": "uint256",
             "internalType": "uint256"
           }
         ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "experience__setExchangeOutChestInUnitAmount",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "inUnitAmount",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "experience__setExchangeOutChestOutBalance",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "balance",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "experience__setExchangeOutChestOutUnitAmount",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "outUnitAmount",
-        "type": "uint256",
-        "internalType": "uint256"
       }
     ],
     "outputs": [],

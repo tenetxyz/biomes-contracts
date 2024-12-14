@@ -9,6 +9,7 @@ export default defineWorld({
     ChipType: ["None", "Chest", "ForceField", "Display"],
     ShopType: ["None", "Buy", "Sell", "BuySell"],
     ShopTxType: ["None", "Buy", "Sell"],
+    ResourceType: ["None", "Object", "ERC20", "ERC721"],
   },
   userTypes: {
     ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", type: "bytes32" },
@@ -61,36 +62,28 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    ExchangeInChest: {
+    ExchangeInfo: {
       schema: {
         entityId: "bytes32",
-        inToken: "address",
-        inNFT: "address",
-        inObjectTypeId: "uint8",
+        exchangeId: "bytes32",
+        inResourceType: "ResourceType",
+        inResourceId: "bytes32",
         inUnitAmount: "uint256",
-        outToken: "address",
-        outNFT: "address",
-        outObjectTypeId: "uint8",
+        inMaxAmount: "uint256",
+        outResourceType: "ResourceType",
+        outResourceId: "bytes32",
         outUnitAmount: "uint256",
-        outBalance: "uint256",
+        outMaxAmount: "uint256",
       },
-      key: ["entityId"],
+      key: ["entityId", "exchangeId"],
       codegen: {
         storeArgument: true,
       },
     },
-    ExchangeOutChest: {
+    Exchanges: {
       schema: {
         entityId: "bytes32",
-        inToken: "address",
-        inNFT: "address",
-        inObjectTypeId: "uint8",
-        inUnitAmount: "uint256",
-        outToken: "address",
-        outNFT: "address",
-        outObjectTypeId: "uint8",
-        outUnitAmount: "uint256",
-        outBalance: "uint256",
+        exchangeIds: "bytes32[]",
       },
       key: ["entityId"],
       codegen: {

@@ -7,45 +7,52 @@ import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
-import { ExchangeInChestData } from "../codegen/tables/ExchangeInChest.sol";
-import { ExchangeOutChestData } from "../codegen/tables/ExchangeOutChest.sol";
+import { ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
 
-function setExchangeInChest(bytes32 entityId, ExchangeInChestData memory exchangeInChestData) {
-  IWorld(WorldContextConsumerLib._world()).experience__setExchangeInChest(entityId, exchangeInChestData);
+function encodeAddressResourceId(address resourceAddress) pure returns (bytes32) {
+  return bytes32(uint256(uint160(resourceAddress)));
 }
 
-function deleteExchangeInChest(bytes32 entityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteExchangeInChest(entityId);
+function decodeAddressResourceId(bytes32 resourceId) pure returns (address) {
+  return address(uint160(uint256(resourceId)));
 }
 
-function setExchangeOutChest(bytes32 entityId, ExchangeOutChestData memory exchangeOutChestData) {
-  IWorld(WorldContextConsumerLib._world()).experience__setExchangeOutChest(entityId, exchangeOutChestData);
+function encodeObjectResourceId(uint8 objectTypeId) pure returns (bytes32) {
+  return bytes32(uint256(objectTypeId));
 }
 
-function deleteExchangeOutChest(bytes32 entityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteExchangeOutChest(entityId);
+function decodeObjectResourceId(bytes32 resourceId) pure returns (uint8) {
+  return uint8(uint256(resourceId));
 }
 
-function setExchangeInChestInUnitAmount(bytes32 entityId, uint256 inUnitAmount) {
-  IWorld(WorldContextConsumerLib._world()).experience__setExchangeInChestInUnitAmount(entityId, inUnitAmount);
+function setExchanges(bytes32 entityId, bytes32[] memory exchangeIds, ExchangeInfoData[] memory exchangeInfoData) {
+  IWorld(WorldContextConsumerLib._world()).experience__setExchanges(entityId, exchangeIds, exchangeInfoData);
 }
 
-function setExchangeInChestOutUnitAmount(bytes32 entityId, uint256 outUnitAmount) {
-  IWorld(WorldContextConsumerLib._world()).experience__setExchangeInChestOutUnitAmount(entityId, outUnitAmount);
+function addExchange(bytes32 entityId, bytes32 exchangeId, ExchangeInfoData memory exchangeInfoData) {
+  IWorld(WorldContextConsumerLib._world()).experience__addExchange(entityId, exchangeId, exchangeInfoData);
 }
 
-function setExchangeInChestOutBalance(bytes32 entityId, uint256 balance) {
-  IWorld(WorldContextConsumerLib._world()).experience__setExchangeInChestOutBalance(entityId, balance);
+function deleteExchange(bytes32 entityId, bytes32 exchangeId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteExchange(entityId, exchangeId);
 }
 
-function setExchangeOutChestInUnitAmount(bytes32 entityId, uint256 inUnitAmount) {
-  IWorld(WorldContextConsumerLib._world()).experience__setExchangeOutChestInUnitAmount(entityId, inUnitAmount);
+function deleteExchanges(bytes32 entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteExchanges(entityId);
 }
 
-function setExchangeOutChestOutUnitAmount(bytes32 entityId, uint256 outUnitAmount) {
-  IWorld(WorldContextConsumerLib._world()).experience__setExchangeOutChestOutUnitAmount(entityId, outUnitAmount);
+function setExchangeInUnitAmount(bytes32 entityId, bytes32 exchangeId, uint256 inUnitAmount) {
+  IWorld(WorldContextConsumerLib._world()).experience__setExchangeInUnitAmount(entityId, exchangeId, inUnitAmount);
 }
 
-function setExchangeOutChestOutBalance(bytes32 entityId, uint256 balance) {
-  IWorld(WorldContextConsumerLib._world()).experience__setExchangeOutChestOutBalance(entityId, balance);
+function setExchangeOutUnitAmount(bytes32 entityId, bytes32 exchangeId, uint256 outUnitAmount) {
+  IWorld(WorldContextConsumerLib._world()).experience__setExchangeOutUnitAmount(entityId, exchangeId, outUnitAmount);
+}
+
+function setExchangeInMaxAmount(bytes32 entityId, bytes32 exchangeId, uint256 inMaxAmount) {
+  IWorld(WorldContextConsumerLib._world()).experience__setExchangeInMaxAmount(entityId, exchangeId, inMaxAmount);
+}
+
+function setExchangeOutMaxAmount(bytes32 entityId, bytes32 exchangeId, uint256 outMaxAmount) {
+  IWorld(WorldContextConsumerLib._world()).experience__setExchangeOutMaxAmount(entityId, exchangeId, outMaxAmount);
 }
