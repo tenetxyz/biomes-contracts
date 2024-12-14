@@ -7,18 +7,9 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ExchangeInfo, ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
 import { Exchanges } from "../codegen/tables/Exchanges.sol";
 import { requireChipOwner, requireChipOwnerOrNoOwner } from "../Utils.sol";
+import { exchangeExists } from "../utils/ExchangeUtils.sol";
 
 contract ExchangeSystem is System {
-  function exchangeExists(bytes32 entityId, bytes32 exchangeId) internal view returns (bool) {
-    bytes32[] memory exchangeIds = Exchanges.get(entityId);
-    for (uint256 i = 0; i < exchangeIds.length; i++) {
-      if (exchangeIds[i] == exchangeId) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   function setExchanges(
     bytes32 entityId,
     bytes32[] memory exchangeIds,

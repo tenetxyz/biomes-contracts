@@ -7,6 +7,7 @@ import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
+import { Exchanges } from "../codegen/tables/Exchanges.sol";
 import { ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
 import { ExchangeNotifData } from "../codegen/tables/ExchangeNotif.sol";
 
@@ -24,6 +25,16 @@ function encodeObjectExchangeResourceId(uint8 objectTypeId) pure returns (bytes3
 
 function decodeObjectExchangeResourceId(bytes32 resourceId) pure returns (uint8) {
   return uint8(uint256(resourceId));
+}
+
+function exchangeExists(bytes32 entityId, bytes32 exchangeId) view returns (bool) {
+  bytes32[] memory exchangeIds = Exchanges.get(entityId);
+  for (uint256 i = 0; i < exchangeIds.length; i++) {
+    if (exchangeIds[i] == exchangeId) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function setExchanges(bytes32 entityId, bytes32[] memory exchangeIds, ExchangeInfoData[] memory exchangeInfoData) {
