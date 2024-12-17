@@ -25,6 +25,7 @@ import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
+import { ExperiencePoints } from "../src/codegen/tables/ExperiencePoints.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, NeptuniumPickObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
@@ -48,6 +49,7 @@ contract TestScript is Script {
     bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
     require(playerEntityId != bytes32(0), "Player entity not found");
     Stamina.set(playerEntityId, block.timestamp, 120000);
+    ExperiencePoints.set(playerEntityId, 10_000);
     // testRemoveFromInventoryCount(playerEntityId, 162, 10);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockObjectID, 4);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 10);
