@@ -5,6 +5,7 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
+import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
@@ -170,6 +171,10 @@ function deleteTokenMetadata() {
 
 function setNFTMetadata(ERC721MetadataData memory metadata) {
   IWorld(WorldContextConsumerLib._world()).experience__setNFTMetadata(metadata);
+}
+
+function setMUDNFTMetadata(ResourceId namespaceId, ERC721MetadataData memory metadata) {
+  IWorld(WorldContextConsumerLib._world()).experience__setMUDNFTMetadata(namespaceId, metadata);
 }
 
 function deleteNFTMetadata() {
