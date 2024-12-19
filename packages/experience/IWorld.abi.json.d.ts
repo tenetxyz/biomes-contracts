@@ -152,6 +152,71 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__addExchange",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeInfoData",
+        "type": "tuple",
+        "internalType": "struct ExchangeInfoData",
+        "components": [
+          {
+            "name": "inResourceType",
+            "type": "uint8",
+            "internalType": "enum ResourceType"
+          },
+          {
+            "name": "inResourceId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "inUnitAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "inMaxAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "outResourceType",
+            "type": "uint8",
+            "internalType": "enum ResourceType"
+          },
+          {
+            "name": "outResourceId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "outUnitAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "outMaxAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteArea",
     "inputs": [
       {
@@ -233,6 +298,50 @@ declare const abi: [
     "type": "function",
     "name": "experience__deleteCountdown",
     "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteExchange",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteExchangeNotif",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteExchanges",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
@@ -368,6 +477,61 @@ declare const abi: [
     "type": "function",
     "name": "experience__deleteUnregisterMsg",
     "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__emitExchangeNotif",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "notifData",
+        "type": "tuple",
+        "internalType": "struct ExchangeNotifData",
+        "components": [
+          {
+            "name": "player",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "inResourceType",
+            "type": "uint8",
+            "internalType": "enum ResourceType"
+          },
+          {
+            "name": "inResourceId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "inAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "outResourceType",
+            "type": "uint8",
+            "internalType": "enum ResourceType"
+          },
+          {
+            "name": "outResourceId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "outAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
@@ -627,6 +791,259 @@ declare const abi: [
                 "name": "nfts",
                 "type": "address[]",
                 "internalType": "address[]"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "experience__getBlockEntityDataWithExchanges",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct BlockExperienceEntityDataWithExchanges",
+        "components": [
+          {
+            "name": "worldEntityData",
+            "type": "tuple",
+            "internalType": "struct BlockEntityData",
+            "components": [
+              {
+                "name": "entityId",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "baseEntityId",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "position",
+                "type": "tuple",
+                "internalType": "struct VoxelCoord",
+                "components": [
+                  {
+                    "name": "x",
+                    "type": "int16",
+                    "internalType": "int16"
+                  },
+                  {
+                    "name": "y",
+                    "type": "int16",
+                    "internalType": "int16"
+                  },
+                  {
+                    "name": "z",
+                    "type": "int16",
+                    "internalType": "int16"
+                  }
+                ]
+              },
+              {
+                "name": "inventory",
+                "type": "tuple[]",
+                "internalType": "struct InventoryObject[]",
+                "components": [
+                  {
+                    "name": "objectTypeId",
+                    "type": "uint8",
+                    "internalType": "uint8"
+                  },
+                  {
+                    "name": "numObjects",
+                    "type": "uint16",
+                    "internalType": "uint16"
+                  },
+                  {
+                    "name": "tools",
+                    "type": "tuple[]",
+                    "internalType": "struct InventoryTool[]",
+                    "components": [
+                      {
+                        "name": "entityId",
+                        "type": "bytes32",
+                        "internalType": "bytes32"
+                      },
+                      {
+                        "name": "numUsesLeft",
+                        "type": "uint24",
+                        "internalType": "uint24"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "chip",
+                "type": "tuple",
+                "internalType": "struct ChipData",
+                "components": [
+                  {
+                    "name": "chipAddress",
+                    "type": "address",
+                    "internalType": "address"
+                  },
+                  {
+                    "name": "batteryLevel",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "lastUpdatedTime",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "chipAttacher",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "chestMetadata",
+            "type": "tuple",
+            "internalType": "struct ChestMetadataData",
+            "components": [
+              {
+                "name": "name",
+                "type": "string",
+                "internalType": "string"
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "internalType": "string"
+              }
+            ]
+          },
+          {
+            "name": "ffMetadata",
+            "type": "tuple",
+            "internalType": "struct FFMetadataData",
+            "components": [
+              {
+                "name": "name",
+                "type": "string",
+                "internalType": "string"
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "internalType": "string"
+              }
+            ]
+          },
+          {
+            "name": "forceFieldApprovalsData",
+            "type": "tuple",
+            "internalType": "struct ForceFieldApprovalsData",
+            "components": [
+              {
+                "name": "players",
+                "type": "address[]",
+                "internalType": "address[]"
+              },
+              {
+                "name": "nfts",
+                "type": "address[]",
+                "internalType": "address[]"
+              }
+            ]
+          },
+          {
+            "name": "gateApprovalsData",
+            "type": "tuple",
+            "internalType": "struct GateApprovalsData",
+            "components": [
+              {
+                "name": "players",
+                "type": "address[]",
+                "internalType": "address[]"
+              },
+              {
+                "name": "nfts",
+                "type": "address[]",
+                "internalType": "address[]"
+              }
+            ]
+          },
+          {
+            "name": "exchanges",
+            "type": "tuple[]",
+            "internalType": "struct ExchangeInfoDataWithExchangeId[]",
+            "components": [
+              {
+                "name": "exchangeId",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "exchangeInfoData",
+                "type": "tuple",
+                "internalType": "struct ExchangeInfoData",
+                "components": [
+                  {
+                    "name": "inResourceType",
+                    "type": "uint8",
+                    "internalType": "enum ResourceType"
+                  },
+                  {
+                    "name": "inResourceId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "inUnitAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "inMaxAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "outResourceType",
+                    "type": "uint8",
+                    "internalType": "enum ResourceType"
+                  },
+                  {
+                    "name": "outResourceId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "outUnitAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "outMaxAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  }
+                ]
               }
             ]
           }
@@ -1072,6 +1489,259 @@ declare const abi: [
                 "name": "nfts",
                 "type": "address[]",
                 "internalType": "address[]"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "experience__getBlocksEntityDataWithExchanges",
+    "inputs": [
+      {
+        "name": "entityIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "internalType": "struct BlockExperienceEntityDataWithExchanges[]",
+        "components": [
+          {
+            "name": "worldEntityData",
+            "type": "tuple",
+            "internalType": "struct BlockEntityData",
+            "components": [
+              {
+                "name": "entityId",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "baseEntityId",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "position",
+                "type": "tuple",
+                "internalType": "struct VoxelCoord",
+                "components": [
+                  {
+                    "name": "x",
+                    "type": "int16",
+                    "internalType": "int16"
+                  },
+                  {
+                    "name": "y",
+                    "type": "int16",
+                    "internalType": "int16"
+                  },
+                  {
+                    "name": "z",
+                    "type": "int16",
+                    "internalType": "int16"
+                  }
+                ]
+              },
+              {
+                "name": "inventory",
+                "type": "tuple[]",
+                "internalType": "struct InventoryObject[]",
+                "components": [
+                  {
+                    "name": "objectTypeId",
+                    "type": "uint8",
+                    "internalType": "uint8"
+                  },
+                  {
+                    "name": "numObjects",
+                    "type": "uint16",
+                    "internalType": "uint16"
+                  },
+                  {
+                    "name": "tools",
+                    "type": "tuple[]",
+                    "internalType": "struct InventoryTool[]",
+                    "components": [
+                      {
+                        "name": "entityId",
+                        "type": "bytes32",
+                        "internalType": "bytes32"
+                      },
+                      {
+                        "name": "numUsesLeft",
+                        "type": "uint24",
+                        "internalType": "uint24"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "chip",
+                "type": "tuple",
+                "internalType": "struct ChipData",
+                "components": [
+                  {
+                    "name": "chipAddress",
+                    "type": "address",
+                    "internalType": "address"
+                  },
+                  {
+                    "name": "batteryLevel",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "lastUpdatedTime",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "chipAttacher",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "chestMetadata",
+            "type": "tuple",
+            "internalType": "struct ChestMetadataData",
+            "components": [
+              {
+                "name": "name",
+                "type": "string",
+                "internalType": "string"
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "internalType": "string"
+              }
+            ]
+          },
+          {
+            "name": "ffMetadata",
+            "type": "tuple",
+            "internalType": "struct FFMetadataData",
+            "components": [
+              {
+                "name": "name",
+                "type": "string",
+                "internalType": "string"
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "internalType": "string"
+              }
+            ]
+          },
+          {
+            "name": "forceFieldApprovalsData",
+            "type": "tuple",
+            "internalType": "struct ForceFieldApprovalsData",
+            "components": [
+              {
+                "name": "players",
+                "type": "address[]",
+                "internalType": "address[]"
+              },
+              {
+                "name": "nfts",
+                "type": "address[]",
+                "internalType": "address[]"
+              }
+            ]
+          },
+          {
+            "name": "gateApprovalsData",
+            "type": "tuple",
+            "internalType": "struct GateApprovalsData",
+            "components": [
+              {
+                "name": "players",
+                "type": "address[]",
+                "internalType": "address[]"
+              },
+              {
+                "name": "nfts",
+                "type": "address[]",
+                "internalType": "address[]"
+              }
+            ]
+          },
+          {
+            "name": "exchanges",
+            "type": "tuple[]",
+            "internalType": "struct ExchangeInfoDataWithExchangeId[]",
+            "components": [
+              {
+                "name": "exchangeId",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "exchangeInfoData",
+                "type": "tuple",
+                "internalType": "struct ExchangeInfoData",
+                "components": [
+                  {
+                    "name": "inResourceType",
+                    "type": "uint8",
+                    "internalType": "enum ResourceType"
+                  },
+                  {
+                    "name": "inResourceId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "inUnitAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "inMaxAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "outResourceType",
+                    "type": "uint8",
+                    "internalType": "enum ResourceType"
+                  },
+                  {
+                    "name": "outResourceId",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                  },
+                  {
+                    "name": "outUnitAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  },
+                  {
+                    "name": "outMaxAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  }
+                ]
               }
             ]
           }
@@ -1909,6 +2579,163 @@ declare const abi: [
         "name": "countdownEndTimestamp",
         "type": "uint256",
         "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeInMaxAmount",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "inMaxAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeInUnitAmount",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "inUnitAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeOutMaxAmount",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "outMaxAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchangeOutUnitAmount",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "outUnitAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setExchanges",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "exchangeIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "exchangeInfoData",
+        "type": "tuple[]",
+        "internalType": "struct ExchangeInfoData[]",
+        "components": [
+          {
+            "name": "inResourceType",
+            "type": "uint8",
+            "internalType": "enum ResourceType"
+          },
+          {
+            "name": "inResourceId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "inUnitAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "inMaxAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "outResourceType",
+            "type": "uint8",
+            "internalType": "enum ResourceType"
+          },
+          {
+            "name": "outResourceId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "outUnitAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "outMaxAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
       }
     ],
     "outputs": [],

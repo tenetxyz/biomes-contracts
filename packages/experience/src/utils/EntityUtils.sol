@@ -29,6 +29,7 @@ import { Equipped } from "@biomesaw/world/src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "@biomesaw/world/src/codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "@biomesaw/world/src/codegen/tables/Recipes.sol";
 
+import { MAX_CHEST_INVENTORY_SLOTS } from "@biomesaw/world/src/constants.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { positionDataToVoxelCoord } from "@biomesaw/world/src/Utils.sol";
 
@@ -150,4 +151,8 @@ function getNumUsesLeft(bytes32 toolEntityId) view returns (uint24) {
 
 function getEntityAtCoord(VoxelCoord memory coord) view returns (bytes32) {
   return ReversePosition.getEntityId(coord.x, coord.y, coord.z);
+}
+
+function numMaxInChest(uint8 objectTypeId) view returns (uint16) {
+  return getStackable(objectTypeId) * MAX_CHEST_INVENTORY_SLOTS;
 }

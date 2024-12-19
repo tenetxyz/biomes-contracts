@@ -9,6 +9,7 @@ export default defineWorld({
     ChipType: ["None", "Chest", "ForceField", "Display"],
     ShopType: ["None", "Buy", "Sell", "BuySell"],
     ShopTxType: ["None", "Buy", "Sell"],
+    ResourceType: ["None", "Object", "NativeCurrency", "ERC20", "ERC721"],
   },
   userTypes: {
     ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", type: "bytes32" },
@@ -61,15 +62,28 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    ItemShop: {
+    ExchangeInfo: {
       schema: {
         entityId: "bytes32",
-        shopType: "ShopType",
-        objectTypeId: "uint8",
-        buyPrice: "uint256",
-        sellPrice: "uint256",
-        paymentToken: "address",
-        balance: "uint256",
+        exchangeId: "bytes32",
+        inResourceType: "ResourceType",
+        inResourceId: "bytes32",
+        inUnitAmount: "uint256",
+        inMaxAmount: "uint256",
+        outResourceType: "ResourceType",
+        outResourceId: "bytes32",
+        outUnitAmount: "uint256",
+        outMaxAmount: "uint256",
+      },
+      key: ["entityId", "exchangeId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    Exchanges: {
+      schema: {
+        entityId: "bytes32",
+        exchangeIds: "bytes32[]",
       },
       key: ["entityId"],
       codegen: {
@@ -165,17 +179,18 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    ItemShopNotif: {
+    ExchangeNotif: {
       schema: {
-        chestEntityId: "bytes32",
+        entityId: "bytes32",
         player: "address",
-        shopTxType: "ShopTxType",
-        objectTypeId: "uint8",
-        amount: "uint16",
-        price: "uint256",
-        paymentToken: "address",
+        inResourceType: "ResourceType",
+        inResourceId: "bytes32",
+        inAmount: "uint256",
+        outResourceType: "ResourceType",
+        outResourceId: "bytes32",
+        outAmount: "uint256",
       },
-      key: ["chestEntityId"],
+      key: ["entityId"],
       type: "offchainTable",
       codegen: {
         storeArgument: true,
@@ -299,6 +314,40 @@ export default defineWorld({
         baseURI: "string",
       },
       key: ["nft"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    // -------------------
+    // DEPRECATED TABLES
+    // -------------------
+    ItemShop: {
+      schema: {
+        entityId: "bytes32",
+        shopType: "ShopType",
+        objectTypeId: "uint8",
+        buyPrice: "uint256",
+        sellPrice: "uint256",
+        paymentToken: "address",
+        balance: "uint256",
+      },
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    ItemShopNotif: {
+      schema: {
+        chestEntityId: "bytes32",
+        player: "address",
+        shopTxType: "ShopTxType",
+        objectTypeId: "uint8",
+        amount: "uint16",
+        price: "uint256",
+        paymentToken: "address",
+      },
+      key: ["chestEntityId"],
+      type: "offchainTable",
       codegen: {
         storeArgument: true,
       },
