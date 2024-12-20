@@ -5,8 +5,8 @@ pragma solidity >=0.8.24;
 
 import { ExperienceMetadata, ExperienceMetadataData } from "./tables/ExperienceMetadata.sol";
 import { ChipMetadata, ChipMetadataData } from "./tables/ChipMetadata.sol";
-import { ChipNamespace } from "./tables/ChipNamespace.sol";
 import { ChipAttachment } from "./tables/ChipAttachment.sol";
+import { NamespaceId } from "./tables/NamespaceId.sol";
 import { ExchangeInfo, ExchangeInfoData } from "./tables/ExchangeInfo.sol";
 import { Exchanges } from "./tables/Exchanges.sol";
 import { ChestMetadata, ChestMetadataData } from "./tables/ChestMetadata.sol";
@@ -27,5 +27,6 @@ import { Tokens } from "./tables/Tokens.sol";
 import { NFTs } from "./tables/NFTs.sol";
 import { ERC20Metadata, ERC20MetadataData } from "./tables/ERC20Metadata.sol";
 import { ERC721Metadata, ERC721MetadataData } from "./tables/ERC721Metadata.sol";
+import { ChipNamespace } from "./tables/ChipNamespace.sol";
 import { ItemShop, ItemShopData } from "./tables/ItemShop.sol";
 import { ItemShopNotif, ItemShopNotifData } from "./tables/ItemShopNotif.sol";

@@ -22,6 +22,7 @@ import { IGateSystem } from "./IGateSystem.sol";
 import { IItemShopNotifSystem } from "./IItemShopNotifSystem.sol";
 import { INFTMetadataSystem } from "./INFTMetadataSystem.sol";
 import { INFTSystem } from "./INFTSystem.sol";
+import { INamespaceIdSystem } from "./INamespaceIdSystem.sol";
 import { INotificationSystem } from "./INotificationSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
@@ -55,6 +56,7 @@ interface IWorld is
   IItemShopNotifSystem,
   INFTMetadataSystem,
   INFTSystem,
+  INamespaceIdSystem,
   INotificationSystem,
   IPlayerSystem,
   IReadSystem,

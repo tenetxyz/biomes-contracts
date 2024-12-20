@@ -400,6 +400,13 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__deleteNamespaceId",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteNfts",
     "inputs": [],
     "outputs": [],
@@ -3137,6 +3144,19 @@ declare const abi: [
             "internalType": "string"
           }
         ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setNamespaceId",
+    "inputs": [
+      {
+        "name": "namespaceId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
       }
     ],
     "outputs": [],

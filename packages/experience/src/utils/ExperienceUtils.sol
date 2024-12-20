@@ -180,3 +180,11 @@ function setMUDNFTMetadata(ResourceId namespaceId, ERC721MetadataData memory met
 function deleteNFTMetadata() {
   IWorld(WorldContextConsumerLib._world()).experience__deleteNFTMetadata();
 }
+
+function setNamespaceId(ResourceId namespaceId) {
+  IWorld(WorldContextConsumerLib._world()).experience__setNamespaceId(namespaceId);
+}
+
+function deleteNamespaceId() {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteNamespaceId();
+}

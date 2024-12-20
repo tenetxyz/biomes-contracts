@@ -42,22 +42,22 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    ChipNamespace: {
-      schema: {
-        chipAddress: "address",
-        namespaceId: "ResourceId",
-      },
-      key: ["chipAddress"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
     ChipAttachment: {
       schema: {
         entityId: "bytes32",
         attacher: "address",
       },
       key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    NamespaceId: {
+      schema: {
+        contractAddress: "address",
+        namespaceId: "ResourceId",
+      },
+      key: ["contractAddress"],
       codegen: {
         storeArgument: true,
       },
@@ -321,6 +321,16 @@ export default defineWorld({
     // -------------------
     // DEPRECATED TABLES
     // -------------------
+    ChipNamespace: {
+      schema: {
+        chipAddress: "address",
+        namespaceId: "ResourceId",
+      },
+      key: ["chipAddress"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     ItemShop: {
       schema: {
         entityId: "bytes32",

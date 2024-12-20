@@ -10,7 +10,7 @@ import { ERC20Registry } from "@latticexyz/world-modules/src/modules/erc20-puppe
 import { ERC20_REGISTRY_TABLE_ID } from "@latticexyz/world-modules/src/modules/erc20-puppet/constants.sol";
 
 import { ERC20Metadata, ERC20MetadataData } from "../codegen/tables/ERC20Metadata.sol";
-
+import { NamespaceId } from "../codegen/tables/NamespaceId.sol";
 contract TokenMetadataSystem is System {
   function setTokenMetadata(ERC20MetadataData memory metadata) public {
     require(
@@ -25,9 +25,11 @@ contract TokenMetadataSystem is System {
     address tokenAddress = ERC20Registry.get(ERC20_REGISTRY_TABLE_ID, namespaceId);
     require(tokenAddress != address(0), "TokenMetadataSystem: token not found for namespace");
     ERC20Metadata.set(tokenAddress, metadata);
+    NamespaceId.set(tokenAddress, namespaceId);
   }
 
   function deleteTokenMetadata() public {
     ERC20Metadata.deleteRecord(_msgSender());
+    NamespaceId.deleteRecord(_msgSender());
   }
 }

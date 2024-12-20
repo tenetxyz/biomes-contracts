@@ -10,6 +10,7 @@ import { ERC721Registry } from "@latticexyz/world-modules/src/modules/erc721-pup
 import { ERC721_REGISTRY_TABLE_ID } from "@latticexyz/world-modules/src/modules/erc721-puppet/constants.sol";
 
 import { ERC721Metadata, ERC721MetadataData } from "../codegen/tables/ERC721Metadata.sol";
+import { NamespaceId } from "../codegen/tables/NamespaceId.sol";
 
 contract NFTMetadataSystem is System {
   function setNFTMetadata(ERC721MetadataData memory metadata) public {
@@ -25,9 +26,11 @@ contract NFTMetadataSystem is System {
     address nftAddress = ERC721Registry.get(ERC721_REGISTRY_TABLE_ID, namespaceId);
     require(nftAddress != address(0), "NFTMetadataSystem: nft not found for namespace");
     ERC721Metadata.set(nftAddress, metadata);
+    NamespaceId.set(nftAddress, namespaceId);
   }
 
   function deleteNFTMetadata() public {
     ERC721Metadata.deleteRecord(_msgSender());
+    NamespaceId.deleteRecord(_msgSender());
   }
 }
