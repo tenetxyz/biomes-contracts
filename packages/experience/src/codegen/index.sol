@@ -6,6 +6,7 @@ pragma solidity >=0.8.24;
 import { ExperienceMetadata, ExperienceMetadataData } from "./tables/ExperienceMetadata.sol";
 import { ChipMetadata, ChipMetadataData } from "./tables/ChipMetadata.sol";
 import { ChipAttachment } from "./tables/ChipAttachment.sol";
+import { ChipAdmin } from "./tables/ChipAdmin.sol";
 import { NamespaceId } from "./tables/NamespaceId.sol";
 import { ExchangeInfo, ExchangeInfoData } from "./tables/ExchangeInfo.sol";
 import { Exchanges } from "./tables/Exchanges.sol";

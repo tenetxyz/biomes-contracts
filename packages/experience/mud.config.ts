@@ -52,6 +52,16 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    ChipAdmin: {
+      schema: {
+        entityId: "bytes32",
+        admin: "address",
+      },
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     NamespaceId: {
       schema: {
         contractAddress: "address",

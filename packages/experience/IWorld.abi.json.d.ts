@@ -269,6 +269,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "experience__deleteChipAdmin",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deleteChipAttacher",
     "inputs": [
       {
@@ -2474,6 +2487,24 @@ declare const abi: [
         "name": "name",
         "type": "string",
         "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setChipAdmin",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "admin",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],

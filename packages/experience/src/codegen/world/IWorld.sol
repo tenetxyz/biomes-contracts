@@ -8,6 +8,7 @@ import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.
 import { IAreaSystem } from "./IAreaSystem.sol";
 import { IBuildsSystem } from "./IBuildsSystem.sol";
 import { IChestMetadataSystem } from "./IChestMetadataSystem.sol";
+import { IChipAdminSystem } from "./IChipAdminSystem.sol";
 import { IChipAttachmentSystem } from "./IChipAttachmentSystem.sol";
 import { IChipMetadataSystem } from "./IChipMetadataSystem.sol";
 import { IChipNamespaceSystem } from "./IChipNamespaceSystem.sol";
@@ -42,6 +43,7 @@ interface IWorld is
   IAreaSystem,
   IBuildsSystem,
   IChestMetadataSystem,
+  IChipAdminSystem,
   IChipAttachmentSystem,
   IChipMetadataSystem,
   IChipNamespaceSystem,

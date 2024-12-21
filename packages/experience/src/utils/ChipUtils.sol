@@ -190,3 +190,11 @@ function popGateApprovedNFT(bytes32 entityId) {
 function updateGateApprovedNFT(bytes32 entityId, uint256 index, address nft) {
   IWorld(WorldContextConsumerLib._world()).experience__updateGateApprovedNFT(entityId, index, nft);
 }
+
+function setChipAdmin(bytes32 entityId, address admin) {
+  IWorld(WorldContextConsumerLib._world()).experience__setChipAdmin(entityId, admin);
+}
+
+function deleteChipAdmin(bytes32 entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteChipAdmin(entityId);
+}
