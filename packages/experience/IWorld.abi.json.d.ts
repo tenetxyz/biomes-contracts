@@ -941,6 +941,11 @@ declare const abi: [
             "internalType": "address"
           },
           {
+            "name": "chipAdmin",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
             "name": "chestMetadata",
             "type": "tuple",
             "internalType": "struct ChestMetadataData",
@@ -1635,6 +1640,11 @@ declare const abi: [
           },
           {
             "name": "chipAttacher",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "chipAdmin",
             "type": "address",
             "internalType": "address"
           },

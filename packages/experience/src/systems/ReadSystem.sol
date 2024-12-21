@@ -7,6 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { BlockEntityData } from "@biomesaw/world/src/Types.sol";
 
 import { ChipAttachment } from "../codegen/tables/ChipAttachment.sol";
+import { ChipAdmin } from "../codegen/tables/ChipAdmin.sol";
 import { ItemShop, ItemShopData } from "../codegen/tables/ItemShop.sol";
 import { ChestMetadata, ChestMetadata } from "../codegen/tables/ChestMetadata.sol";
 import { FFMetadata } from "../codegen/tables/FFMetadata.sol";
@@ -65,6 +66,7 @@ contract ReadSystem is System {
       BlockExperienceEntityDataWithExchanges({
         worldEntityData: blockEntityData,
         chipAttacher: ChipAttachment.get(entityId),
+        chipAdmin: ChipAdmin.get(entityId),
         chestMetadata: ChestMetadata.get(entityId),
         ffMetadata: FFMetadata.get(entityId),
         forceFieldApprovalsData: ForceFieldApprovals.get(entityId),

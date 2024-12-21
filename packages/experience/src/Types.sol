@@ -38,6 +38,7 @@ struct BlockExperienceEntityDataWithGateApprovals {
 struct BlockExperienceEntityDataWithExchanges {
   BlockEntityData worldEntityData;
   address chipAttacher;
+  address chipAdmin;
   ChestMetadataData chestMetadata;
   FFMetadataData ffMetadata;
   ForceFieldApprovalsData forceFieldApprovalsData;
