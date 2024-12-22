@@ -40,14 +40,14 @@ contract ChipSystem is System {
     require(chipData.chipAddress == address(0), "ChipSystem: chip already attached");
     require(chipAddress != address(0), "ChipSystem: invalid chip address");
 
-    if (objectTypeId == SmartChestObjectID) {
-      require(
-        ERC165Checker.supportsInterface(chipAddress, type(IChestChip).interfaceId),
-        "ChipSystem: chip does not implement the required interface"
-      );
-    } else if (objectTypeId == ForceFieldObjectID) {
+    if (objectTypeId == ForceFieldObjectID) {
       require(
         ERC165Checker.supportsInterface(chipAddress, type(IForceFieldChip).interfaceId),
+        "ChipSystem: chip does not implement the required interface"
+      );
+    } else if (objectTypeId == SmartChestObjectID) {
+      require(
+        ERC165Checker.supportsInterface(chipAddress, type(IChestChip).interfaceId),
         "ChipSystem: chip does not implement the required interface"
       );
     } else if (objectTypeId == SmartTextSignObjectID) {
