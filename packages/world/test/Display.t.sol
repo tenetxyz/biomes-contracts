@@ -33,7 +33,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, NeptuniumCubeObjectID, ChipObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, NeptuniumCubeObjectID, ChipObjectID, TextSignObjectID, SmartTextSignObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
@@ -114,7 +114,7 @@ contract DisplayTest is MudTest, GasReporter {
     bytes32 playerEntityId = setupPlayer();
 
     vm.startPrank(worldDeployer, worldDeployer);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, TextSignObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartTextSignObjectID, 1);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
     assertTrue(InventorySlots.get(playerEntityId) == 2, "Inventory slot not set");
     vm.stopPrank();
@@ -122,7 +122,7 @@ contract DisplayTest is MudTest, GasReporter {
 
     VoxelCoord memory buildCoord = VoxelCoord(spawnCoord.x, spawnCoord.y, spawnCoord.z - 1);
     assertTrue(world.getTerrainBlock(buildCoord) == AirObjectID, "Terrain block is not air");
-    bytes32 buildEntityId = world.build(TextSignObjectID, buildCoord);
+    bytes32 buildEntityId = world.build(SmartTextSignObjectID, buildCoord);
 
     assertTrue(
       voxelCoordsAreEqual(positionDataToVoxelCoord(Position.get(buildEntityId)), buildCoord),
@@ -132,9 +132,9 @@ contract DisplayTest is MudTest, GasReporter {
       ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z) == buildEntityId,
       "Reverse position not set"
     );
-    assertTrue(ObjectType.get(buildEntityId) == TextSignObjectID, "Object not built");
-    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, TextSignObjectID), "Inventory objects not set");
-    assertTrue(InventoryCount.get(playerEntityId, TextSignObjectID) == 0, "Inventory count not set");
+    assertTrue(ObjectType.get(buildEntityId) == SmartTextSignObjectID, "Object not built");
+    assertTrue(!testInventoryObjectsHasObjectType(playerEntityId, SmartTextSignObjectID), "Inventory objects not set");
+    assertTrue(InventoryCount.get(playerEntityId, SmartTextSignObjectID) == 0, "Inventory count not set");
     assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
 
     world.attachChip(buildEntityId, address(testDisplayChip));

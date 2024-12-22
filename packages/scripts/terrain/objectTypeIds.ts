@@ -213,6 +213,8 @@ export const TEXT_SIGN_OBJECT_ID = 168;
 export const ANY_ORE_OBJECT_ID = 169;
 
 export const LAVA_OBJECT_ID = 170;
+export const SMART_CHEST_OBJECT_ID = 171;
+export const SMART_TEXT_SIGN_OBJECT_ID = 172;
 
 // legacy
 export type BiomesVariantData = number;

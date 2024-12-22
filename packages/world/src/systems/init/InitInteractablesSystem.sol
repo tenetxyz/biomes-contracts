@@ -8,8 +8,8 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../../codegen/tables/ObjectTypeSchema.sol";
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
-import { ChestObjectID, ThermoblasterObjectID, PowerStoneObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID, TextSignObjectID } from "../../ObjectTypeIds.sol";
-import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID, MoonstoneObjectID } from "../../ObjectTypeIds.sol";
+import { ChestObjectID, SmartChestObjectID, ThermoblasterObjectID, PowerStoneObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID, TextSignObjectID, SmartTextSignObjectID } from "../../ObjectTypeIds.sol";
+import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID, MoonstoneObjectID, SilverBarObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
@@ -47,9 +47,11 @@ contract InitInteractablesSystem is System {
 
   function initInteractableObjectTypes() public {
     createInteractableBlock(ChestObjectID, 20, 1, new VoxelCoord[](0));
+    createInteractableBlock(SmartChestObjectID, 20, 1, new VoxelCoord[](0));
     VoxelCoord[] memory textSignRelativePositions = new VoxelCoord[](1);
     textSignRelativePositions[0] = VoxelCoord(0, 1, 0);
     createInteractableBlock(TextSignObjectID, 20, 99, textSignRelativePositions);
+    createInteractableBlock(SmartTextSignObjectID, 20, 99, textSignRelativePositions);
     createInteractableBlock(ThermoblasterObjectID, 80, 1, new VoxelCoord[](0));
     createInteractableBlock(WorkbenchObjectID, 20, 1, new VoxelCoord[](0));
     createInteractableBlock(DyeomaticObjectID, 80, 1, new VoxelCoord[](0));
@@ -59,7 +61,25 @@ contract InitInteractablesSystem is System {
 
   function initInteractablesRecipes() public {
     createSingleInputWithStationRecipe(WorkbenchObjectID, AnyLumberObjectID, 8, ChestObjectID, 1);
+    createDoubleInputWithStationRecipe(
+      WorkbenchObjectID,
+      ChestObjectID,
+      1,
+      SilverBarObjectID,
+      1,
+      SmartChestObjectID,
+      1
+    );
     createSingleInputWithStationRecipe(WorkbenchObjectID, AnyLumberObjectID, 4, TextSignObjectID, 1);
+    createDoubleInputWithStationRecipe(
+      WorkbenchObjectID,
+      TextSignObjectID,
+      1,
+      SilverBarObjectID,
+      1,
+      SmartTextSignObjectID,
+      1
+    );
     createSingleInputRecipe(AnyLogObjectID, 5, WorkbenchObjectID, 1);
     createSingleInputRecipe(StoneObjectID, 9, ThermoblasterObjectID, 1);
     createDoubleInputRecipe(ClayObjectID, 4, SandObjectID, 4, DyeomaticObjectID, 1);

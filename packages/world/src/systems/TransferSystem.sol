@@ -12,14 +12,14 @@ import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
+import { PlayerObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, callMintXP } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-
+import { canHoldInventory } from "../utils/ObjectTypeUtils.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 
 contract TransferSystem is System {
@@ -47,10 +47,10 @@ contract TransferSystem is System {
     uint8 dstObjectTypeId = ObjectType._get(baseDstEntityId);
     if (srcObjectTypeId == PlayerObjectID) {
       require(playerEntityId == baseSrcEntityId, "TransferSystem: player does not own source inventory");
-      require(dstObjectTypeId == ChestObjectID, "TransferSystem: cannot transfer to non-chest");
+      require(canHoldInventory(dstObjectTypeId), "TransferSystem: this object type does not have an inventory");
     } else if (dstObjectTypeId == PlayerObjectID) {
       require(playerEntityId == baseDstEntityId, "TransferSystem: player does not own destination inventory");
-      require(srcObjectTypeId == ChestObjectID, "TransferSystem: cannot transfer from non-chest");
+      require(canHoldInventory(srcObjectTypeId), "TransferSystem: this object type does not have an inventory");
     } else {
       revert("TransferSystem: invalid transfer operation");
     }

@@ -33,7 +33,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ChestObjectID, GrassObjectID, ForceFieldObjectID, ChipObjectID, ChipBatteryObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ChestObjectID, SmartChestObjectID, GrassObjectID, ForceFieldObjectID, ChipObjectID, ChipBatteryObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
@@ -239,7 +239,7 @@ contract ChestTest is MudTest, GasReporter {
     ObjectType.set(airEntityId, AirObjectID);
     Position.set(airEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
     ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, airEntityId);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartChestObjectID, 1);
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
@@ -252,7 +252,7 @@ contract ChestTest is MudTest, GasReporter {
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not removed from inventory");
 
-    bytes32 chestEntityId = world.build(ChestObjectID, chestCoord);
+    bytes32 chestEntityId = world.build(SmartChestObjectID, chestCoord);
 
     assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
 

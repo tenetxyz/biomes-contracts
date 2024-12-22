@@ -12,7 +12,7 @@ import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS } from "../Constants.sol";
-import { PlayerObjectID, ChestObjectID } from "../ObjectTypeIds.sol";
+import { PlayerObjectID, ChestObjectID, SmartChestObjectID } from "../ObjectTypeIds.sol";
 
 function addToInventoryCount(
   bytes32 ownerEntityId,
@@ -36,7 +36,7 @@ function addToInventoryCount(
   uint16 numFinalSlotsUsed = numInitialSlotsUsed + numFinalSlotsUsedDelta;
   if (ownerObjectTypeId == PlayerObjectID) {
     require(numFinalSlotsUsed <= MAX_PLAYER_INVENTORY_SLOTS, "Inventory is full");
-  } else if (ownerObjectTypeId == ChestObjectID) {
+  } else if (ownerObjectTypeId == ChestObjectID || ownerObjectTypeId == SmartChestObjectID) {
     require(numFinalSlotsUsed <= MAX_CHEST_INVENTORY_SLOTS, "Inventory is full");
   }
   InventorySlots._set(ownerEntityId, numFinalSlotsUsed);

@@ -17,7 +17,7 @@ import { GlassObjectID, BlueGlassObjectID, GreenGlassObjectID, OrangeGlassObject
 import { BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "../ObjectTypeIds.sol";
 import { CottonBlockObjectID, BlueCottonBlockObjectID, BrownCottonBlockObjectID, GreenCottonBlockObjectID, MagentaCottonBlockObjectID, OrangeCottonBlockObjectID, PinkCottonBlockObjectID, PurpleCottonBlockObjectID, RedCottonBlockObjectID, TanCottonBlockObjectID, WhiteCottonBlockObjectID, YellowCottonBlockObjectID, BlackCottonBlockObjectID, SilverCottonBlockObjectID } from "../ObjectTypeIds.sol";
 
-import { ChestObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
+import { ChestObjectID, ForceFieldObjectID, SmartChestObjectID } from "../ObjectTypeIds.sol";
 
 function isPick(uint8 objectTypeId) pure returns (bool) {
   return
@@ -187,4 +187,8 @@ function isStone(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == GraniteObjectID ||
     objectTypeId == QuartziteObjectID ||
     objectTypeId == LimestoneObjectID;
+}
+
+function canHoldInventory(uint8 objectTypeId) pure returns (bool) {
+  return objectTypeId == ChestObjectID || objectTypeId == SmartChestObjectID;
 }

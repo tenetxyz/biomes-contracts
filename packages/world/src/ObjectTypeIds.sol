@@ -216,3 +216,5 @@ uint8 constant TextSignObjectID = 168;
 uint8 constant AnyOreObjectID = 169;
 
 uint8 constant LavaObjectID = 170;
+uint8 constant SmartChestObjectID = 171;
+uint8 constant SmartTextSignObjectID = 172;

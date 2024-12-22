@@ -434,7 +434,7 @@ contract TransferTest is MudTest, GasReporter {
 
     vm.startPrank(alice, alice);
 
-    vm.expectRevert("TransferSystem: cannot transfer to non-chest");
+    vm.expectRevert("TransferSystem: this object type does not have an inventory");
     world.transfer(playerEntityId, playerEntityId2, inputObjectTypeId1, 1);
 
     vm.stopPrank();
