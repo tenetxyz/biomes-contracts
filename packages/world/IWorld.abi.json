@@ -1282,12 +1282,12 @@
       {
         "name": "",
         "type": "tuple",
-        "internalType": "struct DisplayContent",
+        "internalType": "struct DisplayContentData",
         "components": [
           {
             "name": "contentType",
             "type": "uint8",
-            "internalType": "uint8"
+            "internalType": "enum DisplayContentType"
           },
           {
             "name": "content",
@@ -5065,6 +5065,36 @@
         "name": "hookAddress",
         "type": "address",
         "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setDisplayContent",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "content",
+        "type": "tuple",
+        "internalType": "struct DisplayContentData",
+        "components": [
+          {
+            "name": "contentType",
+            "type": "uint8",
+            "internalType": "enum DisplayContentType"
+          },
+          {
+            "name": "content",
+            "type": "bytes",
+            "internalType": "bytes"
+          }
+        ]
       }
     ],
     "outputs": [],

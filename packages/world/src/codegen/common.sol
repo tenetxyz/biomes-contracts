@@ -24,3 +24,9 @@ enum ActionType {
   InitiateOreReveal,
   RevealOre
 }
+
+enum DisplayContentType {
+  None,
+  Text,
+  Image
+}

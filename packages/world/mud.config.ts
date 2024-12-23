@@ -27,6 +27,7 @@ export default defineWorld({
       "InitiateOreReveal",
       "RevealOre",
     ],
+    DisplayContentType: ["None", "Text", "Image"],
   },
   tables: {
     UniqueEntity: {
@@ -377,6 +378,17 @@ export default defineWorld({
         blockPrevrandao: "uint256",
       },
       key: ["blockNumber"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    DisplayContent: {
+      schema: {
+        entityId: "bytes32",
+        contentType: "DisplayContentType",
+        content: "bytes",
+      },
+      key: ["entityId"],
       codegen: {
         storeArgument: true,
       },

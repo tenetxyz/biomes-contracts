@@ -34,5 +34,6 @@ import { TerrainCommitment, TerrainCommitmentData } from "./tables/TerrainCommit
 import { Commitment, CommitmentData } from "./tables/Commitment.sol";
 import { BlockHash } from "./tables/BlockHash.sol";
 import { BlockPrevrandao } from "./tables/BlockPrevrandao.sol";
+import { DisplayContent, DisplayContentData } from "./tables/DisplayContent.sol";
 import { Terrain } from "./tables/Terrain.sol";
 import { ChestMetadata, ChestMetadataData } from "./tables/ChestMetadata.sol";
