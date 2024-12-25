@@ -17,7 +17,7 @@ import { GlassObjectID, BlueGlassObjectID, GreenGlassObjectID, OrangeGlassObject
 import { BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "../ObjectTypeIds.sol";
 import { CottonBlockObjectID, BlueCottonBlockObjectID, BrownCottonBlockObjectID, GreenCottonBlockObjectID, MagentaCottonBlockObjectID, OrangeCottonBlockObjectID, PinkCottonBlockObjectID, PurpleCottonBlockObjectID, RedCottonBlockObjectID, TanCottonBlockObjectID, WhiteCottonBlockObjectID, YellowCottonBlockObjectID, BlackCottonBlockObjectID, SilverCottonBlockObjectID } from "../ObjectTypeIds.sol";
 
-import { ChestObjectID, ForceFieldObjectID, SmartChestObjectID, SmartTextSignObjectID } from "../ObjectTypeIds.sol";
+import { ForceFieldObjectID, ChestObjectID, SmartChestObjectID, TextSignObjectID, SmartTextSignObjectID } from "../ObjectTypeIds.sol";
 
 function isPick(uint8 objectTypeId) pure returns (bool) {
   return
@@ -191,6 +191,10 @@ function isStone(uint8 objectTypeId) pure returns (bool) {
 
 function canHoldInventory(uint8 objectTypeId) pure returns (bool) {
   return objectTypeId == ChestObjectID || objectTypeId == SmartChestObjectID;
+}
+
+function isBasicDisplay(uint8 objectTypeId) pure returns (bool) {
+  return objectTypeId == TextSignObjectID;
 }
 
 function isSmartItem(uint8 objectTypeId) pure returns (bool) {

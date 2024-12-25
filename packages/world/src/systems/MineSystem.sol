@@ -16,6 +16,7 @@ import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
@@ -24,7 +25,7 @@ import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUni
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
-
+import { isBasicDisplay } from "../utils/ObjectTypeUtils.sol";
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 import { IMineHelperSystem } from "../codegen/world/IMineHelperSystem.sol";
 
@@ -50,6 +51,9 @@ contract MineSystem is System {
         chipData.chipAddress == address(0) && chipData.batteryLevel == 0,
         "MineSystem: chip is attached to entity"
       );
+      if (isBasicDisplay(mineObjectTypeId)) {
+        DisplayContent.deleteRecord(entityId);
+      }
     }
     require(ObjectTypeMetadata._getIsBlock(mineObjectTypeId), "MineSystem: object type is not a block");
     require(mineObjectTypeId != AirObjectID, "MineSystem: cannot mine air");

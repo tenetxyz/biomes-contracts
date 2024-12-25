@@ -18,7 +18,7 @@ import { isSmartItem } from "../utils/ObjectTypeUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
-
+import { isBasicDisplay } from "../utils/ObjectTypeUtils.sol";
 contract DisplaySystem is System {
   function getDisplayContent(bytes32 entityId) public view returns (DisplayContentData memory) {
     require(entityId != bytes32(0), "DisplaySystem: entity does not exist");
@@ -49,8 +49,8 @@ contract DisplaySystem is System {
     bytes32 baseEntityId = BaseEntity._get(entityId);
     baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
     require(
-      !isSmartItem(ObjectType.get(baseEntityId)),
-      "DisplaySystem: you need to call the smart item chip to set the display content"
+      isBasicDisplay(ObjectType.get(baseEntityId)),
+      "DisplaySystem: you can only set the display content of a basic display"
     );
     VoxelCoord memory entityCoord = positionDataToVoxelCoord(Position.get(baseEntityId));
     require(
@@ -58,6 +58,6 @@ contract DisplaySystem is System {
       "DisplaySystem: entity is not at the specified position"
     );
 
-    DisplayContent.set(entityId, content);
+    DisplayContent.set(baseEntityId, content);
   }
 }
