@@ -12,6 +12,7 @@ import { ItemShop, ItemShopData } from "../codegen/tables/ItemShop.sol";
 import { ChestMetadata, ChestMetadata } from "../codegen/tables/ChestMetadata.sol";
 import { FFMetadata } from "../codegen/tables/FFMetadata.sol";
 import { ForceFieldApprovals, ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
+import { SmartItemMetadata, SmartItemMetadataData } from "../codegen/tables/SmartItemMetadata.sol";
 import { GateApprovals, GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
 import { ExchangeInfo, ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
 import { Exchanges } from "../codegen/tables/Exchanges.sol";
@@ -67,9 +68,7 @@ contract ReadSystem is System {
         worldEntityData: blockEntityData,
         chipAttacher: ChipAttachment.get(entityId),
         chipAdmin: ChipAdmin.get(entityId),
-        chestMetadata: ChestMetadata.get(entityId),
-        ffMetadata: FFMetadata.get(entityId),
-        forceFieldApprovalsData: ForceFieldApprovals.get(entityId),
+        smartItemMetadata: SmartItemMetadata.get(entityId),
         gateApprovalsData: GateApprovals.get(entityId),
         exchanges: exchangeInfoData
       });

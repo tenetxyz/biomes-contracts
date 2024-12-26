@@ -7,6 +7,7 @@ import { BlockEntityData } from "@biomesaw/world/src/Types.sol";
 import { ItemShopData } from "./codegen/tables/ItemShop.sol";
 import { ChestMetadataData } from "./codegen/tables/ChestMetadata.sol";
 import { FFMetadataData } from "./codegen/tables/FFMetadata.sol";
+import { SmartItemMetadataData } from "./codegen/tables/SmartItemMetadata.sol";
 import { ForceFieldApprovalsData } from "./codegen/tables/ForceFieldApprovals.sol";
 import { GateApprovalsData } from "./codegen/tables/GateApprovals.sol";
 import { ExchangeInfoData } from "./codegen/tables/ExchangeInfo.sol";
@@ -39,9 +40,7 @@ struct BlockExperienceEntityDataWithExchanges {
   BlockEntityData worldEntityData;
   address chipAttacher;
   address chipAdmin;
-  ChestMetadataData chestMetadata;
-  FFMetadataData ffMetadata;
-  ForceFieldApprovalsData forceFieldApprovalsData;
+  SmartItemMetadataData smartItemMetadata;
   GateApprovalsData gateApprovalsData;
   ExchangeInfoDataWithExchangeId[] exchanges;
 }

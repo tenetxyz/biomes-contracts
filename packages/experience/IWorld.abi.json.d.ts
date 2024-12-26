@@ -972,9 +972,9 @@ declare const abi: [
             "internalType": "address"
           },
           {
-            "name": "chestMetadata",
+            "name": "smartItemMetadata",
             "type": "tuple",
-            "internalType": "struct ChestMetadataData",
+            "internalType": "struct SmartItemMetadataData",
             "components": [
               {
                 "name": "name",
@@ -985,40 +985,6 @@ declare const abi: [
                 "name": "description",
                 "type": "string",
                 "internalType": "string"
-              }
-            ]
-          },
-          {
-            "name": "ffMetadata",
-            "type": "tuple",
-            "internalType": "struct FFMetadataData",
-            "components": [
-              {
-                "name": "name",
-                "type": "string",
-                "internalType": "string"
-              },
-              {
-                "name": "description",
-                "type": "string",
-                "internalType": "string"
-              }
-            ]
-          },
-          {
-            "name": "forceFieldApprovalsData",
-            "type": "tuple",
-            "internalType": "struct ForceFieldApprovalsData",
-            "components": [
-              {
-                "name": "players",
-                "type": "address[]",
-                "internalType": "address[]"
-              },
-              {
-                "name": "nfts",
-                "type": "address[]",
-                "internalType": "address[]"
               }
             ]
           },
@@ -1675,9 +1641,9 @@ declare const abi: [
             "internalType": "address"
           },
           {
-            "name": "chestMetadata",
+            "name": "smartItemMetadata",
             "type": "tuple",
-            "internalType": "struct ChestMetadataData",
+            "internalType": "struct SmartItemMetadataData",
             "components": [
               {
                 "name": "name",
@@ -1688,40 +1654,6 @@ declare const abi: [
                 "name": "description",
                 "type": "string",
                 "internalType": "string"
-              }
-            ]
-          },
-          {
-            "name": "ffMetadata",
-            "type": "tuple",
-            "internalType": "struct FFMetadataData",
-            "components": [
-              {
-                "name": "name",
-                "type": "string",
-                "internalType": "string"
-              },
-              {
-                "name": "description",
-                "type": "string",
-                "internalType": "string"
-              }
-            ]
-          },
-          {
-            "name": "forceFieldApprovalsData",
-            "type": "tuple",
-            "internalType": "struct ForceFieldApprovalsData",
-            "components": [
-              {
-                "name": "players",
-                "type": "address[]",
-                "internalType": "address[]"
-              },
-              {
-                "name": "nfts",
-                "type": "address[]",
-                "internalType": "address[]"
               }
             ]
           },
