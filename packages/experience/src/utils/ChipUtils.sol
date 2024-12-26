@@ -15,6 +15,8 @@ import { ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.s
 import { SmartItemMetadataData } from "../codegen/tables/SmartItemMetadata.sol";
 import { GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
 import { ItemShopNotifData } from "../codegen/tables/ItemShopNotif.sol";
+import { ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
+import { ExchangeNotifData } from "../codegen/tables/ExchangeNotif.sol";
 
 function setChipMetadata(ChipMetadataData memory metadata) {
   IWorld(WorldContextConsumerLib._world()).experience__setChipMetadata(metadata);
@@ -24,132 +26,12 @@ function deleteChipMetadata() {
   IWorld(WorldContextConsumerLib._world()).experience__deleteChipMetadata();
 }
 
-function setChipNamespace(ResourceId namespaceId) {
-  IWorld(WorldContextConsumerLib._world()).experience__setChipNamespace(namespaceId);
-}
-
-function deleteChipNamespace() {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteChipNamespace();
-}
-
 function setChipAttacher(bytes32 entityId, address attacher) {
   IWorld(WorldContextConsumerLib._world()).experience__setChipAttacher(entityId, attacher);
 }
 
 function deleteChipAttacher(bytes32 entityId) {
   IWorld(WorldContextConsumerLib._world()).experience__deleteChipAttacher(entityId);
-}
-
-function setShop(bytes32 entityId, ItemShopData memory shopData) {
-  IWorld(WorldContextConsumerLib._world()).experience__setShop(entityId, shopData);
-}
-
-function deleteShop(bytes32 entityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteShop(entityId);
-}
-
-function setBuyShop(bytes32 entityId, uint8 buyObjectTypeId, uint256 buyPrice, address paymentToken) {
-  IWorld(WorldContextConsumerLib._world()).experience__setBuyShop(entityId, buyObjectTypeId, buyPrice, paymentToken);
-}
-
-function setSellShop(bytes32 entityId, uint8 sellObjectTypeId, uint256 sellPrice, address paymentToken) {
-  IWorld(WorldContextConsumerLib._world()).experience__setSellShop(entityId, sellObjectTypeId, sellPrice, paymentToken);
-}
-
-function setShopBalance(bytes32 entityId, uint256 balance) {
-  IWorld(WorldContextConsumerLib._world()).experience__setShopBalance(entityId, balance);
-}
-
-function setBuyPrice(bytes32 entityId, uint256 buyPrice) {
-  IWorld(WorldContextConsumerLib._world()).experience__setBuyPrice(entityId, buyPrice);
-}
-
-function setSellPrice(bytes32 entityId, uint256 sellPrice) {
-  IWorld(WorldContextConsumerLib._world()).experience__setSellPrice(entityId, sellPrice);
-}
-
-function setShopObjectTypeId(bytes32 entityId, uint8 objectTypeId) {
-  IWorld(WorldContextConsumerLib._world()).experience__setShopObjectTypeId(entityId, objectTypeId);
-}
-
-function setChestMetadata(bytes32 entityId, ChestMetadataData memory metadata) {
-  IWorld(WorldContextConsumerLib._world()).experience__setChestMetadata(entityId, metadata);
-}
-
-function setChestName(bytes32 entityId, string memory name) {
-  IWorld(WorldContextConsumerLib._world()).experience__setChestName(entityId, name);
-}
-
-function setChestDescription(bytes32 entityId, string memory description) {
-  IWorld(WorldContextConsumerLib._world()).experience__setChestDescription(entityId, description);
-}
-
-function deleteChestMetadata(bytes32 entityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteChestMetadata(entityId);
-}
-
-function setForceFieldMetadata(bytes32 entityId, FFMetadataData memory metadata) {
-  IWorld(WorldContextConsumerLib._world()).experience__setForceFieldMetadata(entityId, metadata);
-}
-
-function setForceFieldName(bytes32 entityId, string memory name) {
-  IWorld(WorldContextConsumerLib._world()).experience__setForceFieldName(entityId, name);
-}
-
-function setForceFieldDescription(bytes32 entityId, string memory description) {
-  IWorld(WorldContextConsumerLib._world()).experience__setForceFieldDescription(entityId, description);
-}
-
-function deleteForceFieldMetadata(bytes32 entityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteForceFieldMetadata(entityId);
-}
-
-function setForceFieldApprovals(bytes32 entityId, ForceFieldApprovalsData memory approvals) {
-  IWorld(WorldContextConsumerLib._world()).experience__setForceFieldApprovals(entityId, approvals);
-}
-
-function deleteForceFieldApprovals(bytes32 entityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteForceFieldApprovals(entityId);
-}
-
-function setFFApprovedPlayers(bytes32 entityId, address[] memory players) {
-  IWorld(WorldContextConsumerLib._world()).experience__setFFApprovedPlayers(entityId, players);
-}
-
-function pushFFApprovedPlayer(bytes32 entityId, address player) {
-  IWorld(WorldContextConsumerLib._world()).experience__pushFFApprovedPlayer(entityId, player);
-}
-
-function popFFApprovedPlayer(bytes32 entityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__popFFApprovedPlayer(entityId);
-}
-
-function updateFFApprovedPlayer(bytes32 entityId, uint256 index, address player) {
-  IWorld(WorldContextConsumerLib._world()).experience__updateFFApprovedPlayer(entityId, index, player);
-}
-
-function setFFApprovedNFT(bytes32 entityId, address[] memory nfts) {
-  IWorld(WorldContextConsumerLib._world()).experience__setFFApprovedNFT(entityId, nfts);
-}
-
-function pushFFApprovedNFT(bytes32 entityId, address nft) {
-  IWorld(WorldContextConsumerLib._world()).experience__pushFFApprovedNFT(entityId, nft);
-}
-
-function popFFApprovedNFT(bytes32 entityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__popFFApprovedNFT(entityId);
-}
-
-function updateFFApprovedNFT(bytes32 entityId, uint256 index, address nft) {
-  IWorld(WorldContextConsumerLib._world()).experience__updateFFApprovedNFT(entityId, index, nft);
-}
-
-function emitShopNotif(bytes32 chestEntityId, ItemShopNotifData memory notifData) {
-  IWorld(WorldContextConsumerLib._world()).experience__emitShopNotif(chestEntityId, notifData);
-}
-
-function deleteShopNotif(bytes32 chestEntityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteShopNotif(chestEntityId);
 }
 
 function setGateApprovals(bytes32 entityId, GateApprovalsData memory approvals) {
@@ -214,4 +96,44 @@ function setSmartItemDescription(bytes32 entityId, string memory description) {
 
 function deleteSmartItemMetadata(bytes32 entityId) {
   IWorld(WorldContextConsumerLib._world()).experience__deleteSmartItemMetadata(entityId);
+}
+
+function setExchanges(bytes32 entityId, bytes32[] memory exchangeIds, ExchangeInfoData[] memory exchangeInfoData) {
+  IWorld(WorldContextConsumerLib._world()).experience__setExchanges(entityId, exchangeIds, exchangeInfoData);
+}
+
+function addExchange(bytes32 entityId, bytes32 exchangeId, ExchangeInfoData memory exchangeInfoData) {
+  IWorld(WorldContextConsumerLib._world()).experience__addExchange(entityId, exchangeId, exchangeInfoData);
+}
+
+function deleteExchange(bytes32 entityId, bytes32 exchangeId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteExchange(entityId, exchangeId);
+}
+
+function deleteExchanges(bytes32 entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteExchanges(entityId);
+}
+
+function setExchangeInUnitAmount(bytes32 entityId, bytes32 exchangeId, uint256 inUnitAmount) {
+  IWorld(WorldContextConsumerLib._world()).experience__setExchangeInUnitAmount(entityId, exchangeId, inUnitAmount);
+}
+
+function setExchangeOutUnitAmount(bytes32 entityId, bytes32 exchangeId, uint256 outUnitAmount) {
+  IWorld(WorldContextConsumerLib._world()).experience__setExchangeOutUnitAmount(entityId, exchangeId, outUnitAmount);
+}
+
+function setExchangeInMaxAmount(bytes32 entityId, bytes32 exchangeId, uint256 inMaxAmount) {
+  IWorld(WorldContextConsumerLib._world()).experience__setExchangeInMaxAmount(entityId, exchangeId, inMaxAmount);
+}
+
+function setExchangeOutMaxAmount(bytes32 entityId, bytes32 exchangeId, uint256 outMaxAmount) {
+  IWorld(WorldContextConsumerLib._world()).experience__setExchangeOutMaxAmount(entityId, exchangeId, outMaxAmount);
+}
+
+function emitExchangeNotif(bytes32 entityId, ExchangeNotifData memory notifData) {
+  IWorld(WorldContextConsumerLib._world()).experience__emitExchangeNotif(entityId, notifData);
+}
+
+function deleteExchangeNotif(bytes32 entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteExchangeNotif(entityId);
 }

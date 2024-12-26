@@ -122,46 +122,6 @@ function deletePlayers() {
   IWorld(WorldContextConsumerLib._world()).experience__deletePlayers();
 }
 
-function setTokens(address[] memory tokens) {
-  IWorld(WorldContextConsumerLib._world()).experience__setTokens(tokens);
-}
-
-function pushTokens(address token) {
-  IWorld(WorldContextConsumerLib._world()).experience__pushTokens(token);
-}
-
-function popTokens() {
-  IWorld(WorldContextConsumerLib._world()).experience__popTokens();
-}
-
-function updateTokens(uint256 index, address token) {
-  IWorld(WorldContextConsumerLib._world()).experience__updateTokens(index, token);
-}
-
-function deleteTokens() {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteTokens();
-}
-
-function setNfts(address[] memory nfts) {
-  IWorld(WorldContextConsumerLib._world()).experience__setNfts(nfts);
-}
-
-function pushNfts(address nft) {
-  IWorld(WorldContextConsumerLib._world()).experience__pushNfts(nft);
-}
-
-function popNfts() {
-  IWorld(WorldContextConsumerLib._world()).experience__popNfts();
-}
-
-function updateNfts(uint256 index, address nft) {
-  IWorld(WorldContextConsumerLib._world()).experience__updateNfts(index, nft);
-}
-
-function deleteNfts() {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteNfts();
-}
-
 function setTokenMetadata(ERC20MetadataData memory metadata) {
   IWorld(WorldContextConsumerLib._world()).experience__setTokenMetadata(metadata);
 }
