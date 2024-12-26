@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { IWorld } from "../codegen/world/IWorld.sol";
+import { IWorld } from "../../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { Areas, AreasData } from "../codegen/tables/Areas.sol";
-import { Area } from "../utils/AreaUtils.sol";
+import { Areas, AreasData } from "../../codegen/tables/Areas.sol";
+import { Area } from "../../utils/AreaUtils.sol";
 
 contract AreaSystem is System {
   function setArea(bytes32 areaId, string memory name, Area memory area) public {

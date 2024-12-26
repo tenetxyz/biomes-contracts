@@ -16,16 +16,12 @@ export default defineWorld({
   },
   namespace: "experience",
   tables: {
-    ExperienceMetadata: {
+    NamespaceId: {
       schema: {
-        experience: "address",
-        shouldDelegate: "address",
-        joinFee: "uint256",
-        hookSystemIds: "bytes32[]",
-        name: "string",
-        description: "string",
+        contractAddress: "address",
+        namespaceId: "ResourceId",
       },
-      key: ["experience"],
+      key: ["contractAddress"],
       codegen: {
         storeArgument: true,
       },
@@ -62,12 +58,13 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    NamespaceId: {
+    SmartItemMetadata: {
       schema: {
-        contractAddress: "address",
-        namespaceId: "ResourceId",
+        entityId: "bytes32",
+        name: "string",
+        description: "string",
       },
-      key: ["contractAddress"],
+      key: ["entityId"],
       codegen: {
         storeArgument: true,
       },
@@ -100,28 +97,6 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    ChestMetadata: {
-      schema: {
-        entityId: "bytes32",
-        name: "string",
-        description: "string",
-      },
-      key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    FFMetadata: {
-      schema: {
-        entityId: "bytes32",
-        name: "string",
-        description: "string",
-      },
-      key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
     GateApprovals: {
       schema: {
         entityId: "bytes32",
@@ -133,13 +108,90 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    ForceFieldApprovals: {
+    Notification: {
+      schema: {
+        experience: "address",
+        player: "address",
+        message: "string",
+      },
+      key: ["experience"],
+      type: "offchainTable",
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    ExchangeNotif: {
       schema: {
         entityId: "bytes32",
-        players: "address[]",
-        nfts: "address[]",
+        player: "address",
+        inResourceType: "ResourceType",
+        inResourceId: "bytes32",
+        inAmount: "uint256",
+        outResourceType: "ResourceType",
+        outResourceId: "bytes32",
+        outAmount: "uint256",
       },
       key: ["entityId"],
+      type: "offchainTable",
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    Assets: {
+      schema: {
+        experience: "address",
+        asset: "address",
+        assetType: "ResourceType",
+      },
+      key: ["experience", "asset"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    ERC20Metadata: {
+      schema: {
+        token: "address",
+        systemId: "ResourceId",
+        creator: "address",
+        decimals: "uint8",
+        symbol: "string",
+        name: "string",
+        description: "string",
+        icon: "string",
+      },
+      key: ["token"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    ERC721Metadata: {
+      schema: {
+        nft: "address",
+        systemId: "ResourceId",
+        creator: "address",
+        symbol: "string",
+        name: "string",
+        description: "string",
+        baseURI: "string",
+      },
+      key: ["nft"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    // -------------------
+    // DEPRECATED TABLES
+    // -------------------
+    ExperienceMetadata: {
+      schema: {
+        experience: "address",
+        shouldDelegate: "address",
+        joinFee: "uint256",
+        hookSystemIds: "bytes32[]",
+        name: "string",
+        description: "string",
+      },
+      key: ["experience"],
       codegen: {
         storeArgument: true,
       },
@@ -172,35 +224,6 @@ export default defineWorld({
         unregisterMessage: "string",
       },
       key: ["experience"],
-      type: "offchainTable",
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    Notification: {
-      schema: {
-        experience: "address",
-        player: "address",
-        message: "string",
-      },
-      key: ["experience"],
-      type: "offchainTable",
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    ExchangeNotif: {
-      schema: {
-        entityId: "bytes32",
-        player: "address",
-        inResourceType: "ResourceType",
-        inResourceId: "bytes32",
-        inAmount: "uint256",
-        outResourceType: "ResourceType",
-        outResourceId: "bytes32",
-        outAmount: "uint256",
-      },
-      key: ["entityId"],
       type: "offchainTable",
       codegen: {
         storeArgument: true,
@@ -277,60 +300,39 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    Tokens: {
+    ChestMetadata: {
       schema: {
-        experience: "address",
-        tokens: "address[]",
+        entityId: "bytes32",
+        name: "string",
+        description: "string",
       },
-      key: ["experience"],
+      key: ["entityId"],
       codegen: {
         storeArgument: true,
       },
     },
-    NFTs: {
+    FFMetadata: {
       schema: {
-        experience: "address",
+        entityId: "bytes32",
+        name: "string",
+        description: "string",
+      },
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    ForceFieldApprovals: {
+      schema: {
+        entityId: "bytes32",
+        players: "address[]",
         nfts: "address[]",
       },
-      key: ["experience"],
+      key: ["entityId"],
       codegen: {
         storeArgument: true,
       },
     },
-    ERC20Metadata: {
-      schema: {
-        token: "address",
-        systemId: "ResourceId",
-        creator: "address",
-        decimals: "uint8",
-        symbol: "string",
-        name: "string",
-        description: "string",
-        icon: "string",
-      },
-      key: ["token"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    ERC721Metadata: {
-      schema: {
-        nft: "address",
-        systemId: "ResourceId",
-        creator: "address",
-        symbol: "string",
-        name: "string",
-        description: "string",
-        baseURI: "string",
-      },
-      key: ["nft"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    // -------------------
-    // DEPRECATED TABLES
-    // -------------------
     ChipNamespace: {
       schema: {
         chipAddress: "address",
@@ -368,6 +370,26 @@ export default defineWorld({
       },
       key: ["chestEntityId"],
       type: "offchainTable",
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    Tokens: {
+      schema: {
+        experience: "address",
+        tokens: "address[]",
+      },
+      key: ["experience"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    NFTs: {
+      schema: {
+        experience: "address",
+        nfts: "address[]",
+      },
+      key: ["experience"],
       codegen: {
         storeArgument: true,
       },

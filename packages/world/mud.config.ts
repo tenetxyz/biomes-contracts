@@ -319,19 +319,13 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    PlayerActionNotif: {
+    DisplayContent: {
       schema: {
-        playerEntityId: "bytes32",
-        actionType: "ActionType",
         entityId: "bytes32",
-        objectTypeId: "uint8",
-        coordX: "int16",
-        coordY: "int16",
-        coordZ: "int16",
-        amount: "uint256",
+        contentType: "DisplayContentType",
+        content: "bytes",
       },
-      key: ["playerEntityId"],
-      type: "offchainTable",
+      key: ["entityId"],
       codegen: {
         storeArgument: true,
       },
@@ -382,13 +376,19 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    DisplayContent: {
+    PlayerActionNotif: {
       schema: {
+        playerEntityId: "bytes32",
+        actionType: "ActionType",
         entityId: "bytes32",
-        contentType: "DisplayContentType",
-        content: "bytes",
+        objectTypeId: "uint8",
+        coordX: "int16",
+        coordY: "int16",
+        coordZ: "int16",
+        amount: "uint256",
       },
-      key: ["entityId"],
+      key: ["playerEntityId"],
+      type: "offchainTable",
       codegen: {
         storeArgument: true,
       },

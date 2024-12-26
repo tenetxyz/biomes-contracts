@@ -12,6 +12,7 @@ import { ItemShopData } from "../codegen/tables/ItemShop.sol";
 import { FFMetadataData } from "../codegen/tables/FFMetadata.sol";
 import { ChestMetadataData } from "../codegen/tables/ChestMetadata.sol";
 import { ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
+import { SmartItemMetadataData } from "../codegen/tables/SmartItemMetadata.sol";
 import { GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
 import { ItemShopNotifData } from "../codegen/tables/ItemShopNotif.sol";
 
@@ -197,4 +198,20 @@ function setChipAdmin(bytes32 entityId, address admin) {
 
 function deleteChipAdmin(bytes32 entityId) {
   IWorld(WorldContextConsumerLib._world()).experience__deleteChipAdmin(entityId);
+}
+
+function setSmartItemMetadata(bytes32 entityId, SmartItemMetadataData memory metadata) {
+  IWorld(WorldContextConsumerLib._world()).experience__setSmartItemMetadata(entityId, metadata);
+}
+
+function setSmartItemName(bytes32 entityId, string memory name) {
+  IWorld(WorldContextConsumerLib._world()).experience__setSmartItemName(entityId, name);
+}
+
+function setSmartItemDescription(bytes32 entityId, string memory description) {
+  IWorld(WorldContextConsumerLib._world()).experience__setSmartItemDescription(entityId, description);
+}
+
+function deleteSmartItemMetadata(bytes32 entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteSmartItemMetadata(entityId);
 }

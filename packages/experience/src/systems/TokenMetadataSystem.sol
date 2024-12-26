@@ -11,6 +11,7 @@ import { ERC20_REGISTRY_TABLE_ID } from "@latticexyz/world-modules/src/modules/e
 
 import { ERC20Metadata, ERC20MetadataData } from "../codegen/tables/ERC20Metadata.sol";
 import { NamespaceId } from "../codegen/tables/NamespaceId.sol";
+
 contract TokenMetadataSystem is System {
   function setTokenMetadata(ERC20MetadataData memory metadata) public {
     require(

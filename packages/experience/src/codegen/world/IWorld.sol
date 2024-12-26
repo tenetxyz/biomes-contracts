@@ -5,30 +5,32 @@ pragma solidity >=0.8.24;
 
 import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.sol";
 
-import { IAreaSystem } from "./IAreaSystem.sol";
-import { IBuildsSystem } from "./IBuildsSystem.sol";
-import { IChestMetadataSystem } from "./IChestMetadataSystem.sol";
+import { IAssetsSystem } from "./IAssetsSystem.sol";
 import { IChipAdminSystem } from "./IChipAdminSystem.sol";
 import { IChipAttachmentSystem } from "./IChipAttachmentSystem.sol";
 import { IChipMetadataSystem } from "./IChipMetadataSystem.sol";
+import { IExchangeNotifSystem } from "./IExchangeNotifSystem.sol";
+import { IExchangeSystem } from "./IExchangeSystem.sol";
+import { IGateSystem } from "./IGateSystem.sol";
+import { INFTMetadataSystem } from "./INFTMetadataSystem.sol";
+import { INamespaceIdSystem } from "./INamespaceIdSystem.sol";
+import { INotificationSystem } from "./INotificationSystem.sol";
+import { IReadSystem } from "./IReadSystem.sol";
+import { ISmartItemMetadataSystem } from "./ISmartItemMetadataSystem.sol";
+import { ITokenMetadataSystem } from "./ITokenMetadataSystem.sol";
+import { IAreaSystem } from "./IAreaSystem.sol";
+import { IBuildsSystem } from "./IBuildsSystem.sol";
+import { IChestMetadataSystem } from "./IChestMetadataSystem.sol";
 import { IChipNamespaceSystem } from "./IChipNamespaceSystem.sol";
 import { ICountdownSystem } from "./ICountdownSystem.sol";
 import { IDisplaySystem } from "./IDisplaySystem.sol";
-import { IExchangeNotifSystem } from "./IExchangeNotifSystem.sol";
-import { IExchangeSystem } from "./IExchangeSystem.sol";
 import { IExpMetadataSystem } from "./IExpMetadataSystem.sol";
 import { IFFApprovalsSystem } from "./IFFApprovalsSystem.sol";
 import { IFFMetadataSystem } from "./IFFMetadataSystem.sol";
-import { IGateSystem } from "./IGateSystem.sol";
 import { IItemShopNotifSystem } from "./IItemShopNotifSystem.sol";
-import { INFTMetadataSystem } from "./INFTMetadataSystem.sol";
 import { INFTSystem } from "./INFTSystem.sol";
-import { INamespaceIdSystem } from "./INamespaceIdSystem.sol";
-import { INotificationSystem } from "./INotificationSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
-import { IReadSystem } from "./IReadSystem.sol";
 import { IShopSystem } from "./IShopSystem.sol";
-import { ITokenMetadataSystem } from "./ITokenMetadataSystem.sol";
 import { ITokenSystem } from "./ITokenSystem.sol";
 
 /**
@@ -40,29 +42,31 @@ import { ITokenSystem } from "./ITokenSystem.sol";
  */
 interface IWorld is
   IBaseWorld,
-  IAreaSystem,
-  IBuildsSystem,
-  IChestMetadataSystem,
+  IAssetsSystem,
   IChipAdminSystem,
   IChipAttachmentSystem,
   IChipMetadataSystem,
+  IExchangeNotifSystem,
+  IExchangeSystem,
+  IGateSystem,
+  INFTMetadataSystem,
+  INamespaceIdSystem,
+  INotificationSystem,
+  IReadSystem,
+  ISmartItemMetadataSystem,
+  ITokenMetadataSystem,
+  IAreaSystem,
+  IBuildsSystem,
+  IChestMetadataSystem,
   IChipNamespaceSystem,
   ICountdownSystem,
   IDisplaySystem,
-  IExchangeNotifSystem,
-  IExchangeSystem,
   IExpMetadataSystem,
   IFFApprovalsSystem,
   IFFMetadataSystem,
-  IGateSystem,
   IItemShopNotifSystem,
-  INFTMetadataSystem,
   INFTSystem,
-  INamespaceIdSystem,
-  INotificationSystem,
   IPlayerSystem,
-  IReadSystem,
   IShopSystem,
-  ITokenMetadataSystem,
   ITokenSystem
 {}

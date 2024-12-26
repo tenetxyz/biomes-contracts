@@ -13,6 +13,7 @@ import { CountdownData } from "../codegen/tables/Countdown.sol";
 import { ExperienceMetadataData } from "../codegen/tables/ExperienceMetadata.sol";
 import { ERC20MetadataData } from "../codegen/tables/ERC20Metadata.sol";
 import { ERC721MetadataData } from "../codegen/tables/ERC721Metadata.sol";
+import { ResourceType } from "../codegen/common.sol";
 
 import { Area } from "./AreaUtils.sol";
 import { Build, BuildWithPos } from "./BuildUtils.sol";
@@ -187,4 +188,12 @@ function setNamespaceId(ResourceId namespaceId) {
 
 function deleteNamespaceId() {
   IWorld(WorldContextConsumerLib._world()).experience__deleteNamespaceId();
+}
+
+function setAsset(address asset, ResourceType assetType) {
+  IWorld(WorldContextConsumerLib._world()).experience__setAsset(asset, assetType);
+}
+
+function deleteAsset(address asset) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteAsset(asset);
 }

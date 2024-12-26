@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { IWorld } from "../codegen/world/IWorld.sol";
+import { IWorld } from "../../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { ForceFieldApprovals, ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
-import { requireChipOwner, requireChipOwnerOrNoOwner } from "../Utils.sol";
+import { ForceFieldApprovals, ForceFieldApprovalsData } from "../../codegen/tables/ForceFieldApprovals.sol";
+import { requireChipOwner, requireChipOwnerOrNoOwner } from "../../Utils.sol";
 
 contract FFApprovalsSystem is System {
   function setForceFieldApprovals(bytes32 entityId, ForceFieldApprovalsData memory approvals) public {
