@@ -1,9 +1,5 @@
-import { Hex } from "viem";
+import { Hex, getAddress } from "viem";
 import { setupNetwork } from "./setupNetwork";
-
-import fs from "fs";
-import path from "path";
-import { replacer } from "./utils";
 
 async function main() {
   const { publicClient, fromBlock, worldAddress, IWorldAbi, account, txOptions, callTx, indexerUrl } =
@@ -12,11 +8,9 @@ async function main() {
   const query = [
     {
       address: worldAddress,
-      query: 'SELECT "entityId", "chipAddress" FROM Chip;',
+      query: 'SELECT "entityId", "players", "nfts" FROM experience__ForceFieldApprov;',
     },
   ];
-
-  const entityIds = new Set();
 
   console.log("indexerUrl", indexerUrl);
   console.log("query", query);
@@ -32,20 +26,47 @@ async function main() {
   });
   const content = await response.json();
   // console.log(content);
+
+  const fetchedData = [];
   for (const row of content.result[0]) {
     // don't include the first row cuz its the header
     if (row[0] == "entityId") continue;
-    if (row[1].toLowerCase() == "0x4bd5A12B75B24418eCB1285aAAd16a05b94f7096".toLowerCase()) {
-      entityIds.add(row[0]);
-    }
-    // entityIds.add(row[0]);
+    // if (row[1].toLowerCase() == "0x4bd5A12B75B24418eCB1285aAAd16a05b94f7096".toLowerCase()) {
+    //   entityIds.add(row[0]);
+    // }
+    fetchedData.push(row);
+  }
+  console.log("fetchedData", fetchedData);
+
+  console.log(`bytes32[] memory entityIds = new bytes32[](${fetchedData.length});`);
+  let i = 0;
+  for (const data of fetchedData) {
+    console.log(`entityIds[${i}] = ${data[0]};`);
+    i++;
   }
 
-  console.log("entityIds", entityIds);
-  console.log(`bytes32[] memory entityIds = new bytes32[](${entityIds.size});`);
-  let i = 0;
-  for (const entityId of entityIds) {
-    console.log(`entityIds[${i}] = ${entityId};`);
+  console.log(`GateApprovalsData[] memory approvals = new GateApprovalsData[](${fetchedData.length});`);
+  i = 0;
+  for (const data of fetchedData) {
+    const players = data[1];
+    const nfts = data[2];
+    console.log(`address[] memory players${i} = new address[](${players.length});`);
+    console.log(`address[] memory nfts${i} = new address[](${nfts.length});`);
+    let j = 0;
+    for (const player of players) {
+      console.log(`players${i}[${j}] = ${getAddress(player)};`);
+      j++;
+    }
+    j = 0;
+    for (const nft of nfts) {
+      console.log(`nfts${i}[${j}] = ${getAddress(nft)};`);
+      j++;
+    }
+
+    console.log(`approvals[${i}] = GateApprovalsData({
+      players: players${i},
+      nfts: nfts${i}
+    });`);
     i++;
   }
 }
