@@ -8,7 +8,7 @@ async function main() {
   const query = [
     {
       address: worldAddress,
-      query: 'SELECT "entityId", "players", "nfts" FROM experience__ForceFieldApprov;',
+      query: 'SELECT "entityId", "objectTypeId" FROM ObjectType WHERE "objectTypeId" = 84;',
     },
   ];
 
@@ -45,30 +45,30 @@ async function main() {
     i++;
   }
 
-  console.log(`GateApprovalsData[] memory approvals = new GateApprovalsData[](${fetchedData.length});`);
-  i = 0;
-  for (const data of fetchedData) {
-    const players = data[1];
-    const nfts = data[2];
-    console.log(`address[] memory players${i} = new address[](${players.length});`);
-    console.log(`address[] memory nfts${i} = new address[](${nfts.length});`);
-    let j = 0;
-    for (const player of players) {
-      console.log(`players${i}[${j}] = ${getAddress(player)};`);
-      j++;
-    }
-    j = 0;
-    for (const nft of nfts) {
-      console.log(`nfts${i}[${j}] = ${getAddress(nft)};`);
-      j++;
-    }
+  // console.log(`GateApprovalsData[] memory approvals = new GateApprovalsData[](${fetchedData.length});`);
+  // i = 0;
+  // for (const data of fetchedData) {
+  //   const players = data[1];
+  //   const nfts = data[2];
+  //   console.log(`address[] memory players${i} = new address[](${players.length});`);
+  //   console.log(`address[] memory nfts${i} = new address[](${nfts.length});`);
+  //   let j = 0;
+  //   for (const player of players) {
+  //     console.log(`players${i}[${j}] = ${getAddress(player)};`);
+  //     j++;
+  //   }
+  //   j = 0;
+  //   for (const nft of nfts) {
+  //     console.log(`nfts${i}[${j}] = ${getAddress(nft)};`);
+  //     j++;
+  //   }
 
-    console.log(`approvals[${i}] = GateApprovalsData({
-      players: players${i},
-      nfts: nfts${i}
-    });`);
-    i++;
-  }
+  //   console.log(`approvals[${i}] = GateApprovalsData({
+  //     players: players${i},
+  //     nfts: nfts${i}
+  //   });`);
+  //   i++;
+  // }
 }
 
 main();
