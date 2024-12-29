@@ -13,7 +13,29 @@ import { ERC20Metadata } from "../src/codegen/tables/ERC20Metadata.sol";
 import { ERC721Metadata } from "../src/codegen/tables/ERC721Metadata.sol";
 import { ItemShop } from "../src/codegen/tables/ItemShop.sol";
 import { ChipAttachment } from "../src/codegen/tables/ChipAttachment.sol";
+import { ChipAdmin } from "../src/codegen/tables/ChipAdmin.sol";
 import { ForceFieldApprovals } from "../src/codegen/tables/ForceFieldApprovals.sol";
+import { GateApprovals, GateApprovalsData } from "../src/codegen/tables/GateApprovals.sol";
+import { SmartItemMetadata, SmartItemMetadataData } from "../src/codegen/tables/SmartItemMetadata.sol";
+import { Chip } from "@biomesaw/world/src/codegen/tables/Chip.sol";
+import { NamespaceId } from "../src/codegen/tables/NamespaceId.sol";
+import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
+import { Assets } from "../src/codegen/tables/Assets.sol";
+import { ResourceType } from "../src/codegen/common.sol";
+import { Exchanges } from "../src/codegen/tables/Exchanges.sol";
+import { ExchangeInfo, ExchangeInfoData } from "../src/codegen/tables/ExchangeInfo.sol";
+import { encodeAddressExchangeResourceId, encodeObjectExchangeResourceId } from "../src/utils/ExchangeUtils.sol";
+
+import { numMaxInChest, getCount } from "../src/utils/EntityUtils.sol";
+import { ExchangeInfoDataWithExchangeId } from "../src/Types.sol";
+
+bytes32 constant BUY_EXCHANGE_ID = bytes32("buy");
+bytes32 constant SELL_EXCHANGE_ID = bytes32("sell");
+
+struct ExchangeInfoDataWithEntityId {
+  bytes32 entityId;
+  ExchangeInfoDataWithExchangeId[] exchangeInfoData;
+}
 
 contract Upgrade is Script {
   function run(address worldAddress) external {
@@ -29,23 +51,86 @@ contract Upgrade is Script {
     // console.logUint(ItemShop.getBalance(0x000000000000000000000000000000000000000000000000000000000002ec2d));
     // console.log(ItemShop.getPaymentToken(0x000000000000000000000000000000000000000000000000000000000002ec2d));
     // ItemShop.setBalance(0x000000000000000000000000000000000000000000000000000000000002ec2d, type(uint256).max);
-    bytes32 entityId = 0x00000000000000000000000000000000000000000000000000000000002ba8bd;
-    // address[] memory nfts = ForceFieldApprovals.getNfts(entityId);
-    // for (uint256 i = 0; i < nfts.length; i++) {
-    //   console.log(nfts[i]);
-    // }
-    ForceFieldApprovals.setNfts(entityId, new address[](0));
 
-    // console.logUint(NFTs.lengthNfts(0x3A971f521dde3434B6a3409ABCb77066Dd5123C3));
-    // NFTs.deleteRecord(0x3A971f521dde3434B6a3409ABCb77066Dd5123C3);
-    // console.log(ERC721Metadata.getName(0x45fCbe727564835ACfe428e41997e1c29697bB2B));
-    // ERC721Metadata.deleteRecord(0x45fCbe727564835ACfe428e41997e1c29697bB2B);
-    // console.log(ERC20Metadata.getIcon(0x2FF827f8750dbe1A7dbAD0f7354d0D0395551d2F));
-    // ERC20Metadata.setName(0x2FF827f8750dbe1A7dbAD0f7354d0D0395551d2F, "Settlers Union Bank Coin");
+    ExchangeInfoDataWithEntityId[] memory allExchangeInfos = new ExchangeInfoDataWithEntityId[](2);
+    ExchangeInfoDataWithExchangeId[] memory exchangeInfoData0 = new ExchangeInfoDataWithExchangeId[](2);
+    exchangeInfoData0[0] = ExchangeInfoDataWithExchangeId({
+      exchangeId: BUY_EXCHANGE_ID,
+      exchangeInfoData: ExchangeInfoData({
+        inResourceType: ResourceType.Object,
+        inResourceId: encodeObjectExchangeResourceId(97),
+        inUnitAmount: 1,
+        inMaxAmount: numMaxInChest(97) -
+          getCount(0x000000000000000000000000000000000000000000000000000000000000577f, 97),
+        outResourceType: ResourceType.ERC20,
+        outResourceId: encodeAddressExchangeResourceId(0x2FF827f8750dbe1A7dbAD0f7354d0D0395551d2F),
+        outUnitAmount: 0,
+        outMaxAmount: 24000000000000000000
+      })
+    });
+    exchangeInfoData0[1] = ExchangeInfoDataWithExchangeId({
+      exchangeId: SELL_EXCHANGE_ID,
+      exchangeInfoData: ExchangeInfoData({
+        inResourceType: ResourceType.ERC20,
+        inResourceId: encodeAddressExchangeResourceId(0x2FF827f8750dbe1A7dbAD0f7354d0D0395551d2F),
+        inUnitAmount: 0,
+        inMaxAmount: type(uint256).max,
+        outResourceType: ResourceType.Object,
+        outResourceId: encodeObjectExchangeResourceId(97),
+        outUnitAmount: 1,
+        outMaxAmount: getCount(0x000000000000000000000000000000000000000000000000000000000000577f, 97) - 1
+      })
+    });
 
-    // address chipAddress = 0x7E979136dF1D741991D4e1769B576Ab2D65aC5F3;
-    // console.log(ChipMetadata.getName(chipAddress));
-    // ChipMetadata.deleteRecord(chipAddress);
+    allExchangeInfos[0] = ExchangeInfoDataWithEntityId({
+      entityId: 0x000000000000000000000000000000000000000000000000000000000000577f,
+      exchangeInfoData: exchangeInfoData0
+    });
+
+    ExchangeInfoDataWithExchangeId[] memory exchangeInfoData1 = new ExchangeInfoDataWithExchangeId[](2);
+    exchangeInfoData1[0] = ExchangeInfoDataWithExchangeId({
+      exchangeId: BUY_EXCHANGE_ID,
+      exchangeInfoData: ExchangeInfoData({
+        inResourceType: ResourceType.Object,
+        inResourceId: encodeObjectExchangeResourceId(50),
+        inUnitAmount: 1,
+        inMaxAmount: numMaxInChest(50) -
+          getCount(0x0000000000000000000000000000000000000000000000000000000000008b46, 50),
+        outResourceType: ResourceType.ERC20,
+        outResourceId: encodeAddressExchangeResourceId(0x2FF827f8750dbe1A7dbAD0f7354d0D0395551d2F),
+        outUnitAmount: 0,
+        outMaxAmount: 30000000000000000000
+      })
+    });
+    exchangeInfoData1[1] = ExchangeInfoDataWithExchangeId({
+      exchangeId: SELL_EXCHANGE_ID,
+      exchangeInfoData: ExchangeInfoData({
+        inResourceType: ResourceType.ERC20,
+        inResourceId: encodeAddressExchangeResourceId(0x2FF827f8750dbe1A7dbAD0f7354d0D0395551d2F),
+        inUnitAmount: 0,
+        inMaxAmount: type(uint256).max,
+        outResourceType: ResourceType.Object,
+        outResourceId: encodeObjectExchangeResourceId(50),
+        outUnitAmount: 1,
+        outMaxAmount: getCount(0x0000000000000000000000000000000000000000000000000000000000008b46, 50) - 1
+      })
+    });
+
+    allExchangeInfos[1] = ExchangeInfoDataWithEntityId({
+      entityId: 0x0000000000000000000000000000000000000000000000000000000000008b46,
+      exchangeInfoData: exchangeInfoData1
+    });
+
+    for (uint i = 0; i < allExchangeInfos.length; i++) {
+      ExchangeInfoDataWithEntityId memory exchangeInfo = allExchangeInfos[i];
+      bytes32[] memory exchangeIds = new bytes32[](exchangeInfo.exchangeInfoData.length);
+      for (uint j = 0; j < exchangeInfo.exchangeInfoData.length; j++) {
+        ExchangeInfoDataWithExchangeId memory exchangeInfoData = exchangeInfo.exchangeInfoData[j];
+        ExchangeInfo.set(exchangeInfo.entityId, exchangeInfoData.exchangeId, exchangeInfoData.exchangeInfoData);
+        exchangeIds[j] = exchangeInfoData.exchangeId;
+      }
+      Exchanges.set(exchangeInfo.entityId, exchangeIds);
+    }
 
     vm.stopBroadcast();
   }
