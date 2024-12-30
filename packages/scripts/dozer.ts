@@ -87,12 +87,12 @@ async function main() {
             inResourceType: ResourceType.Object,
             inResourceId: encodeObjectExchangeResourceId(${objectTypeId}),
             inUnitAmount: 1,
-            inMaxAmount: ${balance / buyPrice},
+            inMaxAmount: ${Number(BigInt(balance) / BigInt(buyPrice))},
             outResourceType: ${isUsingEth ? "ResourceType.NativeCurrency" : "ResourceType.ERC20"},
             outResourceId: encodeAddressExchangeResourceId(${paymentToken}),
             outUnitAmount: ${buyPrice},
             outMaxAmount: ${balance}
-        });`;
+        })`;
     } else if (data[1] == "2") {
       // Sell
       sellExchangeInfoData = `ExchangeInfoData({
@@ -104,7 +104,7 @@ async function main() {
             outResourceId: encodeObjectExchangeResourceId(${objectTypeId}),
             outUnitAmount: 1,
             outMaxAmount: getCount(${entityId}, ${objectTypeId})
-        });`;
+        })`;
     } else if (data[1] == "3") {
       // BuySell
       if (buyPrice == 0 && sellPrice == 0) {
@@ -134,7 +134,7 @@ async function main() {
           inResourceType: ResourceType.Object,
           inResourceId: encodeObjectExchangeResourceId(${objectTypeId}),
           inUnitAmount: 1,
-          inMaxAmount: ${balance / buyPrice},
+          inMaxAmount: ${Number(BigInt(balance) / BigInt(buyPrice))},
           outResourceType: ${isUsingEth ? "ResourceType.NativeCurrency" : "ResourceType.ERC20"},
           outResourceId: encodeAddressExchangeResourceId(${paymentToken}),
           outUnitAmount: ${buyPrice},
