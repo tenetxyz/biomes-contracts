@@ -19,6 +19,7 @@ import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, SmartChestObjectID, 
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { safeCallChip, callMintXP } from "../Utils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
@@ -97,8 +98,16 @@ contract ChipSystem is System {
 
     ChipData memory chipData = updateChipBatteryLevel(baseEntityId);
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
+    uint256 batteryLevel = chipData.batteryLevel;
 
     uint8 objectTypeId = ObjectType._get(baseEntityId);
+    if (objectTypeId != ForceFieldObjectID) {
+      bytes32 forceFieldEntityId = getForceField(entityCoord);
+      if (forceFieldEntityId != bytes32(0)) {
+        ChipData memory forceFieldChipData = updateChipBatteryLevel(forceFieldEntityId);
+        batteryLevel += forceFieldChipData.batteryLevel;
+      }
+    }
 
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
@@ -119,7 +128,7 @@ contract ChipSystem is System {
 
     callMintXP(playerEntityId, initialGas, 1);
 
-    if (chipData.batteryLevel > 0) {
+    if (batteryLevel > 0) {
       // Don't safe call here because we want to revert if the chip doesn't allow the detachment
       bool isAllowed = IChip(chipData.chipAddress).onDetached{ value: _msgValue() }(
         playerEntityId,

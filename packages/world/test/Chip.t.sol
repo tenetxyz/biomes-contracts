@@ -33,7 +33,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL, FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
-import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ForceFieldObjectID, ForceFieldObjectID, GrassObjectID, ChipObjectID, ChipBatteryObjectID, SilverWhackerObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ForceFieldObjectID, ForceFieldObjectID, GrassObjectID, ChipObjectID, ChipBatteryObjectID, SilverWhackerObjectID, ChestObjectID, SmartChestObjectID } from "../src/ObjectTypeIds.sol";
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
@@ -104,11 +104,13 @@ contract TestForceFieldChip is IForceFieldChip {
 }
 
 contract TestChestChip is IChestChip {
+  bytes32 private ownerEntityId;
   function onAttached(
     bytes32 playerEntityId,
     bytes32 entityId,
     bytes memory extraData
   ) external payable returns (bool isAllowed) {
+    ownerEntityId = playerEntityId;
     return true;
   }
 
@@ -117,7 +119,9 @@ contract TestChestChip is IChestChip {
     bytes32 entityId,
     bytes memory extraData
   ) external payable returns (bool isAllowed) {
-    return false;
+    isAllowed = playerEntityId == ownerEntityId;
+    ownerEntityId = bytes32(0);
+    return isAllowed;
   }
 
   function onPowered(bytes32 playerEntityId, bytes32 entityId, uint16 numBattery) external {}
@@ -131,7 +135,14 @@ contract TestChestChip is IChestChip {
     uint16 numToTransfer,
     bytes32[] memory toolEntityIds,
     bytes memory extraData
-  ) external payable returns (bool isAllowed) {}
+  ) external payable returns (bool isAllowed) {
+    bool isDeposit = ObjectType.get(IStore(msg.sender), srcEntityId) == PlayerObjectID;
+    bytes32 chestEntityId = isDeposit ? dstEntityId : srcEntityId;
+    bytes32 playerEntityId = isDeposit ? srcEntityId : dstEntityId;
+    if (playerEntityId == ownerEntityId) {
+      isAllowed = true;
+    }
+  }
 
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
     return interfaceId == type(IChestChip).interfaceId || interfaceId == type(IERC165).interfaceId;
@@ -144,7 +155,7 @@ contract ChipTest is MudTest, GasReporter {
   address payable internal alice;
   address payable internal bob;
   VoxelCoord spawnCoord;
-  TestChestChip chestChip;
+  TestChestChip testChestChip;
   TestForceFieldChip testForceFieldChip;
 
   function setUp() public override {
@@ -155,7 +166,7 @@ contract ChipTest is MudTest, GasReporter {
     alice = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
     bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
-    chestChip = new TestChestChip();
+    testChestChip = new TestChestChip();
     testForceFieldChip = new TestForceFieldChip();
   }
 
@@ -233,22 +244,26 @@ contract ChipTest is MudTest, GasReporter {
     vm.startPrank(alice, alice);
 
     bytes32 playerEntityId = setupPlayer();
+    vm.stopPrank();
+    bytes32 playerEntityId2 = setupPlayer2(1);
 
     vm.stopPrank();
     vm.startPrank(worldDeployer, worldDeployer);
 
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 1);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 2);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartChestObjectID, 1);
 
     assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 1, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 3, "Inventory slot not set");
+    assertTrue(InventoryCount.get(playerEntityId, SmartChestObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 4, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ForceFieldObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
-
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SmartChestObjectID), "Inventory objects not set");
     VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
     bytes32 airEntityId = testGetUniqueEntity();
     ObjectType.set(airEntityId, AirObjectID);
@@ -264,8 +279,51 @@ contract ChipTest is MudTest, GasReporter {
 
     world.attachChip(forceFieldEntityId, address(testForceFieldChip));
 
+    world.powerChip(forceFieldEntityId, 1);
+
     assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(testForceFieldChip), "Chip not set");
+    assertTrue(Chip.getBatteryLevel(forceFieldEntityId) > 0, "Battery level not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not removed from inventory");
+
+    // Build a chest
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y + 1, spawnCoord.z);
+    bytes32 chestEntityId = world.build(SmartChestObjectID, chestCoord);
+
+    world.attachChip(chestEntityId, address(testChestChip));
+
+    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    world.transfer(playerEntityId, chestEntityId, ChipBatteryObjectID, 5);
+    vm.stopPrank();
+    vm.startPrank(bob, bob);
+
+    vm.expectRevert("TransferSystem: Player not authorized by chip to make this transfer");
+    world.transfer(chestEntityId, playerEntityId2, ChipBatteryObjectID, 2);
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    vm.expectRevert("MineSystem: chip is attached to entity");
+    world.mine(chestCoord);
+
+    vm.expectRevert("MineSystem: chip is attached to entity");
+    world.mine(forceFieldCoord);
+
+    world.detachChip(forceFieldEntityId);
+
+    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip not removed");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not removed from inventory");
+    assertTrue(Chip.getBatteryLevel(forceFieldEntityId) > 0, "Battery level not set");
+    vm.stopPrank();
+    vm.startPrank(bob, bob);
+
+    // Chest should still work
+    vm.expectRevert("TransferSystem: Player not authorized by chip to make this transfer");
+    world.transfer(chestEntityId, playerEntityId2, ChipBatteryObjectID, 2);
+
+    vm.expectRevert("ChipSystem: chip does not allow detachment");
+    world.detachChip(chestEntityId);
 
     vm.expectRevert("MineSystem: chip is attached to entity");
     world.mine(forceFieldCoord);
@@ -275,14 +333,16 @@ contract ChipTest is MudTest, GasReporter {
     Chip.setBatteryLevel(forceFieldEntityId, 0);
     Chip.setLastUpdatedTime(forceFieldEntityId, block.timestamp);
     vm.stopPrank();
-    vm.startPrank(alice, alice);
+    vm.startPrank(bob, bob);
 
-    world.detachChip(forceFieldEntityId);
-
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip not removed");
-    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not removed from inventory");
+    world.transfer(chestEntityId, playerEntityId2, ChipBatteryObjectID, 2);
+    assertTrue(
+      InventoryCount.get(playerEntityId2, ChipBatteryObjectID) == 2,
+      "Input object not removed from inventory"
+    );
 
     world.mine(forceFieldCoord);
+
     assertTrue(ObjectType.get(forceFieldEntityId) == AirObjectID, "Chest not mined");
 
     vm.stopPrank();
