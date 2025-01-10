@@ -35,14 +35,14 @@ contract MoveHelperSystem is System {
 
     VoxelCoord memory oldCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
     bytes32 finalEntityId;
-    bool gravityApplies = false;
+    bool gravityAppliesForCoord = false;
     uint256 numJumps = 0;
     uint256 numFalls = 0;
     uint256 numGlides = 0;
     for (uint256 i = 0; i < newCoords.length; i++) {
       VoxelCoord memory newCoord = newCoords[i];
-      (finalEntityId, gravityApplies) = move(playerEntityId, oldCoord, newCoord);
-      if (gravityApplies) {
+      (finalEntityId, gravityAppliesForCoord) = move(playerEntityId, oldCoord, newCoord);
+      if (gravityAppliesForCoord) {
         if (oldCoord.y < newCoord.y) {
           numJumps++;
           require(numJumps <= 3, "MoveSystem: cannot jump more than 3 blocks");
@@ -91,7 +91,7 @@ contract MoveHelperSystem is System {
       Stamina._setStamina(playerEntityId, currentStamina - useStamina);
     }
 
-    if (gravityApplies) {
+    if (gravityAppliesForCoord) {
       callGravity(playerEntityId, finalCoord);
     }
 

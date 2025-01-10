@@ -4494,6 +4494,44 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "pipeTransfer",
+    "inputs": [
+      {
+        "name": "srcEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "dstEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "path",
+        "type": "uint8[]",
+        "internalType": "enum VoxelCoordDirectionVonNeumann[]"
+      },
+      {
+        "name": "transferObjectTypeId",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "numToTransfer",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
     "name": "popFromDynamicField",
     "inputs": [
       {
