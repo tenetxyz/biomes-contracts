@@ -85,4 +85,37 @@ contract DropSystem is System {
 
     callMintXP(playerEntityId, initialGas, 1);
   }
+
+  function dropTools(bytes32[] memory toolEntityIds, VoxelCoord memory coord) public {
+    uint256 initialGas = gasleft();
+    require(toolEntityIds.length > 0, "DropSystem: must drop at least one tool");
+    require(toolEntityIds.length < type(uint16).max, "DropSystem: too many tools to drop");
+
+    (bytes32 playerEntityId, bytes32 entityId) = dropCommon(coord);
+
+    uint8 toolObjectTypeId;
+    for (uint i = 0; i < toolEntityIds.length; i++) {
+      uint8 currentToolObjectTypeId = transferInventoryTool(playerEntityId, entityId, AirObjectID, toolEntityIds[i]);
+      if (i > 0) {
+        require(toolObjectTypeId == currentToolObjectTypeId, "DropSystem: all tools must be of the same type");
+      } else {
+        toolObjectTypeId = currentToolObjectTypeId;
+      }
+    }
+
+    PlayerActionNotif._set(
+      playerEntityId,
+      PlayerActionNotifData({
+        actionType: ActionType.Drop,
+        entityId: entityId,
+        objectTypeId: toolObjectTypeId,
+        coordX: coord.x,
+        coordY: coord.y,
+        coordZ: coord.z,
+        amount: toolEntityIds.length
+      })
+    );
+
+    callMintXP(playerEntityId, initialGas, 1);
+  }
 }

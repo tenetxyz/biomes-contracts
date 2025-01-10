@@ -14,4 +14,6 @@ interface IDropSystem {
   function drop(uint8 dropObjectTypeId, uint16 numToDrop, VoxelCoord memory coord) external;
 
   function dropTool(bytes32 toolEntityId, VoxelCoord memory coord) external;
+
+  function dropTools(bytes32[] memory toolEntityIds, VoxelCoord memory coord) external;
 }
