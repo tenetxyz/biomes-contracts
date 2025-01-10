@@ -19,4 +19,12 @@ interface IPipeTransferSystem {
     uint16 numToTransfer,
     bytes memory extraData
   ) external payable;
+
+  function pipeTransfer(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    uint8 transferObjectTypeId,
+    uint16 numToTransfer
+  ) external payable;
 }

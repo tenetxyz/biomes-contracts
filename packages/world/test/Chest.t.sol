@@ -29,7 +29,7 @@ import { Chip, ChipData } from "../src/codegen/tables/Chip.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { VoxelCoord, VoxelCoordDirectionVonNeumann } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../src/Constants.sol";
@@ -146,6 +146,16 @@ contract TestChestChip is IChestChip {
 
     return false;
   }
+
+  function onPipeTransfer(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    uint8 transferObjectTypeId,
+    uint16 numToTransfer,
+    bytes32[] memory toolEntityIds,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {}
 
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
     return interfaceId == type(IChestChip).interfaceId || interfaceId == type(IERC165).interfaceId;

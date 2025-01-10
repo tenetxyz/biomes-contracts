@@ -28,7 +28,7 @@ contract PipeTransferSystem is System {
     bytes32 srcEntityId,
     bytes32 dstEntityId,
     VoxelCoordDirectionVonNeumann[] memory path
-  ) internal returns (bytes32, uint8, bytes32, uint8) {
+  ) internal returns (bytes32, uint8, bytes32, uint8, address) {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
 
     bytes32 baseSrcEntityId = BaseEntity._get(srcEntityId);
@@ -39,16 +39,19 @@ contract PipeTransferSystem is System {
 
     require(baseDstEntityId != baseSrcEntityId, "PipeTransferSystem: cannot transfer to self");
 
-    ChipData memory srcChipData = updateChipBatteryLevel(baseSrcEntityId);
-    ChipData memory dstChipData = updateChipBatteryLevel(baseDstEntityId);
+    uint8 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
+    uint8 dstObjectTypeId = ObjectType._get(baseDstEntityId);
+    require(canHoldInventory(srcObjectTypeId), "Source object type is not a chest");
 
     VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(baseSrcEntityId));
     VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(baseDstEntityId));
+    requireValidPath(srcCoord, dstCoord, path);
 
-    uint8 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
-    uint8 dstObjectTypeId = ObjectType._get(baseDstEntityId);
-
+    address checkAddress;
     {
+      ChipData memory srcChipData = updateChipBatteryLevel(baseSrcEntityId);
+      ChipData memory dstChipData = updateChipBatteryLevel(baseDstEntityId);
+
       uint256 srcBatteryLevel = srcChipData.batteryLevel;
       uint256 dstBatteryLevel = dstChipData.batteryLevel;
 
@@ -71,18 +74,20 @@ contract PipeTransferSystem is System {
       address caller = _msgSender();
       if (srcChipData.chipAddress == caller) {
         require(srcBatteryLevel > 0, "PipeTransferSystem: source chest has no charge");
+        if (dstBatteryLevel > 0 && dstObjectTypeId != ForceFieldObjectID) {
+          checkAddress = dstChipData.chipAddress;
+        }
       } else if (dstChipData.chipAddress == caller) {
         require(dstBatteryLevel > 0, "PipeTransferSystem: destination chest has no charge");
+        if (srcBatteryLevel > 0 && srcObjectTypeId != ForceFieldObjectID) {
+          checkAddress = srcChipData.chipAddress;
+        }
       } else {
         revert("PipeTransferSystem: caller is not the chip of the source or destination smart item");
       }
     }
 
-    require(canHoldInventory(srcObjectTypeId), "Source object type is not a chest");
-
-    requireValidPath(srcCoord, dstCoord, path);
-
-    return (baseSrcEntityId, srcObjectTypeId, baseDstEntityId, dstObjectTypeId);
+    return (baseSrcEntityId, srcObjectTypeId, baseDstEntityId, dstObjectTypeId, checkAddress);
   }
 
   function requireValidPath(
@@ -106,6 +111,32 @@ contract PipeTransferSystem is System {
     );
   }
 
+  function requireAllowed(
+    address checkAddress,
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    uint8 transferObjectTypeId,
+    uint16 numToTransfer,
+    bytes32[] memory toolEntityIds,
+    bytes memory extraData
+  ) internal {
+    if (checkAddress != address(0)) {
+      // Forward any ether sent with the transaction to the hook
+      // Don't safe call here as we want to revert if the chip doesn't allow the transfer
+      bool transferAllowed = IChestChip(checkAddress).onPipeTransfer{ value: _msgValue() }(
+        srcEntityId,
+        dstEntityId,
+        path,
+        transferObjectTypeId,
+        numToTransfer,
+        toolEntityIds,
+        extraData
+      );
+      require(transferAllowed, "PipeTransferSystem: Smart item not authorized by chip to make this transfer");
+    }
+  }
+
   function pipeTransfer(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
@@ -120,7 +151,8 @@ contract PipeTransferSystem is System {
       bytes32 baseSrcEntityId,
       uint8 srcObjectTypeId,
       bytes32 baseDstEntityId,
-      uint8 dstObjectTypeId
+      uint8 dstObjectTypeId,
+      address checkAddress
     ) = pipeTransferCommon(srcEntityId, dstEntityId, path);
 
     require(!ObjectTypeMetadata._getIsTool(transferObjectTypeId), "Object type is not a block");
@@ -136,15 +168,25 @@ contract PipeTransferSystem is System {
     }
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    // requireAllowed(
-    //   getForceField(chestCoord),
-    //   playerEntityId,
-    //   baseSrcEntityId,
-    //   baseDstEntityId,
-    //   transferObjectTypeId,
-    //   numToTransfer,
-    //   new bytes32[](0),
-    //   extraData
-    // );
+    requireAllowed(
+      checkAddress,
+      baseSrcEntityId,
+      baseDstEntityId,
+      path,
+      transferObjectTypeId,
+      numToTransfer,
+      new bytes32[](0),
+      extraData
+    );
+  }
+
+  function pipeTransfer(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    uint8 transferObjectTypeId,
+    uint16 numToTransfer
+  ) public payable {
+    pipeTransfer(srcEntityId, dstEntityId, path, transferObjectTypeId, numToTransfer, new bytes(0));
   }
 }
