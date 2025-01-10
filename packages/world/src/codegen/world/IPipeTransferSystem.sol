@@ -20,11 +20,41 @@ interface IPipeTransferSystem {
     bytes memory extraData
   ) external payable;
 
+  function pipeTransferTool(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    bytes32 toolEntityId,
+    bytes memory extraData
+  ) external payable;
+
+  function pipeTransferTools(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    bytes32[] memory toolEntityIds,
+    bytes memory extraData
+  ) external payable;
+
   function pipeTransfer(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
     VoxelCoordDirectionVonNeumann[] memory path,
     uint8 transferObjectTypeId,
     uint16 numToTransfer
+  ) external payable;
+
+  function pipeTransferTool(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    bytes32 toolEntityId
+  ) external payable;
+
+  function pipeTransferTools(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    bytes32[] memory toolEntityIds
   ) external payable;
 }

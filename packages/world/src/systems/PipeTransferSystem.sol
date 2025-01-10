@@ -180,6 +180,66 @@ contract PipeTransferSystem is System {
     );
   }
 
+  function pipeTransferTool(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    bytes32 toolEntityId,
+    bytes memory extraData
+  ) public payable {
+    bytes32[] memory toolEntityIds = new bytes32[](1);
+    toolEntityIds[0] = toolEntityId;
+    pipeTransferTools(srcEntityId, dstEntityId, path, toolEntityIds, extraData);
+  }
+
+  function pipeTransferTools(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    bytes32[] memory toolEntityIds,
+    bytes memory extraData
+  ) public payable {
+    uint256 initialGas = gasleft();
+    require(toolEntityIds.length > 0, "PipeTransferSystem: must transfer at least one tool");
+    require(toolEntityIds.length < type(uint16).max, "PipeTransferSystem: too many tools to transfer");
+
+    (
+      bytes32 baseSrcEntityId,
+      uint8 srcObjectTypeId,
+      bytes32 baseDstEntityId,
+      uint8 dstObjectTypeId,
+      address checkAddress
+    ) = pipeTransferCommon(srcEntityId, dstEntityId, path);
+    require(canHoldInventory(dstObjectTypeId), "Destination object type is not a chest");
+
+    uint8 toolObjectTypeId;
+    for (uint i = 0; i < toolEntityIds.length; i++) {
+      uint8 currentToolObjectTypeId = transferInventoryTool(
+        baseSrcEntityId,
+        baseDstEntityId,
+        dstObjectTypeId,
+        toolEntityIds[i]
+      );
+      if (i > 0) {
+        require(toolObjectTypeId == currentToolObjectTypeId, "PipeTransferSystem: all tools must be of the same type");
+      } else {
+        toolObjectTypeId = currentToolObjectTypeId;
+      }
+    }
+
+    // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
+    requireAllowed(
+      checkAddress,
+      baseSrcEntityId,
+      baseDstEntityId,
+      path,
+      toolObjectTypeId,
+      uint16(toolEntityIds.length),
+      toolEntityIds,
+      extraData
+    );
+  }
+
   function pipeTransfer(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
@@ -188,5 +248,23 @@ contract PipeTransferSystem is System {
     uint16 numToTransfer
   ) public payable {
     pipeTransfer(srcEntityId, dstEntityId, path, transferObjectTypeId, numToTransfer, new bytes(0));
+  }
+
+  function pipeTransferTool(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    bytes32 toolEntityId
+  ) public payable {
+    pipeTransferTool(srcEntityId, dstEntityId, path, toolEntityId, new bytes(0));
+  }
+
+  function pipeTransferTools(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    bytes32[] memory toolEntityIds
+  ) public payable {
+    pipeTransferTools(srcEntityId, dstEntityId, path, toolEntityIds, new bytes(0));
   }
 }

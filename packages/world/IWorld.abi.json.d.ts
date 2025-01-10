@@ -4565,6 +4565,128 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "pipeTransferTool",
+    "inputs": [
+      {
+        "name": "srcEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "dstEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "path",
+        "type": "uint8[]",
+        "internalType": "enum VoxelCoordDirectionVonNeumann[]"
+      },
+      {
+        "name": "toolEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "pipeTransferTool",
+    "inputs": [
+      {
+        "name": "srcEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "dstEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "path",
+        "type": "uint8[]",
+        "internalType": "enum VoxelCoordDirectionVonNeumann[]"
+      },
+      {
+        "name": "toolEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "pipeTransferTools",
+    "inputs": [
+      {
+        "name": "srcEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "dstEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "path",
+        "type": "uint8[]",
+        "internalType": "enum VoxelCoordDirectionVonNeumann[]"
+      },
+      {
+        "name": "toolEntityIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "pipeTransferTools",
+    "inputs": [
+      {
+        "name": "srcEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "dstEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "path",
+        "type": "uint8[]",
+        "internalType": "enum VoxelCoordDirectionVonNeumann[]"
+      },
+      {
+        "name": "toolEntityIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
     "name": "popFromDynamicField",
     "inputs": [
       {
