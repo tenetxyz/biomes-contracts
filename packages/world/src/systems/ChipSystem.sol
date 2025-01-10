@@ -14,7 +14,7 @@ import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { PLAYER_HAND_DAMAGE, HIT_CHIP_STAMINA_COST, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../Constants.sol";
+import { PLAYER_HAND_DAMAGE, HIT_CHIP_STAMINA_COST, TIME_BEFORE_DECREASE_BATTERY_LEVEL, CHARGE_PER_BATTERY } from "../Constants.sol";
 import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -160,8 +160,7 @@ contract ChipSystem is System {
 
     uint8 objectTypeId = ObjectType._get(baseEntityId);
     require(objectTypeId == ForceFieldObjectID, "ChipSystem: cannot power this object");
-    uint256 increasePerBattery = 4 days;
-    uint256 newBatteryLevel = chipData.batteryLevel + (uint256(numBattery) * increasePerBattery);
+    uint256 newBatteryLevel = chipData.batteryLevel + (uint256(numBattery) * CHARGE_PER_BATTERY);
 
     Chip._setBatteryLevel(baseEntityId, newBatteryLevel);
     Chip._setLastUpdatedTime(baseEntityId, block.timestamp);

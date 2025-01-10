@@ -18,9 +18,11 @@ import { transferInventoryTool, transferInventoryNonTool, addToInventoryCount, r
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { canHoldInventory } from "../utils/ObjectTypeUtils.sol";
+import { safeCallChip } from "../Utils.sol";
 
-import { IN_MAINTENANCE } from "../Constants.sol";
+import { IN_MAINTENANCE, CHARGE_PER_BATTERY } from "../Constants.sol";
 
+import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 
 contract PipeTransferSystem is System {
@@ -28,7 +30,7 @@ contract PipeTransferSystem is System {
     bytes32 srcEntityId,
     bytes32 dstEntityId,
     VoxelCoordDirectionVonNeumann[] memory path
-  ) internal returns (bytes32, uint8, bytes32, uint8, address) {
+  ) internal returns (bytes32, uint8, bytes32, uint8, ChipData memory) {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
 
     bytes32 baseSrcEntityId = BaseEntity._get(srcEntityId);
@@ -47,7 +49,7 @@ contract PipeTransferSystem is System {
     VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(baseDstEntityId));
     requireValidPath(srcCoord, dstCoord, path);
 
-    address checkAddress;
+    ChipData memory checkChipData;
     {
       ChipData memory srcChipData = updateChipBatteryLevel(baseSrcEntityId);
       ChipData memory dstChipData = updateChipBatteryLevel(baseDstEntityId);
@@ -74,20 +76,18 @@ contract PipeTransferSystem is System {
       address caller = _msgSender();
       if (srcChipData.chipAddress == caller) {
         require(srcBatteryLevel > 0, "PipeTransferSystem: source chest has no charge");
-        if (dstBatteryLevel > 0 && dstObjectTypeId != ForceFieldObjectID) {
-          checkAddress = dstChipData.chipAddress;
-        }
+        checkChipData = dstChipData;
+        checkChipData.batteryLevel = dstBatteryLevel;
       } else if (dstChipData.chipAddress == caller) {
         require(dstBatteryLevel > 0, "PipeTransferSystem: destination chest has no charge");
-        if (srcBatteryLevel > 0 && srcObjectTypeId != ForceFieldObjectID) {
-          checkAddress = srcChipData.chipAddress;
-        }
+        checkChipData = srcChipData;
+        checkChipData.batteryLevel = srcBatteryLevel;
       } else {
         revert("PipeTransferSystem: caller is not the chip of the source or destination smart item");
       }
     }
 
-    return (baseSrcEntityId, srcObjectTypeId, baseDstEntityId, dstObjectTypeId, checkAddress);
+    return (baseSrcEntityId, srcObjectTypeId, baseDstEntityId, dstObjectTypeId, checkChipData);
   }
 
   function requireValidPath(
@@ -112,7 +112,7 @@ contract PipeTransferSystem is System {
   }
 
   function requireAllowed(
-    address checkAddress,
+    ChipData memory checkChipData,
     bytes32 srcEntityId,
     bytes32 dstEntityId,
     VoxelCoordDirectionVonNeumann[] memory path,
@@ -121,10 +121,10 @@ contract PipeTransferSystem is System {
     bytes32[] memory toolEntityIds,
     bytes memory extraData
   ) internal {
-    if (checkAddress != address(0)) {
+    if (checkChipData.chipAddress != address(0) && checkChipData.batteryLevel > 0) {
       // Forward any ether sent with the transaction to the hook
       // Don't safe call here as we want to revert if the chip doesn't allow the transfer
-      bool transferAllowed = IChestChip(checkAddress).onPipeTransfer{ value: _msgValue() }(
+      bool transferAllowed = IChestChip(checkChipData.chipAddress).onPipeTransfer{ value: _msgValue() }(
         srcEntityId,
         dstEntityId,
         path,
@@ -152,7 +152,7 @@ contract PipeTransferSystem is System {
       uint8 srcObjectTypeId,
       bytes32 baseDstEntityId,
       uint8 dstObjectTypeId,
-      address checkAddress
+      ChipData memory checkChipData
     ) = pipeTransferCommon(srcEntityId, dstEntityId, path);
 
     require(!ObjectTypeMetadata._getIsTool(transferObjectTypeId), "Object type is not a block");
@@ -163,21 +163,33 @@ contract PipeTransferSystem is System {
       addToInventoryCount(dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
     } else if (dstObjectTypeId == ForceFieldObjectID) {
       require(transferObjectTypeId == ChipBatteryObjectID, "Force field can only accept chip batteries");
+      require(checkChipData.chipAddress != address(0), "Force field has no chip");
+      uint256 newBatteryLevel = checkChipData.batteryLevel + (uint256(numToTransfer) * CHARGE_PER_BATTERY);
+
+      Chip._setBatteryLevel(baseDstEntityId, newBatteryLevel);
+      Chip._setLastUpdatedTime(baseDstEntityId, block.timestamp);
+
+      safeCallChip(
+        checkChipData.chipAddress,
+        abi.encodeCall(IChip.onPowered, (baseSrcEntityId, baseDstEntityId, numToTransfer))
+      );
     } else {
       revert("PipeTransferSystem: destination object type is not valid");
     }
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    requireAllowed(
-      checkAddress,
-      baseSrcEntityId,
-      baseDstEntityId,
-      path,
-      transferObjectTypeId,
-      numToTransfer,
-      new bytes32[](0),
-      extraData
-    );
+    if (dstObjectTypeId != ForceFieldObjectID) {
+      requireAllowed(
+        checkChipData,
+        baseSrcEntityId,
+        baseDstEntityId,
+        path,
+        transferObjectTypeId,
+        numToTransfer,
+        new bytes32[](0),
+        extraData
+      );
+    }
   }
 
   function pipeTransferTool(
@@ -208,7 +220,7 @@ contract PipeTransferSystem is System {
       uint8 srcObjectTypeId,
       bytes32 baseDstEntityId,
       uint8 dstObjectTypeId,
-      address checkAddress
+      ChipData memory checkChipData
     ) = pipeTransferCommon(srcEntityId, dstEntityId, path);
     require(canHoldInventory(dstObjectTypeId), "Destination object type is not a chest");
 
@@ -229,7 +241,7 @@ contract PipeTransferSystem is System {
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
-      checkAddress,
+      checkChipData,
       baseSrcEntityId,
       baseDstEntityId,
       path,
