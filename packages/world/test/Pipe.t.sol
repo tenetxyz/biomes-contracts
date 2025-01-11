@@ -3,6 +3,8 @@ pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 import { console } from "forge-std/console.sol";
@@ -104,6 +106,29 @@ contract TestForceFieldChip is IForceFieldChip {
 
 contract TestChestChip is IChestChip {
   bytes32 private ownerEntityId;
+
+  constructor(address _biomeWorldAddress) {
+    StoreSwitch.setStoreAddress(_biomeWorldAddress);
+  }
+
+  function transferToChest(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    uint8 transferObjectTypeId,
+    uint16 numToTransfer
+  ) external {
+    bytes32 playerEntityId = Player.get(msg.sender);
+    require(playerEntityId == ownerEntityId, "Not the owner");
+    IWorld(WorldContextConsumerLib._world()).pipeTransfer(
+      srcEntityId,
+      dstEntityId,
+      path,
+      transferObjectTypeId,
+      numToTransfer
+    );
+  }
+
   function onAttached(
     bytes32 playerEntityId,
     bytes32 entityId,
@@ -134,13 +159,10 @@ contract TestChestChip is IChestChip {
     bytes32[] memory toolEntityIds,
     bytes memory extraData
   ) external payable returns (bool isAllowed) {
-    bool isDeposit = ObjectType.get(IStore(msg.sender), srcEntityId) == PlayerObjectID;
+    bool isDeposit = ObjectType.get(srcEntityId) == PlayerObjectID;
     bytes32 chestEntityId = isDeposit ? dstEntityId : srcEntityId;
     bytes32 playerEntityId = isDeposit ? srcEntityId : dstEntityId;
     if (playerEntityId == ownerEntityId) {
-      return true;
-    }
-    if (msg.value > 0 && !isDeposit && transferObjectTypeId == DiamondOreObjectID) {
       return true;
     }
 
@@ -155,7 +177,9 @@ contract TestChestChip is IChestChip {
     uint16 numToTransfer,
     bytes32[] memory toolEntityIds,
     bytes memory extraData
-  ) external payable returns (bool isAllowed) {}
+  ) external payable returns (bool isAllowed) {
+    return true;
+  }
 
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
     return interfaceId == type(IChestChip).interfaceId || interfaceId == type(IERC165).interfaceId;
@@ -178,7 +202,7 @@ contract PipeTest is MudTest, GasReporter {
     alice = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
     bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
-    testChestChip = new TestChestChip();
+    testChestChip = new TestChestChip(worldAddress);
     testForceFieldChip = new TestForceFieldChip();
   }
 
@@ -211,6 +235,15 @@ contract PipeTest is MudTest, GasReporter {
     return playerEntityId2;
   }
 
+  function adminClearCoord(VoxelCoord memory coord) public {
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 airEntityId = testGetUniqueEntity();
+    ObjectType.set(airEntityId, AirObjectID);
+    Position.set(airEntityId, coord.x, coord.y, coord.z);
+    ReversePosition.set(coord.x, coord.y, coord.z, airEntityId);
+    vm.stopPrank();
+  }
+
   function testPipeTransferToChest() public {
     vm.startPrank(alice, alice);
 
@@ -221,9 +254,10 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(worldDeployer, worldDeployer);
 
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 2);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 3);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartChestObjectID, 2);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, PipeObjectID, 2);
 
     uint8 inputObjectTypeId1 = DiamondOreObjectID;
@@ -231,26 +265,28 @@ contract PipeTest is MudTest, GasReporter {
     testAddToInventoryCount(playerEntityId2, PlayerObjectID, inputObjectTypeId1, 1);
 
     assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 1, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 3, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, SmartChestObjectID) == 2, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, PipeObjectID) == 2, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 1, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 5, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId) == 7, "Inventory slot not set");
     assertTrue(InventorySlots.get(playerEntityId2) == 1, "Inventory slot not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ForceFieldObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SmartChestObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, PipeObjectID), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId1), "Inventory objects not set");
 
-    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
-    bytes32 airEntityId = testGetUniqueEntity();
-    ObjectType.set(airEntityId, AirObjectID);
-    Position.set(airEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
-    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, airEntityId);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartChestObjectID, 1);
+    VoxelCoord memory chest1Coord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    VoxelCoord memory pipeCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
+    VoxelCoord memory chest2Coord = VoxelCoord(spawnCoord.x + 3, spawnCoord.y, spawnCoord.z);
+    adminClearCoord(chest1Coord);
+    adminClearCoord(pipeCoord);
+    adminClearCoord(chest2Coord);
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
@@ -261,16 +297,31 @@ contract PipeTest is MudTest, GasReporter {
     world.attachChip(forceFieldEntityId, address(testForceFieldChip));
     world.powerChip(forceFieldEntityId, 1);
 
-    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
-    bytes32 chestEntityId = world.build(SmartChestObjectID, chestCoord);
+    bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
+    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    bytes32 chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(0), "Chip set");
+    assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
+    assertTrue(Chip.getChipAddress(chest2EntityId) == address(0), "Chip set");
 
-    world.attachChip(chestEntityId, address(testChestChip));
+    world.attachChip(chest1EntityId, address(testChestChip));
+    world.attachChip(chest2EntityId, address(testChestChip));
 
-    assertTrue(Chip.getChipAddress(chestEntityId) == address(testChestChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chest1EntityId) == address(testChestChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chest2EntityId) == address(testChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    // transfer from player to chest
+    world.transfer(playerEntityId, chest1EntityId, inputObjectTypeId1, 1);
+
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+
+    VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
+    path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
+    testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
 
     vm.stopPrank();
   }
