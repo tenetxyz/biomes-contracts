@@ -154,12 +154,11 @@ contract ChipSystem is System {
     bytes32 baseEntityId = BaseEntity._get(entityId);
     baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
 
-    ChipData memory chipData = updateChipBatteryLevel(baseEntityId);
-    require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
     removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, numBattery);
 
     uint8 objectTypeId = ObjectType._get(baseEntityId);
     require(objectTypeId == ForceFieldObjectID, "ChipSystem: cannot power this object");
+    ChipData memory chipData = updateChipBatteryLevel(baseEntityId);
     uint256 newBatteryLevel = chipData.batteryLevel + (uint256(numBattery) * CHARGE_PER_BATTERY);
 
     Chip._setBatteryLevel(baseEntityId, newBatteryLevel);

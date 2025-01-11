@@ -163,7 +163,6 @@ contract PipeTransferSystem is System {
       addToInventoryCount(dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
     } else if (dstObjectTypeId == ForceFieldObjectID) {
       require(transferObjectTypeId == ChipBatteryObjectID, "Force field can only accept chip batteries");
-      require(checkChipData.chipAddress != address(0), "Force field has no chip");
       uint256 newBatteryLevel = checkChipData.batteryLevel + (uint256(numToTransfer) * CHARGE_PER_BATTERY);
 
       Chip._setBatteryLevel(baseDstEntityId, newBatteryLevel);

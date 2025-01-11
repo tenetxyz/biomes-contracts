@@ -1160,8 +1160,11 @@ contract ChipTest is MudTest, GasReporter {
 
     assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    vm.expectRevert("ChipSystem: no chip attached");
+    uint256 chargeBefore = Chip.getBatteryLevel(forceFieldEntityId);
     world.powerChip(forceFieldEntityId, 10);
+    uint256 chargeAfter = Chip.getBatteryLevel(forceFieldEntityId);
+
+    assertTrue(chargeAfter > chargeBefore, "Charge not increased");
 
     vm.stopPrank();
   }
