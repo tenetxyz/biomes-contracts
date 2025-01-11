@@ -47,9 +47,9 @@ async function main() {
   try {
     const currentBlock = Number(await publicClient.getBlockNumber());
     const transactions = [];
-    const batchSize = 100; // Adjust based on RPC provider limits
+    const batchSize = 200; // Adjust based on RPC provider limits
     // const startBlock = fromBlock;
-    const startBlock = 8867774;
+    const startBlock = 11912659;
 
     console.log(`Starting scan from block ${startBlock} to ${currentBlock}`);
 
@@ -71,14 +71,15 @@ async function main() {
         transactions.push(...txHashes);
 
         console.log(`Processed blocks ${i} to ${toBlock}. Found ${txHashes.length} transactions in this batch.`);
-        numBlocksProcessed++;
+        numBlocksProcessed += batchSize;
 
         // Save progress periodically
-        if (numBlocksProcessed > 0 && numBlocksProcessed % 1000 === 0) {
+        if (numBlocksProcessed > 0 && numBlocksProcessed % 10_000 === 0) {
           await saveToJson(transactions, worldAddress, startBlock, i, "progress");
         }
       } catch (error) {
         console.error(`Error processing blocks ${i} to ${toBlock}:`, error);
+        throw Error("Error processing blocks");
       }
     }
 

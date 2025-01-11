@@ -73,6 +73,8 @@ async function processFiles({ filesToProcess, IWorldAbi, referenceStartBlock, re
           const newCount = txCounts.get(callFromCallData.functionName) || 0;
           txCounts.set(callFromCallData.functionName, newCount + 1);
           numTxs++;
+        } else {
+          console.warn("Unknown function name", functionName);
         }
 
         try {
