@@ -323,6 +323,21 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
     testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
 
+    assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+
+    // transfer back to chest1
+    path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
+    testChestChip.transferToChest(chest2EntityId, chest1EntityId, path, inputObjectTypeId1, 1);
+
+    assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+
+    world.transfer(chest1EntityId, playerEntityId, inputObjectTypeId1, 1);
+
+    assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+
     vm.stopPrank();
   }
 
