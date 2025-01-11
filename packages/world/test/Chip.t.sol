@@ -3,6 +3,8 @@ pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 import { console } from "forge-std/console.sol";
@@ -44,6 +46,10 @@ import { IChestChip } from "../src/prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../src/prototypes/IForceFieldChip.sol";
 
 contract TestForceFieldChip is IForceFieldChip {
+  constructor(address _biomeWorldAddress) {
+    StoreSwitch.setStoreAddress(_biomeWorldAddress);
+  }
+
   function onAttached(
     bytes32 playerEntityId,
     bytes32 entityId,
@@ -105,6 +111,11 @@ contract TestForceFieldChip is IForceFieldChip {
 
 contract TestChestChip is IChestChip {
   bytes32 private ownerEntityId;
+
+  constructor(address _biomeWorldAddress) {
+    StoreSwitch.setStoreAddress(_biomeWorldAddress);
+  }
+
   function onAttached(
     bytes32 playerEntityId,
     bytes32 entityId,
@@ -136,7 +147,7 @@ contract TestChestChip is IChestChip {
     bytes32[] memory toolEntityIds,
     bytes memory extraData
   ) external payable returns (bool isAllowed) {
-    bool isDeposit = ObjectType.get(IStore(msg.sender), srcEntityId) == PlayerObjectID;
+    bool isDeposit = ObjectType.get(srcEntityId) == PlayerObjectID;
     bytes32 chestEntityId = isDeposit ? dstEntityId : srcEntityId;
     bytes32 playerEntityId = isDeposit ? srcEntityId : dstEntityId;
     if (playerEntityId == ownerEntityId) {
@@ -176,8 +187,8 @@ contract ChipTest is MudTest, GasReporter {
     alice = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
     bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
-    testChestChip = new TestChestChip();
-    testForceFieldChip = new TestForceFieldChip();
+    testChestChip = new TestChestChip(worldAddress);
+    testForceFieldChip = new TestForceFieldChip(worldAddress);
   }
 
   function setupPlayer() public returns (bytes32) {

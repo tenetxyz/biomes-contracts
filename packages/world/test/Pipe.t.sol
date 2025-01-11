@@ -45,6 +45,10 @@ import { IChestChip } from "../src/prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../src/prototypes/IForceFieldChip.sol";
 
 contract TestForceFieldChip is IForceFieldChip {
+  constructor(address _biomeWorldAddress) {
+    StoreSwitch.setStoreAddress(_biomeWorldAddress);
+  }
+
   function onAttached(
     bytes32 playerEntityId,
     bytes32 entityId,
@@ -178,7 +182,78 @@ contract TestChestChip is IChestChip {
     bytes32[] memory toolEntityIds,
     bytes memory extraData
   ) external payable returns (bool isAllowed) {
+    return false;
+  }
+
+  function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
+    return interfaceId == type(IChestChip).interfaceId || interfaceId == type(IERC165).interfaceId;
+  }
+}
+
+contract TestOverflowChestChip is IChestChip {
+  bytes32 private ownerEntityId;
+  bytes32 private approvedPipeTransferEntityId;
+
+  constructor(address _biomeWorldAddress) {
+    StoreSwitch.setStoreAddress(_biomeWorldAddress);
+  }
+
+  function setApprovedPipeTransferEntityId(bytes32 entityId) external {
+    require(ownerEntityId == Player.get(msg.sender), "Not the owner");
+    approvedPipeTransferEntityId = entityId;
+  }
+
+  function onAttached(
+    bytes32 playerEntityId,
+    bytes32 entityId,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    ownerEntityId = playerEntityId;
     return true;
+  }
+
+  function onDetached(
+    bytes32 playerEntityId,
+    bytes32 entityId,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    ownerEntityId = bytes32(0);
+    return true;
+  }
+
+  function onPowered(bytes32 playerEntityId, bytes32 entityId, uint16 numBattery) external {}
+
+  function onChipHit(bytes32 playerEntityId, bytes32 entityId) external {}
+
+  function onTransfer(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    uint8 transferObjectTypeId,
+    uint16 numToTransfer,
+    bytes32[] memory toolEntityIds,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    bool isDeposit = ObjectType.get(srcEntityId) == PlayerObjectID;
+    bytes32 chestEntityId = isDeposit ? dstEntityId : srcEntityId;
+    bytes32 playerEntityId = isDeposit ? srcEntityId : dstEntityId;
+    if (playerEntityId == ownerEntityId) {
+      return true;
+    }
+
+    return false;
+  }
+
+  function onPipeTransfer(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    VoxelCoordDirectionVonNeumann[] memory path,
+    uint8 transferObjectTypeId,
+    uint16 numToTransfer,
+    bytes32[] memory toolEntityIds,
+    bytes memory extraData
+  ) external payable returns (bool isAllowed) {
+    isAllowed = (approvedPipeTransferEntityId == dstEntityId || approvedPipeTransferEntityId == srcEntityId);
+    return isAllowed;
   }
 
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
@@ -194,7 +269,7 @@ contract PipeTest is MudTest, GasReporter {
   VoxelCoord spawnCoord;
   TestChestChip testChestChip;
   TestForceFieldChip testForceFieldChip;
-
+  TestOverflowChestChip testOverflowChestChip;
   function setUp() public override {
     super.setUp();
 
@@ -203,7 +278,8 @@ contract PipeTest is MudTest, GasReporter {
     bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
     testChestChip = new TestChestChip(worldAddress);
-    testForceFieldChip = new TestForceFieldChip();
+    testForceFieldChip = new TestForceFieldChip(worldAddress);
+    testOverflowChestChip = new TestOverflowChestChip(worldAddress);
   }
 
   function setupPlayer() public returns (bytes32) {
@@ -307,10 +383,10 @@ contract PipeTest is MudTest, GasReporter {
     assertTrue(Chip.getChipAddress(chest2EntityId) == address(0), "Chip set");
 
     world.attachChip(chest1EntityId, address(testChestChip));
-    world.attachChip(chest2EntityId, address(testChestChip));
+    world.attachChip(chest2EntityId, address(testOverflowChestChip));
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(testChestChip), "Chip not set");
-    assertTrue(Chip.getChipAddress(chest2EntityId) == address(testChestChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chest2EntityId) == address(testOverflowChestChip), "Chip not set");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
 
     // transfer from player to chest
@@ -318,6 +394,8 @@ contract PipeTest is MudTest, GasReporter {
 
     assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+
+    testOverflowChestChip.setApprovedPipeTransferEntityId(chest1EntityId);
 
     VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
