@@ -419,6 +419,104 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testPipeTransferSmartChestToChest() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+    vm.stopPrank();
+    bytes32 playerEntityId2 = setupPlayer2(1);
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 3);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartChestObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, PipeObjectID, 2);
+
+    uint8 inputObjectTypeId1 = DiamondOreObjectID;
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId2, PlayerObjectID, inputObjectTypeId1, 1);
+
+    assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 3, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, SmartChestObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChestObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, PipeObjectID) == 2, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 7, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId2) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ForceFieldObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SmartChestObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChestObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, PipeObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId1), "Inventory objects not set");
+
+    VoxelCoord memory chest1Coord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    VoxelCoord memory pipeCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
+    VoxelCoord memory chest2Coord = VoxelCoord(spawnCoord.x + 3, spawnCoord.y, spawnCoord.z);
+    adminClearCoord(chest1Coord);
+    adminClearCoord(pipeCoord);
+    adminClearCoord(chest2Coord);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+
+    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+    world.powerChip(forceFieldEntityId, 1);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
+
+    bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
+    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    bytes32 chest2EntityId = world.build(ChestObjectID, chest2Coord);
+
+    assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
+    assertTrue(Chip.getChipAddress(chest2EntityId) == address(0), "Chip set");
+
+    world.attachChip(chest1EntityId, address(testChestChip));
+
+    assertTrue(Chip.getChipAddress(chest1EntityId) == address(testChestChip), "Chip not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 1, "Input object not removed from inventory");
+
+    // transfer from player to chest
+    world.transfer(playerEntityId, chest1EntityId, inputObjectTypeId1, 1);
+
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+
+    VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
+    path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
+    testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+
+    assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+
+    // transfer back to chest1
+    path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
+    testChestChip.transferToChest(chest2EntityId, chest1EntityId, path, inputObjectTypeId1, 1);
+
+    assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+
+    world.transfer(chest1EntityId, playerEntityId, inputObjectTypeId1, 1);
+
+    assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+
+    vm.stopPrank();
+  }
+
   function testPipeTransferSmartChestToForceField() public {
     vm.startPrank(alice, alice);
 
