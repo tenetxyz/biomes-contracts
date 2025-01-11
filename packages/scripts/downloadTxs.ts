@@ -21,7 +21,7 @@ async function saveDetailedTransactionsBatch(
   fromBlock: string,
   toBlock: string,
   batchNumber: number,
-) {
+): boolean {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   const fileName = `detailed_txs_${contractAddress}_from${fromBlock}_to${toBlock}_batch${batchNumber}_${timestamp}.json`;
 
@@ -34,6 +34,13 @@ async function saveDetailedTransactionsBatch(
   //   transactions,
   // };
 
+  // filter out nulls
+  const filteredTransactions = transactions.filter((el) => el !== null);
+  if (filteredTransactions.length === 0) {
+    console.log(`No transactions to save for batch ${batchNumber}`);
+    return false;
+  }
+
   try {
     const outputDir = path.join(process.cwd(), "gen");
     if (!fs.existsSync(outputDir)) {
@@ -43,15 +50,17 @@ async function saveDetailedTransactionsBatch(
     const filePath = path.join(outputDir, fileName);
 
     const finalData =
-      `{"contractAddress": "${contractAddress}", "fromBlock": "${fromBlock}", "toBlock": "${toBlock}", "totalTransactions": ${transactions.length}, ` +
+      `{"contractAddress": "${contractAddress}", "fromBlock": "${fromBlock}", "toBlock": "${toBlock}", "totalTransactions": ${filteredTransactions.length}, ` +
       `"scanCompletedAt": "${new Date().toISOString()}", "transactions": [` +
-      transactions.map((el) => JSON.stringify(el, replacer, 2)).join(",") +
+      filteredTransactions.map((el) => JSON.stringify(el, replacer, 2)).join(",") +
       "]}";
     await fs.promises.writeFile(filePath, finalData);
     console.log(`Saved detailed transactions for batch ${batchNumber} to ${filePath}`);
   } catch (error) {
     console.error("Error saving to JSON:", error);
   }
+
+  return true;
 }
 
 async function main() {
@@ -67,6 +76,24 @@ async function main() {
 
     const batchSize = 50; // Adjust based on RPC rate limits
 
+    const proccessedHashes = new Set();
+
+    // Get list of files to process
+    const dirPath = path.join(process.cwd(), "gen/");
+    const files = fs
+      .readdirSync(dirPath)
+      .filter((file) => file.startsWith(`detailed_txs_${contractAddress}_from${fromBlock}_to${toBlock}_batch`))
+      .map((file) => path.join(dirPath, file));
+
+    for (const file of files) {
+      const { transactions } = JSON.parse(fs.readFileSync(file, "utf-8"));
+      for (const transaction of transactions) {
+        proccessedHashes.add(transaction.hash.toLowerCase());
+      }
+    }
+
+    console.log(`Processed ${proccessedHashes.size} hashes already`);
+
     // Process transactions in batches
     for (let i = 0; i < txHashes.length; i += batchSize) {
       const batch = txHashes.slice(i, i + batchSize);
@@ -75,6 +102,11 @@ async function main() {
       console.log(`Processing batch ${batchNumber} of ${Math.ceil(txHashes.length / batchSize)}`);
 
       const batchPromises = batch.map(async (hash) => {
+        if (proccessedHashes.has(hash.toLowerCase())) {
+          console.log(`Skipping transaction ${hash} as it has already been processed`);
+          return null;
+        }
+
         try {
           const [transaction, transactionReceipt] = await Promise.all([
             publicClient.getTransaction({ hash }),
@@ -92,17 +124,17 @@ async function main() {
           };
         } catch (error) {
           console.error(`Error processing transaction ${hash}:`, error);
-          return {
-            hash,
-            error: error.message,
-          };
+          throw Error("Error processing blocks");
         }
       });
 
       const batchResults = await Promise.all(batchPromises);
 
       // Save progress periodically
-      await saveDetailedTransactionsBatch(batchResults, contractAddress, fromBlock, toBlock, batchNumber);
+      const saved = await saveDetailedTransactionsBatch(batchResults, contractAddress, fromBlock, toBlock, batchNumber);
+      if (!saved) {
+        continue;
+      }
 
       // Add a small delay between batches to avoid rate limiting
       await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -111,6 +143,7 @@ async function main() {
     console.log("Processing completed!");
   } catch (error) {
     console.error("Error:", error);
+    throw Error("Error processing blocks");
   }
 }
 
