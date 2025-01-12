@@ -60,12 +60,27 @@ export async function setupNetwork() {
 
   const publicClient = createPublicClient({
     chain: chain,
-    transport: http(),
+    transport: http(undefined, {
+      batch: {
+        batchSize: 100,
+        wait: 1000,
+      },
+    }),
   });
 
   const walletClient = createWalletClient({
     chain: chain,
-    transport: transportObserver(fallback([webSocket(), http()])),
+    transport: transportObserver(
+      fallback([
+        webSocket(),
+        http(undefined, {
+          batch: {
+            batchSize: 100,
+            wait: 1000,
+          },
+        }),
+      ]),
+    ),
     pollingInterval: 1000, // e.g. when waiting for transactions, we poll every 1000ms
     account: account,
   });
