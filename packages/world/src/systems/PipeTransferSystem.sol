@@ -43,7 +43,7 @@ contract PipeTransferSystem is System {
 
     uint8 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
     uint8 dstObjectTypeId = ObjectType._get(baseDstEntityId);
-    require(canHoldInventory(srcObjectTypeId), "Source object type is not a chest");
+    require(canHoldInventory(srcObjectTypeId), "PipeTransferSystem: source object type is not a chest");
 
     VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(baseSrcEntityId));
     VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(baseDstEntityId));
@@ -75,11 +75,11 @@ contract PipeTransferSystem is System {
 
       address caller = _msgSender();
       if (srcChipData.chipAddress == caller) {
-        require(srcBatteryLevel > 0, "PipeTransferSystem: source chest has no charge");
+        require(srcBatteryLevel > 0, "PipeTransferSystem: caller has no charge");
         checkChipData = dstChipData;
         checkChipData.batteryLevel = dstBatteryLevel;
       } else if (dstChipData.chipAddress == caller) {
-        require(dstBatteryLevel > 0, "PipeTransferSystem: destination chest has no charge");
+        require(dstBatteryLevel > 0, "PipeTransferSystem: caller has no charge");
         checkChipData = srcChipData;
         checkChipData.batteryLevel = srcBatteryLevel;
       } else {
@@ -95,7 +95,7 @@ contract PipeTransferSystem is System {
     VoxelCoord memory dstCoord,
     VoxelCoordDirectionVonNeumann[] memory path
   ) internal view {
-    require(path.length > 0, "Path must be greater than 0");
+    require(path.length > 0, "PipeTransferSystem: path must be greater than 0");
     VoxelCoord[] memory pathCoords = new VoxelCoord[](path.length);
     for (uint i = 0; i < path.length; i++) {
       pathCoords[i] = transformVoxelCoordVonNeumann(i == 0 ? srcCoord : pathCoords[i - 1], path[i]);
@@ -133,7 +133,7 @@ contract PipeTransferSystem is System {
         toolEntityIds,
         extraData
       );
-      require(transferAllowed, "PipeTransferSystem: Smart item not authorized by chip to make this transfer");
+      require(transferAllowed, "PipeTransferSystem: smart item not authorized by chip to make this transfer");
     }
   }
 
@@ -145,8 +145,6 @@ contract PipeTransferSystem is System {
     uint16 numToTransfer,
     bytes memory extraData
   ) public payable {
-    uint256 initialGas = gasleft();
-
     (
       bytes32 baseSrcEntityId,
       uint8 srcObjectTypeId,
@@ -155,14 +153,17 @@ contract PipeTransferSystem is System {
       ChipData memory checkChipData
     ) = pipeTransferCommon(srcEntityId, dstEntityId, path);
 
-    require(!ObjectTypeMetadata._getIsTool(transferObjectTypeId), "Object type is not a block");
-    require(numToTransfer > 0, "Amount must be greater than 0");
-    removeFromInventoryCount(srcEntityId, transferObjectTypeId, numToTransfer);
+    require(!ObjectTypeMetadata._getIsTool(transferObjectTypeId), "PipeTransferSystem: object type is not a block");
+    require(numToTransfer > 0, "PipeTransferSystem: amount must be greater than 0");
+    removeFromInventoryCount(baseSrcEntityId, transferObjectTypeId, numToTransfer);
 
     if (canHoldInventory(dstObjectTypeId)) {
-      addToInventoryCount(dstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
+      addToInventoryCount(baseDstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
     } else if (dstObjectTypeId == ForceFieldObjectID) {
-      require(transferObjectTypeId == ChipBatteryObjectID, "Force field can only accept chip batteries");
+      require(
+        transferObjectTypeId == ChipBatteryObjectID,
+        "PipeTransferSystem: force field can only accept chip batteries"
+      );
       uint256 newBatteryLevel = checkChipData.batteryLevel + (uint256(numToTransfer) * CHARGE_PER_BATTERY);
 
       Chip._setBatteryLevel(baseDstEntityId, newBatteryLevel);
@@ -210,7 +211,6 @@ contract PipeTransferSystem is System {
     bytes32[] memory toolEntityIds,
     bytes memory extraData
   ) public payable {
-    uint256 initialGas = gasleft();
     require(toolEntityIds.length > 0, "PipeTransferSystem: must transfer at least one tool");
     require(toolEntityIds.length < type(uint16).max, "PipeTransferSystem: too many tools to transfer");
 
@@ -221,7 +221,7 @@ contract PipeTransferSystem is System {
       uint8 dstObjectTypeId,
       ChipData memory checkChipData
     ) = pipeTransferCommon(srcEntityId, dstEntityId, path);
-    require(canHoldInventory(dstObjectTypeId), "Destination object type is not a chest");
+    require(canHoldInventory(dstObjectTypeId), "PipeTransferSystem: destination object type is not a chest");
 
     uint8 toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
