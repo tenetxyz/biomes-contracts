@@ -439,15 +439,20 @@ contract PipeTest is MudTest, GasReporter {
 
     VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
+
+    startGasReport("pipe transfer from smart chest to smart chest: 1 pipe, 1 object");
     testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    endGasReport();
 
     assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
 
     // transfer back to chest1
     path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
-    testChestChip.transferToChest(chest2EntityId, chest1EntityId, path, inputObjectTypeId1, 1);
 
+    startGasReport("pipe transfer from smart chest to smart chest: 1 pipe, 1 object");
+    testChestChip.transferToChest(chest2EntityId, chest1EntityId, path, inputObjectTypeId1, 1);
+    endGasReport();
     assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
 
@@ -546,7 +551,10 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
     path[1] = VoxelCoordDirectionVonNeumann.PositiveX;
     path[2] = VoxelCoordDirectionVonNeumann.PositiveX;
+
+    startGasReport("pipe transfer from smart chest to smart chest: 3 pipes, 1 object");
     testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    endGasReport();
 
     assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
@@ -555,7 +563,10 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
     path[1] = VoxelCoordDirectionVonNeumann.NegativeX;
     path[2] = VoxelCoordDirectionVonNeumann.NegativeX;
+
+    startGasReport("pipe transfer from smart chest to smart chest: 3 pipes, 1 object");
     testChestChip.transferToChest(chest2EntityId, chest1EntityId, path, inputObjectTypeId1, 1);
+    endGasReport();
 
     assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
@@ -646,14 +657,20 @@ contract PipeTest is MudTest, GasReporter {
 
     VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
+
+    startGasReport("pipe transfer from smart chest to chest: 1 pipe, 1 object");
     testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    endGasReport();
 
     assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
 
     // transfer back to chest1
     path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
+
+    startGasReport("pipe transfer from chest to smart chest: 1 pipe, 1 object");
     testChestChip.transferToChest(chest2EntityId, chest1EntityId, path, inputObjectTypeId1, 1);
+    endGasReport();
 
     assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
@@ -741,11 +758,219 @@ contract PipeTest is MudTest, GasReporter {
     VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
     uint256 chargeBefore = Chip.getBatteryLevel(forceFieldEntityId);
+
+    startGasReport("pipe transfer from smart chest to force field: 1 pipe, 3 objects");
     testChestChip.transferToChest(chest1EntityId, forceFieldEntityId, path, ChipBatteryObjectID, 3);
+    endGasReport();
 
     assertTrue(InventoryCount.get(chest1EntityId, ChipBatteryObjectID) == 0, "Input object not removed from inventory");
     uint256 chargeAfter = Chip.getBatteryLevel(forceFieldEntityId);
     assertTrue(chargeAfter > chargeBefore, "Charge not increased");
+
+    vm.stopPrank();
+  }
+
+  function testPipeTransferToolsSmartChestToSmartChest() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+    vm.stopPrank();
+    bytes32 playerEntityId2 = setupPlayer2(1);
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 3);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartChestObjectID, 2);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, PipeObjectID, 2);
+
+    uint8 inputObjectTypeId1 = DiamondOreObjectID;
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId2, PlayerObjectID, inputObjectTypeId1, 1);
+
+    bytes32 newInventoryId = testGetUniqueEntity();
+    ObjectType.set(newInventoryId, WoodenPickObjectID);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
+    uint24 durability = 18750;
+    ItemMetadata.set(newInventoryId, durability);
+
+    assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 3, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, SmartChestObjectID) == 2, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, PipeObjectID) == 2, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 8, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId2) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ForceFieldObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SmartChestObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, PipeObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId1), "Inventory objects not set");
+
+    VoxelCoord memory chest1Coord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    VoxelCoord memory pipeCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
+    VoxelCoord memory chest2Coord = VoxelCoord(spawnCoord.x + 3, spawnCoord.y, spawnCoord.z);
+    adminClearCoord(chest1Coord);
+    adminClearCoord(pipeCoord);
+    adminClearCoord(chest2Coord);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+
+    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+    world.powerChip(forceFieldEntityId, 1);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
+
+    bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
+    world.build(PipeObjectID, pipeCoord);
+    bytes32 chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
+
+    assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
+    assertTrue(Chip.getChipAddress(chest2EntityId) == address(0), "Chip set");
+
+    world.attachChip(chest1EntityId, address(testChestChip));
+    world.attachChip(chest2EntityId, address(testOverflowChestChip));
+
+    assertTrue(Chip.getChipAddress(chest1EntityId) == address(testChestChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chest2EntityId) == address(testOverflowChestChip), "Chip not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    // transfer from player to chest
+    world.transferTool(playerEntityId, chest1EntityId, newInventoryId);
+
+    assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(chest1EntityId, WoodenPickObjectID) == 1, "Input object not added to inventory");
+
+    testOverflowChestChip.setApprovedPipeTransferEntityId(chest1EntityId);
+
+    VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
+    path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
+
+    startGasReport("pipe transfer from smart chest to smart chest: 1 pipe, 1 tool");
+    testChestChip.transferToolToChest(chest1EntityId, chest2EntityId, path, newInventoryId);
+    endGasReport();
+
+    assertTrue(InventoryCount.get(chest1EntityId, WoodenPickObjectID) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(chest2EntityId, WoodenPickObjectID) == 1, "Input object not added to inventory");
+
+    // transfer back to chest1
+    path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
+
+    startGasReport("pipe transfer from smart chest to smart chest: 1 pipe, 1 tool");
+    testChestChip.transferToolToChest(chest2EntityId, chest1EntityId, path, newInventoryId);
+    endGasReport();
+
+    assertTrue(InventoryCount.get(chest2EntityId, WoodenPickObjectID) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(chest1EntityId, WoodenPickObjectID) == 1, "Input object not added to inventory");
+
+    world.transferTool(chest1EntityId, playerEntityId, newInventoryId);
+
+    assertTrue(InventoryCount.get(chest1EntityId, WoodenPickObjectID) == 0, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 1, "Input object not added to inventory");
+
+    vm.stopPrank();
+  }
+
+  function testPipeTransferInvalidTools() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+    vm.stopPrank();
+    bytes32 playerEntityId2 = setupPlayer2(1);
+
+    vm.stopPrank();
+    vm.startPrank(worldDeployer, worldDeployer);
+
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 3);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 1);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartChestObjectID, 2);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, PipeObjectID, 2);
+
+    uint8 inputObjectTypeId1 = DiamondOreObjectID;
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
+    testAddToInventoryCount(playerEntityId2, PlayerObjectID, inputObjectTypeId1, 1);
+
+    bytes32 newInventoryId = testGetUniqueEntity();
+    ObjectType.set(newInventoryId, WoodenPickObjectID);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
+    uint24 durability = 18750;
+    ItemMetadata.set(newInventoryId, durability);
+
+    assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 3, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, SmartChestObjectID) == 2, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, PipeObjectID) == 2, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 1, "Input object not added to inventory");
+    assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 1, "Input object not added to inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 8, "Inventory slot not set");
+    assertTrue(InventorySlots.get(playerEntityId2) == 1, "Inventory slot not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ForceFieldObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SmartChestObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, PipeObjectID), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
+    assertTrue(testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId1), "Inventory objects not set");
+
+    VoxelCoord memory chest1Coord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    VoxelCoord memory pipeCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
+    VoxelCoord memory chest2Coord = VoxelCoord(spawnCoord.x + 3, spawnCoord.y, spawnCoord.z);
+    adminClearCoord(chest1Coord);
+    adminClearCoord(pipeCoord);
+    adminClearCoord(chest2Coord);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+
+    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+    world.powerChip(forceFieldEntityId, 1);
+
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
+
+    bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
+    world.build(PipeObjectID, pipeCoord);
+    bytes32 chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
+
+    assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
+    assertTrue(Chip.getChipAddress(chest2EntityId) == address(0), "Chip set");
+
+    world.attachChip(chest1EntityId, address(testChestChip));
+    world.attachChip(chest2EntityId, address(testOverflowChestChip));
+
+    assertTrue(Chip.getChipAddress(chest1EntityId) == address(testChestChip), "Chip not set");
+    assertTrue(Chip.getChipAddress(chest2EntityId) == address(testOverflowChestChip), "Chip not set");
+    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
+
+    assertTrue(InventoryCount.get(chest1EntityId, WoodenPickObjectID) == 0, "Input object not added to inventory");
+
+    testOverflowChestChip.setApprovedPipeTransferEntityId(chest1EntityId);
+
+    VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
+    path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
+
+    vm.expectRevert("Entity does not own inventory item");
+    testChestChip.transferToolToChest(chest1EntityId, chest2EntityId, path, newInventoryId);
 
     vm.stopPrank();
   }
@@ -1651,205 +1876,6 @@ contract PipeTest is MudTest, GasReporter {
 
     vm.expectRevert("Inventory is full");
     testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
-
-    vm.stopPrank();
-  }
-
-  function testPipeTransferToolsSmartChestToSmartChest() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-    vm.stopPrank();
-    bytes32 playerEntityId2 = setupPlayer2(1);
-
-    vm.stopPrank();
-    vm.startPrank(worldDeployer, worldDeployer);
-
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 3);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 1);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartChestObjectID, 2);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, PipeObjectID, 2);
-
-    uint8 inputObjectTypeId1 = DiamondOreObjectID;
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
-    testAddToInventoryCount(playerEntityId2, PlayerObjectID, inputObjectTypeId1, 1);
-
-    bytes32 newInventoryId = testGetUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
-    InventoryTool.set(newInventoryId, playerEntityId);
-    ReverseInventoryTool.push(playerEntityId, newInventoryId);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint24 durability = 18750;
-    ItemMetadata.set(newInventoryId, durability);
-
-    assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 1, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 3, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, SmartChestObjectID) == 2, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, PipeObjectID) == 2, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 1, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 1, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 8, "Inventory slot not set");
-    assertTrue(InventorySlots.get(playerEntityId2) == 1, "Inventory slot not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ForceFieldObjectID), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SmartChestObjectID), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, PipeObjectID), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId1), "Inventory objects not set");
-
-    VoxelCoord memory chest1Coord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
-    VoxelCoord memory pipeCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
-    VoxelCoord memory chest2Coord = VoxelCoord(spawnCoord.x + 3, spawnCoord.y, spawnCoord.z);
-    adminClearCoord(chest1Coord);
-    adminClearCoord(pipeCoord);
-    adminClearCoord(chest2Coord);
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
-
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
-
-    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
-
-    bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    world.build(PipeObjectID, pipeCoord);
-    bytes32 chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
-
-    assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
-    assertTrue(Chip.getChipAddress(chest2EntityId) == address(0), "Chip set");
-
-    world.attachChip(chest1EntityId, address(testChestChip));
-    world.attachChip(chest2EntityId, address(testOverflowChestChip));
-
-    assertTrue(Chip.getChipAddress(chest1EntityId) == address(testChestChip), "Chip not set");
-    assertTrue(Chip.getChipAddress(chest2EntityId) == address(testOverflowChestChip), "Chip not set");
-    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
-
-    // transfer from player to chest
-    world.transferTool(playerEntityId, chest1EntityId, newInventoryId);
-
-    assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 0, "Input object not removed from inventory");
-    assertTrue(InventoryCount.get(chest1EntityId, WoodenPickObjectID) == 1, "Input object not added to inventory");
-
-    testOverflowChestChip.setApprovedPipeTransferEntityId(chest1EntityId);
-
-    VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
-    path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
-    testChestChip.transferToolToChest(chest1EntityId, chest2EntityId, path, newInventoryId);
-
-    assertTrue(InventoryCount.get(chest1EntityId, WoodenPickObjectID) == 0, "Input object not removed from inventory");
-    assertTrue(InventoryCount.get(chest2EntityId, WoodenPickObjectID) == 1, "Input object not added to inventory");
-
-    // transfer back to chest1
-    path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
-    testChestChip.transferToolToChest(chest2EntityId, chest1EntityId, path, newInventoryId);
-
-    assertTrue(InventoryCount.get(chest2EntityId, WoodenPickObjectID) == 0, "Input object not removed from inventory");
-    assertTrue(InventoryCount.get(chest1EntityId, WoodenPickObjectID) == 1, "Input object not added to inventory");
-
-    world.transferTool(chest1EntityId, playerEntityId, newInventoryId);
-
-    assertTrue(InventoryCount.get(chest1EntityId, WoodenPickObjectID) == 0, "Input object not removed from inventory");
-    assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 1, "Input object not added to inventory");
-
-    vm.stopPrank();
-  }
-
-  function testPipeTransferInvalidTools() public {
-    vm.startPrank(alice, alice);
-
-    bytes32 playerEntityId = setupPlayer();
-    vm.stopPrank();
-    bytes32 playerEntityId2 = setupPlayer2(1);
-
-    vm.stopPrank();
-    vm.startPrank(worldDeployer, worldDeployer);
-
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 3);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 30);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 1);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartChestObjectID, 2);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, PipeObjectID, 2);
-
-    uint8 inputObjectTypeId1 = DiamondOreObjectID;
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, inputObjectTypeId1, 1);
-    testAddToInventoryCount(playerEntityId2, PlayerObjectID, inputObjectTypeId1, 1);
-
-    bytes32 newInventoryId = testGetUniqueEntity();
-    ObjectType.set(newInventoryId, WoodenPickObjectID);
-    InventoryTool.set(newInventoryId, playerEntityId);
-    ReverseInventoryTool.push(playerEntityId, newInventoryId);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint24 durability = 18750;
-    ItemMetadata.set(newInventoryId, durability);
-
-    assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 1, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 3, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, ChipBatteryObjectID) == 30, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, SmartChestObjectID) == 2, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, PipeObjectID) == 2, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId, WoodenPickObjectID) == 1, "Input object not added to inventory");
-    assertTrue(InventoryCount.get(playerEntityId2, inputObjectTypeId1) == 1, "Input object not added to inventory");
-    assertTrue(InventorySlots.get(playerEntityId) == 8, "Inventory slot not set");
-    assertTrue(InventorySlots.get(playerEntityId2) == 1, "Inventory slot not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ForceFieldObjectID), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipObjectID), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, ChipBatteryObjectID), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, SmartChestObjectID), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, PipeObjectID), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
-    assertTrue(testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId1), "Inventory objects not set");
-
-    VoxelCoord memory chest1Coord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
-    VoxelCoord memory pipeCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
-    VoxelCoord memory chest2Coord = VoxelCoord(spawnCoord.x + 3, spawnCoord.y, spawnCoord.z);
-    adminClearCoord(chest1Coord);
-    adminClearCoord(pipeCoord);
-    adminClearCoord(chest2Coord);
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
-
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
-
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
-
-    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
-
-    bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    world.build(PipeObjectID, pipeCoord);
-    bytes32 chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
-
-    assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
-    assertTrue(Chip.getChipAddress(chest2EntityId) == address(0), "Chip set");
-
-    world.attachChip(chest1EntityId, address(testChestChip));
-    world.attachChip(chest2EntityId, address(testOverflowChestChip));
-
-    assertTrue(Chip.getChipAddress(chest1EntityId) == address(testChestChip), "Chip not set");
-    assertTrue(Chip.getChipAddress(chest2EntityId) == address(testOverflowChestChip), "Chip not set");
-    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 0, "Input object not removed from inventory");
-
-    assertTrue(InventoryCount.get(chest1EntityId, WoodenPickObjectID) == 0, "Input object not added to inventory");
-
-    testOverflowChestChip.setApprovedPipeTransferEntityId(chest1EntityId);
-
-    VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
-    path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
-
-    vm.expectRevert("Entity does not own inventory item");
-    testChestChip.transferToolToChest(chest1EntityId, chest2EntityId, path, newInventoryId);
 
     vm.stopPrank();
   }
