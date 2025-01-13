@@ -19,7 +19,7 @@ import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { canHoldInventory } from "../utils/ObjectTypeUtils.sol";
+import { isStorageContainer } from "../utils/ObjectTypeUtils.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 
 contract TransferSystem is System {
@@ -47,10 +47,10 @@ contract TransferSystem is System {
     uint8 dstObjectTypeId = ObjectType._get(baseDstEntityId);
     if (srcObjectTypeId == PlayerObjectID) {
       require(playerEntityId == baseSrcEntityId, "TransferSystem: player does not own source inventory");
-      require(canHoldInventory(dstObjectTypeId), "TransferSystem: this object type does not have an inventory");
+      require(isStorageContainer(dstObjectTypeId), "TransferSystem: this object type does not have an inventory");
     } else if (dstObjectTypeId == PlayerObjectID) {
       require(playerEntityId == baseDstEntityId, "TransferSystem: player does not own destination inventory");
-      require(canHoldInventory(srcObjectTypeId), "TransferSystem: this object type does not have an inventory");
+      require(isStorageContainer(srcObjectTypeId), "TransferSystem: this object type does not have an inventory");
     } else {
       revert("TransferSystem: invalid transfer operation");
     }

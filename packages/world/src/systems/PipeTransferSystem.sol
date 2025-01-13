@@ -17,7 +17,7 @@ import { positionDataToVoxelCoord } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool, addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { canHoldInventory } from "../utils/ObjectTypeUtils.sol";
+import { isStorageContainer } from "../utils/ObjectTypeUtils.sol";
 import { safeCallChip } from "../Utils.sol";
 
 import { IN_MAINTENANCE, CHARGE_PER_BATTERY } from "../Constants.sol";
@@ -43,7 +43,7 @@ contract PipeTransferSystem is System {
 
     uint8 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
     uint8 dstObjectTypeId = ObjectType._get(baseDstEntityId);
-    require(canHoldInventory(srcObjectTypeId), "PipeTransferSystem: source object type is not a chest");
+    require(isStorageContainer(srcObjectTypeId), "PipeTransferSystem: source object type is not a chest");
 
     VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(baseSrcEntityId));
     VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(baseDstEntityId));
@@ -157,7 +157,7 @@ contract PipeTransferSystem is System {
     require(numToTransfer > 0, "PipeTransferSystem: amount must be greater than 0");
     removeFromInventoryCount(baseSrcEntityId, transferObjectTypeId, numToTransfer);
 
-    if (canHoldInventory(dstObjectTypeId)) {
+    if (isStorageContainer(dstObjectTypeId)) {
       addToInventoryCount(baseDstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
     } else if (dstObjectTypeId == ForceFieldObjectID) {
       require(
@@ -221,7 +221,7 @@ contract PipeTransferSystem is System {
       uint8 dstObjectTypeId,
       ChipData memory checkChipData
     ) = pipeTransferCommon(srcEntityId, dstEntityId, path);
-    require(canHoldInventory(dstObjectTypeId), "PipeTransferSystem: destination object type is not valid");
+    require(isStorageContainer(dstObjectTypeId), "PipeTransferSystem: destination object type is not valid");
 
     uint8 toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {

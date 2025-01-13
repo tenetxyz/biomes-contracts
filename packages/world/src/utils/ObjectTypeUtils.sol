@@ -189,7 +189,7 @@ function isStone(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == LimestoneObjectID;
 }
 
-function canHoldInventory(uint8 objectTypeId) pure returns (bool) {
+function isStorageContainer(uint8 objectTypeId) pure returns (bool) {
   return objectTypeId == ChestObjectID || objectTypeId == SmartChestObjectID;
 }
 
