@@ -221,7 +221,7 @@ contract PipeTransferSystem is System {
       uint8 dstObjectTypeId,
       ChipData memory checkChipData
     ) = pipeTransferCommon(srcEntityId, dstEntityId, path);
-    require(canHoldInventory(dstObjectTypeId), "PipeTransferSystem: destination object type is not a chest");
+    require(canHoldInventory(dstObjectTypeId), "PipeTransferSystem: destination object type is not valid");
 
     uint8 toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
