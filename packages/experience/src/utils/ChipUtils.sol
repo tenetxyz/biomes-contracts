@@ -137,3 +137,15 @@ function emitExchangeNotif(bytes32 entityId, ExchangeNotifData memory notifData)
 function deleteExchangeNotif(bytes32 entityId) {
   IWorld(WorldContextConsumerLib._world()).experience__deleteExchangeNotif(entityId);
 }
+
+function setPipeApproval(bytes32 targetEntityId, bytes32 callerEntityId, bool approval) {
+  IWorld(WorldContextConsumerLib._world()).experience__setPipeApproval(targetEntityId, callerEntityId, approval);
+}
+
+function deletePipeApproval(bytes32 targetEntityId, bytes32 callerEntityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deletePipeApproval(targetEntityId, callerEntityId);
+}
+
+function deletePipeApprovals(bytes32 targetEntityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deletePipeApprovals(targetEntityId);
+}

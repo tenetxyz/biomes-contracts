@@ -16,7 +16,7 @@ import { Chip, ChipData } from "../../codegen/tables/Chip.sol";
 import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../../Utils.sol";
 import { PlayerObjectID, WaterObjectID, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
 import { updateChipBatteryLevel } from "../../utils/ChipUtils.sol";
-import { canHoldInventory } from "../../utils/ObjectTypeUtils.sol";
+import { isStorageContainer } from "../../utils/ObjectTypeUtils.sol";
 
 contract AdminSpawnSystem is System {
   function setObjectAtCoord(uint8 objectTypeId, VoxelCoord memory coord) public {
@@ -43,7 +43,7 @@ contract AdminSpawnSystem is System {
       require(
         currentObjectTypeId != PlayerObjectID &&
           currentObjectTypeId != ForceFieldObjectID &&
-          !canHoldInventory(currentObjectTypeId),
+          !isStorageContainer(currentObjectTypeId),
         "AdminTerrainSystem: invaid overwrite"
       );
       if (currentObjectTypeId == objectTypeId) {

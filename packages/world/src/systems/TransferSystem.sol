@@ -19,8 +19,9 @@ import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { canHoldInventory } from "../utils/ObjectTypeUtils.sol";
+import { isStorageContainer } from "../utils/ObjectTypeUtils.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
+import { ChipOnTransferData, TransferData } from "../Types.sol";
 
 contract TransferSystem is System {
   function transferCommon(
@@ -47,10 +48,10 @@ contract TransferSystem is System {
     uint8 dstObjectTypeId = ObjectType._get(baseDstEntityId);
     if (srcObjectTypeId == PlayerObjectID) {
       require(playerEntityId == baseSrcEntityId, "TransferSystem: player does not own source inventory");
-      require(canHoldInventory(dstObjectTypeId), "TransferSystem: this object type does not have an inventory");
+      require(isStorageContainer(dstObjectTypeId), "TransferSystem: this object type does not have an inventory");
     } else if (dstObjectTypeId == PlayerObjectID) {
       require(playerEntityId == baseDstEntityId, "TransferSystem: player does not own destination inventory");
-      require(canHoldInventory(srcObjectTypeId), "TransferSystem: this object type does not have an inventory");
+      require(isStorageContainer(srcObjectTypeId), "TransferSystem: this object type does not have an inventory");
     } else {
       revert("TransferSystem: invalid transfer operation");
     }
@@ -69,12 +70,11 @@ contract TransferSystem is System {
     bytes32 playerEntityId,
     bytes32 srcEntityId,
     bytes32 dstEntityId,
-    uint8 transferObjectTypeId,
-    uint16 numToTransfer,
-    bytes32[] memory toolEntityIds,
+    TransferData memory transferData,
     bytes memory extraData
   ) internal {
-    bytes32 chestEntityId = playerEntityId == srcEntityId ? dstEntityId : srcEntityId;
+    bool isDeposit = playerEntityId == srcEntityId;
+    bytes32 chestEntityId = isDeposit ? dstEntityId : srcEntityId;
     ChipData memory chipData = updateChipBatteryLevel(chestEntityId);
     uint256 batteryLevel = chipData.batteryLevel;
     if (forceFieldEntityId != bytes32(0)) {
@@ -85,11 +85,12 @@ contract TransferSystem is System {
       // Forward any ether sent with the transaction to the hook
       // Don't safe call here as we want to revert if the chip doesn't allow the transfer
       bool transferAllowed = IChestChip(chipData.chipAddress).onTransfer{ value: _msgValue() }(
-        srcEntityId,
-        dstEntityId,
-        transferObjectTypeId,
-        numToTransfer,
-        toolEntityIds,
+        ChipOnTransferData({
+          targetEntityId: chestEntityId,
+          callerEntityId: playerEntityId,
+          isDeposit: isDeposit,
+          transferData: transferData
+        }),
         extraData
       );
       require(transferAllowed, "TransferSystem: Player not authorized by chip to make this transfer");
@@ -135,9 +136,11 @@ contract TransferSystem is System {
       playerEntityId,
       baseSrcEntityId,
       baseDstEntityId,
-      transferObjectTypeId,
-      numToTransfer,
-      new bytes32[](0),
+      TransferData({
+        objectTypeId: transferObjectTypeId,
+        numToTransfer: numToTransfer,
+        toolEntityIds: new bytes32[](0)
+      }),
       extraData
     );
   }
@@ -206,9 +209,11 @@ contract TransferSystem is System {
       playerEntityId,
       baseSrcEntityId,
       baseDstEntityId,
-      toolObjectTypeId,
-      uint16(toolEntityIds.length),
-      toolEntityIds,
+      TransferData({
+        objectTypeId: toolObjectTypeId,
+        numToTransfer: uint16(toolEntityIds.length),
+        toolEntityIds: toolEntityIds
+      }),
       extraData
     );
   }

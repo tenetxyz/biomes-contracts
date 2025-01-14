@@ -44,3 +44,13 @@ struct BlockExperienceEntityDataWithExchanges {
   GateApprovalsData gateApprovalsData;
   ExchangeInfoDataWithExchangeId[] exchanges;
 }
+
+struct BlockExperienceEntityDataWithPipeApprovals {
+  BlockEntityData worldEntityData;
+  address chipAttacher;
+  address chipAdmin;
+  SmartItemMetadataData smartItemMetadata;
+  GateApprovalsData gateApprovalsData;
+  ExchangeInfoDataWithExchangeId[] exchanges;
+  bytes32[] approvedEntityIdsForPipeTransfer;
+}
