@@ -24,13 +24,23 @@ import { IN_MAINTENANCE, CHARGE_PER_BATTERY } from "../Constants.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
+import { ChipOnPipeTransferData, TransferData } from "../Types.sol";
+
+struct TransferCommonContext {
+  bytes32 baseSrcEntityId;
+  bytes32 baseDstEntityId;
+  uint8 srcObjectTypeId;
+  uint8 dstObjectTypeId;
+  ChipData checkChipData;
+  bool isDeposit;
+}
 
 contract PipeTransferSystem is System {
   function pipeTransferCommon(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
     VoxelCoordDirectionVonNeumann[] memory path
-  ) internal returns (bytes32, uint8, bytes32, uint8, ChipData memory) {
+  ) internal returns (TransferCommonContext memory) {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
 
     bytes32 baseSrcEntityId = BaseEntity._get(srcEntityId);
@@ -50,6 +60,7 @@ contract PipeTransferSystem is System {
     requireValidPath(srcCoord, dstCoord, path);
 
     ChipData memory checkChipData;
+    bool isDeposit;
     {
       ChipData memory srcChipData = updateChipBatteryLevel(baseSrcEntityId);
       ChipData memory dstChipData = updateChipBatteryLevel(baseDstEntityId);
@@ -75,10 +86,12 @@ contract PipeTransferSystem is System {
 
       address caller = _msgSender();
       if (srcChipData.chipAddress == caller) {
+        isDeposit = true;
         require(srcBatteryLevel > 0, "PipeTransferSystem: caller has no charge");
         checkChipData = dstChipData;
         checkChipData.batteryLevel = dstBatteryLevel;
       } else if (dstChipData.chipAddress == caller) {
+        isDeposit = false;
         require(dstBatteryLevel > 0, "PipeTransferSystem: caller has no charge");
         checkChipData = srcChipData;
         checkChipData.batteryLevel = srcBatteryLevel;
@@ -87,7 +100,15 @@ contract PipeTransferSystem is System {
       }
     }
 
-    return (baseSrcEntityId, srcObjectTypeId, baseDstEntityId, dstObjectTypeId, checkChipData);
+    return
+      TransferCommonContext({
+        baseSrcEntityId: baseSrcEntityId,
+        baseDstEntityId: baseDstEntityId,
+        srcObjectTypeId: srcObjectTypeId,
+        dstObjectTypeId: dstObjectTypeId,
+        checkChipData: checkChipData,
+        isDeposit: isDeposit
+      });
   }
 
   function requireValidPath(
@@ -113,6 +134,7 @@ contract PipeTransferSystem is System {
 
   function requireAllowed(
     ChipData memory checkChipData,
+    bool isDeposit,
     bytes32 srcEntityId,
     bytes32 dstEntityId,
     VoxelCoordDirectionVonNeumann[] memory path,
@@ -125,12 +147,17 @@ contract PipeTransferSystem is System {
       // Forward any ether sent with the transaction to the hook
       // Don't safe call here as we want to revert if the chip doesn't allow the transfer
       bool transferAllowed = IChestChip(checkChipData.chipAddress).onPipeTransfer{ value: _msgValue() }(
-        srcEntityId,
-        dstEntityId,
-        path,
-        transferObjectTypeId,
-        numToTransfer,
-        toolEntityIds,
+        ChipOnPipeTransferData({
+          targetEntityId: isDeposit ? dstEntityId : srcEntityId,
+          callerEntityId: isDeposit ? srcEntityId : dstEntityId,
+          isDeposit: isDeposit,
+          path: path,
+          transferData: TransferData({
+            objectTypeId: transferObjectTypeId,
+            numToTransfer: numToTransfer,
+            toolEntityIds: toolEntityIds
+          })
+        }),
         extraData
       );
       require(transferAllowed, "PipeTransferSystem: smart item not authorized by chip to make this transfer");
@@ -145,44 +172,39 @@ contract PipeTransferSystem is System {
     uint16 numToTransfer,
     bytes memory extraData
   ) public payable {
-    (
-      bytes32 baseSrcEntityId,
-      uint8 srcObjectTypeId,
-      bytes32 baseDstEntityId,
-      uint8 dstObjectTypeId,
-      ChipData memory checkChipData
-    ) = pipeTransferCommon(srcEntityId, dstEntityId, path);
+    TransferCommonContext memory ctx = pipeTransferCommon(srcEntityId, dstEntityId, path);
 
     require(!ObjectTypeMetadata._getIsTool(transferObjectTypeId), "PipeTransferSystem: object type is not a block");
     require(numToTransfer > 0, "PipeTransferSystem: amount must be greater than 0");
-    removeFromInventoryCount(baseSrcEntityId, transferObjectTypeId, numToTransfer);
+    removeFromInventoryCount(ctx.baseSrcEntityId, transferObjectTypeId, numToTransfer);
 
-    if (isStorageContainer(dstObjectTypeId)) {
-      addToInventoryCount(baseDstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
-    } else if (dstObjectTypeId == ForceFieldObjectID) {
+    if (isStorageContainer(ctx.dstObjectTypeId)) {
+      addToInventoryCount(ctx.baseDstEntityId, ctx.dstObjectTypeId, transferObjectTypeId, numToTransfer);
+    } else if (ctx.dstObjectTypeId == ForceFieldObjectID) {
       require(
         transferObjectTypeId == ChipBatteryObjectID,
         "PipeTransferSystem: force field can only accept chip batteries"
       );
-      uint256 newBatteryLevel = checkChipData.batteryLevel + (uint256(numToTransfer) * CHARGE_PER_BATTERY);
+      uint256 newBatteryLevel = ctx.checkChipData.batteryLevel + (uint256(numToTransfer) * CHARGE_PER_BATTERY);
 
-      Chip._setBatteryLevel(baseDstEntityId, newBatteryLevel);
-      Chip._setLastUpdatedTime(baseDstEntityId, block.timestamp);
+      Chip._setBatteryLevel(ctx.baseDstEntityId, newBatteryLevel);
+      Chip._setLastUpdatedTime(ctx.baseDstEntityId, block.timestamp);
 
       safeCallChip(
-        checkChipData.chipAddress,
-        abi.encodeCall(IChip.onPowered, (baseSrcEntityId, baseDstEntityId, numToTransfer))
+        ctx.checkChipData.chipAddress,
+        abi.encodeCall(IChip.onPowered, (ctx.baseSrcEntityId, ctx.baseDstEntityId, numToTransfer))
       );
     } else {
       revert("PipeTransferSystem: destination object type is not valid");
     }
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    if (dstObjectTypeId != ForceFieldObjectID) {
+    if (ctx.dstObjectTypeId != ForceFieldObjectID) {
       requireAllowed(
-        checkChipData,
-        baseSrcEntityId,
-        baseDstEntityId,
+        ctx.checkChipData,
+        ctx.isDeposit,
+        ctx.baseSrcEntityId,
+        ctx.baseDstEntityId,
         path,
         transferObjectTypeId,
         numToTransfer,
@@ -214,21 +236,15 @@ contract PipeTransferSystem is System {
     require(toolEntityIds.length > 0, "PipeTransferSystem: must transfer at least one tool");
     require(toolEntityIds.length < type(uint16).max, "PipeTransferSystem: too many tools to transfer");
 
-    (
-      bytes32 baseSrcEntityId,
-      uint8 srcObjectTypeId,
-      bytes32 baseDstEntityId,
-      uint8 dstObjectTypeId,
-      ChipData memory checkChipData
-    ) = pipeTransferCommon(srcEntityId, dstEntityId, path);
-    require(isStorageContainer(dstObjectTypeId), "PipeTransferSystem: destination object type is not valid");
+    TransferCommonContext memory ctx = pipeTransferCommon(srcEntityId, dstEntityId, path);
+    require(isStorageContainer(ctx.dstObjectTypeId), "PipeTransferSystem: destination object type is not valid");
 
     uint8 toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
       uint8 currentToolObjectTypeId = transferInventoryTool(
-        baseSrcEntityId,
-        baseDstEntityId,
-        dstObjectTypeId,
+        ctx.baseSrcEntityId,
+        ctx.baseDstEntityId,
+        ctx.dstObjectTypeId,
         toolEntityIds[i]
       );
       if (i > 0) {
@@ -240,9 +256,10 @@ contract PipeTransferSystem is System {
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
-      checkChipData,
-      baseSrcEntityId,
-      baseDstEntityId,
+      ctx.checkChipData,
+      ctx.isDeposit,
+      ctx.baseSrcEntityId,
+      ctx.baseDstEntityId,
       path,
       toolObjectTypeId,
       uint16(toolEntityIds.length),

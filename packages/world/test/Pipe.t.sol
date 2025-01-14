@@ -39,6 +39,7 @@ import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, Be
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
+import { TransferData, ChipOnTransferData, ChipOnPipeTransferData } from "../src/Types.sol";
 
 import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
 import { IChestChip } from "../src/prototypes/IChestChip.sol";
@@ -167,17 +168,10 @@ contract TestChestChip is IChestChip {
   function onChipHit(bytes32 playerEntityId, bytes32 entityId) external {}
 
   function onTransfer(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    uint8 transferObjectTypeId,
-    uint16 numToTransfer,
-    bytes32[] memory toolEntityIds,
+    ChipOnTransferData memory transferData,
     bytes memory extraData
   ) external payable returns (bool isAllowed) {
-    bool isDeposit = ObjectType.get(srcEntityId) == PlayerObjectID;
-    bytes32 chestEntityId = isDeposit ? dstEntityId : srcEntityId;
-    bytes32 playerEntityId = isDeposit ? srcEntityId : dstEntityId;
-    if (playerEntityId == ownerEntityId) {
+    if (transferData.callerEntityId == ownerEntityId) {
       return true;
     }
 
@@ -185,12 +179,7 @@ contract TestChestChip is IChestChip {
   }
 
   function onPipeTransfer(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    VoxelCoordDirectionVonNeumann[] memory path,
-    uint8 transferObjectTypeId,
-    uint16 numToTransfer,
-    bytes32[] memory toolEntityIds,
+    ChipOnPipeTransferData memory transferData,
     bytes memory extraData
   ) external payable returns (bool isAllowed) {
     return false;
@@ -266,17 +255,10 @@ contract TestOverflowChestChip is IChestChip {
   function onChipHit(bytes32 playerEntityId, bytes32 entityId) external {}
 
   function onTransfer(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    uint8 transferObjectTypeId,
-    uint16 numToTransfer,
-    bytes32[] memory toolEntityIds,
+    ChipOnTransferData memory transferData,
     bytes memory extraData
   ) external payable returns (bool isAllowed) {
-    bool isDeposit = ObjectType.get(srcEntityId) == PlayerObjectID;
-    bytes32 chestEntityId = isDeposit ? dstEntityId : srcEntityId;
-    bytes32 playerEntityId = isDeposit ? srcEntityId : dstEntityId;
-    if (playerEntityId == ownerEntityId) {
+    if (transferData.callerEntityId == ownerEntityId) {
       return true;
     }
 
@@ -284,16 +266,10 @@ contract TestOverflowChestChip is IChestChip {
   }
 
   function onPipeTransfer(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    VoxelCoordDirectionVonNeumann[] memory path,
-    uint8 transferObjectTypeId,
-    uint16 numToTransfer,
-    bytes32[] memory toolEntityIds,
+    ChipOnPipeTransferData memory transferData,
     bytes memory extraData
   ) external payable returns (bool isAllowed) {
-    isAllowed = (approvedPipeTransferEntityId == dstEntityId || approvedPipeTransferEntityId == srcEntityId);
-    return isAllowed;
+    return approvedPipeTransferEntityId == transferData.callerEntityId;
   }
 
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
