@@ -16,7 +16,8 @@ import { SmartItemMetadata, SmartItemMetadataData } from "../codegen/tables/Smar
 import { GateApprovals, GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
 import { ExchangeInfo, ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
 import { Exchanges } from "../codegen/tables/Exchanges.sol";
-import { BlockExperienceEntityData, BlockExperienceEntityDataWithGateApprovals, BlockExperienceEntityDataWithExchanges, ExchangeInfoDataWithExchangeId } from "../Types.sol";
+import { PipeApprovals } from "../codegen/tables/PipeApprovals.sol";
+import { BlockExperienceEntityData, BlockExperienceEntityDataWithGateApprovals, BlockExperienceEntityDataWithExchanges, ExchangeInfoDataWithExchangeId, BlockExperienceEntityDataWithPipeApprovals } from "../Types.sol";
 
 contract ReadSystem is System {
   function getBlockEntityData(bytes32 entityId) public view returns (BlockExperienceEntityData memory) {
@@ -74,6 +75,31 @@ contract ReadSystem is System {
       });
   }
 
+  function getBlockEntityDataWithPipeApprovals(
+    bytes32 entityId
+  ) public view returns (BlockExperienceEntityDataWithPipeApprovals memory) {
+    BlockEntityData memory blockEntityData = IWorld(_world()).getBlockEntityData(entityId);
+    bytes32[] memory exchangeIds = Exchanges.get(entityId);
+    ExchangeInfoDataWithExchangeId[] memory exchangeInfoData = new ExchangeInfoDataWithExchangeId[](exchangeIds.length);
+    for (uint256 i = 0; i < exchangeIds.length; i++) {
+      exchangeInfoData[i] = ExchangeInfoDataWithExchangeId({
+        exchangeId: exchangeIds[i],
+        exchangeInfoData: ExchangeInfo.get(entityId, exchangeIds[i])
+      });
+    }
+
+    return
+      BlockExperienceEntityDataWithPipeApprovals({
+        worldEntityData: blockEntityData,
+        chipAttacher: ChipAttachment.get(entityId),
+        chipAdmin: ChipAdmin.get(entityId),
+        smartItemMetadata: SmartItemMetadata.get(entityId),
+        gateApprovalsData: GateApprovals.get(entityId),
+        exchanges: exchangeInfoData,
+        approvedEntityIdsForPipeTransfer: PipeApprovals.get(entityId)
+      });
+  }
+
   function getBlocksEntityData(bytes32[] memory entityIds) public view returns (BlockExperienceEntityData[] memory) {
     BlockExperienceEntityData[] memory blockExperienceEntityData = new BlockExperienceEntityData[](entityIds.length);
     for (uint256 i = 0; i < entityIds.length; i++) {
@@ -100,6 +126,17 @@ contract ReadSystem is System {
       memory blockExperienceEntityData = new BlockExperienceEntityDataWithExchanges[](entityIds.length);
     for (uint256 i = 0; i < entityIds.length; i++) {
       blockExperienceEntityData[i] = getBlockEntityDataWithExchanges(entityIds[i]);
+    }
+    return blockExperienceEntityData;
+  }
+
+  function getBlocksEntityDataWithPipeApprovals(
+    bytes32[] memory entityIds
+  ) public view returns (BlockExperienceEntityDataWithPipeApprovals[] memory) {
+    BlockExperienceEntityDataWithPipeApprovals[]
+      memory blockExperienceEntityData = new BlockExperienceEntityDataWithPipeApprovals[](entityIds.length);
+    for (uint256 i = 0; i < entityIds.length; i++) {
+      blockExperienceEntityData[i] = getBlockEntityDataWithPipeApprovals(entityIds[i]);
     }
     return blockExperienceEntityData;
   }
