@@ -10,6 +10,8 @@ import { ChipAdmin } from "./tables/ChipAdmin.sol";
 import { SmartItemMetadata, SmartItemMetadataData } from "./tables/SmartItemMetadata.sol";
 import { ExchangeInfo, ExchangeInfoData } from "./tables/ExchangeInfo.sol";
 import { Exchanges } from "./tables/Exchanges.sol";
+import { PipeApproval } from "./tables/PipeApproval.sol";
+import { PipeApprovals } from "./tables/PipeApprovals.sol";
 import { GateApprovals, GateApprovalsData } from "./tables/GateApprovals.sol";
 import { Notification, NotificationData } from "./tables/Notification.sol";
 import { ExchangeNotif, ExchangeNotifData } from "./tables/ExchangeNotif.sol";

@@ -447,6 +447,37 @@
   },
   {
     "type": "function",
+    "name": "experience__deletePipeApproval",
+    "inputs": [
+      {
+        "name": "targetEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deletePipeApprovals",
+    "inputs": [
+      {
+        "name": "targetEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "experience__deletePlayers",
     "inputs": [],
     "outputs": [],
@@ -3205,6 +3236,29 @@
         "name": "message",
         "type": "string",
         "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setPipeApproval",
+    "inputs": [
+      {
+        "name": "targetEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "approval",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
     "outputs": [],
