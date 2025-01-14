@@ -16,9 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-library PipeApproval {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "PipeApproval", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e63650000000050697065417070726f76616c00000000);
+library PipeRouting {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "PipeRouting", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e63650000000050697065526f7574696e670000000000);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0001010001000000000000000000000000000000000000000000000000000000);
@@ -34,8 +34,8 @@ library PipeApproval {
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
     keyNames = new string[](2);
-    keyNames[0] = "targetEntityId";
-    keyNames[1] = "callerEntityId";
+    keyNames[0] = "sourceEntityId";
+    keyNames[1] = "targetEntityId";
   }
 
   /**
@@ -44,7 +44,7 @@ library PipeApproval {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "approval";
+    fieldNames[0] = "enabled";
   }
 
   /**
@@ -69,154 +69,154 @@ library PipeApproval {
   }
 
   /**
-   * @notice Get approval.
+   * @notice Get enabled.
    */
-  function getApproval(bytes32 targetEntityId, bytes32 callerEntityId) internal view returns (bool approval) {
+  function getEnabled(bytes32 sourceEntityId, bytes32 targetEntityId) internal view returns (bool enabled) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
   }
 
   /**
-   * @notice Get approval.
+   * @notice Get enabled.
    */
-  function _getApproval(bytes32 targetEntityId, bytes32 callerEntityId) internal view returns (bool approval) {
+  function _getEnabled(bytes32 sourceEntityId, bytes32 targetEntityId) internal view returns (bool enabled) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
   }
 
   /**
-   * @notice Get approval (using the specified store).
+   * @notice Get enabled (using the specified store).
    */
-  function getApproval(
+  function getEnabled(
     IStore _store,
-    bytes32 targetEntityId,
-    bytes32 callerEntityId
-  ) internal view returns (bool approval) {
+    bytes32 sourceEntityId,
+    bytes32 targetEntityId
+  ) internal view returns (bool enabled) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
   }
 
   /**
-   * @notice Get approval.
+   * @notice Get enabled.
    */
-  function get(bytes32 targetEntityId, bytes32 callerEntityId) internal view returns (bool approval) {
+  function get(bytes32 sourceEntityId, bytes32 targetEntityId) internal view returns (bool enabled) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
   }
 
   /**
-   * @notice Get approval.
+   * @notice Get enabled.
    */
-  function _get(bytes32 targetEntityId, bytes32 callerEntityId) internal view returns (bool approval) {
+  function _get(bytes32 sourceEntityId, bytes32 targetEntityId) internal view returns (bool enabled) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
   }
 
   /**
-   * @notice Get approval (using the specified store).
+   * @notice Get enabled (using the specified store).
    */
-  function get(IStore _store, bytes32 targetEntityId, bytes32 callerEntityId) internal view returns (bool approval) {
+  function get(IStore _store, bytes32 sourceEntityId, bytes32 targetEntityId) internal view returns (bool enabled) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
   }
 
   /**
-   * @notice Set approval.
+   * @notice Set enabled.
    */
-  function setApproval(bytes32 targetEntityId, bytes32 callerEntityId, bool approval) internal {
+  function setEnabled(bytes32 sourceEntityId, bytes32 targetEntityId, bool enabled) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((approval)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((enabled)), _fieldLayout);
   }
 
   /**
-   * @notice Set approval.
+   * @notice Set enabled.
    */
-  function _setApproval(bytes32 targetEntityId, bytes32 callerEntityId, bool approval) internal {
+  function _setEnabled(bytes32 sourceEntityId, bytes32 targetEntityId, bool enabled) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((approval)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((enabled)), _fieldLayout);
   }
 
   /**
-   * @notice Set approval (using the specified store).
+   * @notice Set enabled (using the specified store).
    */
-  function setApproval(IStore _store, bytes32 targetEntityId, bytes32 callerEntityId, bool approval) internal {
+  function setEnabled(IStore _store, bytes32 sourceEntityId, bytes32 targetEntityId, bool enabled) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((approval)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((enabled)), _fieldLayout);
   }
 
   /**
-   * @notice Set approval.
+   * @notice Set enabled.
    */
-  function set(bytes32 targetEntityId, bytes32 callerEntityId, bool approval) internal {
+  function set(bytes32 sourceEntityId, bytes32 targetEntityId, bool enabled) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((approval)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((enabled)), _fieldLayout);
   }
 
   /**
-   * @notice Set approval.
+   * @notice Set enabled.
    */
-  function _set(bytes32 targetEntityId, bytes32 callerEntityId, bool approval) internal {
+  function _set(bytes32 sourceEntityId, bytes32 targetEntityId, bool enabled) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((approval)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((enabled)), _fieldLayout);
   }
 
   /**
-   * @notice Set approval (using the specified store).
+   * @notice Set enabled (using the specified store).
    */
-  function set(IStore _store, bytes32 targetEntityId, bytes32 callerEntityId, bool approval) internal {
+  function set(IStore _store, bytes32 sourceEntityId, bytes32 targetEntityId, bool enabled) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((approval)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((enabled)), _fieldLayout);
   }
 
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 targetEntityId, bytes32 callerEntityId) internal {
+  function deleteRecord(bytes32 sourceEntityId, bytes32 targetEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -224,10 +224,10 @@ library PipeApproval {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 targetEntityId, bytes32 callerEntityId) internal {
+  function _deleteRecord(bytes32 sourceEntityId, bytes32 targetEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -235,10 +235,10 @@ library PipeApproval {
   /**
    * @notice Delete all data for given keys (using the specified store).
    */
-  function deleteRecord(IStore _store, bytes32 targetEntityId, bytes32 callerEntityId) internal {
+  function deleteRecord(IStore _store, bytes32 sourceEntityId, bytes32 targetEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
     _store.deleteRecord(_tableId, _keyTuple);
   }
@@ -247,8 +247,8 @@ library PipeApproval {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(bool approval) internal pure returns (bytes memory) {
-    return abi.encodePacked(approval);
+  function encodeStatic(bool enabled) internal pure returns (bytes memory) {
+    return abi.encodePacked(enabled);
   }
 
   /**
@@ -257,8 +257,8 @@ library PipeApproval {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(bool approval) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(approval);
+  function encode(bool enabled) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(enabled);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -269,10 +269,10 @@ library PipeApproval {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 targetEntityId, bytes32 callerEntityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(bytes32 sourceEntityId, bytes32 targetEntityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = sourceEntityId;
+    _keyTuple[1] = targetEntityId;
 
     return _keyTuple;
   }

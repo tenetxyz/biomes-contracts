@@ -11,6 +11,7 @@ import { SmartItemMetadataData } from "./codegen/tables/SmartItemMetadata.sol";
 import { ForceFieldApprovalsData } from "./codegen/tables/ForceFieldApprovals.sol";
 import { GateApprovalsData } from "./codegen/tables/GateApprovals.sol";
 import { ExchangeInfoData } from "./codegen/tables/ExchangeInfo.sol";
+import { PipeAccessData } from "./codegen/tables/PipeAccess.sol";
 
 struct ExchangeInfoDataWithExchangeId {
   bytes32 exchangeId;
@@ -45,12 +46,18 @@ struct BlockExperienceEntityDataWithExchanges {
   ExchangeInfoDataWithExchangeId[] exchanges;
 }
 
-struct BlockExperienceEntityDataWithPipeApprovals {
+struct PipeAccessDataWithEntityId {
+  bytes32 entityId;
+  PipeAccessData pipeAccessData;
+}
+
+struct BlockExperienceEntityDataWithPipeControls {
   BlockEntityData worldEntityData;
   address chipAttacher;
   address chipAdmin;
   SmartItemMetadataData smartItemMetadata;
   GateApprovalsData gateApprovalsData;
   ExchangeInfoDataWithExchangeId[] exchanges;
-  bytes32[] approvedEntityIdsForPipeTransfer;
+  PipeAccessDataWithEntityId[] pipeAccessData;
+  bytes32[] enabledEntityIdsForPipeRouting;
 }

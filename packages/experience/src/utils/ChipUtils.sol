@@ -138,14 +138,31 @@ function deleteExchangeNotif(bytes32 entityId) {
   IWorld(WorldContextConsumerLib._world()).experience__deleteExchangeNotif(entityId);
 }
 
-function setPipeApproval(bytes32 targetEntityId, bytes32 callerEntityId, bool approval) {
-  IWorld(WorldContextConsumerLib._world()).experience__setPipeApproval(targetEntityId, callerEntityId, approval);
+function setPipeAccess(bytes32 targetEntityId, bytes32 callerEntityId, bool depositAllowed, bool withdrawAllowed) {
+  IWorld(WorldContextConsumerLib._world()).experience__setPipeAccess(
+    targetEntityId,
+    callerEntityId,
+    depositAllowed,
+    withdrawAllowed
+  );
 }
 
-function deletePipeApproval(bytes32 targetEntityId, bytes32 callerEntityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deletePipeApproval(targetEntityId, callerEntityId);
+function setPipeRouting(bytes32 sourceEntityId, bytes32 targetEntityId, bool enabled) {
+  IWorld(WorldContextConsumerLib._world()).experience__setPipeRouting(sourceEntityId, targetEntityId, enabled);
 }
 
-function deletePipeApprovals(bytes32 targetEntityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deletePipeApprovals(targetEntityId);
+function deletePipeAccess(bytes32 targetEntityId, bytes32 callerEntityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deletePipeAccess(targetEntityId, callerEntityId);
+}
+
+function deletePipeRouting(bytes32 sourceEntityId, bytes32 targetEntityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deletePipeRouting(sourceEntityId, targetEntityId);
+}
+
+function deletePipeAccessList(bytes32 targetEntityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deletePipeAccessList(targetEntityId);
+}
+
+function deletePipeRoutingList(bytes32 sourceEntityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deletePipeRoutingList(sourceEntityId);
 }

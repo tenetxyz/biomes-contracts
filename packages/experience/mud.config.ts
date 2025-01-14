@@ -97,23 +97,45 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    PipeApproval: {
+    PipeAccess: {
       schema: {
         targetEntityId: "bytes32",
         callerEntityId: "bytes32",
-        approval: "bool",
+        depositAllowed: "bool",
+        withdrawAllowed: "bool",
       },
       key: ["targetEntityId", "callerEntityId"],
       codegen: {
         storeArgument: true,
       },
     },
-    PipeApprovals: {
+    PipeAccessList: {
       schema: {
-        targetEntityId: "bytes32",
-        approvedEntityIds: "bytes32[]",
+        entityId: "bytes32",
+        allowedEntityIds: "bytes32[]",
       },
-      key: ["targetEntityId"],
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    PipeRouting: {
+      schema: {
+        sourceEntityId: "bytes32",
+        targetEntityId: "bytes32",
+        enabled: "bool",
+      },
+      key: ["sourceEntityId", "targetEntityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    PipeRoutingList: {
+      schema: {
+        entityId: "bytes32",
+        enabledEntityIds: "bytes32[]",
+      },
+      key: ["entityId"],
       codegen: {
         storeArgument: true,
       },

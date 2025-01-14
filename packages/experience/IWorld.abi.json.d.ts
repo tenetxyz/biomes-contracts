@@ -447,7 +447,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__deletePipeApproval",
+    "name": "experience__deletePipeAccess",
     "inputs": [
       {
         "name": "targetEntityId",
@@ -465,10 +465,41 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__deletePipeApprovals",
+    "name": "experience__deletePipeAccessList",
     "inputs": [
       {
         "name": "targetEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deletePipeRouting",
+    "inputs": [
+      {
+        "name": "sourceEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "targetEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deletePipeRoutingList",
+    "inputs": [
+      {
+        "name": "sourceEntityId",
         "type": "bytes32",
         "internalType": "bytes32"
       }
@@ -1333,7 +1364,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__getBlockEntityDataWithPipeApprovals",
+    "name": "experience__getBlockEntityDataWithPipeControls",
     "inputs": [
       {
         "name": "entityId",
@@ -1345,7 +1376,7 @@ declare const abi: [
       {
         "name": "",
         "type": "tuple",
-        "internalType": "struct BlockExperienceEntityDataWithPipeApprovals",
+        "internalType": "struct BlockExperienceEntityDataWithPipeControls",
         "components": [
           {
             "name": "worldEntityData",
@@ -1551,7 +1582,36 @@ declare const abi: [
             ]
           },
           {
-            "name": "approvedEntityIdsForPipeTransfer",
+            "name": "pipeAccessData",
+            "type": "tuple[]",
+            "internalType": "struct PipeAccessDataWithEntityId[]",
+            "components": [
+              {
+                "name": "entityId",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "pipeAccessData",
+                "type": "tuple",
+                "internalType": "struct PipeAccessData",
+                "components": [
+                  {
+                    "name": "depositAllowed",
+                    "type": "bool",
+                    "internalType": "bool"
+                  },
+                  {
+                    "name": "withdrawAllowed",
+                    "type": "bool",
+                    "internalType": "bool"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "enabledEntityIdsForPipeRouting",
             "type": "bytes32[]",
             "internalType": "bytes32[]"
           }
@@ -2231,7 +2291,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__getBlocksEntityDataWithPipeApprovals",
+    "name": "experience__getBlocksEntityDataWithPipeControls",
     "inputs": [
       {
         "name": "entityIds",
@@ -2243,7 +2303,7 @@ declare const abi: [
       {
         "name": "",
         "type": "tuple[]",
-        "internalType": "struct BlockExperienceEntityDataWithPipeApprovals[]",
+        "internalType": "struct BlockExperienceEntityDataWithPipeControls[]",
         "components": [
           {
             "name": "worldEntityData",
@@ -2449,7 +2509,36 @@ declare const abi: [
             ]
           },
           {
-            "name": "approvedEntityIdsForPipeTransfer",
+            "name": "pipeAccessData",
+            "type": "tuple[]",
+            "internalType": "struct PipeAccessDataWithEntityId[]",
+            "components": [
+              {
+                "name": "entityId",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "pipeAccessData",
+                "type": "tuple",
+                "internalType": "struct PipeAccessData",
+                "components": [
+                  {
+                    "name": "depositAllowed",
+                    "type": "bool",
+                    "internalType": "bool"
+                  },
+                  {
+                    "name": "withdrawAllowed",
+                    "type": "bool",
+                    "internalType": "bool"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "enabledEntityIdsForPipeRouting",
             "type": "bytes32[]",
             "internalType": "bytes32[]"
           }
@@ -3701,7 +3790,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__setPipeApproval",
+    "name": "experience__setPipeAccess",
     "inputs": [
       {
         "name": "targetEntityId",
@@ -3714,7 +3803,35 @@ declare const abi: [
         "internalType": "bytes32"
       },
       {
-        "name": "approval",
+        "name": "depositAllowed",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "withdrawAllowed",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setPipeRouting",
+    "inputs": [
+      {
+        "name": "sourceEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "targetEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "enabled",
         "type": "bool",
         "internalType": "bool"
       }

@@ -16,8 +16,11 @@ import { SmartItemMetadata, SmartItemMetadataData } from "../codegen/tables/Smar
 import { GateApprovals, GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
 import { ExchangeInfo, ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
 import { Exchanges } from "../codegen/tables/Exchanges.sol";
-import { PipeApprovals } from "../codegen/tables/PipeApprovals.sol";
-import { BlockExperienceEntityData, BlockExperienceEntityDataWithGateApprovals, BlockExperienceEntityDataWithExchanges, ExchangeInfoDataWithExchangeId, BlockExperienceEntityDataWithPipeApprovals } from "../Types.sol";
+import { PipeAccess } from "../codegen/tables/PipeAccess.sol";
+import { PipeRouting } from "../codegen/tables/PipeRouting.sol";
+import { PipeAccessList } from "../codegen/tables/PipeAccessList.sol";
+import { PipeRoutingList } from "../codegen/tables/PipeRoutingList.sol";
+import { BlockExperienceEntityData, BlockExperienceEntityDataWithGateApprovals, BlockExperienceEntityDataWithExchanges, ExchangeInfoDataWithExchangeId, BlockExperienceEntityDataWithPipeControls, PipeAccessDataWithEntityId } from "../Types.sol";
 
 contract ReadSystem is System {
   function getBlockEntityData(bytes32 entityId) public view returns (BlockExperienceEntityData memory) {
@@ -75,9 +78,9 @@ contract ReadSystem is System {
       });
   }
 
-  function getBlockEntityDataWithPipeApprovals(
+  function getBlockEntityDataWithPipeControls(
     bytes32 entityId
-  ) public view returns (BlockExperienceEntityDataWithPipeApprovals memory) {
+  ) public view returns (BlockExperienceEntityDataWithPipeControls memory) {
     BlockEntityData memory blockEntityData = IWorld(_world()).getBlockEntityData(entityId);
     bytes32[] memory exchangeIds = Exchanges.get(entityId);
     ExchangeInfoDataWithExchangeId[] memory exchangeInfoData = new ExchangeInfoDataWithExchangeId[](exchangeIds.length);
@@ -87,16 +90,27 @@ contract ReadSystem is System {
         exchangeInfoData: ExchangeInfo.get(entityId, exchangeIds[i])
       });
     }
+    bytes32[] memory approvedEntityIdsForPipeTransfer = PipeAccessList.get(entityId);
+    PipeAccessDataWithEntityId[] memory pipeAccessData = new PipeAccessDataWithEntityId[](
+      approvedEntityIdsForPipeTransfer.length
+    );
+    for (uint256 i = 0; i < approvedEntityIdsForPipeTransfer.length; i++) {
+      pipeAccessData[i] = PipeAccessDataWithEntityId({
+        entityId: approvedEntityIdsForPipeTransfer[i],
+        pipeAccessData: PipeAccess.get(entityId, approvedEntityIdsForPipeTransfer[i])
+      });
+    }
 
     return
-      BlockExperienceEntityDataWithPipeApprovals({
+      BlockExperienceEntityDataWithPipeControls({
         worldEntityData: blockEntityData,
         chipAttacher: ChipAttachment.get(entityId),
         chipAdmin: ChipAdmin.get(entityId),
         smartItemMetadata: SmartItemMetadata.get(entityId),
         gateApprovalsData: GateApprovals.get(entityId),
         exchanges: exchangeInfoData,
-        approvedEntityIdsForPipeTransfer: PipeApprovals.get(entityId)
+        pipeAccessData: pipeAccessData,
+        enabledEntityIdsForPipeRouting: PipeRoutingList.get(entityId)
       });
   }
 
@@ -130,13 +144,13 @@ contract ReadSystem is System {
     return blockExperienceEntityData;
   }
 
-  function getBlocksEntityDataWithPipeApprovals(
+  function getBlocksEntityDataWithPipeControls(
     bytes32[] memory entityIds
-  ) public view returns (BlockExperienceEntityDataWithPipeApprovals[] memory) {
-    BlockExperienceEntityDataWithPipeApprovals[]
-      memory blockExperienceEntityData = new BlockExperienceEntityDataWithPipeApprovals[](entityIds.length);
+  ) public view returns (BlockExperienceEntityDataWithPipeControls[] memory) {
+    BlockExperienceEntityDataWithPipeControls[]
+      memory blockExperienceEntityData = new BlockExperienceEntityDataWithPipeControls[](entityIds.length);
     for (uint256 i = 0; i < entityIds.length; i++) {
-      blockExperienceEntityData[i] = getBlockEntityDataWithPipeApprovals(entityIds[i]);
+      blockExperienceEntityData[i] = getBlockEntityDataWithPipeControls(entityIds[i]);
     }
     return blockExperienceEntityData;
   }
