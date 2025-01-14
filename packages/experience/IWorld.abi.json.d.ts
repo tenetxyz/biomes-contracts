@@ -1582,7 +1582,7 @@ declare const abi: [
             ]
           },
           {
-            "name": "pipeAccessData",
+            "name": "pipeAccessDataList",
             "type": "tuple[]",
             "internalType": "struct PipeAccessDataWithEntityId[]",
             "components": [
@@ -2509,7 +2509,7 @@ declare const abi: [
             ]
           },
           {
-            "name": "pipeAccessData",
+            "name": "pipeAccessDataList",
             "type": "tuple[]",
             "internalType": "struct PipeAccessDataWithEntityId[]",
             "components": [

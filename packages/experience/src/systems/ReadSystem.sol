@@ -91,11 +91,11 @@ contract ReadSystem is System {
       });
     }
     bytes32[] memory approvedEntityIdsForPipeTransfer = PipeAccessList.get(entityId);
-    PipeAccessDataWithEntityId[] memory pipeAccessData = new PipeAccessDataWithEntityId[](
+    PipeAccessDataWithEntityId[] memory pipeAccessDataList = new PipeAccessDataWithEntityId[](
       approvedEntityIdsForPipeTransfer.length
     );
     for (uint256 i = 0; i < approvedEntityIdsForPipeTransfer.length; i++) {
-      pipeAccessData[i] = PipeAccessDataWithEntityId({
+      pipeAccessDataList[i] = PipeAccessDataWithEntityId({
         entityId: approvedEntityIdsForPipeTransfer[i],
         pipeAccessData: PipeAccess.get(entityId, approvedEntityIdsForPipeTransfer[i])
       });
@@ -109,7 +109,7 @@ contract ReadSystem is System {
         smartItemMetadata: SmartItemMetadata.get(entityId),
         gateApprovalsData: GateApprovals.get(entityId),
         exchanges: exchangeInfoData,
-        pipeAccessData: pipeAccessData,
+        pipeAccessDataList: pipeAccessDataList,
         enabledEntityIdsForPipeRouting: PipeRoutingList.get(entityId)
       });
   }
