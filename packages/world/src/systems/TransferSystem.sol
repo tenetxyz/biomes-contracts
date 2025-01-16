@@ -253,4 +253,13 @@ contract TransferSystem is System {
   ) public payable {
     transferTool(srcEntityId, dstEntityId, toolEntityId, extraData);
   }
+
+  function transferToolsWithExtraData(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    bytes32[] memory toolEntityIds,
+    bytes memory extraData
+  ) public payable {
+    transferTools(srcEntityId, dstEntityId, toolEntityIds, extraData);
+  }
 }

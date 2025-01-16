@@ -56,4 +56,11 @@ interface ITransferSystem {
     bytes32 toolEntityId,
     bytes memory extraData
   ) external payable;
+
+  function transferToolsWithExtraData(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    bytes32[] memory toolEntityIds,
+    bytes memory extraData
+  ) external payable;
 }
