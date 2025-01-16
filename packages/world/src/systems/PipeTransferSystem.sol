@@ -156,9 +156,9 @@ contract PipeTransferSystem is System {
             objectTypeId: transferObjectTypeId,
             numToTransfer: numToTransfer,
             toolEntityIds: toolEntityIds
-          })
-        }),
-        extraData
+          }),
+          extraData: extraData
+        })
       );
       require(transferAllowed, "PipeTransferSystem: smart item not authorized by chip to make this transfer");
     }

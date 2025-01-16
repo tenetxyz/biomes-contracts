@@ -167,10 +167,7 @@ contract TestChestChip is IChestChip {
 
   function onChipHit(bytes32 playerEntityId, bytes32 entityId) external {}
 
-  function onTransfer(
-    ChipOnTransferData memory transferData,
-    bytes memory extraData
-  ) external payable returns (bool isAllowed) {
+  function onTransfer(ChipOnTransferData memory transferData) external payable returns (bool isAllowed) {
     if (transferData.callerEntityId == ownerEntityId) {
       return true;
     }
@@ -178,10 +175,7 @@ contract TestChestChip is IChestChip {
     return false;
   }
 
-  function onPipeTransfer(
-    ChipOnPipeTransferData memory transferData,
-    bytes memory extraData
-  ) external payable returns (bool isAllowed) {
+  function onPipeTransfer(ChipOnPipeTransferData memory transferData) external payable returns (bool isAllowed) {
     return false;
   }
 
@@ -254,10 +248,7 @@ contract TestOverflowChestChip is IChestChip {
 
   function onChipHit(bytes32 playerEntityId, bytes32 entityId) external {}
 
-  function onTransfer(
-    ChipOnTransferData memory transferData,
-    bytes memory extraData
-  ) external payable returns (bool isAllowed) {
+  function onTransfer(ChipOnTransferData memory transferData) external payable returns (bool isAllowed) {
     if (transferData.callerEntityId == ownerEntityId) {
       return true;
     }
@@ -265,10 +256,7 @@ contract TestOverflowChestChip is IChestChip {
     return false;
   }
 
-  function onPipeTransfer(
-    ChipOnPipeTransferData memory transferData,
-    bytes memory extraData
-  ) external payable returns (bool isAllowed) {
+  function onPipeTransfer(ChipOnPipeTransferData memory transferData) external payable returns (bool isAllowed) {
     return approvedPipeTransferEntityId == transferData.callerEntityId;
   }
 

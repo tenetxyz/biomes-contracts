@@ -89,9 +89,9 @@ contract TransferSystem is System {
           targetEntityId: chestEntityId,
           callerEntityId: playerEntityId,
           isDeposit: isDeposit,
-          transferData: transferData
-        }),
-        extraData
+          transferData: transferData,
+          extraData: extraData
+        })
       );
       require(transferAllowed, "TransferSystem: Player not authorized by chip to make this transfer");
     }

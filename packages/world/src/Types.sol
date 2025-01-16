@@ -93,6 +93,7 @@ struct ChipOnTransferData {
   bytes32 callerEntityId; // The entity initiating the transfer
   bool isDeposit; // true = caller->target, false = target->caller
   TransferData transferData;
+  bytes extraData;
 }
 
 struct ChipOnPipeTransferData {
@@ -101,4 +102,5 @@ struct ChipOnPipeTransferData {
   bool isDeposit; // true = caller->target, false = target->caller
   VoxelCoordDirectionVonNeumann[] path;
   TransferData transferData;
+  bytes extraData;
 }
