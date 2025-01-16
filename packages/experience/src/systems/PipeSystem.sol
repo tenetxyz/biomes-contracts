@@ -38,17 +38,25 @@ contract PipeSystem is System {
     bool withdrawAllowed
   ) public {
     requireChipOwner(targetEntityId);
-    PipeAccess.set(targetEntityId, callerEntityId, depositAllowed, withdrawAllowed);
-    if (!pipeAccessExists(targetEntityId, callerEntityId)) {
-      PipeAccessList.push(targetEntityId, callerEntityId);
+    if (!depositAllowed && !withdrawAllowed) {
+      deletePipeAccess(targetEntityId, callerEntityId);
+    } else {
+      PipeAccess.set(targetEntityId, callerEntityId, depositAllowed, withdrawAllowed);
+      if (!pipeAccessExists(targetEntityId, callerEntityId)) {
+        PipeAccessList.push(targetEntityId, callerEntityId);
+      }
     }
   }
 
   function setPipeRouting(bytes32 sourceEntityId, bytes32 targetEntityId, bool enabled) public {
     requireChipOwner(sourceEntityId);
-    PipeRouting.set(sourceEntityId, targetEntityId, enabled);
-    if (!pipeRoutingExists(sourceEntityId, targetEntityId)) {
-      PipeRoutingList.push(sourceEntityId, targetEntityId);
+    if (!enabled) {
+      deletePipeRouting(sourceEntityId, targetEntityId);
+    } else {
+      PipeRouting.set(sourceEntityId, targetEntityId, enabled);
+      if (!pipeRoutingExists(sourceEntityId, targetEntityId)) {
+        PipeRoutingList.push(sourceEntityId, targetEntityId);
+      }
     }
   }
 
