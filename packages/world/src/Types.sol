@@ -91,7 +91,7 @@ struct PipeMultiTransferData {
 
 struct TransferData {
   uint8 objectTypeId;
-  uint16 numToTransfer;
+  uint256 numToTransfer;
   bytes32[] toolEntityIds;
 }
 

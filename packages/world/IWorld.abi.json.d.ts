@@ -6246,6 +6246,95 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "transferWithPipes",
+    "inputs": [
+      {
+        "name": "srcEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "dstEntityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "transferData",
+        "type": "tuple",
+        "internalType": "struct TransferData",
+        "components": [
+          {
+            "name": "objectTypeId",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "numToTransfer",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "toolEntityIds",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          }
+        ]
+      },
+      {
+        "name": "pipesTransferData",
+        "type": "tuple[]",
+        "internalType": "struct PipeMultiTransferData[]",
+        "components": [
+          {
+            "name": "targetEntityId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "path",
+            "type": "uint8[]",
+            "internalType": "enum VoxelCoordDirectionVonNeumann[]"
+          },
+          {
+            "name": "transferData",
+            "type": "tuple",
+            "internalType": "struct TransferData",
+            "components": [
+              {
+                "name": "objectTypeId",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "numToTransfer",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "toolEntityIds",
+                "type": "bytes32[]",
+                "internalType": "bytes32[]"
+              }
+            ]
+          },
+          {
+            "name": "extraData",
+            "type": "bytes",
+            "internalType": "bytes"
+          }
+        ]
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
     "name": "unequip",
     "inputs": [],
     "outputs": [],
