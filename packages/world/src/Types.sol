@@ -82,6 +82,12 @@ struct PickupData {
   uint16 numToPickup;
 }
 
+struct PipeTransferData {
+  bytes32 targetEntityId;
+  VoxelCoordDirectionVonNeumann[] path;
+  TransferData transferData;
+}
+
 struct TransferData {
   uint8 objectTypeId;
   uint16 numToTransfer;
@@ -97,6 +103,7 @@ struct ChipOnTransferData {
 }
 
 struct ChipOnPipeTransferData {
+  bytes32 playerEntityId;
   bytes32 targetEntityId; // The entity whose chip is being called
   bytes32 callerEntityId; // The entity initiating the transfer
   bool isDeposit; // true = caller->target, false = target->caller
