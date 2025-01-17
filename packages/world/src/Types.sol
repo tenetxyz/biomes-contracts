@@ -82,10 +82,11 @@ struct PickupData {
   uint16 numToPickup;
 }
 
-struct PipeTransferData {
+struct PipeMultiTransferData {
   bytes32 targetEntityId;
   VoxelCoordDirectionVonNeumann[] path;
   TransferData transferData;
+  bytes extraData;
 }
 
 struct TransferData {

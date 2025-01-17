@@ -19,6 +19,15 @@ import { getForceField } from "./ForceFieldUtils.sol";
 import { isStorageContainer } from "./ObjectTypeUtils.sol";
 import { requireValidPlayer } from "./PlayerUtils.sol";
 
+struct TransferCommonContext {
+  bytes32 playerEntityId;
+  bytes32 chestEntityId;
+  VoxelCoord chestCoord;
+  uint8 dstObjectTypeId;
+  ChipData checkChipData;
+  bool isDeposit;
+}
+
 struct PipeTransferCommonContext {
   bytes32 baseSrcEntityId;
   bytes32 baseDstEntityId;
@@ -28,10 +37,7 @@ struct PipeTransferCommonContext {
   bool isDeposit;
 }
 
-function transferCommon(
-  bytes32 srcEntityId,
-  bytes32 dstEntityId
-) returns (bytes32, uint8, bytes32, bytes32, VoxelCoord memory) {
+function transferCommon(bytes32 srcEntityId, bytes32 dstEntityId) returns (TransferCommonContext memory) {
   (bytes32 playerEntityId, ) = requireValidPlayer(WorldContextConsumerLib._msgSender());
 
   bytes32 baseSrcEntityId = BaseEntity._get(srcEntityId);
@@ -50,23 +56,38 @@ function transferCommon(
 
   uint8 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
   uint8 dstObjectTypeId = ObjectType._get(baseDstEntityId);
+  bool isDeposit = false;
   if (srcObjectTypeId == PlayerObjectID) {
     require(playerEntityId == baseSrcEntityId, "TransferSystem: player does not own source inventory");
     require(isStorageContainer(dstObjectTypeId), "TransferSystem: this object type does not have an inventory");
+    isDeposit = true;
   } else if (dstObjectTypeId == PlayerObjectID) {
     require(playerEntityId == baseDstEntityId, "TransferSystem: player does not own destination inventory");
     require(isStorageContainer(srcObjectTypeId), "TransferSystem: this object type does not have an inventory");
+    isDeposit = false;
   } else {
     revert("TransferSystem: invalid transfer operation");
   }
 
-  return (
-    playerEntityId,
-    dstObjectTypeId,
-    baseSrcEntityId,
-    baseDstEntityId,
-    playerEntityId == baseSrcEntityId ? dstCoord : srcCoord
-  );
+  bytes32 chestEntityId = isDeposit ? baseDstEntityId : baseSrcEntityId;
+  VoxelCoord memory chestCoord = isDeposit ? dstCoord : srcCoord;
+
+  ChipData memory checkChipData = updateChipBatteryLevel(chestEntityId);
+  bytes32 forceFieldEntityId = getForceField(chestCoord);
+  if (forceFieldEntityId != bytes32(0)) {
+    ChipData memory forceFieldChipData = updateChipBatteryLevel(forceFieldEntityId);
+    checkChipData.batteryLevel += forceFieldChipData.batteryLevel;
+  }
+
+  return
+    TransferCommonContext({
+      playerEntityId: playerEntityId,
+      chestEntityId: chestEntityId,
+      chestCoord: chestCoord,
+      dstObjectTypeId: dstObjectTypeId,
+      checkChipData: checkChipData,
+      isDeposit: isDeposit
+    });
 }
 
 function requireValidPath(

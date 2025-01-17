@@ -14,29 +14,21 @@ import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { ChipOnTransferData, TransferData } from "../Types.sol";
-import { transferCommon } from "../utils/TransferUtils.sol";
+import { transferCommon, TransferCommonContext } from "../utils/TransferUtils.sol";
 
 contract TransferSystem is System {
   function requireAllowed(
-    bytes32 forceFieldEntityId,
+    ChipData memory checkChipData,
+    bool isDeposit,
     bytes32 playerEntityId,
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
+    bytes32 chestEntityId,
     TransferData memory transferData,
     bytes memory extraData
   ) internal {
-    bool isDeposit = playerEntityId == srcEntityId;
-    bytes32 chestEntityId = isDeposit ? dstEntityId : srcEntityId;
-    ChipData memory chipData = updateChipBatteryLevel(chestEntityId);
-    uint256 batteryLevel = chipData.batteryLevel;
-    if (forceFieldEntityId != bytes32(0)) {
-      ChipData memory forceFieldChipData = updateChipBatteryLevel(forceFieldEntityId);
-      batteryLevel += forceFieldChipData.batteryLevel;
-    }
-    if (chipData.chipAddress != address(0) && batteryLevel > 0) {
+    if (checkChipData.chipAddress != address(0) && checkChipData.batteryLevel > 0) {
       // Forward any ether sent with the transaction to the hook
       // Don't safe call here as we want to revert if the chip doesn't allow the transfer
-      bool transferAllowed = IChestChip(chipData.chipAddress).onTransfer{ value: _msgValue() }(
+      bool transferAllowed = IChestChip(checkChipData.chipAddress).onTransfer{ value: _msgValue() }(
         ChipOnTransferData({
           targetEntityId: chestEntityId,
           callerEntityId: playerEntityId,
@@ -58,36 +50,36 @@ contract TransferSystem is System {
   ) public payable {
     uint256 initialGas = gasleft();
 
-    (
-      bytes32 playerEntityId,
-      uint8 dstObjectTypeId,
-      bytes32 baseSrcEntityId,
-      bytes32 baseDstEntityId,
-      VoxelCoord memory chestCoord
-    ) = transferCommon(srcEntityId, dstEntityId);
-    transferInventoryNonTool(baseSrcEntityId, baseDstEntityId, dstObjectTypeId, transferObjectTypeId, numToTransfer);
+    TransferCommonContext memory ctx = transferCommon(srcEntityId, dstEntityId);
+    transferInventoryNonTool(
+      ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
+      ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
+      ctx.dstObjectTypeId,
+      transferObjectTypeId,
+      numToTransfer
+    );
 
     PlayerActionNotif._set(
-      playerEntityId,
+      ctx.playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.Transfer,
-        entityId: playerEntityId == baseSrcEntityId ? baseDstEntityId : baseSrcEntityId,
+        entityId: ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
         objectTypeId: transferObjectTypeId,
-        coordX: chestCoord.x,
-        coordY: chestCoord.y,
-        coordZ: chestCoord.z,
+        coordX: ctx.chestCoord.x,
+        coordY: ctx.chestCoord.y,
+        coordZ: ctx.chestCoord.z,
         amount: numToTransfer
       })
     );
 
-    callMintXP(playerEntityId, initialGas, 1);
+    callMintXP(ctx.playerEntityId, initialGas, 1);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
-      getForceField(chestCoord),
-      playerEntityId,
-      baseSrcEntityId,
-      baseDstEntityId,
+      ctx.checkChipData,
+      ctx.isDeposit,
+      ctx.playerEntityId,
+      ctx.chestEntityId,
       TransferData({
         objectTypeId: transferObjectTypeId,
         numToTransfer: numToTransfer,
@@ -118,19 +110,13 @@ contract TransferSystem is System {
     require(toolEntityIds.length > 0, "TransferSystem: must transfer at least one tool");
     require(toolEntityIds.length < type(uint16).max, "TransferSystem: too many tools to transfer");
 
-    (
-      bytes32 playerEntityId,
-      uint8 dstObjectTypeId,
-      bytes32 baseSrcEntityId,
-      bytes32 baseDstEntityId,
-      VoxelCoord memory chestCoord
-    ) = transferCommon(srcEntityId, dstEntityId);
+    TransferCommonContext memory ctx = transferCommon(srcEntityId, dstEntityId);
     uint8 toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
       uint8 currentToolObjectTypeId = transferInventoryTool(
-        baseSrcEntityId,
-        baseDstEntityId,
-        dstObjectTypeId,
+        ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
+        ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
+        ctx.dstObjectTypeId,
         toolEntityIds[i]
       );
       if (i > 0) {
@@ -141,26 +127,26 @@ contract TransferSystem is System {
     }
 
     PlayerActionNotif._set(
-      playerEntityId,
+      ctx.playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.Transfer,
-        entityId: playerEntityId == baseSrcEntityId ? baseDstEntityId : baseSrcEntityId,
+        entityId: ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
         objectTypeId: toolObjectTypeId,
-        coordX: chestCoord.x,
-        coordY: chestCoord.y,
-        coordZ: chestCoord.z,
+        coordX: ctx.chestCoord.x,
+        coordY: ctx.chestCoord.y,
+        coordZ: ctx.chestCoord.z,
         amount: toolEntityIds.length
       })
     );
 
-    callMintXP(playerEntityId, initialGas, 1);
+    callMintXP(ctx.playerEntityId, initialGas, 1);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
-      getForceField(chestCoord),
-      playerEntityId,
-      baseSrcEntityId,
-      baseDstEntityId,
+      ctx.checkChipData,
+      ctx.isDeposit,
+      ctx.playerEntityId,
+      ctx.chestEntityId,
       TransferData({
         objectTypeId: toolObjectTypeId,
         numToTransfer: uint16(toolEntityIds.length),
