@@ -73,8 +73,19 @@ async function processFiles({ filesToProcess, IWorldAbi, referenceStartBlock, re
           const newCount = txCounts.get(callFromCallData.functionName) || 0;
           txCounts.set(callFromCallData.functionName, newCount + 1);
           numTxs++;
+        } else if (functionName == "batchCall") {
+          for (const batchCallArgs of args[0]) {
+            const callFromCallData = decodeFunctionData({ abi: IWorldAbi, data: batchCallArgs["callData"] });
+            // console.log("Call From Function Name:", callFromCallData.functionName);
+            // console.log("Call From Arguments:", callFromCallData.args);
+            const newCount = txCounts.get(callFromCallData.functionName) || 0;
+            txCounts.set(callFromCallData.functionName, newCount + 1);
+            numTxs++;
+          }
         } else {
-          console.warn("Unknown function name", functionName);
+          const newCount = txCounts.get(functionName) || 0;
+          txCounts.set(functionName, newCount + 1);
+          numTxs++;
         }
 
         try {

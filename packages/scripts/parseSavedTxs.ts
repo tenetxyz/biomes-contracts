@@ -8,7 +8,7 @@ import { replacer } from "./utils";
 
 // Number of CPU cores to use (leave one core free for system processes)
 const NUM_WORKERS = Math.max(1, os.cpus().length - 1);
-const BATCH_SIZE = 100; // Number of files to process in each batch
+const BATCH_SIZE = 500; // Number of files to process in each batch
 
 async function createWorker(allWork) {
   return new Promise((resolve, reject) => {
@@ -49,7 +49,9 @@ async function main() {
     batchedFiles.push(files.slice(i, i + BATCH_SIZE));
   }
 
-  console.log(`Processing ${files.length} files using ${NUM_WORKERS} workers...`);
+  console.log(
+    `Processing ${files.length} files using ${NUM_WORKERS} workers, batch size ${BATCH_SIZE} and ${batchedFiles.length} total batches...`,
+  );
 
   // Create worker pool and process batches
   const workers = new Array(NUM_WORKERS).fill(null).map(() => []);

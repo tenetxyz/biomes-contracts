@@ -49,7 +49,7 @@ async function main() {
     const transactions = [];
     const batchSize = 200; // Adjust based on RPC provider limits
     // const startBlock = fromBlock;
-    const startBlock = 11912659;
+    const startBlock = 12267630;
 
     console.log(`Starting scan from block ${startBlock} to ${currentBlock}`);
 
