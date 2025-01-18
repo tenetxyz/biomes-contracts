@@ -43,6 +43,8 @@ async function main() {
     .filter((file) => file.startsWith("detailed_txs_"))
     .map((file) => path.join(dirPath, file));
 
+  const totalFiles = files.length;
+
   // Split files into batches for each worker
   const batchedFiles = [];
   for (let i = 0; i < files.length; i += BATCH_SIZE) {
@@ -63,6 +65,8 @@ async function main() {
     currentWorker = (currentWorker + 1) % NUM_WORKERS;
   });
 
+  let processedBatches = 0;
+
   // Process all batches in parallel
   const workerPromises = workers.map(async (workerBatches, index) => {
     if (workerBatches.length === 0) return null;
@@ -79,6 +83,16 @@ async function main() {
         throw new Error(`Worker ${index} error: ${result.error}`);
       }
       results.push(result);
+
+      // Increment processed batch counter
+      processedBatches++;
+
+      // Log progress
+      const completedFiles = processedBatches * BATCH_SIZE;
+      const progress = Math.min((completedFiles / totalFiles) * 100, 100).toFixed(2);
+      console.log(
+        `Worker ${index}: Processed batch ${index + 1}/${workerBatches.length}. Progress: ${progress}% (${completedFiles}/${totalFiles} files).`,
+      );
     }
     return results;
   });
@@ -171,6 +185,9 @@ async function main() {
     ),
   };
   fs.writeFileSync("gen/stats.json", JSON.stringify(stats, replacer, 2));
+
+  const endTime = Date.now();
+  console.log(`\nProcessing completed in ${(endTime - startTime) / 1000} seconds.`);
 
   console.log("Finished!");
 }
