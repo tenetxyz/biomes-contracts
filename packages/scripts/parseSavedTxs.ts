@@ -8,7 +8,7 @@ import { replacer } from "./utils";
 
 // Number of CPU cores to use (leave one core free for system processes)
 const NUM_WORKERS = Math.max(1, os.cpus().length - 1);
-const BATCH_SIZE = 500; // Number of files to process in each batch
+const BATCH_SIZE = 1000; // Number of files to process in each batch
 
 async function createWorker(allWork) {
   return new Promise((resolve, reject) => {
@@ -106,6 +106,7 @@ async function main() {
     l2FeeTotal: BigInt(0),
     l1FeeTotal: BigInt(0),
     totalFeeSum: BigInt(0),
+    priorityFeeTotal: BigInt(0),
   };
   const finalTxCounts = new Map();
   const finalDailyStats = new Map();
@@ -114,11 +115,14 @@ async function main() {
   let finalEarliestFromBlock = Infinity;
   let finalLatestToBlock = 0;
 
+  const allUserStats = new Map();
+
   workerResults.flat().forEach((result) => {
     finalResults.baseFeeTotal += result.aggregatedFees.baseFeeTotal;
     finalResults.l2FeeTotal += result.aggregatedFees.l2FeeTotal;
     finalResults.l1FeeTotal += result.aggregatedFees.l1FeeTotal;
     finalResults.totalFeeSum += result.aggregatedFees.totalFeeSum;
+    finalResults.priorityFeeTotal += result.aggregatedFees.priorityFeeTotal;
     totalTransactions += result.numTransactions;
     // iterate oer result.txCounts map
     for (const [txType, count] of result.txCounts.entries()) {
@@ -126,6 +130,42 @@ async function main() {
         finalTxCounts.set(txType, 0);
       }
       finalTxCounts.set(txType, finalTxCounts.get(txType) + count);
+    }
+
+    for (const [user, stat] of result.perUserStats.entries()) {
+      let userStat = allUserStats.get(user);
+      if (userStat === undefined) {
+        userStat = {
+          txCounts: new Map(),
+          numTxs: 0,
+          numActions: 0,
+          totalL2Fees: BigInt(0),
+          totalL1Fees: BigInt(0),
+          totalBaseFees: BigInt(0),
+          totalPriorityFees: BigInt(0),
+          totalFees: BigInt(0),
+          firstTxDate: null,
+          lastTxDate: null,
+        };
+      }
+      for (const [txType, count] of stat.txCounts.entries()) {
+        const currentCount = userStat.txCounts.get(txType) || 0;
+        userStat.txCounts.set(txType, currentCount + count);
+      }
+      userStat.totalL2Fees += stat.totalL2Fees;
+      userStat.totalL1Fees += stat.totalL1Fees;
+      userStat.totalBaseFees += stat.totalBaseFees;
+      userStat.totalPriorityFees += stat.totalPriorityFees;
+      userStat.totalFees += stat.totalFees;
+      userStat.numTxs += stat.numTxs;
+      userStat.numActions += stat.numActions;
+      if (userStat.firstTxDate === null || stat.firstTxDate < userStat.firstTxDate) {
+        userStat.firstTxDate = stat.firstTxDate;
+      }
+      if (userStat.lastTxDate === null || stat.lastTxDate > userStat.lastTxDate) {
+        userStat.lastTxDate = stat.lastTxDate;
+      }
+      allUserStats.set(user, userStat);
     }
 
     finalEarliestFromBlock = Math.min(finalEarliestFromBlock, result.fromBlock);
@@ -155,6 +195,7 @@ async function main() {
   console.log(`Processed ${totalTransactions} unique transactions`);
   console.log("\nAggregated fees:");
   console.log("Base fee total:", formatEther(finalResults.baseFeeTotal));
+  console.log("Priority fee total:", formatEther(finalResults.priorityFeeTotal));
   console.log("L2 fee total:", formatEther(finalResults.l2FeeTotal));
   console.log("L1 fee total:", formatEther(finalResults.l1FeeTotal));
   console.log("Total fee sum:", formatEther(finalResults.totalFeeSum));
@@ -178,6 +219,7 @@ async function main() {
     totalTransactions,
     aggregatedFees: finalResults,
     txCounts: Object.fromEntries(finalTxCounts),
+    allUserStats: Object.fromEntries(allUserStats.entries()),
     dailyStats: Object.fromEntries(
       Array.from(finalDailyStats.entries()).map(([date, dailyStat]) => {
         return [date, { ...dailyStat, users: Array.from(dailyStat.users) }];
