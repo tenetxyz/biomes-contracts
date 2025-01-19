@@ -93,6 +93,9 @@ importers:
 
   packages/scripts:
     dependencies:
+      '@biomesaw/experience':
+        specifier: workspace:*
+        version: link:../experience
       '@biomesaw/world':
         specifier: workspace:*
         version: link:../world

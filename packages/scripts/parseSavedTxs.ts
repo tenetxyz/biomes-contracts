@@ -27,7 +27,7 @@ async function main() {
   const startTime = Date.now();
 
   // Setup initial configuration
-  const { publicClient, worldAddress, IWorldAbi, account, txOptions, callTx, fromBlock } = await setupNetwork();
+  const { publicClient, worldAddress, allAbis, account, txOptions, callTx, fromBlock } = await setupNetwork();
 
   const referenceStartBlock = BigInt(fromBlock);
   const block = await publicClient.getBlock({
@@ -75,7 +75,8 @@ async function main() {
     for (const batch of workerBatches) {
       const result = await createWorker({
         filesToProcess: batch,
-        IWorldAbi,
+        abis: allAbis,
+        worldAddress,
         referenceStartBlock: referenceStartBlock,
         referenceStartTimestamp: referenceStartTimestamp,
       });
@@ -112,6 +113,9 @@ async function main() {
   const finalDailyStats = new Map();
 
   let totalTransactions = 0;
+  let totalContractCreations = 0;
+  let totalNonWorldTxs = 0;
+  let totalUnknownTxs = 0;
   let finalEarliestFromBlock = Infinity;
   let finalLatestToBlock = 0;
 
@@ -124,6 +128,9 @@ async function main() {
     finalResults.totalFeeSum += result.aggregatedFees.totalFeeSum;
     finalResults.priorityFeeTotal += result.aggregatedFees.priorityFeeTotal;
     totalTransactions += result.numTransactions;
+    totalContractCreations += result.contractCreationCount;
+    totalNonWorldTxs += result.nonWorldTxCount;
+    totalUnknownTxs += result.unknownTxCount;
     // iterate oer result.txCounts map
     for (const [txType, count] of result.txCounts.entries()) {
       if (!finalTxCounts.has(txType)) {
@@ -137,8 +144,11 @@ async function main() {
       if (userStat === undefined) {
         userStat = {
           txCounts: new Map(),
-          numTxs: 0,
           numActions: 0,
+          numTxs: 0,
+          numContractCreations: 0,
+          numNonWorldTxs: 0,
+          numUnknownTxs: 0,
           totalL2Fees: BigInt(0),
           totalL1Fees: BigInt(0),
           totalBaseFees: BigInt(0),
@@ -165,6 +175,9 @@ async function main() {
       if (userStat.lastTxDate === null || stat.lastTxDate > userStat.lastTxDate) {
         userStat.lastTxDate = stat.lastTxDate;
       }
+      userStat.numContractCreations += stat.numContractCreations;
+      userStat.numNonWorldTxs += stat.numNonWorldTxs;
+      userStat.numUnknownTxs += stat.numUnknownTxs;
       allUserStats.set(user, userStat);
     }
 
@@ -217,6 +230,9 @@ async function main() {
     fromBlock: finalEarliestFromBlock,
     toBlock: finalLatestToBlock,
     totalTransactions,
+    totalContractCreations,
+    totalNonWorldTxs,
+
     aggregatedFees: finalResults,
     txCounts: Object.fromEntries(finalTxCounts),
     allUserStats: Object.fromEntries(allUserStats.entries()),

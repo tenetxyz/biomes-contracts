@@ -177,4 +177,24 @@ contract InitSpawnSystem is System {
     ObjectType._set(entityId, objectTypeId);
     Position._set(entityId, coord.x, coord.y, coord.z);
   }
+
+  function initSpawnAreaTop() public {
+    revert("InitSpawnSystem: deprecated");
+  }
+
+  function initSpawnAreaTopPart2() public {
+    revert("InitSpawnSystem: deprecated");
+  }
+
+  function initSpawnAreaBottom() public {
+    revert("InitSpawnSystem: deprecated");
+  }
+
+  function initSpawnAreaBottomPart2() public {
+    revert("InitSpawnSystem: deprecated");
+  }
+
+  function initSpawnAreaBottomBorder() public {
+    revert("InitSpawnSystem: deprecated");
+  }
 }

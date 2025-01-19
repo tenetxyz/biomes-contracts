@@ -10,6 +10,10 @@ import { Abi, Account, Chain, ContractFunctionName, ContractFunctionArgs } from 
 import { privateKeyToAccount } from "viem/accounts";
 
 import IWorldAbi from "@biomesaw/world/IWorld.abi.json";
+import IExperienceAbi from "@biomesaw/experience/IWorld.abi.json";
+import CallWithSignatureAbi from "@latticexyz/world-modules/out/Unstable_CallWithSignatureSystem.sol/Unstable_CallWithSignatureSystem.abi.json";
+import ERC20SystemAbi from "@latticexyz/world-modules/out/ERC20System.sol/ERC20System.abi.json";
+import ERC721SystemAbi from "@latticexyz/world-modules/out/ERC721System.sol/ERC721System.abi.json";
 import worldsJson from "@biomesaw/world/worlds.json";
 
 import { supportedChains } from "./supportedChains";
@@ -136,8 +140,11 @@ export async function setupNetwork() {
     return [true, receipt];
   }
 
+  const allAbis = [IWorldAbi, IExperienceAbi, CallWithSignatureAbi, ERC20SystemAbi, ERC721SystemAbi];
+
   return {
     IWorldAbi,
+    allAbis,
     worldAddress,
     walletClient,
     publicClient,

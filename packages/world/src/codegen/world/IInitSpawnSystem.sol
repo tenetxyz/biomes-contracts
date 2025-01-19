@@ -26,4 +26,14 @@ interface IInitSpawnSystem {
   function initSpawnAreaBottomPart2(VoxelCoord memory spawnCoord) external;
 
   function initSpawnAreaBottomBorder(VoxelCoord memory spawnCoord) external;
+
+  function initSpawnAreaTop() external;
+
+  function initSpawnAreaTopPart2() external;
+
+  function initSpawnAreaBottom() external;
+
+  function initSpawnAreaBottomPart2() external;
+
+  function initSpawnAreaBottomBorder() external;
 }
