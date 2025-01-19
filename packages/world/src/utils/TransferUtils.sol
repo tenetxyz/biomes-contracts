@@ -101,7 +101,8 @@ function requireValidPath(
     pathCoords[i] = transformVoxelCoordVonNeumann(i == 0 ? srcCoord : pathCoords[i - 1], path[i]);
     bytes32 pathEntityId = ReversePosition._get(pathCoords[i].x, pathCoords[i].y, pathCoords[i].z);
     require(pathEntityId != bytes32(0), "PipeTransferSystem: path coord is not in the world");
-    require(ObjectType._get(pathEntityId) == PipeObjectID, "PipeTransferSystem: path coord is not a pipe");
+    uint8 pathObjectTypeId = ObjectType._get(pathEntityId);
+    require(pathObjectTypeId == PipeObjectID, "PipeTransferSystem: path coord is not a pipe");
   }
 
   // check if last coord and dstCoord are in von neumann distance of 1

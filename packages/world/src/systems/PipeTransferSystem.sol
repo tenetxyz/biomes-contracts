@@ -28,33 +28,13 @@ struct PipeMultiTransferData {
 
 contract PipeTransferSystem is System {
   function requireAllowed(
-    ChipData memory checkChipData,
-    bool isDeposit,
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    VoxelCoordDirectionVonNeumann[] memory path,
-    uint8 transferObjectTypeId,
-    uint16 numToTransfer,
-    bytes32[] memory toolEntityIds,
-    bytes memory extraData
+    ChipData memory targetChipData,
+    ChipOnPipeTransferData memory chipOnPipeTransferData,
   ) internal {
-    if (checkChipData.chipAddress != address(0) && checkChipData.batteryLevel > 0) {
-      // Forward any ether sent with the transaction to the hook
+    if (targetChipData.chipAddress != address(0) && targetChipData.batteryLevel > 0) {
       // Don't safe call here as we want to revert if the chip doesn't allow the transfer
-      bool transferAllowed = IChestChip(checkChipData.chipAddress).onPipeTransfer{ value: _msgValue() }(
-        ChipOnPipeTransferData({
-          playerEntityId: bytes32(0), // this is a transfer initiated by a chest, not a player
-          targetEntityId: isDeposit ? dstEntityId : srcEntityId,
-          callerEntityId: isDeposit ? srcEntityId : dstEntityId,
-          isDeposit: isDeposit,
-          path: path,
-          transferData: TransferData({
-            objectTypeId: transferObjectTypeId,
-            numToTransfer: numToTransfer,
-            toolEntityIds: toolEntityIds
-          }),
-          extraData: extraData
-        })
+      bool transferAllowed = IChestChip(targetChipData.chipAddress).onPipeTransfer(
+        chipOnPipeTransferData
       );
       require(transferAllowed, "PipeTransferSystem: smart item not authorized by chip to make this transfer");
     }
@@ -64,7 +44,7 @@ contract PipeTransferSystem is System {
     bytes32 callerEntityId,
     bool isDeposit,
     PipeMultiTransferData[] memory pipesTransferData
-  ) public payable {
+  ) public {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
     uint8 callerObjectTypeId = ObjectType._get(callerEntityId);
     require(isStorageContainer(callerObjectTypeId), "PipeTransferSystem: source object type is not a chest");
@@ -185,21 +165,17 @@ contract PipeTransferSystem is System {
         }
       }
 
-      // TODO: requireAllowed on target
-    }
-
-    // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    if (ctx.dstObjectTypeId != ForceFieldObjectID) {
       requireAllowed(
-        ctx.checkChipData,
-        ctx.isDeposit,
-        ctx.baseSrcEntityId,
-        ctx.baseDstEntityId,
-        path,
-        transferObjectTypeId,
-        numToTransfer,
-        new bytes32[](0),
-        extraData
+        targetChipData,
+        ChipOnPipeTransferData({
+          playerEntityId: bytes32(0), // this is a transfer initiated by a chest, not a player
+          targetEntityId: pipeTransferData.targetEntityId,
+          callerEntityId: callerEntityId,
+          isDeposit: isDeposit,
+          path: pipeTransferData.path,
+          transferData: pipeTransferData.transferData,
+          extraData: pipeTransferData.extraData
+        })
       );
     }
   }
