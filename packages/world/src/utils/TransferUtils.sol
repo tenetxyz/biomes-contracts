@@ -28,6 +28,7 @@ struct TransferCommonContext {
   bytes32 playerEntityId;
   bytes32 chestEntityId;
   VoxelCoord chestCoord;
+  uint8 chestObjectTypeId;
   uint8 dstObjectTypeId;
   ChipData checkChipData;
   bool isDeposit;
@@ -88,7 +89,8 @@ function transferCommon(bytes32 srcEntityId, bytes32 dstEntityId) returns (Trans
       chestCoord: chestCoord,
       dstObjectTypeId: dstObjectTypeId,
       checkChipData: checkChipData,
-      isDeposit: isDeposit
+      isDeposit: isDeposit,
+      chestObjectTypeId: isDeposit ? dstObjectTypeId : srcObjectTypeId
     });
 }
 
@@ -209,7 +211,7 @@ function pipeTransferCommon(
       uint8 toolObjectTypeId = transferInventoryTool(
         isDeposit ? callerEntityId : pipeTransferData.targetEntityId,
         isDeposit ? pipeTransferData.targetEntityId : callerEntityId,
-        pipeTransferData.transferData.objectTypeId,
+        isDeposit ? targetObjectTypeId : callerObjectTypeId,
         pipeTransferData.transferData.toolEntityIds[i]
       );
       require(
