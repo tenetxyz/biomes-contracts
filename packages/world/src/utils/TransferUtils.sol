@@ -144,7 +144,7 @@ function pipeTransferCommon(
     }
   }
 
-  requireValidPath(callerCoord, targetCoord, pipeTransferData.path);
+  requireValidPath(isDeposit ? callerCoord : targetCoord, isDeposit ? targetCoord : callerCoord, pipeTransferData.path);
 
   if (pipeTransferData.transferData.toolEntityIds.length == 0) {
     require(

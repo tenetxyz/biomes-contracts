@@ -1125,10 +1125,10 @@ contract PipeTest is MudTest, GasReporter {
 
     vm.expectRevert("PipeTransferSystem: smart item not authorized by chip to make this transfer");
     testOverflowChestChip.transferToChest(
-      chest1EntityId,
-      true,
+      chest2EntityId,
+      false,
       PipeTransferData({
-        targetEntityId: chest2EntityId,
+        targetEntityId: chest1EntityId,
         path: path,
         transferData: TransferData({
           objectTypeId: inputObjectTypeId1,
@@ -1323,7 +1323,7 @@ contract PipeTest is MudTest, GasReporter {
     VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
-    vm.expectRevert("PipeTransferSystem: caller is not the chip of the source or destination smart item");
+    vm.expectRevert("PipeTransferSystem: caller is not the chip of the smart item");
     world.pipeTransfer(
       chest1EntityId,
       true,
@@ -1340,7 +1340,7 @@ contract PipeTest is MudTest, GasReporter {
     );
 
     path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
-    vm.expectRevert("PipeTransferSystem: caller is not the chip of the source or destination smart item");
+    vm.expectRevert("PipeTransferSystem: caller is not the chip of the smart item");
     world.pipeTransfer(
       chest2EntityId,
       true,
@@ -1564,10 +1564,10 @@ contract PipeTest is MudTest, GasReporter {
 
     vm.expectRevert("PipeTransferSystem: caller has no charge");
     testChestChip.transferToChest(
-      chest2EntityId,
-      true,
+      chest1EntityId,
+      false,
       PipeTransferData({
-        targetEntityId: chest1EntityId,
+        targetEntityId: chest2EntityId,
         path: path,
         transferData: TransferData({
           objectTypeId: inputObjectTypeId1,
@@ -1760,7 +1760,7 @@ contract PipeTest is MudTest, GasReporter {
     VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
-    vm.expectRevert("PipeTransferSystem: destination object type is not valid");
+    vm.expectRevert("PipeTransferSystem: target object type is not valid");
     testChestChip.transferToChest(
       chest1EntityId,
       true,

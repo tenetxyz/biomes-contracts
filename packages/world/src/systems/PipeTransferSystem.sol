@@ -10,6 +10,7 @@ import { Position } from "../codegen/tables/Position.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 import { IN_MAINTENANCE } from "../Constants.sol";
 import { ChipOnPipeTransferData, PipeTransferData } from "../Types.sol";
+import { ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { isStorageContainer } from "../utils/ObjectTypeUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
@@ -40,17 +41,19 @@ contract PipeTransferSystem is System {
       pipeTransferData
     );
 
-    requirePipeTransferAllowed(
-      pipeCtx.targetChipData,
-      ChipOnPipeTransferData({
-        playerEntityId: bytes32(0), // this is a transfer initiated by a chest, not a player
-        targetEntityId: pipeTransferData.targetEntityId,
-        callerEntityId: callerEntityId,
-        isDeposit: isDeposit,
-        path: pipeTransferData.path,
-        transferData: pipeTransferData.transferData,
-        extraData: pipeTransferData.extraData
-      })
-    );
+    if (pipeCtx.targetObjectTypeId != ForceFieldObjectID) {
+      requirePipeTransferAllowed(
+        pipeCtx.targetChipData,
+        ChipOnPipeTransferData({
+          playerEntityId: bytes32(0), // this is a transfer initiated by a chest, not a player
+          targetEntityId: pipeTransferData.targetEntityId,
+          callerEntityId: callerEntityId,
+          isDeposit: isDeposit,
+          path: pipeTransferData.path,
+          transferData: pipeTransferData.transferData,
+          extraData: pipeTransferData.extraData
+        })
+      );
+    }
   }
 }
