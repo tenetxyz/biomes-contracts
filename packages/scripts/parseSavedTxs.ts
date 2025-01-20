@@ -232,6 +232,7 @@ async function main() {
     totalTransactions,
     totalContractCreations,
     totalNonWorldTxs,
+    totalUnknownTxs,
 
     aggregatedFees: finalResults,
     txCounts: Object.fromEntries(finalTxCounts),
