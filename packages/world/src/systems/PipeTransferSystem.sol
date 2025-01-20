@@ -15,10 +15,29 @@ import { positionDataToVoxelCoord } from "../Utils.sol";
 import { isStorageContainer } from "../utils/ObjectTypeUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { requirePipeTransferAllowed, pipeTransferCommon, PipeTransferCommonContext } from "../utils/TransferUtils.sol";
+import { pipeTransferCommon, PipeTransferCommonContext } from "../utils/TransferUtils.sol";
+
+import { IChestChip } from "../prototypes/IChestChip.sol";
 
 contract PipeTransferSystem is System {
-  function pipeTransfer(bytes32 callerEntityId, bool isDeposit, PipeTransferData memory pipeTransferData) public {
+  function requireAllowed(
+    ChipData memory targetChipData,
+    ChipOnPipeTransferData memory chipOnPipeTransferData
+  ) internal {
+    if (targetChipData.chipAddress != address(0) && targetChipData.batteryLevel > 0) {
+      // Don't safe call here as we want to revert if the chip doesn't allow the transfer
+      bool transferAllowed = IChestChip(targetChipData.chipAddress).onPipeTransfer{ value: _msgValue() }(
+        chipOnPipeTransferData
+      );
+      require(transferAllowed, "PipeTransferSystem: smart item not authorized by chip to make this transfer");
+    }
+  }
+
+  function pipeTransfer(
+    bytes32 callerEntityId,
+    bool isDeposit,
+    PipeTransferData memory pipeTransferData
+  ) public payable {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
     uint8 callerObjectTypeId = ObjectType._get(callerEntityId);
     require(isStorageContainer(callerObjectTypeId), "PipeTransferSystem: source object type is not a chest");
@@ -42,7 +61,7 @@ contract PipeTransferSystem is System {
     );
 
     if (pipeCtx.targetObjectTypeId != ForceFieldObjectID) {
-      requirePipeTransferAllowed(
+      requireAllowed(
         pipeCtx.targetChipData,
         ChipOnPipeTransferData({
           playerEntityId: bytes32(0), // this is a transfer initiated by a chest, not a player

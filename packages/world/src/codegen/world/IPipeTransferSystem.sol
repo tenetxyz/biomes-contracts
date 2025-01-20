@@ -11,5 +11,9 @@ import { PipeTransferData } from "./../../Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IPipeTransferSystem {
-  function pipeTransfer(bytes32 callerEntityId, bool isDeposit, PipeTransferData memory pipeTransferData) external;
+  function pipeTransfer(
+    bytes32 callerEntityId,
+    bool isDeposit,
+    PipeTransferData memory pipeTransferData
+  ) external payable;
 }

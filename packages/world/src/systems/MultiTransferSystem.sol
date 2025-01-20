@@ -35,7 +35,7 @@ contract MultiTransferSystem is System {
     uint256 initialGas = gasleft();
     TransferCommonContext memory ctx = transferCommon(srcEntityId, dstEntityId);
     uint8 transferObjectTypeId = transferData.objectTypeId;
-    uint256 totalTransfer = transferData.numToTransfer;
+    uint16 totalTransfer = transferData.numToTransfer;
     if (transferData.toolEntityIds.length == 0) {
       transferInventoryNonTool(
         ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
@@ -46,6 +46,7 @@ contract MultiTransferSystem is System {
       );
     } else {
       require(transferData.toolEntityIds.length > 0, "MultiTransferSystem: must transfer at least one tool");
+      require(transferData.toolEntityIds.length < type(uint16).max, "MultiTransferSystem: too many tools to transfer");
       require(
         uint16(transferData.toolEntityIds.length) == transferData.numToTransfer,
         "MultiTransferSystem: invalid tool count"

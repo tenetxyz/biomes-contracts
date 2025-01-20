@@ -23,7 +23,6 @@ import { requireValidPlayer } from "./PlayerUtils.sol";
 import { transferInventoryTool, transferInventoryNonTool, addToInventoryCount, removeFromInventoryCount } from "./InventoryUtils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
-import { IChestChip } from "../prototypes/IChestChip.sol";
 
 struct TransferCommonContext {
   bytes32 playerEntityId;
@@ -91,17 +90,6 @@ function transferCommon(bytes32 srcEntityId, bytes32 dstEntityId) returns (Trans
       checkChipData: checkChipData,
       isDeposit: isDeposit
     });
-}
-
-function requirePipeTransferAllowed(
-  ChipData memory targetChipData,
-  ChipOnPipeTransferData memory chipOnPipeTransferData
-) {
-  if (targetChipData.chipAddress != address(0) && targetChipData.batteryLevel > 0) {
-    // Don't safe call here as we want to revert if the chip doesn't allow the transfer
-    bool transferAllowed = IChestChip(targetChipData.chipAddress).onPipeTransfer(chipOnPipeTransferData);
-    require(transferAllowed, "PipeTransferSystem: smart item not authorized by chip to make this transfer");
-  }
 }
 
 function requireValidPath(
