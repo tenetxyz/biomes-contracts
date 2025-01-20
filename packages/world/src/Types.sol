@@ -84,7 +84,7 @@ struct PickupData {
 
 struct TransferData {
   uint8 objectTypeId;
-  uint256 numToTransfer;
+  uint16 numToTransfer;
   bytes32[] toolEntityIds;
 }
 

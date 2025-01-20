@@ -10,14 +10,20 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
-import { PlayerObjectID, PipeObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord } from "../Utils.sol";
-import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, IN_MAINTENANCE } from "../Constants.sol";
+import { PlayerObjectID, PipeObjectID, ForceFieldObjectID, ChipBatteryObjectID } from "../ObjectTypeIds.sol";
+import { positionDataToVoxelCoord, safeCallChip } from "../Utils.sol";
+import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, CHARGE_PER_BATTERY } from "../Constants.sol";
+import { ChipOnPipeTransferData, PipeTransferData } from "../Types.sol";
 import { updateChipBatteryLevel } from "./ChipUtils.sol";
 import { getForceField } from "./ForceFieldUtils.sol";
 import { isStorageContainer } from "./ObjectTypeUtils.sol";
 import { requireValidPlayer } from "./PlayerUtils.sol";
+import { transferInventoryTool, transferInventoryNonTool, addToInventoryCount, removeFromInventoryCount } from "./InventoryUtils.sol";
+
+import { IChip } from "../prototypes/IChip.sol";
+import { IChestChip } from "../prototypes/IChestChip.sol";
 
 struct TransferCommonContext {
   bytes32 playerEntityId;
@@ -29,12 +35,9 @@ struct TransferCommonContext {
 }
 
 struct PipeTransferCommonContext {
-  bytes32 baseSrcEntityId;
-  bytes32 baseDstEntityId;
-  uint8 srcObjectTypeId;
-  uint8 dstObjectTypeId;
-  ChipData checkChipData;
-  bool isDeposit;
+  VoxelCoord targetCoord;
+  ChipData targetChipData;
+  uint8 targetObjectTypeId;
 }
 
 function transferCommon(bytes32 srcEntityId, bytes32 dstEntityId) returns (TransferCommonContext memory) {
@@ -90,6 +93,17 @@ function transferCommon(bytes32 srcEntityId, bytes32 dstEntityId) returns (Trans
     });
 }
 
+function requirePipeTransferAllowed(
+  ChipData memory targetChipData,
+  ChipOnPipeTransferData memory chipOnPipeTransferData
+) {
+  if (targetChipData.chipAddress != address(0) && targetChipData.batteryLevel > 0) {
+    // Don't safe call here as we want to revert if the chip doesn't allow the transfer
+    bool transferAllowed = IChestChip(targetChipData.chipAddress).onPipeTransfer(chipOnPipeTransferData);
+    require(transferAllowed, "PipeTransferSystem: smart item not authorized by chip to make this transfer");
+  }
+}
+
 function requireValidPath(
   VoxelCoord memory srcCoord,
   VoxelCoord memory dstCoord,
@@ -112,76 +126,115 @@ function requireValidPath(
 }
 
 function pipeTransferCommon(
-  bytes32 srcEntityId,
-  bytes32 dstEntityId,
-  VoxelCoordDirectionVonNeumann[] memory path
+  bytes32 callerEntityId,
+  uint8 callerObjectTypeId,
+  VoxelCoord memory callerCoord,
+  bool isDeposit,
+  PipeTransferData memory pipeTransferData
 ) returns (PipeTransferCommonContext memory) {
-  require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
-
-  bytes32 baseSrcEntityId = BaseEntity._get(srcEntityId);
-  baseSrcEntityId = baseSrcEntityId == bytes32(0) ? srcEntityId : baseSrcEntityId;
-
-  bytes32 baseDstEntityId = BaseEntity._get(dstEntityId);
-  baseDstEntityId = baseDstEntityId == bytes32(0) ? dstEntityId : baseDstEntityId;
-
-  require(baseDstEntityId != baseSrcEntityId, "PipeTransferSystem: cannot transfer to self");
-
-  uint8 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
-  uint8 dstObjectTypeId = ObjectType._get(baseDstEntityId);
-  require(isStorageContainer(srcObjectTypeId), "PipeTransferSystem: source object type is not a chest");
-
-  VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(baseSrcEntityId));
-  VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(baseDstEntityId));
-  requireValidPath(srcCoord, dstCoord, path);
-
-  ChipData memory checkChipData;
-  bool isDeposit;
-  {
-    ChipData memory srcChipData = updateChipBatteryLevel(baseSrcEntityId);
-    ChipData memory dstChipData = updateChipBatteryLevel(baseDstEntityId);
-
-    uint256 srcBatteryLevel = srcChipData.batteryLevel;
-    uint256 dstBatteryLevel = dstChipData.batteryLevel;
-
-    if (srcObjectTypeId != ForceFieldObjectID) {
-      bytes32 srcForceFieldEntityId = getForceField(srcCoord);
-      if (srcForceFieldEntityId != bytes32(0)) {
-        ChipData memory srcForceFieldChipData = updateChipBatteryLevel(srcForceFieldEntityId);
-        srcBatteryLevel += srcForceFieldChipData.batteryLevel;
-      }
+  require(pipeTransferData.targetEntityId != callerEntityId, "PipeTransferSystem: cannot transfer to self");
+  VoxelCoord memory targetCoord = positionDataToVoxelCoord(Position._get(pipeTransferData.targetEntityId));
+  ChipData memory targetChipData = updateChipBatteryLevel(pipeTransferData.targetEntityId);
+  uint8 targetObjectTypeId = ObjectType._get(pipeTransferData.targetEntityId);
+  if (targetObjectTypeId != ForceFieldObjectID) {
+    bytes32 targetForceFieldEntityId = getForceField(targetCoord);
+    if (targetForceFieldEntityId != bytes32(0)) {
+      ChipData memory targetForceFieldChipData = updateChipBatteryLevel(targetForceFieldEntityId);
+      targetChipData.batteryLevel += targetForceFieldChipData.batteryLevel;
     }
+  }
 
-    if (dstObjectTypeId != ForceFieldObjectID) {
-      bytes32 dstForceFieldEntityId = getForceField(dstCoord);
-      if (dstForceFieldEntityId != bytes32(0)) {
-        ChipData memory dstForceFieldChipData = updateChipBatteryLevel(dstForceFieldEntityId);
-        dstBatteryLevel += dstForceFieldChipData.batteryLevel;
+  requireValidPath(callerCoord, targetCoord, pipeTransferData.path);
+
+  if (pipeTransferData.transferData.toolEntityIds.length == 0) {
+    require(
+      !ObjectTypeMetadata._getIsTool(pipeTransferData.transferData.objectTypeId),
+      "PipeTransferSystem: object type is not a block"
+    );
+    require(pipeTransferData.transferData.numToTransfer > 0, "PipeTransferSystem: amount must be greater than 0");
+
+    if (isDeposit) {
+      removeFromInventoryCount(
+        callerEntityId,
+        pipeTransferData.transferData.objectTypeId,
+        pipeTransferData.transferData.numToTransfer
+      );
+
+      if (isStorageContainer(targetObjectTypeId)) {
+        addToInventoryCount(
+          pipeTransferData.targetEntityId,
+          targetObjectTypeId,
+          pipeTransferData.transferData.objectTypeId,
+          pipeTransferData.transferData.numToTransfer
+        );
+      } else if (targetObjectTypeId == ForceFieldObjectID) {
+        require(
+          pipeTransferData.transferData.objectTypeId == ChipBatteryObjectID,
+          "PipeTransferSystem: force field can only accept chip batteries"
+        );
+        uint256 newBatteryLevel = targetChipData.batteryLevel +
+          (uint256(pipeTransferData.transferData.numToTransfer) * CHARGE_PER_BATTERY);
+
+        Chip._setBatteryLevel(pipeTransferData.targetEntityId, newBatteryLevel);
+        Chip._setLastUpdatedTime(pipeTransferData.targetEntityId, block.timestamp);
+
+        safeCallChip(
+          targetChipData.chipAddress,
+          abi.encodeCall(
+            IChip.onPowered,
+            (callerEntityId, pipeTransferData.targetEntityId, pipeTransferData.transferData.numToTransfer)
+          )
+        );
+      } else {
+        revert("PipeTransferSystem: target object type is not valid");
       }
-    }
-
-    address caller = WorldContextConsumerLib._msgSender();
-    if (srcChipData.chipAddress == caller) {
-      isDeposit = true;
-      require(srcBatteryLevel > 0, "PipeTransferSystem: caller has no charge");
-      checkChipData = dstChipData;
-      checkChipData.batteryLevel = dstBatteryLevel;
-    } else if (dstChipData.chipAddress == caller) {
-      isDeposit = false;
-      require(dstBatteryLevel > 0, "PipeTransferSystem: caller has no charge");
-      checkChipData = srcChipData;
-      checkChipData.batteryLevel = srcBatteryLevel;
     } else {
-      revert("PipeTransferSystem: caller is not the chip of the source or destination smart item");
+      addToInventoryCount(
+        callerEntityId,
+        callerObjectTypeId,
+        pipeTransferData.transferData.objectTypeId,
+        pipeTransferData.transferData.numToTransfer
+      );
+
+      if (isStorageContainer(targetObjectTypeId)) {
+        removeFromInventoryCount(
+          pipeTransferData.targetEntityId,
+          pipeTransferData.transferData.objectTypeId,
+          pipeTransferData.transferData.numToTransfer
+        );
+      } else {
+        revert("PipeTransferSystem: target object type is not valid");
+      }
+    }
+  } else {
+    require(pipeTransferData.transferData.toolEntityIds.length > 0, "PipeTransferSystem: no tools to transfer");
+    require(
+      pipeTransferData.transferData.toolEntityIds.length < type(uint16).max,
+      "PipeTransferSystem: too many tools to transfer"
+    );
+    require(
+      pipeTransferData.transferData.toolEntityIds.length == pipeTransferData.transferData.numToTransfer,
+      "PipeTransferSystem: number of tools to transfer must match number of tools"
+    );
+
+    for (uint i = 0; i < pipeTransferData.transferData.toolEntityIds.length; i++) {
+      uint8 toolObjectTypeId = transferInventoryTool(
+        isDeposit ? callerEntityId : pipeTransferData.targetEntityId,
+        isDeposit ? pipeTransferData.targetEntityId : callerEntityId,
+        pipeTransferData.transferData.objectTypeId,
+        pipeTransferData.transferData.toolEntityIds[i]
+      );
+      require(
+        toolObjectTypeId == pipeTransferData.transferData.objectTypeId,
+        "PipeTransferSystem: all tools must be of the same type"
+      );
     }
   }
 
   return
     PipeTransferCommonContext({
-      baseSrcEntityId: baseSrcEntityId,
-      baseDstEntityId: baseDstEntityId,
-      srcObjectTypeId: srcObjectTypeId,
-      dstObjectTypeId: dstObjectTypeId,
-      checkChipData: checkChipData,
-      isDeposit: isDeposit
+      targetCoord: targetCoord,
+      targetChipData: targetChipData,
+      targetObjectTypeId: targetObjectTypeId
     });
 }

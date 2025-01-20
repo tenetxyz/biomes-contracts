@@ -39,7 +39,7 @@ import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, Be
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
-import { TransferData, ChipOnTransferData, ChipOnPipeTransferData } from "../src/Types.sol";
+import { TransferData, ChipOnTransferData, ChipOnPipeTransferData, PipeTransferData } from "../src/Types.sol";
 
 import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
 import { IChestChip } from "../src/prototypes/IChestChip.sol";
@@ -116,33 +116,10 @@ contract TestChestChip is IChestChip {
     StoreSwitch.setStoreAddress(_biomeWorldAddress);
   }
 
-  function transferToChest(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    VoxelCoordDirectionVonNeumann[] memory path,
-    uint8 transferObjectTypeId,
-    uint16 numToTransfer
-  ) external {
+  function transferToChest(bytes32 callerEntityId, bool isDeposit, PipeTransferData memory pipeTransferData) external {
     bytes32 playerEntityId = Player.get(msg.sender);
     require(playerEntityId == ownerEntityId, "Not the owner");
-    IWorld(WorldContextConsumerLib._world()).pipeTransfer(
-      srcEntityId,
-      dstEntityId,
-      path,
-      transferObjectTypeId,
-      numToTransfer
-    );
-  }
-
-  function transferToolToChest(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    VoxelCoordDirectionVonNeumann[] memory path,
-    bytes32 toolEntityId
-  ) external {
-    bytes32 playerEntityId = Player.get(msg.sender);
-    require(playerEntityId == ownerEntityId, "Not the owner");
-    IWorld(WorldContextConsumerLib._world()).pipeTransferTool(srcEntityId, dstEntityId, path, toolEntityId);
+    IWorld(WorldContextConsumerLib._world()).pipeTransfer(callerEntityId, isDeposit, pipeTransferData);
   }
 
   function onAttached(
@@ -192,33 +169,10 @@ contract TestOverflowChestChip is IChestChip {
     StoreSwitch.setStoreAddress(_biomeWorldAddress);
   }
 
-  function transferToChest(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    VoxelCoordDirectionVonNeumann[] memory path,
-    uint8 transferObjectTypeId,
-    uint16 numToTransfer
-  ) external {
+  function transferToChest(bytes32 callerEntityId, bool isDeposit, PipeTransferData memory pipeTransferData) external {
     bytes32 playerEntityId = Player.get(msg.sender);
     require(playerEntityId == ownerEntityId, "Not the owner");
-    IWorld(WorldContextConsumerLib._world()).pipeTransfer(
-      srcEntityId,
-      dstEntityId,
-      path,
-      transferObjectTypeId,
-      numToTransfer
-    );
-  }
-
-  function transferToolToChest(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    VoxelCoordDirectionVonNeumann[] memory path,
-    bytes32 toolEntityId
-  ) external {
-    bytes32 playerEntityId = Player.get(msg.sender);
-    require(playerEntityId == ownerEntityId, "Not the owner");
-    IWorld(WorldContextConsumerLib._world()).pipeTransferTool(srcEntityId, dstEntityId, path, toolEntityId);
+    IWorld(WorldContextConsumerLib._world()).pipeTransfer(callerEntityId, isDeposit, pipeTransferData);
   }
 
   function setApprovedPipeTransferEntityId(bytes32 entityId) external {
@@ -370,17 +324,19 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
     bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    world.build(PipeObjectID, pipeCoord);
     bytes32 chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
@@ -405,7 +361,20 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     startGasReport("pipe transfer from smart chest to smart chest: 1 pipe, 1 object");
-    testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
     endGasReport();
 
     assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
@@ -415,7 +384,20 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
 
     startGasReport("pipe transfer from smart chest to smart chest: 1 pipe, 1 object");
-    testChestChip.transferToChest(chest2EntityId, chest1EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      false,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
     endGasReport();
     assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
     assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 1, "Input object not added to inventory");
@@ -465,33 +447,37 @@ contract PipeTest is MudTest, GasReporter {
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId1), "Inventory objects not set");
 
-    VoxelCoord memory chest1Coord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
-    VoxelCoord memory pipeCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
-    VoxelCoord memory pipeCoord2 = VoxelCoord(spawnCoord.x + 3, spawnCoord.y, spawnCoord.z);
-    VoxelCoord memory pipeCoord3 = VoxelCoord(spawnCoord.x + 4, spawnCoord.y, spawnCoord.z);
-    VoxelCoord memory chest2Coord = VoxelCoord(spawnCoord.x + 5, spawnCoord.y, spawnCoord.z);
-    adminClearCoord(chest1Coord);
-    adminClearCoord(pipeCoord);
-    adminClearCoord(pipeCoord2);
-    adminClearCoord(pipeCoord3);
-    adminClearCoord(chest2Coord);
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
+    bytes32 chest1EntityId;
+    bytes32 chest2EntityId;
+    {
+      VoxelCoord memory chest1Coord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+      VoxelCoord memory pipeCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
+      VoxelCoord memory pipeCoord2 = VoxelCoord(spawnCoord.x + 3, spawnCoord.y, spawnCoord.z);
+      VoxelCoord memory pipeCoord3 = VoxelCoord(spawnCoord.x + 4, spawnCoord.y, spawnCoord.z);
+      VoxelCoord memory chest2Coord = VoxelCoord(spawnCoord.x + 5, spawnCoord.y, spawnCoord.z);
+      adminClearCoord(chest1Coord);
+      adminClearCoord(pipeCoord);
+      adminClearCoord(pipeCoord2);
+      adminClearCoord(pipeCoord3);
+      adminClearCoord(chest2Coord);
+      vm.stopPrank();
+      vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
 
-    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
+      assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
-    bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    world.build(PipeObjectID, pipeCoord);
-    world.build(PipeObjectID, pipeCoord2);
-    world.build(PipeObjectID, pipeCoord3);
-    bytes32 chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
+      chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
+      world.build(PipeObjectID, pipeCoord);
+      world.build(PipeObjectID, pipeCoord2);
+      world.build(PipeObjectID, pipeCoord3);
+      chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
+    }
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
     assertTrue(Chip.getChipAddress(chest2EntityId) == address(0), "Chip set");
@@ -517,7 +503,20 @@ contract PipeTest is MudTest, GasReporter {
     path[2] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     startGasReport("pipe transfer from smart chest to smart chest: 3 pipes, 1 object");
-    testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
     endGasReport();
 
     assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
@@ -529,7 +528,20 @@ contract PipeTest is MudTest, GasReporter {
     path[2] = VoxelCoordDirectionVonNeumann.NegativeX;
 
     startGasReport("pipe transfer from smart chest to smart chest: 3 pipes, 1 object");
-    testChestChip.transferToChest(chest2EntityId, chest1EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      false,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
     endGasReport();
 
     assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
@@ -592,17 +604,19 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
     bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    world.build(PipeObjectID, pipeCoord);
     bytes32 chest2EntityId = world.build(ChestObjectID, chest2Coord);
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
@@ -623,7 +637,20 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     startGasReport("pipe transfer from smart chest to chest: 1 pipe, 1 object");
-    testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
     endGasReport();
 
     assertTrue(InventoryCount.get(chest1EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
@@ -633,7 +660,20 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
 
     startGasReport("pipe transfer from chest to smart chest: 1 pipe, 1 object");
-    testChestChip.transferToChest(chest2EntityId, chest1EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      false,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
     endGasReport();
 
     assertTrue(InventoryCount.get(chest2EntityId, inputObjectTypeId1) == 0, "Input object not removed from inventory");
@@ -691,17 +731,20 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+    bytes32 forceFieldEntityId;
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y + 1, spawnCoord.z);
+      forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
     bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    world.build(PipeObjectID, pipeCoord);
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
 
@@ -724,7 +767,20 @@ contract PipeTest is MudTest, GasReporter {
     uint256 chargeBefore = Chip.getBatteryLevel(forceFieldEntityId);
 
     startGasReport("pipe transfer from smart chest to force field: 1 pipe, 3 objects");
-    testChestChip.transferToChest(chest1EntityId, forceFieldEntityId, path, ChipBatteryObjectID, 3);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: forceFieldEntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: ChipBatteryObjectID,
+          numToTransfer: 3,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
     endGasReport();
 
     assertTrue(InventoryCount.get(chest1EntityId, ChipBatteryObjectID) == 0, "Input object not removed from inventory");
@@ -759,8 +815,7 @@ contract PipeTest is MudTest, GasReporter {
     InventoryTool.set(newInventoryId, playerEntityId);
     ReverseInventoryTool.push(playerEntityId, newInventoryId);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
-    uint24 durability = 18750;
-    ItemMetadata.set(newInventoryId, durability);
+    ItemMetadata.set(newInventoryId, 18750);
 
     assertTrue(InventoryCount.get(playerEntityId, ForceFieldObjectID) == 1, "Input object not added to inventory");
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 3, "Input object not added to inventory");
@@ -789,12 +844,14 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
@@ -824,7 +881,22 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     startGasReport("pipe transfer from smart chest to smart chest: 1 pipe, 1 tool");
-    testChestChip.transferToolToChest(chest1EntityId, chest2EntityId, path, newInventoryId);
+    bytes32[] memory toolEntityIds = new bytes32[](1);
+    toolEntityIds[0] = newInventoryId;
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: WoodenPickObjectID,
+          numToTransfer: 1,
+          toolEntityIds: toolEntityIds
+        }),
+        extraData: new bytes(0)
+      })
+    );
     endGasReport();
 
     assertTrue(InventoryCount.get(chest1EntityId, WoodenPickObjectID) == 0, "Input object not removed from inventory");
@@ -834,7 +906,20 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
 
     startGasReport("pipe transfer from smart chest to smart chest: 1 pipe, 1 tool");
-    testChestChip.transferToolToChest(chest2EntityId, chest1EntityId, path, newInventoryId);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      false,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: WoodenPickObjectID,
+          numToTransfer: 1,
+          toolEntityIds: toolEntityIds
+        }),
+        extraData: new bytes(0)
+      })
+    );
     endGasReport();
 
     assertTrue(InventoryCount.get(chest2EntityId, WoodenPickObjectID) == 0, "Input object not removed from inventory");
@@ -903,12 +988,14 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
@@ -934,7 +1021,22 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     vm.expectRevert("Entity does not own inventory item");
-    testChestChip.transferToolToChest(chest1EntityId, chest2EntityId, path, newInventoryId);
+    bytes32[] memory toolEntityIds = new bytes32[](1);
+    toolEntityIds[0] = newInventoryId;
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: WoodenPickObjectID,
+          numToTransfer: 1,
+          toolEntityIds: toolEntityIds
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     vm.stopPrank();
   }
@@ -985,17 +1087,19 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
     bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    world.build(PipeObjectID, pipeCoord);
     bytes32 chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
@@ -1020,7 +1124,20 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     vm.expectRevert("PipeTransferSystem: smart item not authorized by chip to make this transfer");
-    testOverflowChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    testOverflowChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     vm.stopPrank();
   }
@@ -1062,24 +1179,28 @@ contract PipeTest is MudTest, GasReporter {
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId, inputObjectTypeId1), "Inventory objects not set");
     assertTrue(testInventoryObjectsHasObjectType(playerEntityId2, inputObjectTypeId1), "Inventory objects not set");
 
-    VoxelCoord memory chest1Coord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
-    VoxelCoord memory pipeCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
-    adminClearCoord(chest1Coord);
-    adminClearCoord(pipeCoord);
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
+    bytes32 chest1EntityId;
+    bytes32 forceFieldEntityId;
+    {
+      VoxelCoord memory chest1Coord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+      VoxelCoord memory pipeCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y, spawnCoord.z);
+      adminClearCoord(chest1Coord);
+      adminClearCoord(pipeCoord);
+      vm.stopPrank();
+      vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 2, spawnCoord.y + 1, spawnCoord.z);
+      forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
 
-    assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
+      assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
-    bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+      chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
+      world.build(PipeObjectID, pipeCoord);
+    }
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
 
@@ -1102,7 +1223,20 @@ contract PipeTest is MudTest, GasReporter {
     VoxelCoordDirectionVonNeumann[] memory path = new VoxelCoordDirectionVonNeumann[](1);
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
     vm.expectRevert("PipeTransferSystem: force field can only accept chip batteries");
-    testChestChip.transferToChest(chest1EntityId, forceFieldEntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: forceFieldEntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     vm.stopPrank();
   }
@@ -1153,17 +1287,19 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
     bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    world.build(PipeObjectID, pipeCoord);
     bytes32 chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
@@ -1188,11 +1324,37 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     vm.expectRevert("PipeTransferSystem: caller is not the chip of the source or destination smart item");
-    world.pipeTransfer(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    world.pipeTransfer(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
     vm.expectRevert("PipeTransferSystem: caller is not the chip of the source or destination smart item");
-    world.pipeTransfer(chest2EntityId, chest1EntityId, path, inputObjectTypeId1, 1);
+    world.pipeTransfer(
+      chest2EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest1EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     vm.stopPrank();
   }
@@ -1243,17 +1405,18 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
-
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
     bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    world.build(PipeObjectID, pipeCoord);
     bytes32 otherEntityId = world.build(inputObjectTypeId1, chest2Coord);
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
@@ -1274,7 +1437,20 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
 
     vm.expectRevert("PipeTransferSystem: source object type is not a chest");
-    testChestChip.transferToChest(otherEntityId, chest1EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      otherEntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest1EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     vm.stopPrank();
   }
@@ -1328,17 +1504,19 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
-
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+    bytes32 forceFieldEntityId;
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
     bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    world.build(PipeObjectID, pipeCoord);
     bytes32 chest2EntityId = world.build(ChestObjectID, chest2Coord);
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
@@ -1366,13 +1544,39 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     vm.expectRevert("PipeTransferSystem: caller has no charge");
-    testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     // transfer back to chest1
     path[0] = VoxelCoordDirectionVonNeumann.NegativeX;
 
     vm.expectRevert("PipeTransferSystem: caller has no charge");
-    testChestChip.transferToChest(chest2EntityId, chest1EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest2EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest1EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     vm.stopPrank();
   }
@@ -1423,17 +1627,19 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
     bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    world.build(PipeObjectID, pipeCoord);
     bytes32 chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
@@ -1458,7 +1664,20 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     vm.expectRevert("PipeTransferSystem: cannot transfer to self");
-    testChestChip.transferToChest(chest1EntityId, chest1EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest1EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     vm.stopPrank();
   }
@@ -1509,17 +1728,19 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
     bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    world.build(PipeObjectID, pipeCoord);
     bytes32 otherEntityId = world.build(inputObjectTypeId1, chest2Coord);
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
@@ -1540,7 +1761,20 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     vm.expectRevert("PipeTransferSystem: destination object type is not valid");
-    testChestChip.transferToChest(chest1EntityId, otherEntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: otherEntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     vm.stopPrank();
   }
@@ -1646,18 +1880,51 @@ contract PipeTest is MudTest, GasReporter {
     vm.expectRevert("PipeTransferSystem: path must be greater than 0");
     testChestChip.transferToChest(
       chest1EntityId,
-      chest2EntityId,
-      new VoxelCoordDirectionVonNeumann[](0),
-      inputObjectTypeId1,
-      1
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: new VoxelCoordDirectionVonNeumann[](0),
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
     );
 
     vm.expectRevert("PipeTransferSystem: path coord is not a pipe");
-    testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     path[1] = VoxelCoordDirectionVonNeumann.PositiveY;
     vm.expectRevert("PipeTransferSystem: path coord is not in the world");
-    testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     path = new VoxelCoordDirectionVonNeumann[](4);
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
@@ -1666,7 +1933,20 @@ contract PipeTest is MudTest, GasReporter {
     path[3] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     vm.expectRevert("PipeTransferSystem: last path coord is not in von neumann distance of 1 from dstCoord");
-    testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     vm.stopPrank();
   }
@@ -1717,17 +1997,18 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
-
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
     bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    world.build(PipeObjectID, pipeCoord);
     bytes32 chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
@@ -1748,7 +2029,20 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     vm.expectRevert("Not enough objects in the inventory");
-    testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     vm.stopPrank();
   }
@@ -1799,17 +2093,19 @@ contract PipeTest is MudTest, GasReporter {
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
-    bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
-    assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
+    {
+      VoxelCoord memory forceFieldCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y + 1, spawnCoord.z);
+      bytes32 forceFieldEntityId = world.build(ForceFieldObjectID, forceFieldCoord);
+      assertTrue(Chip.getChipAddress(forceFieldEntityId) == address(0), "Chip set");
 
-    world.attachChip(forceFieldEntityId, address(testForceFieldChip));
-    world.powerChip(forceFieldEntityId, 1);
+      world.attachChip(forceFieldEntityId, address(testForceFieldChip));
+      world.powerChip(forceFieldEntityId, 1);
+    }
 
     assertTrue(InventoryCount.get(playerEntityId, ChipObjectID) == 2, "Input object not removed from inventory");
 
     bytes32 chest1EntityId = world.build(SmartChestObjectID, chest1Coord);
-    bytes32 pipeEntityId = world.build(PipeObjectID, pipeCoord);
+    world.build(PipeObjectID, pipeCoord);
     bytes32 chest2EntityId = world.build(SmartChestObjectID, chest2Coord);
 
     assertTrue(Chip.getChipAddress(chest1EntityId) == address(0), "Chip set");
@@ -1839,7 +2135,20 @@ contract PipeTest is MudTest, GasReporter {
     path[0] = VoxelCoordDirectionVonNeumann.PositiveX;
 
     vm.expectRevert("Inventory is full");
-    testChestChip.transferToChest(chest1EntityId, chest2EntityId, path, inputObjectTypeId1, 1);
+    testChestChip.transferToChest(
+      chest1EntityId,
+      true,
+      PipeTransferData({
+        targetEntityId: chest2EntityId,
+        path: path,
+        transferData: TransferData({
+          objectTypeId: inputObjectTypeId1,
+          numToTransfer: 1,
+          toolEntityIds: new bytes32[](0)
+        }),
+        extraData: new bytes(0)
+      })
+    );
 
     vm.stopPrank();
   }
