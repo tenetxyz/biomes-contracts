@@ -53,6 +53,7 @@ contract PipeTransferHelperSystem is System {
     PipeTransferData memory pipeTransferData
   ) public payable returns (PipeTransferCommonContext memory) {
     require(pipeTransferData.targetEntityId != callerEntityId, "PipeTransferSystem: cannot transfer to self");
+    require(pipeTransferData.transferData.numToTransfer > 0, "PipeTransferSystem: amount must be greater than 0");
     VoxelCoord memory targetCoord = positionDataToVoxelCoord(Position._get(pipeTransferData.targetEntityId));
     ChipData memory targetChipData = updateChipBatteryLevel(pipeTransferData.targetEntityId);
     uint8 targetObjectTypeId = ObjectType._get(pipeTransferData.targetEntityId);

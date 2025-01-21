@@ -5,6 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
@@ -12,7 +13,7 @@ import { ActionType } from "../codegen/common.sol";
 import { PlayerObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { TransferData, PipeTransferData, ChipOnTransferData, ChipOnPipeTransferData, TransferCommonContext, PipeTransferCommonContext } from "../Types.sol";
 import { callMintXP } from "../Utils.sol";
-import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
+import { transferInventoryTool, transferInventoryNonTool, removeFromInventoryCount, addToInventoryCount } from "../utils/InventoryUtils.sol";
 
 import { ITransferHelperSystem } from "../codegen/world/ITransferHelperSystem.sol";
 import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
@@ -58,15 +59,22 @@ contract MultiTransferSystem is System {
     );
     uint16 totalTransfer = transferData.numToTransfer;
     if (transferData.toolEntityIds.length == 0) {
-      transferInventoryNonTool(
-        ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
-        ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
-        ctx.dstObjectTypeId,
-        transferData.objectTypeId,
-        transferData.numToTransfer
-      );
+      if (transferData.numToTransfer > 0) {
+        // Note: we allow this because the main chest might be full/empty
+        require(!ObjectTypeMetadata._getIsTool(transferData.objectTypeId), "Object type is not a block");
+        removeFromInventoryCount(
+          ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
+          transferData.objectTypeId,
+          transferData.numToTransfer
+        );
+        addToInventoryCount(
+          ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
+          ctx.dstObjectTypeId,
+          transferData.objectTypeId,
+          transferData.numToTransfer
+        );
+      }
     } else {
-      require(transferData.toolEntityIds.length > 0, "MultiTransferSystem: must transfer at least one tool");
       require(transferData.toolEntityIds.length < type(uint16).max, "MultiTransferSystem: too many tools to transfer");
       require(
         uint16(transferData.toolEntityIds.length) == transferData.numToTransfer,
