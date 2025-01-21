@@ -60,12 +60,12 @@ function inSpawnArea(VoxelCoord memory coord) view returns (bool) {
 
 function callGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) returns (bool) {
   bytes memory callData = abi.encodeCall(IGravitySystem.runGravity, (playerEntityId, playerCoord));
-  bytes memory returnData = callInternalSystem(callData);
+  bytes memory returnData = callInternalSystem(callData, 0);
   return abi.decode(returnData, (bool));
 }
 
 function callMintXP(bytes32 playerEntityId, uint256 initialGas, uint256 multiplier) {
-  callInternalSystem(abi.encodeCall(IMintXPSystem.mintXP, (playerEntityId, initialGas, multiplier)));
+  callInternalSystem(abi.encodeCall(IMintXPSystem.mintXP, (playerEntityId, initialGas, multiplier)), 0);
 }
 
 function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
@@ -95,7 +95,7 @@ function getTerrainAndOreObjectTypeId(VoxelCoord memory coord, uint256 randomNum
 function staticCallProcGenSystem(VoxelCoord memory coord, uint256 randomNumber) view returns (uint8, uint8) {
   return
     abi.decode(
-      staticCallInternalSystem(abi.encodeCall(IProcGenSystem.getTerrainBlockWithRandomness, (coord, randomNumber))),
+      staticCallInternalSystem(abi.encodeCall(IProcGenSystem.getTerrainBlockWithRandomness, (coord, randomNumber)), 0),
       (uint8, uint8)
     );
 }

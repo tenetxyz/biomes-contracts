@@ -3,20 +3,21 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 import { IN_MAINTENANCE } from "../Constants.sol";
-import { ChipOnPipeTransferData, PipeTransferData } from "../Types.sol";
+import { ChipOnPipeTransferData, PipeTransferData, PipeTransferCommonContext } from "../Types.sol";
 import { ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { isStorageContainer } from "../utils/ObjectTypeUtils.sol";
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { pipeTransferCommon, PipeTransferCommonContext } from "../utils/TransferUtils.sol";
 
+import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 
 contract PipeTransferSystem is System {
@@ -52,12 +53,15 @@ contract PipeTransferSystem is System {
     require(callerChipData.chipAddress == _msgSender(), "PipeTransferSystem: caller is not the chip of the smart item");
     require(callerChipData.batteryLevel > 0, "PipeTransferSystem: caller has no charge");
 
-    PipeTransferCommonContext memory pipeCtx = pipeTransferCommon(
-      callerEntityId,
-      callerObjectTypeId,
-      callerCoord,
-      isDeposit,
-      pipeTransferData
+    PipeTransferCommonContext memory pipeCtx = abi.decode(
+      callInternalSystem(
+        abi.encodeCall(
+          IPipeTransferHelperSystem.pipeTransferCommon,
+          (callerEntityId, callerObjectTypeId, callerCoord, isDeposit, pipeTransferData)
+        ),
+        0
+      ),
+      (PipeTransferCommonContext)
     );
 
     if (pipeCtx.targetObjectTypeId != ForceFieldObjectID) {

@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
@@ -13,8 +14,9 @@ import { transferInventoryTool, transferInventoryNonTool } from "../utils/Invent
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
-import { ChipOnTransferData, TransferData } from "../Types.sol";
-import { transferCommon, TransferCommonContext } from "../utils/TransferUtils.sol";
+import { ChipOnTransferData, TransferData, TransferCommonContext } from "../Types.sol";
+
+import { ITransferHelperSystem } from "../codegen/world/ITransferHelperSystem.sol";
 
 contract TransferSystem is System {
   function requireAllowed(
@@ -50,7 +52,13 @@ contract TransferSystem is System {
   ) public payable {
     uint256 initialGas = gasleft();
 
-    TransferCommonContext memory ctx = transferCommon(srcEntityId, dstEntityId);
+    TransferCommonContext memory ctx = abi.decode(
+      callInternalSystem(
+        abi.encodeCall(ITransferHelperSystem.transferCommon, (_msgSender(), srcEntityId, dstEntityId)),
+        0
+      ),
+      (TransferCommonContext)
+    );
     transferInventoryNonTool(
       ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
       ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
@@ -110,7 +118,13 @@ contract TransferSystem is System {
     require(toolEntityIds.length > 0, "TransferSystem: must transfer at least one tool");
     require(toolEntityIds.length < type(uint16).max, "TransferSystem: too many tools to transfer");
 
-    TransferCommonContext memory ctx = transferCommon(srcEntityId, dstEntityId);
+    TransferCommonContext memory ctx = abi.decode(
+      callInternalSystem(
+        abi.encodeCall(ITransferHelperSystem.transferCommon, (_msgSender(), srcEntityId, dstEntityId)),
+        0
+      ),
+      (TransferCommonContext)
+    );
     uint8 toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
       uint8 currentToolObjectTypeId = transferInventoryTool(

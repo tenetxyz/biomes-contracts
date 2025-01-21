@@ -48,6 +48,8 @@ import { IGravitySystem } from "./IGravitySystem.sol";
 import { IMineHelperSystem } from "./IMineHelperSystem.sol";
 import { IMintXPSystem } from "./IMintXPSystem.sol";
 import { IMoveHelperSystem } from "./IMoveHelperSystem.sol";
+import { IPipeTransferHelperSystem } from "./IPipeTransferHelperSystem.sol";
+import { ITransferHelperSystem } from "./ITransferHelperSystem.sol";
 import { IChestSystem } from "./IChestSystem.sol";
 
 /**
@@ -102,5 +104,7 @@ interface IWorld is
   IMineHelperSystem,
   IMintXPSystem,
   IMoveHelperSystem,
+  IPipeTransferHelperSystem,
+  ITransferHelperSystem,
   IChestSystem
 {}

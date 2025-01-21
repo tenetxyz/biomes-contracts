@@ -99,7 +99,8 @@ contract BuildSystem is System {
       abi.encodeCall(
         IForceFieldSystem.requireBuildsAllowed,
         (playerEntityId, baseEntityId, objectTypeId, coords, extraData)
-      )
+      ),
+      _msgValue()
     );
 
     return baseEntityId;

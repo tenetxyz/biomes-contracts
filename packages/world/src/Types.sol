@@ -112,3 +112,19 @@ struct ChipOnPipeTransferData {
   TransferData transferData;
   bytes extraData;
 }
+
+struct TransferCommonContext {
+  bytes32 playerEntityId;
+  bytes32 chestEntityId;
+  VoxelCoord chestCoord;
+  uint8 chestObjectTypeId;
+  uint8 dstObjectTypeId;
+  ChipData checkChipData;
+  bool isDeposit;
+}
+
+struct PipeTransferCommonContext {
+  VoxelCoord targetCoord;
+  ChipData targetChipData;
+  uint8 targetObjectTypeId;
+}

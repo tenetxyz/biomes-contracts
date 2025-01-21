@@ -104,7 +104,8 @@ contract MineSystem is System {
       abi.encodeCall(
         IMineHelperSystem.onMine,
         (playerEntityId, baseEntityId != bytes32(0) ? baseEntityId : firstEntityId, mineObjectTypeId, coords)
-      )
+      ),
+      0
     );
 
     PlayerActionNotif._set(
@@ -126,7 +127,8 @@ contract MineSystem is System {
       abi.encodeCall(
         IForceFieldSystem.requireMinesAllowed,
         (playerEntityId, baseEntityId != bytes32(0) ? baseEntityId : firstEntityId, mineObjectTypeId, coords, extraData)
-      )
+      ),
+      _msgValue()
     );
   }
 

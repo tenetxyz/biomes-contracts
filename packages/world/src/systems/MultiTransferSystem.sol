@@ -3,17 +3,20 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { PlayerObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
-import { TransferData, PipeTransferData, ChipOnTransferData, ChipOnPipeTransferData } from "../Types.sol";
+import { TransferData, PipeTransferData, ChipOnTransferData, ChipOnPipeTransferData, TransferCommonContext, PipeTransferCommonContext } from "../Types.sol";
 import { callMintXP } from "../Utils.sol";
 import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
+
+import { ITransferHelperSystem } from "../codegen/world/ITransferHelperSystem.sol";
+import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
-import { transferCommon, TransferCommonContext, pipeTransferCommon, PipeTransferCommonContext } from "../utils/TransferUtils.sol";
 
 contract MultiTransferSystem is System {
   function requireAllowed(ChipData memory targetChipData, ChipOnTransferData memory chipOnTransferData) internal {
@@ -45,7 +48,13 @@ contract MultiTransferSystem is System {
     bytes memory extraData
   ) public payable {
     uint256 initialGas = gasleft();
-    TransferCommonContext memory ctx = transferCommon(srcEntityId, dstEntityId);
+    TransferCommonContext memory ctx = abi.decode(
+      callInternalSystem(
+        abi.encodeCall(ITransferHelperSystem.transferCommon, (_msgSender(), srcEntityId, dstEntityId)),
+        0
+      ),
+      (TransferCommonContext)
+    );
     uint16 totalTransfer = transferData.numToTransfer;
     if (transferData.toolEntityIds.length == 0) {
       transferInventoryNonTool(
@@ -96,14 +105,16 @@ contract MultiTransferSystem is System {
         pipeTransferData.transferData.objectTypeId == transferData.objectTypeId,
         "MultiTransferSystem: all pipes must be of the same object type"
       );
-      PipeTransferCommonContext memory pipeCtx = pipeTransferCommon(
-        ctx.playerEntityId,
-        PlayerObjectID,
-        ctx.chestCoord,
-        ctx.isDeposit,
-        pipeTransferData
+      pipeCtxs[i] = abi.decode(
+        callInternalSystem(
+          abi.encodeCall(
+            IPipeTransferHelperSystem.pipeTransferCommon,
+            (ctx.playerEntityId, PlayerObjectID, ctx.chestCoord, ctx.isDeposit, pipeTransferData)
+          ),
+          0
+        ),
+        (PipeTransferCommonContext)
       );
-      pipeCtxs[i] = pipeCtx;
 
       totalTransfer += pipeTransferData.transferData.numToTransfer;
       for (uint j = 0; j < pipeTransferData.transferData.toolEntityIds.length; j++) {
