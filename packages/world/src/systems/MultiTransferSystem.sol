@@ -40,13 +40,14 @@ contract MultiTransferSystem is System {
     }
   }
 
-  function transferWithPipes(
+  function transferWithPipesWithExtraData(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
     TransferData memory transferData,
     PipeTransferData[] memory pipesTransferData,
     bytes memory extraData
   ) public payable {
+    require(pipesTransferData.length > 0, "MultiTransferSystem: must transfer through at least one pipe");
     uint256 initialGas = gasleft();
     TransferCommonContext memory ctx = abi.decode(
       callInternalSystem(
@@ -188,5 +189,14 @@ contract MultiTransferSystem is System {
         extraData: extraData
       })
     );
+  }
+
+  function transferWithPipes(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    TransferData memory transferData,
+    PipeTransferData[] memory pipesTransferData
+  ) public payable {
+    transferWithPipesWithExtraData(srcEntityId, dstEntityId, transferData, pipesTransferData, new bytes(0));
   }
 }

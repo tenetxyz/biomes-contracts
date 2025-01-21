@@ -11,11 +11,18 @@ import { TransferData, PipeTransferData } from "./../../Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IMultiTransferSystem {
-  function transferWithPipes(
+  function transferWithPipesWithExtraData(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
     TransferData memory transferData,
     PipeTransferData[] memory pipesTransferData,
     bytes memory extraData
+  ) external payable;
+
+  function transferWithPipes(
+    bytes32 srcEntityId,
+    bytes32 dstEntityId,
+    TransferData memory transferData,
+    PipeTransferData[] memory pipesTransferData
   ) external payable;
 }

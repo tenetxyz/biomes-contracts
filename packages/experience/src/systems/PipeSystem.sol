@@ -9,28 +9,9 @@ import { PipeAccessList } from "../codegen/tables/PipeAccessList.sol";
 import { PipeRouting } from "../codegen/tables/PipeRouting.sol";
 import { PipeRoutingList } from "../codegen/tables/PipeRoutingList.sol";
 import { requireChipOwner, requireChipOwnerOrNoOwner } from "../Utils.sol";
+import { pipeAccessExists, pipeRoutingExists } from "../utils/PipeUtils.sol";
 
 contract PipeSystem is System {
-  function pipeAccessExists(bytes32 targetEntityId, bytes32 callerEntityId) internal view returns (bool) {
-    bytes32[] memory approvedEntityIds = PipeAccessList.get(targetEntityId);
-    for (uint256 i = 0; i < approvedEntityIds.length; i++) {
-      if (approvedEntityIds[i] == callerEntityId) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function pipeRoutingExists(bytes32 sourceEntityId, bytes32 targetEntityId) internal view returns (bool) {
-    bytes32[] memory enabledEntityIds = PipeRoutingList.get(sourceEntityId);
-    for (uint256 i = 0; i < enabledEntityIds.length; i++) {
-      if (enabledEntityIds[i] == targetEntityId) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   function setPipeAccess(
     bytes32 targetEntityId,
     bytes32 callerEntityId,
