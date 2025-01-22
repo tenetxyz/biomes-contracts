@@ -29,13 +29,14 @@ import { Equipped } from "@biomesaw/world/src/codegen/tables/Equipped.sol";
 import { ItemMetadata } from "@biomesaw/world/src/codegen/tables/ItemMetadata.sol";
 import { Recipes, RecipesData } from "@biomesaw/world/src/codegen/tables/Recipes.sol";
 import { ShardField } from "@biomesaw/world/src/codegen/tables/ShardField.sol";
+import { Chip, ChipData } from "@biomesaw/world/src/codegen/tables/Chip.sol";
 
 import { ForceFieldApprovals } from "../codegen/tables/ForceFieldApprovals.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { coordToShardCoord } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord } from "@biomesaw/world/src/Utils.sol";
-import { FORCE_FIELD_SHARD_DIM } from "@biomesaw/world/src/Constants.sol";
+import { FORCE_FIELD_SHARD_DIM, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "@biomesaw/world/src/Constants.sol";
 
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
@@ -71,4 +72,22 @@ function hasApprovedNft(bytes32 forceFieldEntityId, address player) view returns
 
 function isApproved(bytes32 forceFieldEntityId, address player) view returns (bool) {
   return isApprovedPlayer(forceFieldEntityId, player) || hasApprovedNft(forceFieldEntityId, player);
+}
+
+function getLatestChipData(bytes32 entityId) view returns (ChipData memory) {
+  ChipData memory chipData = Chip.get(entityId);
+
+  if (chipData.batteryLevel > 0) {
+    // Calculate how much time has passed since last update
+    uint256 timeSinceLastUpdate = block.timestamp - chipData.lastUpdatedTime;
+    if (timeSinceLastUpdate <= TIME_BEFORE_DECREASE_BATTERY_LEVEL) {
+      return chipData;
+    }
+
+    chipData.batteryLevel = chipData.batteryLevel > timeSinceLastUpdate
+      ? chipData.batteryLevel - timeSinceLastUpdate
+      : 0;
+  }
+
+  return chipData;
 }
