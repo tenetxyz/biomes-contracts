@@ -41,7 +41,7 @@ contract MineHelperSystem is System {
       );
     } else {
       // Scale stamina cost based on mining difficulty if using bare hands
-      // TODO: replace this with not being able to mine later
+      // TODO: Replace this with not being able to mine later
       staminaRequired = (uint32(miningDifficulty) * 1000) / (PLAYER_HAND_DAMAGE);
       staminaRequired = staminaRequired == 0 ? 1 : uint32(staminaRequired);
     }

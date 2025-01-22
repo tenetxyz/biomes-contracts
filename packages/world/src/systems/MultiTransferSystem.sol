@@ -48,8 +48,8 @@ contract MultiTransferSystem is System {
     PipeTransferData[] memory pipesTransferData,
     bytes memory extraData
   ) public payable {
-    require(pipesTransferData.length > 0, "MultiTransferSystem: must transfer through at least one pipe");
     uint256 initialGas = gasleft();
+    require(pipesTransferData.length > 0, "MultiTransferSystem: must transfer through at least one pipe");
     TransferCommonContext memory ctx = abi.decode(
       callInternalSystem(
         abi.encodeCall(ITransferHelperSystem.transferCommon, (_msgSender(), srcEntityId, dstEntityId)),

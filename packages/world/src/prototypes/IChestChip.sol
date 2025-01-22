@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoordDirectionVonNeumann } from "@biomesaw/utils/src/Types.sol";
 import { ChipOnTransferData, ChipOnPipeTransferData } from "../Types.sol";
 import { IChip } from "./IChip.sol";
 

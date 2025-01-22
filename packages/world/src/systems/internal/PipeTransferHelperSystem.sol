@@ -71,6 +71,8 @@ contract PipeTransferHelperSystem is System {
       pipeTransferData.path
     );
 
+    // TODO: Apply cost for using pipes
+
     if (pipeTransferData.transferData.toolEntityIds.length == 0) {
       require(
         !ObjectTypeMetadata._getIsTool(pipeTransferData.transferData.objectTypeId),
