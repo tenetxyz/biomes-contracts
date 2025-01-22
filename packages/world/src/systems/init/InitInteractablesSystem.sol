@@ -8,7 +8,7 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../../codegen/tables/ObjectTypeSchema.sol";
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
-import { ChestObjectID, SmartChestObjectID, ThermoblasterObjectID, PowerStoneObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID, TextSignObjectID, SmartTextSignObjectID } from "../../ObjectTypeIds.sol";
+import { ChestObjectID, SmartChestObjectID, ThermoblasterObjectID, PowerStoneObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID, TextSignObjectID, SmartTextSignObjectID, PipeObjectID } from "../../ObjectTypeIds.sol";
 import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID, MoonstoneObjectID, SilverBarObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
@@ -57,6 +57,7 @@ contract InitInteractablesSystem is System {
     createInteractableBlock(DyeomaticObjectID, 80, 1, new VoxelCoord[](0));
     createInteractableBlock(PowerStoneObjectID, 80, 1, new VoxelCoord[](0));
     createInteractableBlock(ForceFieldObjectID, 80, 99, new VoxelCoord[](0));
+    createInteractableBlock(PipeObjectID, 80, 99, new VoxelCoord[](0));
   }
 
   function initInteractablesRecipes() public {
@@ -93,5 +94,6 @@ contract InitInteractablesSystem is System {
       ForceFieldObjectID,
       1
     );
+    createDoubleInputWithStationRecipe(WorkbenchObjectID, StoneObjectID, 4, SilverBarObjectID, 1, PipeObjectID, 1);
   }
 }

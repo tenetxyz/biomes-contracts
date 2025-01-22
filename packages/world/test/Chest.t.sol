@@ -3,6 +3,8 @@ pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 import { console } from "forge-std/console.sol";
@@ -29,7 +31,7 @@ import { Chip, ChipData } from "../src/codegen/tables/Chip.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { VoxelCoord, VoxelCoordDirectionVonNeumann } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord, getTerrainObjectTypeId } from "../src/Utils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_INVENTORY_SLOTS, TIME_BEFORE_INCREASE_STAMINA, TIME_BEFORE_INCREASE_HEALTH, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../src/Constants.sol";
@@ -37,12 +39,17 @@ import { AirObjectID, PlayerObjectID, DiamondOreObjectID, WoodenPickObjectID, Be
 import { SPAWN_LOW_X, SPAWN_HIGH_X, SPAWN_LOW_Z, SPAWN_HIGH_Z, SPAWN_GROUND_Y } from "./utils/TestConstants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "../src/Constants.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testReverseInventoryToolHasItem, testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
+import { TransferData, ChipOnTransferData, ChipOnPipeTransferData } from "../src/Types.sol";
 
 import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
 import { IChestChip } from "../src/prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../src/prototypes/IForceFieldChip.sol";
 
 contract TestForceFieldChip is IForceFieldChip {
+  constructor(address _biomeWorldAddress) {
+    StoreSwitch.setStoreAddress(_biomeWorldAddress);
+  }
+
   function onAttached(
     bytes32 playerEntityId,
     bytes32 entityId,
@@ -104,6 +111,11 @@ contract TestForceFieldChip is IForceFieldChip {
 
 contract TestChestChip is IChestChip {
   bytes32 private ownerEntityId;
+
+  constructor(address _biomeWorldAddress) {
+    StoreSwitch.setStoreAddress(_biomeWorldAddress);
+  }
+
   function onAttached(
     bytes32 playerEntityId,
     bytes32 entityId,
@@ -126,26 +138,18 @@ contract TestChestChip is IChestChip {
 
   function onChipHit(bytes32 playerEntityId, bytes32 entityId) external {}
 
-  function onTransfer(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    uint8 transferObjectTypeId,
-    uint16 numToTransfer,
-    bytes32[] memory toolEntityIds,
-    bytes memory extraData
-  ) external payable returns (bool isAllowed) {
-    bool isDeposit = ObjectType.get(IStore(msg.sender), srcEntityId) == PlayerObjectID;
-    bytes32 chestEntityId = isDeposit ? dstEntityId : srcEntityId;
-    bytes32 playerEntityId = isDeposit ? srcEntityId : dstEntityId;
-    if (playerEntityId == ownerEntityId) {
+  function onTransfer(ChipOnTransferData memory transferData) external payable returns (bool isAllowed) {
+    if (transferData.callerEntityId == ownerEntityId) {
       return true;
     }
-    if (msg.value > 0 && !isDeposit && transferObjectTypeId == DiamondOreObjectID) {
+    if (msg.value > 0 && !transferData.isDeposit && transferData.transferData.objectTypeId == DiamondOreObjectID) {
       return true;
     }
 
     return false;
   }
+
+  function onPipeTransfer(ChipOnPipeTransferData memory transferData) external payable returns (bool isAllowed) {}
 
   function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
     return interfaceId == type(IChestChip).interfaceId || interfaceId == type(IERC165).interfaceId;
@@ -169,8 +173,8 @@ contract ChestTest is MudTest, GasReporter {
     alice = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
     bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
-    testChestChip = new TestChestChip();
-    testForceFieldChip = new TestForceFieldChip();
+    testChestChip = new TestChestChip(worldAddress);
+    testForceFieldChip = new TestForceFieldChip(worldAddress);
   }
 
   function setupPlayer() public returns (bytes32) {

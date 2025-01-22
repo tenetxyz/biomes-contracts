@@ -137,3 +137,20 @@ function emitExchangeNotif(bytes32 entityId, ExchangeNotifData memory notifData)
 function deleteExchangeNotif(bytes32 entityId) {
   IWorld(WorldContextConsumerLib._world()).experience__deleteExchangeNotif(entityId);
 }
+
+function setPipeAccess(bytes32 targetEntityId, bytes32 callerEntityId, bool depositAllowed, bool withdrawAllowed) {
+  IWorld(WorldContextConsumerLib._world()).experience__setPipeAccess(
+    targetEntityId,
+    callerEntityId,
+    depositAllowed,
+    withdrawAllowed
+  );
+}
+
+function deletePipeAccess(bytes32 targetEntityId, bytes32 callerEntityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deletePipeAccess(targetEntityId, callerEntityId);
+}
+
+function deletePipeAccessList(bytes32 targetEntityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deletePipeAccessList(targetEntityId);
+}

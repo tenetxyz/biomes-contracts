@@ -18,8 +18,10 @@ import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
+import { IMultiTransferSystem } from "./IMultiTransferSystem.sol";
 import { IOreSystem } from "./IOreSystem.sol";
 import { IPickupSystem } from "./IPickupSystem.sol";
+import { IPipeTransferSystem } from "./IPipeTransferSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
@@ -46,6 +48,8 @@ import { IGravitySystem } from "./IGravitySystem.sol";
 import { IMineHelperSystem } from "./IMineHelperSystem.sol";
 import { IMintXPSystem } from "./IMintXPSystem.sol";
 import { IMoveHelperSystem } from "./IMoveHelperSystem.sol";
+import { IPipeTransferHelperSystem } from "./IPipeTransferHelperSystem.sol";
+import { ITransferHelperSystem } from "./ITransferHelperSystem.sol";
 import { IChestSystem } from "./IChestSystem.sol";
 
 /**
@@ -70,8 +74,10 @@ interface IWorld is
   ILogoffSystem,
   IMineSystem,
   IMoveSystem,
+  IMultiTransferSystem,
   IOreSystem,
   IPickupSystem,
+  IPipeTransferSystem,
   ISpawnSystem,
   ITransferSystem,
   IUnequipSystem,
@@ -98,5 +104,7 @@ interface IWorld is
   IMineHelperSystem,
   IMintXPSystem,
   IMoveHelperSystem,
+  IPipeTransferHelperSystem,
+  ITransferHelperSystem,
   IChestSystem
 {}

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { VoxelCoord, VoxelCoordDirectionVonNeumann } from "@biomesaw/utils/src/Types.sol";
 import { PlayerMetadataData } from "./codegen/tables/PlayerMetadata.sol";
 import { HealthData } from "./codegen/tables/Health.sol";
 import { StaminaData } from "./codegen/tables/Stamina.sol";
@@ -80,4 +80,51 @@ struct EntityDataWithBaseEntity {
 struct PickupData {
   uint8 objectTypeId;
   uint16 numToPickup;
+}
+
+struct TransferData {
+  uint8 objectTypeId;
+  uint16 numToTransfer;
+  bytes32[] toolEntityIds;
+}
+
+struct PipeTransferData {
+  bytes32 targetEntityId;
+  VoxelCoordDirectionVonNeumann[] path;
+  TransferData transferData;
+  bytes extraData;
+}
+
+struct ChipOnTransferData {
+  bytes32 targetEntityId; // The entity whose chip is being called
+  bytes32 callerEntityId; // The entity initiating the transfer
+  bool isDeposit; // true = caller->target, false = target->caller
+  TransferData transferData;
+  bytes extraData;
+}
+
+struct ChipOnPipeTransferData {
+  bytes32 playerEntityId;
+  bytes32 targetEntityId; // The entity whose chip is being called
+  bytes32 callerEntityId; // The entity initiating the transfer
+  bool isDeposit; // true = caller->target, false = target->caller
+  VoxelCoordDirectionVonNeumann[] path;
+  TransferData transferData;
+  bytes extraData;
+}
+
+struct TransferCommonContext {
+  bytes32 playerEntityId;
+  bytes32 chestEntityId;
+  VoxelCoord chestCoord;
+  uint8 chestObjectTypeId;
+  uint8 dstObjectTypeId;
+  ChipData checkChipData;
+  bool isDeposit;
+}
+
+struct PipeTransferCommonContext {
+  VoxelCoord targetCoord;
+  ChipData targetChipData;
+  uint8 targetObjectTypeId;
 }

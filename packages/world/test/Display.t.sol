@@ -3,6 +3,8 @@ pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 import { console } from "forge-std/console.sol";
@@ -46,6 +48,10 @@ import { IDisplayChip } from "../src/prototypes/IDisplayChip.sol";
 import { IForceFieldChip } from "../src/prototypes/IForceFieldChip.sol";
 
 contract TestForceFieldChip is IForceFieldChip {
+  constructor(address _biomeWorldAddress) {
+    StoreSwitch.setStoreAddress(_biomeWorldAddress);
+  }
+
   function onAttached(
     bytes32 playerEntityId,
     bytes32 entityId,
@@ -106,6 +112,10 @@ contract TestForceFieldChip is IForceFieldChip {
 }
 
 contract TestDisplayChip is IDisplayChip {
+  constructor(address _biomeWorldAddress) {
+    StoreSwitch.setStoreAddress(_biomeWorldAddress);
+  }
+
   function onAttached(
     bytes32 playerEntityId,
     bytes32 entityId,
@@ -152,8 +162,8 @@ contract DisplayTest is MudTest, GasReporter {
     alice = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
     bob = payable(address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC));
     world = IWorld(worldAddress);
-    testDisplayChip = new TestDisplayChip();
-    testForceFieldChip = new TestForceFieldChip();
+    testDisplayChip = new TestDisplayChip(worldAddress);
+    testForceFieldChip = new TestForceFieldChip(worldAddress);
   }
 
   function setupPlayer() public returns (bytes32) {

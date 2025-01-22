@@ -449,6 +449,16 @@ export default defineWorld({
       openAccess: false,
       accessList: [],
     },
+    TransferHelperSystem: {
+      name: "TransferHelperSystem",
+      openAccess: false,
+      accessList: [],
+    },
+    PipeTransferHelperSystem: {
+      name: "PipeTransferHelp",
+      openAccess: false,
+      accessList: [],
+    },
   },
   modules: [
     {

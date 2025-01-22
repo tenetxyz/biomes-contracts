@@ -97,6 +97,28 @@ export default defineWorld({
         storeArgument: true,
       },
     },
+    PipeAccess: {
+      schema: {
+        targetEntityId: "bytes32",
+        callerEntityId: "bytes32",
+        depositAllowed: "bool",
+        withdrawAllowed: "bool",
+      },
+      key: ["targetEntityId", "callerEntityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
+    PipeAccessList: {
+      schema: {
+        entityId: "bytes32",
+        allowedEntityIds: "bytes32[]",
+      },
+      key: ["entityId"],
+      codegen: {
+        storeArgument: true,
+      },
+    },
     GateApprovals: {
       schema: {
         entityId: "bytes32",

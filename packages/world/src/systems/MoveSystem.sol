@@ -16,7 +16,8 @@ contract MoveSystem is System {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
 
     callInternalSystem(
-      abi.encodeCall(IMoveHelperSystem.movePlayer, (initialGas, playerEntityId, playerCoord, newCoords))
+      abi.encodeCall(IMoveHelperSystem.movePlayer, (initialGas, playerEntityId, playerCoord, newCoords)),
+      0
     );
   }
 
@@ -31,7 +32,8 @@ contract MoveSystem is System {
     }
 
     callInternalSystem(
-      abi.encodeCall(IMoveHelperSystem.movePlayer, (initialGas, playerEntityId, playerCoord, newCoords))
+      abi.encodeCall(IMoveHelperSystem.movePlayer, (initialGas, playerEntityId, playerCoord, newCoords)),
+      0
     );
   }
 }

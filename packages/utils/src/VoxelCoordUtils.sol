@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { VoxelCoord, VoxelCoordDirection, VoxelCoordDirectionVonNeumann } from "./Types.sol";
-import { floorDiv } from "./MathUtils.sol";
+import { floorDiv, absInt16 } from "./MathUtils.sol";
 
 function voxelCoordsAreEqual(VoxelCoord memory c1, VoxelCoord memory c2) pure returns (bool) {
   return c1.x == c2.x && c1.y == c2.y && c1.z == c2.z;
@@ -159,4 +159,15 @@ function transformVoxelCoordVonNeumann(
   }
 
   return newCoord;
+}
+
+function inVonNeumannNeighborhood(VoxelCoord memory center, VoxelCoord memory checkCoord) pure returns (bool) {
+  // Calculate Manhattan distance for each dimension
+  int16 dx = absInt16(center.x - checkCoord.x);
+  int16 dy = absInt16(center.y - checkCoord.y);
+  int16 dz = absInt16(center.z - checkCoord.z);
+
+  // Sum of distances should be exactly 1 for von Neumann neighborhood
+  // This means only one coordinate can differ by 1, others must be 0
+  return (dx + dy + dz == 1);
 }

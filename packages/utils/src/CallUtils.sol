@@ -18,13 +18,13 @@ function getCallerNamespace(address caller) view returns (bytes14) {
   return WorldResourceIdInstance.getNamespace(callerSystemId);
 }
 
-function callInternalSystem(bytes memory callData) returns (bytes memory) {
+function callInternalSystem(bytes memory callData, uint256 msgValue) returns (bytes memory) {
   (ResourceId systemId, bytes4 systemFunctionSelector) = FunctionSelectors._get(bytes4(callData));
   (address systemAddress, ) = Systems._get(systemId);
 
   (bool success, bytes memory returnData) = WorldContextProviderLib.delegatecallWithContext({
     msgSender: WorldContextConsumerLib._msgSender(),
-    msgValue: WorldContextConsumerLib._msgValue(),
+    msgValue: msgValue,
     target: systemAddress,
     callData: Bytes.setBytes4(callData, 0, systemFunctionSelector)
   });
@@ -34,7 +34,7 @@ function callInternalSystem(bytes memory callData) returns (bytes memory) {
   return returnData;
 }
 
-function staticCallInternalSystem(bytes memory callData) view returns (bytes memory) {
+function staticCallInternalSystem(bytes memory callData, uint256 msgValue) view returns (bytes memory) {
   (ResourceId systemId, bytes4 systemFunctionSelector) = FunctionSelectors._get(bytes4(callData));
   (address systemAddress, ) = Systems._get(systemId);
 
@@ -42,7 +42,7 @@ function staticCallInternalSystem(bytes memory callData) view returns (bytes mem
     WorldContextProviderLib.appendContext({
       callData: Bytes.setBytes4(callData, 0, systemFunctionSelector),
       msgSender: WorldContextConsumerLib._msgSender(),
-      msgValue: WorldContextConsumerLib._msgValue()
+      msgValue: msgValue
     })
   );
 
