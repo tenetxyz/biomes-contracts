@@ -119,27 +119,6 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    PipeRouting: {
-      schema: {
-        sourceEntityId: "bytes32",
-        targetEntityId: "bytes32",
-        enabled: "bool",
-      },
-      key: ["sourceEntityId", "targetEntityId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    PipeRoutingList: {
-      schema: {
-        entityId: "bytes32",
-        enabledEntityIds: "bytes32[]",
-      },
-      key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
     GateApprovals: {
       schema: {
         entityId: "bytes32",

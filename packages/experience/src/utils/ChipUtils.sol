@@ -147,22 +147,10 @@ function setPipeAccess(bytes32 targetEntityId, bytes32 callerEntityId, bool depo
   );
 }
 
-function setPipeRouting(bytes32 sourceEntityId, bytes32 targetEntityId, bool enabled) {
-  IWorld(WorldContextConsumerLib._world()).experience__setPipeRouting(sourceEntityId, targetEntityId, enabled);
-}
-
 function deletePipeAccess(bytes32 targetEntityId, bytes32 callerEntityId) {
   IWorld(WorldContextConsumerLib._world()).experience__deletePipeAccess(targetEntityId, callerEntityId);
 }
 
-function deletePipeRouting(bytes32 sourceEntityId, bytes32 targetEntityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deletePipeRouting(sourceEntityId, targetEntityId);
-}
-
 function deletePipeAccessList(bytes32 targetEntityId) {
   IWorld(WorldContextConsumerLib._world()).experience__deletePipeAccessList(targetEntityId);
-}
-
-function deletePipeRoutingList(bytes32 sourceEntityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deletePipeRoutingList(sourceEntityId);
 }

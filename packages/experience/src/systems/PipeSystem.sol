@@ -6,10 +6,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { PipeAccess } from "../codegen/tables/PipeAccess.sol";
 import { PipeAccessList } from "../codegen/tables/PipeAccessList.sol";
-import { PipeRouting } from "../codegen/tables/PipeRouting.sol";
-import { PipeRoutingList } from "../codegen/tables/PipeRoutingList.sol";
 import { requireChipOwner, requireChipOwnerOrNoOwner } from "../Utils.sol";
-import { pipeAccessExists, pipeRoutingExists } from "../utils/PipeUtils.sol";
+import { pipeAccessExists } from "../utils/PipeUtils.sol";
 
 contract PipeSystem is System {
   function setPipeAccess(
@@ -25,18 +23,6 @@ contract PipeSystem is System {
       PipeAccess.set(targetEntityId, callerEntityId, depositAllowed, withdrawAllowed);
       if (!pipeAccessExists(targetEntityId, callerEntityId)) {
         PipeAccessList.push(targetEntityId, callerEntityId);
-      }
-    }
-  }
-
-  function setPipeRouting(bytes32 sourceEntityId, bytes32 targetEntityId, bool enabled) public {
-    requireChipOwner(sourceEntityId);
-    if (!enabled) {
-      deletePipeRouting(sourceEntityId, targetEntityId);
-    } else {
-      PipeRouting.set(sourceEntityId, targetEntityId, enabled);
-      if (!pipeRoutingExists(sourceEntityId, targetEntityId)) {
-        PipeRoutingList.push(sourceEntityId, targetEntityId);
       }
     }
   }
@@ -57,22 +43,6 @@ contract PipeSystem is System {
     PipeAccessList.set(targetEntityId, newApprovedEntityIds);
   }
 
-  function deletePipeRouting(bytes32 sourceEntityId, bytes32 targetEntityId) public {
-    requireChipOwner(sourceEntityId);
-    require(pipeRoutingExists(sourceEntityId, targetEntityId), "Pipe routing does not exist");
-    bytes32[] memory enabledEntityIds = PipeRoutingList.get(sourceEntityId);
-    bytes32[] memory newEnabledEntityIds = new bytes32[](enabledEntityIds.length - 1);
-    uint256 newIndex = 0;
-    for (uint256 i = 0; i < enabledEntityIds.length; i++) {
-      if (enabledEntityIds[i] != targetEntityId) {
-        newEnabledEntityIds[newIndex] = enabledEntityIds[i];
-        newIndex++;
-      }
-    }
-    PipeRouting.deleteRecord(sourceEntityId, targetEntityId);
-    PipeRoutingList.set(sourceEntityId, newEnabledEntityIds);
-  }
-
   function deletePipeAccessList(bytes32 targetEntityId) public {
     requireChipOwnerOrNoOwner(targetEntityId);
     bytes32[] memory approvedEntityIds = PipeAccessList.get(targetEntityId);
@@ -80,14 +50,5 @@ contract PipeSystem is System {
       PipeAccess.deleteRecord(targetEntityId, approvedEntityIds[i]);
     }
     PipeAccessList.deleteRecord(targetEntityId);
-  }
-
-  function deletePipeRoutingList(bytes32 sourceEntityId) public {
-    requireChipOwnerOrNoOwner(sourceEntityId);
-    bytes32[] memory enabledEntityIds = PipeRoutingList.get(sourceEntityId);
-    for (uint256 i = 0; i < enabledEntityIds.length; i++) {
-      PipeRouting.deleteRecord(sourceEntityId, enabledEntityIds[i]);
-    }
-    PipeRoutingList.deleteRecord(sourceEntityId);
   }
 }

@@ -478,37 +478,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__deletePipeRouting",
-    "inputs": [
-      {
-        "name": "sourceEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "targetEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "experience__deletePipeRoutingList",
-    "inputs": [
-      {
-        "name": "sourceEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "experience__deletePlayers",
     "inputs": [],
     "outputs": [],
@@ -1609,11 +1578,6 @@ declare const abi: [
                 ]
               }
             ]
-          },
-          {
-            "name": "enabledEntityIdsForPipeRouting",
-            "type": "bytes32[]",
-            "internalType": "bytes32[]"
           }
         ]
       }
@@ -2536,11 +2500,6 @@ declare const abi: [
                 ]
               }
             ]
-          },
-          {
-            "name": "enabledEntityIdsForPipeRouting",
-            "type": "bytes32[]",
-            "internalType": "bytes32[]"
           }
         ]
       }
@@ -3809,29 +3768,6 @@ declare const abi: [
       },
       {
         "name": "withdrawAllowed",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "experience__setPipeRouting",
-    "inputs": [
-      {
-        "name": "sourceEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "targetEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "enabled",
         "type": "bool",
         "internalType": "bool"
       }

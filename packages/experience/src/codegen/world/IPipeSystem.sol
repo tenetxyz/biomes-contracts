@@ -16,13 +16,7 @@ interface IPipeSystem {
     bool withdrawAllowed
   ) external;
 
-  function experience__setPipeRouting(bytes32 sourceEntityId, bytes32 targetEntityId, bool enabled) external;
-
   function experience__deletePipeAccess(bytes32 targetEntityId, bytes32 callerEntityId) external;
 
-  function experience__deletePipeRouting(bytes32 sourceEntityId, bytes32 targetEntityId) external;
-
   function experience__deletePipeAccessList(bytes32 targetEntityId) external;
-
-  function experience__deletePipeRoutingList(bytes32 sourceEntityId) external;
 }

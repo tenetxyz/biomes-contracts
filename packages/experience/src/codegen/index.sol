@@ -12,8 +12,6 @@ import { ExchangeInfo, ExchangeInfoData } from "./tables/ExchangeInfo.sol";
 import { Exchanges } from "./tables/Exchanges.sol";
 import { PipeAccess, PipeAccessData } from "./tables/PipeAccess.sol";
 import { PipeAccessList } from "./tables/PipeAccessList.sol";
-import { PipeRouting } from "./tables/PipeRouting.sol";
-import { PipeRoutingList } from "./tables/PipeRoutingList.sol";
 import { GateApprovals, GateApprovalsData } from "./tables/GateApprovals.sol";
 import { Notification, NotificationData } from "./tables/Notification.sol";
 import { ExchangeNotif, ExchangeNotifData } from "./tables/ExchangeNotif.sol";

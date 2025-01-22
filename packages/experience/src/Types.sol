@@ -59,5 +59,4 @@ struct BlockExperienceEntityDataWithPipeControls {
   GateApprovalsData gateApprovalsData;
   ExchangeInfoDataWithExchangeId[] exchanges;
   PipeAccessDataWithEntityId[] pipeAccessDataList;
-  bytes32[] enabledEntityIdsForPipeRouting;
 }

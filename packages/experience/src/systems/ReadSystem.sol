@@ -17,9 +17,7 @@ import { GateApprovals, GateApprovalsData } from "../codegen/tables/GateApproval
 import { ExchangeInfo, ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
 import { Exchanges } from "../codegen/tables/Exchanges.sol";
 import { PipeAccess } from "../codegen/tables/PipeAccess.sol";
-import { PipeRouting } from "../codegen/tables/PipeRouting.sol";
 import { PipeAccessList } from "../codegen/tables/PipeAccessList.sol";
-import { PipeRoutingList } from "../codegen/tables/PipeRoutingList.sol";
 import { BlockExperienceEntityData, BlockExperienceEntityDataWithGateApprovals, BlockExperienceEntityDataWithExchanges, ExchangeInfoDataWithExchangeId, BlockExperienceEntityDataWithPipeControls, PipeAccessDataWithEntityId } from "../Types.sol";
 
 contract ReadSystem is System {
@@ -109,8 +107,7 @@ contract ReadSystem is System {
         smartItemMetadata: SmartItemMetadata.get(entityId),
         gateApprovalsData: GateApprovals.get(entityId),
         exchanges: exchangeInfoData,
-        pipeAccessDataList: pipeAccessDataList,
-        enabledEntityIdsForPipeRouting: PipeRoutingList.get(entityId)
+        pipeAccessDataList: pipeAccessDataList
       });
   }
 
