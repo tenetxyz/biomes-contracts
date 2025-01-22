@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@biomesaw/world": "workspace:*",
+    "@biomesaw/experience": "workspace:*",
     "@latticexyz/common": "link:../../../mud/packages/common",
     "@latticexyz/noise": "link:../../../noise",
     "@latticexyz/store": "link:../../../mud/packages/store",

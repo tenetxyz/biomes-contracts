@@ -3724,6 +3724,20 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "initSpawnAreaBottom",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "initSpawnAreaBottomBorder",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "initSpawnAreaBottomBorder",
     "inputs": [
       {
@@ -3749,6 +3763,13 @@ declare const abi: [
         ]
       }
     ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "initSpawnAreaBottomPart2",
+    "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
@@ -3814,6 +3835,13 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "initSpawnAreaTop",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "initSpawnAreaTopAir",
     "inputs": [
       {
@@ -3869,6 +3897,13 @@ declare const abi: [
         ]
       }
     ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "initSpawnAreaTopPart2",
+    "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
