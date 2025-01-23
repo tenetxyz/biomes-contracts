@@ -450,7 +450,7 @@ export default defineWorld({
       accessList: [],
     },
     TransferHelperSystem: {
-      name: "TransferHelperSystem",
+      name: "TransferHelperSy",
       openAccess: false,
       accessList: [],
     },
