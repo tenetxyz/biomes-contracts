@@ -176,6 +176,50 @@ contract TransferTest is MudTest, GasReporter {
     vm.expectRevert("Inventory is full");
     world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 2);
 
+    world.transfer(playerEntityId, chestEntityId, inputObjectTypeId1, 1);
+    assertTrue(InventoryCount.get(playerEntityId, inputObjectTypeId1) == 1, "Input object not removed from inventory");
+    assertTrue(InventoryCount.get(chestEntityId, inputObjectTypeId1) == 1, "Input object not removed from inventory");
+    assertTrue(InventorySlots.get(playerEntityId) == 1, "Inventory slot not set");
+    assertTrue(InventorySlots.get(chestEntityId) == MAX_CHEST_INVENTORY_SLOTS, "Inventory slot not set");
+
+    vm.stopPrank();
+  }
+
+  function testTransferToChestWithFullToolInventory() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 playerEntityId = setupPlayer();
+
+    vm.startPrank(worldDeployer, worldDeployer);
+    bytes32 newInventoryId = testGetUniqueEntity();
+    ObjectType.set(newInventoryId, WoodenPickObjectID);
+    InventoryTool.set(newInventoryId, playerEntityId);
+    ReverseInventoryTool.push(playerEntityId, newInventoryId);
+    testAddToInventoryCount(playerEntityId, PlayerObjectID, WoodenPickObjectID, 1);
+
+    // build chest beside player
+    VoxelCoord memory chestCoord = VoxelCoord(spawnCoord.x + 1, spawnCoord.y, spawnCoord.z);
+    bytes32 chestEntityId = testGetUniqueEntity();
+    ObjectType.set(chestEntityId, ChestObjectID);
+    Position.set(chestEntityId, chestCoord.x, chestCoord.y, chestCoord.z);
+    ReversePosition.set(chestCoord.x, chestCoord.y, chestCoord.z, chestEntityId);
+
+    for (uint8 i = 0; i < MAX_CHEST_INVENTORY_SLOTS; i++) {
+      bytes32 newInventoryId = testGetUniqueEntity();
+      ObjectType.set(newInventoryId, WoodenPickObjectID);
+      InventoryTool.set(newInventoryId, chestEntityId);
+      ReverseInventoryTool.push(chestEntityId, newInventoryId);
+      testAddToInventoryCount(chestEntityId, ChestObjectID, WoodenPickObjectID, 1);
+    }
+    assertTrue(InventorySlots.get(chestEntityId) == MAX_CHEST_INVENTORY_SLOTS, "Inventory slots not set correctly");
+    assertTrue(testInventoryObjectsHasObjectType(chestEntityId, WoodenPickObjectID), "Inventory objects not set");
+
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    vm.expectRevert("Inventory is full");
+    world.transferTool(playerEntityId, chestEntityId, newInventoryId);
+
     vm.stopPrank();
   }
 
