@@ -26,8 +26,6 @@ import { Chip } from "../src/codegen/tables/Chip.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { Unstable_CallWithSignatureSystem } from "@latticexyz/world-modules/src/modules/callwithsignature/Unstable_CallWithSignatureSystem.sol";
-import { DELEGATION_SYSTEM_ID } from "@latticexyz/world-modules/src/modules/callwithsignature/constants.sol";
 import { ChestMetadata, ChestMetadataData } from "../src/codegen/tables/ChestMetadata.sol";
 import { testRemoveFromInventoryCount, testAddToInventoryCount } from "../test/utils/TestUtils.sol";
 import { NullObjectTypeId, ChestObjectID, SmartChestObjectID, TextSignObjectID, SmartTextSignObjectID, BedrockObjectID, ReinforcedOakLumberObjectID, ChipBatteryObjectID, ForceFieldObjectID, GoldBarObjectID, GoldCubeObjectID, SilverBarObjectID, SilverCubeObjectID, DiamondObjectID, DiamondCubeObjectID, NeptuniumBarObjectID, NeptuniumCubeObjectID } from "../src/ObjectTypeIds.sol";
@@ -42,9 +40,6 @@ contract Upgrade2 is Script {
 
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
-
-    // Unstable_CallWithSignatureSystem newUpgradedSystem = new Unstable_CallWithSignatureSystem();
-    // IWorld(worldAddress).registerSystem(DELEGATION_SYSTEM_ID, newUpgradedSystem, true);
 
     bytes32[] memory entityIds = new bytes32[](4);
     entityIds[0] = 0x000000000000000000000000000000000000000000000000000000000000577f;

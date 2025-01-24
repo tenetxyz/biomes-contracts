@@ -5,7 +5,7 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 
-import { AccessControlLib } from "@latticexyz/world-modules/src/utils/AccessControlLib.sol";
+import { AccessControl } from "@latticexyz/world/src/AccessControl.sol";
 import { ERC20Registry } from "@latticexyz/world-modules/src/modules/erc20-puppet/tables/ERC20Registry.sol";
 import { ERC20_REGISTRY_TABLE_ID } from "@latticexyz/world-modules/src/modules/erc20-puppet/constants.sol";
 
@@ -22,7 +22,7 @@ contract TokenMetadataSystem is System {
   }
 
   function setMUDTokenMetadata(ResourceId namespaceId, ERC20MetadataData memory metadata) public {
-    AccessControlLib.requireOwner(namespaceId, _msgSender());
+    AccessControl.requireOwner(namespaceId, _msgSender());
     address tokenAddress = ERC20Registry.get(ERC20_REGISTRY_TABLE_ID, namespaceId);
     require(tokenAddress != address(0), "TokenMetadataSystem: token not found for namespace");
     ERC20Metadata.set(tokenAddress, metadata);

@@ -17,7 +17,7 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
-import { ChipType } from "./../common.sol";
+import { ChipType } from "../common.sol";
 
 struct ChipMetadataData {
   ChipType chipType;

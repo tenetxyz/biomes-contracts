@@ -6,8 +6,6 @@ import { console } from "forge-std/console.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { Unstable_CallWithSignatureSystem } from "@latticexyz/world-modules/src/modules/callwithsignature/Unstable_CallWithSignatureSystem.sol";
-import { DELEGATION_SYSTEM_ID } from "@latticexyz/world-modules/src/modules/callwithsignature/constants.sol";
 import { Recipes } from "../src/codegen/tables/Recipes.sol";
 import { ChestMetadata, ChestMetadataData } from "../src/codegen/tables/ChestMetadata.sol";
 import { BedrockObjectID, ChestObjectID, AnyReinforcedLumberObjectID, SandObjectID, CoalOreObjectID, ChipBatteryObjectID, GlassObjectID, StoneObjectID, QuartziteObjectID, LimestoneObjectID, EmberstoneObjectID, MoonstoneObjectID, SunstoneObjectID, GoldOreObjectID, GoldBarObjectID, SilverOreObjectID, SilverBarObjectID, DiamondOreObjectID, DiamondObjectID, NeptuniumOreObjectID, NeptuniumBarObjectID } from "../src/ObjectTypeIds.sol";
@@ -39,9 +37,6 @@ contract Upgrade is Script {
 
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
-
-    // Unstable_CallWithSignatureSystem newUpgradedSystem = new Unstable_CallWithSignatureSystem();
-    // IWorld(worldAddress).registerSystem(DELEGATION_SYSTEM_ID, newUpgradedSystem, true);
 
     // IWorld(worldAddress).initThermoblastObjectTypes();
     // IWorld(worldAddress).initThermoblastRecipes();

@@ -7420,4 +7420,6 @@ declare const abi: [
     "name": "World_UnlimitedDelegationNotAllowed",
     "inputs": []
   }
-]; export default abi;
+];
+
+export default abi;

@@ -5,7 +5,7 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 
-import { AccessControlLib } from "@latticexyz/world-modules/src/utils/AccessControlLib.sol";
+import { AccessControl } from "@latticexyz/world/src/AccessControl.sol";
 import { ERC721Registry } from "@latticexyz/world-modules/src/modules/erc721-puppet/tables/ERC721Registry.sol";
 import { ERC721_REGISTRY_TABLE_ID } from "@latticexyz/world-modules/src/modules/erc721-puppet/constants.sol";
 
@@ -22,7 +22,7 @@ contract NFTMetadataSystem is System {
   }
 
   function setMUDNFTMetadata(ResourceId namespaceId, ERC721MetadataData memory metadata) public {
-    AccessControlLib.requireOwner(namespaceId, _msgSender());
+    AccessControl.requireOwner(namespaceId, _msgSender());
     address nftAddress = ERC721Registry.get(ERC721_REGISTRY_TABLE_ID, namespaceId);
     require(nftAddress != address(0), "NFTMetadataSystem: nft not found for namespace");
     ERC721Metadata.set(nftAddress, metadata);

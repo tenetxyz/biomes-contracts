@@ -17,7 +17,7 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
-import { DisplayContentType } from "./../common.sol";
+import { DisplayContentType } from "../common.sol";
 
 struct DisplayContentData {
   DisplayContentType contentType;

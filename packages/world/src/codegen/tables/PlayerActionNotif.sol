@@ -17,7 +17,7 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
-import { ActionType } from "./../common.sol";
+import { ActionType } from "../common.sol";
 
 struct PlayerActionNotifData {
   ActionType actionType;

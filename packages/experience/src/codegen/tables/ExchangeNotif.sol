@@ -17,7 +17,7 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
-import { ResourceType } from "./../common.sol";
+import { ResourceType } from "../common.sol";
 
 struct ExchangeNotifData {
   address player;
