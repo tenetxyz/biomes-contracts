@@ -1,9 +1,9 @@
 procs:
   contracts:
     shell: pnpm run deploy:local
-  # explorer:
-  #   cwd: packages/world
-  #   shell: pnpm explorer --dev
+  explorer:
+    cwd: packages/world
+    shell: pnpm explorer --dev --pI 3008
   deploy-prereqs:
     shell: sleep 1 && pnpm deploy-local-prereqs
     env:
