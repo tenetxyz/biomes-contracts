@@ -13,18 +13,17 @@
   },
   "devDependencies": {
     "@latticexyz/cli": "link:../mud/packages/cli",
-    "@types/debug": "4.1.7",
-    "@types/prettier": "2.7.2",
-    "@typescript-eslint/eslint-plugin": "5.46.1",
-    "@typescript-eslint/parser": "5.46.1",
-    "eslint": "8.29.0",
-    "mprocs": "^0.6.4",
-    "rimraf": "^3.0.2",
-    "typescript": "5.1.6"
+    "@types/node": "^18",
+    "@typescript-eslint/eslint-plugin": "7.1.1",
+    "@typescript-eslint/parser": "7.1.1",
+    "eslint": "8.57.0",
+    "mprocs": "^0.7.1",
+    "shx": "^0.3.4",
+    "typescript": "5.4.2"
   },
   "engines": {
-    "node": "^18.20.1",
-    "pnpm": "^9.1.1"
+    "node": "^18",
+    "pnpm": "^8 || ^9"
   },
   "packageManager": "pnpm@9.3.0+sha256.e1f9e8d1a16607a46dd3c158b5f7a7dc7945501d1c6222d454d63d033d1d918f"
 }
