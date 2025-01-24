@@ -11,6 +11,9 @@ importers:
       '@latticexyz/cli':
         specifier: link:../mud/packages/cli
         version: link:../mud/packages/cli
+      '@latticexyz/entrykit':
+        specifier: link:../mud/packages/entrykit
+        version: link:../mud/packages/entrykit
       '@latticexyz/explorer':
         specifier: link:../mud/packages/explorer
         version: link:../mud/packages/explorer

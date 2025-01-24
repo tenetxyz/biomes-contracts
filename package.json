@@ -15,6 +15,7 @@
     "@latticexyz/cli": "link:../mud/packages/cli",
     "@latticexyz/explorer": "link:../mud/packages/explorer",
     "@latticexyz/store-indexer": "link:../mud/packages/store-indexer",
+    "@latticexyz/entrykit": "link:../mud/packages/entrykit",
     "@types/node": "^18",
     "@typescript-eslint/eslint-plugin": "7.1.1",
     "@typescript-eslint/parser": "7.1.1",
@@ -23,9 +24,9 @@
     "shx": "^0.3.4",
     "typescript": "5.4.2"
   },
+  "packageManager": "pnpm@9.6.0",
   "engines": {
-    "node": "^18",
-    "pnpm": "^8 || ^9"
-  },
-  "packageManager": "pnpm@9.3.0+sha256.e1f9e8d1a16607a46dd3c158b5f7a7dc7945501d1c6222d454d63d033d1d918f"
+    "node": "18.x || 20.x",
+    "pnpm": "^9.6.0"
+  }
 }
