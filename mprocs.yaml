@@ -1,6 +1,9 @@
 procs:
   contracts:
     shell: pnpm run deploy:local
+  explorer:
+    cwd: packages/world
+    shell: pnpm explorer --dev
   anvil:
     cwd: packages/scripts
     shell: pnpm run anvil

@@ -11,6 +11,12 @@ importers:
       '@latticexyz/cli':
         specifier: link:../mud/packages/cli
         version: link:../mud/packages/cli
+      '@latticexyz/explorer':
+        specifier: link:../mud/packages/explorer
+        version: link:../mud/packages/explorer
+      '@latticexyz/store-indexer':
+        specifier: link:../mud/packages/store-indexer
+        version: link:../mud/packages/store-indexer
       '@types/node':
         specifier: ^18
         version: 18.19.18

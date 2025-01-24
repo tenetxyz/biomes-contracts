@@ -13,6 +13,8 @@
   },
   "devDependencies": {
     "@latticexyz/cli": "link:../mud/packages/cli",
+    "@latticexyz/explorer": "link:../mud/packages/explorer",
+    "@latticexyz/store-indexer": "link:../mud/packages/store-indexer",
     "@types/node": "^18",
     "@typescript-eslint/eslint-plugin": "7.1.1",
     "@typescript-eslint/parser": "7.1.1",
