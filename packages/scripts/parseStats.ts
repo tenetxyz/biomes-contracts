@@ -6,11 +6,9 @@ import { setupNetwork } from "./setupNetwork";
 import os from "os";
 import { replacer, reviver } from "./utils";
 
-const wordlDeployer = "0x1f820052916970Ff09150b58F2f0Fb842C5a58be";
+const worldDeployer = "0x1f820052916970Ff09150b58F2f0Fb842C5a58be";
 
 async function main() {
-  const startTime = Date.now();
-
   // Setup initial configuration
   const { publicClient, worldAddress, allAbis, account, txOptions, callTx, fromBlock, indexerUrl } =
     await setupNetwork();
@@ -26,7 +24,8 @@ async function main() {
   ];
 
   console.log("indexerUrl", indexerUrl);
-  const delegations = new Map<string, string>();
+  const delegatorToDelegatee = new Map<string, string>();
+  const delegateeToDelegator = new Map<string, string>();
 
   // fetch post request
   const response = await fetch(indexerUrl, {
@@ -39,8 +38,8 @@ async function main() {
   });
   const content = await response.json();
   for (const row of content.result[0]) {
-    delegations.set(row[0].toLowerCase(), row[1].toLowerCase());
-    delegations.set(row[1].toLowerCase(), row[0].toLowerCase());
+    delegatorToDelegatee.set(row[0].toLowerCase(), row[1].toLowerCase());
+    delegateeToDelegator.set(row[1].toLowerCase(), row[0].toLowerCase());
   }
 
   const stats = JSON.parse(fs.readFileSync("gen/stats.json", "utf8"), reviver);
@@ -53,12 +52,9 @@ async function main() {
   for (const user in allUserStats) {
     // if (allUserStats[user].numTxs < 50) continue;
     const txCounts = allUserStats[user].txCounts;
-    // console.log("txCounts", txCounts);
     for (const fnName of txCounts.keys()) {
       functionNames.add(fnName);
     }
-
-    const firstTxDate = new Date(allUserStats[user].firstTxDate);
   }
 
   const csvRows = [
@@ -85,37 +81,109 @@ async function main() {
   const fnNameArr = ["Address", "Username", ...[...functionNames]];
   const fnNameCsvRows = [fnNameArr.map((fn) => `# ${fn}`)];
   console.log("Processing users...");
+  const processedUsers: Set<string> = new Set();
   for (const user in allUserStats) {
-    if (user.toLowerCase() === wordlDeployer.toLowerCase()) continue;
+    if (user.toLowerCase() === worldDeployer.toLowerCase()) continue;
+    if (processedUsers.has(user.toLowerCase())) continue;
+    processedUsers.add(user.toLowerCase());
 
-    const txCounts = allUserStats[user].txCounts;
-    const firstTxDate = new Date(allUserStats[user].firstTxDate);
-    const lastTxDate = new Date(allUserStats[user].lastTxDate);
-    const delegator = delegations.get(user);
-    const avgTotalFeesWei =
-      allUserStats[user].numTxs > 0 ? allUserStats[user].totalFees / BigInt(allUserStats[user].numTxs) : 0n;
+    let txCounts = allUserStats[user].txCounts;
+    let firstTxDate = allUserStats[user].firstTxDate ? new Date(allUserStats[user].firstTxDate) : null;
+    let lastTxDate = allUserStats[user].lastTxDate ? new Date(allUserStats[user].lastTxDate) : null;
+    let numTxs = allUserStats[user].numTxs;
+    let totalFees = allUserStats[user].totalFees;
+    let totalL1Fees = allUserStats[user].totalL1Fees;
+    let totalL2Fees = allUserStats[user].totalL2Fees;
+    let totalBaseFees = allUserStats[user].totalBaseFees;
+    let totalPriorityFees = allUserStats[user].totalPriorityFees;
+
+    let delegator = delegateeToDelegator.get(user);
+    if (delegator) {
+      processedUsers.add(delegator.toLowerCase());
+      const delegatorStats = allUserStats[delegator];
+      if (delegatorStats !== undefined) {
+        numTxs += delegatorStats.numTxs;
+        totalFees += delegatorStats.totalFees;
+        totalL1Fees += delegatorStats.totalL1Fees;
+        totalL2Fees += delegatorStats.totalL2Fees;
+        totalBaseFees += delegatorStats.totalBaseFees;
+        totalPriorityFees += delegatorStats.totalPriorityFees;
+
+        if (
+          firstTxDate === null ||
+          (delegatorStats.firstTxDate !== null && new Date(delegatorStats.firstTxDate) < firstTxDate)
+        ) {
+          firstTxDate = new Date(delegatorStats.firstTxDate);
+        }
+        if (
+          lastTxDate === null ||
+          (delegatorStats.lastTxDate !== null && new Date(delegatorStats.lastTxDate) > lastTxDate)
+        ) {
+          lastTxDate = new Date(delegatorStats.lastTxDate);
+        }
+      }
+    }
+    let delegatee = delegatorToDelegatee.get(user);
+    if (delegatee) {
+      processedUsers.add(delegatee.toLowerCase());
+      const delegateeStats = allUserStats[delegatee];
+      if (delegateeStats !== undefined) {
+        numTxs += delegateeStats.numTxs;
+        totalFees += delegateeStats.totalFees;
+        totalL1Fees += delegateeStats.totalL1Fees;
+        totalL2Fees += delegateeStats.totalL2Fees;
+        totalBaseFees += delegateeStats.totalBaseFees;
+        totalPriorityFees += delegateeStats.totalPriorityFees;
+
+        if (
+          firstTxDate === null ||
+          (delegateeStats.firstTxDate !== null && new Date(delegateeStats.firstTxDate) < firstTxDate)
+        ) {
+          firstTxDate = new Date(delegateeStats.firstTxDate);
+        }
+        if (
+          lastTxDate === null ||
+          (delegateeStats.lastTxDate !== null && new Date(delegateeStats.lastTxDate) > lastTxDate)
+        ) {
+          lastTxDate = new Date(delegateeStats.lastTxDate);
+        }
+      }
+    }
+    if (numTxs === 0) {
+      continue;
+    }
+
+    let userAddress = delegator ? delegator : user;
+    if (firstTxDate === null) {
+      throw new Error("firstTxDate is null for user " + user);
+    }
+    if (lastTxDate === null) {
+      throw new Error("lastTxDate is null for user " + user);
+    }
+
+    const avgTotalFeesWei = numTxs > 0 ? totalFees / BigInt(numTxs) : 0n;
     // console.log(txCounts);
-    const username = addressToName[user];
+    const username = addressToName[userAddress];
     csvRows.push([
-      user,
+      userAddress,
       username,
       firstTxDate.toLocaleDateString(),
       lastTxDate.toLocaleDateString(),
-      allUserStats[user].numTxs,
-      allUserStats[user].totalFees,
-      formatEther(allUserStats[user].totalFees),
+      numTxs,
+      totalFees,
+      formatEther(totalFees),
       avgTotalFeesWei,
       formatEther(avgTotalFeesWei),
-      allUserStats[user].totalL1Fees,
-      formatEther(allUserStats[user].totalL1Fees),
-      allUserStats[user].totalL2Fees,
-      formatEther(allUserStats[user].totalL2Fees),
-      allUserStats[user].totalBaseFees,
-      formatEther(allUserStats[user].totalBaseFees),
-      allUserStats[user].totalPriorityFees,
-      formatEther(allUserStats[user].totalPriorityFees),
+      totalL1Fees,
+      formatEther(totalL1Fees),
+      totalL2Fees,
+      formatEther(totalL2Fees),
+      totalBaseFees,
+      formatEther(totalBaseFees),
+      totalPriorityFees,
+      formatEther(totalPriorityFees),
     ]);
-    fnNameCsvRows.push([user, username, ...fnNameArr.map((fn) => txCounts.get(fn) ?? 0)]);
+    fnNameCsvRows.push([userAddress, username, ...fnNameArr.map((fn) => txCounts.get(fn) ?? 0)]);
   }
   console.log("csvRows", csvRows.length);
   console.log("fnNameCsvRows", fnNameCsvRows.length);
