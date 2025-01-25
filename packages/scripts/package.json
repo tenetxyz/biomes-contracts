@@ -22,7 +22,8 @@
     "parseTxData": "npx tsx parseTxData.ts",
     "governor": "npx tsx governor.ts",
     "dozer": "npx tsx dozer.ts",
-    "resolveCommitments": "npx tsx resolveCommitments.ts"
+    "resolveCommitments": "npx tsx resolveCommitments.ts",
+    "parseStats": "npx tsx parseStats.ts"
   },
   "dependencies": {
     "@biomesaw/world": "workspace:*",
