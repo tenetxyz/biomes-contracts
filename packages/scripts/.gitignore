@@ -10,3 +10,4 @@ deploys/**/*.json
 dist/
 gen/
 abis/
+venv/
