@@ -5,7 +5,7 @@ procs:
     cwd: packages/world
     shell: pnpm explorer --dev --pi 3008
   deploy-prereqs:
-    shell: sleep 1 && pnpm deploy-local-prereqs
+    shell: sleep 1 && pnpm entrykit-deploy
     env:
       DEBUG: "mud:*"
       # Anvil default account (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
