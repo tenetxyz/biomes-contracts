@@ -4,12 +4,6 @@ procs:
   explorer:
     cwd: packages/world
     shell: pnpm explorer --dev --pi 3008
-  deploy-prereqs:
-    shell: sleep 1 && pnpm entrykit-deploy
-    env:
-      DEBUG: "mud:*"
-      # Anvil default account (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
-      PRIVATE_KEY: "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
   anvil:
     cwd: packages/scripts
     shell: pnpm run anvil
