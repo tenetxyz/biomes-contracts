@@ -36,7 +36,7 @@ const indexerUrl =
     ? "https://indexer.mud.redstonechain.com/q"
     : process.env.NODE_ENV === "testnet"
       ? "https://indexer.mud.garnetchain.com/q"
-      : "";
+      : "http://localhost:13690/api/sqlite-indexer";
 
 export type SetupNetwork = Awaited<ReturnType<typeof setupNetwork>>;
 
