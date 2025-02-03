@@ -38,7 +38,7 @@ async function main() {
   const resolveData = [];
   for (const row of content.result[0]) {
     // don't include the first row cuz its the header
-    if (row[0] == "entityId") continue;
+    if (row[0].toLowerCase() == "entityid") continue;
     resolveData.push({
       entityId: row[0],
       coord: {

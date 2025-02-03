@@ -39,7 +39,7 @@ async function main() {
   console.log(content);
   for (const row of content.result[0]) {
     // don't include the first row cuz its the header
-    if (row[0] == "entityId") continue;
+    if (row[0].toLowerCase() == "entityid") continue;
     if (row[1].toLowerCase() == "0x602e17290e184Cafab0f8AB242f49DF690f0ab45".toLowerCase()) {
       entityIds.add(row[0]);
     }
