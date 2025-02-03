@@ -1,17 +1,17 @@
 import { Worker } from "worker_threads";
 import fs from "fs";
 import path from "path";
-import { formatEther, parseAbi } from "viem";
+import { formatEther, Hex, parseAbi } from "viem";
 import { setupNetwork } from "./setupNetwork";
 import os from "os";
-import { replacer, reviver } from "./utils";
+import { constructTableNameForQuery, replacer, reviver } from "./utils";
 
 const worldDeployer = "0x1f820052916970Ff09150b58F2f0Fb842C5a58be";
 
 async function main() {
   // Setup initial configuration
-  const { publicClient, worldAddress, allAbis, account, txOptions, callTx, fromBlock, indexerUrl } =
-    await setupNetwork();
+  const { publicClient, worldAddress, allAbis, account, txOptions, callTx, fromBlock, indexer } = await setupNetwork();
+  indexer;
 
   const userNamesData = await fetch("https://biome1.biomes.aw/api/user/names").then((res) => res.json());
   const addressToName = userNamesData.addressToName;
@@ -19,16 +19,21 @@ async function main() {
   const query = [
     {
       address: worldAddress,
-      query: 'SELECT "delegator", "delegatee", "delegationControlId" FROM world__UserDelegationCo;',
+      query: `SELECT ${indexer?.type === "sqlite" ? "*" : '"delegator", "delegatee", "delegationControlId"'} FROM "${constructTableNameForQuery(
+        "world",
+        "UserDelegationControl",
+        worldAddress as Hex,
+        indexer,
+      )}";`,
     },
   ];
 
-  console.log("indexerUrl", indexerUrl);
+  console.log("indexerUrl", indexer?.url);
   const delegatorToDelegatee = new Map<string, string>();
   const delegateeToDelegator = new Map<string, string>();
 
   // fetch post request
-  const response = await fetch(indexerUrl, {
+  const response = await fetch(indexer?.url, {
     method: "POST",
     headers: {
       Accept: "application/json",

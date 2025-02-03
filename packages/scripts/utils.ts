@@ -1,3 +1,6 @@
+import { getTableName } from "@latticexyz/store-sync/sqlite";
+import { Hex } from "viem";
+
 export function replacer(key, value) {
   if (value === undefined) {
     return "undefined";
@@ -42,4 +45,21 @@ export function reviver(key, value) {
     }
   }
   return value;
+}
+
+export function constructTableNameForQuery(
+  tableNamespace: string,
+  tableName: string,
+  worldAddress: Hex,
+  indexer: { type: string; url: string },
+) {
+  if (indexer.type === "sqlite") {
+    return getTableName(worldAddress, tableNamespace, tableName);
+  } else {
+    return constructDozerTableName(tableNamespace, tableName);
+  }
+}
+
+function constructDozerTableName(tableNamespace: string, tableName: string) {
+  return tableNamespace ? `${tableNamespace}__${tableName}` : tableName;
 }

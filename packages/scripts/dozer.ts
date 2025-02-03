@@ -3,26 +3,31 @@ import { setupNetwork } from "./setupNetwork";
 
 import fs from "fs";
 import path from "path";
-import { replacer } from "./utils";
+import { constructTableNameForQuery, replacer } from "./utils";
 
 async function main() {
-  const { publicClient, fromBlock, worldAddress, IWorldAbi, account, txOptions, callTx, indexerUrl } =
+  const { publicClient, fromBlock, worldAddress, IWorldAbi, account, txOptions, callTx, indexer } =
     await setupNetwork();
 
   const query = [
     {
       address: worldAddress,
-      query: 'SELECT "entityId", "chipAddress" FROM Chip;',
+      query: `SELECT ${indexer?.type === "sqlite" ? "*" : '"entityId", "chipAddress"'} FROM "${constructTableNameForQuery(
+        "",
+        "Chip",
+        worldAddress as Hex,
+        indexer,
+      )}";`,
     },
   ];
 
   const entityIds = new Set();
 
-  console.log("indexerUrl", indexerUrl);
+  console.log("indexerUrl", indexer?.url);
   console.log("query", query);
 
   // fetch post request
-  const response = await fetch(indexerUrl, {
+  const response = await fetch(indexer?.url, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -31,7 +36,7 @@ async function main() {
     body: JSON.stringify(query),
   });
   const content = await response.json();
-  // console.log(content);
+  console.log(content);
   for (const row of content.result[0]) {
     // don't include the first row cuz its the header
     if (row[0] == "entityId") continue;

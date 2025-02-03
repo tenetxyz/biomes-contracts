@@ -111,6 +111,9 @@ importers:
       '@latticexyz/store':
         specifier: link:../../../mud/packages/store
         version: link:../../../mud/packages/store
+      '@latticexyz/store-sync':
+        specifier: link:../../../mud/packages/store-sync
+        version: link:../../../mud/packages/store-sync
       '@latticexyz/utils':
         specifier: link:../../../mud/packages/utils
         version: link:../../../mud/packages/utils

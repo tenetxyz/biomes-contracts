@@ -3,24 +3,29 @@ import { setupNetwork } from "./setupNetwork";
 
 import fs from "fs";
 import path from "path";
-import { replacer } from "./utils";
+import { constructTableNameForQuery, replacer } from "./utils";
 
 async function main() {
-  const { publicClient, fromBlock, worldAddress, IWorldAbi, account, txOptions, callTx, indexerUrl } =
+  const { publicClient, fromBlock, worldAddress, IWorldAbi, account, txOptions, callTx, indexer } =
     await setupNetwork();
 
   const query = [
     {
       address: worldAddress,
-      query: 'SELECT "entityId", "hasCommitted", "x", "y", "z" FROM Commitment;',
+      query: `SELECT ${indexer?.type === "sqlite" ? "*" : '"entityId", "hasCommitted", "x", "y", "z"'} FROM "${constructTableNameForQuery(
+        "",
+        "Commitment",
+        worldAddress as Hex,
+        indexer,
+      )}";`,
     },
   ];
 
-  console.log("indexerUrl", indexerUrl);
+  console.log("indexerUrl", indexer.url);
   console.log("query", query);
 
   // fetch post request
-  const response = await fetch(indexerUrl, {
+  const response = await fetch(indexer.url, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -63,15 +68,20 @@ async function main() {
   const terrainQuery = [
     {
       address: worldAddress,
-      query: 'SELECT "x", "y", "z", "blockNumber", "committerEntityId" FROM TerrainCommitmen;',
+      query: `SELECT ${indexer?.type === "sqlite" ? "*" : '"x", "y", "z", "blockNumber", "committerEntityId"'} FROM "${constructTableNameForQuery(
+        "",
+        "TerrainCommitmen",
+        worldAddress as Hex,
+        indexer,
+      )}";`,
     },
   ];
 
-  console.log("indexerUrl", indexerUrl);
+  console.log("indexerUrl", indexer.url);
   console.log("query", terrainQuery);
 
   // fetch post request
-  const terrainResponse = await fetch(indexerUrl, {
+  const terrainResponse = await fetch(indexer.url, {
     method: "POST",
     headers: {
       Accept: "application/json",

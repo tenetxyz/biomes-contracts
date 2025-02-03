@@ -17,6 +17,7 @@ import ERC721SystemAbi from "@latticexyz/world-modules/out/ERC721System.sol/ERC7
 import worldsJson from "@biomesaw/world/worlds.json";
 
 import { supportedChains } from "./supportedChains";
+import { mudFoundry } from "@latticexyz/common/chains";
 
 dotenv.config();
 
@@ -30,13 +31,6 @@ const chainId =
     : process.env.NODE_ENV === "testnet"
       ? TESNET_CHAIN_ID
       : DEV_CHAIN_ID;
-
-const indexerUrl =
-  process.env.NODE_ENV === "mainnet"
-    ? "https://indexer.mud.redstonechain.com/q"
-    : process.env.NODE_ENV === "testnet"
-      ? "https://indexer.mud.garnetchain.com/q"
-      : "http://localhost:13690/api/sqlite-indexer";
 
 export type SetupNetwork = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -142,6 +136,17 @@ export async function setupNetwork() {
 
   const allAbis = [IWorldAbi, IExperienceAbi, CallWithSignatureAbi, ERC20SystemAbi, ERC721SystemAbi];
 
+  let indexerUrl = chain.indexerUrl;
+  let indexer = undefined;
+  if (chainId === mudFoundry.id) {
+    indexerUrl = "http://localhost:13690";
+    indexer = { type: "sqlite", url: new URL("/api/sqlite-indexer", indexerUrl).toString() };
+  } else {
+    if (indexerUrl) {
+      indexer = { type: "hosted", url: new URL("/q", indexerUrl).toString() };
+    }
+  }
+
   return {
     IWorldAbi,
     allAbis,
@@ -149,7 +154,7 @@ export async function setupNetwork() {
     walletClient,
     publicClient,
     txOptions,
-    indexerUrl,
+    indexer,
     callTx,
     account,
     fromBlock,

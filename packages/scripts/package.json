@@ -33,6 +33,7 @@
     "@latticexyz/store": "link:../../../mud/packages/store",
     "@latticexyz/utils": "link:../../../mud/packages/utils",
     "@latticexyz/world-modules": "link:../../../mud/packages/world-modules",
+    "@latticexyz/store-sync": "link:../../../mud/packages/store-sync",
     "csv-parser": "^3.0.0",
     "dotenv": "^16.3.1",
     "ethers": "^5.7.2",
