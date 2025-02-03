@@ -222,7 +222,7 @@ contract OreTest is MudTest, GasReporter {
     vm.roll(block.number + 10000);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    world.setBlockHash(commitBlockNumber, bytes32(uint256(99)));
+    BlockHash.set(commitBlockNumber, bytes32(uint256(99)));
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
@@ -821,7 +821,7 @@ contract OreTest is MudTest, GasReporter {
     world.revealOre(oreCoord);
 
     vm.startPrank(worldDeployer, worldDeployer);
-    world.setBlockHash(commitBlockNumber, bytes32(uint256(10)));
+    BlockHash.set(commitBlockNumber, bytes32(uint256(10)));
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
