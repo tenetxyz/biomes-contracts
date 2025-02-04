@@ -393,35 +393,6 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    // -------------------
-    // DEPRECATED TABLES
-    // -------------------
-    Terrain: {
-      schema: {
-        x: "int16",
-        y: "int16",
-        z: "int16",
-        objectTypeId: "uint8",
-      },
-      key: ["x", "y", "z"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    ChestMetadata: {
-      schema: {
-        chestEntityId: "bytes32",
-        owner: "address",
-        onTransferHook: "address",
-        strength: "uint256",
-        strengthenObjectTypeIds: "uint8[]",
-        strengthenObjectTypeAmounts: "uint16[]",
-      },
-      key: ["chestEntityId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
   },
   systems: {
     GravitySystem: {

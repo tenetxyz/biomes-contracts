@@ -887,124 +887,6 @@
   },
   {
     "type": "function",
-    "name": "fillTerrainCache",
-    "inputs": [
-      {
-        "name": "lowerSouthwestCorner",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      },
-      {
-        "name": "size",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "fillTerrainCache",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple[]",
-        "internalType": "struct VoxelCoord[]",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "fillTerrainCache",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "getBlockEntityData",
     "inputs": [
       {
@@ -1227,42 +1109,6 @@
             ]
           }
         ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getCachedTerrainObjectTypeId",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
       }
     ],
     "stateMutability": "view"
@@ -3443,78 +3289,6 @@
   },
   {
     "type": "function",
-    "name": "getTerrainObjectTypeId",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getTerrainObjectTypeIdWithCacheSet",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "getUserDelegation",
     "inputs": [
       {
@@ -3724,20 +3498,6 @@
   },
   {
     "type": "function",
-    "name": "initSpawnAreaBottom",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initSpawnAreaBottomBorder",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "initSpawnAreaBottomBorder",
     "inputs": [
       {
@@ -3763,13 +3523,6 @@
         ]
       }
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initSpawnAreaBottomPart2",
-    "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
@@ -3830,13 +3583,6 @@
         ]
       }
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initSpawnAreaTop",
-    "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
@@ -3897,13 +3643,6 @@
         ]
       }
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initSpawnAreaTopPart2",
-    "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
@@ -5071,56 +4810,6 @@
   },
   {
     "type": "function",
-    "name": "requireBuildAllowed",
-    "inputs": [
-      {
-        "name": "playerEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
     "name": "requireBuildsAllowed",
     "inputs": [
       {
@@ -5142,61 +4831,6 @@
         "name": "coords",
         "type": "tuple[]",
         "internalType": "struct VoxelCoord[]",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "requireMineAllowed",
-    "inputs": [
-      {
-        "name": "playerEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "equippedToolDamage",
-        "type": "uint32",
-        "internalType": "uint32"
-      },
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
         "components": [
           {
             "name": "x",
@@ -5400,24 +5034,6 @@
         "name": "blockPrevrandao",
         "type": "uint256",
         "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setChestOnTransferHook",
-    "inputs": [
-      {
-        "name": "chestEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "hookAddress",
-        "type": "address",
-        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -5715,133 +5331,6 @@
   },
   {
     "type": "function",
-    "name": "setTerrainObjectTypeIds",
-    "inputs": [
-      {
-        "name": "lowerSouthwestCorner",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      },
-      {
-        "name": "size",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      },
-      {
-        "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setTerrainObjectTypeIds",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple[]",
-        "internalType": "struct VoxelCoord[]",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      },
-      {
-        "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setTerrainObjectTypeIds",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple[]",
-        "internalType": "struct VoxelCoord[]",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      },
-      {
-        "name": "objectTypeId",
-        "type": "uint8[]",
-        "internalType": "uint8[]"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "spawnPlayer",
     "inputs": [
       {
@@ -5954,29 +5443,6 @@
       }
     ],
     "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "strengthenChest",
-    "inputs": [
-      {
-        "name": "chestEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "strengthenObjectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "strengthenObjectTypeAmount",
-        "type": "uint16",
-        "internalType": "uint16"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
   },
   {
     "type": "function",

@@ -27,7 +27,6 @@ import { ItemMetadata } from "../../src/codegen/tables/ItemMetadata.sol";
 import { ObjectTypeMetadata } from "../../src/codegen/tables/ObjectTypeMetadata.sol";
 import { UniqueEntity } from "../../src/codegen/tables/UniqueEntity.sol";
 import { ShardField } from "../../src/codegen/tables/ShardField.sol";
-import { Terrain } from "../../src/codegen/tables/Terrain.sol";
 import { BlockHash } from "../../src/codegen/tables/BlockHash.sol";
 
 import { IProcGenSystem } from "../../src/codegen/world/IProcGenSystem.sol";

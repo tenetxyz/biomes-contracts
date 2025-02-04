@@ -27,14 +27,12 @@ import { IUnequipSystem } from "./IUnequipSystem.sol";
 import { IXPSystem } from "./IXPSystem.sol";
 import { IAdminHookSystem } from "./IAdminHookSystem.sol";
 import { IAdminSpawnSystem } from "./IAdminSpawnSystem.sol";
-import { IAdminTerrainSystem } from "./IAdminTerrainSystem.sol";
 import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
 import { IOracleSystem } from "./IOracleSystem.sol";
 import { IProcGenOreSystem } from "./IProcGenOreSystem.sol";
 import { IProcGenSystem } from "./IProcGenSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
 import { IReadTwoSystem } from "./IReadTwoSystem.sol";
-import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { IInitDyedBlocksSystem } from "./IInitDyedBlocksSystem.sol";
 import { IInitHandBlocksSystem } from "./IInitHandBlocksSystem.sol";
 import { IInitInteractablesSystem } from "./IInitInteractablesSystem.sol";
@@ -49,7 +47,6 @@ import { IMintXPSystem } from "./IMintXPSystem.sol";
 import { IMoveHelperSystem } from "./IMoveHelperSystem.sol";
 import { IPipeTransferHelperSystem } from "./IPipeTransferHelperSystem.sol";
 import { ITransferHelperSystem } from "./ITransferHelperSystem.sol";
-import { IChestSystem } from "./IChestSystem.sol";
 
 /**
  * @title IWorld
@@ -83,14 +80,12 @@ interface IWorld is
   IXPSystem,
   IAdminHookSystem,
   IAdminSpawnSystem,
-  IAdminTerrainSystem,
   IInitSpawnSystem,
   IOracleSystem,
   IProcGenOreSystem,
   IProcGenSystem,
   IReadSystem,
   IReadTwoSystem,
-  ITerrainSystem,
   IInitDyedBlocksSystem,
   IInitHandBlocksSystem,
   IInitInteractablesSystem,
@@ -104,6 +99,5 @@ interface IWorld is
   IMintXPSystem,
   IMoveHelperSystem,
   IPipeTransferHelperSystem,
-  ITransferHelperSystem,
-  IChestSystem
+  ITransferHelperSystem
 {}

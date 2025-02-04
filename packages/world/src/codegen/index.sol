@@ -35,5 +35,3 @@ import { Commitment, CommitmentData } from "./tables/Commitment.sol";
 import { BlockHash } from "./tables/BlockHash.sol";
 import { BlockPrevrandao } from "./tables/BlockPrevrandao.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "./tables/PlayerActionNotif.sol";
-import { Terrain } from "./tables/Terrain.sol";
-import { ChestMetadata, ChestMetadataData } from "./tables/ChestMetadata.sol";

@@ -11,7 +11,6 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { Position, PositionData } from "./codegen/tables/Position.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
-import { Terrain } from "./codegen/tables/Terrain.sol";
 import { UniqueEntity } from "./codegen/tables/UniqueEntity.sol";
 import { Spawn, SpawnData } from "./codegen/tables/Spawn.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";

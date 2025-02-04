@@ -26,7 +26,6 @@ import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
 import { ExperiencePoints } from "../src/codegen/tables/ExperiencePoints.sol";
 import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 
-import { Terrain } from "../src/codegen/tables/Terrain.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
 
@@ -109,9 +108,6 @@ contract MoveTest is MudTest, GasReporter {
         Position.set(belowEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
         ReversePosition.set(belowCoord.x, belowCoord.y, belowCoord.z, belowEntityId);
         ObjectType.set(belowEntityId, GrassObjectID);
-
-        Terrain.set(newCoords[i].x, newCoords[i].y, newCoords[i].z, AirObjectID);
-        Terrain.set(belowCoord.x, belowCoord.y, belowCoord.z, GrassObjectID);
       } else {
         assertTrue(world.getTerrainBlock(newCoords[i]) == AirObjectID, "Terrain block is not air");
       }

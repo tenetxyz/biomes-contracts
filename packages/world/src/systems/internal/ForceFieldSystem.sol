@@ -77,26 +77,4 @@ contract ForceFieldSystem is System {
       }
     }
   }
-
-  // Deprecated
-  function requireBuildAllowed(
-    bytes32 playerEntityId,
-    bytes32 entityId,
-    uint8 objectTypeId,
-    VoxelCoord memory coord,
-    bytes memory extraData
-  ) public payable {
-    revert("ForceFieldSystem: deprecated function");
-  }
-
-  function requireMineAllowed(
-    bytes32 playerEntityId,
-    uint32 equippedToolDamage,
-    bytes32 entityId,
-    uint8 objectTypeId,
-    VoxelCoord memory coord,
-    bytes memory extraData
-  ) public payable {
-    revert("ForceFieldSystem: deprecated function");
-  }
 }

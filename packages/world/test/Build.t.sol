@@ -28,7 +28,6 @@ import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../src/codegen/tables/Recipes.sol";
-import { Terrain } from "../src/codegen/tables/Terrain.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
@@ -127,11 +126,6 @@ contract BuildTest is MudTest, GasReporter {
     bytes32 mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertTrue(mineEntityId != bytes32(0), "Mine entity not found");
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Terrain block is not air");
-
-    vm.startPrank(worldDeployer, worldDeployer);
-    Terrain.set(mineCoord.x, mineCoord.y, mineCoord.z, terrainObjectTypeId);
-    vm.stopPrank();
-    vm.startPrank(alice, alice);
 
     VoxelCoord memory buildCoord = mineCoord;
     startGasReport("build non-terrain");
