@@ -5,6 +5,7 @@ export default defineWorld({
     upgradeableWorldImplementation: true,
   },
   enums: {
+    ObjectCategory: ["None", "Block", "Item", "Tool", "Player"],
     ActionType: [
       "None",
       "Build",
@@ -30,167 +31,131 @@ export default defineWorld({
     DisplayContentType: ["None", "Text", "Image"],
   },
   tables: {
-    UniqueEntity: {
-      schema: {
-        value: "uint256",
-      },
-      key: [],
-      codegen: {
-        storeArgument: true,
-      },
-    },
+    // ------------------------------------------------------------
+    // Static Data
+    // ------------------------------------------------------------
     ObjectTypeMetadata: {
       schema: {
-        objectTypeId: "uint8",
-        isBlock: "bool",
-        isTool: "bool",
-        miningDifficulty: "uint16",
+        objectTypeId: "uint16",
+        objectCategory: "ObjectCategory",
         stackable: "uint8",
-        damage: "uint16",
-        durability: "uint24",
+        mass: "uint32",
+        energy: "uint32",
       },
       key: ["objectTypeId"],
-      codegen: {
-        storeArgument: true,
-      },
     },
     ObjectTypeSchema: {
       schema: {
-        objectTypeId: "uint8",
-        relativePositionsX: "int16[]",
-        relativePositionsY: "int16[]",
-        relativePositionsZ: "int16[]",
+        objectTypeId: "uint16",
+        relativePositionsX: "int32[]",
+        relativePositionsY: "int32[]",
+        relativePositionsZ: "int32[]",
       },
       key: ["objectTypeId"],
-      codegen: {
-        storeArgument: true,
-      },
     },
     Recipes: {
       schema: {
         recipeId: "bytes32",
-        stationObjectTypeId: "uint8",
-        outputObjectTypeId: "uint8",
-        outputObjectTypeAmount: "uint8",
-        inputObjectTypeIds: "uint8[]",
-        inputObjectTypeAmounts: "uint8[]",
+        stationObjectTypeId: "uint16",
+        outputObjectTypeId: "uint16",
+        outputObjectTypeAmount: "uint16",
+        inputObjectTypeIds: "uint16[]",
+        inputObjectTypeAmounts: "uint16[]",
       },
       key: ["recipeId"],
-      codegen: {
-        storeArgument: true,
-      },
     },
-    Spawn: {
+    InitialEnergyPool: {
       schema: {
-        x: "int16",
-        z: "int16",
-        initialized: "bool",
-        spawnLowX: "int16",
-        spawnHighX: "int16",
-        spawnLowZ: "int16",
-        spawnHighZ: "int16",
+        x: "int32",
+        y: "int32",
+        z: "int32",
+        energy: "uint256",
       },
-      key: ["x", "z"],
-      codegen: {
-        storeArgument: true,
-      },
+      key: ["x", "y", "z"],
     },
-    BaseEntity: {
-      schema: {
-        entityId: "bytes32",
-        baseEntityId: "bytes32",
-      },
-      key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
+    // ------------------------------------------------------------
+    // Grid
+    // ------------------------------------------------------------
     ObjectType: {
       schema: {
         entityId: "bytes32",
-        objectTypeId: "uint8",
+        objectTypeId: "uint16",
       },
       key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
     },
     Position: {
       schema: {
         entityId: "bytes32",
-        x: "int16",
-        y: "int16",
-        z: "int16",
+        x: "int32",
+        y: "int32",
+        z: "int32",
       },
       key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
     },
     ReversePosition: {
       schema: {
-        x: "int16",
-        y: "int16",
-        z: "int16",
+        x: "int32",
+        y: "int32",
+        z: "int32",
         entityId: "bytes32",
       },
       key: ["x", "y", "z"],
-      codegen: {
-        storeArgument: true,
-      },
     },
-    LastKnownPosition: {
+    Mass: {
       schema: {
         entityId: "bytes32",
-        x: "int16",
-        y: "int16",
-        z: "int16",
+        lastUpdatedTime: "uint256",
+        mass: "uint256",
       },
       key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
     },
-    Player: {
-      schema: {
-        player: "address",
-        entityId: "bytes32",
-      },
-      key: ["player"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    ReversePlayer: {
+    Energy: {
       schema: {
         entityId: "bytes32",
-        player: "address",
+        lastUpdatedTime: "uint256",
+        energy: "uint256",
       },
       key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
     },
-    PlayerMetadata: {
+    GlobalEnergyPool: {
       schema: {
-        entityId: "bytes32",
-        isLoggedOff: "bool",
-        lastHitTime: "uint256",
+        energy: "uint256",
       },
-      key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
+      key: [],
     },
-    PlayerActivity: {
+    EnergyPool: {
       schema: {
-        entityId: "bytes32",
-        lastActionTime: "uint256",
+        x: "int32",
+        y: "int32",
+        z: "int32",
+        energy: "uint256",
       },
-      key: ["entityId"],
-      codegen: {
-        storeArgument: true,
+      key: ["x", "y", "z"],
+    },
+    // ------------------------------------------------------------
+    // Inventory
+    // ------------------------------------------------------------
+    InventorySlots: {
+      schema: {
+        ownerEntityId: "bytes32",
+        numSlotsUsed: "uint16",
       },
+      key: ["ownerEntityId"],
+    },
+    InventoryObjects: {
+      schema: {
+        ownerEntityId: "bytes32",
+        objectTypeIds: "uint16[]",
+      },
+      key: ["ownerEntityId"],
+    },
+    InventoryCount: {
+      schema: {
+        ownerEntityId: "bytes32",
+        objectTypeId: "uint16",
+        count: "uint16",
+      },
+      key: ["ownerEntityId", "objectTypeId"],
     },
     InventoryTool: {
       schema: {
@@ -198,9 +163,6 @@ export default defineWorld({
         ownerEntityId: "bytes32",
       },
       key: ["toolEntityId"],
-      codegen: {
-        storeArgument: true,
-      },
     },
     ReverseInventoryTool: {
       schema: {
@@ -208,74 +170,6 @@ export default defineWorld({
         toolEntityIds: "bytes32[]",
       },
       key: ["ownerEntityId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    InventoryCount: {
-      schema: {
-        ownerEntityId: "bytes32",
-        objectTypeId: "uint8",
-        count: "uint16",
-      },
-      key: ["ownerEntityId", "objectTypeId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    InventoryObjects: {
-      schema: {
-        ownerEntityId: "bytes32",
-        objectTypeIds: "uint8[]",
-      },
-      key: ["ownerEntityId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    InventorySlots: {
-      schema: {
-        ownerEntityId: "bytes32",
-        numSlotsUsed: "uint16",
-      },
-      key: ["ownerEntityId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    ItemMetadata: {
-      schema: {
-        toolEntityId: "bytes32",
-        numUsesLeft: "uint24",
-      },
-      key: ["toolEntityId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    Chip: {
-      schema: {
-        entityId: "bytes32",
-        chipAddress: "address",
-        batteryLevel: "uint256",
-        lastUpdatedTime: "uint256",
-      },
-      key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    ShardField: {
-      schema: {
-        x: "int16",
-        y: "int16",
-        z: "int16",
-        forceFieldEntityId: "bytes32",
-      },
-      key: ["x", "y", "z"],
-      codegen: {
-        storeArgument: true,
-      },
     },
     Equipped: {
       schema: {
@@ -283,41 +177,60 @@ export default defineWorld({
         toolEntityId: "bytes32",
       },
       key: ["ownerEntityId"],
-      codegen: {
-        storeArgument: true,
-      },
     },
-    Health: {
+    // ------------------------------------------------------------
+    // Player
+    // ------------------------------------------------------------
+    Player: {
+      schema: {
+        player: "address",
+        entityId: "bytes32",
+      },
+      key: ["player"],
+    },
+    ReversePlayer: {
       schema: {
         entityId: "bytes32",
-        lastUpdatedTime: "uint256",
-        health: "uint16",
+        player: "address",
       },
       key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
     },
-    Stamina: {
+    PlayerMetadata: {
       schema: {
         entityId: "bytes32",
-        lastUpdatedTime: "uint256",
-        stamina: "uint32",
+        isLoggedOff: "bool",
+        lastHitTime: "uint256",
+        lastActionTime: "uint256",
       },
       key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
     },
-    ExperiencePoints: {
+    LastKnownPosition: {
       schema: {
         entityId: "bytes32",
-        xp: "uint256",
+        x: "int32",
+        y: "int32",
+        z: "int32",
       },
       key: ["entityId"],
-      codegen: {
-        storeArgument: true,
+    },
+    // ------------------------------------------------------------
+    // Smart Items
+    // ------------------------------------------------------------
+    Chip: {
+      schema: {
+        entityId: "bytes32",
+        chipAddress: "address",
       },
+      key: ["entityId"],
+    },
+    ForceField: {
+      schema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+        forceFieldEntityId: "bytes32",
+      },
+      key: ["x", "y", "z"],
     },
     DisplayContent: {
       schema: {
@@ -326,35 +239,62 @@ export default defineWorld({
         content: "bytes",
       },
       key: ["entityId"],
-      codegen: {
-        storeArgument: true,
-      },
     },
+    // ------------------------------------------------------------
+    // Ores
+    // ------------------------------------------------------------
     TerrainCommitment: {
       schema: {
-        x: "int16",
-        y: "int16",
-        z: "int16",
+        x: "int32",
+        y: "int32",
+        z: "int32",
         blockNumber: "uint256",
         committerEntityId: "bytes32",
       },
       key: ["x", "y", "z"],
-      codegen: {
-        storeArgument: true,
-      },
     },
     Commitment: {
       schema: {
         entityId: "bytes32",
         hasCommitted: "bool",
-        x: "int16",
-        y: "int16",
-        z: "int16",
+        x: "int32",
+        y: "int32",
+        z: "int32",
       },
       key: ["entityId"],
-      codegen: {
-        storeArgument: true,
+    },
+    // ------------------------------------------------------------
+    // Offchain
+    // ------------------------------------------------------------
+    PlayerActionNotif: {
+      schema: {
+        playerEntityId: "bytes32",
+        actionType: "ActionType",
+        entityId: "bytes32",
+        objectTypeId: "uint16",
+        coordX: "int32",
+        coordY: "int32",
+        coordZ: "int32",
+        amount: "uint256",
       },
+      key: ["playerEntityId"],
+      type: "offchainTable",
+    },
+    // ------------------------------------------------------------
+    // Internal
+    // ------------------------------------------------------------
+    UniqueEntity: {
+      schema: {
+        value: "uint256",
+      },
+      key: [],
+    },
+    BaseEntity: {
+      schema: {
+        entityId: "bytes32",
+        baseEntityId: "bytes32",
+      },
+      key: ["entityId"],
     },
     BlockHash: {
       schema: {
@@ -362,9 +302,6 @@ export default defineWorld({
         blockHash: "bytes32",
       },
       key: ["blockNumber"],
-      codegen: {
-        storeArgument: true,
-      },
     },
     BlockPrevrandao: {
       schema: {
@@ -372,26 +309,6 @@ export default defineWorld({
         blockPrevrandao: "uint256",
       },
       key: ["blockNumber"],
-      codegen: {
-        storeArgument: true,
-      },
-    },
-    PlayerActionNotif: {
-      schema: {
-        playerEntityId: "bytes32",
-        actionType: "ActionType",
-        entityId: "bytes32",
-        objectTypeId: "uint8",
-        coordX: "int16",
-        coordY: "int16",
-        coordZ: "int16",
-        amount: "uint256",
-      },
-      key: ["playerEntityId"],
-      type: "offchainTable",
-      codegen: {
-        storeArgument: true,
-      },
     },
   },
   systems: {

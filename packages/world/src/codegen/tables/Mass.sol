@@ -16,22 +16,22 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-struct StaminaData {
+struct MassData {
   uint256 lastUpdatedTime;
-  uint32 stamina;
+  uint256 mass;
 }
 
-library Stamina {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Stamina", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000005374616d696e61000000000000000000);
+library Mass {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Mass", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004d617373000000000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0024020020040000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0040020020200000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint256, uint32)
-  Schema constant _valueSchema = Schema.wrap(0x002402001f030000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint256, uint256)
+  Schema constant _valueSchema = Schema.wrap(0x004002001f1f0000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -49,7 +49,7 @@ library Stamina {
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](2);
     fieldNames[0] = "lastUpdatedTime";
-    fieldNames[1] = "stamina";
+    fieldNames[1] = "mass";
   }
 
   /**
@@ -64,13 +64,6 @@ library Stamina {
    */
   function _register() internal {
     StoreCore.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
   }
 
   /**
@@ -96,17 +89,6 @@ library Stamina {
   }
 
   /**
-   * @notice Get lastUpdatedTime (using the specified store).
-   */
-  function getLastUpdatedTime(IStore _store, bytes32 entityId) internal view returns (uint256 lastUpdatedTime) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
-  }
-
-  /**
    * @notice Set lastUpdatedTime.
    */
   function setLastUpdatedTime(bytes32 entityId, uint256 lastUpdatedTime) internal {
@@ -127,82 +109,51 @@ library Stamina {
   }
 
   /**
-   * @notice Set lastUpdatedTime (using the specified store).
+   * @notice Get mass.
    */
-  function setLastUpdatedTime(IStore _store, bytes32 entityId, uint256 lastUpdatedTime) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastUpdatedTime)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get stamina.
-   */
-  function getStamina(bytes32 entityId) internal view returns (uint32 stamina) {
+  function getMass(bytes32 entityId) internal view returns (uint256 mass) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (uint32(bytes4(_blob)));
+    return (uint256(bytes32(_blob)));
   }
 
   /**
-   * @notice Get stamina.
+   * @notice Get mass.
    */
-  function _getStamina(bytes32 entityId) internal view returns (uint32 stamina) {
+  function _getMass(bytes32 entityId) internal view returns (uint256 mass) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (uint32(bytes4(_blob)));
+    return (uint256(bytes32(_blob)));
   }
 
   /**
-   * @notice Get stamina (using the specified store).
+   * @notice Set mass.
    */
-  function getStamina(IStore _store, bytes32 entityId) internal view returns (uint32 stamina) {
+  function setMass(bytes32 entityId, uint256 mass) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (uint32(bytes4(_blob)));
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((mass)), _fieldLayout);
   }
 
   /**
-   * @notice Set stamina.
+   * @notice Set mass.
    */
-  function setStamina(bytes32 entityId, uint32 stamina) internal {
+  function _setMass(bytes32 entityId, uint256 mass) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((stamina)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set stamina.
-   */
-  function _setStamina(bytes32 entityId, uint32 stamina) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((stamina)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set stamina (using the specified store).
-   */
-  function setStamina(IStore _store, bytes32 entityId, uint32 stamina) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((stamina)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((mass)), _fieldLayout);
   }
 
   /**
    * @notice Get the full data.
    */
-  function get(bytes32 entityId) internal view returns (StaminaData memory _table) {
+  function get(bytes32 entityId) internal view returns (MassData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -217,7 +168,7 @@ library Stamina {
   /**
    * @notice Get the full data.
    */
-  function _get(bytes32 entityId) internal view returns (StaminaData memory _table) {
+  function _get(bytes32 entityId) internal view returns (MassData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -230,25 +181,10 @@ library Stamina {
   }
 
   /**
-   * @notice Get the full data (using the specified store).
-   */
-  function get(IStore _store, bytes32 entityId) internal view returns (StaminaData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
-      _tableId,
-      _keyTuple,
-      _fieldLayout
-    );
-    return decode(_staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 entityId, uint256 lastUpdatedTime, uint32 stamina) internal {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, stamina);
+  function set(bytes32 entityId, uint256 lastUpdatedTime, uint256 mass) internal {
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, mass);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -262,8 +198,8 @@ library Stamina {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 entityId, uint256 lastUpdatedTime, uint32 stamina) internal {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, stamina);
+  function _set(bytes32 entityId, uint256 lastUpdatedTime, uint256 mass) internal {
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, mass);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -275,25 +211,10 @@ library Stamina {
   }
 
   /**
-   * @notice Set the full data using individual values (using the specified store).
-   */
-  function set(IStore _store, bytes32 entityId, uint256 lastUpdatedTime, uint32 stamina) internal {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, stamina);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Set the full data using the data struct.
    */
-  function set(bytes32 entityId, StaminaData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.stamina);
+  function set(bytes32 entityId, MassData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.mass);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -307,8 +228,8 @@ library Stamina {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(bytes32 entityId, StaminaData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.stamina);
+  function _set(bytes32 entityId, MassData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.mass);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -317,30 +238,15 @@ library Stamina {
     _keyTuple[0] = entityId;
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
-  }
-
-  /**
-   * @notice Set the full data using the data struct (using the specified store).
-   */
-  function set(IStore _store, bytes32 entityId, StaminaData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.stamina);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
 
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (uint256 lastUpdatedTime, uint32 stamina) {
+  function decodeStatic(bytes memory _blob) internal pure returns (uint256 lastUpdatedTime, uint256 mass) {
     lastUpdatedTime = (uint256(Bytes.getBytes32(_blob, 0)));
 
-    stamina = (uint32(Bytes.getBytes4(_blob, 32)));
+    mass = (uint256(Bytes.getBytes32(_blob, 32)));
   }
 
   /**
@@ -353,8 +259,8 @@ library Stamina {
     bytes memory _staticData,
     EncodedLengths,
     bytes memory
-  ) internal pure returns (StaminaData memory _table) {
-    (_table.lastUpdatedTime, _table.stamina) = decodeStatic(_staticData);
+  ) internal pure returns (MassData memory _table) {
+    (_table.lastUpdatedTime, _table.mass) = decodeStatic(_staticData);
   }
 
   /**
@@ -378,21 +284,11 @@ library Stamina {
   }
 
   /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, bytes32 entityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.deleteRecord(_tableId, _keyTuple);
-  }
-
-  /**
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint256 lastUpdatedTime, uint32 stamina) internal pure returns (bytes memory) {
-    return abi.encodePacked(lastUpdatedTime, stamina);
+  function encodeStatic(uint256 lastUpdatedTime, uint256 mass) internal pure returns (bytes memory) {
+    return abi.encodePacked(lastUpdatedTime, mass);
   }
 
   /**
@@ -403,9 +299,9 @@ library Stamina {
    */
   function encode(
     uint256 lastUpdatedTime,
-    uint32 stamina
+    uint256 mass
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, stamina);
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, mass);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

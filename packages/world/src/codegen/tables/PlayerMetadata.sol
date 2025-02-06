@@ -19,6 +19,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 struct PlayerMetadataData {
   bool isLoggedOff;
   uint256 lastHitTime;
+  uint256 lastActionTime;
 }
 
 library PlayerMetadata {
@@ -26,12 +27,12 @@ library PlayerMetadata {
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000506c617965724d657461646174610000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0021020001200000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0041030001202000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bool, uint256)
-  Schema constant _valueSchema = Schema.wrap(0x00210200601f0000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bool, uint256, uint256)
+  Schema constant _valueSchema = Schema.wrap(0x00410300601f1f00000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -47,9 +48,10 @@ library PlayerMetadata {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](2);
+    fieldNames = new string[](3);
     fieldNames[0] = "isLoggedOff";
     fieldNames[1] = "lastHitTime";
+    fieldNames[2] = "lastActionTime";
   }
 
   /**
@@ -64,13 +66,6 @@ library PlayerMetadata {
    */
   function _register() internal {
     StoreCore.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
   }
 
   /**
@@ -96,17 +91,6 @@ library PlayerMetadata {
   }
 
   /**
-   * @notice Get isLoggedOff (using the specified store).
-   */
-  function getIsLoggedOff(IStore _store, bytes32 entityId) internal view returns (bool isLoggedOff) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
-  }
-
-  /**
    * @notice Set isLoggedOff.
    */
   function setIsLoggedOff(bytes32 entityId, bool isLoggedOff) internal {
@@ -124,16 +108,6 @@ library PlayerMetadata {
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isLoggedOff)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set isLoggedOff (using the specified store).
-   */
-  function setIsLoggedOff(IStore _store, bytes32 entityId, bool isLoggedOff) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isLoggedOff)), _fieldLayout);
   }
 
   /**
@@ -159,17 +133,6 @@ library PlayerMetadata {
   }
 
   /**
-   * @notice Get lastHitTime (using the specified store).
-   */
-  function getLastHitTime(IStore _store, bytes32 entityId) internal view returns (uint256 lastHitTime) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (uint256(bytes32(_blob)));
-  }
-
-  /**
    * @notice Set lastHitTime.
    */
   function setLastHitTime(bytes32 entityId, uint256 lastHitTime) internal {
@@ -190,13 +153,45 @@ library PlayerMetadata {
   }
 
   /**
-   * @notice Set lastHitTime (using the specified store).
+   * @notice Get lastActionTime.
    */
-  function setLastHitTime(IStore _store, bytes32 entityId, uint256 lastHitTime) internal {
+  function getLastActionTime(bytes32 entityId) internal view returns (uint256 lastActionTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((lastHitTime)), _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
+   * @notice Get lastActionTime.
+   */
+  function _getLastActionTime(bytes32 entityId) internal view returns (uint256 lastActionTime) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
+   * @notice Set lastActionTime.
+   */
+  function setLastActionTime(bytes32 entityId, uint256 lastActionTime) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((lastActionTime)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set lastActionTime.
+   */
+  function _setLastActionTime(bytes32 entityId, uint256 lastActionTime) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((lastActionTime)), _fieldLayout);
   }
 
   /**
@@ -230,25 +225,10 @@ library PlayerMetadata {
   }
 
   /**
-   * @notice Get the full data (using the specified store).
-   */
-  function get(IStore _store, bytes32 entityId) internal view returns (PlayerMetadataData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
-      _tableId,
-      _keyTuple,
-      _fieldLayout
-    );
-    return decode(_staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 entityId, bool isLoggedOff, uint256 lastHitTime) internal {
-    bytes memory _staticData = encodeStatic(isLoggedOff, lastHitTime);
+  function set(bytes32 entityId, bool isLoggedOff, uint256 lastHitTime, uint256 lastActionTime) internal {
+    bytes memory _staticData = encodeStatic(isLoggedOff, lastHitTime, lastActionTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -262,8 +242,8 @@ library PlayerMetadata {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 entityId, bool isLoggedOff, uint256 lastHitTime) internal {
-    bytes memory _staticData = encodeStatic(isLoggedOff, lastHitTime);
+  function _set(bytes32 entityId, bool isLoggedOff, uint256 lastHitTime, uint256 lastActionTime) internal {
+    bytes memory _staticData = encodeStatic(isLoggedOff, lastHitTime, lastActionTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -275,25 +255,10 @@ library PlayerMetadata {
   }
 
   /**
-   * @notice Set the full data using individual values (using the specified store).
-   */
-  function set(IStore _store, bytes32 entityId, bool isLoggedOff, uint256 lastHitTime) internal {
-    bytes memory _staticData = encodeStatic(isLoggedOff, lastHitTime);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 entityId, PlayerMetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.isLoggedOff, _table.lastHitTime);
+    bytes memory _staticData = encodeStatic(_table.isLoggedOff, _table.lastHitTime, _table.lastActionTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -308,7 +273,7 @@ library PlayerMetadata {
    * @notice Set the full data using the data struct.
    */
   function _set(bytes32 entityId, PlayerMetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.isLoggedOff, _table.lastHitTime);
+    bytes memory _staticData = encodeStatic(_table.isLoggedOff, _table.lastHitTime, _table.lastActionTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -320,27 +285,16 @@ library PlayerMetadata {
   }
 
   /**
-   * @notice Set the full data using the data struct (using the specified store).
-   */
-  function set(IStore _store, bytes32 entityId, PlayerMetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.isLoggedOff, _table.lastHitTime);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (bool isLoggedOff, uint256 lastHitTime) {
+  function decodeStatic(
+    bytes memory _blob
+  ) internal pure returns (bool isLoggedOff, uint256 lastHitTime, uint256 lastActionTime) {
     isLoggedOff = (_toBool(uint8(Bytes.getBytes1(_blob, 0))));
 
     lastHitTime = (uint256(Bytes.getBytes32(_blob, 1)));
+
+    lastActionTime = (uint256(Bytes.getBytes32(_blob, 33)));
   }
 
   /**
@@ -354,7 +308,7 @@ library PlayerMetadata {
     EncodedLengths,
     bytes memory
   ) internal pure returns (PlayerMetadataData memory _table) {
-    (_table.isLoggedOff, _table.lastHitTime) = decodeStatic(_staticData);
+    (_table.isLoggedOff, _table.lastHitTime, _table.lastActionTime) = decodeStatic(_staticData);
   }
 
   /**
@@ -378,21 +332,15 @@ library PlayerMetadata {
   }
 
   /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, bytes32 entityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.deleteRecord(_tableId, _keyTuple);
-  }
-
-  /**
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(bool isLoggedOff, uint256 lastHitTime) internal pure returns (bytes memory) {
-    return abi.encodePacked(isLoggedOff, lastHitTime);
+  function encodeStatic(
+    bool isLoggedOff,
+    uint256 lastHitTime,
+    uint256 lastActionTime
+  ) internal pure returns (bytes memory) {
+    return abi.encodePacked(isLoggedOff, lastHitTime, lastActionTime);
   }
 
   /**
@@ -403,9 +351,10 @@ library PlayerMetadata {
    */
   function encode(
     bool isLoggedOff,
-    uint256 lastHitTime
+    uint256 lastHitTime,
+    uint256 lastActionTime
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(isLoggedOff, lastHitTime);
+    bytes memory _staticData = encodeStatic(isLoggedOff, lastHitTime, lastActionTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

@@ -61,13 +61,6 @@ library InventorySlots {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
    * @notice Get numSlotsUsed.
    */
   function getNumSlotsUsed(bytes32 ownerEntityId) internal view returns (uint16 numSlotsUsed) {
@@ -86,17 +79,6 @@ library InventorySlots {
     _keyTuple[0] = ownerEntityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Get numSlotsUsed (using the specified store).
-   */
-  function getNumSlotsUsed(IStore _store, bytes32 ownerEntityId) internal view returns (uint16 numSlotsUsed) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint16(bytes2(_blob)));
   }
 
@@ -123,17 +105,6 @@ library InventorySlots {
   }
 
   /**
-   * @notice Get numSlotsUsed (using the specified store).
-   */
-  function get(IStore _store, bytes32 ownerEntityId) internal view returns (uint16 numSlotsUsed) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
    * @notice Set numSlotsUsed.
    */
   function setNumSlotsUsed(bytes32 ownerEntityId, uint16 numSlotsUsed) internal {
@@ -151,16 +122,6 @@ library InventorySlots {
     _keyTuple[0] = ownerEntityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numSlotsUsed)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set numSlotsUsed (using the specified store).
-   */
-  function setNumSlotsUsed(IStore _store, bytes32 ownerEntityId, uint16 numSlotsUsed) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numSlotsUsed)), _fieldLayout);
   }
 
   /**
@@ -184,16 +145,6 @@ library InventorySlots {
   }
 
   /**
-   * @notice Set numSlotsUsed (using the specified store).
-   */
-  function set(IStore _store, bytes32 ownerEntityId, uint16 numSlotsUsed) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numSlotsUsed)), _fieldLayout);
-  }
-
-  /**
    * @notice Delete all data for given keys.
    */
   function deleteRecord(bytes32 ownerEntityId) internal {
@@ -211,16 +162,6 @@ library InventorySlots {
     _keyTuple[0] = ownerEntityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
-  }
-
-  /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, bytes32 ownerEntityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

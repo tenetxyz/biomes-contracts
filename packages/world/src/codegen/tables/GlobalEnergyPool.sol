@@ -16,9 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-library UniqueEntity {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "UniqueEntity", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000556e69717565456e7469747900000000);
+library GlobalEnergyPool {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "GlobalEnergyPool", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000476c6f62616c456e65726779506f6f6c);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
@@ -42,7 +42,7 @@ library UniqueEntity {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "value";
+    fieldNames[0] = "energy";
   }
 
   /**
@@ -60,9 +60,9 @@ library UniqueEntity {
   }
 
   /**
-   * @notice Get value.
+   * @notice Get energy.
    */
-  function getValue() internal view returns (uint256 value) {
+  function getEnergy() internal view returns (uint256 energy) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
@@ -70,9 +70,9 @@ library UniqueEntity {
   }
 
   /**
-   * @notice Get value.
+   * @notice Get energy.
    */
-  function _getValue() internal view returns (uint256 value) {
+  function _getEnergy() internal view returns (uint256 energy) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
@@ -80,9 +80,9 @@ library UniqueEntity {
   }
 
   /**
-   * @notice Get value.
+   * @notice Get energy.
    */
-  function get() internal view returns (uint256 value) {
+  function get() internal view returns (uint256 energy) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
@@ -90,9 +90,9 @@ library UniqueEntity {
   }
 
   /**
-   * @notice Get value.
+   * @notice Get energy.
    */
-  function _get() internal view returns (uint256 value) {
+  function _get() internal view returns (uint256 energy) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
@@ -100,39 +100,39 @@ library UniqueEntity {
   }
 
   /**
-   * @notice Set value.
+   * @notice Set energy.
    */
-  function setValue(uint256 value) internal {
+  function setEnergy(uint256 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((value)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((energy)), _fieldLayout);
   }
 
   /**
-   * @notice Set value.
+   * @notice Set energy.
    */
-  function _setValue(uint256 value) internal {
+  function _setEnergy(uint256 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((value)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((energy)), _fieldLayout);
   }
 
   /**
-   * @notice Set value.
+   * @notice Set energy.
    */
-  function set(uint256 value) internal {
+  function set(uint256 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((value)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((energy)), _fieldLayout);
   }
 
   /**
-   * @notice Set value.
+   * @notice Set energy.
    */
-  function _set(uint256 value) internal {
+  function _set(uint256 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((value)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((energy)), _fieldLayout);
   }
 
   /**
@@ -157,8 +157,8 @@ library UniqueEntity {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint256 value) internal pure returns (bytes memory) {
-    return abi.encodePacked(value);
+  function encodeStatic(uint256 energy) internal pure returns (bytes memory) {
+    return abi.encodePacked(energy);
   }
 
   /**
@@ -167,8 +167,8 @@ library UniqueEntity {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(uint256 value) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(value);
+  function encode(uint256 energy) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(energy);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
