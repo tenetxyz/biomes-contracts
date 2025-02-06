@@ -155,7 +155,7 @@ export default defineWorld({
       schema: {
         ownerEntityId: "bytes32",
         objectTypeId: "uint16",
-        count: "uint16",
+        count: "uint256",
       },
       key: ["ownerEntityId", "objectTypeId"],
     },
