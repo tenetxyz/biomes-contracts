@@ -201,7 +201,6 @@ export default defineWorld({
       schema: {
         entityId: "bytes32",
         isLoggedOff: "bool",
-        lastHitTime: "uint256",
         lastActionTime: "uint256",
       },
       key: ["entityId"],
