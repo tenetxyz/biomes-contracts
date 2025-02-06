@@ -4,7 +4,6 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "anvil": "npx tsx runAnvil.ts",
     "fillTerrain": "npx tsx fillTerrain.ts",
     "fillTerrainPrecalc": "npx tsx fillTerrainPrecalc.ts",
     "readTerrain": "npx tsx readTerrain.ts",
@@ -26,14 +25,14 @@
     "parseStats": "npx tsx parseStats.ts"
   },
   "dependencies": {
-    "@biomesaw/world": "workspace:*",
     "@biomesaw/experience": "workspace:*",
+    "@biomesaw/world": "workspace:*",
     "@latticexyz/common": "link:../../../mud/packages/common",
     "@latticexyz/noise": "link:../../../noise",
     "@latticexyz/store": "link:../../../mud/packages/store",
+    "@latticexyz/store-sync": "link:../../../mud/packages/store-sync",
     "@latticexyz/utils": "link:../../../mud/packages/utils",
     "@latticexyz/world-modules": "link:../../../mud/packages/world-modules",
-    "@latticexyz/store-sync": "link:../../../mud/packages/store-sync",
     "csv-parser": "^3.0.0",
     "dotenv": "^16.3.1",
     "ethers": "^5.7.2",
