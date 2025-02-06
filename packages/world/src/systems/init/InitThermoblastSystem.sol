@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
+import { ObjectCategory } from "../../codegen/common.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { CobblestoneObjectID, CobblestoneBrickObjectID, CobblestoneCarvedObjectID, CobblestonePolishedObjectID, CobblestoneShinglesObjectID } from "../../ObjectTypeIds.sol";
@@ -23,16 +24,16 @@ import { ThermoblasterObjectID } from "../../ObjectTypeIds.sol";
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitThermoblastSystem is System {
-  function createBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty) internal {
+  function createBlock(uint8 terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
-        isBlock: true,
-        isTool: false,
-        miningDifficulty: miningDifficulty,
+        objectCategory: ObjectCategory.Block,
+        programmable: false,
         stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0
+        maxInventorySlots: 0,
+        mass: mass,
+        energy: 0
       })
     );
   }

@@ -2,9 +2,9 @@
 pragma solidity >=0.8.24;
 
 struct VoxelCoord {
-  int16 x;
-  int16 y;
-  int16 z;
+  int32 x;
+  int32 y;
+  int32 z;
 }
 
 // Define an enum representing all possible 3D movements in a Moore neighborhood

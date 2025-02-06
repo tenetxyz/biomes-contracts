@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
+import { ObjectCategory } from "../../codegen/common.sol";
 
 import { MAX_TOOL_STACKABLE, MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
@@ -15,30 +16,30 @@ import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitWorkbenchSystem is System {
-  function createTool(uint8 toolObjectTypeId, uint24 durability, uint16 damage) internal {
+  function createTool(uint8 toolObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
-        isBlock: false,
-        isTool: true,
-        miningDifficulty: 0,
+        objectCategory: ObjectCategory.Tool,
+        programmable: false,
         stackable: MAX_TOOL_STACKABLE,
-        durability: durability,
-        damage: damage
+        maxInventorySlots: 0,
+        mass: mass,
+        energy: 0
       })
     );
   }
 
-  function createBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty) internal {
+  function createBlock(uint8 terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
-        isBlock: true,
-        isTool: false,
-        miningDifficulty: miningDifficulty,
+        objectCategory: ObjectCategory.Block,
+        programmable: false,
         stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0
+        maxInventorySlots: 0,
+        mass: mass,
+        energy: 0
       })
     );
   }

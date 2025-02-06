@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
+import { ObjectCategory } from "../../codegen/common.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { AirObjectID, WaterObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, SandObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, LavaObjectID } from "../../ObjectTypeIds.sol";
@@ -12,16 +13,16 @@ import { OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID,
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID } from "../../ObjectTypeIds.sol";
 
 contract InitTerrainBlocksSystem is System {
-  function createTerrainBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty) internal {
+  function createTerrainBlock(uint8 terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
-        isBlock: true,
-        isTool: false,
-        miningDifficulty: miningDifficulty,
+        objectCategory: ObjectCategory.Block,
+        programmable: false,
         stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0
+        maxInventorySlots: 0,
+        mass: mass,
+        energy: 0
       })
     );
   }
