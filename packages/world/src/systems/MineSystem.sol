@@ -17,56 +17,42 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip, ChipData } from "../codegen/tables/Chip.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
-import { ActionType } from "../codegen/common.sol";
+import { ObjectCategory, ActionType, DisplayContentType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID } from "../ObjectTypeIds.sol";
 import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity, callMintXP, positionDataToVoxelCoord } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { isBasicDisplay } from "../utils/ObjectTypeUtils.sol";
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 import { IMineHelperSystem } from "../codegen/world/IMineHelperSystem.sol";
 
 contract MineSystem is System {
   function mineObjectAtCoord(VoxelCoord memory coord) internal returns (bytes32, uint8) {
-    require(inWorldBorder(coord), "MineSystem: cannot mine outside world border");
+    require(inWorldBorder(coord), "Cannot mine outside the world border");
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    uint8 mineObjectTypeId;
-    if (entityId == bytes32(0)) {
-      // Check terrain block type
-      mineObjectTypeId = getTerrainObjectTypeId(coord);
-      require(mineObjectTypeId != AnyOreObjectID, "MineSystem: ore must be computed before it can be mined");
-
-      // Create new entity
-      entityId = getUniqueEntity();
-      Position._set(entityId, coord.x, coord.y, coord.z);
-      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
-    } else {
-      mineObjectTypeId = ObjectType._get(entityId);
-      ChipData memory chipData = updateChipBatteryLevel(entityId);
-      require(
-        chipData.chipAddress == address(0) && chipData.batteryLevel == 0,
-        "MineSystem: chip is attached to entity"
-      );
-      if (isBasicDisplay(mineObjectTypeId)) {
-        DisplayContent.deleteRecord(entityId);
-      }
+    require(entityId != bytes32(0), "Cannot mine an unrevealed block");
+    uint8 mineObjectTypeId = ObjectType._get(entityId);
+    address chipAddress = Chip._get(entityId);
+    require(chipAddress == address(0), "Cannot mine a chipped block");
+    MachineData memory machineData = updateMachineEnergyLevel(entityId);
+    require(machineData.energyLevel == 0, "Cannot mine a machine that has energy");
+    if (DisplayContent._getContentType(entityId) != DisplayContentType.None) {
+      DisplayContent._deleteRecord(entityId);
     }
-    require(ObjectTypeMetadata._getIsBlock(mineObjectTypeId), "MineSystem: object type is not a block");
-    require(mineObjectTypeId != AirObjectID, "MineSystem: cannot mine air");
-    require(mineObjectTypeId != WaterObjectID, "MineSystem: cannot mine water");
+    require(ObjectTypeMetadata._getCategory(mineObjectTypeId) == ObjectCategory.Block, "Cannot mine non-block object");
+    require(mineObjectTypeId != AirObjectID, "Cannot mine air");
+    require(mineObjectTypeId != WaterObjectID, "Cannot mine water");
 
     ObjectType._set(entityId, AirObjectID);
 
     return (entityId, mineObjectTypeId);
   }
 
-  function mine(VoxelCoord memory coord, bytes memory extraData) public payable {
-    uint256 initialGas = gasleft();
-
+  function mineWithExtraData(VoxelCoord memory coord, bytes memory extraData) public payable {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
@@ -100,14 +86,19 @@ contract MineSystem is System {
       }
     }
 
-    callInternalSystem(
-      abi.encodeCall(
-        IMineHelperSystem.onMine,
-        (playerEntityId, baseEntityId != bytes32(0) ? baseEntityId : firstEntityId, mineObjectTypeId, coords)
-      ),
-      0
-    );
+    addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
+    // TODO: useEquipped
+    // TODO: apply energy cost to player
+
+    for (uint256 i = 0; i < coords.length; i++) {
+      VoxelCoord memory coord = coords[i];
+      VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);
+      bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+      if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+        callGravity(aboveEntityId, aboveCoord);
+      }
+    }
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
@@ -121,8 +112,6 @@ contract MineSystem is System {
       })
     );
 
-    callMintXP(playerEntityId, initialGas, 1);
-
     callInternalSystem(
       abi.encodeCall(
         IForceFieldSystem.requireMinesAllowed,
@@ -133,6 +122,6 @@ contract MineSystem is System {
   }
 
   function mine(VoxelCoord memory coord) public payable {
-    mine(coord, new bytes(0));
+    mineWithExtraData(coord, new bytes(0));
   }
 }

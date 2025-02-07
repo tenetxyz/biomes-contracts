@@ -11,7 +11,7 @@ import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { IN_MAINTENANCE } from "../Constants.sol";
 import { PlayerObjectID, NullObjectTypeId } from "../ObjectTypeIds.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
-import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 
 contract ActivateSystem is System {
   function activate(bytes32 entityId) public {
@@ -27,7 +27,7 @@ contract ActivateSystem is System {
       // if there's no chip, it'll just do nothing
       bytes32 baseEntityId = BaseEntity._get(entityId);
       baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
-      updateChipBatteryLevel(baseEntityId);
+      updateMachineEnergyLevel(baseEntityId);
     }
   }
 

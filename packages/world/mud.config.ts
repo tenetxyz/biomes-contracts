@@ -197,10 +197,16 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    PlayerMetadata: {
+    PlayerStatus: {
       schema: {
         entityId: "bytes32",
         isLoggedOff: "bool",
+      },
+      key: ["entityId"],
+    },
+    PlayerActivity: {
+      schema: {
+        entityId: "bytes32",
         lastActionTime: "uint256",
       },
       key: ["entityId"],

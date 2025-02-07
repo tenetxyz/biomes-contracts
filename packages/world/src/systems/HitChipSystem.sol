@@ -22,7 +22,7 @@ import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } fro
 import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { isWhacker } from "../utils/ObjectTypeUtils.sol";
-import { positionDataToVoxelCoord, safeCallChip, callMintXP, getL1GasPrice } from "../Utils.sol";
+import { positionDataToVoxelCoord, safeCallChip, callMintXP } from "../Utils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
 
@@ -59,12 +59,6 @@ contract HitChipSystem is System {
       equippedObjectTypeId,
       (uint24(miningDifficulty) * uint24(1000)) / equippedToolDamage
     );
-
-    // uint256 l1GasPriceWei = getL1GasPrice();
-    // // Ensure that the gas price is at least 8 gwei
-    // if (l1GasPriceWei < 8 gwei) {
-    //   l1GasPriceWei = 8 gwei;
-    // }
 
     uint256 decreaseBatteryLevel = (equippedToolDamage * 117) / 100;
     uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel

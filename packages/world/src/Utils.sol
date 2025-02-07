@@ -63,10 +63,6 @@ function callGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) retu
   return abi.decode(returnData, (bool));
 }
 
-function callMintXP(bytes32 playerEntityId, uint256 initialGas, uint256 multiplier) {
-  callInternalSystem(abi.encodeCall(IMintXPSystem.mintXP, (playerEntityId, initialGas, multiplier)), 0);
-}
-
 function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
   bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
@@ -120,24 +116,6 @@ function safeCallChip(address chipAddress, bytes memory callData) {
       continue;
     }
   }
-}
-
-function getL1GasPrice() view returns (uint256) {
-  uint256 l1GasPriceWei = 0;
-  uint32 codeSize;
-  assembly {
-    codeSize := extcodesize(OP_L1_GAS_ORACLE)
-  }
-  if (codeSize == 0) {
-    return l1GasPriceWei;
-  }
-  (bool oracleSuccess, bytes memory oracleReturnData) = OP_L1_GAS_ORACLE.staticcall(
-    abi.encodeWithSignature("l1BaseFee()")
-  );
-  if (oracleSuccess) {
-    l1GasPriceWei = abi.decode(oracleReturnData, (uint256));
-  }
-  return l1GasPriceWei;
 }
 
 // Random number between 0 and 99
