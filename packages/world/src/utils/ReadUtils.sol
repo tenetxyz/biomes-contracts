@@ -11,7 +11,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { InventoryObject, InventoryTool } from "../Types.sol";
 
 function getEntityInventory(bytes32 entityId) view returns (InventoryObject[] memory) {
-  uint8[] memory objectTypeIds = InventoryObjects._get(entityId);
+  uint16[] memory objectTypeIds = InventoryObjects._get(entityId);
   InventoryObject[] memory inventoryObjects = new InventoryObject[](objectTypeIds.length);
   bytes32[] memory allInventoryTools = ReverseInventoryTool._get(entityId);
   for (uint256 i = 0; i < objectTypeIds.length; i++) {

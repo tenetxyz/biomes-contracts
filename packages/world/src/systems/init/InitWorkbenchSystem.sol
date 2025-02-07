@@ -16,7 +16,7 @@ import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitWorkbenchSystem is System {
-  function createTool(uint8 toolObjectTypeId, uint32 mass) internal {
+  function createTool(uint16 toolObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
@@ -30,7 +30,7 @@ contract InitWorkbenchSystem is System {
     );
   }
 
-  function createBlock(uint8 terrainBlockObjectTypeId, uint32 mass) internal {
+  function createBlock(uint16 terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({

@@ -15,5 +15,5 @@ interface IAdminSpawnSystem {
 
   function setObjectAtCoord(uint16 objectTypeId, VoxelCoord[] memory coord) external;
 
-  function setObjectAtCoord(uint8[] memory objectTypeId, VoxelCoord[] memory coord) external;
+  function setObjectAtCoord(uint16[] memory objectTypeId, VoxelCoord[] memory coord) external;
 }

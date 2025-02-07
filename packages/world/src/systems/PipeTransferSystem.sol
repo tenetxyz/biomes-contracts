@@ -40,7 +40,7 @@ contract PipeTransferSystem is System {
     PipeTransferData memory pipeTransferData
   ) public payable {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
-    uint8 callerObjectTypeId = ObjectType._get(callerEntityId);
+    uint16 callerObjectTypeId = ObjectType._get(callerEntityId);
     require(isStorageContainer(callerObjectTypeId), "PipeTransferSystem: source object type is not a chest");
 
     VoxelCoord memory callerCoord = positionDataToVoxelCoord(Position._get(callerEntityId));

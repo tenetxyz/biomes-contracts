@@ -13,7 +13,7 @@ import { OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID,
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID } from "../../ObjectTypeIds.sol";
 
 contract InitTerrainBlocksSystem is System {
-  function createTerrainBlock(uint8 terrainBlockObjectTypeId, uint32 mass) internal {
+  function createTerrainBlock(uint16 terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({

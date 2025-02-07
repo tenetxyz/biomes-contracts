@@ -47,7 +47,7 @@ contract OreSystem is System {
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     require(entityId == bytes32(0), "OreSystem: ore already revealed");
-    uint8 mineObjectTypeId = getTerrainObjectTypeId(coord);
+    uint16 mineObjectTypeId = getTerrainObjectTypeId(coord);
     require(mineObjectTypeId == AnyOreObjectID, "OreSystem: terrain is not an ore");
 
     TerrainCommitment._set(coord.x, coord.y, coord.z, block.number, playerEntityId);
@@ -71,13 +71,13 @@ contract OreSystem is System {
   }
 
   // Can be called by anyone
-  function revealOre(VoxelCoord memory coord) public returns (uint8) {
+  function revealOre(VoxelCoord memory coord) public returns (uint16) {
     TerrainCommitmentData memory terrainCommitmentData = TerrainCommitment._get(coord.x, coord.y, coord.z);
     require(terrainCommitmentData.blockNumber != 0, "OreSystem: terrain commitment not found");
 
     uint256 randomNumber = getRandomNumberBetween0And99(terrainCommitmentData.blockNumber);
 
-    (uint8 mineObjectTypeId, uint8 oreObjectTypeId) = getTerrainAndOreObjectTypeId(coord, randomNumber);
+    (uint16 mineObjectTypeId, uint16 oreObjectTypeId) = getTerrainAndOreObjectTypeId(coord, randomNumber);
     require(mineObjectTypeId == AnyOreObjectID, "OreSystem: terrain is not an ore");
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);

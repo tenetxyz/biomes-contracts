@@ -51,7 +51,7 @@ contract MoveScript is Script {
     bytes32 finalEntityId = ReversePosition.get(finalCoord.x, finalCoord.y, finalCoord.z);
     if (finalEntityId == bytes32(0)) {
       // Check terrain block type
-      uint8 terrainObjectTypeId = testGetTerrainObjectTypeId(finalCoord);
+      uint16 terrainObjectTypeId = testGetTerrainObjectTypeId(finalCoord);
       require(
         terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
         "MoveSystem: cannot move to non-air block"

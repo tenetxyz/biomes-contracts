@@ -99,7 +99,7 @@ contract BuildSystem is System {
     bytes32 newEntityId = ReversePosition._get(jumpCoord.x, jumpCoord.y, jumpCoord.z);
     if (newEntityId == bytes32(0)) {
       // Check terrain block type
-      uint8 terrainObjectTypeId = getTerrainObjectTypeId(jumpCoord);
+      uint16 terrainObjectTypeId = getTerrainObjectTypeId(jumpCoord);
       require(
         terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
         "BuildSystem: cannot move to non-air block"

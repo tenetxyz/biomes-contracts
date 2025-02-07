@@ -46,7 +46,7 @@ contract TransferSystem is System {
   function transfer(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
-    uint8 transferObjectTypeId,
+    uint16 transferObjectTypeId,
     uint16 numToTransfer,
     bytes memory extraData
   ) public payable {
@@ -125,9 +125,9 @@ contract TransferSystem is System {
       ),
       (TransferCommonContext)
     );
-    uint8 toolObjectTypeId;
+    uint16 toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
-      uint8 currentToolObjectTypeId = transferInventoryTool(
+      uint16 currentToolObjectTypeId = transferInventoryTool(
         ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
         ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
         ctx.dstObjectTypeId,
@@ -173,7 +173,7 @@ contract TransferSystem is System {
   function transfer(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
-    uint8 transferObjectTypeId,
+    uint16 transferObjectTypeId,
     uint16 numToTransfer
   ) public payable {
     transfer(srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, new bytes(0));
@@ -190,7 +190,7 @@ contract TransferSystem is System {
   function transferWithExtraData(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
-    uint8 transferObjectTypeId,
+    uint16 transferObjectTypeId,
     uint16 numToTransfer,
     bytes memory extraData
   ) public payable {

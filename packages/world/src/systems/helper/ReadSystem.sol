@@ -45,7 +45,7 @@ contract ReadSystem is System {
     return UserDelegationControl._getDelegationControlId(delegator, delegatee);
   }
 
-  function getObjectTypeIdAtCoord(VoxelCoord memory coord) public view returns (uint8) {
+  function getObjectTypeIdAtCoord(VoxelCoord memory coord) public view returns (uint16) {
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       return NullObjectTypeId;
@@ -53,7 +53,7 @@ contract ReadSystem is System {
     return ObjectType._get(entityId);
   }
 
-  function getObjectTypeIdAtCoordOrTerrain(VoxelCoord memory coord) public view returns (uint8) {
+  function getObjectTypeIdAtCoordOrTerrain(VoxelCoord memory coord) public view returns (uint16) {
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       return getTerrainObjectTypeId(coord);
@@ -61,8 +61,8 @@ contract ReadSystem is System {
     return ObjectType._get(entityId);
   }
 
-  function getMultipleObjectTypeIdAtCoordOrTerrain(VoxelCoord[] memory coord) public view returns (uint8[] memory) {
-    uint8[] memory objectTypes = new uint8[](coord.length);
+  function getMultipleObjectTypeIdAtCoordOrTerrain(VoxelCoord[] memory coord) public view returns (uint16[] memory) {
+    uint16[] memory objectTypes = new uint16[](coord.length);
     for (uint256 i = 0; i < coord.length; i++) {
       objectTypes[i] = getObjectTypeIdAtCoordOrTerrain(coord[i]);
     }

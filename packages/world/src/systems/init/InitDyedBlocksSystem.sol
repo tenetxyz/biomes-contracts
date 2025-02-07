@@ -17,7 +17,7 @@ import { DyeomaticObjectID } from "../../ObjectTypeIds.sol";
 import { createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitDyedBlocksSystem is System {
-  function createDyedBlock(uint8 terrainBlockObjectTypeId, uint32 mass) internal {
+  function createDyedBlock(uint16 terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({

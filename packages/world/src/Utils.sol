@@ -65,7 +65,7 @@ function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
   bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
   require(belowEntityId != bytes32(0), "Attempted to apply gravity but encountered an unrevealed block");
-  uint8 belowObjectTypeId = ObjectType._get(belowEntityId);
+  uint16 belowObjectTypeId = ObjectType._get(belowEntityId);
   if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
     return false;
   }

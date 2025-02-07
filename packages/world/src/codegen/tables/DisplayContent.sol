@@ -33,7 +33,7 @@ library DisplayContent {
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint8, bytes)
+  // Hex-encoded value schema of (uint16, bytes)
   Schema constant _valueSchema = Schema.wrap(0x0001010100c40000000000000000000000000000000000000000000000000000);
 
   /**
@@ -77,7 +77,7 @@ library DisplayContent {
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return DisplayContentType(uint8(bytes1(_blob)));
+    return DisplayContentType(uint16(bytes1(_blob)));
   }
 
   /**
@@ -88,7 +88,7 @@ library DisplayContent {
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return DisplayContentType(uint8(bytes1(_blob)));
+    return DisplayContentType(uint16(bytes1(_blob)));
   }
 
   /**
@@ -98,7 +98,7 @@ library DisplayContent {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(contentType)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint16(contentType)), _fieldLayout);
   }
 
   /**
@@ -108,7 +108,7 @@ library DisplayContent {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(contentType)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint16(contentType)), _fieldLayout);
   }
 
   /**
@@ -367,7 +367,7 @@ library DisplayContent {
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
   function decodeStatic(bytes memory _blob) internal pure returns (DisplayContentType contentType) {
-    contentType = DisplayContentType(uint8(Bytes.getBytes1(_blob, 0)));
+    contentType = DisplayContentType(uint16(Bytes.getBytes1(_blob, 0)));
   }
 
   /**

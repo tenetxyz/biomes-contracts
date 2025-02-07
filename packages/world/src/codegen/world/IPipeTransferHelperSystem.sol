@@ -14,7 +14,7 @@ import { PipeTransferData, PipeTransferCommonContext } from "../../Types.sol";
 interface IPipeTransferHelperSystem {
   function pipeTransferCommon(
     bytes32 callerEntityId,
-    uint8 callerObjectTypeId,
+    uint16 callerObjectTypeId,
     VoxelCoord memory callerCoord,
     bool isDeposit,
     PipeTransferData memory pipeTransferData

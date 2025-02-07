@@ -12,7 +12,6 @@ import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
 import { IHitChipSystem } from "./IHitChipSystem.sol";
-import { IHitSystem } from "./IHitSystem.sol";
 import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
@@ -60,7 +59,6 @@ interface IWorld is
   IDropSystem,
   IEquipSystem,
   IHitChipSystem,
-  IHitSystem,
   ILoginSystem,
   ILogoffSystem,
   IMineSystem,

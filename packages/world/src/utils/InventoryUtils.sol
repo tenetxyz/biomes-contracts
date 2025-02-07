@@ -118,8 +118,8 @@ function removeEntityIdFromReverseInventoryTool(bytes32 ownerEntityId, bytes32 r
 }
 
 function removeObjectTypeIdFromInventoryObjects(bytes32 ownerEntityId, uint16 removeObjectTypeId) {
-  uint8[] memory currentObjectTypeIds = InventoryObjects._get(ownerEntityId);
-  uint8[] memory newObjectTypeIds = new uint8[](currentObjectTypeIds.length - 1);
+  uint16[] memory currentObjectTypeIds = InventoryObjects._get(ownerEntityId);
+  uint16[] memory newObjectTypeIds = new uint16[](currentObjectTypeIds.length - 1);
   uint256 j = 0;
   for (uint256 i = 0; i < currentObjectTypeIds.length; i++) {
     if (currentObjectTypeIds[i] != removeObjectTypeId) {
@@ -140,7 +140,7 @@ function transferAllInventoryEntities(
   uint16 toObjectTypeId
 ) returns (uint256) {
   uint256 numTransferred = 0;
-  uint8[] memory fromObjectTypeIds = InventoryObjects._get(fromEntityId);
+  uint16[] memory fromObjectTypeIds = InventoryObjects._get(fromEntityId);
   for (uint256 i = 0; i < fromObjectTypeIds.length; i++) {
     uint16 objectTypeCount = InventoryCount._get(fromEntityId, fromObjectTypeIds[i]);
     addToInventoryCount(toEntityId, toObjectTypeId, fromObjectTypeIds[i], objectTypeCount);
@@ -178,7 +178,7 @@ function transferInventoryTool(
   bytes32 dstEntityId,
   uint16 dstObjectTypeId,
   bytes32 toolEntityId
-) returns (uint8) {
+) returns (uint16) {
   require(InventoryTool._get(toolEntityId) == srcEntityId, "Entity does not own inventory item");
   if (Equipped._get(srcEntityId) == toolEntityId) {
     Equipped._deleteRecord(srcEntityId);

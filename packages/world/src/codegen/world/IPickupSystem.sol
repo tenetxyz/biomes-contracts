@@ -14,7 +14,7 @@ import { PickupData } from "../../Types.sol";
 interface IPickupSystem {
   function pickupAll(VoxelCoord memory coord) external;
 
-  function pickup(uint8 pickupObjectTypeId, uint16 numToPickup, VoxelCoord memory coord) external;
+  function pickup(uint16 pickupObjectTypeId, uint16 numToPickup, VoxelCoord memory coord) external;
 
   function pickupTool(bytes32 toolEntityId, VoxelCoord memory coord) external;
 

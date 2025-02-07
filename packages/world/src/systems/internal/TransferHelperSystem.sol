@@ -41,8 +41,8 @@ contract TransferHelperSystem is System {
       "TransferSystem: destination too far"
     );
 
-    uint8 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
-    uint8 dstObjectTypeId = ObjectType._get(baseDstEntityId);
+    uint16 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
+    uint16 dstObjectTypeId = ObjectType._get(baseDstEntityId);
     bool isDeposit = false;
     if (srcObjectTypeId == PlayerObjectID) {
       require(playerEntityId == baseSrcEntityId, "TransferSystem: player does not own source inventory");

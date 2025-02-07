@@ -59,12 +59,12 @@ contract Upgrade is Script {
       Chip.setChipAddress(entityId, 0xCfEEc31cc4ac48830D1bc0c630B082Aeac3c4912);
     }
 
-    // bytes32 recipeId1 = keccak256(abi.encodePacked(GoldOreObjectID, uint8(4), GoldBarObjectID, uint8(1)));
-    // bytes32 recipeId2 = keccak256(abi.encodePacked(SilverOreObjectID, uint8(4), SilverBarObjectID, uint8(1)));
-    // bytes32 recipeId3 = keccak256(abi.encodePacked(DiamondOreObjectID, uint8(4), DiamondObjectID, uint8(1)));
-    // bytes32 recipeId4 = keccak256(abi.encodePacked(NeptuniumOreObjectID, uint8(4), NeptuniumBarObjectID, uint8(1)));
+    // bytes32 recipeId1 = keccak256(abi.encodePacked(GoldOreObjectID, uint16(4), GoldBarObjectID, uint16(1)));
+    // bytes32 recipeId2 = keccak256(abi.encodePacked(SilverOreObjectID, uint16(4), SilverBarObjectID, uint16(1)));
+    // bytes32 recipeId3 = keccak256(abi.encodePacked(DiamondOreObjectID, uint16(4), DiamondObjectID, uint16(1)));
+    // bytes32 recipeId4 = keccak256(abi.encodePacked(NeptuniumOreObjectID, uint16(4), NeptuniumBarObjectID, uint16(1)));
     // bytes32 recipeId5 = keccak256(
-    //   abi.encodePacked(LimestoneObjectID, uint8(4), CoalOreObjectID, uint8(4), SunstoneObjectID, uint8(4))
+    //   abi.encodePacked(LimestoneObjectID, uint16(4), CoalOreObjectID, uint16(4), SunstoneObjectID, uint16(4))
     // );
 
     // console.log("recipe");

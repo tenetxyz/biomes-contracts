@@ -30,7 +30,7 @@ contract AdminSpawnSystem is System {
       entityId = getUniqueEntity();
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
     } else {
-      uint8 currentObjectTypeId = ObjectType._get(entityId);
+      uint16 currentObjectTypeId = ObjectType._get(entityId);
       require(
         InventoryObjects._lengthObjectTypeIds(entityId) == 0,
         "AdminTerrainSystem: Cannot build where there are dropped objects"
@@ -62,7 +62,7 @@ contract AdminSpawnSystem is System {
     }
   }
 
-  function setObjectAtCoord(uint8[] memory objectTypeId, VoxelCoord[] memory coord) public {
+  function setObjectAtCoord(uint16[] memory objectTypeId, VoxelCoord[] memory coord) public {
     AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
     require(objectTypeId.length == coord.length, "AdminTerrainSystem: objectTypeId and coord length mismatch");
     for (uint i = 0; i < coord.length; i++) {

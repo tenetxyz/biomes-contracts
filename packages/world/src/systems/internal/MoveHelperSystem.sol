@@ -106,7 +106,7 @@ contract MoveHelperSystem is System {
     // If the entity we're moving into is this player, then it's fine as
     // the player will be moved from the old position to the new position
     if (playerEntityId != newEntityId) {
-      uint8 currentObjectTypeId = ObjectType._get(newEntityId);
+      uint16 currentObjectTypeId = ObjectType._get(newEntityId);
       // TODO: check for water and florae
       require(currentObjectTypeId == AirObjectID, "Cannot move through a non-air block");
     }

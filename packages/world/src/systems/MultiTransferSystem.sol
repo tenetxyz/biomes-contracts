@@ -81,7 +81,7 @@ contract MultiTransferSystem is System {
         "MultiTransferSystem: invalid tool count"
       );
       for (uint i = 0; i < transferData.toolEntityIds.length; i++) {
-        uint8 toolObjectTypeId = transferInventoryTool(
+        uint16 toolObjectTypeId = transferInventoryTool(
           ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
           ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
           ctx.dstObjectTypeId,

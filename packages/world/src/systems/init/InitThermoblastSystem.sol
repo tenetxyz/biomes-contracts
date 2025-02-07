@@ -24,7 +24,7 @@ import { ThermoblasterObjectID } from "../../ObjectTypeIds.sol";
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitThermoblastSystem is System {
-  function createBlock(uint8 terrainBlockObjectTypeId, uint32 mass) internal {
+  function createBlock(uint16 terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
@@ -38,7 +38,7 @@ contract InitThermoblastSystem is System {
     );
   }
 
-  function createItem(uint8 itemObjectTypeId) internal {
+  function createItem(uint16 itemObjectTypeId) internal {
     ObjectTypeMetadata._set(
       itemObjectTypeId,
       ObjectTypeMetadataData({

@@ -26,11 +26,11 @@ interface IReadSystem {
     address delegatee
   ) external view returns (ResourceId delegationControlId);
 
-  function getObjectTypeIdAtCoord(VoxelCoord memory coord) external view returns (uint8);
+  function getObjectTypeIdAtCoord(VoxelCoord memory coord) external view returns (uint16);
 
-  function getObjectTypeIdAtCoordOrTerrain(VoxelCoord memory coord) external view returns (uint8);
+  function getObjectTypeIdAtCoordOrTerrain(VoxelCoord memory coord) external view returns (uint16);
 
-  function getMultipleObjectTypeIdAtCoordOrTerrain(VoxelCoord[] memory coord) external view returns (uint8[] memory);
+  function getMultipleObjectTypeIdAtCoordOrTerrain(VoxelCoord[] memory coord) external view returns (uint16[] memory);
 
   function getEntityIdAtCoord(VoxelCoord memory coord) external view returns (bytes32);
 

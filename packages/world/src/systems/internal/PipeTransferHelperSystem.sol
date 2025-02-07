@@ -47,7 +47,7 @@ contract PipeTransferHelperSystem is System {
 
   function pipeTransferCommon(
     bytes32 callerEntityId,
-    uint8 callerObjectTypeId,
+    uint16 callerObjectTypeId,
     VoxelCoord memory callerCoord,
     bool isDeposit,
     PipeTransferData memory pipeTransferData
@@ -56,7 +56,7 @@ contract PipeTransferHelperSystem is System {
     require(pipeTransferData.transferData.numToTransfer > 0, "PipeTransferSystem: amount must be greater than 0");
     VoxelCoord memory targetCoord = positionDataToVoxelCoord(Position._get(pipeTransferData.targetEntityId));
     ChipData memory targetChipData = updateChipBatteryLevel(pipeTransferData.targetEntityId);
-    uint8 targetObjectTypeId = ObjectType._get(pipeTransferData.targetEntityId);
+    uint16 targetObjectTypeId = ObjectType._get(pipeTransferData.targetEntityId);
     if (targetObjectTypeId != ForceFieldObjectID) {
       bytes32 targetForceFieldEntityId = getForceField(targetCoord);
       if (targetForceFieldEntityId != bytes32(0)) {
@@ -145,7 +145,7 @@ contract PipeTransferHelperSystem is System {
       );
 
       for (uint i = 0; i < pipeTransferData.transferData.toolEntityIds.length; i++) {
-        uint8 toolObjectTypeId = transferInventoryTool(
+        uint16 toolObjectTypeId = transferInventoryTool(
           isDeposit ? callerEntityId : pipeTransferData.targetEntityId,
           isDeposit ? pipeTransferData.targetEntityId : callerEntityId,
           isDeposit ? targetObjectTypeId : callerObjectTypeId,

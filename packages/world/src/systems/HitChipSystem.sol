@@ -50,7 +50,7 @@ contract HitChipSystem is System {
 
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
     require(equippedEntityId != bytes32(0), "ChipSystem: you must use a whacker to hit force fields");
-    uint8 equippedObjectTypeId = ObjectType._get(equippedEntityId);
+    uint16 equippedObjectTypeId = ObjectType._get(equippedEntityId);
     require(isWhacker(equippedObjectTypeId), "ChipSystem: you must use a whacker to hit force fields");
     uint16 equippedToolDamage = ObjectTypeMetadata._getDamage(equippedObjectTypeId);
     useEquipped(

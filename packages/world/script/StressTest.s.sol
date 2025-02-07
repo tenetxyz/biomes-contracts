@@ -30,13 +30,13 @@ import { testAddToInventoryCount } from "../test/utils/TestUtils.sol";
 import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA } from "../src/Constants.sol";
 import { positionDataToVoxelCoord, callGravity, getUniqueEntity } from "../src/Utils.sol";
 
-int16 constant SPAWN_LOW_X = 363;
-int16 constant SPAWN_LOW_Z = -225;
+int32 constant SPAWN_LOW_X = 363;
+int32 constant SPAWN_LOW_Z = -225;
 
-int16 constant SPAWN_HIGH_X = 387;
-int16 constant SPAWN_HIGH_Z = -205;
+int32 constant SPAWN_HIGH_X = 387;
+int32 constant SPAWN_HIGH_Z = -205;
 
-int16 constant SPAWN_GROUND_Y = 17;
+int32 constant SPAWN_GROUND_Y = 17;
 
 contract StressTest is Script {
   function run(address worldAddress) external {
@@ -61,16 +61,16 @@ contract StressTest is Script {
       players[i] = address(uint160(uint256(hash)));
     }
 
-    int16 spawnZLength = SPAWN_HIGH_Z - SPAWN_LOW_Z;
-    int16 spawnXLength = SPAWN_HIGH_X - SPAWN_LOW_X;
+    int32 spawnZLength = SPAWN_HIGH_Z - SPAWN_LOW_Z;
+    int32 spawnXLength = SPAWN_HIGH_X - SPAWN_LOW_X;
 
     // call spawn player
     for (uint i = 0; i < players.length; i++) {
       bytes32 entityId = getUniqueEntity();
       VoxelCoord memory playerCoord = VoxelCoord(
-        SPAWN_LOW_X + int16(int(i)) / spawnZLength,
+        SPAWN_LOW_X + int32(int(i)) / spawnZLength,
         SPAWN_GROUND_Y + 1,
-        SPAWN_LOW_Z + (int16(int(i)) - (spawnZLength * (int16(int(i)) / spawnZLength)))
+        SPAWN_LOW_Z + (int32(int(i)) - (spawnZLength * (int32(int(i)) / spawnZLength)))
       );
       Position.set(entityId, playerCoord.x, playerCoord.y, playerCoord.z);
       ReversePosition.set(playerCoord.x, playerCoord.y, playerCoord.z, entityId);

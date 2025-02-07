@@ -29,12 +29,12 @@ import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 import { IMineHelperSystem } from "../codegen/world/IMineHelperSystem.sol";
 
 contract MineSystem is System {
-  function mineObjectAtCoord(VoxelCoord memory coord) internal returns (bytes32, uint8) {
+  function mineObjectAtCoord(VoxelCoord memory coord) internal returns (bytes32, uint16) {
     require(inWorldBorder(coord), "Cannot mine outside the world border");
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     require(entityId != bytes32(0), "Cannot mine an unrevealed block");
-    uint8 mineObjectTypeId = ObjectType._get(entityId);
+    uint16 mineObjectTypeId = ObjectType._get(entityId);
     address chipAddress = Chip._get(entityId);
     require(chipAddress == address(0), "Cannot mine a chipped block");
     MachineData memory machineData = updateMachineEnergyLevel(entityId);
@@ -55,7 +55,7 @@ contract MineSystem is System {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    (bytes32 firstEntityId, uint8 mineObjectTypeId) = mineObjectAtCoord(coord);
+    (bytes32 firstEntityId, uint16 mineObjectTypeId) = mineObjectAtCoord(coord);
     uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(mineObjectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
 

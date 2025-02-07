@@ -18,8 +18,8 @@ contract InitInteractablesSystem is System {
   function createInteractableBlock(
     uint16 objectTypeId,
     uint32 mass,
-    uint8 maxInventorySlots,
-    uint8 stackable,
+    uint16 maxInventorySlots,
+    uint16 stackable,
     VoxelCoord[] memory relativePositions
   ) internal {
     ObjectTypeMetadata._set(
@@ -35,9 +35,9 @@ contract InitInteractablesSystem is System {
     );
 
     if (relativePositions.length > 0) {
-      int16[] memory relativePositionsX = new int16[](relativePositions.length);
-      int16[] memory relativePositionsY = new int16[](relativePositions.length);
-      int16[] memory relativePositionsZ = new int16[](relativePositions.length);
+      int32[] memory relativePositionsX = new int32[](relativePositions.length);
+      int32[] memory relativePositionsY = new int32[](relativePositions.length);
+      int32[] memory relativePositionsZ = new int32[](relativePositions.length);
       for (uint i = 0; i < relativePositions.length; i++) {
         relativePositionsX[i] = relativePositions[i].x;
         relativePositionsY[i] = relativePositions[i].y;

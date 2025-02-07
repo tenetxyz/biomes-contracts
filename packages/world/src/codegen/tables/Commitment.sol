@@ -78,7 +78,7 @@ library Commitment {
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    return (_toBool(uint16(bytes1(_blob))));
   }
 
   /**
@@ -89,7 +89,7 @@ library Commitment {
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    return (_toBool(uint16(bytes1(_blob))));
   }
 
   /**
@@ -332,7 +332,7 @@ library Commitment {
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
   function decodeStatic(bytes memory _blob) internal pure returns (bool hasCommitted, int32 x, int32 y, int32 z) {
-    hasCommitted = (_toBool(uint8(Bytes.getBytes1(_blob, 0))));
+    hasCommitted = (_toBool(uint16(Bytes.getBytes1(_blob, 0))));
 
     x = (int32(uint32(Bytes.getBytes4(_blob, 1))));
 
@@ -416,11 +416,11 @@ library Commitment {
 
 /**
  * @notice Cast a value to a bool.
- * @dev Boolean values are encoded as uint8 (1 = true, 0 = false), but Solidity doesn't allow casting between uint8 and bool.
- * @param value The uint8 value to convert.
+ * @dev Boolean values are encoded as uint16 (1 = true, 0 = false), but Solidity doesn't allow casting between uint16 and bool.
+ * @param value The uint16 value to convert.
  * @return result The boolean value.
  */
-function _toBool(uint8 value) pure returns (bool result) {
+function _toBool(uint16 value) pure returns (bool result) {
   assembly {
     result := value
   }

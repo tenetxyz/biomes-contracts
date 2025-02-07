@@ -12,7 +12,7 @@ interface ITransferSystem {
   function transfer(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
-    uint8 transferObjectTypeId,
+    uint16 transferObjectTypeId,
     uint16 numToTransfer,
     bytes memory extraData
   ) external payable;
@@ -34,7 +34,7 @@ interface ITransferSystem {
   function transfer(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
-    uint8 transferObjectTypeId,
+    uint16 transferObjectTypeId,
     uint16 numToTransfer
   ) external payable;
 
@@ -45,7 +45,7 @@ interface ITransferSystem {
   function transferWithExtraData(
     bytes32 srcEntityId,
     bytes32 dstEntityId,
-    uint8 transferObjectTypeId,
+    uint16 transferObjectTypeId,
     uint16 numToTransfer,
     bytes memory extraData
   ) external payable;

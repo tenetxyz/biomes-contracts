@@ -48,9 +48,9 @@ contract InitSpawnSystem is System {
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
     require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
 
-    int16 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
-    for (int16 x = spawnData.spawnLowX; x <= midPointX; x++) {
-      for (int16 z = spawnData.spawnLowZ; z <= spawnData.spawnHighZ; z++) {
+    int32 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
+    for (int32 x = spawnData.spawnLowX; x <= midPointX; x++) {
+      for (int32 z = spawnData.spawnLowZ; z <= spawnData.spawnHighZ; z++) {
         if (
           x == spawnData.spawnLowX || x == spawnData.spawnHighX || z == spawnData.spawnLowZ || z == spawnData.spawnHighZ
         ) {
@@ -69,9 +69,9 @@ contract InitSpawnSystem is System {
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
     require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
 
-    int16 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
-    for (int16 x = midPointX + 1; x <= spawnData.spawnHighX; x++) {
-      for (int16 z = spawnData.spawnLowZ; z <= spawnData.spawnHighZ; z++) {
+    int32 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
+    for (int32 x = midPointX + 1; x <= spawnData.spawnHighX; x++) {
+      for (int32 z = spawnData.spawnLowZ; z <= spawnData.spawnHighZ; z++) {
         if (
           x == spawnData.spawnLowX || x == spawnData.spawnHighX || z == spawnData.spawnLowZ || z == spawnData.spawnHighZ
         ) {
@@ -90,9 +90,9 @@ contract InitSpawnSystem is System {
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
     require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
 
-    int16 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
-    for (int16 x = spawnData.spawnLowX; x <= midPointX; x++) {
-      for (int16 z = spawnData.spawnLowZ; z <= spawnData.spawnHighZ; z++) {
+    int32 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
+    for (int32 x = spawnData.spawnLowX; x <= midPointX; x++) {
+      for (int32 z = spawnData.spawnLowZ; z <= spawnData.spawnHighZ; z++) {
         setObjectAtCoord(AirObjectID, VoxelCoord(x, spawnCoord.y + 1, z));
       }
     }
@@ -105,9 +105,9 @@ contract InitSpawnSystem is System {
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
     require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
 
-    int16 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
-    for (int16 x = midPointX + 1; x <= spawnData.spawnHighX; x++) {
-      for (int16 z = spawnData.spawnLowZ; z <= spawnData.spawnHighZ; z++) {
+    int32 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
+    for (int32 x = midPointX + 1; x <= spawnData.spawnHighX; x++) {
+      for (int32 z = spawnData.spawnLowZ; z <= spawnData.spawnHighZ; z++) {
         setObjectAtCoord(AirObjectID, VoxelCoord(x, spawnCoord.y + 1, z));
       }
     }
@@ -120,9 +120,9 @@ contract InitSpawnSystem is System {
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
     require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
 
-    int16 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
-    for (int16 x = spawnData.spawnLowX; x <= midPointX; x++) {
-      for (int16 z = spawnData.spawnLowZ; z <= spawnData.spawnHighZ; z++) {
+    int32 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
+    for (int32 x = spawnData.spawnLowX; x <= midPointX; x++) {
+      for (int32 z = spawnData.spawnLowZ; z <= spawnData.spawnHighZ; z++) {
         setObjectAtCoord(DirtObjectID, VoxelCoord(x, spawnCoord.y - 1, z));
       }
     }
@@ -135,9 +135,9 @@ contract InitSpawnSystem is System {
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
     require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
 
-    int16 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
-    for (int16 x = midPointX + 1; x <= spawnData.spawnHighX; x++) {
-      for (int16 z = spawnData.spawnLowZ; z <= spawnData.spawnHighZ; z++) {
+    int32 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
+    for (int32 x = midPointX + 1; x <= spawnData.spawnHighX; x++) {
+      for (int32 z = spawnData.spawnLowZ; z <= spawnData.spawnHighZ; z++) {
         setObjectAtCoord(DirtObjectID, VoxelCoord(x, spawnCoord.y - 1, z));
       }
     }
@@ -149,8 +149,8 @@ contract InitSpawnSystem is System {
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
     require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
-    for (int16 x = spawnData.spawnLowX - 1; x <= spawnData.spawnHighX + 1; x++) {
-      for (int16 z = spawnData.spawnLowZ - 1; z <= spawnData.spawnHighZ + 1; z++) {
+    for (int32 x = spawnData.spawnLowX - 1; x <= spawnData.spawnHighX + 1; x++) {
+      for (int32 z = spawnData.spawnLowZ - 1; z <= spawnData.spawnHighZ + 1; z++) {
         if (
           x == spawnData.spawnLowX - 1 ||
           x == spawnData.spawnHighX + 1 ||

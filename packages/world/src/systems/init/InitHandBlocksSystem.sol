@@ -17,7 +17,7 @@ import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE } from "../../Constants.sol";
 import { createSingleInputRecipe, createDoubleInputRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitHandBlocksSystem is System {
-  function createHandcraftedBlock(uint8 terrainBlockObjectTypeId, uint32 mass) internal {
+  function createHandcraftedBlock(uint16 terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
@@ -31,7 +31,7 @@ contract InitHandBlocksSystem is System {
     );
   }
 
-  function createHandcraftedTool(uint8 toolObjectTypeId, uint32 mass) internal {
+  function createHandcraftedTool(uint16 toolObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
@@ -45,7 +45,7 @@ contract InitHandBlocksSystem is System {
     );
   }
 
-  function createHandcraftedItem(uint8 itemObjectTypeId) internal {
+  function createHandcraftedItem(uint16 itemObjectTypeId) internal {
     ObjectTypeMetadata._set(
       itemObjectTypeId,
       ObjectTypeMetadataData({
