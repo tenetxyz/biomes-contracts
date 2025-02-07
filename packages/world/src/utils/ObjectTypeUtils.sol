@@ -54,7 +54,7 @@ function isLog(uint16 objectTypeId) pure returns (bool) {
     objectTypeId == RubberLogObjectID;
 }
 
-function getLogObjectTypes() pure returns (uint8[4] memory) {
+function getLogObjectTypes() pure returns (uint16[4] memory) {
   return [OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID];
 }
 
@@ -79,7 +79,7 @@ function isLumber(uint16 objectTypeId) pure returns (bool) {
     objectTypeId == SilverOakLumberObjectID;
 }
 
-function getLumberObjectTypes() pure returns (uint8[17] memory) {
+function getLumberObjectTypes() pure returns (uint16[17] memory) {
   return [
     OakLumberObjectID,
     SakuraLumberObjectID,
@@ -115,7 +115,7 @@ function isGlass(uint16 objectTypeId) pure returns (bool) {
     objectTypeId == BlackGlassObjectID;
 }
 
-function getGlassObjectTypes() pure returns (uint8[10] memory) {
+function getGlassObjectTypes() pure returns (uint16[10] memory) {
   return [
     GlassObjectID,
     BlueGlassObjectID,
@@ -148,7 +148,7 @@ function isCottonBlock(uint16 objectTypeId) pure returns (bool) {
     objectTypeId == SilverCottonBlockObjectID;
 }
 
-function getCottonBlockObjectTypes() pure returns (uint8[14] memory) {
+function getCottonBlockObjectTypes() pure returns (uint16[14] memory) {
   return [
     CottonBlockObjectID,
     BlueCottonBlockObjectID,
@@ -167,7 +167,7 @@ function getCottonBlockObjectTypes() pure returns (uint8[14] memory) {
   ];
 }
 
-function getReinforcedLumberObjectTypes() pure returns (uint8[3] memory) {
+function getReinforcedLumberObjectTypes() pure returns (uint16[3] memory) {
   return [ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID];
 }
 

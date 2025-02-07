@@ -8,13 +8,6 @@ import { StaminaData } from "./codegen/tables/Stamina.sol";
 import { ChipData } from "./codegen/tables/Chip.sol";
 import { CommitmentData } from "./codegen/tables/Commitment.sol";
 
-enum Biome {
-  Mountains,
-  Desert,
-  Forest,
-  Savanna
-}
-
 struct InventoryTool {
   bytes32 entityId;
   uint24 numUsesLeft;

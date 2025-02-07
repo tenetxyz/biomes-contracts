@@ -16,11 +16,11 @@ import { PlayerObjectID, ChestObjectID, SmartChestObjectID } from "../ObjectType
 
 function addToInventoryCount(
   bytes32 ownerEntityId,
-  uint8 ownerObjectTypeId,
+  uint16 ownerObjectTypeId,
   uint16 objectTypeId,
   uint16 numObjectsToAdd
 ) {
-  uint8 stackable = ObjectTypeMetadata._getStackable(objectTypeId);
+  uint16 stackable = ObjectTypeMetadata._getStackable(objectTypeId);
   require(stackable > 0, "This object type cannot be added to the inventory");
 
   uint16 numInitialObjects = InventoryCount._get(ownerEntityId, objectTypeId);
@@ -34,11 +34,7 @@ function addToInventoryCount(
   uint16 numFinalSlotsUsedDelta = (numFinalFullStacks + (hasFinalPartialStack ? 1 : 0)) -
     (numInitialFullStacks + (hasInitialPartialStack ? 1 : 0));
   uint16 numFinalSlotsUsed = numInitialSlotsUsed + numFinalSlotsUsedDelta;
-  if (ownerObjectTypeId == PlayerObjectID) {
-    require(numFinalSlotsUsed <= MAX_PLAYER_INVENTORY_SLOTS, "Inventory is full");
-  } else if (ownerObjectTypeId == ChestObjectID || ownerObjectTypeId == SmartChestObjectID) {
-    require(numFinalSlotsUsed <= MAX_CHEST_INVENTORY_SLOTS, "Inventory is full");
-  }
+  require(numFinalSlotsUsed <= ObjectTypeMetadata._getMaxInventorySlots(ownerObjectTypeId), "Inventory is full");
   InventorySlots._set(ownerEntityId, numFinalSlotsUsed);
   InventoryCount._set(ownerEntityId, objectTypeId, numFinalObjects);
 
@@ -51,7 +47,7 @@ function removeFromInventoryCount(bytes32 ownerEntityId, uint16 objectTypeId, ui
   uint16 numInitialObjects = InventoryCount._get(ownerEntityId, objectTypeId);
   require(numInitialObjects >= numObjectsToRemove, "Not enough objects in the inventory");
 
-  uint8 stackable = ObjectTypeMetadata._getStackable(objectTypeId);
+  uint16 stackable = ObjectTypeMetadata._getStackable(objectTypeId);
   require(stackable > 0, "This object type cannot be removed from the inventory");
 
   uint16 numInitialFullStacks = numInitialObjects / stackable;
@@ -82,7 +78,7 @@ function removeFromInventoryCount(bytes32 ownerEntityId, uint16 objectTypeId, ui
 function useEquipped(
   bytes32 entityId,
   bytes32 inventoryEntityId,
-  uint8 inventoryObjectTypeId,
+  uint16 inventoryObjectTypeId,
   uint24 durabilityDecrease
 ) {
   if (inventoryEntityId != bytes32(0)) {
@@ -121,7 +117,7 @@ function removeEntityIdFromReverseInventoryTool(bytes32 ownerEntityId, bytes32 r
   }
 }
 
-function removeObjectTypeIdFromInventoryObjects(bytes32 ownerEntityId, uint8 removeObjectTypeId) {
+function removeObjectTypeIdFromInventoryObjects(bytes32 ownerEntityId, uint16 removeObjectTypeId) {
   uint8[] memory currentObjectTypeIds = InventoryObjects._get(ownerEntityId);
   uint8[] memory newObjectTypeIds = new uint8[](currentObjectTypeIds.length - 1);
   uint256 j = 0;
@@ -141,7 +137,7 @@ function removeObjectTypeIdFromInventoryObjects(bytes32 ownerEntityId, uint8 rem
 function transferAllInventoryEntities(
   bytes32 fromEntityId,
   bytes32 toEntityId,
-  uint8 toObjectTypeId
+  uint16 toObjectTypeId
 ) returns (uint256) {
   uint256 numTransferred = 0;
   uint8[] memory fromObjectTypeIds = InventoryObjects._get(fromEntityId);
@@ -167,8 +163,8 @@ function transferAllInventoryEntities(
 function transferInventoryNonTool(
   bytes32 srcEntityId,
   bytes32 dstEntityId,
-  uint8 dstObjectTypeId,
-  uint8 transferObjectTypeId,
+  uint16 dstObjectTypeId,
+  uint16 transferObjectTypeId,
   uint16 numObjectsToTransfer
 ) {
   require(!ObjectTypeMetadata._getIsTool(transferObjectTypeId), "Object type is not a block");
@@ -180,7 +176,7 @@ function transferInventoryNonTool(
 function transferInventoryTool(
   bytes32 srcEntityId,
   bytes32 dstEntityId,
-  uint8 dstObjectTypeId,
+  uint16 dstObjectTypeId,
   bytes32 toolEntityId
 ) returns (uint8) {
   require(InventoryTool._get(toolEntityId) == srcEntityId, "Entity does not own inventory item");
@@ -191,7 +187,7 @@ function transferInventoryTool(
   ReverseInventoryTool._push(dstEntityId, toolEntityId);
   removeEntityIdFromReverseInventoryTool(srcEntityId, toolEntityId);
 
-  uint8 inventoryObjectTypeId = ObjectType._get(toolEntityId);
+  uint16 inventoryObjectTypeId = ObjectType._get(toolEntityId);
   removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);
   addToInventoryCount(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
   return inventoryObjectTypeId;
