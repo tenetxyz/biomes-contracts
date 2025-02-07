@@ -18,7 +18,6 @@ int32 constant SPAWN_SHARD_DIM = 1000;
 int32 constant FORCE_FIELD_SHARD_DIM = 32;
 
 uint256 constant MIN_TIME_BEFORE_AUTO_LOGOFF = 15 minutes;
-uint256 constant MIN_TIME_TO_LOGOFF_AFTER_HIT = 1 minutes;
 
 int16 constant MAX_PLAYER_INFLUENCE_HALF_WIDTH = 10;
 int16 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;

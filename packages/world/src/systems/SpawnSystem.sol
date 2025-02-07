@@ -49,7 +49,7 @@ contract SpawnSystem is System {
     // TODO: set initial mass and energy
 
     PlayerActivity._set(playerEntityId, block.timestamp);
-    require(!gravityApplies(spawnCoord), "Cannot spawn player with gravity");
+    require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     PlayerActionNotif._set(
       playerEntityId,

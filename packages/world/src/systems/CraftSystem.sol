@@ -23,8 +23,6 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 
 contract CraftSystem is System {
   function craft(bytes32 recipeId, bytes32 stationEntityId) public {
-    uint256 initialGas = gasleft();
-
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
 
     bytes32 baseStationEntityId = BaseEntity._get(stationEntityId);
@@ -144,7 +142,5 @@ contract CraftSystem is System {
         amount: recipeData.outputObjectTypeAmount
       })
     );
-
-    callMintXP(playerEntityId, initialGas, 1);
   }
 }
