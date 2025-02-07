@@ -22,8 +22,6 @@ import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDE
 import { AirObjectID, WaterObjectID } from "./ObjectTypeIds.sol";
 
 import { IGravitySystem } from "./codegen/world/IGravitySystem.sol";
-import { IProcGenSystem } from "./codegen/world/IProcGenSystem.sol";
-import { IMintXPSystem } from "./codegen/world/IMintXPSystem.sol";
 
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);
@@ -66,33 +64,13 @@ function callGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) retu
 function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
   bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
-  if (belowEntityId == bytes32(0)) {
-    uint8 terrainObjectTypeId = getTerrainObjectTypeId(belowCoord);
-    if (terrainObjectTypeId != AirObjectID) {
-      return false;
-    }
-  } else if (ObjectType._get(belowEntityId) != AirObjectID || getTerrainObjectTypeId(belowCoord) == WaterObjectID) {
+  require(belowEntityId != bytes32(0), "Attempted to apply gravity but encountered an unrevealed block");
+  uint8 belowObjectTypeId = ObjectType._get(belowEntityId);
+  if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
     return false;
   }
 
   return true;
-}
-
-function getTerrainObjectTypeId(VoxelCoord memory coord) view returns (uint8) {
-  (uint8 terrainObjectTypeId, ) = getTerrainAndOreObjectTypeId(coord, 0);
-  return terrainObjectTypeId;
-}
-
-function getTerrainAndOreObjectTypeId(VoxelCoord memory coord, uint256 randomNumber) view returns (uint8, uint8) {
-  return staticCallProcGenSystem(coord, randomNumber);
-}
-
-function staticCallProcGenSystem(VoxelCoord memory coord, uint256 randomNumber) view returns (uint8, uint8) {
-  return
-    abi.decode(
-      staticCallInternalSystem(abi.encodeCall(IProcGenSystem.getTerrainBlockWithRandomness, (coord, randomNumber)), 0),
-      (uint8, uint8)
-    );
 }
 
 function getUniqueEntity() returns (bytes32) {

@@ -11,19 +11,12 @@ import { IMoveHelperSystem } from "../codegen/world/IMoveHelperSystem.sol";
 
 contract MoveSystem is System {
   function move(VoxelCoord[] memory newCoords) public {
-    uint256 initialGas = gasleft();
-
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
 
-    callInternalSystem(
-      abi.encodeCall(IMoveHelperSystem.movePlayer, (initialGas, playerEntityId, playerCoord, newCoords)),
-      0
-    );
+    callInternalSystem(abi.encodeCall(IMoveHelperSystem.movePlayer, (playerEntityId, playerCoord, newCoords)), 0);
   }
 
   function moveDirections(VoxelCoordDirection[] memory directions) public {
-    uint256 initialGas = gasleft();
-
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
 
     VoxelCoord[] memory newCoords = new VoxelCoord[](directions.length);
@@ -31,9 +24,6 @@ contract MoveSystem is System {
       newCoords[i] = transformVoxelCoord(i == 0 ? playerCoord : newCoords[i - 1], directions[i]);
     }
 
-    callInternalSystem(
-      abi.encodeCall(IMoveHelperSystem.movePlayer, (initialGas, playerEntityId, playerCoord, newCoords)),
-      0
-    );
+    callInternalSystem(abi.encodeCall(IMoveHelperSystem.movePlayer, (playerEntityId, playerCoord, newCoords)), 0);
   }
 }

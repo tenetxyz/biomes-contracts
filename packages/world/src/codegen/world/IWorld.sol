@@ -24,13 +24,10 @@ import { IPipeTransferSystem } from "./IPipeTransferSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
-import { IXPSystem } from "./IXPSystem.sol";
 import { IAdminHookSystem } from "./IAdminHookSystem.sol";
 import { IAdminSpawnSystem } from "./IAdminSpawnSystem.sol";
 import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
 import { IOracleSystem } from "./IOracleSystem.sol";
-import { IProcGenOreSystem } from "./IProcGenOreSystem.sol";
-import { IProcGenSystem } from "./IProcGenSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
 import { IReadTwoSystem } from "./IReadTwoSystem.sol";
 import { IInitDyedBlocksSystem } from "./IInitDyedBlocksSystem.sol";
@@ -42,8 +39,6 @@ import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
 import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
 import { IForceFieldSystem } from "./IForceFieldSystem.sol";
 import { IGravitySystem } from "./IGravitySystem.sol";
-import { IMineHelperSystem } from "./IMineHelperSystem.sol";
-import { IMintXPSystem } from "./IMintXPSystem.sol";
 import { IMoveHelperSystem } from "./IMoveHelperSystem.sol";
 import { IPipeTransferHelperSystem } from "./IPipeTransferHelperSystem.sol";
 import { ITransferHelperSystem } from "./ITransferHelperSystem.sol";
@@ -77,13 +72,10 @@ interface IWorld is
   ISpawnSystem,
   ITransferSystem,
   IUnequipSystem,
-  IXPSystem,
   IAdminHookSystem,
   IAdminSpawnSystem,
   IInitSpawnSystem,
   IOracleSystem,
-  IProcGenOreSystem,
-  IProcGenSystem,
   IReadSystem,
   IReadTwoSystem,
   IInitDyedBlocksSystem,
@@ -95,8 +87,6 @@ interface IWorld is
   IInitWorkbenchSystem,
   IForceFieldSystem,
   IGravitySystem,
-  IMineHelperSystem,
-  IMintXPSystem,
   IMoveHelperSystem,
   IPipeTransferHelperSystem,
   ITransferHelperSystem

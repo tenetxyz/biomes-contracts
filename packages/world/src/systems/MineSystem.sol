@@ -92,13 +92,13 @@ contract MineSystem is System {
     // TODO: apply energy cost to player
 
     for (uint256 i = 0; i < coords.length; i++) {
-      VoxelCoord memory coord = coords[i];
-      VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);
+      VoxelCoord memory aboveCoord = VoxelCoord(coords[i].x, coords[i].y + 1, coords[i].z);
       bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
       if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
         callGravity(aboveEntityId, aboveCoord);
       }
     }
+
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({

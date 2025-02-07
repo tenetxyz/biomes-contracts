@@ -20,12 +20,7 @@ import { callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId, get
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
 
 contract MoveHelperSystem is System {
-  function movePlayer(
-    uint256 initialGas,
-    bytes32 playerEntityId,
-    VoxelCoord memory playerCoord,
-    VoxelCoord[] memory newCoords
-  ) public {
+  function movePlayer(bytes32 playerEntityId, VoxelCoord memory playerCoord, VoxelCoord[] memory newCoords) public {
     // no-ops
     if (newCoords.length == 0) {
       return;
@@ -115,8 +110,6 @@ contract MoveHelperSystem is System {
         amount: newCoords.length
       })
     );
-
-    callMintXP(playerEntityId, initialGas, 10);
   }
 
   function move(

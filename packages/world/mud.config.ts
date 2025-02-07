@@ -329,16 +329,6 @@ export default defineWorld({
       openAccess: false,
       accessList: [],
     },
-    MintXPSystem: {
-      name: "MintXPSystem",
-      openAccess: false,
-      accessList: [],
-    },
-    MineHelperSystem: {
-      name: "MineHelperSystem",
-      openAccess: false,
-      accessList: [],
-    },
     MoveHelperSystem: {
       name: "MoveHelperSystem",
       openAccess: false,

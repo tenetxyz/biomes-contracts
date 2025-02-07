@@ -11,10 +11,5 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IMoveHelperSystem {
-  function movePlayer(
-    uint256 initialGas,
-    bytes32 playerEntityId,
-    VoxelCoord memory playerCoord,
-    VoxelCoord[] memory newCoords
-  ) external;
+  function movePlayer(bytes32 playerEntityId, VoxelCoord memory playerCoord, VoxelCoord[] memory newCoords) external;
 }

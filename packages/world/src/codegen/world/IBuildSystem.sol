@@ -11,13 +11,13 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IBuildSystem {
-  function build(
+  function buildWithExtraData(
     uint8 objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
   ) external payable returns (bytes32);
 
-  function jumpBuild(uint8 objectTypeId, bytes memory extraData) external payable;
+  function jumpBuildWithExtraData(uint8 objectTypeId, bytes memory extraData) external payable;
 
   function jumpBuild(uint8 objectTypeId) external payable;
 
