@@ -25,7 +25,6 @@ import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUni
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
-import { isBasicDisplay } from "../utils/ObjectTypeUtils.sol";
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 import { IMineHelperSystem } from "../codegen/world/IMineHelperSystem.sol";
 

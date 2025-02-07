@@ -15,7 +15,7 @@ function getEntityInventory(bytes32 entityId) view returns (InventoryObject[] me
   InventoryObject[] memory inventoryObjects = new InventoryObject[](objectTypeIds.length);
   bytes32[] memory allInventoryTools = ReverseInventoryTool._get(entityId);
   for (uint256 i = 0; i < objectTypeIds.length; i++) {
-    uint8 objectTypeId = objectTypeIds[i];
+    uint16 objectTypeId = objectTypeIds[i];
     uint16 count = InventoryCount._get(entityId, objectTypeId);
     bool isTool = ObjectTypeMetadata._getIsTool(objectTypeId);
     uint256 numTools = 0;

@@ -65,7 +65,7 @@ function insideAreaIgnoreY(Area memory area, VoxelCoord memory baseWorldCoord) p
   return false;
 }
 
-function getEntitiesInArea(Area memory area, uint8 objectTypeId) view returns (bytes32[] memory) {
+function getEntitiesInArea(Area memory area, uint16 objectTypeId) view returns (bytes32[] memory) {
   VoxelCoord memory lowerSouthwestCorner = area.lowerSouthwestCorner;
   VoxelCoord memory size = area.size;
 

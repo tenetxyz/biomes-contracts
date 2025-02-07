@@ -25,7 +25,7 @@ contract DisplaySystem is System {
 
     bytes32 baseEntityId = BaseEntity._get(entityId);
     baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
-    uint8 objectTypeId = ObjectType.get(baseEntityId);
+    uint16 objectTypeId = ObjectType.get(baseEntityId);
     if (!isSmartItem(objectTypeId)) {
       return DisplayContent.get(baseEntityId);
     }

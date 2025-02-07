@@ -17,7 +17,7 @@ import { PlayerObjectID, ChestObjectID, SmartChestObjectID } from "../ObjectType
 function addToInventoryCount(
   bytes32 ownerEntityId,
   uint8 ownerObjectTypeId,
-  uint8 objectTypeId,
+  uint16 objectTypeId,
   uint16 numObjectsToAdd
 ) {
   uint8 stackable = ObjectTypeMetadata._getStackable(objectTypeId);
@@ -47,7 +47,7 @@ function addToInventoryCount(
   }
 }
 
-function removeFromInventoryCount(bytes32 ownerEntityId, uint8 objectTypeId, uint16 numObjectsToRemove) {
+function removeFromInventoryCount(bytes32 ownerEntityId, uint16 objectTypeId, uint16 numObjectsToRemove) {
   uint16 numInitialObjects = InventoryCount._get(ownerEntityId, objectTypeId);
   require(numInitialObjects >= numObjectsToRemove, "Not enough objects in the inventory");
 

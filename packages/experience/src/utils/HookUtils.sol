@@ -27,7 +27,7 @@ function decodeCallData(bytes memory callData) pure returns (bytes4, bytes memor
   return (bytes4(selectorSlice.toBytes()), callDataArgs.toBytes());
 }
 
-function getBuildArgs(bytes memory callData) pure returns (uint8 objectTypeId, VoxelCoord memory coord) {
+function getBuildArgs(bytes memory callData) pure returns (uint16 objectTypeId, VoxelCoord memory coord) {
   (bytes4 selector, bytes memory args) = decodeCallData(callData);
   if (selector == BUILD_SELECTOR) {
     (objectTypeId, coord) = abi.decode(args, (uint8, VoxelCoord));

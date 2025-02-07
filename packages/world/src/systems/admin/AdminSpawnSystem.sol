@@ -19,7 +19,7 @@ import { updateChipBatteryLevel } from "../../utils/ChipUtils.sol";
 import { isStorageContainer } from "../../utils/ObjectTypeUtils.sol";
 
 contract AdminSpawnSystem is System {
-  function setObjectAtCoord(uint8 objectTypeId, VoxelCoord memory coord) public {
+  function setObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) public {
     AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
     require(inWorldBorder(coord), "AdminTerrainSystem: cannot build outside world border");
     require(getTerrainObjectTypeId(coord) != WaterObjectID, "AdminTerrainSystem: cannot build on water block");
@@ -55,7 +55,7 @@ contract AdminSpawnSystem is System {
     Position._set(entityId, coord.x, coord.y, coord.z);
   }
 
-  function setObjectAtCoord(uint8 objectTypeId, VoxelCoord[] memory coord) public {
+  function setObjectAtCoord(uint16 objectTypeId, VoxelCoord[] memory coord) public {
     AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
     for (uint i = 0; i < coord.length; i++) {
       setObjectAtCoord(objectTypeId, coord[i]);

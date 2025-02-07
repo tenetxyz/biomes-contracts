@@ -68,7 +68,7 @@ function buildExistsInWorld(Build memory buildData, VoxelCoord memory baseWorldC
     });
     bytes32 entityId = getEntityAtCoord(absolutePosition);
 
-    uint8 objectTypeId;
+    uint16 objectTypeId;
     if (entityId == bytes32(0)) {
       // then it's the terrain
       objectTypeId = IWorld(WorldContextConsumerLib._world()).getTerrainBlock(absolutePosition);

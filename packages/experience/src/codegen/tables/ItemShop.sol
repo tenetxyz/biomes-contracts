@@ -21,7 +21,7 @@ import { ShopType } from "../common.sol";
 
 struct ItemShopData {
   ShopType shopType;
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   uint256 buyPrice;
   uint256 sellPrice;
   address paymentToken;
@@ -150,7 +150,7 @@ library ItemShop {
   /**
    * @notice Get objectTypeId.
    */
-  function getObjectTypeId(bytes32 entityId) internal view returns (uint8 objectTypeId) {
+  function getObjectTypeId(bytes32 entityId) internal view returns (uint16 objectTypeId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -161,7 +161,7 @@ library ItemShop {
   /**
    * @notice Get objectTypeId.
    */
-  function _getObjectTypeId(bytes32 entityId) internal view returns (uint8 objectTypeId) {
+  function _getObjectTypeId(bytes32 entityId) internal view returns (uint16 objectTypeId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -172,7 +172,7 @@ library ItemShop {
   /**
    * @notice Get objectTypeId (using the specified store).
    */
-  function getObjectTypeId(IStore _store, bytes32 entityId) internal view returns (uint8 objectTypeId) {
+  function getObjectTypeId(IStore _store, bytes32 entityId) internal view returns (uint16 objectTypeId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -183,7 +183,7 @@ library ItemShop {
   /**
    * @notice Set objectTypeId.
    */
-  function setObjectTypeId(bytes32 entityId, uint8 objectTypeId) internal {
+  function setObjectTypeId(bytes32 entityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -193,7 +193,7 @@ library ItemShop {
   /**
    * @notice Set objectTypeId.
    */
-  function _setObjectTypeId(bytes32 entityId, uint8 objectTypeId) internal {
+  function _setObjectTypeId(bytes32 entityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -203,7 +203,7 @@ library ItemShop {
   /**
    * @notice Set objectTypeId (using the specified store).
    */
-  function setObjectTypeId(IStore _store, bytes32 entityId, uint8 objectTypeId) internal {
+  function setObjectTypeId(IStore _store, bytes32 entityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -513,7 +513,7 @@ library ItemShop {
   function set(
     bytes32 entityId,
     ShopType shopType,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     uint256 buyPrice,
     uint256 sellPrice,
     address paymentToken,
@@ -536,7 +536,7 @@ library ItemShop {
   function _set(
     bytes32 entityId,
     ShopType shopType,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     uint256 buyPrice,
     uint256 sellPrice,
     address paymentToken,
@@ -560,7 +560,7 @@ library ItemShop {
     IStore _store,
     bytes32 entityId,
     ShopType shopType,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     uint256 buyPrice,
     uint256 sellPrice,
     address paymentToken,
@@ -653,7 +653,7 @@ library ItemShop {
     pure
     returns (
       ShopType shopType,
-      uint8 objectTypeId,
+      uint16 objectTypeId,
       uint256 buyPrice,
       uint256 sellPrice,
       address paymentToken,
@@ -730,7 +730,7 @@ library ItemShop {
    */
   function encodeStatic(
     ShopType shopType,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     uint256 buyPrice,
     uint256 sellPrice,
     address paymentToken,
@@ -747,7 +747,7 @@ library ItemShop {
    */
   function encode(
     ShopType shopType,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     uint256 buyPrice,
     uint256 sellPrice,
     address paymentToken,

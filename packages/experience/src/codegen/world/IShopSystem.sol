@@ -35,5 +35,5 @@ interface IShopSystem {
 
   function experience__setSellPrice(bytes32 entityId, uint256 sellPrice) external;
 
-  function experience__setShopObjectTypeId(bytes32 entityId, uint8 objectTypeId) external;
+  function experience__setShopObjectTypeId(bytes32 entityId, uint16 objectTypeId) external;
 }

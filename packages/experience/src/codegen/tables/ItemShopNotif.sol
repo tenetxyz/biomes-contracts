@@ -22,7 +22,7 @@ import { ShopTxType } from "../common.sol";
 struct ItemShopNotifData {
   address player;
   ShopTxType shopTxType;
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   uint16 amount;
   uint256 price;
   address paymentToken;
@@ -147,7 +147,7 @@ library ItemShopNotif {
   /**
    * @notice Set objectTypeId.
    */
-  function setObjectTypeId(bytes32 chestEntityId, uint8 objectTypeId) internal {
+  function setObjectTypeId(bytes32 chestEntityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
@@ -157,7 +157,7 @@ library ItemShopNotif {
   /**
    * @notice Set objectTypeId.
    */
-  function _setObjectTypeId(bytes32 chestEntityId, uint8 objectTypeId) internal {
+  function _setObjectTypeId(bytes32 chestEntityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
@@ -167,7 +167,7 @@ library ItemShopNotif {
   /**
    * @notice Set objectTypeId (using the specified store).
    */
-  function setObjectTypeId(IStore _store, bytes32 chestEntityId, uint8 objectTypeId) internal {
+  function setObjectTypeId(IStore _store, bytes32 chestEntityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = chestEntityId;
 
@@ -271,7 +271,7 @@ library ItemShopNotif {
     bytes32 chestEntityId,
     address player,
     ShopTxType shopTxType,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     uint16 amount,
     uint256 price,
     address paymentToken
@@ -294,7 +294,7 @@ library ItemShopNotif {
     bytes32 chestEntityId,
     address player,
     ShopTxType shopTxType,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     uint16 amount,
     uint256 price,
     address paymentToken
@@ -318,7 +318,7 @@ library ItemShopNotif {
     bytes32 chestEntityId,
     address player,
     ShopTxType shopTxType,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     uint16 amount,
     uint256 price,
     address paymentToken
@@ -411,7 +411,7 @@ library ItemShopNotif {
     returns (
       address player,
       ShopTxType shopTxType,
-      uint8 objectTypeId,
+      uint16 objectTypeId,
       uint16 amount,
       uint256 price,
       address paymentToken
@@ -488,7 +488,7 @@ library ItemShopNotif {
   function encodeStatic(
     address player,
     ShopTxType shopTxType,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     uint16 amount,
     uint256 price,
     address paymentToken
@@ -505,7 +505,7 @@ library ItemShopNotif {
   function encode(
     address player,
     ShopTxType shopTxType,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     uint16 amount,
     uint256 price,
     address paymentToken

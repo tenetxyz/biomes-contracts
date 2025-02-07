@@ -36,12 +36,12 @@ function isSystemId(ResourceId checkSystemId, bytes16 systemId) pure returns (bo
   return ResourceId.unwrap(checkSystemId) == ResourceId.unwrap(getSystemId(systemId));
 }
 
-function getBuildCallData(uint8 objectTypeId, VoxelCoord memory coord) pure returns (bytes memory buildCallData) {
+function getBuildCallData(uint16 objectTypeId, VoxelCoord memory coord) pure returns (bytes memory buildCallData) {
   buildCallData = abi.encodeWithSelector(BUILD_SELECTOR, objectTypeId, coord);
   return buildCallData;
 }
 
-function callBuild(address delegatorAddress, uint8 objectTypeId, VoxelCoord memory coord) returns (bytes32 entityId) {
+function callBuild(address delegatorAddress, uint16 objectTypeId, VoxelCoord memory coord) returns (bytes32 entityId) {
   bytes memory returnData = IWorld(WorldContextConsumerLib._world()).callFrom(
     delegatorAddress,
     getSystemId("BuildSystem"),

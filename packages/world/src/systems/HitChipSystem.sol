@@ -38,7 +38,7 @@ contract HitChipSystem is System {
       return;
     }
 
-    uint8 objectTypeId = ObjectType._get(chipEntityId);
+    uint16 objectTypeId = ObjectType._get(chipEntityId);
     uint16 miningDifficulty = ObjectTypeMetadata._getMiningDifficulty(objectTypeId);
 
     {

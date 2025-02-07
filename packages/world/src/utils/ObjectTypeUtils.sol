@@ -19,7 +19,7 @@ import { CottonBlockObjectID, BlueCottonBlockObjectID, BrownCottonBlockObjectID,
 
 import { ForceFieldObjectID, ChestObjectID, SmartChestObjectID, TextSignObjectID, SmartTextSignObjectID } from "../ObjectTypeIds.sol";
 
-function isPick(uint8 objectTypeId) pure returns (bool) {
+function isPick(uint16 objectTypeId) pure returns (bool) {
   return
     objectTypeId == WoodenAxeObjectID ||
     objectTypeId == StonePickObjectID ||
@@ -29,7 +29,7 @@ function isPick(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == DiamondPickObjectID;
 }
 
-function isAxe(uint8 objectTypeId) pure returns (bool) {
+function isAxe(uint16 objectTypeId) pure returns (bool) {
   return
     objectTypeId == WoodenAxeObjectID ||
     objectTypeId == StoneAxeObjectID ||
@@ -39,14 +39,14 @@ function isAxe(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == DiamondAxeObjectID;
 }
 
-function isWhacker(uint8 objectTypeId) pure returns (bool) {
+function isWhacker(uint16 objectTypeId) pure returns (bool) {
   return
     objectTypeId == WoodenWhackerObjectID ||
     objectTypeId == StoneWhackerObjectID ||
     objectTypeId == SilverWhackerObjectID;
 }
 
-function isLog(uint8 objectTypeId) pure returns (bool) {
+function isLog(uint16 objectTypeId) pure returns (bool) {
   return
     objectTypeId == OakLogObjectID ||
     objectTypeId == SakuraLogObjectID ||
@@ -58,7 +58,7 @@ function getLogObjectTypes() pure returns (uint8[4] memory) {
   return [OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID];
 }
 
-function isLumber(uint8 objectTypeId) pure returns (bool) {
+function isLumber(uint16 objectTypeId) pure returns (bool) {
   return
     objectTypeId == OakLumberObjectID ||
     objectTypeId == SakuraLumberObjectID ||
@@ -101,7 +101,7 @@ function getLumberObjectTypes() pure returns (uint8[17] memory) {
   ];
 }
 
-function isGlass(uint8 objectTypeId) pure returns (bool) {
+function isGlass(uint16 objectTypeId) pure returns (bool) {
   return
     objectTypeId == GlassObjectID ||
     objectTypeId == BlueGlassObjectID ||
@@ -130,7 +130,7 @@ function getGlassObjectTypes() pure returns (uint8[10] memory) {
   ];
 }
 
-function isCottonBlock(uint8 objectTypeId) pure returns (bool) {
+function isCottonBlock(uint16 objectTypeId) pure returns (bool) {
   return
     objectTypeId == CottonBlockObjectID ||
     objectTypeId == BlueCottonBlockObjectID ||
@@ -171,14 +171,14 @@ function getReinforcedLumberObjectTypes() pure returns (uint8[3] memory) {
   return [ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID];
 }
 
-function isReinforcedLumber(uint8 objectTypeId) pure returns (bool) {
+function isReinforcedLumber(uint16 objectTypeId) pure returns (bool) {
   return
     objectTypeId == ReinforcedOakLumberObjectID ||
     objectTypeId == ReinforcedRubberLumberObjectID ||
     objectTypeId == ReinforcedBirchLumberObjectID;
 }
 
-function isStone(uint8 objectTypeId) pure returns (bool) {
+function isStone(uint16 objectTypeId) pure returns (bool) {
   return
     objectTypeId == StoneObjectID ||
     objectTypeId == CobblestoneObjectID ||
@@ -189,14 +189,14 @@ function isStone(uint8 objectTypeId) pure returns (bool) {
     objectTypeId == LimestoneObjectID;
 }
 
-function isStorageContainer(uint8 objectTypeId) pure returns (bool) {
+function isStorageContainer(uint16 objectTypeId) pure returns (bool) {
   return objectTypeId == ChestObjectID || objectTypeId == SmartChestObjectID;
 }
 
-function isBasicDisplay(uint8 objectTypeId) pure returns (bool) {
+function isBasicDisplay(uint16 objectTypeId) pure returns (bool) {
   return objectTypeId == TextSignObjectID;
 }
 
-function isSmartItem(uint8 objectTypeId) pure returns (bool) {
+function isSmartItem(uint16 objectTypeId) pure returns (bool) {
   return objectTypeId == SmartChestObjectID || objectTypeId == SmartTextSignObjectID;
 }

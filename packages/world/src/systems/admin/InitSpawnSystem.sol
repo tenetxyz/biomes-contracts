@@ -163,7 +163,7 @@ contract InitSpawnSystem is System {
     }
   }
 
-  function setObjectAtCoord(uint8 objectTypeId, VoxelCoord memory coord) internal {
+  function setObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) internal {
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
       entityId = getUniqueEntity();

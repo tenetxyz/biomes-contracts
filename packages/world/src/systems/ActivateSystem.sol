@@ -18,7 +18,7 @@ contract ActivateSystem is System {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
 
     require(entityId != bytes32(0), "ActivateSystem: entity does not exist");
-    uint8 objectTypeId = ObjectType._get(entityId);
+    uint16 objectTypeId = ObjectType._get(entityId);
     require(objectTypeId != NullObjectTypeId, "ActivateSystem: entity has no object type");
 
     if (objectTypeId == PlayerObjectID) {

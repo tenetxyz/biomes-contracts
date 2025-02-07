@@ -26,7 +26,7 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
 contract BuildSystem is System {
-  function buildObjectAtCoord(uint8 objectTypeId, VoxelCoord memory coord) internal returns (bytes32) {
+  function buildObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) internal returns (bytes32) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     require(entityId != bytes32(0), "Cannot build on an unrevealed block");
@@ -39,7 +39,7 @@ contract BuildSystem is System {
   }
 
   function buildWithExtraData(
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
   ) public payable returns (bytes32) {
@@ -92,7 +92,7 @@ contract BuildSystem is System {
     return baseEntityId;
   }
 
-  function jumpBuildWithExtraData(uint8 objectTypeId, bytes memory extraData) public payable {
+  function jumpBuildWithExtraData(uint16 objectTypeId, bytes memory extraData) public payable {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     require(inWorldBorder(jumpCoord), "BuildSystem: cannot jump outside world border");
@@ -141,11 +141,11 @@ contract BuildSystem is System {
     buildWithExtraData(objectTypeId, playerCoord, extraData);
   }
 
-  function jumpBuild(uint8 objectTypeId) public payable {
+  function jumpBuild(uint16 objectTypeId) public payable {
     jumpBuildWithExtraData(objectTypeId, new bytes(0));
   }
 
-  function build(uint8 objectTypeId, VoxelCoord memory coord) public payable returns (bytes32) {
+  function build(uint16 objectTypeId, VoxelCoord memory coord) public payable returns (bytes32) {
     return buildWithExtraData(objectTypeId, coord, new bytes(0));
   }
 }

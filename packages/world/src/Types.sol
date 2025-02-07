@@ -21,7 +21,7 @@ struct InventoryTool {
 }
 
 struct InventoryObject {
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   uint16 numObjects;
   InventoryTool[] tools;
 }
@@ -56,21 +56,21 @@ struct PlayerEntityDataWithCommitment {
 struct BlockEntityData {
   bytes32 entityId;
   bytes32 baseEntityId;
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   VoxelCoord position;
   InventoryObject[] inventory;
   ChipData chip;
 }
 
 struct EntityData {
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   bytes32 entityId;
   InventoryObject[] inventory;
   VoxelCoord position;
 }
 
 struct EntityDataWithBaseEntity {
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   bytes32 entityId;
   bytes32 baseEntityId;
   InventoryObject[] inventory;
@@ -78,12 +78,12 @@ struct EntityDataWithBaseEntity {
 }
 
 struct PickupData {
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   uint16 numToPickup;
 }
 
 struct TransferData {
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   uint16 numToTransfer;
   bytes32[] toolEntityIds;
 }

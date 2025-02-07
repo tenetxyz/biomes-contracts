@@ -16,7 +16,7 @@ contract ForceFieldSystem is System {
   function requireBuildsAllowed(
     bytes32 playerEntityId,
     bytes32 baseEntityId,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     VoxelCoord[] memory coords,
     bytes memory extraData
   ) public payable {
@@ -48,7 +48,7 @@ contract ForceFieldSystem is System {
   function requireMinesAllowed(
     bytes32 playerEntityId,
     bytes32 baseEntityId,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     VoxelCoord[] memory coords,
     bytes memory extraData
   ) public payable {

@@ -213,7 +213,7 @@ contract ReadSystem is System {
   }
 
   function getCoordForEntityId(bytes32 entityId) public view returns (VoxelCoord memory) {
-    uint8 objectTypeId = ObjectType._get(entityId);
+    uint16 objectTypeId = ObjectType._get(entityId);
     if (objectTypeId == PlayerObjectID && PlayerMetadata._getIsLoggedOff(entityId)) {
       return lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(entityId));
     } else {

@@ -36,7 +36,7 @@ contract ChipSystem is System {
     bytes32 baseEntityId = BaseEntity._get(entityId);
     baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
 
-    uint8 objectTypeId = ObjectType._get(baseEntityId);
+    uint16 objectTypeId = ObjectType._get(baseEntityId);
     ChipData memory chipData = updateChipBatteryLevel(baseEntityId);
     require(chipData.chipAddress == address(0), "ChipSystem: chip already attached");
     require(chipAddress != address(0), "ChipSystem: invalid chip address");
@@ -100,7 +100,7 @@ contract ChipSystem is System {
     require(chipData.chipAddress != address(0), "ChipSystem: no chip attached");
     uint256 batteryLevel = chipData.batteryLevel;
 
-    uint8 objectTypeId = ObjectType._get(baseEntityId);
+    uint16 objectTypeId = ObjectType._get(baseEntityId);
     if (objectTypeId != ForceFieldObjectID) {
       bytes32 forceFieldEntityId = getForceField(entityCoord);
       if (forceFieldEntityId != bytes32(0)) {
@@ -156,7 +156,7 @@ contract ChipSystem is System {
 
     removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, numBattery);
 
-    uint8 objectTypeId = ObjectType._get(baseEntityId);
+    uint16 objectTypeId = ObjectType._get(baseEntityId);
     require(objectTypeId == ForceFieldObjectID, "ChipSystem: cannot power this object");
     ChipData memory chipData = updateChipBatteryLevel(baseEntityId);
     uint256 newBatteryLevel = chipData.batteryLevel + (uint256(numBattery) * CHARGE_PER_BATTERY);

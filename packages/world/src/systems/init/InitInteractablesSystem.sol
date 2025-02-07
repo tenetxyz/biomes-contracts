@@ -16,7 +16,7 @@ import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWith
 
 contract InitInteractablesSystem is System {
   function createInteractableBlock(
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     uint32 mass,
     uint8 maxInventorySlots,
     uint8 stackable,

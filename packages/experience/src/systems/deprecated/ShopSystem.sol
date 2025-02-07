@@ -65,7 +65,7 @@ contract ShopSystem is System {
     ItemShop.setSellPrice(entityId, sellPrice);
   }
 
-  function setShopObjectTypeId(bytes32 entityId, uint8 objectTypeId) public {
+  function setShopObjectTypeId(bytes32 entityId, uint16 objectTypeId) public {
     requireChipOwner(entityId);
     ItemShop.setObjectTypeId(entityId, objectTypeId);
   }

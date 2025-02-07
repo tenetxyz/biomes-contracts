@@ -27,7 +27,7 @@ contract PickupSystem is System {
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     require(entityId != bytes32(0), "PickupSystem: no entity to pickup");
 
-    uint8 objectTypeId = ObjectType._get(entityId);
+    uint16 objectTypeId = ObjectType._get(entityId);
     require(objectTypeId == AirObjectID, "PickupSystem: cannot pickup from non-air block");
 
     return (playerEntityId, entityId);

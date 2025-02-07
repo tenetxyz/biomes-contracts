@@ -17,7 +17,7 @@ function decodeAddressExchangeResourceId(bytes32 resourceId) pure returns (addre
   return address(uint160(uint256(resourceId)));
 }
 
-function encodeObjectExchangeResourceId(uint8 objectTypeId) pure returns (bytes32) {
+function encodeObjectExchangeResourceId(uint16 objectTypeId) pure returns (bytes32) {
   return bytes32(uint256(objectTypeId));
 }
 

@@ -55,7 +55,7 @@ function getTerrainBlock(VoxelCoord memory coord) view returns (uint8) {
 function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (uint8) {
   bytes32 entityId = getEntityAtCoord(coord);
 
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   if (entityId == bytes32(0)) {
     objectTypeId = getTerrainBlock(coord);
   } else {
@@ -73,27 +73,27 @@ function getObjectType(bytes32 entityId) view returns (uint8) {
   return ObjectType.get(entityId);
 }
 
-function getMiningDifficulty(uint8 objectTypeId) view returns (uint16) {
+function getMiningDifficulty(uint16 objectTypeId) view returns (uint16) {
   return ObjectTypeMetadata.getMiningDifficulty(objectTypeId);
 }
 
-function getStackable(uint8 objectTypeId) view returns (uint8) {
+function getStackable(uint16 objectTypeId) view returns (uint8) {
   return ObjectTypeMetadata.getStackable(objectTypeId);
 }
 
-function getDamage(uint8 objectTypeId) view returns (uint16) {
+function getDamage(uint16 objectTypeId) view returns (uint16) {
   return ObjectTypeMetadata.getDamage(objectTypeId);
 }
 
-function getDurability(uint8 objectTypeId) view returns (uint24) {
+function getDurability(uint16 objectTypeId) view returns (uint24) {
   return ObjectTypeMetadata.getDurability(objectTypeId);
 }
 
-function isTool(uint8 objectTypeId) view returns (bool) {
+function isTool(uint16 objectTypeId) view returns (bool) {
   return ObjectTypeMetadata.getIsTool(objectTypeId);
 }
 
-function isBlock(uint8 objectTypeId) view returns (bool) {
+function isBlock(uint16 objectTypeId) view returns (bool) {
   return ObjectTypeMetadata.getIsBlock(objectTypeId);
 }
 
@@ -137,7 +137,7 @@ function getNumInventoryObjects(bytes32 entityId) view returns (uint256) {
   return InventoryObjects.lengthObjectTypeIds(entityId);
 }
 
-function getCount(bytes32 entityId, uint8 objectTypeId) view returns (uint16) {
+function getCount(bytes32 entityId, uint16 objectTypeId) view returns (uint16) {
   return InventoryCount.getCount(entityId, objectTypeId);
 }
 
@@ -153,6 +153,6 @@ function getEntityAtCoord(VoxelCoord memory coord) view returns (bytes32) {
   return ReversePosition.getEntityId(coord.x, coord.y, coord.z);
 }
 
-function numMaxInChest(uint8 objectTypeId) view returns (uint16) {
+function numMaxInChest(uint16 objectTypeId) view returns (uint16) {
   return getStackable(objectTypeId) * MAX_CHEST_INVENTORY_SLOTS;
 }
