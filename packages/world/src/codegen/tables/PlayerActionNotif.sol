@@ -38,7 +38,7 @@ library PlayerActionNotif {
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint16, bytes32, uint16, int32, int32, int32, uint256)
+  // Hex-encoded value schema of (uint8, bytes32, uint16, int32, int32, int32, uint256)
   Schema constant _valueSchema = Schema.wrap(0x004f0700005f012323231f000000000000000000000000000000000000000000);
 
   /**
@@ -86,7 +86,7 @@ library PlayerActionNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = playerEntityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint16(actionType)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(actionType)), _fieldLayout);
   }
 
   /**
@@ -96,7 +96,7 @@ library PlayerActionNotif {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = playerEntityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint16(actionType)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(actionType)), _fieldLayout);
   }
 
   /**
@@ -331,7 +331,7 @@ library PlayerActionNotif {
       uint256 amount
     )
   {
-    actionType = ActionType(uint16(Bytes.getBytes1(_blob, 0)));
+    actionType = ActionType(uint8(Bytes.getBytes1(_blob, 0)));
 
     entityId = (Bytes.getBytes32(_blob, 1));
 
