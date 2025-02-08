@@ -8,14 +8,13 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Position } from "../../codegen/tables/Position.sol";
-import { Chip, ChipData } from "../../codegen/tables/Chip.sol";
+import { Chip } from "../../codegen/tables/Chip.sol";
 
-import { PlayerObjectID, ForceFieldObjectID, ChipBatteryObjectID } from "../../ObjectTypeIds.sol";
+import { PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../../Utils.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../../Constants.sol";
 import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
-import { isStorageContainer } from "../../utils/ObjectTypeUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { TransferCommonContext } from "../../Types.sol";
 

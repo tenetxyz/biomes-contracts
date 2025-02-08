@@ -15,9 +15,8 @@ import { Position } from "../codegen/tables/Position.sol";
 import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
-import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { Chip, ChipData } from "../codegen/tables/Chip.sol";
+import { Chip } from "../codegen/tables/Chip.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 import { TerrainCommitment, TerrainCommitmentData } from "../codegen/tables/TerrainCommitment.sol";
@@ -27,12 +26,10 @@ import { BlockPrevrandao } from "../codegen/tables/BlockPrevrandao.sol";
 import { MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID } from "../ObjectTypeIds.sol";
 import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getTerrainAndOreObjectTypeId, getUniqueEntity, callMintXP, positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getRandomNumberBetween0And99 } from "../Utils.sol";
-import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
+import { addToInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, regenStamina } from "../utils/PlayerUtils.sol";
-import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
-import { IMineHelperSystem } from "../codegen/world/IMineHelperSystem.sol";
 
 contract OreSystem is System {
   function initiateOreReveal(VoxelCoord memory coord) public {

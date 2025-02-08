@@ -119,6 +119,7 @@ struct TransferCommonContext {
 
 struct PipeTransferCommonContext {
   VoxelCoord targetCoord;
-  ChipData targetChipData;
+  address chipAddress;
+  uint256 machineEnergyLevel;
   uint16 targetObjectTypeId;
 }

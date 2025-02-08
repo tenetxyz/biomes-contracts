@@ -8,13 +8,13 @@ import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 
-import { Chip, ChipData } from "../codegen/tables/Chip.sol";
+import { Chip } from "../codegen/tables/Chip.sol";
 import { IN_MAINTENANCE } from "../Constants.sol";
 import { ChipOnPipeTransferData, PipeTransferData, PipeTransferCommonContext } from "../Types.sol";
 import { ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { isStorageContainer } from "../utils/ObjectTypeUtils.sol";
-import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 
 import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
@@ -22,15 +22,14 @@ import { IChestChip } from "../prototypes/IChestChip.sol";
 
 contract PipeTransferSystem is System {
   function requireAllowed(
-    ChipData memory targetChipData,
+    address chipAddress,
+    uint256 machineEnergyLevel,
     ChipOnPipeTransferData memory chipOnPipeTransferData
   ) internal {
-    if (targetChipData.chipAddress != address(0) && targetChipData.batteryLevel > 0) {
+    if (chipAddress != address(0) && machineEnergyLevel > 0) {
       // Don't safe call here as we want to revert if the chip doesn't allow the transfer
-      bool transferAllowed = IChestChip(targetChipData.chipAddress).onPipeTransfer{ value: _msgValue() }(
-        chipOnPipeTransferData
-      );
-      require(transferAllowed, "PipeTransferSystem: smart item not authorized by chip to make this transfer");
+      bool transferAllowed = IChestChip(chipAddress).onPipeTransfer{ value: _msgValue() }(chipOnPipeTransferData);
+      require(transferAllowed, "Transfer not allowed by chip");
     }
   }
 
@@ -41,17 +40,18 @@ contract PipeTransferSystem is System {
   ) public payable {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
     uint16 callerObjectTypeId = ObjectType._get(callerEntityId);
-    require(isStorageContainer(callerObjectTypeId), "PipeTransferSystem: source object type is not a chest");
+    require(isStorageContainer(callerObjectTypeId), "Source object type is not a chest");
 
     VoxelCoord memory callerCoord = positionDataToVoxelCoord(Position._get(callerEntityId));
-    ChipData memory callerChipData = updateChipBatteryLevel(callerEntityId);
+    address chipAddress = Chip._get(callerEntityId);
+    uint256 machineEnergyLevel = 0;
     bytes32 callerForceFieldEntityId = getForceField(callerCoord);
     if (callerForceFieldEntityId != bytes32(0)) {
-      ChipData memory callerForceFieldChipData = updateChipBatteryLevel(callerForceFieldEntityId);
-      callerChipData.batteryLevel += callerForceFieldChipData.batteryLevel;
+      MachineData memory machineData = updateMachineEnergyLevel(callerForceFieldEntityId);
+      machineEnergyLevel = machineData.energyLevel;
     }
-    require(callerChipData.chipAddress == _msgSender(), "PipeTransferSystem: caller is not the chip of the smart item");
-    require(callerChipData.batteryLevel > 0, "PipeTransferSystem: caller has no charge");
+    require(chipAddress == _msgSender(), "Caller is not the chip of the smart item");
+    require(machineEnergyLevel > 0, "Caller has no charge");
 
     PipeTransferCommonContext memory pipeCtx = abi.decode(
       callInternalSystem(
@@ -66,7 +66,8 @@ contract PipeTransferSystem is System {
 
     if (pipeCtx.targetObjectTypeId != ForceFieldObjectID) {
       requireAllowed(
-        pipeCtx.targetChipData,
+        pipeCtx.chipAddress,
+        pipeCtx.machineEnergyLevel,
         ChipOnPipeTransferData({
           playerEntityId: bytes32(0), // this is a transfer initiated by a chest, not a player
           targetEntityId: pipeTransferData.targetEntityId,
