@@ -6,23 +6,18 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
-import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { Health } from "../codegen/tables/Health.sol";
-import { Stamina } from "../codegen/tables/Stamina.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
-import { ExperiencePoints } from "../codegen/tables/ExperiencePoints.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, IN_MAINTENANCE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder, getTerrainObjectTypeId } from "../Utils.sol";
+import { lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { regenHealth, regenStamina } from "../utils/PlayerUtils.sol";
 
 contract LoginSystem is System {
   function loginPlayer(VoxelCoord memory respawnCoord) public {

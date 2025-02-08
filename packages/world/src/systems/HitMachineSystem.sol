@@ -9,20 +9,18 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
-import { Stamina } from "../codegen/tables/Stamina.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { Chip, ChipData } from "../codegen/tables/Chip.sol";
+import { Chip } from "../codegen/tables/Chip.sol";
+import { Energy } from "../codegen/tables/Energy.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { PLAYER_HAND_DAMAGE, HIT_CHIP_STAMINA_COST, TIME_BEFORE_DECREASE_BATTERY_LEVEL } from "../Constants.sol";
-import { PlayerObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireBesidePlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { isWhacker } from "../utils/ObjectTypeUtils.sol";
-import { positionDataToVoxelCoord, safeCallChip, callMintXP } from "../Utils.sol";
+import { positionDataToVoxelCoord, safeCallChip } from "../Utils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
 
@@ -42,7 +40,7 @@ contract HitMachineSystem is System {
     require(equippedEntityId != bytes32(0), "You must use a whacker to hit machines");
     uint16 equippedObjectTypeId = ObjectType._get(equippedEntityId);
     require(isWhacker(equippedObjectTypeId), "You must use a whacker to hit machines");
-    uint16 equippedToolDamage = ObjectTypeMetadata._getDamage(equippedObjectTypeId);
+    uint16 equippedToolDamage = ObjectTypeMetadata._getMass(equippedObjectTypeId);
     useEquipped(
       playerEntityId,
       equippedEntityId,

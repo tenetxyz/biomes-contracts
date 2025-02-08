@@ -20,13 +20,9 @@ contract InitSpawnSystem is System {
   function addSpawn(VoxelCoord memory lowerSouthwestCorner, VoxelCoord memory size) public {
     AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
 
-    require(inWorldBorder(lowerSouthwestCorner), "InitSpawnSystem: cannot place spawn outside world border");
+    require(inWorldBorder(lowerSouthwestCorner), "Cannot place spawn outside world border");
     VoxelCoord memory spawnCoord = coordToShardCoordIgnoreY(lowerSouthwestCorner, SPAWN_SHARD_DIM);
-    // require(
-    //   !Spawn._get(spawnCoord.x, spawnCoord.z).initialized,
-    //   "InitSpawnSystem: spawn already exists for this shard"
-    // );
-    require(size.x > 0 && size.z > 0, "InitSpawnSystem: size must be positive");
+    require(size.x > 0 && size.z > 0, "Size must be positive");
 
     Spawn._set(
       spawnCoord.x,
@@ -46,7 +42,7 @@ contract InitSpawnSystem is System {
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
-    require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
+    require(spawnData.initialized, "Spawn does not exist for this shard");
 
     int32 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
     for (int32 x = spawnData.spawnLowX; x <= midPointX; x++) {
@@ -67,7 +63,7 @@ contract InitSpawnSystem is System {
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
-    require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
+    require(spawnData.initialized, "Spawn does not exist for this shard");
 
     int32 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
     for (int32 x = midPointX + 1; x <= spawnData.spawnHighX; x++) {
@@ -88,7 +84,7 @@ contract InitSpawnSystem is System {
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
-    require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
+    require(spawnData.initialized, "Spawn does not exist for this shard");
 
     int32 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
     for (int32 x = spawnData.spawnLowX; x <= midPointX; x++) {
@@ -103,7 +99,7 @@ contract InitSpawnSystem is System {
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
-    require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
+    require(spawnData.initialized, "Spawn does not exist for this shard");
 
     int32 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
     for (int32 x = midPointX + 1; x <= spawnData.spawnHighX; x++) {
@@ -118,7 +114,7 @@ contract InitSpawnSystem is System {
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
-    require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
+    require(spawnData.initialized, "Spawn does not exist for this shard");
 
     int32 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
     for (int32 x = spawnData.spawnLowX; x <= midPointX; x++) {
@@ -133,7 +129,7 @@ contract InitSpawnSystem is System {
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
-    require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
+    require(spawnData.initialized, "Spawn does not exist for this shard");
 
     int32 midPointX = (spawnData.spawnLowX + spawnData.spawnHighX) / 2;
     for (int32 x = midPointX + 1; x <= spawnData.spawnHighX; x++) {
@@ -148,7 +144,7 @@ contract InitSpawnSystem is System {
 
     VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
     SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
-    require(spawnData.initialized, "InitSpawnSystem: spawn does not exist for this shard");
+    require(spawnData.initialized, "Spawn does not exist for this shard");
     for (int32 x = spawnData.spawnLowX - 1; x <= spawnData.spawnHighX + 1; x++) {
       for (int32 z = spawnData.spawnLowZ - 1; z <= spawnData.spawnHighZ + 1; z++) {
         if (

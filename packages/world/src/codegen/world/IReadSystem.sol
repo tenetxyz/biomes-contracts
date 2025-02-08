@@ -6,8 +6,6 @@ pragma solidity >=0.8.24;
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { EntityData, EntityDataWithBaseEntity, InventoryObject } from "../../Types.sol";
-import { HealthData } from "../tables/Health.sol";
-import { StaminaData } from "../tables/Stamina.sol";
 
 /**
  * @title IReadSystem
@@ -51,10 +49,6 @@ interface IReadSystem {
   ) external view returns (EntityDataWithBaseEntity[] memory);
 
   function getLastActivityTime(address player) external view returns (uint256);
-
-  function getHealth(address player) external view returns (HealthData memory);
-
-  function getStamina(address player) external view returns (StaminaData memory);
 
   function getInventory(address player) external view returns (InventoryObject[] memory);
 

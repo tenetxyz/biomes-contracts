@@ -95,21 +95,11 @@ contract BuildSystem is System {
   function jumpBuildWithExtraData(uint16 objectTypeId, bytes memory extraData) public payable {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-    require(inWorldBorder(jumpCoord), "BuildSystem: cannot jump outside world border");
+    require(inWorldBorder(jumpCoord), "Cannot jump outside world border");
     bytes32 newEntityId = ReversePosition._get(jumpCoord.x, jumpCoord.y, jumpCoord.z);
-    if (newEntityId == bytes32(0)) {
-      // Check terrain block type
-      uint16 terrainObjectTypeId = getTerrainObjectTypeId(jumpCoord);
-      require(
-        terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
-        "BuildSystem: cannot move to non-air block"
-      );
-      newEntityId = getUniqueEntity();
-      ObjectType._set(newEntityId, AirObjectID);
-    } else {
-      require(ObjectType._get(newEntityId) == AirObjectID, "BuildSystem: cannot move to non-air block");
-      transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
-    }
+    require(newEntityId != bytes32(0), "Cannot jump on an unrevealed block");
+    require(ObjectType._get(newEntityId) == AirObjectID, "Cannot jump on a non-air block");
+    transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
 
     // Swap entity ids
     ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, newEntityId);
@@ -118,12 +108,7 @@ contract BuildSystem is System {
     Position._set(playerEntityId, jumpCoord.x, jumpCoord.y, jumpCoord.z);
     ReversePosition._set(jumpCoord.x, jumpCoord.y, jumpCoord.z, playerEntityId);
 
-    {
-      uint32 useStamina = 1;
-      uint32 currentStamina = Stamina._getStamina(playerEntityId);
-      require(currentStamina >= useStamina, "BuildSystem: not enough stamina");
-      Stamina._setStamina(playerEntityId, currentStamina - useStamina);
-    }
+    // TODO: apply jump cost
 
     PlayerActionNotif._set(
       playerEntityId,

@@ -6,7 +6,6 @@ import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
-import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
@@ -16,15 +15,15 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { Energy } from "../codegen/tables/Energy.sol";
 import { Commitment } from "../codegen/tables/Commitment.sol";
 
-import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, TIME_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE, WATER_STAMINA_INCREASE_RATE, TIME_BEFORE_INCREASE_HEALTH, HEALTH_INCREASE_RATE, IN_MAINTENANCE } from "../Constants.sol";
-import { AirObjectID, WaterObjectID } from "../ObjectTypeIds.sol";
-import { getTerrainObjectTypeId, positionDataToVoxelCoord } from "../Utils.sol";
+import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, IN_MAINTENANCE } from "../Constants.sol";
+import { AirObjectID } from "../ObjectTypeIds.sol";
+import { positionDataToVoxelCoord } from "../Utils.sol";
 
 function requireValidPlayer(address player) returns (bytes32, VoxelCoord memory) {
   require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
   bytes32 playerEntityId = Player._get(player);
   require(playerEntityId != bytes32(0), "Player does not exist");
-  require(!PlayerMetadata._getIsLoggedOff(playerEntityId), "Player isn't logged in");
+  require(!PlayerStatus._getIsLoggedOff(playerEntityId), "Player isn't logged in");
   require(!Commitment._getHasCommitted(playerEntityId), "Player is in a commitment");
   VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
 

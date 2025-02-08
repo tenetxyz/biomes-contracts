@@ -8,8 +8,9 @@ import { InventorySlots } from "../codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
-import { ItemMetadata } from "../codegen/tables/ItemMetadata.sol";
+import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { ObjectCategory } from "../codegen/common.sol";
 
 import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS } from "../Constants.sol";
 import { PlayerObjectID, ChestObjectID, SmartChestObjectID } from "../ObjectTypeIds.sol";
@@ -82,7 +83,7 @@ function useEquipped(
   uint24 durabilityDecrease
 ) {
   if (inventoryEntityId != bytes32(0)) {
-    uint24 durabilityLeft = ItemMetadata._get(inventoryEntityId);
+    uint24 durabilityLeft = Mass._get(inventoryEntityId);
     // Allow mining even if durability is exactly or less than required, then break the tool
     require(durabilityLeft > 0, "Tool is already broken");
 
@@ -90,12 +91,12 @@ function useEquipped(
       // Tool will break after this use, but allow mining
       // Destroy equipped item
       removeFromInventoryCount(entityId, inventoryObjectTypeId, 1);
-      ItemMetadata._deleteRecord(inventoryEntityId);
+      Mass._deleteRecord(inventoryEntityId);
       InventoryTool._deleteRecord(inventoryEntityId);
       removeEntityIdFromReverseInventoryTool(entityId, inventoryEntityId);
       Equipped._deleteRecord(entityId);
     } else {
-      ItemMetadata._set(inventoryEntityId, durabilityLeft - durabilityDecrease);
+      Mass._set(inventoryEntityId, durabilityLeft - durabilityDecrease);
     }
   }
 }
@@ -167,7 +168,7 @@ function transferInventoryNonTool(
   uint16 transferObjectTypeId,
   uint16 numObjectsToTransfer
 ) {
-  require(!ObjectTypeMetadata._getIsTool(transferObjectTypeId), "Object type is not a block");
+  require(ObjectCategory._get(transferObjectTypeId) == ObjectCategory.Block, "Object type is not a block");
   require(numObjectsToTransfer > 0, "Amount must be greater than 0");
   removeFromInventoryCount(srcEntityId, transferObjectTypeId, numObjectsToTransfer);
   addToInventoryCount(dstEntityId, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);

@@ -11,19 +11,18 @@ import { Position } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { Chip, ChipData } from "../../codegen/tables/Chip.sol";
-
-import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../../Utils.sol";
-import { PlayerObjectID, WaterObjectID, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
-import { updateChipBatteryLevel } from "../../utils/ChipUtils.sol";
+import { Chip } from "../../codegen/tables/Chip.sol";
+import { Energy } from "../../codegen/tables/Energy.sol";
+import { ObjectCategory } from "../../codegen/common.sol";
+import { inWorldBorder, getUniqueEntity } from "../../Utils.sol";
+import { PlayerObjectID, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
 import { isStorageContainer } from "../../utils/ObjectTypeUtils.sol";
-
+import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
 contract AdminSpawnSystem is System {
   function setObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) public {
     AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
-    require(inWorldBorder(coord), "AdminTerrainSystem: cannot build outside world border");
-    require(getTerrainObjectTypeId(coord) != WaterObjectID, "AdminTerrainSystem: cannot build on water block");
-    require(ObjectTypeMetadata._getIsBlock(objectTypeId), "AdminTerrainSystem: object type is not a block");
+    require(inWorldBorder(coord), "Cannot build outside world border");
+    require(ObjectTypeMetadata._getObjectCategory(objectTypeId) == ObjectCategory.Block, "Object type is not a block");
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (entityId == bytes32(0)) {
@@ -31,20 +30,15 @@ contract AdminSpawnSystem is System {
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
     } else {
       uint16 currentObjectTypeId = ObjectType._get(entityId);
-      require(
-        InventoryObjects._lengthObjectTypeIds(entityId) == 0,
-        "AdminTerrainSystem: Cannot build where there are dropped objects"
-      );
-      ChipData memory chipData = updateChipBatteryLevel(entityId);
-      require(
-        chipData.chipAddress == address(0) && chipData.batteryLevel == 0,
-        "AdminTerrainSystem: chip is attached to entity"
-      );
+      require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot build where there are dropped objects");
+      require(Chip._getChipAddress(entityId) == address(0), "Chip is attached to entity");
+      EnergyData memory energyData = updateMachineEnergyLevel(entityId);
+      require(energyData.energyLevel == 0, "Energy is attached to entity");
       require(
         currentObjectTypeId != PlayerObjectID &&
           currentObjectTypeId != ForceFieldObjectID &&
           !isStorageContainer(currentObjectTypeId),
-        "AdminTerrainSystem: invaid overwrite"
+        "Invalid overwrite"
       );
       if (currentObjectTypeId == objectTypeId) {
         // no-op
@@ -64,7 +58,7 @@ contract AdminSpawnSystem is System {
 
   function setObjectAtCoord(uint16[] memory objectTypeId, VoxelCoord[] memory coord) public {
     AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());
-    require(objectTypeId.length == coord.length, "AdminTerrainSystem: objectTypeId and coord length mismatch");
+    require(objectTypeId.length == coord.length, "ObjectTypeId and coord length mismatch");
     for (uint i = 0; i < coord.length; i++) {
       setObjectAtCoord(objectTypeId[i], coord[i]);
     }
