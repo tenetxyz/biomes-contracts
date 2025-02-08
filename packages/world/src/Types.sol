@@ -112,7 +112,8 @@ struct TransferCommonContext {
   VoxelCoord chestCoord;
   uint16 chestObjectTypeId;
   uint16 dstObjectTypeId;
-  ChipData checkChipData;
+  address chipAddress;
+  uint256 machineEnergyLevel;
   bool isDeposit;
 }
 

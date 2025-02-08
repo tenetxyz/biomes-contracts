@@ -78,7 +78,8 @@ contract TransferSystem is System {
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
-      ctx.checkChipData,
+      ctx.machineEnergyLevel,
+      ctx.chipAddress,
       ctx.isDeposit,
       ctx.playerEntityId,
       ctx.chestEntityId,
@@ -99,7 +100,7 @@ contract TransferSystem is System {
   ) public payable {
     bytes32[] memory toolEntityIds = new bytes32[](1);
     toolEntityIds[0] = toolEntityId;
-    transferTools(srcEntityId, dstEntityId, toolEntityIds, extraData);
+    transferToolsWithExtraData(srcEntityId, dstEntityId, toolEntityIds, extraData);
   }
 
   function transferToolsWithExtraData(
@@ -108,8 +109,7 @@ contract TransferSystem is System {
     bytes32[] memory toolEntityIds,
     bytes memory extraData
   ) public payable {
-    require(toolEntityIds.length > 0, "TransferSystem: must transfer at least one tool");
-    require(toolEntityIds.length < type(uint16).max, "TransferSystem: too many tools to transfer");
+    require(toolEntityIds.length > 0, "Must transfer at least one tool");
 
     TransferCommonContext memory ctx = abi.decode(
       callInternalSystem(
@@ -127,7 +127,7 @@ contract TransferSystem is System {
         toolEntityIds[i]
       );
       if (i > 0) {
-        require(toolObjectTypeId == currentToolObjectTypeId, "TransferSystem: all tools must be of the same type");
+        require(toolObjectTypeId == currentToolObjectTypeId, "All tools must be of the same type");
       } else {
         toolObjectTypeId = currentToolObjectTypeId;
       }
@@ -148,7 +148,8 @@ contract TransferSystem is System {
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
-      ctx.checkChipData,
+      ctx.machineEnergyLevel,
+      ctx.chipAddress,
       ctx.isDeposit,
       ctx.playerEntityId,
       ctx.chestEntityId,

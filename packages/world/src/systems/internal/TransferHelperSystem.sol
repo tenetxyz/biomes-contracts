@@ -13,7 +13,7 @@ import { Chip, ChipData } from "../../codegen/tables/Chip.sol";
 import { PlayerObjectID, ForceFieldObjectID, ChipBatteryObjectID } from "../../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../../Utils.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../../Constants.sol";
-import { updateChipBatteryLevel } from "../../utils/ChipUtils.sol";
+import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
 import { isStorageContainer } from "../../utils/ObjectTypeUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
@@ -33,37 +33,33 @@ contract TransferHelperSystem is System {
     bytes32 baseDstEntityId = BaseEntity._get(dstEntityId);
     baseDstEntityId = baseDstEntityId == bytes32(0) ? dstEntityId : baseDstEntityId;
 
-    require(baseDstEntityId != baseSrcEntityId, "TransferSystem: cannot transfer to self");
+    require(baseDstEntityId != baseSrcEntityId, "Cannot transfer to self");
     VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(baseSrcEntityId));
     VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(baseDstEntityId));
-    require(
-      inSurroundingCube(srcCoord, MAX_PLAYER_INFLUENCE_HALF_WIDTH, dstCoord),
-      "TransferSystem: destination too far"
-    );
+    require(inSurroundingCube(srcCoord, MAX_PLAYER_INFLUENCE_HALF_WIDTH, dstCoord), "Destination too far");
 
     uint16 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
     uint16 dstObjectTypeId = ObjectType._get(baseDstEntityId);
     bool isDeposit = false;
     if (srcObjectTypeId == PlayerObjectID) {
-      require(playerEntityId == baseSrcEntityId, "TransferSystem: player does not own source inventory");
-      require(isStorageContainer(dstObjectTypeId), "TransferSystem: this object type does not have an inventory");
+      require(playerEntityId == baseSrcEntityId, "Caller does not own source inventory");
       isDeposit = true;
     } else if (dstObjectTypeId == PlayerObjectID) {
-      require(playerEntityId == baseDstEntityId, "TransferSystem: player does not own destination inventory");
-      require(isStorageContainer(srcObjectTypeId), "TransferSystem: this object type does not have an inventory");
+      require(playerEntityId == baseDstEntityId, "Caller does not own destination inventory");
       isDeposit = false;
     } else {
-      revert("TransferSystem: invalid transfer operation");
+      revert("Invalid transfer operation");
     }
 
     bytes32 chestEntityId = isDeposit ? baseDstEntityId : baseSrcEntityId;
     VoxelCoord memory chestCoord = isDeposit ? dstCoord : srcCoord;
 
-    ChipData memory checkChipData = updateChipBatteryLevel(chestEntityId);
+    address chipAddress = Chip._get(chestEntityId);
     bytes32 forceFieldEntityId = getForceField(chestCoord);
+    uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId != bytes32(0)) {
-      ChipData memory forceFieldChipData = updateChipBatteryLevel(forceFieldEntityId);
-      checkChipData.batteryLevel += forceFieldChipData.batteryLevel;
+      MachineData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+      machineEnergyLevel = machineData.energyLevel;
     }
 
     return
@@ -72,7 +68,8 @@ contract TransferHelperSystem is System {
         chestEntityId: chestEntityId,
         chestCoord: chestCoord,
         dstObjectTypeId: dstObjectTypeId,
-        checkChipData: checkChipData,
+        chipAddress: chipAddress,
+        machineEnergyLevel: machineEnergyLevel,
         isDeposit: isDeposit,
         chestObjectTypeId: isDeposit ? dstObjectTypeId : srcObjectTypeId
       });
