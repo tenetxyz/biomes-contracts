@@ -5,6 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { Chip } from "../../codegen/tables/Chip.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { ForceFieldObjectID } from "../../ObjectTypeIds.sol";
 import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
@@ -30,7 +31,7 @@ contract ForceFieldSystem is System {
 
       if (forceFieldEntityId != bytes32(0)) {
         address chipAddress = Chip._get(forceFieldEntityId);
-        MachineData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+        EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
         if (chipAddress != address(0) && machineData.energyLevel > 0) {
           bool buildAllowed = IForceFieldChip(chipAddress).onBuild{ value: _msgValue() }(
             forceFieldEntityId,
@@ -57,7 +58,7 @@ contract ForceFieldSystem is System {
       bytes32 forceFieldEntityId = getForceField(coord);
       if (forceFieldEntityId != bytes32(0)) {
         address chipAddress = Chip._get(forceFieldEntityId);
-        MachineData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+        EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
         if (chipAddress != address(0) && machineData.energyLevel > 0) {
           bool mineAllowed = IForceFieldChip(chipAddress).onMine{ value: _msgValue() }(
             forceFieldEntityId,

@@ -26,7 +26,6 @@ contract InitInteractablesSystem is System {
       objectTypeId,
       ObjectTypeMetadataData({
         objectCategory: ObjectCategory.Block,
-        programmable: false,
         stackable: stackable,
         maxInventorySlots: maxInventorySlots,
         mass: mass,

@@ -18,7 +18,6 @@ contract InitTerrainBlocksSystem is System {
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         objectCategory: ObjectCategory.Block,
-        programmable: false,
         stackable: MAX_BLOCK_STACKABLE,
         maxInventorySlots: 0,
         mass: mass,

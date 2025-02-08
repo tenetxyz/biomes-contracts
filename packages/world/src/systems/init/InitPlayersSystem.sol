@@ -15,7 +15,6 @@ contract InitPlayersSystem is System {
       PlayerObjectID,
       ObjectTypeMetadataData({
         objectCategory: ObjectCategory.Player,
-        programmable: false,
         stackable: 0,
         maxInventorySlots: 36,
         mass: 10,

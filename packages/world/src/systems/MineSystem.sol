@@ -13,6 +13,7 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ObjectCategory, ActionType, DisplayContentType } from "../codegen/common.sol";
@@ -33,7 +34,7 @@ contract MineSystem is System {
     uint16 mineObjectTypeId = ObjectType._get(entityId);
     address chipAddress = Chip._get(entityId);
     require(chipAddress == address(0), "Cannot mine a chipped block");
-    MachineData memory machineData = updateMachineEnergyLevel(entityId);
+    EnergyData memory machineData = updateMachineEnergyLevel(entityId);
     require(machineData.energyLevel == 0, "Cannot mine a machine that has energy");
     if (DisplayContent._getContentType(entityId) != DisplayContentType.None) {
       DisplayContent._deleteRecord(entityId);

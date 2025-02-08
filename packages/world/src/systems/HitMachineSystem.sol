@@ -26,32 +26,22 @@ import { positionDataToVoxelCoord, safeCallChip, callMintXP } from "../Utils.sol
 
 import { IChip } from "../prototypes/IChip.sol";
 
-contract HitChipSystem is System {
-  function hitChipCommon(
-    uint256 initialGas,
-    bytes32 playerEntityId,
-    bytes32 chipEntityId,
-    VoxelCoord memory chipCoord
-  ) internal {
-    ChipData memory chipData = updateChipBatteryLevel(chipEntityId);
-    if (chipData.batteryLevel == 0) {
+contract HitMachineSystem is System {
+  function hitMachineCommon(bytes32 playerEntityId, bytes32 machineEntityId, VoxelCoord memory machineCoord) internal {
+    EnergyData memory machineData = updateMachineEnergyLevel(machineEntityId);
+    if (machineData.energyLevel == 0) {
       return;
     }
 
-    uint16 objectTypeId = ObjectType._get(chipEntityId);
-    uint16 miningDifficulty = ObjectTypeMetadata._getMiningDifficulty(objectTypeId);
+    uint16 objectTypeId = ObjectType._get(machineEntityId);
+    uint16 miningDifficulty = ObjectTypeMetadata._getMass(objectTypeId);
 
-    {
-      uint32 currentStamina = Stamina._getStamina(playerEntityId);
-      uint16 staminaRequired = HIT_CHIP_STAMINA_COST;
-      require(currentStamina >= staminaRequired, "ChipSystem: player does not have enough stamina");
-      Stamina._setStamina(playerEntityId, currentStamina - staminaRequired);
-    }
+    // TODO: decrease energy
 
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
-    require(equippedEntityId != bytes32(0), "ChipSystem: you must use a whacker to hit force fields");
+    require(equippedEntityId != bytes32(0), "You must use a whacker to hit machines");
     uint16 equippedObjectTypeId = ObjectType._get(equippedEntityId);
-    require(isWhacker(equippedObjectTypeId), "ChipSystem: you must use a whacker to hit force fields");
+    require(isWhacker(equippedObjectTypeId), "You must use a whacker to hit machines");
     uint16 equippedToolDamage = ObjectTypeMetadata._getDamage(equippedObjectTypeId);
     useEquipped(
       playerEntityId,
@@ -60,11 +50,11 @@ contract HitChipSystem is System {
       (uint24(miningDifficulty) * uint24(1000)) / equippedToolDamage
     );
 
-    uint256 decreaseBatteryLevel = (equippedToolDamage * 117) / 100;
-    uint256 newBatteryLevel = chipData.batteryLevel > decreaseBatteryLevel
-      ? chipData.batteryLevel - decreaseBatteryLevel
+    uint256 decreaseEnergyLevel = (equippedToolDamage * 117) / 100;
+    uint256 newEnergyLevel = machineData.energyLevel > decreaseEnergyLevel
+      ? machineData.energyLevel - decreaseEnergyLevel
       : 0;
-    Chip._setBatteryLevel(chipEntityId, newBatteryLevel);
+    Energy._setEnergyLevel(machineEntityId, newEnergyLevel);
 
     PlayerActionNotif._set(
       playerEntityId,
@@ -79,29 +69,27 @@ contract HitChipSystem is System {
       })
     );
 
-    // callMintXP(playerEntityId, initialGas, 1);
-
-    safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onChipHit, (playerEntityId, chipEntityId)));
+    safeCallChip(
+      Chip._getChipAddress(machineEntityId),
+      abi.encodeCall(IChip.onChipHit, (playerEntityId, machineEntityId))
+    );
   }
 
-  function hitChippedEntity(bytes32 entityId) public {
-    uint256 initialGas = gasleft();
+  function hitMachine(bytes32 entityId) public {
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     bytes32 baseEntityId = BaseEntity._get(entityId);
     baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
 
-    hitChipCommon(initialGas, playerEntityId, baseEntityId, entityCoord);
+    hitMachineCommon(playerEntityId, baseEntityId, entityCoord);
   }
 
   function hitForceField(VoxelCoord memory entityCoord) public {
-    uint256 initialGas = gasleft();
-
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, entityCoord);
     bytes32 forceFieldEntityId = getForceField(entityCoord);
-    require(forceFieldEntityId != bytes32(0), "ChipSystem: no force field at this location");
+    require(forceFieldEntityId != bytes32(0), "No force field at this location");
     VoxelCoord memory forceFieldCoord = positionDataToVoxelCoord(Position._get(forceFieldEntityId));
-    hitChipCommon(initialGas, playerEntityId, forceFieldEntityId, forceFieldCoord);
+    hitMachineCommon(playerEntityId, forceFieldEntityId, forceFieldCoord);
   }
 }

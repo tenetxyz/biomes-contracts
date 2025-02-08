@@ -17,9 +17,9 @@ contract ActivateSystem is System {
   function activate(bytes32 entityId) public {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
 
-    require(entityId != bytes32(0), "ActivateSystem: entity does not exist");
+    require(entityId != bytes32(0), "Entity does not exist");
     uint16 objectTypeId = ObjectType._get(entityId);
-    require(objectTypeId != NullObjectTypeId, "ActivateSystem: entity has no object type");
+    require(objectTypeId != NullObjectTypeId, "Entity has no object type");
 
     if (objectTypeId == PlayerObjectID) {
       requireValidPlayer(ReversePlayer._get(entityId));

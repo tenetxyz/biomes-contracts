@@ -11,9 +11,10 @@ import { ICraftSystem } from "./ICraftSystem.sol";
 import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
-import { IHitChipSystem } from "./IHitChipSystem.sol";
+import { IHitMachineSystem } from "./IHitMachineSystem.sol";
 import { ILoginSystem } from "./ILoginSystem.sol";
 import { ILogoffSystem } from "./ILogoffSystem.sol";
+import { IMachineSystem } from "./IMachineSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
 import { IMultiTransferSystem } from "./IMultiTransferSystem.sol";
@@ -58,9 +59,10 @@ interface IWorld is
   IDisplaySystem,
   IDropSystem,
   IEquipSystem,
-  IHitChipSystem,
+  IHitMachineSystem,
   ILoginSystem,
   ILogoffSystem,
+  IMachineSystem,
   IMineSystem,
   IMoveSystem,
   IMultiTransferSystem,

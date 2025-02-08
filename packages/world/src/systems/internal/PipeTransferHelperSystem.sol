@@ -10,6 +10,7 @@ import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Position } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectCategory } from "../../codegen/common.sol";
 
@@ -61,7 +62,7 @@ contract PipeTransferHelperSystem is System {
     uint256 machineEnergyLevel = 0;
     bytes32 targetForceFieldEntityId = getForceField(targetCoord);
     if (targetForceFieldEntityId != bytes32(0)) {
-      MachineData memory machineData = updateMachineEnergyLevel(targetForceFieldEntityId);
+      EnergyData memory machineData = updateMachineEnergyLevel(targetForceFieldEntityId);
       machineEnergyLevel = machineData.energyLevel;
     }
 

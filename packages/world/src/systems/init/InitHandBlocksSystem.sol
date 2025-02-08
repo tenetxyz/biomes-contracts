@@ -22,7 +22,6 @@ contract InitHandBlocksSystem is System {
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         objectCategory: ObjectCategory.Block,
-        programmable: false,
         stackable: MAX_BLOCK_STACKABLE,
         maxInventorySlots: 0,
         mass: mass,
@@ -36,7 +35,6 @@ contract InitHandBlocksSystem is System {
       toolObjectTypeId,
       ObjectTypeMetadataData({
         objectCategory: ObjectCategory.Tool,
-        programmable: false,
         stackable: MAX_TOOL_STACKABLE,
         maxInventorySlots: 0,
         mass: mass,
@@ -50,7 +48,6 @@ contract InitHandBlocksSystem is System {
       itemObjectTypeId,
       ObjectTypeMetadataData({
         objectCategory: ObjectCategory.Item,
-        programmable: false,
         stackable: MAX_BLOCK_STACKABLE,
         maxInventorySlots: 0,
         mass: 0,

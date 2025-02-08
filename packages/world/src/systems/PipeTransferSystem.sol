@@ -7,18 +7,19 @@ import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
-
 import { Chip } from "../codegen/tables/Chip.sol";
-import { IN_MAINTENANCE } from "../Constants.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+
 import { ChipOnPipeTransferData, PipeTransferData, PipeTransferCommonContext } from "../Types.sol";
 import { ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { isStorageContainer } from "../utils/ObjectTypeUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { IN_MAINTENANCE } from "../Constants.sol";
 
-import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
+import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
 
 contract PipeTransferSystem is System {
   function requireAllowed(
@@ -47,7 +48,7 @@ contract PipeTransferSystem is System {
     uint256 machineEnergyLevel = 0;
     bytes32 callerForceFieldEntityId = getForceField(callerCoord);
     if (callerForceFieldEntityId != bytes32(0)) {
-      MachineData memory machineData = updateMachineEnergyLevel(callerForceFieldEntityId);
+      EnergyData memory machineData = updateMachineEnergyLevel(callerForceFieldEntityId);
       machineEnergyLevel = machineData.energyLevel;
     }
     require(chipAddress == _msgSender(), "Caller is not the chip of the smart item");

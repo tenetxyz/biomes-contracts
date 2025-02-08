@@ -9,6 +9,7 @@ import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Position } from "../../codegen/tables/Position.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../../Utils.sol";
@@ -57,7 +58,7 @@ contract TransferHelperSystem is System {
     bytes32 forceFieldEntityId = getForceField(chestCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId != bytes32(0)) {
-      MachineData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+      EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
       machineEnergyLevel = machineData.energyLevel;
     }
 
