@@ -3,33 +3,22 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { inSurroundingCube, voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Player } from "../codegen/tables/Player.sol";
-import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
-import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Position } from "../codegen/tables/Position.sol";
+import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { Chip } from "../codegen/tables/Chip.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 import { TerrainCommitment, TerrainCommitmentData } from "../codegen/tables/TerrainCommitment.sol";
 import { Commitment } from "../codegen/tables/Commitment.sol";
 import { BlockPrevrandao } from "../codegen/tables/BlockPrevrandao.sol";
 
-import { MAX_PLAYER_STAMINA, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_HAND_DAMAGE } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID } from "../ObjectTypeIds.sol";
-import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getTerrainAndOreObjectTypeId, getUniqueEntity, callMintXP, positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getRandomNumberBetween0And99 } from "../Utils.sol";
-import { addToInventoryCount } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireInPlayerInfluence, regenStamina } from "../utils/PlayerUtils.sol";
-
-import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectTypeIds.sol";
+import { inWorldBorder, positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getRandomNumberBetween0And99 } from "../Utils.sol";
+import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 contract OreSystem is System {
   function initiateOreReveal(VoxelCoord memory coord) public {
@@ -43,15 +32,13 @@ contract OreSystem is System {
     }
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId == bytes32(0), "OreSystem: ore already revealed");
-    uint16 mineObjectTypeId = getTerrainObjectTypeId(coord);
-    require(mineObjectTypeId == AnyOreObjectID, "OreSystem: terrain is not an ore");
+    require(entityId != bytes32(0), "Cannot initiate ore reveal on unrevealed terrain");
+    uint16 mineObjectTypeId = ObjectType._get(entityId);
+    require(mineObjectTypeId == AnyOreObjectID, "Terrain is not an ore");
 
     TerrainCommitment._set(coord.x, coord.y, coord.z, block.number, playerEntityId);
     Commitment._set(playerEntityId, true, coord.x, coord.y, coord.z);
     BlockPrevrandao._set(block.number, block.prevrandao);
-
-    callMintXP(playerEntityId, initialGas, 1);
 
     PlayerActionNotif._set(
       playerEntityId,
@@ -70,32 +57,29 @@ contract OreSystem is System {
   // Can be called by anyone
   function revealOre(VoxelCoord memory coord) public returns (uint16) {
     TerrainCommitmentData memory terrainCommitmentData = TerrainCommitment._get(coord.x, coord.y, coord.z);
-    require(terrainCommitmentData.blockNumber != 0, "OreSystem: terrain commitment not found");
+    require(terrainCommitmentData.blockNumber != 0, "Terrain commitment not found");
 
     uint256 randomNumber = getRandomNumberBetween0And99(terrainCommitmentData.blockNumber);
 
-    (uint16 mineObjectTypeId, uint16 oreObjectTypeId) = getTerrainAndOreObjectTypeId(coord, randomNumber);
-    require(mineObjectTypeId == AnyOreObjectID, "OreSystem: terrain is not an ore");
+    // TODO: Fix
+    uint8 oreObjectTypeId = CoalOreObjectID;
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId == bytes32(0), "OreSystem: ore already revealed");
-    entityId = getUniqueEntity();
+    require(entityId != bytes32(0), "Cannot reveal ore on unrevealed terrain");
 
-    Position._set(entityId, coord.x, coord.y, coord.z);
-    ReversePosition._set(coord.x, coord.y, coord.z, entityId);
+    uint16 mineObjectTypeId = ObjectType._get(entityId);
+    require(mineObjectTypeId == AnyOreObjectID, "Terrain is not an ore");
+
     ObjectType._set(entityId, oreObjectTypeId);
 
     if (oreObjectTypeId == LavaObjectID) {
       // Apply consequences of lava
       if (ObjectType._get(terrainCommitmentData.committerEntityId) == PlayerObjectID) {
-        VoxelCoord memory committerCoord = PlayerMetadata._getIsLoggedOff(terrainCommitmentData.committerEntityId)
+        VoxelCoord memory committerCoord = PlayerStatus._getIsLoggedOff(terrainCommitmentData.committerEntityId)
           ? lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(terrainCommitmentData.committerEntityId))
           : positionDataToVoxelCoord(Position._get(terrainCommitmentData.committerEntityId));
-        uint32 currentStamina = regenStamina(terrainCommitmentData.committerEntityId, committerCoord);
 
-        uint32 staminaRequired = MAX_PLAYER_STAMINA / 2;
-        uint32 newStamina = currentStamina > staminaRequired ? currentStamina - staminaRequired : 0;
-        Stamina._set(terrainCommitmentData.committerEntityId, block.timestamp, newStamina);
+        // TODO: apply lava damage
 
         PlayerActionNotif._set(
           terrainCommitmentData.committerEntityId,
