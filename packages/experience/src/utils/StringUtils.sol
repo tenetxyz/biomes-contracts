@@ -36,23 +36,3 @@ function decimalString(uint256 value, uint256 decimals) pure returns (string mem
 
   return string(trimmedBuffer);
 }
-
-function getEmptyBlockOnGround(VoxelCoord memory centerCoord) view returns (VoxelCoord memory) {
-  for (int8 dx = -1; dx <= 1; dx++) {
-    for (int8 dy = -1; dy <= 1; dy++) {
-      for (int8 dz = -1; dz <= 1; dz++) {
-        VoxelCoord memory coord = VoxelCoord({ x: centerCoord.x + dx, y: centerCoord.y + dy, z: centerCoord.z + dz });
-        VoxelCoord memory coordBelow = VoxelCoord({
-          x: centerCoord.x + dx,
-          y: centerCoord.y + dy - 1,
-          z: centerCoord.z + dz
-        });
-
-        if (getObjectTypeAtCoord(coord) == AirObjectID && getObjectTypeAtCoord(coordBelow) != AirObjectID) {
-          return coord;
-        }
-      }
-    }
-  }
-  revert("No empty block on ground");
-}
