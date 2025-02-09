@@ -28,6 +28,7 @@ import { LastKnownPosition, LastKnownPositionData } from "./tables/LastKnownPosi
 import { Chip } from "./tables/Chip.sol";
 import { ForceField } from "./tables/ForceField.sol";
 import { DisplayContent, DisplayContentData } from "./tables/DisplayContent.sol";
+import { Spawn, SpawnData } from "./tables/Spawn.sol";
 import { TerrainCommitment, TerrainCommitmentData } from "./tables/TerrainCommitment.sol";
 import { Commitment, CommitmentData } from "./tables/Commitment.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "./tables/PlayerActionNotif.sol";

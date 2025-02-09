@@ -154,7 +154,7 @@ export default defineWorld({
       schema: {
         ownerEntityId: "bytes32",
         objectTypeId: "uint16",
-        count: "uint256",
+        count: "uint16", // TODO: replace with uint256
       },
       key: ["ownerEntityId", "objectTypeId"],
     },
@@ -245,6 +245,22 @@ export default defineWorld({
         content: "bytes",
       },
       key: ["entityId"],
+    },
+    // TODO: replace with spawn tiles
+    Spawn: {
+      schema: {
+        x: "int32",
+        z: "int32",
+        initialized: "bool",
+        spawnLowX: "int32",
+        spawnHighX: "int32",
+        spawnLowZ: "int32",
+        spawnHighZ: "int32",
+      },
+      key: ["x", "z"],
+      codegen: {
+        storeArgument: true,
+      },
     },
     // ------------------------------------------------------------
     // Ores

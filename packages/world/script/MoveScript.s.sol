@@ -26,7 +26,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { WaterObjectID, GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID } from "../src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
-import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount, testTransferAllInventoryEntities, testGravityApplies, testGetTerrainObjectTypeId } from "../test/utils/TestUtils.sol";
+import { testTransferAllInventoryEntities, testGravityApplies } from "../test/utils/TestUtils.sol";
 
 contract MoveScript is Script {
   function run(address worldAddress) external {

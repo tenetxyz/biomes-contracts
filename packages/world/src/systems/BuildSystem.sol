@@ -17,9 +17,8 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ObjectCategory, ActionType } from "../codegen/common.sol";
 
-import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { inSpawnArea, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../Utils.sol";
+import { inWorldBorder } from "../Utils.sol";
 import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
@@ -43,7 +42,10 @@ contract BuildSystem is System {
     VoxelCoord memory coord,
     bytes memory extraData
   ) public payable returns (bytes32) {
-    require(ObjectTypeMetadata._getCategory(objectTypeId) == ObjectCategory.Block, "Cannot build non-block object");
+    require(
+      ObjectTypeMetadata._getObjectCategory(objectTypeId) == ObjectCategory.Block,
+      "Cannot build non-block object"
+    );
     (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 

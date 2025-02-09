@@ -111,15 +111,15 @@ contract CraftSystem is System {
     }
 
     // Create the crafted objects
-    if (ObjectTypeMetadata._getCategory(recipeData.outputObjectTypeId) == ObjectCategory.Tool) {
+    if (ObjectTypeMetadata._getObjectCategory(recipeData.outputObjectTypeId) == ObjectCategory.Tool) {
       for (uint256 i = 0; i < recipeData.outputObjectTypeAmount; i++) {
         bytes32 newInventoryEntityId = getUniqueEntity();
         ObjectType._set(newInventoryEntityId, recipeData.outputObjectTypeId);
         InventoryTool._set(newInventoryEntityId, playerEntityId);
         ReverseInventoryTool._push(playerEntityId, newInventoryEntityId);
-        uint24 mass = ObjectTypeMetadata._getMass(recipeData.outputObjectTypeId);
+        uint256 mass = ObjectTypeMetadata._getMass(recipeData.outputObjectTypeId);
         if (mass > 0) {
-          Mass._set(newInventoryEntityId, mass);
+          Mass._setMass(newInventoryEntityId, mass);
         }
       }
     }

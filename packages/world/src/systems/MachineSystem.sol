@@ -9,7 +9,7 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-
+import { Chip } from "../codegen/tables/Chip.sol";
 import { PlayerObjectID, ChipBatteryObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -49,6 +49,9 @@ contract MachineSystem is System {
       })
     );
 
-    safeCallChip(chipData.chipAddress, abi.encodeCall(IChip.onPowered, (playerEntityId, baseEntityId, numBattery)));
+    safeCallChip(
+      Chip._getChipAddress(baseEntityId),
+      abi.encodeCall(IChip.onPowered, (playerEntityId, baseEntityId, numBattery))
+    );
   }
 }

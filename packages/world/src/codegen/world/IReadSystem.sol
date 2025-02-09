@@ -26,10 +26,6 @@ interface IReadSystem {
 
   function getObjectTypeIdAtCoord(VoxelCoord memory coord) external view returns (uint16);
 
-  function getObjectTypeIdAtCoordOrTerrain(VoxelCoord memory coord) external view returns (uint16);
-
-  function getMultipleObjectTypeIdAtCoordOrTerrain(VoxelCoord[] memory coord) external view returns (uint16[] memory);
-
   function getEntityIdAtCoord(VoxelCoord memory coord) external view returns (bytes32);
 
   function getEntityData(bytes32 entityId) external view returns (EntityData memory);

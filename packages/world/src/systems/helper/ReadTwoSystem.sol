@@ -15,7 +15,7 @@ import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { LastKnownPosition } from "../../codegen/tables/LastKnownPosition.sol";
 import { Player } from "../../codegen/tables/Player.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
-import { PlayerStatu } from "../../codegen/tables/PlayerStatus.sol";
+import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
@@ -24,7 +24,7 @@ import { Equipped } from "../../codegen/tables/Equipped.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
 import { Commitment, CommitmentData } from "../../codegen/tables/Commitment.sol";
 
-import { getTerrainObjectTypeId, lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
+import { lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { InventoryObject, PlayerEntityData, BlockEntityData, PlayerEntityDataWithCommitment } from "../../Types.sol";
 

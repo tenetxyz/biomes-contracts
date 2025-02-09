@@ -12,12 +12,14 @@ import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
-import { Energy } from "../../codegen/tables/Energy.sol";
+import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { ObjectCategory } from "../../codegen/common.sol";
+
 import { inWorldBorder, getUniqueEntity } from "../../Utils.sol";
 import { PlayerObjectID, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
 import { isStorageContainer } from "../../utils/ObjectTypeUtils.sol";
 import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
+
 contract AdminSpawnSystem is System {
   function setObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) public {
     AccessControl.requireOwner(ROOT_NAMESPACE_ID, _msgSender());

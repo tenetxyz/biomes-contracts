@@ -88,7 +88,7 @@ contract ChipSystem is System {
     bytes32 forceFieldEntityId = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId != bytes32(0)) {
-      machineEnergyLevel = updateMachineEnergyLevel(forceFieldEntityId).energyLevel;
+      machineEnergyLevel = updateMachineEnergyLevel(forceFieldEntityId).energy;
     }
 
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);

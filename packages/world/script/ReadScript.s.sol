@@ -22,7 +22,7 @@ import { Position, PositionData } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
-import { ShardField } from "../src/codegen/tables/ShardField.sol";
+import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { Energy } from "../src/codegen/tables/Energy.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
@@ -66,7 +66,7 @@ contract ReadScript is Script {
     console.log("Energy level:");
     console.logUint(energyLevel);
     VoxelCoord memory shardCoord = coordToShardCoord(coord, FORCE_FIELD_SHARD_DIM);
-    bytes32 forceFieldEntityId = ShardField.get(shardCoord.x, shardCoord.y, shardCoord.z);
+    bytes32 forceFieldEntityId = ForceField.get(shardCoord.x, shardCoord.y, shardCoord.z);
     if (forceFieldEntityId == bytes32(0)) {
       console.log("No force field found at position");
     } else {

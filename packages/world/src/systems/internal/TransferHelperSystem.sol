@@ -9,7 +9,7 @@ import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Position } from "../../codegen/tables/Position.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
-import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
 import { PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../../Utils.sol";

@@ -20,9 +20,9 @@ import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
 import { ReverseInventoryTool } from "../../codegen/tables/ReverseInventoryTool.sol";
 
-import { getTerrainObjectTypeId, lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { NullObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
 import { InventoryObject, EntityData, EntityDataWithBaseEntity } from "../../Types.sol";
 
 // Public getters so clients can read the world state more easily
@@ -48,22 +48,6 @@ contract ReadSystem is System {
       return NullObjectTypeId;
     }
     return ObjectType._get(entityId);
-  }
-
-  function getObjectTypeIdAtCoordOrTerrain(VoxelCoord memory coord) public view returns (uint16) {
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    if (entityId == bytes32(0)) {
-      return getTerrainObjectTypeId(coord);
-    }
-    return ObjectType._get(entityId);
-  }
-
-  function getMultipleObjectTypeIdAtCoordOrTerrain(VoxelCoord[] memory coord) public view returns (uint16[] memory) {
-    uint16[] memory objectTypes = new uint16[](coord.length);
-    for (uint256 i = 0; i < coord.length; i++) {
-      objectTypes[i] = getObjectTypeIdAtCoordOrTerrain(coord[i]);
-    }
-    return objectTypes;
   }
 
   function getEntityIdAtCoord(VoxelCoord memory coord) public view returns (bytes32) {
@@ -95,7 +79,7 @@ contract ReadSystem is System {
     if (entityId == bytes32(0)) {
       return
         EntityData({
-          objectTypeId: getTerrainObjectTypeId(coord),
+          objectTypeId: NullObjectTypeId,
           entityId: bytes32(0),
           inventory: new InventoryObject[](0),
           position: coord
@@ -149,7 +133,7 @@ contract ReadSystem is System {
     if (entityId == bytes32(0)) {
       return
         EntityDataWithBaseEntity({
-          objectTypeId: getTerrainObjectTypeId(coord),
+          objectTypeId: NullObjectTypeId,
           entityId: bytes32(0),
           baseEntityId: bytes32(0),
           inventory: new InventoryObject[](0),

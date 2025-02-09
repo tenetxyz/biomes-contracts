@@ -6,6 +6,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
+import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";

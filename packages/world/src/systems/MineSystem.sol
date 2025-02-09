@@ -19,7 +19,7 @@ import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayCon
 import { ObjectCategory, ActionType, DisplayContentType } from "../codegen/common.sol";
 
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { callGravity, inWorldBorder, inSpawnArea, getTerrainObjectTypeId, getUniqueEntity, positionDataToVoxelCoord } from "../Utils.sol";
+import { callGravity, inWorldBorder, positionDataToVoxelCoord } from "../Utils.sol";
 import { addToInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
@@ -39,7 +39,10 @@ contract MineSystem is System {
     if (DisplayContent._getContentType(entityId) != DisplayContentType.None) {
       DisplayContent._deleteRecord(entityId);
     }
-    require(ObjectTypeMetadata._getCategory(mineObjectTypeId) == ObjectCategory.Block, "Cannot mine non-block object");
+    require(
+      ObjectTypeMetadata._getObjectCategory(mineObjectTypeId) == ObjectCategory.Block,
+      "Cannot mine non-block object"
+    );
     require(mineObjectTypeId != AirObjectID, "Cannot mine air");
     require(mineObjectTypeId != WaterObjectID, "Cannot mine water");
 

@@ -10,13 +10,12 @@ import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Position } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
-import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectCategory } from "../../codegen/common.sol";
 
 import { PlayerObjectID, PipeObjectID, ForceFieldObjectID, ChipBatteryObjectID } from "../../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord, safeCallChip } from "../../Utils.sol";
-import { CHARGE_PER_BATTERY } from "../../Constants.sol";
 import { ChipOnPipeTransferData, PipeTransferData, PipeTransferCommonContext } from "../../Types.sol";
 import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
@@ -100,11 +99,10 @@ contract PipeTransferHelperSystem is System {
             pipeTransferData.transferData.objectTypeId == ChipBatteryObjectID,
             "Force field can only accept chip batteries"
           );
-          uint256 newBatteryLevel = targetChipData.batteryLevel +
-            (uint256(pipeTransferData.transferData.numToTransfer) * CHARGE_PER_BATTERY);
+          uint256 newEnergyLevel = machineEnergyLevel + (uint256(pipeTransferData.transferData.numToTransfer) * 10);
 
-          Chip._setBatteryLevel(pipeTransferData.targetEntityId, newBatteryLevel);
-          Chip._setLastUpdatedTime(pipeTransferData.targetEntityId, block.timestamp);
+          Energy._setEnergy(pipeTransferData.targetEntityId, newEnergyLevel);
+          Energy._setLastUpdatedTime(pipeTransferData.targetEntityId, block.timestamp);
 
           safeCallChip(
             chipAddress,

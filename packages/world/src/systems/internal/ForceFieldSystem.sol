@@ -5,7 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { Chip } from "../../codegen/tables/Chip.sol";
-import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
 import { ForceFieldObjectID } from "../../ObjectTypeIds.sol";
 import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";

@@ -18,7 +18,7 @@ import { BlockHash } from "./codegen/tables/BlockHash.sol";
 import { BlockPrevrandao } from "./codegen/tables/BlockPrevrandao.sol";
 
 import { SPAWN_SHARD_DIM } from "./Constants.sol";
-import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z, OP_L1_GAS_ORACLE } from "./Constants.sol";
+import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "./Constants.sol";
 import { AirObjectID, WaterObjectID } from "./ObjectTypeIds.sol";
 
 import { IGravitySystem } from "./codegen/world/IGravitySystem.sol";

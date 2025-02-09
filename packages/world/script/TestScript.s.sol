@@ -66,9 +66,9 @@ contract TestScript is Script {
     ObjectType.set(newInventoryEntityId, NeptuniumPickObjectID);
     InventoryTool.set(newInventoryEntityId, playerEntityId);
     ReverseInventoryTool.push(playerEntityId, newInventoryEntityId);
-    uint24 mass = ObjectTypeMetadata.getMass(NeptuniumPickObjectID);
+    uint256 mass = ObjectTypeMetadata.getMass(NeptuniumPickObjectID);
     require(mass > 0, "Mass must be greater than 0");
-    Mass.set(newInventoryEntityId, mass);
+    Mass.setMass(newInventoryEntityId, mass);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, NeptuniumPickObjectID, 1);
 
     // Destroy equipped item

@@ -12,7 +12,6 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectCategory } from "../codegen/common.sol";
 
-import { MAX_PLAYER_INVENTORY_SLOTS, MAX_CHEST_INVENTORY_SLOTS } from "../Constants.sol";
 import { PlayerObjectID, ChestObjectID, SmartChestObjectID } from "../ObjectTypeIds.sol";
 
 function addToInventoryCount(
@@ -83,7 +82,8 @@ function useEquipped(
   uint24 durabilityDecrease
 ) {
   if (inventoryEntityId != bytes32(0)) {
-    uint24 durabilityLeft = Mass._get(inventoryEntityId);
+    // TOOD: fix
+    uint256 durabilityLeft = Mass._getMass(inventoryEntityId);
     // Allow mining even if durability is exactly or less than required, then break the tool
     require(durabilityLeft > 0, "Tool is already broken");
 
@@ -96,7 +96,7 @@ function useEquipped(
       removeEntityIdFromReverseInventoryTool(entityId, inventoryEntityId);
       Equipped._deleteRecord(entityId);
     } else {
-      Mass._set(inventoryEntityId, durabilityLeft - durabilityDecrease);
+      Mass._setMass(inventoryEntityId, durabilityLeft - durabilityDecrease);
     }
   }
 }
@@ -168,7 +168,10 @@ function transferInventoryNonTool(
   uint16 transferObjectTypeId,
   uint16 numObjectsToTransfer
 ) {
-  require(ObjectCategory._get(transferObjectTypeId) == ObjectCategory.Block, "Object type is not a block");
+  require(
+    ObjectTypeMetadata._getObjectCategory(transferObjectTypeId) == ObjectCategory.Block,
+    "Object type is not a block"
+  );
   require(numObjectsToTransfer > 0, "Amount must be greater than 0");
   removeFromInventoryCount(srcEntityId, transferObjectTypeId, numObjectsToTransfer);
   addToInventoryCount(dstEntityId, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);

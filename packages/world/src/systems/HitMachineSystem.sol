@@ -11,7 +11,7 @@ import { Position } from "../codegen/tables/Position.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
-import { Energy } from "../codegen/tables/Energy.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
@@ -58,12 +58,12 @@ contract HitMachineSystem is System {
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.HitChip,
-        entityId: chipEntityId,
+        entityId: machineEntityId,
         objectTypeId: objectTypeId,
-        coordX: chipCoord.x,
-        coordY: chipCoord.y,
-        coordZ: chipCoord.z,
-        amount: newBatteryLevel
+        coordX: machineCoord.x,
+        coordY: machineCoord.y,
+        coordZ: machineCoord.z,
+        amount: newEnergyLevel
       })
     );
 
