@@ -16,7 +16,7 @@ import { DisplayContentType } from "../codegen/common.sol";
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { TextSignObjectID } from "../ObjectTypeIds.sol";
 import { isSmartItem } from "../utils/ObjectTypeUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { getLatestEnergyData } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { isBasicDisplay } from "../utils/ObjectTypeUtils.sol";
@@ -37,8 +37,8 @@ contract DisplaySystem is System {
     address chipAddress = Chip._getChipAddress(baseEntityId);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId != bytes32(0)) {
-      EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-      machineEnergyLevel = machineData.energyLevel;
+      EnergyData memory machineData = getLatestEnergyData(forceFieldEntityId);
+      machineEnergyLevel = machineData.energy;
     }
     if (chipAddress != address(0) && machineEnergyLevel > 0) {
       return IDisplayChip(chipAddress).getDisplayContent(baseEntityId);

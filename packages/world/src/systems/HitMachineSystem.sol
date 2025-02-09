@@ -27,32 +27,20 @@ import { IChip } from "../prototypes/IChip.sol";
 contract HitMachineSystem is System {
   function hitMachineCommon(bytes32 playerEntityId, bytes32 machineEntityId, VoxelCoord memory machineCoord) internal {
     EnergyData memory machineData = updateMachineEnergyLevel(machineEntityId);
-    if (machineData.energyLevel == 0) {
+    if (machineData.energy == 0) {
       return;
     }
 
     uint16 objectTypeId = ObjectType._get(machineEntityId);
-    uint16 miningDifficulty = ObjectTypeMetadata._getMass(objectTypeId);
-
-    // TODO: decrease energy
 
     bytes32 equippedEntityId = Equipped._get(playerEntityId);
     require(equippedEntityId != bytes32(0), "You must use a whacker to hit machines");
     uint16 equippedObjectTypeId = ObjectType._get(equippedEntityId);
     require(isWhacker(equippedObjectTypeId), "You must use a whacker to hit machines");
-    uint16 equippedToolDamage = ObjectTypeMetadata._getMass(equippedObjectTypeId);
-    useEquipped(
-      playerEntityId,
-      equippedEntityId,
-      equippedObjectTypeId,
-      (uint24(miningDifficulty) * uint24(1000)) / equippedToolDamage
-    );
 
-    uint256 decreaseEnergyLevel = (equippedToolDamage * 117) / 100;
-    uint256 newEnergyLevel = machineData.energyLevel > decreaseEnergyLevel
-      ? machineData.energyLevel - decreaseEnergyLevel
-      : 0;
-    Energy._setEnergyLevel(machineEntityId, newEnergyLevel);
+    // TODO: useEquipped
+
+    // TODO: decrease energy
 
     PlayerActionNotif._set(
       playerEntityId,
@@ -63,7 +51,7 @@ contract HitMachineSystem is System {
         coordX: machineCoord.x,
         coordY: machineCoord.y,
         coordZ: machineCoord.z,
-        amount: newEnergyLevel
+        amount: machineData.energy
       })
     );
 

@@ -62,7 +62,7 @@ contract PipeTransferHelperSystem is System {
     bytes32 targetForceFieldEntityId = getForceField(targetCoord);
     if (targetForceFieldEntityId != bytes32(0)) {
       EnergyData memory machineData = updateMachineEnergyLevel(targetForceFieldEntityId);
-      machineEnergyLevel = machineData.energyLevel;
+      machineEnergyLevel = machineData.energy;
     }
 
     requireValidPath(

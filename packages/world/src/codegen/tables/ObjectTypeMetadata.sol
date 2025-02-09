@@ -21,8 +21,8 @@ import { ObjectCategory } from "../common.sol";
 
 struct ObjectTypeMetadataData {
   ObjectCategory objectCategory;
-  uint8 stackable;
-  uint8 maxInventorySlots;
+  uint16 stackable;
+  uint16 maxInventorySlots;
   uint32 mass;
   uint32 energy;
 }
@@ -32,12 +32,12 @@ library ObjectTypeMetadata {
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004f626a656374547970654d6574616461);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x000b050001010104040000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x000d050001020204040000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (uint16)
   Schema constant _keySchema = Schema.wrap(0x0002010001000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint8, uint8, uint8, uint32, uint32)
-  Schema constant _valueSchema = Schema.wrap(0x000b050000000003030000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint8, uint16, uint16, uint32, uint32)
+  Schema constant _valueSchema = Schema.wrap(0x000d050000010103030000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -120,29 +120,29 @@ library ObjectTypeMetadata {
   /**
    * @notice Get stackable.
    */
-  function getStackable(uint16 objectTypeId) internal view returns (uint8 stackable) {
+  function getStackable(uint16 objectTypeId) internal view returns (uint16 stackable) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Get stackable.
    */
-  function _getStackable(uint16 objectTypeId) internal view returns (uint8 stackable) {
+  function _getStackable(uint16 objectTypeId) internal view returns (uint16 stackable) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Set stackable.
    */
-  function setStackable(uint16 objectTypeId, uint8 stackable) internal {
+  function setStackable(uint16 objectTypeId, uint16 stackable) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -152,7 +152,7 @@ library ObjectTypeMetadata {
   /**
    * @notice Set stackable.
    */
-  function _setStackable(uint16 objectTypeId, uint8 stackable) internal {
+  function _setStackable(uint16 objectTypeId, uint16 stackable) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -162,29 +162,29 @@ library ObjectTypeMetadata {
   /**
    * @notice Get maxInventorySlots.
    */
-  function getMaxInventorySlots(uint16 objectTypeId) internal view returns (uint8 maxInventorySlots) {
+  function getMaxInventorySlots(uint16 objectTypeId) internal view returns (uint16 maxInventorySlots) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Get maxInventorySlots.
    */
-  function _getMaxInventorySlots(uint16 objectTypeId) internal view returns (uint8 maxInventorySlots) {
+  function _getMaxInventorySlots(uint16 objectTypeId) internal view returns (uint16 maxInventorySlots) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Set maxInventorySlots.
    */
-  function setMaxInventorySlots(uint16 objectTypeId, uint8 maxInventorySlots) internal {
+  function setMaxInventorySlots(uint16 objectTypeId, uint16 maxInventorySlots) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -194,7 +194,7 @@ library ObjectTypeMetadata {
   /**
    * @notice Set maxInventorySlots.
    */
-  function _setMaxInventorySlots(uint16 objectTypeId, uint8 maxInventorySlots) internal {
+  function _setMaxInventorySlots(uint16 objectTypeId, uint16 maxInventorySlots) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -321,8 +321,8 @@ library ObjectTypeMetadata {
   function set(
     uint16 objectTypeId,
     ObjectCategory objectCategory,
-    uint8 stackable,
-    uint8 maxInventorySlots,
+    uint16 stackable,
+    uint16 maxInventorySlots,
     uint32 mass,
     uint32 energy
   ) internal {
@@ -343,8 +343,8 @@ library ObjectTypeMetadata {
   function _set(
     uint16 objectTypeId,
     ObjectCategory objectCategory,
-    uint8 stackable,
-    uint8 maxInventorySlots,
+    uint16 stackable,
+    uint16 maxInventorySlots,
     uint32 mass,
     uint32 energy
   ) internal {
@@ -409,17 +409,17 @@ library ObjectTypeMetadata {
   )
     internal
     pure
-    returns (ObjectCategory objectCategory, uint8 stackable, uint8 maxInventorySlots, uint32 mass, uint32 energy)
+    returns (ObjectCategory objectCategory, uint16 stackable, uint16 maxInventorySlots, uint32 mass, uint32 energy)
   {
     objectCategory = ObjectCategory(uint8(Bytes.getBytes1(_blob, 0)));
 
-    stackable = (uint8(Bytes.getBytes1(_blob, 1)));
+    stackable = (uint16(Bytes.getBytes2(_blob, 1)));
 
-    maxInventorySlots = (uint8(Bytes.getBytes1(_blob, 2)));
+    maxInventorySlots = (uint16(Bytes.getBytes2(_blob, 3)));
 
-    mass = (uint32(Bytes.getBytes4(_blob, 3)));
+    mass = (uint32(Bytes.getBytes4(_blob, 5)));
 
-    energy = (uint32(Bytes.getBytes4(_blob, 7)));
+    energy = (uint32(Bytes.getBytes4(_blob, 9)));
   }
 
   /**
@@ -464,8 +464,8 @@ library ObjectTypeMetadata {
    */
   function encodeStatic(
     ObjectCategory objectCategory,
-    uint8 stackable,
-    uint8 maxInventorySlots,
+    uint16 stackable,
+    uint16 maxInventorySlots,
     uint32 mass,
     uint32 energy
   ) internal pure returns (bytes memory) {
@@ -480,8 +480,8 @@ library ObjectTypeMetadata {
    */
   function encode(
     ObjectCategory objectCategory,
-    uint8 stackable,
-    uint8 maxInventorySlots,
+    uint16 stackable,
+    uint16 maxInventorySlots,
     uint32 mass,
     uint32 energy
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {

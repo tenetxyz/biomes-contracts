@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 bool constant IN_MAINTENANCE = false;
 
 uint16 constant MAX_BLOCK_STACKABLE = 99;
+uint16 constant MAX_ITEM_STACKABLE = 99;
 uint16 constant MAX_TOOL_STACKABLE = 1;
 
 int32 constant WORLD_BORDER_LOW_X = -2016;

@@ -96,7 +96,7 @@ contract MoveHelperSystem is System {
     bytes32 playerEntityId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
-  ) internal returns (bytes32, bool) {
+  ) internal view returns (bytes32, bool) {
     require(inWorldBorder(newCoord), "Cannot move outside the world border");
     require(inSurroundingCube(oldCoord, 1, newCoord), "New coord is too far from old coord");
 

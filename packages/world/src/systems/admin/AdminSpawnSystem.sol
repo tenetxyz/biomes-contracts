@@ -35,7 +35,7 @@ contract AdminSpawnSystem is System {
       require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot build where there are dropped objects");
       require(Chip._getChipAddress(entityId) == address(0), "Chip is attached to entity");
       EnergyData memory energyData = updateMachineEnergyLevel(entityId);
-      require(energyData.energyLevel == 0, "Energy is attached to entity");
+      require(energyData.energy == 0, "Energy is attached to entity");
       require(
         currentObjectTypeId != PlayerObjectID &&
           currentObjectTypeId != ForceFieldObjectID &&

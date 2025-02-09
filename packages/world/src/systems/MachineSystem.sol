@@ -31,10 +31,9 @@ contract MachineSystem is System {
     uint16 objectTypeId = ObjectType._get(baseEntityId);
     require(objectTypeId == ForceFieldObjectID, "Invalid object type");
     EnergyData memory machineData = updateMachineEnergyLevel(baseEntityId);
-    uint256 newEnergyLevel = machineData.energyLevel + (uint256(numBattery) * 10);
+    uint256 newEnergyLevel = machineData.energy + (uint256(numBattery) * 10);
 
-    Energy._setEnergyLevel(baseEntityId, newEnergyLevel);
-    Energy._setLastUpdatedTime(baseEntityId, block.timestamp);
+    Energy._set(baseEntityId, block.timestamp, newEnergyLevel);
 
     PlayerActionNotif._set(
       playerEntityId,

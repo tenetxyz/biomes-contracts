@@ -35,7 +35,7 @@ contract MineSystem is System {
     address chipAddress = Chip._get(entityId);
     require(chipAddress == address(0), "Cannot mine a chipped block");
     EnergyData memory machineData = updateMachineEnergyLevel(entityId);
-    require(machineData.energyLevel == 0, "Cannot mine a machine that has energy");
+    require(machineData.energy == 0, "Cannot mine a machine that has energy");
     if (DisplayContent._getContentType(entityId) != DisplayContentType.None) {
       DisplayContent._deleteRecord(entityId);
     }

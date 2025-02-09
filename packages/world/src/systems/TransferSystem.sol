@@ -168,14 +168,14 @@ contract TransferSystem is System {
     uint16 transferObjectTypeId,
     uint16 numToTransfer
   ) public payable {
-    transfer(srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, new bytes(0));
+    transferWithExtraData(srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, new bytes(0));
   }
 
   function transferTool(bytes32 srcEntityId, bytes32 dstEntityId, bytes32 toolEntityId) public payable {
-    transferTool(srcEntityId, dstEntityId, toolEntityId, new bytes(0));
+    transferToolWithExtraData(srcEntityId, dstEntityId, toolEntityId, new bytes(0));
   }
 
   function transferTools(bytes32 srcEntityId, bytes32 dstEntityId, bytes32[] memory toolEntityIds) public payable {
-    transferTools(srcEntityId, dstEntityId, toolEntityIds, new bytes(0));
+    transferToolsWithExtraData(srcEntityId, dstEntityId, toolEntityIds, new bytes(0));
   }
 }

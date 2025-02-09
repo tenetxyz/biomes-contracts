@@ -43,22 +43,22 @@ contract InitWorkbenchSystem is System {
   }
 
   function initWorkbenchObjectTypes() public {
-    createTool(StonePickObjectID, 100000, 120);
-    createTool(StoneAxeObjectID, 100000, 120);
-    createTool(StoneWhackerObjectID, 100000, 120);
+    createTool(StonePickObjectID, 100000);
+    createTool(StoneAxeObjectID, 100000);
+    createTool(StoneWhackerObjectID, 100000);
 
-    createTool(SilverPickObjectID, 1400000, 160);
-    createTool(SilverAxeObjectID, 1400000, 160);
-    createTool(SilverWhackerObjectID, 1400000, 160);
+    createTool(SilverPickObjectID, 1400000);
+    createTool(SilverAxeObjectID, 1400000);
+    createTool(SilverWhackerObjectID, 1400000);
 
-    createTool(GoldPickObjectID, 1200000, 200);
-    createTool(GoldAxeObjectID, 1200000, 200);
+    createTool(GoldPickObjectID, 1200000);
+    createTool(GoldAxeObjectID, 1200000);
 
-    createTool(DiamondPickObjectID, 1900000, 240);
-    createTool(DiamondAxeObjectID, 1900000, 240);
+    createTool(DiamondPickObjectID, 1900000);
+    createTool(DiamondAxeObjectID, 1900000);
 
-    createTool(NeptuniumPickObjectID, 5500000, 280);
-    createTool(NeptuniumAxeObjectID, 5500000, 280);
+    createTool(NeptuniumPickObjectID, 5500000);
+    createTool(NeptuniumAxeObjectID, 5500000);
 
     createBlock(ReinforcedOakLumberObjectID, 140);
     createBlock(ReinforcedRubberLumberObjectID, 140);

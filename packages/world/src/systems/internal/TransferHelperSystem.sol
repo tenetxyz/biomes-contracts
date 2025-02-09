@@ -59,7 +59,7 @@ contract TransferHelperSystem is System {
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId != bytes32(0)) {
       EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-      machineEnergyLevel = machineData.energyLevel;
+      machineEnergyLevel = machineData.energy;
     }
 
     return

@@ -32,7 +32,7 @@ contract ForceFieldSystem is System {
       if (forceFieldEntityId != bytes32(0)) {
         address chipAddress = Chip._get(forceFieldEntityId);
         EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-        if (chipAddress != address(0) && machineData.energyLevel > 0) {
+        if (chipAddress != address(0) && machineData.energy > 0) {
           bool buildAllowed = IForceFieldChip(chipAddress).onBuild{ value: _msgValue() }(
             forceFieldEntityId,
             playerEntityId,
@@ -59,7 +59,7 @@ contract ForceFieldSystem is System {
       if (forceFieldEntityId != bytes32(0)) {
         address chipAddress = Chip._get(forceFieldEntityId);
         EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-        if (chipAddress != address(0) && machineData.energyLevel > 0) {
+        if (chipAddress != address(0) && machineData.energy > 0) {
           bool mineAllowed = IForceFieldChip(chipAddress).onMine{ value: _msgValue() }(
             forceFieldEntityId,
             playerEntityId,

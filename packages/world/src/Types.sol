@@ -6,7 +6,7 @@ import { CommitmentData } from "./codegen/tables/Commitment.sol";
 
 struct InventoryTool {
   bytes32 entityId;
-  uint24 numUsesLeft;
+  uint256 numUsesLeft;
 }
 
 struct InventoryObject {

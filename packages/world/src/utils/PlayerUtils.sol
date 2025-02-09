@@ -34,21 +34,21 @@ function requireValidPlayer(address player) returns (bytes32, VoxelCoord memory)
   return (playerEntityId, playerCoord);
 }
 
-function requireBesidePlayer(VoxelCoord memory playerCoord, VoxelCoord memory coord) {
+function requireBesidePlayer(VoxelCoord memory playerCoord, VoxelCoord memory coord) pure {
   require(inSurroundingCube(playerCoord, 1, coord), "Player is too far");
 }
 
-function requireBesidePlayer(VoxelCoord memory playerCoord, bytes32 entityId) returns (VoxelCoord memory) {
+function requireBesidePlayer(VoxelCoord memory playerCoord, bytes32 entityId) view returns (VoxelCoord memory) {
   VoxelCoord memory coord = positionDataToVoxelCoord(Position._get(entityId));
   requireBesidePlayer(playerCoord, coord);
   return coord;
 }
 
-function requireInPlayerInfluence(VoxelCoord memory playerCoord, VoxelCoord memory coord) {
+function requireInPlayerInfluence(VoxelCoord memory playerCoord, VoxelCoord memory coord) pure {
   require(inSurroundingCube(playerCoord, MAX_PLAYER_INFLUENCE_HALF_WIDTH, coord), "Player is too far");
 }
 
-function requireInPlayerInfluence(VoxelCoord memory playerCoord, bytes32 entityId) returns (VoxelCoord memory) {
+function requireInPlayerInfluence(VoxelCoord memory playerCoord, bytes32 entityId) view returns (VoxelCoord memory) {
   VoxelCoord memory coord = positionDataToVoxelCoord(Position._get(entityId));
   requireInPlayerInfluence(playerCoord, coord);
   return coord;

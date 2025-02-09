@@ -62,7 +62,7 @@ contract OreSystem is System {
     uint256 randomNumber = getRandomNumberBetween0And99(terrainCommitmentData.blockNumber);
 
     // TODO: Fix
-    uint8 oreObjectTypeId = CoalOreObjectID;
+    uint16 oreObjectTypeId = CoalOreObjectID;
 
     bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     require(entityId != bytes32(0), "Cannot reveal ore on unrevealed terrain");

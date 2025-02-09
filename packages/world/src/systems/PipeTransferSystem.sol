@@ -49,7 +49,7 @@ contract PipeTransferSystem is System {
     bytes32 callerForceFieldEntityId = getForceField(callerCoord);
     if (callerForceFieldEntityId != bytes32(0)) {
       EnergyData memory machineData = updateMachineEnergyLevel(callerForceFieldEntityId);
-      machineEnergyLevel = machineData.energyLevel;
+      machineEnergyLevel = machineData.energy;
     }
     require(chipAddress == _msgSender(), "Caller is not the chip of the smart item");
     require(machineEnergyLevel > 0, "Caller has no charge");

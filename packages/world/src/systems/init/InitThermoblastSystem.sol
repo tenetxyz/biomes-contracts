@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectCategory } from "../../codegen/common.sol";
 
-import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
+import { MAX_BLOCK_STACKABLE, MAX_ITEM_STACKABLE } from "../../Constants.sol";
 import { CobblestoneObjectID, CobblestoneBrickObjectID, CobblestoneCarvedObjectID, CobblestonePolishedObjectID, CobblestoneShinglesObjectID } from "../../ObjectTypeIds.sol";
 import { StoneObjectID, StoneBrickObjectID, StoneCarvedObjectID, StonePolishedObjectID, StoneShinglesObjectID } from "../../ObjectTypeIds.sol";
 import { BasaltObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID } from "../../ObjectTypeIds.sol";
@@ -41,12 +41,11 @@ contract InitThermoblastSystem is System {
     ObjectTypeMetadata._set(
       itemObjectTypeId,
       ObjectTypeMetadataData({
-        isBlock: false,
-        isTool: false,
-        miningDifficulty: 0,
-        stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0
+        objectCategory: ObjectCategory.Item,
+        stackable: MAX_ITEM_STACKABLE,
+        maxInventorySlots: 0,
+        mass: 0,
+        energy: 0
       })
     );
   }

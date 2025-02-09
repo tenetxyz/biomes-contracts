@@ -38,8 +38,8 @@ export default defineWorld({
       schema: {
         objectTypeId: "uint16",
         objectCategory: "ObjectCategory",
-        stackable: "uint8",
-        maxInventorySlots: "uint8",
+        stackable: "uint16",
+        maxInventorySlots: "uint16",
         mass: "uint32",
         energy: "uint32",
       },

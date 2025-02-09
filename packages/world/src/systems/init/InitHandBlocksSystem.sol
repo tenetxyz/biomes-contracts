@@ -13,7 +13,7 @@ import { OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLum
 import { BellflowerObjectID, SakuraLumberObjectID, CactusObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "../../ObjectTypeIds.sol";
 import { DirtObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "../../ObjectTypeIds.sol";
 
-import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE } from "../../Constants.sol";
+import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE, MAX_ITEM_STACKABLE } from "../../Constants.sol";
 import { createSingleInputRecipe, createDoubleInputRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitHandBlocksSystem is System {
@@ -48,7 +48,7 @@ contract InitHandBlocksSystem is System {
       itemObjectTypeId,
       ObjectTypeMetadataData({
         objectCategory: ObjectCategory.Item,
-        stackable: MAX_BLOCK_STACKABLE,
+        stackable: MAX_ITEM_STACKABLE,
         maxInventorySlots: 0,
         mass: 0,
         energy: 0
