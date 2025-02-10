@@ -26,7 +26,7 @@ import { Commitment, CommitmentData } from "../../codegen/tables/Commitment.sol"
 
 import { lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
-import { InventoryObject, PlayerEntityData, BlockEntityData, PlayerEntityDataWithCommitment } from "../../Types.sol";
+import { InventoryObject, PlayerEntityData, BlockEntityData } from "../../Types.sol";
 
 import { IReadSystem } from "../../codegen/world/IReadSystem.sol";
 
@@ -37,48 +37,6 @@ contract ReadTwoSystem is System {
     if (entityId == bytes32(0)) {
       return
         PlayerEntityData({
-          playerAddress: player,
-          entityId: bytes32(0),
-          position: VoxelCoord(0, 0, 0),
-          isLoggedOff: false,
-          equippedEntityId: bytes32(0),
-          inventory: new InventoryObject[](0),
-          lastActionTime: 0
-        });
-    }
-
-    bool isLoggedOff = PlayerStatus._getIsLoggedOff(entityId);
-    VoxelCoord memory playerPos = isLoggedOff
-      ? lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(entityId))
-      : positionDataToVoxelCoord(Position._get(entityId));
-
-    return
-      PlayerEntityData({
-        playerAddress: player,
-        entityId: entityId,
-        position: playerPos,
-        isLoggedOff: isLoggedOff,
-        equippedEntityId: Equipped._get(entityId),
-        inventory: getEntityInventory(entityId),
-        lastActionTime: PlayerActivity._get(entityId)
-      });
-  }
-
-  function getPlayersEntityData(address[] memory players) public view returns (PlayerEntityData[] memory) {
-    PlayerEntityData[] memory playersEntityData = new PlayerEntityData[](players.length);
-    for (uint256 i = 0; i < players.length; i++) {
-      playersEntityData[i] = getPlayerEntityData(players[i]);
-    }
-    return playersEntityData;
-  }
-
-  function getPlayerEntityDataWithCommitment(
-    address player
-  ) public view returns (PlayerEntityDataWithCommitment memory) {
-    bytes32 entityId = Player._get(player);
-    if (entityId == bytes32(0)) {
-      return
-        PlayerEntityDataWithCommitment({
           playerAddress: player,
           entityId: bytes32(0),
           position: VoxelCoord(0, 0, 0),
@@ -96,7 +54,7 @@ contract ReadTwoSystem is System {
       : positionDataToVoxelCoord(Position._get(entityId));
 
     return
-      PlayerEntityDataWithCommitment({
+      PlayerEntityData({
         playerAddress: player,
         entityId: entityId,
         position: playerPos,
@@ -108,12 +66,10 @@ contract ReadTwoSystem is System {
       });
   }
 
-  function getPlayersEntityDataWithCommitment(
-    address[] memory players
-  ) public view returns (PlayerEntityDataWithCommitment[] memory) {
-    PlayerEntityDataWithCommitment[] memory playersEntityData = new PlayerEntityDataWithCommitment[](players.length);
+  function getPlayersEntityData(address[] memory players) public view returns (PlayerEntityData[] memory) {
+    PlayerEntityData[] memory playersEntityData = new PlayerEntityData[](players.length);
     for (uint256 i = 0; i < players.length; i++) {
-      playersEntityData[i] = getPlayerEntityDataWithCommitment(players[i]);
+      playersEntityData[i] = getPlayerEntityData(players[i]);
     }
     return playersEntityData;
   }

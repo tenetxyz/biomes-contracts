@@ -23,7 +23,7 @@ import { ReverseInventoryTool } from "../../codegen/tables/ReverseInventoryTool.
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { NullObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
-import { InventoryObject, EntityData, EntityDataWithBaseEntity } from "../../Types.sol";
+import { InventoryObject, EntityData } from "../../Types.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {
@@ -60,16 +60,20 @@ contract ReadSystem is System {
         EntityData({
           objectTypeId: NullObjectTypeId,
           entityId: bytes32(0),
+          baseEntityId: bytes32(0),
           inventory: new InventoryObject[](0),
           position: VoxelCoord(0, 0, 0)
         });
     }
 
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+
     return
       EntityData({
         objectTypeId: ObjectType._get(entityId),
         entityId: entityId,
-        inventory: getInventory(entityId),
+        baseEntityId: baseEntityId,
+        inventory: getInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
         position: getCoordForEntityId(entityId)
       });
   }
@@ -81,15 +85,20 @@ contract ReadSystem is System {
         EntityData({
           objectTypeId: NullObjectTypeId,
           entityId: bytes32(0),
+          baseEntityId: bytes32(0),
           inventory: new InventoryObject[](0),
           position: coord
         });
     }
+
+    bytes32 baseEntityId = BaseEntity._get(entityId);
+
     return
       EntityData({
         objectTypeId: ObjectType._get(entityId),
         entityId: entityId,
-        inventory: getInventory(entityId),
+        baseEntityId: baseEntityId,
+        inventory: getInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
         position: coord
       });
   }
@@ -98,67 +107,6 @@ contract ReadSystem is System {
     EntityData[] memory entityData = new EntityData[](coord.length);
     for (uint256 i = 0; i < coord.length; i++) {
       entityData[i] = getEntityDataAtCoord(coord[i]);
-    }
-    return entityData;
-  }
-
-  function getEntityDataWithBaseEntity(bytes32 entityId) public view returns (EntityDataWithBaseEntity memory) {
-    if (entityId == bytes32(0)) {
-      return
-        EntityDataWithBaseEntity({
-          objectTypeId: NullObjectTypeId,
-          entityId: bytes32(0),
-          baseEntityId: bytes32(0),
-          inventory: new InventoryObject[](0),
-          position: VoxelCoord(0, 0, 0)
-        });
-    }
-
-    bytes32 baseEntityId = BaseEntity._get(entityId);
-
-    return
-      EntityDataWithBaseEntity({
-        objectTypeId: ObjectType._get(entityId),
-        entityId: entityId,
-        baseEntityId: baseEntityId,
-        inventory: getInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
-        position: getCoordForEntityId(entityId)
-      });
-  }
-
-  function getEntityDataWithBaseEntityAtCoord(
-    VoxelCoord memory coord
-  ) public view returns (EntityDataWithBaseEntity memory) {
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    if (entityId == bytes32(0)) {
-      return
-        EntityDataWithBaseEntity({
-          objectTypeId: NullObjectTypeId,
-          entityId: bytes32(0),
-          baseEntityId: bytes32(0),
-          inventory: new InventoryObject[](0),
-          position: coord
-        });
-    }
-
-    bytes32 baseEntityId = BaseEntity._get(entityId);
-
-    return
-      EntityDataWithBaseEntity({
-        objectTypeId: ObjectType._get(entityId),
-        entityId: entityId,
-        baseEntityId: baseEntityId,
-        inventory: getInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
-        position: coord
-      });
-  }
-
-  function getMultipleEntityDataWithBaseEntityAtCoord(
-    VoxelCoord[] memory coord
-  ) public view returns (EntityDataWithBaseEntity[] memory) {
-    EntityDataWithBaseEntity[] memory entityData = new EntityDataWithBaseEntity[](coord.length);
-    for (uint256 i = 0; i < coord.length; i++) {
-      entityData[i] = getEntityDataWithBaseEntityAtCoord(coord[i]);
     }
     return entityData;
   }

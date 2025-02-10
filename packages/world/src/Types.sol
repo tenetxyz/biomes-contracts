@@ -23,16 +23,6 @@ struct PlayerEntityData {
   bytes32 equippedEntityId;
   InventoryObject[] inventory;
   uint256 lastActionTime;
-}
-
-struct PlayerEntityDataWithCommitment {
-  address playerAddress;
-  bytes32 entityId;
-  VoxelCoord position;
-  bool isLoggedOff;
-  bytes32 equippedEntityId;
-  InventoryObject[] inventory;
-  uint256 lastActionTime;
   CommitmentData commitment;
 }
 
@@ -46,13 +36,6 @@ struct BlockEntityData {
 }
 
 struct EntityData {
-  uint16 objectTypeId;
-  bytes32 entityId;
-  InventoryObject[] inventory;
-  VoxelCoord position;
-}
-
-struct EntityDataWithBaseEntity {
   uint16 objectTypeId;
   bytes32 entityId;
   bytes32 baseEntityId;
