@@ -18,10 +18,10 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 struct SpawnData {
   bool initialized;
-  int16 spawnLowX;
-  int16 spawnHighX;
-  int16 spawnLowZ;
-  int16 spawnHighZ;
+  int32 spawnLowX;
+  int32 spawnHighX;
+  int32 spawnLowZ;
+  int32 spawnHighZ;
 }
 
 library Spawn {
@@ -29,12 +29,12 @@ library Spawn {
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000537061776e0000000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0009050001020202020000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0011050001040404040000000000000000000000000000000000000000000000);
 
-  // Hex-encoded key schema of (int16, int16)
-  Schema constant _keySchema = Schema.wrap(0x0004020021210000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bool, int16, int16, int16, int16)
-  Schema constant _valueSchema = Schema.wrap(0x0009050060212121210000000000000000000000000000000000000000000000);
+  // Hex-encoded key schema of (int32, int32)
+  Schema constant _keySchema = Schema.wrap(0x0008020023230000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bool, int32, int32, int32, int32)
+  Schema constant _valueSchema = Schema.wrap(0x0011050060232323230000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -83,7 +83,7 @@ library Spawn {
   /**
    * @notice Get initialized.
    */
-  function getInitialized(int16 x, int16 z) internal view returns (bool initialized) {
+  function getInitialized(int32 x, int32 z) internal view returns (bool initialized) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -95,7 +95,7 @@ library Spawn {
   /**
    * @notice Get initialized.
    */
-  function _getInitialized(int16 x, int16 z) internal view returns (bool initialized) {
+  function _getInitialized(int32 x, int32 z) internal view returns (bool initialized) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -107,7 +107,7 @@ library Spawn {
   /**
    * @notice Get initialized (using the specified store).
    */
-  function getInitialized(IStore _store, int16 x, int16 z) internal view returns (bool initialized) {
+  function getInitialized(IStore _store, int32 x, int32 z) internal view returns (bool initialized) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -119,7 +119,7 @@ library Spawn {
   /**
    * @notice Set initialized.
    */
-  function setInitialized(int16 x, int16 z, bool initialized) internal {
+  function setInitialized(int32 x, int32 z, bool initialized) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -130,7 +130,7 @@ library Spawn {
   /**
    * @notice Set initialized.
    */
-  function _setInitialized(int16 x, int16 z, bool initialized) internal {
+  function _setInitialized(int32 x, int32 z, bool initialized) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -141,7 +141,7 @@ library Spawn {
   /**
    * @notice Set initialized (using the specified store).
    */
-  function setInitialized(IStore _store, int16 x, int16 z, bool initialized) internal {
+  function setInitialized(IStore _store, int32 x, int32 z, bool initialized) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -152,43 +152,43 @@ library Spawn {
   /**
    * @notice Get spawnLowX.
    */
-  function getSpawnLowX(int16 x, int16 z) internal view returns (int16 spawnLowX) {
+  function getSpawnLowX(int32 x, int32 z) internal view returns (int32 spawnLowX) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Get spawnLowX.
    */
-  function _getSpawnLowX(int16 x, int16 z) internal view returns (int16 spawnLowX) {
+  function _getSpawnLowX(int32 x, int32 z) internal view returns (int32 spawnLowX) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Get spawnLowX (using the specified store).
    */
-  function getSpawnLowX(IStore _store, int16 x, int16 z) internal view returns (int16 spawnLowX) {
+  function getSpawnLowX(IStore _store, int32 x, int32 z) internal view returns (int32 spawnLowX) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Set spawnLowX.
    */
-  function setSpawnLowX(int16 x, int16 z, int16 spawnLowX) internal {
+  function setSpawnLowX(int32 x, int32 z, int32 spawnLowX) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -199,7 +199,7 @@ library Spawn {
   /**
    * @notice Set spawnLowX.
    */
-  function _setSpawnLowX(int16 x, int16 z, int16 spawnLowX) internal {
+  function _setSpawnLowX(int32 x, int32 z, int32 spawnLowX) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -210,7 +210,7 @@ library Spawn {
   /**
    * @notice Set spawnLowX (using the specified store).
    */
-  function setSpawnLowX(IStore _store, int16 x, int16 z, int16 spawnLowX) internal {
+  function setSpawnLowX(IStore _store, int32 x, int32 z, int32 spawnLowX) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -221,43 +221,43 @@ library Spawn {
   /**
    * @notice Get spawnHighX.
    */
-  function getSpawnHighX(int16 x, int16 z) internal view returns (int16 spawnHighX) {
+  function getSpawnHighX(int32 x, int32 z) internal view returns (int32 spawnHighX) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Get spawnHighX.
    */
-  function _getSpawnHighX(int16 x, int16 z) internal view returns (int16 spawnHighX) {
+  function _getSpawnHighX(int32 x, int32 z) internal view returns (int32 spawnHighX) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Get spawnHighX (using the specified store).
    */
-  function getSpawnHighX(IStore _store, int16 x, int16 z) internal view returns (int16 spawnHighX) {
+  function getSpawnHighX(IStore _store, int32 x, int32 z) internal view returns (int32 spawnHighX) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Set spawnHighX.
    */
-  function setSpawnHighX(int16 x, int16 z, int16 spawnHighX) internal {
+  function setSpawnHighX(int32 x, int32 z, int32 spawnHighX) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -268,7 +268,7 @@ library Spawn {
   /**
    * @notice Set spawnHighX.
    */
-  function _setSpawnHighX(int16 x, int16 z, int16 spawnHighX) internal {
+  function _setSpawnHighX(int32 x, int32 z, int32 spawnHighX) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -279,7 +279,7 @@ library Spawn {
   /**
    * @notice Set spawnHighX (using the specified store).
    */
-  function setSpawnHighX(IStore _store, int16 x, int16 z, int16 spawnHighX) internal {
+  function setSpawnHighX(IStore _store, int32 x, int32 z, int32 spawnHighX) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -290,43 +290,43 @@ library Spawn {
   /**
    * @notice Get spawnLowZ.
    */
-  function getSpawnLowZ(int16 x, int16 z) internal view returns (int16 spawnLowZ) {
+  function getSpawnLowZ(int32 x, int32 z) internal view returns (int32 spawnLowZ) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Get spawnLowZ.
    */
-  function _getSpawnLowZ(int16 x, int16 z) internal view returns (int16 spawnLowZ) {
+  function _getSpawnLowZ(int32 x, int32 z) internal view returns (int32 spawnLowZ) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Get spawnLowZ (using the specified store).
    */
-  function getSpawnLowZ(IStore _store, int16 x, int16 z) internal view returns (int16 spawnLowZ) {
+  function getSpawnLowZ(IStore _store, int32 x, int32 z) internal view returns (int32 spawnLowZ) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Set spawnLowZ.
    */
-  function setSpawnLowZ(int16 x, int16 z, int16 spawnLowZ) internal {
+  function setSpawnLowZ(int32 x, int32 z, int32 spawnLowZ) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -337,7 +337,7 @@ library Spawn {
   /**
    * @notice Set spawnLowZ.
    */
-  function _setSpawnLowZ(int16 x, int16 z, int16 spawnLowZ) internal {
+  function _setSpawnLowZ(int32 x, int32 z, int32 spawnLowZ) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -348,7 +348,7 @@ library Spawn {
   /**
    * @notice Set spawnLowZ (using the specified store).
    */
-  function setSpawnLowZ(IStore _store, int16 x, int16 z, int16 spawnLowZ) internal {
+  function setSpawnLowZ(IStore _store, int32 x, int32 z, int32 spawnLowZ) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -359,43 +359,43 @@ library Spawn {
   /**
    * @notice Get spawnHighZ.
    */
-  function getSpawnHighZ(int16 x, int16 z) internal view returns (int16 spawnHighZ) {
+  function getSpawnHighZ(int32 x, int32 z) internal view returns (int32 spawnHighZ) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Get spawnHighZ.
    */
-  function _getSpawnHighZ(int16 x, int16 z) internal view returns (int16 spawnHighZ) {
+  function _getSpawnHighZ(int32 x, int32 z) internal view returns (int32 spawnHighZ) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Get spawnHighZ (using the specified store).
    */
-  function getSpawnHighZ(IStore _store, int16 x, int16 z) internal view returns (int16 spawnHighZ) {
+  function getSpawnHighZ(IStore _store, int32 x, int32 z) internal view returns (int32 spawnHighZ) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Set spawnHighZ.
    */
-  function setSpawnHighZ(int16 x, int16 z, int16 spawnHighZ) internal {
+  function setSpawnHighZ(int32 x, int32 z, int32 spawnHighZ) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -406,7 +406,7 @@ library Spawn {
   /**
    * @notice Set spawnHighZ.
    */
-  function _setSpawnHighZ(int16 x, int16 z, int16 spawnHighZ) internal {
+  function _setSpawnHighZ(int32 x, int32 z, int32 spawnHighZ) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -417,7 +417,7 @@ library Spawn {
   /**
    * @notice Set spawnHighZ (using the specified store).
    */
-  function setSpawnHighZ(IStore _store, int16 x, int16 z, int16 spawnHighZ) internal {
+  function setSpawnHighZ(IStore _store, int32 x, int32 z, int32 spawnHighZ) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -428,7 +428,7 @@ library Spawn {
   /**
    * @notice Get the full data.
    */
-  function get(int16 x, int16 z) internal view returns (SpawnData memory _table) {
+  function get(int32 x, int32 z) internal view returns (SpawnData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -444,7 +444,7 @@ library Spawn {
   /**
    * @notice Get the full data.
    */
-  function _get(int16 x, int16 z) internal view returns (SpawnData memory _table) {
+  function _get(int32 x, int32 z) internal view returns (SpawnData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -460,7 +460,7 @@ library Spawn {
   /**
    * @notice Get the full data (using the specified store).
    */
-  function get(IStore _store, int16 x, int16 z) internal view returns (SpawnData memory _table) {
+  function get(IStore _store, int32 x, int32 z) internal view returns (SpawnData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -477,13 +477,13 @@ library Spawn {
    * @notice Set the full data using individual values.
    */
   function set(
-    int16 x,
-    int16 z,
+    int32 x,
+    int32 z,
     bool initialized,
-    int16 spawnLowX,
-    int16 spawnHighX,
-    int16 spawnLowZ,
-    int16 spawnHighZ
+    int32 spawnLowX,
+    int32 spawnHighX,
+    int32 spawnLowZ,
+    int32 spawnHighZ
   ) internal {
     bytes memory _staticData = encodeStatic(initialized, spawnLowX, spawnHighX, spawnLowZ, spawnHighZ);
 
@@ -501,13 +501,13 @@ library Spawn {
    * @notice Set the full data using individual values.
    */
   function _set(
-    int16 x,
-    int16 z,
+    int32 x,
+    int32 z,
     bool initialized,
-    int16 spawnLowX,
-    int16 spawnHighX,
-    int16 spawnLowZ,
-    int16 spawnHighZ
+    int32 spawnLowX,
+    int32 spawnHighX,
+    int32 spawnLowZ,
+    int32 spawnHighZ
   ) internal {
     bytes memory _staticData = encodeStatic(initialized, spawnLowX, spawnHighX, spawnLowZ, spawnHighZ);
 
@@ -526,13 +526,13 @@ library Spawn {
    */
   function set(
     IStore _store,
-    int16 x,
-    int16 z,
+    int32 x,
+    int32 z,
     bool initialized,
-    int16 spawnLowX,
-    int16 spawnHighX,
-    int16 spawnLowZ,
-    int16 spawnHighZ
+    int32 spawnLowX,
+    int32 spawnHighX,
+    int32 spawnLowZ,
+    int32 spawnHighZ
   ) internal {
     bytes memory _staticData = encodeStatic(initialized, spawnLowX, spawnHighX, spawnLowZ, spawnHighZ);
 
@@ -549,7 +549,7 @@ library Spawn {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(int16 x, int16 z, SpawnData memory _table) internal {
+  function set(int32 x, int32 z, SpawnData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.initialized,
       _table.spawnLowX,
@@ -571,7 +571,7 @@ library Spawn {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(int16 x, int16 z, SpawnData memory _table) internal {
+  function _set(int32 x, int32 z, SpawnData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.initialized,
       _table.spawnLowX,
@@ -593,7 +593,7 @@ library Spawn {
   /**
    * @notice Set the full data using the data struct (using the specified store).
    */
-  function set(IStore _store, int16 x, int16 z, SpawnData memory _table) internal {
+  function set(IStore _store, int32 x, int32 z, SpawnData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.initialized,
       _table.spawnLowX,
@@ -617,16 +617,16 @@ library Spawn {
    */
   function decodeStatic(
     bytes memory _blob
-  ) internal pure returns (bool initialized, int16 spawnLowX, int16 spawnHighX, int16 spawnLowZ, int16 spawnHighZ) {
+  ) internal pure returns (bool initialized, int32 spawnLowX, int32 spawnHighX, int32 spawnLowZ, int32 spawnHighZ) {
     initialized = (_toBool(uint8(Bytes.getBytes1(_blob, 0))));
 
-    spawnLowX = (int16(uint16(Bytes.getBytes2(_blob, 1))));
+    spawnLowX = (int32(uint32(Bytes.getBytes4(_blob, 1))));
 
-    spawnHighX = (int16(uint16(Bytes.getBytes2(_blob, 3))));
+    spawnHighX = (int32(uint32(Bytes.getBytes4(_blob, 5))));
 
-    spawnLowZ = (int16(uint16(Bytes.getBytes2(_blob, 5))));
+    spawnLowZ = (int32(uint32(Bytes.getBytes4(_blob, 9))));
 
-    spawnHighZ = (int16(uint16(Bytes.getBytes2(_blob, 7))));
+    spawnHighZ = (int32(uint32(Bytes.getBytes4(_blob, 13))));
   }
 
   /**
@@ -648,7 +648,7 @@ library Spawn {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(int16 x, int16 z) internal {
+  function deleteRecord(int32 x, int32 z) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -659,7 +659,7 @@ library Spawn {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(int16 x, int16 z) internal {
+  function _deleteRecord(int32 x, int32 z) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -670,7 +670,7 @@ library Spawn {
   /**
    * @notice Delete all data for given keys (using the specified store).
    */
-  function deleteRecord(IStore _store, int16 x, int16 z) internal {
+  function deleteRecord(IStore _store, int32 x, int32 z) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));
@@ -684,10 +684,10 @@ library Spawn {
    */
   function encodeStatic(
     bool initialized,
-    int16 spawnLowX,
-    int16 spawnHighX,
-    int16 spawnLowZ,
-    int16 spawnHighZ
+    int32 spawnLowX,
+    int32 spawnHighX,
+    int32 spawnLowZ,
+    int32 spawnHighZ
   ) internal pure returns (bytes memory) {
     return abi.encodePacked(initialized, spawnLowX, spawnHighX, spawnLowZ, spawnHighZ);
   }
@@ -700,10 +700,10 @@ library Spawn {
    */
   function encode(
     bool initialized,
-    int16 spawnLowX,
-    int16 spawnHighX,
-    int16 spawnLowZ,
-    int16 spawnHighZ
+    int32 spawnLowX,
+    int32 spawnHighX,
+    int32 spawnLowZ,
+    int32 spawnHighZ
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(initialized, spawnLowX, spawnHighX, spawnLowZ, spawnHighZ);
 
@@ -716,7 +716,7 @@ library Spawn {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(int16 x, int16 z) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(int32 x, int32 z) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(z)));

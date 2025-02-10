@@ -14,25 +14,19 @@ import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
-import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
-import { Health } from "../src/codegen/tables/Health.sol";
-import { Stamina } from "../src/codegen/tables/Stamina.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
-import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
+import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { Position, PositionData } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { Chip, ChipData } from "../src/codegen/tables/Chip.sol";
-import { ShardField } from "../src/codegen/tables/ShardField.sol";
+import { Chip } from "../src/codegen/tables/Chip.sol";
+import { ForceField } from "../src/codegen/tables/ForceField.sol";
+import { Energy } from "../src/codegen/tables/Energy.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { coordToShardCoord } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, NeptuniumPickObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
-import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID, PowerStoneObjectID } from "../src/ObjectTypeIds.sol";
-import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
-import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount, testRemoveEntityIdFromReverseInventoryTool } from "../test/utils/TestUtils.sol";
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
 
@@ -53,7 +47,7 @@ contract ReadScript is Script {
     require(playerEntityId != bytes32(0), "Player entity not found");
     console.log("Player");
     console.logBytes32(playerEntityId);
-    console.logBool(PlayerMetadata.getIsLoggedOff(playerEntityId));
+    console.logBool(PlayerStatus.getIsLoggedOff(playerEntityId));
 
     // VoxelCoord memory coord = VoxelCoord(150, 1, -160);
     bytes32 entityId = 0x00000000000000000000000000000000000000000000000000000000002a4960;
@@ -65,12 +59,14 @@ contract ReadScript is Script {
     console.logInt(coord.x);
     console.logInt(coord.y);
     console.logInt(coord.z);
-    ChipData memory chipData = Chip.get(entityId);
-    console.log("Chip data:");
-    console.logAddress(chipData.chipAddress);
-    console.logUint(chipData.batteryLevel);
+    address chipAddress = Chip.getChipAddress(entityId);
+    console.log("Chip address:");
+    console.logAddress(chipAddress);
+    uint256 energyLevel = Energy.getEnergy(entityId);
+    console.log("Energy level:");
+    console.logUint(energyLevel);
     VoxelCoord memory shardCoord = coordToShardCoord(coord, FORCE_FIELD_SHARD_DIM);
-    bytes32 forceFieldEntityId = ShardField.get(shardCoord.x, shardCoord.y, shardCoord.z);
+    bytes32 forceFieldEntityId = ForceField.get(shardCoord.x, shardCoord.y, shardCoord.z);
     if (forceFieldEntityId == bytes32(0)) {
       console.log("No force field found at position");
     } else {

@@ -14,23 +14,21 @@ import { Position } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { LastKnownPosition } from "../../codegen/tables/LastKnownPosition.sol";
 import { Player } from "../../codegen/tables/Player.sol";
-import { Health, HealthData } from "../../codegen/tables/Health.sol";
-import { Stamina, StaminaData } from "../../codegen/tables/Stamina.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
-import { PlayerMetadata, PlayerMetadataData } from "../../codegen/tables/PlayerMetadata.sol";
+import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
 import { ReverseInventoryTool } from "../../codegen/tables/ReverseInventoryTool.sol";
-import { ItemMetadata } from "../../codegen/tables/ItemMetadata.sol";
 import { Equipped } from "../../codegen/tables/Equipped.sol";
-import { ExperiencePoints } from "../../codegen/tables/ExperiencePoints.sol";
-import { Chip, ChipData } from "../../codegen/tables/Chip.sol";
+import { Mass } from "../../codegen/tables/Mass.sol";
+import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
+import { Chip } from "../../codegen/tables/Chip.sol";
 import { Commitment, CommitmentData } from "../../codegen/tables/Commitment.sol";
 
-import { getTerrainObjectTypeId, lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
+import { lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
-import { InventoryObject, PlayerEntityData, BlockEntityData, PlayerEntityDataWithCommitment } from "../../Types.sol";
+import { InventoryObject, PlayerEntityData, BlockEntityData } from "../../Types.sol";
 
 import { IReadSystem } from "../../codegen/world/IReadSystem.sol";
 
@@ -44,18 +42,18 @@ contract ReadTwoSystem is System {
           playerAddress: player,
           entityId: bytes32(0),
           position: VoxelCoord(0, 0, 0),
-          metadata: PlayerMetadataData({ isLoggedOff: false, lastHitTime: 0 }),
+          isLoggedOff: false,
           equippedEntityId: bytes32(0),
           inventory: new InventoryObject[](0),
-          health: HealthData({ health: 0, lastUpdatedTime: 0 }),
-          stamina: StaminaData({ stamina: 0, lastUpdatedTime: 0 }),
-          xp: 0,
-          lastActionTime: 0
+          mass: 0,
+          energy: EnergyData({ energy: 0, lastUpdatedTime: 0 }),
+          lastActionTime: 0,
+          commitment: CommitmentData({ hasCommitted: false, x: 0, y: 0, z: 0 })
         });
     }
 
-    PlayerMetadataData memory metadata = PlayerMetadata._get(entityId);
-    VoxelCoord memory playerPos = metadata.isLoggedOff
+    bool isLoggedOff = PlayerStatus._getIsLoggedOff(entityId);
+    VoxelCoord memory playerPos = isLoggedOff
       ? lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(entityId))
       : positionDataToVoxelCoord(Position._get(entityId));
 
@@ -64,13 +62,13 @@ contract ReadTwoSystem is System {
         playerAddress: player,
         entityId: entityId,
         position: playerPos,
-        metadata: metadata,
+        isLoggedOff: isLoggedOff,
         equippedEntityId: Equipped._get(entityId),
         inventory: getEntityInventory(entityId),
-        health: Health._get(entityId),
-        stamina: Stamina._get(entityId),
-        xp: ExperiencePoints._get(entityId),
-        lastActionTime: PlayerActivity._get(entityId)
+        mass: Mass._get(entityId),
+        energy: Energy._get(entityId),
+        lastActionTime: PlayerActivity._get(entityId),
+        commitment: Commitment._get(entityId)
       });
   }
 
@@ -78,58 +76,6 @@ contract ReadTwoSystem is System {
     PlayerEntityData[] memory playersEntityData = new PlayerEntityData[](players.length);
     for (uint256 i = 0; i < players.length; i++) {
       playersEntityData[i] = getPlayerEntityData(players[i]);
-    }
-    return playersEntityData;
-  }
-
-  function getPlayerEntityDataWithCommitment(
-    address player
-  ) public view returns (PlayerEntityDataWithCommitment memory) {
-    bytes32 entityId = Player._get(player);
-    if (entityId == bytes32(0)) {
-      return
-        PlayerEntityDataWithCommitment({
-          playerAddress: player,
-          entityId: bytes32(0),
-          position: VoxelCoord(0, 0, 0),
-          metadata: PlayerMetadataData({ isLoggedOff: false, lastHitTime: 0 }),
-          equippedEntityId: bytes32(0),
-          inventory: new InventoryObject[](0),
-          health: HealthData({ health: 0, lastUpdatedTime: 0 }),
-          stamina: StaminaData({ stamina: 0, lastUpdatedTime: 0 }),
-          xp: 0,
-          lastActionTime: 0,
-          commitment: CommitmentData({ hasCommitted: false, x: 0, y: 0, z: 0 })
-        });
-    }
-
-    PlayerMetadataData memory metadata = PlayerMetadata._get(entityId);
-    VoxelCoord memory playerPos = metadata.isLoggedOff
-      ? lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(entityId))
-      : positionDataToVoxelCoord(Position._get(entityId));
-
-    return
-      PlayerEntityDataWithCommitment({
-        playerAddress: player,
-        entityId: entityId,
-        position: playerPos,
-        metadata: metadata,
-        equippedEntityId: Equipped._get(entityId),
-        inventory: getEntityInventory(entityId),
-        health: Health._get(entityId),
-        stamina: Stamina._get(entityId),
-        xp: ExperiencePoints._get(entityId),
-        lastActionTime: PlayerActivity._get(entityId),
-        commitment: Commitment._get(entityId)
-      });
-  }
-
-  function getPlayersEntityDataWithCommitment(
-    address[] memory players
-  ) public view returns (PlayerEntityDataWithCommitment[] memory) {
-    PlayerEntityDataWithCommitment[] memory playersEntityData = new PlayerEntityDataWithCommitment[](players.length);
-    for (uint256 i = 0; i < players.length; i++) {
-      playersEntityData[i] = getPlayerEntityDataWithCommitment(players[i]);
     }
     return playersEntityData;
   }
@@ -143,7 +89,7 @@ contract ReadTwoSystem is System {
           objectTypeId: 0,
           position: VoxelCoord(0, 0, 0),
           inventory: new InventoryObject[](0),
-          chip: ChipData({ chipAddress: address(0), batteryLevel: 0, lastUpdatedTime: 0 })
+          chipAddress: address(0)
         });
     }
 
@@ -155,7 +101,7 @@ contract ReadTwoSystem is System {
         objectTypeId: ObjectType._get(entityId),
         position: positionDataToVoxelCoord(Position._get(entityId)),
         inventory: getEntityInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
-        chip: Chip._get(baseEntityId == bytes32(0) ? entityId : baseEntityId)
+        chipAddress: Chip._getChipAddress(baseEntityId == bytes32(0) ? entityId : baseEntityId)
       });
   }
 

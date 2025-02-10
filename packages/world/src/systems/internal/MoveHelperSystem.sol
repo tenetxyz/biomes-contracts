@@ -2,30 +2,21 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelCoordDirection } from "@biomesaw/utils/src/Types.sol";
-import { inSurroundingCube, voxelCoordsAreEqual, transformVoxelCoord } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { inSurroundingCube, voxelCoordsAreEqual } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { Position } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
-import { Stamina } from "../../codegen/tables/Stamina.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../../codegen/common.sol";
 
-import { PLAYER_MASS, GRAVITY_STAMINA_COST, MAX_PLAYER_STAMINA } from "../../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
-import { callGravity, gravityApplies, inWorldBorder, getTerrainObjectTypeId, getUniqueEntity, callMintXP } from "../../Utils.sol";
+import { AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { callGravity, gravityApplies, inWorldBorder } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
 
 contract MoveHelperSystem is System {
-  function movePlayer(
-    uint256 initialGas,
-    bytes32 playerEntityId,
-    VoxelCoord memory playerCoord,
-    VoxelCoord[] memory newCoords
-  ) public {
+  function movePlayer(bytes32 playerEntityId, VoxelCoord memory playerCoord, VoxelCoord[] memory newCoords) public {
     // no-ops
     if (newCoords.length == 0) {
       return;
@@ -34,6 +25,7 @@ contract MoveHelperSystem is System {
     }
 
     VoxelCoord memory oldCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
+
     bytes32 finalEntityId;
     bool gravityAppliesForCoord = false;
     uint256 numJumps = 0;
@@ -45,7 +37,7 @@ contract MoveHelperSystem is System {
       if (gravityAppliesForCoord) {
         if (oldCoord.y < newCoord.y) {
           numJumps++;
-          require(numJumps <= 3, "MoveSystem: cannot jump more than 3 blocks");
+          require(numJumps <= 3, "Cannot jump more than 3 blocks");
         } else if (oldCoord.y > newCoord.y) {
           // then we are falling, so should be fine
           numFalls++;
@@ -53,7 +45,7 @@ contract MoveHelperSystem is System {
         } else {
           // we are gliding
           numGlides++;
-          require(numGlides <= 10, "MoveSystem: cannot glide more than 10 blocks");
+          require(numGlides <= 10, "Cannot glide more than 10 blocks");
         }
       } else {
         numJumps = 0;
@@ -64,13 +56,7 @@ contract MoveHelperSystem is System {
 
     VoxelCoord memory finalCoord = newCoords[newCoords.length - 1];
     if (finalEntityId != playerEntityId) {
-      // Create new entity
-      if (finalEntityId == bytes32(0)) {
-        finalEntityId = getUniqueEntity();
-        ObjectType._set(finalEntityId, AirObjectID);
-      } else {
-        transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
-      }
+      transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
 
       // Swap entity ids
       ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, finalEntityId);
@@ -80,27 +66,16 @@ contract MoveHelperSystem is System {
       ReversePosition._set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
     }
 
-    {
-      uint256 staminaRequired = (PLAYER_MASS * (newCoords.length ** 2)) / 100;
-      staminaRequired += numFalls > 5 ? (GRAVITY_STAMINA_COST * numFalls) : 0;
-      require(staminaRequired <= MAX_PLAYER_STAMINA, "MoveSystem: stamina required exceeds max player stamina");
-      uint32 useStamina = staminaRequired == 0 ? 1 : uint32(staminaRequired);
-
-      uint32 currentStamina = Stamina._getStamina(playerEntityId);
-      require(currentStamina >= useStamina, "MoveSystem: not enough stamina");
-      Stamina._setStamina(playerEntityId, currentStamina - useStamina);
-    }
+    // TODO: apply energy cost to moving
 
     if (gravityAppliesForCoord) {
       callGravity(playerEntityId, finalCoord);
     }
 
-    {
-      VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-      bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-      if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
-        callGravity(aboveEntityId, aboveCoord);
-      }
+    VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+    if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+      callGravity(aboveEntityId, aboveCoord);
     }
 
     PlayerActionNotif._set(
@@ -115,76 +90,26 @@ contract MoveHelperSystem is System {
         amount: newCoords.length
       })
     );
-
-    callMintXP(playerEntityId, initialGas, 10);
   }
 
   function move(
     bytes32 playerEntityId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
-  ) internal returns (bytes32, bool) {
-    require(inWorldBorder(newCoord), "MoveSystem: cannot move outside world border");
-    require(
-      inSurroundingCube(oldCoord, 1, newCoord),
-      string.concat(
-        "MoveSystem: new coord (",
-        Strings.toString(newCoord.x),
-        ", ",
-        Strings.toString(newCoord.y),
-        ", ",
-        Strings.toString(newCoord.z),
-        ") is not in surrounding cube of old coord (",
-        Strings.toString(oldCoord.x),
-        ", ",
-        Strings.toString(oldCoord.y),
-        ", ",
-        Strings.toString(oldCoord.z),
-        ")"
-      )
-    );
+  ) internal view returns (bytes32, bool) {
+    require(inWorldBorder(newCoord), "Cannot move outside the world border");
+    require(inSurroundingCube(oldCoord, 1, newCoord), "New coord is too far from old coord");
 
     bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
-    if (newEntityId == bytes32(0)) {
-      // Check terrain block type
-      uint8 terrainObjectTypeId = getTerrainObjectTypeId(newCoord);
-      require(
-        terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
-        string.concat(
-          "MoveSystem: cannot move to (",
-          Strings.toString(newCoord.x),
-          ", ",
-          Strings.toString(newCoord.y),
-          ", ",
-          Strings.toString(newCoord.z),
-          ")",
-          " with terrain object type ",
-          Strings.toString(terrainObjectTypeId)
-        )
-      );
-    } else {
-      // If the entity we're moving into is this player, then it's fine as
-      // the player will be moved from the old position to the new position
-      if (playerEntityId != newEntityId) {
-        uint8 currentObjectTypeId = ObjectType._get(newEntityId);
-        require(
-          currentObjectTypeId == AirObjectID,
-          string.concat(
-            "MoveSystem: cannot move to (",
-            Strings.toString(newCoord.x),
-            ", ",
-            Strings.toString(newCoord.y),
-            ", ",
-            Strings.toString(newCoord.z),
-            ")",
-            " with object type ",
-            Strings.toString(currentObjectTypeId)
-          )
-        );
-      }
-    }
+    require(newEntityId != bytes32(0), "Cannot move to an unrevealed block");
 
-    // require(!gravityApplies(newCoord), "MoveSystem: cannot move player with gravity");
+    // If the entity we're moving into is this player, then it's fine as
+    // the player will be moved from the old position to the new position
+    if (playerEntityId != newEntityId) {
+      uint16 currentObjectTypeId = ObjectType._get(newEntityId);
+      // TODO: check for water and florae
+      require(currentObjectTypeId == AirObjectID, "Cannot move through a non-air block");
+    }
 
     return (newEntityId, gravityApplies(newCoord));
   }

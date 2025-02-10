@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
+import { ObjectCategory } from "../../codegen/common.sol";
 
 import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectTypeIds.sol";
 import { ClayObjectID, StoneObjectID, CobblestoneObjectID, CottonBlockObjectID } from "../../ObjectTypeIds.sol";
@@ -12,48 +13,48 @@ import { OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLum
 import { BellflowerObjectID, SakuraLumberObjectID, CactusObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "../../ObjectTypeIds.sol";
 import { DirtObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "../../ObjectTypeIds.sol";
 
-import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE } from "../../Constants.sol";
+import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE, MAX_ITEM_STACKABLE } from "../../Constants.sol";
 import { createSingleInputRecipe, createDoubleInputRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitHandBlocksSystem is System {
-  function createHandcraftedBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty) internal {
+  function createHandcraftedBlock(uint16 terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
-        isBlock: true,
-        isTool: false,
-        miningDifficulty: miningDifficulty,
+        objectCategory: ObjectCategory.Block,
         stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0
+        maxInventorySlots: 0,
+        mass: mass,
+        energy: 0,
+        canPassThrough: false
       })
     );
   }
 
-  function createHandcraftedTool(uint8 toolObjectTypeId, uint24 durability, uint16 damage) internal {
+  function createHandcraftedTool(uint16 toolObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
-        isBlock: false,
-        isTool: true,
-        miningDifficulty: 0,
+        objectCategory: ObjectCategory.Tool,
         stackable: MAX_TOOL_STACKABLE,
-        durability: durability,
-        damage: damage
+        maxInventorySlots: 0,
+        mass: mass,
+        energy: 0,
+        canPassThrough: false
       })
     );
   }
 
-  function createHandcraftedItem(uint8 itemObjectTypeId) internal {
+  function createHandcraftedItem(uint16 itemObjectTypeId) internal {
     ObjectTypeMetadata._set(
       itemObjectTypeId,
       ObjectTypeMetadataData({
-        isBlock: false,
-        isTool: false,
-        miningDifficulty: 0,
-        stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0
+        objectCategory: ObjectCategory.Item,
+        stackable: MAX_ITEM_STACKABLE,
+        maxInventorySlots: 0,
+        mass: 0,
+        energy: 0,
+        canPassThrough: false
       })
     );
   }
@@ -77,9 +78,9 @@ contract InitHandBlocksSystem is System {
     createHandcraftedItem(BlackDyeObjectID);
     createHandcraftedItem(SilverDyeObjectID);
 
-    createHandcraftedTool(WoodenPickObjectID, 18750, 80);
-    createHandcraftedTool(WoodenAxeObjectID, 18750, 80);
-    createHandcraftedTool(WoodenWhackerObjectID, 18750, 80);
+    createHandcraftedTool(WoodenPickObjectID, 18750);
+    createHandcraftedTool(WoodenAxeObjectID, 18750);
+    createHandcraftedTool(WoodenWhackerObjectID, 18750);
 
     createHandcraftedBlock(OakLumberObjectID, 20);
     createHandcraftedBlock(SakuraLumberObjectID, 20);

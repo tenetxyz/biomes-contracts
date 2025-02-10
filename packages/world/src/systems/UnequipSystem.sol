@@ -18,7 +18,7 @@ contract UnequipSystem is System {
     if (equippedEntityId == bytes32(0)) {
       return;
     }
-    uint8 equippedObjectId = ObjectType._get(equippedEntityId);
+    uint16 equippedObjectId = ObjectType._get(equippedEntityId);
     Equipped._deleteRecord(playerEntityId);
 
     PlayerActionNotif._set(

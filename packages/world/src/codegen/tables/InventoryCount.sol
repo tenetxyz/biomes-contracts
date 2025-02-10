@@ -23,8 +23,8 @@ library InventoryCount {
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0002010002000000000000000000000000000000000000000000000000000000);
 
-  // Hex-encoded key schema of (bytes32, uint8)
-  Schema constant _keySchema = Schema.wrap(0x002102005f000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded key schema of (bytes32, uint16)
+  Schema constant _keySchema = Schema.wrap(0x002202005f010000000000000000000000000000000000000000000000000000);
   // Hex-encoded value schema of (uint16)
   Schema constant _valueSchema = Schema.wrap(0x0002010001000000000000000000000000000000000000000000000000000000);
 
@@ -62,16 +62,9 @@ library InventoryCount {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
    * @notice Get count.
    */
-  function getCount(bytes32 ownerEntityId, uint8 objectTypeId) internal view returns (uint16 count) {
+  function getCount(bytes32 ownerEntityId, uint16 objectTypeId) internal view returns (uint16 count) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = ownerEntityId;
     _keyTuple[1] = bytes32(uint256(objectTypeId));
@@ -83,7 +76,7 @@ library InventoryCount {
   /**
    * @notice Get count.
    */
-  function _getCount(bytes32 ownerEntityId, uint8 objectTypeId) internal view returns (uint16 count) {
+  function _getCount(bytes32 ownerEntityId, uint16 objectTypeId) internal view returns (uint16 count) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = ownerEntityId;
     _keyTuple[1] = bytes32(uint256(objectTypeId));
@@ -93,21 +86,9 @@ library InventoryCount {
   }
 
   /**
-   * @notice Get count (using the specified store).
-   */
-  function getCount(IStore _store, bytes32 ownerEntityId, uint8 objectTypeId) internal view returns (uint16 count) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = ownerEntityId;
-    _keyTuple[1] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
    * @notice Get count.
    */
-  function get(bytes32 ownerEntityId, uint8 objectTypeId) internal view returns (uint16 count) {
+  function get(bytes32 ownerEntityId, uint16 objectTypeId) internal view returns (uint16 count) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = ownerEntityId;
     _keyTuple[1] = bytes32(uint256(objectTypeId));
@@ -119,7 +100,7 @@ library InventoryCount {
   /**
    * @notice Get count.
    */
-  function _get(bytes32 ownerEntityId, uint8 objectTypeId) internal view returns (uint16 count) {
+  function _get(bytes32 ownerEntityId, uint16 objectTypeId) internal view returns (uint16 count) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = ownerEntityId;
     _keyTuple[1] = bytes32(uint256(objectTypeId));
@@ -129,21 +110,9 @@ library InventoryCount {
   }
 
   /**
-   * @notice Get count (using the specified store).
-   */
-  function get(IStore _store, bytes32 ownerEntityId, uint8 objectTypeId) internal view returns (uint16 count) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = ownerEntityId;
-    _keyTuple[1] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
    * @notice Set count.
    */
-  function setCount(bytes32 ownerEntityId, uint8 objectTypeId, uint16 count) internal {
+  function setCount(bytes32 ownerEntityId, uint16 objectTypeId, uint16 count) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = ownerEntityId;
     _keyTuple[1] = bytes32(uint256(objectTypeId));
@@ -154,7 +123,7 @@ library InventoryCount {
   /**
    * @notice Set count.
    */
-  function _setCount(bytes32 ownerEntityId, uint8 objectTypeId, uint16 count) internal {
+  function _setCount(bytes32 ownerEntityId, uint16 objectTypeId, uint16 count) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = ownerEntityId;
     _keyTuple[1] = bytes32(uint256(objectTypeId));
@@ -163,20 +132,9 @@ library InventoryCount {
   }
 
   /**
-   * @notice Set count (using the specified store).
-   */
-  function setCount(IStore _store, bytes32 ownerEntityId, uint8 objectTypeId, uint16 count) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = ownerEntityId;
-    _keyTuple[1] = bytes32(uint256(objectTypeId));
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((count)), _fieldLayout);
-  }
-
-  /**
    * @notice Set count.
    */
-  function set(bytes32 ownerEntityId, uint8 objectTypeId, uint16 count) internal {
+  function set(bytes32 ownerEntityId, uint16 objectTypeId, uint16 count) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = ownerEntityId;
     _keyTuple[1] = bytes32(uint256(objectTypeId));
@@ -187,29 +145,18 @@ library InventoryCount {
   /**
    * @notice Set count.
    */
-  function _set(bytes32 ownerEntityId, uint8 objectTypeId, uint16 count) internal {
+  function _set(bytes32 ownerEntityId, uint16 objectTypeId, uint16 count) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = ownerEntityId;
     _keyTuple[1] = bytes32(uint256(objectTypeId));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((count)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set count (using the specified store).
-   */
-  function set(IStore _store, bytes32 ownerEntityId, uint8 objectTypeId, uint16 count) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = ownerEntityId;
-    _keyTuple[1] = bytes32(uint256(objectTypeId));
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((count)), _fieldLayout);
   }
 
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 ownerEntityId, uint8 objectTypeId) internal {
+  function deleteRecord(bytes32 ownerEntityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = ownerEntityId;
     _keyTuple[1] = bytes32(uint256(objectTypeId));
@@ -220,23 +167,12 @@ library InventoryCount {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 ownerEntityId, uint8 objectTypeId) internal {
+  function _deleteRecord(bytes32 ownerEntityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = ownerEntityId;
     _keyTuple[1] = bytes32(uint256(objectTypeId));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
-  }
-
-  /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, bytes32 ownerEntityId, uint8 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = ownerEntityId;
-    _keyTuple[1] = bytes32(uint256(objectTypeId));
-
-    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**
@@ -265,7 +201,7 @@ library InventoryCount {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 ownerEntityId, uint8 objectTypeId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(bytes32 ownerEntityId, uint16 objectTypeId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = ownerEntityId;
     _keyTuple[1] = bytes32(uint256(objectTypeId));

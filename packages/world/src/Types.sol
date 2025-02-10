@@ -2,26 +2,16 @@
 pragma solidity >=0.8.24;
 
 import { VoxelCoord, VoxelCoordDirectionVonNeumann } from "@biomesaw/utils/src/Types.sol";
-import { PlayerMetadataData } from "./codegen/tables/PlayerMetadata.sol";
-import { HealthData } from "./codegen/tables/Health.sol";
-import { StaminaData } from "./codegen/tables/Stamina.sol";
-import { ChipData } from "./codegen/tables/Chip.sol";
 import { CommitmentData } from "./codegen/tables/Commitment.sol";
-
-enum Biome {
-  Mountains,
-  Desert,
-  Forest,
-  Savanna
-}
+import { EnergyData } from "./codegen/tables/Energy.sol";
 
 struct InventoryTool {
   bytes32 entityId;
-  uint24 numUsesLeft;
+  uint256 numUsesLeft;
 }
 
 struct InventoryObject {
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   uint16 numObjects;
   InventoryTool[] tools;
 }
@@ -30,25 +20,11 @@ struct PlayerEntityData {
   address playerAddress;
   bytes32 entityId;
   VoxelCoord position;
-  PlayerMetadataData metadata;
+  bool isLoggedOff;
   bytes32 equippedEntityId;
   InventoryObject[] inventory;
-  HealthData health;
-  StaminaData stamina;
-  uint256 xp;
-  uint256 lastActionTime;
-}
-
-struct PlayerEntityDataWithCommitment {
-  address playerAddress;
-  bytes32 entityId;
-  VoxelCoord position;
-  PlayerMetadataData metadata;
-  bytes32 equippedEntityId;
-  InventoryObject[] inventory;
-  HealthData health;
-  StaminaData stamina;
-  uint256 xp;
+  uint256 mass;
+  EnergyData energy;
   uint256 lastActionTime;
   CommitmentData commitment;
 }
@@ -56,21 +32,14 @@ struct PlayerEntityDataWithCommitment {
 struct BlockEntityData {
   bytes32 entityId;
   bytes32 baseEntityId;
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   VoxelCoord position;
   InventoryObject[] inventory;
-  ChipData chip;
+  address chipAddress;
 }
 
 struct EntityData {
-  uint8 objectTypeId;
-  bytes32 entityId;
-  InventoryObject[] inventory;
-  VoxelCoord position;
-}
-
-struct EntityDataWithBaseEntity {
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   bytes32 entityId;
   bytes32 baseEntityId;
   InventoryObject[] inventory;
@@ -78,12 +47,12 @@ struct EntityDataWithBaseEntity {
 }
 
 struct PickupData {
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   uint16 numToPickup;
 }
 
 struct TransferData {
-  uint8 objectTypeId;
+  uint16 objectTypeId;
   uint16 numToTransfer;
   bytes32[] toolEntityIds;
 }
@@ -117,14 +86,16 @@ struct TransferCommonContext {
   bytes32 playerEntityId;
   bytes32 chestEntityId;
   VoxelCoord chestCoord;
-  uint8 chestObjectTypeId;
-  uint8 dstObjectTypeId;
-  ChipData checkChipData;
+  uint16 chestObjectTypeId;
+  uint16 dstObjectTypeId;
+  address chipAddress;
+  uint256 machineEnergyLevel;
   bool isDeposit;
 }
 
 struct PipeTransferCommonContext {
   VoxelCoord targetCoord;
-  ChipData targetChipData;
-  uint8 targetObjectTypeId;
+  address chipAddress;
+  uint256 machineEnergyLevel;
+  uint16 targetObjectTypeId;
 }

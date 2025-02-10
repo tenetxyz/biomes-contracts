@@ -10,19 +10,6 @@ enum ChipType {
   Display
 }
 
-enum ShopType {
-  None,
-  Buy,
-  Sell,
-  BuySell
-}
-
-enum ShopTxType {
-  None,
-  Buy,
-  Sell
-}
-
 enum ResourceType {
   None,
   Object,

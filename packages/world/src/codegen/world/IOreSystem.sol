@@ -13,5 +13,5 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 interface IOreSystem {
   function initiateOreReveal(VoxelCoord memory coord) external;
 
-  function revealOre(VoxelCoord memory coord) external returns (uint8);
+  function revealOre(VoxelCoord memory coord) external returns (uint16);
 }

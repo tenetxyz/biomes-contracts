@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { VoxelCoord, VoxelCoordDirection, VoxelCoordDirectionVonNeumann } from "./Types.sol";
-import { floorDiv, absInt16 } from "./MathUtils.sol";
+import { floorDiv, absInt32 } from "./MathUtils.sol";
 
 function voxelCoordsAreEqual(VoxelCoord memory c1, VoxelCoord memory c2) pure returns (bool) {
   return c1.x == c2.x && c1.y == c2.y && c1.z == c2.z;
@@ -10,7 +10,7 @@ function voxelCoordsAreEqual(VoxelCoord memory c1, VoxelCoord memory c2) pure re
 
 function inSurroundingCube(
   VoxelCoord memory cubeCenter,
-  int16 halfWidth,
+  int32 halfWidth,
   VoxelCoord memory checkCoord
 ) pure returns (bool) {
   // Check if checkCoord is within the cube in all three dimensions
@@ -23,7 +23,7 @@ function inSurroundingCube(
 
 function inSurroundingCubeIgnoreY(
   VoxelCoord memory cubeCenter,
-  int16 halfWidth,
+  int32 halfWidth,
   VoxelCoord memory checkCoord
 ) pure returns (bool) {
   // Check if checkCoord is within the cube in all three dimensions
@@ -33,15 +33,15 @@ function inSurroundingCubeIgnoreY(
   return isInX && isInZ;
 }
 
-function coordToShardCoord(VoxelCoord memory coord, int16 shardDim) pure returns (VoxelCoord memory) {
+function coordToShardCoord(VoxelCoord memory coord, int32 shardDim) pure returns (VoxelCoord memory) {
   return VoxelCoord({ x: floorDiv(coord.x, shardDim), y: floorDiv(coord.y, shardDim), z: floorDiv(coord.z, shardDim) });
 }
 
-function coordToShardCoordIgnoreY(VoxelCoord memory coord, int16 shardDim) pure returns (VoxelCoord memory) {
+function coordToShardCoordIgnoreY(VoxelCoord memory coord, int32 shardDim) pure returns (VoxelCoord memory) {
   return VoxelCoord({ x: floorDiv(coord.x, shardDim), y: 0, z: floorDiv(coord.z, shardDim) });
 }
 
-function shardCoordToCoord(VoxelCoord memory coord, int16 shardDim) pure returns (VoxelCoord memory) {
+function shardCoordToCoord(VoxelCoord memory coord, int32 shardDim) pure returns (VoxelCoord memory) {
   return VoxelCoord({ x: coord.x * shardDim, y: coord.y * shardDim, z: coord.z * shardDim });
 }
 
@@ -163,9 +163,9 @@ function transformVoxelCoordVonNeumann(
 
 function inVonNeumannNeighborhood(VoxelCoord memory center, VoxelCoord memory checkCoord) pure returns (bool) {
   // Calculate Manhattan distance for each dimension
-  int16 dx = absInt16(center.x - checkCoord.x);
-  int16 dy = absInt16(center.y - checkCoord.y);
-  int16 dz = absInt16(center.z - checkCoord.z);
+  int32 dx = absInt32(center.x - checkCoord.x);
+  int32 dy = absInt32(center.y - checkCoord.y);
+  int32 dz = absInt32(center.z - checkCoord.z);
 
   // Sum of distances should be exactly 1 for von Neumann neighborhood
   // This means only one coordinate can differ by 1, others must be 0

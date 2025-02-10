@@ -21,12 +21,12 @@ library ObjectType {
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004f626a65637454797065000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0001010001000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0002010002000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint8)
-  Schema constant _valueSchema = Schema.wrap(0x0001010000000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint16)
+  Schema constant _valueSchema = Schema.wrap(0x0002010001000000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -61,82 +61,53 @@ library ObjectType {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
    * @notice Get objectTypeId.
    */
-  function getObjectTypeId(bytes32 entityId) internal view returns (uint8 objectTypeId) {
+  function getObjectTypeId(bytes32 entityId) internal view returns (uint16 objectTypeId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Get objectTypeId.
    */
-  function _getObjectTypeId(bytes32 entityId) internal view returns (uint8 objectTypeId) {
+  function _getObjectTypeId(bytes32 entityId) internal view returns (uint16 objectTypeId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint8(bytes1(_blob)));
-  }
-
-  /**
-   * @notice Get objectTypeId (using the specified store).
-   */
-  function getObjectTypeId(IStore _store, bytes32 entityId) internal view returns (uint8 objectTypeId) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Get objectTypeId.
    */
-  function get(bytes32 entityId) internal view returns (uint8 objectTypeId) {
+  function get(bytes32 entityId) internal view returns (uint16 objectTypeId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Get objectTypeId.
    */
-  function _get(bytes32 entityId) internal view returns (uint8 objectTypeId) {
+  function _get(bytes32 entityId) internal view returns (uint16 objectTypeId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint8(bytes1(_blob)));
-  }
-
-  /**
-   * @notice Get objectTypeId (using the specified store).
-   */
-  function get(IStore _store, bytes32 entityId) internal view returns (uint8 objectTypeId) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
    * @notice Set objectTypeId.
    */
-  function setObjectTypeId(bytes32 entityId, uint8 objectTypeId) internal {
+  function setObjectTypeId(bytes32 entityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -146,7 +117,7 @@ library ObjectType {
   /**
    * @notice Set objectTypeId.
    */
-  function _setObjectTypeId(bytes32 entityId, uint8 objectTypeId) internal {
+  function _setObjectTypeId(bytes32 entityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -154,19 +125,9 @@ library ObjectType {
   }
 
   /**
-   * @notice Set objectTypeId (using the specified store).
-   */
-  function setObjectTypeId(IStore _store, bytes32 entityId, uint8 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
-  }
-
-  /**
    * @notice Set objectTypeId.
    */
-  function set(bytes32 entityId, uint8 objectTypeId) internal {
+  function set(bytes32 entityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -176,21 +137,11 @@ library ObjectType {
   /**
    * @notice Set objectTypeId.
    */
-  function _set(bytes32 entityId, uint8 objectTypeId) internal {
+  function _set(bytes32 entityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set objectTypeId (using the specified store).
-   */
-  function set(IStore _store, bytes32 entityId, uint8 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), _fieldLayout);
   }
 
   /**
@@ -214,20 +165,10 @@ library ObjectType {
   }
 
   /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, bytes32 entityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.deleteRecord(_tableId, _keyTuple);
-  }
-
-  /**
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint8 objectTypeId) internal pure returns (bytes memory) {
+  function encodeStatic(uint16 objectTypeId) internal pure returns (bytes memory) {
     return abi.encodePacked(objectTypeId);
   }
 
@@ -237,7 +178,7 @@ library ObjectType {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(uint8 objectTypeId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+  function encode(uint16 objectTypeId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(objectTypeId);
 
     EncodedLengths _encodedLengths;

@@ -5,41 +5,43 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { Chip, ChipData } from "../codegen/tables/Chip.sol";
+import { Chip } from "../codegen/tables/Chip.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { DisplayContentType } from "../codegen/common.sol";
 
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { TextSignObjectID } from "../ObjectTypeIds.sol";
 import { isSmartItem } from "../utils/ObjectTypeUtils.sol";
-import { updateChipBatteryLevel } from "../utils/ChipUtils.sol";
+import { getLatestEnergyData } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { isBasicDisplay } from "../utils/ObjectTypeUtils.sol";
+
 contract DisplaySystem is System {
   function getDisplayContent(bytes32 entityId) public view returns (DisplayContentData memory) {
-    require(entityId != bytes32(0), "DisplaySystem: entity does not exist");
+    require(entityId != bytes32(0), "Entity does not exist");
 
     bytes32 baseEntityId = BaseEntity._get(entityId);
     baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
-    uint8 objectTypeId = ObjectType.get(baseEntityId);
+    uint16 objectTypeId = ObjectType._get(baseEntityId);
     if (!isSmartItem(objectTypeId)) {
-      return DisplayContent.get(baseEntityId);
+      return DisplayContent._get(baseEntityId);
     }
-    VoxelCoord memory entityCoord = positionDataToVoxelCoord(Position.get(baseEntityId));
+    VoxelCoord memory entityCoord = positionDataToVoxelCoord(Position._get(baseEntityId));
 
     bytes32 forceFieldEntityId = getForceField(entityCoord);
-    ChipData memory chipData = Chip.get(baseEntityId);
-    uint256 batteryLevel = chipData.batteryLevel;
+    address chipAddress = Chip._getChipAddress(baseEntityId);
+    uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId != bytes32(0)) {
-      ChipData memory forceFieldChipData = Chip.get(forceFieldEntityId);
-      batteryLevel += forceFieldChipData.batteryLevel;
+      EnergyData memory machineData = getLatestEnergyData(forceFieldEntityId);
+      machineEnergyLevel = machineData.energy;
     }
-    if (chipData.chipAddress != address(0) && batteryLevel > 0) {
-      return IDisplayChip(chipData.chipAddress).getDisplayContent(baseEntityId);
+    if (chipAddress != address(0) && machineEnergyLevel > 0) {
+      return IDisplayChip(chipAddress).getDisplayContent(baseEntityId);
     }
 
     return DisplayContentData({ contentType: DisplayContentType.None, content: bytes("") });
@@ -48,16 +50,13 @@ contract DisplaySystem is System {
   function setDisplayContent(bytes32 entityId, DisplayContentData memory content) public {
     bytes32 baseEntityId = BaseEntity._get(entityId);
     baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+    require(isBasicDisplay(ObjectType._get(baseEntityId)), "You can only set the display content of a basic display");
+    VoxelCoord memory entityCoord = positionDataToVoxelCoord(Position._get(baseEntityId));
     require(
-      isBasicDisplay(ObjectType.get(baseEntityId)),
-      "DisplaySystem: you can only set the display content of a basic display"
-    );
-    VoxelCoord memory entityCoord = positionDataToVoxelCoord(Position.get(baseEntityId));
-    require(
-      ReversePosition.get(entityCoord.x, entityCoord.y, entityCoord.z) == baseEntityId,
-      "DisplaySystem: entity is not at the specified position"
+      ReversePosition._get(entityCoord.x, entityCoord.y, entityCoord.z) == baseEntityId,
+      "Entity is not at the specified position"
     );
 
-    DisplayContent.set(baseEntityId, content);
+    DisplayContent._set(baseEntityId, content);
   }
 }

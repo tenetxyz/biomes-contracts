@@ -6,46 +6,39 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
-import { PlayerMetadata } from "../codegen/tables/PlayerMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { Health } from "../codegen/tables/Health.sol";
-import { Stamina } from "../codegen/tables/Stamina.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { Mass } from "../codegen/tables/Mass.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { MAX_PLAYER_HEALTH, MAX_PLAYER_STAMINA, IN_MAINTENANCE } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { getUniqueEntity, gravityApplies, inWorldBorder, inSpawnArea, getTerrainObjectTypeId } from "../Utils.sol";
+import { IN_MAINTENANCE } from "../Constants.sol";
+import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { getUniqueEntity, gravityApplies, inWorldBorder, inSpawnArea } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 
 contract SpawnSystem is System {
   function spawnPlayer(VoxelCoord memory spawnCoord) public returns (bytes32) {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
-    require(inWorldBorder(spawnCoord), "SpawnSystem: cannot spawn outside world border");
-    require(inSpawnArea(spawnCoord), "SpawnSystem: cannot spawn outside spawn area");
+    require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
+    require(inSpawnArea(spawnCoord), "Cannot spawn outside the spawn area");
 
     address newPlayer = _msgSender();
-    require(Player._get(newPlayer) == bytes32(0), "SpawnSystem: player already exists");
+    require(Player._get(newPlayer) == bytes32(0), "Player already spawned");
 
     bytes32 playerEntityId = getUniqueEntity();
     bytes32 existingEntityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    if (existingEntityId == bytes32(0)) {
-      uint8 terrainObjectTypeId = getTerrainObjectTypeId(spawnCoord);
-      require(
-        terrainObjectTypeId == AirObjectID || terrainObjectTypeId == WaterObjectID,
-        "SpawnSystem: cannot spawn on terrain non-air block"
-      );
-    } else {
-      require(ObjectType._get(existingEntityId) == AirObjectID, "SpawnSystem: spawn coord is not air");
+    require(existingEntityId != bytes32(0), "Cannot spawn on an unrevealed block");
+    require(ObjectType._get(existingEntityId) == AirObjectID, "Cannot spawn on a non-air block");
 
-      // Transfer any dropped items
-      transferAllInventoryEntities(existingEntityId, playerEntityId, PlayerObjectID);
+    // Transfer any dropped items
+    transferAllInventoryEntities(existingEntityId, playerEntityId, PlayerObjectID);
 
-      Position._deleteRecord(existingEntityId);
-    }
+    Position._deleteRecord(existingEntityId);
+
     // Create new entity
     Position._set(playerEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
     ReversePosition._set(spawnCoord.x, spawnCoord.y, spawnCoord.z, playerEntityId);
@@ -55,15 +48,12 @@ contract SpawnSystem is System {
     Player._set(newPlayer, playerEntityId);
     ReversePlayer._set(playerEntityId, newPlayer);
 
-    Health._set(playerEntityId, block.timestamp, MAX_PLAYER_HEALTH);
-    Stamina._set(playerEntityId, block.timestamp, MAX_PLAYER_STAMINA);
-    // initial ExperiencePoints is 0
+    // TODO: set initial mass and energy
+    Energy._set(playerEntityId, EnergyData({ energy: 100, lastUpdatedTime: block.timestamp }));
+    Mass._set(playerEntityId, 10);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
-    PlayerMetadata._set(playerEntityId, false, 0);
-
-    // We let the user pick a y coord, so we need to apply gravity
-    require(!gravityApplies(spawnCoord), "SpawnSystem: cannot spawn player with gravity");
+    require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     PlayerActionNotif._set(
       playerEntityId,

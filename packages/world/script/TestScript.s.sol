@@ -14,18 +14,14 @@ import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
-import { ItemMetadata } from "../src/codegen/tables/ItemMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
-import { Health } from "../src/codegen/tables/Health.sol";
-import { Stamina } from "../src/codegen/tables/Stamina.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
-import { PlayerMetadata } from "../src/codegen/tables/PlayerMetadata.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
-import { ExperiencePoints } from "../src/codegen/tables/ExperiencePoints.sol";
+import { Mass } from "../src/codegen/tables/Mass.sol";
 
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, NeptuniumPickObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID, SmartChestObjectID, TextSignObjectID, SmartTextSignObjectID, PipeObjectID } from "../src/ObjectTypeIds.sol";
@@ -48,8 +44,6 @@ contract TestScript is Script {
 
     bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
     require(playerEntityId != bytes32(0), "Player entity not found");
-    Stamina.set(playerEntityId, block.timestamp, 120000);
-    ExperiencePoints.set(playerEntityId, 10_000);
     // testRemoveFromInventoryCount(playerEntityId, 162, 10);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockObjectID, 4);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 10);
@@ -72,15 +66,15 @@ contract TestScript is Script {
     ObjectType.set(newInventoryEntityId, NeptuniumPickObjectID);
     InventoryTool.set(newInventoryEntityId, playerEntityId);
     ReverseInventoryTool.push(playerEntityId, newInventoryEntityId);
-    uint24 durability = ObjectTypeMetadata.getDurability(NeptuniumPickObjectID);
-    require(durability > 0, "Durability must be greater than 0");
-    ItemMetadata.set(newInventoryEntityId, durability);
+    uint256 mass = ObjectTypeMetadata.getMass(NeptuniumPickObjectID);
+    require(mass > 0, "Mass must be greater than 0");
+    Mass.setMass(newInventoryEntityId, mass);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, NeptuniumPickObjectID, 1);
 
     // Destroy equipped item
     // bytes32 inventoryEntityId = 0x000000000000000000000000000000000000000000000000000000000004bbb3;
     // testRemoveFromInventoryCount(playerEntityId, NeptuniumPickObjectID, 1);
-    // ItemMetadata.deleteRecord(inventoryEntityId);
+    // Mass.deleteRecord(inventoryEntityId);
     // InventoryTool.deleteRecord(inventoryEntityId);
     // testRemoveEntityIdFromReverseInventoryTool(playerEntityId, inventoryEntityId);
     // Equipped.deleteRecord(playerEntityId);
