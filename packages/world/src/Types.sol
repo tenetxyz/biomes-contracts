@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { VoxelCoord, VoxelCoordDirectionVonNeumann } from "@biomesaw/utils/src/Types.sol";
 import { CommitmentData } from "./codegen/tables/Commitment.sol";
+import { EnergyData } from "./codegen/tables/Energy.sol";
 
 struct InventoryTool {
   bytes32 entityId;
@@ -22,6 +23,8 @@ struct PlayerEntityData {
   bool isLoggedOff;
   bytes32 equippedEntityId;
   InventoryObject[] inventory;
+  uint256 mass;
+  EnergyData energy;
   uint256 lastActionTime;
   CommitmentData commitment;
 }

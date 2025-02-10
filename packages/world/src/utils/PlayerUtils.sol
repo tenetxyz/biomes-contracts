@@ -28,6 +28,7 @@ function requireValidPlayer(address player) returns (bytes32, VoxelCoord memory)
   VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
 
   // TODO: update energy, should decrease over time
+  Energy._setEnergy(playerEntityId, Energy._getEnergy(playerEntityId) + 1);
 
   PlayerActivity._set(playerEntityId, block.timestamp);
 

@@ -1728,6 +1728,28 @@ declare const abi: [
             ]
           },
           {
+            "name": "mass",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "energy",
+            "type": "tuple",
+            "internalType": "struct EnergyData",
+            "components": [
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "energy",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
             "name": "lastActionTime",
             "type": "uint256",
             "internalType": "uint256"
@@ -1853,6 +1875,28 @@ declare const abi: [
                     "internalType": "uint256"
                   }
                 ]
+              }
+            ]
+          },
+          {
+            "name": "mass",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "energy",
+            "type": "tuple",
+            "internalType": "struct EnergyData",
+            "components": [
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "energy",
+                "type": "uint256",
+                "internalType": "uint256"
               }
             ]
           },

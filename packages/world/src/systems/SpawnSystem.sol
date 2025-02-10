@@ -11,6 +11,8 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { Mass } from "../codegen/tables/Mass.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { IN_MAINTENANCE } from "../Constants.sol";
@@ -47,6 +49,8 @@ contract SpawnSystem is System {
     ReversePlayer._set(playerEntityId, newPlayer);
 
     // TODO: set initial mass and energy
+    Energy._set(playerEntityId, EnergyData({ energy: 100, lastUpdatedTime: block.timestamp }));
+    Mass._set(playerEntityId, 10);
 
     PlayerActivity._set(playerEntityId, block.timestamp);
     require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
