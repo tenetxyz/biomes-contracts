@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
+import { ObjectCategory } from "../../codegen/common.sol";
 
 import { PlayerObjectID } from "../../ObjectTypeIds.sol";
 
@@ -13,12 +14,12 @@ contract InitPlayersSystem is System {
     ObjectTypeMetadata._set(
       PlayerObjectID,
       ObjectTypeMetadataData({
-        isBlock: false,
-        isTool: false,
-        miningDifficulty: 0,
+        objectCategory: ObjectCategory.Player,
         stackable: 0,
-        durability: 0,
-        damage: 0
+        maxInventorySlots: 36,
+        mass: 10,
+        energy: 10,
+        canPassThrough: false
       })
     );
   }

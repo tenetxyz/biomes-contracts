@@ -61,13 +61,6 @@ library InventoryTool {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
    * @notice Get ownerEntityId.
    */
   function getOwnerEntityId(bytes32 toolEntityId) internal view returns (bytes32 ownerEntityId) {
@@ -86,17 +79,6 @@ library InventoryTool {
     _keyTuple[0] = toolEntityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
-  }
-
-  /**
-   * @notice Get ownerEntityId (using the specified store).
-   */
-  function getOwnerEntityId(IStore _store, bytes32 toolEntityId) internal view returns (bytes32 ownerEntityId) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (bytes32(_blob));
   }
 
@@ -123,17 +105,6 @@ library InventoryTool {
   }
 
   /**
-   * @notice Get ownerEntityId (using the specified store).
-   */
-  function get(IStore _store, bytes32 toolEntityId) internal view returns (bytes32 ownerEntityId) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
-  }
-
-  /**
    * @notice Set ownerEntityId.
    */
   function setOwnerEntityId(bytes32 toolEntityId, bytes32 ownerEntityId) internal {
@@ -151,16 +122,6 @@ library InventoryTool {
     _keyTuple[0] = toolEntityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((ownerEntityId)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set ownerEntityId (using the specified store).
-   */
-  function setOwnerEntityId(IStore _store, bytes32 toolEntityId, bytes32 ownerEntityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((ownerEntityId)), _fieldLayout);
   }
 
   /**
@@ -184,16 +145,6 @@ library InventoryTool {
   }
 
   /**
-   * @notice Set ownerEntityId (using the specified store).
-   */
-  function set(IStore _store, bytes32 toolEntityId, bytes32 ownerEntityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((ownerEntityId)), _fieldLayout);
-  }
-
-  /**
    * @notice Delete all data for given keys.
    */
   function deleteRecord(bytes32 toolEntityId) internal {
@@ -211,16 +162,6 @@ library InventoryTool {
     _keyTuple[0] = toolEntityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
-  }
-
-  /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, bytes32 toolEntityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
-
-    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

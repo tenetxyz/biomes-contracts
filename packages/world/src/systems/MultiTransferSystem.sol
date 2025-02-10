@@ -6,38 +6,40 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
 
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { Chip, ChipData } from "../codegen/tables/Chip.sol";
+import { Chip } from "../codegen/tables/Chip.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
-import { ActionType } from "../codegen/common.sol";
+import { ObjectCategory, ActionType } from "../codegen/common.sol";
 
 import { PlayerObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { TransferData, PipeTransferData, ChipOnTransferData, ChipOnPipeTransferData, TransferCommonContext, PipeTransferCommonContext } from "../Types.sol";
-import { callMintXP } from "../Utils.sol";
-import { transferInventoryTool, transferInventoryNonTool, removeFromInventoryCount, addToInventoryCount } from "../utils/InventoryUtils.sol";
+import { transferInventoryTool, removeFromInventoryCount, addToInventoryCount } from "../utils/InventoryUtils.sol";
 
 import { ITransferHelperSystem } from "../codegen/world/ITransferHelperSystem.sol";
 import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 
 contract MultiTransferSystem is System {
-  function requireAllowed(ChipData memory targetChipData, ChipOnTransferData memory chipOnTransferData) internal {
-    if (targetChipData.chipAddress != address(0) && targetChipData.batteryLevel > 0) {
+  function requireAllowed(
+    address chipAddress,
+    uint256 machineEnergyLevel,
+    ChipOnTransferData memory chipOnTransferData
+  ) internal {
+    if (chipAddress != address(0) && machineEnergyLevel > 0) {
       // Forward any ether sent with the transaction to the hook
       // Don't safe call here as we want to revert if the chip doesn't allow the transfer
-      bool transferAllowed = IChestChip(targetChipData.chipAddress).onTransfer{ value: _msgValue() }(
-        chipOnTransferData
-      );
-      require(transferAllowed, "MultiTransferSystem: Player not authorized by chip to make this transfer");
+      bool transferAllowed = IChestChip(chipAddress).onTransfer{ value: _msgValue() }(chipOnTransferData);
+      require(transferAllowed, "Transfer not allowed by chip");
     }
   }
 
   function requirePipeTransferAllowed(
-    ChipData memory targetChipData,
+    address chipAddress,
+    uint256 machineEnergyLevel,
     ChipOnPipeTransferData memory chipOnPipeTransferData
   ) internal {
-    if (targetChipData.chipAddress != address(0) && targetChipData.batteryLevel > 0) {
-      bool transferAllowed = IChestChip(targetChipData.chipAddress).onPipeTransfer(chipOnPipeTransferData);
-      require(transferAllowed, "MultiTransferSystem: smart item not authorized by chip to make this transfer");
+    if (chipAddress != address(0) && machineEnergyLevel > 0) {
+      bool transferAllowed = IChestChip(chipAddress).onPipeTransfer(chipOnPipeTransferData);
+      require(transferAllowed, "Transfer not allowed by chip");
     }
   }
 
@@ -48,8 +50,7 @@ contract MultiTransferSystem is System {
     PipeTransferData[] memory pipesTransferData,
     bytes memory extraData
   ) public payable {
-    uint256 initialGas = gasleft();
-    require(pipesTransferData.length > 0, "MultiTransferSystem: must transfer through at least one pipe");
+    require(pipesTransferData.length > 0, "Must transfer through at least one pipe");
     TransferCommonContext memory ctx = abi.decode(
       callInternalSystem(
         abi.encodeCall(ITransferHelperSystem.transferCommon, (_msgSender(), srcEntityId, dstEntityId)),
@@ -61,7 +62,10 @@ contract MultiTransferSystem is System {
     if (transferData.toolEntityIds.length == 0) {
       if (transferData.numToTransfer > 0) {
         // Note: we allow this because the main chest might be full/empty
-        require(!ObjectTypeMetadata._getIsTool(transferData.objectTypeId), "Object type is not a block");
+        require(
+          ObjectTypeMetadata._getObjectCategory(transferData.objectTypeId) == ObjectCategory.Block,
+          "Object type is not a block"
+        );
         removeFromInventoryCount(
           ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
           transferData.objectTypeId,
@@ -75,26 +79,19 @@ contract MultiTransferSystem is System {
         );
       }
     } else {
-      require(transferData.toolEntityIds.length < type(uint16).max, "MultiTransferSystem: too many tools to transfer");
-      require(
-        uint16(transferData.toolEntityIds.length) == transferData.numToTransfer,
-        "MultiTransferSystem: invalid tool count"
-      );
+      require(uint16(transferData.toolEntityIds.length) == transferData.numToTransfer, "Invalid tool count");
       for (uint i = 0; i < transferData.toolEntityIds.length; i++) {
-        uint8 toolObjectTypeId = transferInventoryTool(
+        uint16 toolObjectTypeId = transferInventoryTool(
           ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
           ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
           ctx.dstObjectTypeId,
           transferData.toolEntityIds[i]
         );
-        require(
-          toolObjectTypeId == transferData.objectTypeId,
-          "MultiTransferSystem: all tools must be of the same type"
-        );
+        require(toolObjectTypeId == transferData.objectTypeId, "All tools must be of the same type");
       }
     }
-    require(ctx.checkChipData.chipAddress != address(0), "MultiTransferSystem: chest is not a smart item");
-    require(ctx.checkChipData.batteryLevel > 0, "MultiTransferSystem: chest has no charge");
+    require(ctx.chipAddress != address(0), "Chest is not a smart item");
+    require(ctx.machineEnergyLevel > 0, "Chest has no charge");
 
     uint256 totalTools = transferData.toolEntityIds.length;
     for (uint i = 0; i < pipesTransferData.length; i++) {
@@ -112,7 +109,7 @@ contract MultiTransferSystem is System {
       PipeTransferData memory pipeTransferData = pipesTransferData[i];
       require(
         pipeTransferData.transferData.objectTypeId == transferData.objectTypeId,
-        "MultiTransferSystem: all pipes must be of the same object type"
+        "All pipes must be of the same object type"
       );
       pipeCtxs[i] = abi.decode(
         callInternalSystem(
@@ -145,15 +142,14 @@ contract MultiTransferSystem is System {
       })
     );
 
-    callMintXP(ctx.playerEntityId, initialGas, 1);
-
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     for (uint i = 0; i < pipeCtxs.length; i++) {
       PipeTransferData memory pipeTransferData = pipesTransferData[i];
 
       // Require the pipe transfer to/from the caller entity is allowed
       requirePipeTransferAllowed(
-        ctx.checkChipData,
+        ctx.chipAddress,
+        ctx.machineEnergyLevel,
         ChipOnPipeTransferData({
           playerEntityId: ctx.playerEntityId,
           targetEntityId: ctx.chestEntityId,
@@ -168,7 +164,8 @@ contract MultiTransferSystem is System {
       // Require the pipe transfer to/from the target entity is allowed
       if (pipeCtxs[i].targetObjectTypeId != ForceFieldObjectID) {
         requirePipeTransferAllowed(
-          pipeCtxs[i].targetChipData,
+          pipeCtxs[i].chipAddress,
+          pipeCtxs[i].machineEnergyLevel,
           ChipOnPipeTransferData({
             playerEntityId: ctx.playerEntityId,
             targetEntityId: pipeTransferData.targetEntityId,
@@ -184,7 +181,8 @@ contract MultiTransferSystem is System {
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
-      ctx.checkChipData,
+      ctx.chipAddress,
+      ctx.machineEnergyLevel,
       ChipOnTransferData({
         targetEntityId: ctx.chestEntityId,
         callerEntityId: ctx.playerEntityId,

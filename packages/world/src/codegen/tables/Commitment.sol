@@ -18,9 +18,9 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 struct CommitmentData {
   bool hasCommitted;
-  int16 x;
-  int16 y;
-  int16 z;
+  int32 x;
+  int32 y;
+  int32 z;
 }
 
 library Commitment {
@@ -28,12 +28,12 @@ library Commitment {
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000436f6d6d69746d656e74000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0007040001020202000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x000d040001040404000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bool, int16, int16, int16)
-  Schema constant _valueSchema = Schema.wrap(0x0007040060212121000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bool, int32, int32, int32)
+  Schema constant _valueSchema = Schema.wrap(0x000d040060232323000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -71,13 +71,6 @@ library Commitment {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
    * @notice Get hasCommitted.
    */
   function getHasCommitted(bytes32 entityId) internal view returns (bool hasCommitted) {
@@ -96,17 +89,6 @@ library Commitment {
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
-  }
-
-  /**
-   * @notice Get hasCommitted (using the specified store).
-   */
-  function getHasCommitted(IStore _store, bytes32 entityId) internal view returns (bool hasCommitted) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
   }
 
@@ -131,52 +113,31 @@ library Commitment {
   }
 
   /**
-   * @notice Set hasCommitted (using the specified store).
-   */
-  function setHasCommitted(IStore _store, bytes32 entityId, bool hasCommitted) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((hasCommitted)), _fieldLayout);
-  }
-
-  /**
    * @notice Get x.
    */
-  function getX(bytes32 entityId) internal view returns (int16 x) {
+  function getX(bytes32 entityId) internal view returns (int32 x) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Get x.
    */
-  function _getX(bytes32 entityId) internal view returns (int16 x) {
+  function _getX(bytes32 entityId) internal view returns (int32 x) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
-  }
-
-  /**
-   * @notice Get x (using the specified store).
-   */
-  function getX(IStore _store, bytes32 entityId) internal view returns (int16 x) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Set x.
    */
-  function setX(bytes32 entityId, int16 x) internal {
+  function setX(bytes32 entityId, int32 x) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -186,7 +147,7 @@ library Commitment {
   /**
    * @notice Set x.
    */
-  function _setX(bytes32 entityId, int16 x) internal {
+  function _setX(bytes32 entityId, int32 x) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -194,52 +155,31 @@ library Commitment {
   }
 
   /**
-   * @notice Set x (using the specified store).
-   */
-  function setX(IStore _store, bytes32 entityId, int16 x) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((x)), _fieldLayout);
-  }
-
-  /**
    * @notice Get y.
    */
-  function getY(bytes32 entityId) internal view returns (int16 y) {
+  function getY(bytes32 entityId) internal view returns (int32 y) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Get y.
    */
-  function _getY(bytes32 entityId) internal view returns (int16 y) {
+  function _getY(bytes32 entityId) internal view returns (int32 y) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
-  }
-
-  /**
-   * @notice Get y (using the specified store).
-   */
-  function getY(IStore _store, bytes32 entityId) internal view returns (int16 y) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Set y.
    */
-  function setY(bytes32 entityId, int16 y) internal {
+  function setY(bytes32 entityId, int32 y) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -249,7 +189,7 @@ library Commitment {
   /**
    * @notice Set y.
    */
-  function _setY(bytes32 entityId, int16 y) internal {
+  function _setY(bytes32 entityId, int32 y) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -257,52 +197,31 @@ library Commitment {
   }
 
   /**
-   * @notice Set y (using the specified store).
-   */
-  function setY(IStore _store, bytes32 entityId, int16 y) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((y)), _fieldLayout);
-  }
-
-  /**
    * @notice Get z.
    */
-  function getZ(bytes32 entityId) internal view returns (int16 z) {
+  function getZ(bytes32 entityId) internal view returns (int32 z) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Get z.
    */
-  function _getZ(bytes32 entityId) internal view returns (int16 z) {
+  function _getZ(bytes32 entityId) internal view returns (int32 z) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
-  }
-
-  /**
-   * @notice Get z (using the specified store).
-   */
-  function getZ(IStore _store, bytes32 entityId) internal view returns (int16 z) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (int16(uint16(bytes2(_blob))));
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
    * @notice Set z.
    */
-  function setZ(bytes32 entityId, int16 z) internal {
+  function setZ(bytes32 entityId, int32 z) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -312,21 +231,11 @@ library Commitment {
   /**
    * @notice Set z.
    */
-  function _setZ(bytes32 entityId, int16 z) internal {
+  function _setZ(bytes32 entityId, int32 z) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((z)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set z (using the specified store).
-   */
-  function setZ(IStore _store, bytes32 entityId, int16 z) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((z)), _fieldLayout);
   }
 
   /**
@@ -360,24 +269,9 @@ library Commitment {
   }
 
   /**
-   * @notice Get the full data (using the specified store).
-   */
-  function get(IStore _store, bytes32 entityId) internal view returns (CommitmentData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
-      _tableId,
-      _keyTuple,
-      _fieldLayout
-    );
-    return decode(_staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 entityId, bool hasCommitted, int16 x, int16 y, int16 z) internal {
+  function set(bytes32 entityId, bool hasCommitted, int32 x, int32 y, int32 z) internal {
     bytes memory _staticData = encodeStatic(hasCommitted, x, y, z);
 
     EncodedLengths _encodedLengths;
@@ -392,7 +286,7 @@ library Commitment {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 entityId, bool hasCommitted, int16 x, int16 y, int16 z) internal {
+  function _set(bytes32 entityId, bool hasCommitted, int32 x, int32 y, int32 z) internal {
     bytes memory _staticData = encodeStatic(hasCommitted, x, y, z);
 
     EncodedLengths _encodedLengths;
@@ -402,21 +296,6 @@ library Commitment {
     _keyTuple[0] = entityId;
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
-  }
-
-  /**
-   * @notice Set the full data using individual values (using the specified store).
-   */
-  function set(IStore _store, bytes32 entityId, bool hasCommitted, int16 x, int16 y, int16 z) internal {
-    bytes memory _staticData = encodeStatic(hasCommitted, x, y, z);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
 
   /**
@@ -450,31 +329,16 @@ library Commitment {
   }
 
   /**
-   * @notice Set the full data using the data struct (using the specified store).
-   */
-  function set(IStore _store, bytes32 entityId, CommitmentData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.hasCommitted, _table.x, _table.y, _table.z);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (bool hasCommitted, int16 x, int16 y, int16 z) {
+  function decodeStatic(bytes memory _blob) internal pure returns (bool hasCommitted, int32 x, int32 y, int32 z) {
     hasCommitted = (_toBool(uint8(Bytes.getBytes1(_blob, 0))));
 
-    x = (int16(uint16(Bytes.getBytes2(_blob, 1))));
+    x = (int32(uint32(Bytes.getBytes4(_blob, 1))));
 
-    y = (int16(uint16(Bytes.getBytes2(_blob, 3))));
+    y = (int32(uint32(Bytes.getBytes4(_blob, 5))));
 
-    z = (int16(uint16(Bytes.getBytes2(_blob, 5))));
+    z = (int32(uint32(Bytes.getBytes4(_blob, 9))));
   }
 
   /**
@@ -512,20 +376,10 @@ library Commitment {
   }
 
   /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, bytes32 entityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.deleteRecord(_tableId, _keyTuple);
-  }
-
-  /**
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(bool hasCommitted, int16 x, int16 y, int16 z) internal pure returns (bytes memory) {
+  function encodeStatic(bool hasCommitted, int32 x, int32 y, int32 z) internal pure returns (bytes memory) {
     return abi.encodePacked(hasCommitted, x, y, z);
   }
 
@@ -537,9 +391,9 @@ library Commitment {
    */
   function encode(
     bool hasCommitted,
-    int16 x,
-    int16 y,
-    int16 z
+    int32 x,
+    int32 y,
+    int32 z
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(hasCommitted, x, y, z);
 

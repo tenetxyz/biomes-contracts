@@ -61,13 +61,6 @@ library PlayerActivity {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
    * @notice Get lastActionTime.
    */
   function getLastActionTime(bytes32 entityId) internal view returns (uint256 lastActionTime) {
@@ -86,17 +79,6 @@ library PlayerActivity {
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
-  }
-
-  /**
-   * @notice Get lastActionTime (using the specified store).
-   */
-  function getLastActionTime(IStore _store, bytes32 entityId) internal view returns (uint256 lastActionTime) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -123,17 +105,6 @@ library PlayerActivity {
   }
 
   /**
-   * @notice Get lastActionTime (using the specified store).
-   */
-  function get(IStore _store, bytes32 entityId) internal view returns (uint256 lastActionTime) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
-  }
-
-  /**
    * @notice Set lastActionTime.
    */
   function setLastActionTime(bytes32 entityId, uint256 lastActionTime) internal {
@@ -151,16 +122,6 @@ library PlayerActivity {
     _keyTuple[0] = entityId;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastActionTime)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set lastActionTime (using the specified store).
-   */
-  function setLastActionTime(IStore _store, bytes32 entityId, uint256 lastActionTime) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastActionTime)), _fieldLayout);
   }
 
   /**
@@ -184,16 +145,6 @@ library PlayerActivity {
   }
 
   /**
-   * @notice Set lastActionTime (using the specified store).
-   */
-  function set(IStore _store, bytes32 entityId, uint256 lastActionTime) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastActionTime)), _fieldLayout);
-  }
-
-  /**
    * @notice Delete all data for given keys.
    */
   function deleteRecord(bytes32 entityId) internal {
@@ -211,16 +162,6 @@ library PlayerActivity {
     _keyTuple[0] = entityId;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
-  }
-
-  /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, bytes32 entityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
-
-    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

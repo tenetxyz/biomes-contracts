@@ -61,13 +61,6 @@ library BlockPrevrandao {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
    * @notice Get blockPrevrandao.
    */
   function getBlockPrevrandao(uint256 blockNumber) internal view returns (uint256 blockPrevrandao) {
@@ -86,17 +79,6 @@ library BlockPrevrandao {
     _keyTuple[0] = bytes32(uint256(blockNumber));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
-  }
-
-  /**
-   * @notice Get blockPrevrandao (using the specified store).
-   */
-  function getBlockPrevrandao(IStore _store, uint256 blockNumber) internal view returns (uint256 blockPrevrandao) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -123,17 +105,6 @@ library BlockPrevrandao {
   }
 
   /**
-   * @notice Get blockPrevrandao (using the specified store).
-   */
-  function get(IStore _store, uint256 blockNumber) internal view returns (uint256 blockPrevrandao) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
-  }
-
-  /**
    * @notice Set blockPrevrandao.
    */
   function setBlockPrevrandao(uint256 blockNumber, uint256 blockPrevrandao) internal {
@@ -151,16 +122,6 @@ library BlockPrevrandao {
     _keyTuple[0] = bytes32(uint256(blockNumber));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((blockPrevrandao)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set blockPrevrandao (using the specified store).
-   */
-  function setBlockPrevrandao(IStore _store, uint256 blockNumber, uint256 blockPrevrandao) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((blockPrevrandao)), _fieldLayout);
   }
 
   /**
@@ -184,16 +145,6 @@ library BlockPrevrandao {
   }
 
   /**
-   * @notice Set blockPrevrandao (using the specified store).
-   */
-  function set(IStore _store, uint256 blockNumber, uint256 blockPrevrandao) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((blockPrevrandao)), _fieldLayout);
-  }
-
-  /**
    * @notice Delete all data for given keys.
    */
   function deleteRecord(uint256 blockNumber) internal {
@@ -211,16 +162,6 @@ library BlockPrevrandao {
     _keyTuple[0] = bytes32(uint256(blockNumber));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
-  }
-
-  /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, uint256 blockNumber) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
-
-    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

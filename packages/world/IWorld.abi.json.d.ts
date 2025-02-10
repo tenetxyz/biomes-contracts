@@ -1,322 +1,6 @@
 declare const abi: [
   {
     "type": "function",
-    "name": "Air",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "Flora",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "Ores",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "Ores",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      },
-      {
-        "name": "randomNumber",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "Ores",
-    "inputs": [
-      {
-        "name": "x",
-        "type": "int16",
-        "internalType": "int16"
-      },
-      {
-        "name": "y",
-        "type": "int16",
-        "internalType": "int16"
-      },
-      {
-        "name": "z",
-        "type": "int16",
-        "internalType": "int16"
-      },
-      {
-        "name": "height",
-        "type": "int16",
-        "internalType": "int16"
-      },
-      {
-        "name": "biome",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "distanceFromHeight",
-        "type": "int16",
-        "internalType": "int16"
-      },
-      {
-        "name": "randomNumber",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "TerrainBlocks",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "Trees",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "Water",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
     "name": "activate",
     "inputs": [
       {
@@ -352,18 +36,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       },
@@ -374,18 +58,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -396,6 +80,24 @@ declare const abi: [
   {
     "type": "function",
     "name": "attachChip",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "chipAddress",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "attachChipWithExtraData",
     "inputs": [
       {
         "name": "entityId",
@@ -415,24 +117,6 @@ declare const abi: [
     ],
     "outputs": [],
     "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "attachChip",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "chipAddress",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -507,8 +191,8 @@ declare const abi: [
     "inputs": [
       {
         "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "coord",
@@ -517,25 +201,20 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
       }
     ],
     "outputs": [
@@ -549,12 +228,12 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "build",
+    "name": "buildWithExtraData",
     "inputs": [
       {
         "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "coord",
@@ -563,20 +242,25 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [
@@ -661,24 +345,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "craftChipBattery",
-    "inputs": [
-      {
-        "name": "numBatteries",
-        "type": "uint16",
-        "internalType": "uint16"
-      },
-      {
-        "name": "stationEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "creator",
     "inputs": [],
     "outputs": [
@@ -746,7 +412,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "detachChip",
+    "name": "detachChipWithExtraData",
     "inputs": [
       {
         "name": "entityId",
@@ -768,8 +434,8 @@ declare const abi: [
     "inputs": [
       {
         "name": "dropObjectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "numToDrop",
@@ -783,18 +449,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -818,18 +484,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -853,18 +519,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -913,8 +579,8 @@ declare const abi: [
           },
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "position",
@@ -923,18 +589,18 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           },
@@ -945,8 +611,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numObjects",
@@ -965,34 +631,17 @@ declare const abi: [
                   },
                   {
                     "name": "numUsesLeft",
-                    "type": "uint24",
-                    "internalType": "uint24"
+                    "type": "uint256",
+                    "internalType": "uint256"
                   }
                 ]
               }
             ]
           },
           {
-            "name": "chip",
-            "type": "tuple",
-            "internalType": "struct ChipData",
-            "components": [
-              {
-                "name": "chipAddress",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "batteryLevel",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              }
-            ]
+            "name": "chipAddress",
+            "type": "address",
+            "internalType": "address"
           }
         ]
       }
@@ -1027,8 +676,8 @@ declare const abi: [
           },
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "position",
@@ -1037,18 +686,18 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           },
@@ -1059,8 +708,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numObjects",
@@ -1079,34 +728,17 @@ declare const abi: [
                   },
                   {
                     "name": "numUsesLeft",
-                    "type": "uint24",
-                    "internalType": "uint24"
+                    "type": "uint256",
+                    "internalType": "uint256"
                   }
                 ]
               }
             ]
           },
           {
-            "name": "chip",
-            "type": "tuple",
-            "internalType": "struct ChipData",
-            "components": [
-              {
-                "name": "chipAddress",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "batteryLevel",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              }
-            ]
+            "name": "chipAddress",
+            "type": "address",
+            "internalType": "address"
           }
         ]
       }
@@ -1131,18 +763,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -1295,8 +927,8 @@ declare const abi: [
         "components": [
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "entityId",
@@ -1310,8 +942,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numObjects",
@@ -1330,8 +962,8 @@ declare const abi: [
                   },
                   {
                     "name": "numUsesLeft",
-                    "type": "uint24",
-                    "internalType": "uint24"
+                    "type": "uint256",
+                    "internalType": "uint256"
                   }
                 ]
               }
@@ -1344,18 +976,18 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           }
@@ -1375,18 +1007,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -1399,8 +1031,8 @@ declare const abi: [
         "components": [
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "entityId",
@@ -1414,8 +1046,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numObjects",
@@ -1434,8 +1066,8 @@ declare const abi: [
                   },
                   {
                     "name": "numUsesLeft",
-                    "type": "uint24",
-                    "internalType": "uint24"
+                    "type": "uint256",
+                    "internalType": "uint256"
                   }
                 ]
               }
@@ -1448,18 +1080,18 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           }
@@ -1486,8 +1118,8 @@ declare const abi: [
         "components": [
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "entityId",
@@ -1506,8 +1138,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numObjects",
@@ -1526,8 +1158,8 @@ declare const abi: [
                   },
                   {
                     "name": "numUsesLeft",
-                    "type": "uint24",
-                    "internalType": "uint24"
+                    "type": "uint256",
+                    "internalType": "uint256"
                   }
                 ]
               }
@@ -1540,18 +1172,18 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           }
@@ -1571,18 +1203,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -1595,8 +1227,8 @@ declare const abi: [
         "components": [
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "entityId",
@@ -1615,8 +1247,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numObjects",
@@ -1635,8 +1267,8 @@ declare const abi: [
                   },
                   {
                     "name": "numUsesLeft",
-                    "type": "uint24",
-                    "internalType": "uint24"
+                    "type": "uint256",
+                    "internalType": "uint256"
                   }
                 ]
               }
@@ -1649,18 +1281,18 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           }
@@ -1680,18 +1312,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -1852,37 +1484,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "getHealth",
-    "inputs": [
-      {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct HealthData",
-        "components": [
-          {
-            "name": "lastUpdatedTime",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "health",
-            "type": "uint16",
-            "internalType": "uint16"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
     "name": "getInventory",
     "inputs": [
       {
@@ -1899,8 +1500,8 @@ declare const abi: [
         "components": [
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "numObjects",
@@ -1919,8 +1520,8 @@ declare const abi: [
               },
               {
                 "name": "numUsesLeft",
-                "type": "uint24",
-                "internalType": "uint24"
+                "type": "uint256",
+                "internalType": "uint256"
               }
             ]
           }
@@ -1947,8 +1548,8 @@ declare const abi: [
         "components": [
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "numObjects",
@@ -1967,8 +1568,8 @@ declare const abi: [
               },
               {
                 "name": "numUsesLeft",
-                "type": "uint24",
-                "internalType": "uint24"
+                "type": "uint256",
+                "internalType": "uint256"
               }
             ]
           }
@@ -2026,18 +1627,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -2050,8 +1651,8 @@ declare const abi: [
         "components": [
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "entityId",
@@ -2065,8 +1666,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numObjects",
@@ -2085,8 +1686,8 @@ declare const abi: [
                   },
                   {
                     "name": "numUsesLeft",
-                    "type": "uint24",
-                    "internalType": "uint24"
+                    "type": "uint256",
+                    "internalType": "uint256"
                   }
                 ]
               }
@@ -2099,18 +1700,18 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           }
@@ -2130,18 +1731,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -2154,8 +1755,8 @@ declare const abi: [
         "components": [
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "entityId",
@@ -2174,8 +1775,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numObjects",
@@ -2194,8 +1795,8 @@ declare const abi: [
                   },
                   {
                     "name": "numUsesLeft",
-                    "type": "uint24",
-                    "internalType": "uint24"
+                    "type": "uint256",
+                    "internalType": "uint256"
                   }
                 ]
               }
@@ -2208,58 +1809,22 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           }
         ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getMultipleObjectTypeIdAtCoordOrTerrain",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple[]",
-        "internalType": "struct VoxelCoord[]",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8[]",
-        "internalType": "uint8[]"
       }
     ],
     "stateMutability": "view"
@@ -2275,18 +1840,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -2294,44 +1859,8 @@ declare const abi: [
     "outputs": [
       {
         "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getObjectTypeIdAtCoordOrTerrain",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
       }
     ],
     "stateMutability": "view"
@@ -2383,18 +1912,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -2434,37 +1963,25 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           },
           {
-            "name": "metadata",
-            "type": "tuple",
-            "internalType": "struct PlayerMetadataData",
-            "components": [
-              {
-                "name": "isLoggedOff",
-                "type": "bool",
-                "internalType": "bool"
-              },
-              {
-                "name": "lastHitTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              }
-            ]
+            "name": "isLoggedOff",
+            "type": "bool",
+            "internalType": "bool"
           },
           {
             "name": "equippedEntityId",
@@ -2478,8 +1995,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numObjects",
@@ -2498,51 +2015,12 @@ declare const abi: [
                   },
                   {
                     "name": "numUsesLeft",
-                    "type": "uint24",
-                    "internalType": "uint24"
+                    "type": "uint256",
+                    "internalType": "uint256"
                   }
                 ]
               }
             ]
-          },
-          {
-            "name": "health",
-            "type": "tuple",
-            "internalType": "struct HealthData",
-            "components": [
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "health",
-                "type": "uint16",
-                "internalType": "uint16"
-              }
-            ]
-          },
-          {
-            "name": "stamina",
-            "type": "tuple",
-            "internalType": "struct StaminaData",
-            "components": [
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "stamina",
-                "type": "uint32",
-                "internalType": "uint32"
-              }
-            ]
-          },
-          {
-            "name": "xp",
-            "type": "uint256",
-            "internalType": "uint256"
           },
           {
             "name": "lastActionTime",
@@ -2587,37 +2065,25 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           },
           {
-            "name": "metadata",
-            "type": "tuple",
-            "internalType": "struct PlayerMetadataData",
-            "components": [
-              {
-                "name": "isLoggedOff",
-                "type": "bool",
-                "internalType": "bool"
-              },
-              {
-                "name": "lastHitTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              }
-            ]
+            "name": "isLoggedOff",
+            "type": "bool",
+            "internalType": "bool"
           },
           {
             "name": "equippedEntityId",
@@ -2631,8 +2097,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numObjects",
@@ -2651,51 +2117,12 @@ declare const abi: [
                   },
                   {
                     "name": "numUsesLeft",
-                    "type": "uint24",
-                    "internalType": "uint24"
+                    "type": "uint256",
+                    "internalType": "uint256"
                   }
                 ]
               }
             ]
-          },
-          {
-            "name": "health",
-            "type": "tuple",
-            "internalType": "struct HealthData",
-            "components": [
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "health",
-                "type": "uint16",
-                "internalType": "uint16"
-              }
-            ]
-          },
-          {
-            "name": "stamina",
-            "type": "tuple",
-            "internalType": "struct StaminaData",
-            "components": [
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "stamina",
-                "type": "uint32",
-                "internalType": "uint32"
-              }
-            ]
-          },
-          {
-            "name": "xp",
-            "type": "uint256",
-            "internalType": "uint256"
           },
           {
             "name": "lastActionTime",
@@ -2714,18 +2141,18 @@ declare const abi: [
               },
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           }
@@ -2767,37 +2194,25 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           },
           {
-            "name": "metadata",
-            "type": "tuple",
-            "internalType": "struct PlayerMetadataData",
-            "components": [
-              {
-                "name": "isLoggedOff",
-                "type": "bool",
-                "internalType": "bool"
-              },
-              {
-                "name": "lastHitTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              }
-            ]
+            "name": "isLoggedOff",
+            "type": "bool",
+            "internalType": "bool"
           },
           {
             "name": "equippedEntityId",
@@ -2811,8 +2226,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numObjects",
@@ -2831,51 +2246,12 @@ declare const abi: [
                   },
                   {
                     "name": "numUsesLeft",
-                    "type": "uint24",
-                    "internalType": "uint24"
+                    "type": "uint256",
+                    "internalType": "uint256"
                   }
                 ]
               }
             ]
-          },
-          {
-            "name": "health",
-            "type": "tuple",
-            "internalType": "struct HealthData",
-            "components": [
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "health",
-                "type": "uint16",
-                "internalType": "uint16"
-              }
-            ]
-          },
-          {
-            "name": "stamina",
-            "type": "tuple",
-            "internalType": "struct StaminaData",
-            "components": [
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "stamina",
-                "type": "uint32",
-                "internalType": "uint32"
-              }
-            ]
-          },
-          {
-            "name": "xp",
-            "type": "uint256",
-            "internalType": "uint256"
           },
           {
             "name": "lastActionTime",
@@ -2920,37 +2296,25 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           },
           {
-            "name": "metadata",
-            "type": "tuple",
-            "internalType": "struct PlayerMetadataData",
-            "components": [
-              {
-                "name": "isLoggedOff",
-                "type": "bool",
-                "internalType": "bool"
-              },
-              {
-                "name": "lastHitTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              }
-            ]
+            "name": "isLoggedOff",
+            "type": "bool",
+            "internalType": "bool"
           },
           {
             "name": "equippedEntityId",
@@ -2964,8 +2328,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numObjects",
@@ -2984,51 +2348,12 @@ declare const abi: [
                   },
                   {
                     "name": "numUsesLeft",
-                    "type": "uint24",
-                    "internalType": "uint24"
+                    "type": "uint256",
+                    "internalType": "uint256"
                   }
                 ]
               }
             ]
-          },
-          {
-            "name": "health",
-            "type": "tuple",
-            "internalType": "struct HealthData",
-            "components": [
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "health",
-                "type": "uint16",
-                "internalType": "uint16"
-              }
-            ]
-          },
-          {
-            "name": "stamina",
-            "type": "tuple",
-            "internalType": "struct StaminaData",
-            "components": [
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "stamina",
-                "type": "uint32",
-                "internalType": "uint32"
-              }
-            ]
-          },
-          {
-            "name": "xp",
-            "type": "uint256",
-            "internalType": "uint256"
           },
           {
             "name": "lastActionTime",
@@ -3047,18 +2372,18 @@ declare const abi: [
               },
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           }
@@ -3136,37 +2461,6 @@ declare const abi: [
         "name": "dynamicData",
         "type": "bytes",
         "internalType": "bytes"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getStamina",
-    "inputs": [
-      {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct StaminaData",
-        "components": [
-          {
-            "name": "lastUpdatedTime",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "stamina",
-            "type": "uint32",
-            "internalType": "uint32"
-          }
-        ]
       }
     ],
     "stateMutability": "view"
@@ -3201,88 +2495,6 @@ declare const abi: [
         "name": "",
         "type": "bytes32",
         "internalType": "bytes32"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getTerrainBlock",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getTerrainBlockWithRandomness",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      },
-      {
-        "name": "randomNumber",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
       }
     ],
     "stateMutability": "view"
@@ -3350,45 +2562,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "hit",
-    "inputs": [
-      {
-        "name": "hitPlayer",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "hitChip",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "hitChippedEntity",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "hitForceField",
     "inputs": [
       {
@@ -3398,20 +2571,33 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "hitMachine",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "outputs": [],
@@ -3477,18 +2663,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -3507,18 +2693,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -3537,18 +2723,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -3567,18 +2753,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -3597,18 +2783,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -3627,18 +2813,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -3657,18 +2843,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -3735,18 +2921,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -3796,13 +2982,8 @@ declare const abi: [
     "inputs": [
       {
         "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
+        "type": "uint16",
+        "internalType": "uint16"
       }
     ],
     "outputs": [],
@@ -3810,12 +2991,17 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "jumpBuild",
+    "name": "jumpBuildWithExtraData",
     "inputs": [
       {
         "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -3832,18 +3018,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -3882,18 +3068,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -3903,7 +3089,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "mine",
+    "name": "mineWithExtraData",
     "inputs": [
       {
         "name": "coord",
@@ -3912,18 +3098,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       },
@@ -3931,29 +3117,6 @@ declare const abi: [
         "name": "extraData",
         "type": "bytes",
         "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "mintXP",
-    "inputs": [
-      {
-        "name": "playerEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "initialGas",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "multiplier",
-        "type": "uint256",
-        "internalType": "uint256"
       }
     ],
     "outputs": [],
@@ -3970,18 +3133,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -4007,11 +3170,6 @@ declare const abi: [
     "name": "movePlayer",
     "inputs": [
       {
-        "name": "initialGas",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
         "name": "playerEntityId",
         "type": "bytes32",
         "internalType": "bytes32"
@@ -4023,18 +3181,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       },
@@ -4045,63 +3203,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "onMine",
-    "inputs": [
-      {
-        "name": "playerEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "baseEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "mineObjectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "coords",
-        "type": "tuple[]",
-        "internalType": "struct VoxelCoord[]",
-        "components": [
-          {
-            "name": "x",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "y",
-            "type": "int16",
-            "internalType": "int16"
-          },
-          {
-            "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -4115,8 +3228,8 @@ declare const abi: [
     "inputs": [
       {
         "name": "pickupObjectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "numToPickup",
@@ -4130,18 +3243,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -4160,18 +3273,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -4190,8 +3303,8 @@ declare const abi: [
         "components": [
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "numToPickup",
@@ -4212,18 +3325,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -4247,18 +3360,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -4302,8 +3415,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numToTransfer",
@@ -4339,8 +3452,8 @@ declare const abi: [
       },
       {
         "name": "callerObjectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "callerCoord",
@@ -4349,18 +3462,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       },
@@ -4391,8 +3504,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numToTransfer",
@@ -4427,47 +3540,35 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           },
           {
-            "name": "targetChipData",
-            "type": "tuple",
-            "internalType": "struct ChipData",
-            "components": [
-              {
-                "name": "chipAddress",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "batteryLevel",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              }
-            ]
+            "name": "chipAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "machineEnergyLevel",
+            "type": "uint256",
+            "internalType": "uint256"
           },
           {
             "name": "targetObjectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           }
         ]
       }
@@ -4504,7 +3605,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "powerChip",
+    "name": "powerMachine",
     "inputs": [
       {
         "name": "entityId",
@@ -4824,8 +3925,8 @@ declare const abi: [
       },
       {
         "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "coords",
@@ -4834,18 +3935,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       },
@@ -4874,8 +3975,8 @@ declare const abi: [
       },
       {
         "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "coords",
@@ -4884,18 +3985,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       },
@@ -4919,18 +4020,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -4938,8 +4039,8 @@ declare const abi: [
     "outputs": [
       {
         "name": "",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
       }
     ],
     "stateMutability": "nonpayable"
@@ -4978,18 +4079,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -5164,8 +4265,8 @@ declare const abi: [
     "inputs": [
       {
         "name": "objectTypeId",
-        "type": "uint8[]",
-        "internalType": "uint8[]"
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "coord",
@@ -5174,18 +4275,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -5199,8 +4300,8 @@ declare const abi: [
     "inputs": [
       {
         "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16[]",
+        "internalType": "uint16[]"
       },
       {
         "name": "coord",
@@ -5209,18 +4310,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -5234,8 +4335,8 @@ declare const abi: [
     "inputs": [
       {
         "name": "objectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "coord",
@@ -5244,18 +4345,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -5340,18 +4441,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "y",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           },
           {
             "name": "z",
-            "type": "int16",
-            "internalType": "int16"
+            "type": "int32",
+            "internalType": "int32"
           }
         ]
       }
@@ -5460,46 +4561,13 @@ declare const abi: [
       },
       {
         "name": "transferObjectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "numToTransfer",
         "type": "uint16",
         "internalType": "uint16"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "transfer",
-    "inputs": [
-      {
-        "name": "srcEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "dstEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "transferObjectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "numToTransfer",
-        "type": "uint16",
-        "internalType": "uint16"
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -5594,52 +4662,40 @@ declare const abi: [
             "components": [
               {
                 "name": "x",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "y",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               },
               {
                 "name": "z",
-                "type": "int16",
-                "internalType": "int16"
+                "type": "int32",
+                "internalType": "int32"
               }
             ]
           },
           {
             "name": "chestObjectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "dstObjectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
-            "name": "checkChipData",
-            "type": "tuple",
-            "internalType": "struct ChipData",
-            "components": [
-              {
-                "name": "chipAddress",
-                "type": "address",
-                "internalType": "address"
-              },
-              {
-                "name": "batteryLevel",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
-              }
-            ]
+            "name": "chipAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "machineEnergyLevel",
+            "type": "uint256",
+            "internalType": "uint256"
           },
           {
             "name": "isDeposit",
@@ -5687,34 +4743,6 @@ declare const abi: [
         "name": "toolEntityId",
         "type": "bytes32",
         "internalType": "bytes32"
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "transferTool",
-    "inputs": [
-      {
-        "name": "srcEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "dstEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "toolEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
       }
     ],
     "outputs": [],
@@ -5738,34 +4766,6 @@ declare const abi: [
         "name": "toolEntityId",
         "type": "bytes32",
         "internalType": "bytes32"
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "transferTools",
-    "inputs": [
-      {
-        "name": "srcEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "dstEntityId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "toolEntityIds",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
       },
       {
         "name": "extraData",
@@ -5843,8 +4843,8 @@ declare const abi: [
       },
       {
         "name": "transferObjectTypeId",
-        "type": "uint8",
-        "internalType": "uint8"
+        "type": "uint16",
+        "internalType": "uint16"
       },
       {
         "name": "numToTransfer",
@@ -5881,8 +4881,8 @@ declare const abi: [
         "components": [
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "numToTransfer",
@@ -5918,8 +4918,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numToTransfer",
@@ -5965,8 +4965,8 @@ declare const abi: [
         "components": [
           {
             "name": "objectTypeId",
-            "type": "uint8",
-            "internalType": "uint8"
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "numToTransfer",
@@ -6002,8 +5002,8 @@ declare const abi: [
             "components": [
               {
                 "name": "objectTypeId",
-                "type": "uint8",
-                "internalType": "uint8"
+                "type": "uint16",
+                "internalType": "uint16"
               },
               {
                 "name": "numToTransfer",

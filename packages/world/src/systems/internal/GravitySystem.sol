@@ -4,18 +4,14 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
-import { Position, PositionData } from "../../codegen/tables/Position.sol";
+import { Position } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
-import { Health, HealthData } from "../../codegen/tables/Health.sol";
-import { Stamina, StaminaData } from "../../codegen/tables/Stamina.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 
-import { GRAVITY_DAMAGE, GRAVITY_STAMINA_COST } from "../../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
-import { inWorldBorder, getTerrainObjectTypeId, getUniqueEntity } from "../../Utils.sol";
+import { inWorldBorder } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
-import { regenHealth, regenStamina, despawnPlayer } from "../../utils/PlayerUtils.sol";
 
 contract GravitySystem is System {
   function runGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) public returns (bool) {
@@ -25,24 +21,15 @@ contract GravitySystem is System {
     }
 
     bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
-    if (belowEntityId == bytes32(0)) {
-      // Check terrain block type
-      uint8 terrainObjectTypeId = getTerrainObjectTypeId(belowCoord);
-      if (terrainObjectTypeId != AirObjectID) {
-        return false;
-      }
-
-      // Create new entity
-      belowEntityId = getUniqueEntity();
-      ObjectType._set(belowEntityId, AirObjectID);
-    } else {
-      if (ObjectType._get(belowEntityId) != AirObjectID || getTerrainObjectTypeId(belowCoord) == WaterObjectID) {
-        return false;
-      }
-
-      // Transfer any dropped items
-      transferAllInventoryEntities(belowEntityId, playerEntityId, PlayerObjectID);
+    require(belowEntityId != bytes32(0), "Attempted to apply gravity but encountered an unrevealed block");
+    uint16 belowObjectTypeId = ObjectType._get(belowEntityId);
+    // TODO: deal with florae
+    if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
+      return false;
     }
+
+    // Transfer any dropped items
+    transferAllInventoryEntities(belowEntityId, playerEntityId, PlayerObjectID);
 
     // Swap entity ids
     ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, belowEntityId);
@@ -55,31 +42,18 @@ contract GravitySystem is System {
       PlayerActivity._set(playerEntityId, block.timestamp);
     }
 
-    // TODO: Update to be health
-    uint32 currentStamina = regenStamina(playerEntityId, belowCoord);
-    if (currentStamina > 0) {
-      uint16 staminaRequired = GRAVITY_STAMINA_COST;
-      uint32 newStamina = currentStamina > staminaRequired ? currentStamina - staminaRequired : 0;
-      Stamina._setStamina(playerEntityId, newStamina);
-    }
-
-    // uint16 currentHealth = regenHealth(playerEntityId);
-    // uint16 newHealth = currentHealth > GRAVITY_DAMAGE ? currentHealth - GRAVITY_DAMAGE : 0;
-    // Health._setHealth(playerEntityId, newHealth);
-    // if (newHealth == 0) {
-    //   despawnPlayer(playerEntityId);
-    // }
+    // TODO: apply some energy cost for gravity
 
     // Check if entity above player is another player, if so we need to apply gravity to that player
-    bytes32 aboveEntityId = ReversePosition._get(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
     if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
-      runGravity(aboveEntityId, VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z));
+      runGravity(aboveEntityId, aboveCoord);
     }
 
-    // if (newHealth > 0) {
+    // TODO: check if player is dead
     // Recursively apply gravity until the player is on the ground or dead
     runGravity(playerEntityId, belowCoord);
-    // }
 
     return true;
   }

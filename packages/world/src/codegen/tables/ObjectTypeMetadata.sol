@@ -16,13 +16,16 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { ObjectCategory } from "../common.sol";
+
 struct ObjectTypeMetadataData {
-  bool isBlock;
-  bool isTool;
-  uint16 miningDifficulty;
-  uint8 stackable;
-  uint16 damage;
-  uint24 durability;
+  ObjectCategory objectCategory;
+  uint16 stackable;
+  uint16 maxInventorySlots;
+  uint32 mass;
+  uint32 energy;
+  bool canPassThrough;
 }
 
 library ObjectTypeMetadata {
@@ -30,12 +33,12 @@ library ObjectTypeMetadata {
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004f626a656374547970654d6574616461);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x000a060001010201020300000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x000e060001020204040100000000000000000000000000000000000000000000);
 
-  // Hex-encoded key schema of (uint8)
-  Schema constant _keySchema = Schema.wrap(0x0001010000000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bool, bool, uint16, uint8, uint16, uint24)
-  Schema constant _valueSchema = Schema.wrap(0x000a060060600100010200000000000000000000000000000000000000000000);
+  // Hex-encoded key schema of (uint16)
+  Schema constant _keySchema = Schema.wrap(0x0002010001000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint8, uint16, uint16, uint32, uint32, bool)
+  Schema constant _valueSchema = Schema.wrap(0x000e060000010103036000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -52,12 +55,12 @@ library ObjectTypeMetadata {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](6);
-    fieldNames[0] = "isBlock";
-    fieldNames[1] = "isTool";
-    fieldNames[2] = "miningDifficulty";
-    fieldNames[3] = "stackable";
-    fieldNames[4] = "damage";
-    fieldNames[5] = "durability";
+    fieldNames[0] = "objectCategory";
+    fieldNames[1] = "stackable";
+    fieldNames[2] = "maxInventorySlots";
+    fieldNames[3] = "mass";
+    fieldNames[4] = "energy";
+    fieldNames[5] = "canPassThrough";
   }
 
   /**
@@ -75,142 +78,93 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
+   * @notice Get objectCategory.
    */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
-   * @notice Get isBlock.
-   */
-  function getIsBlock(uint8 objectTypeId) internal view returns (bool isBlock) {
+  function getObjectCategory(uint16 objectTypeId) internal view returns (ObjectCategory objectCategory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    return ObjectCategory(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get isBlock.
+   * @notice Get objectCategory.
    */
-  function _getIsBlock(uint8 objectTypeId) internal view returns (bool isBlock) {
+  function _getObjectCategory(uint16 objectTypeId) internal view returns (ObjectCategory objectCategory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    return ObjectCategory(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get isBlock (using the specified store).
+   * @notice Set objectCategory.
    */
-  function getIsBlock(IStore _store, uint8 objectTypeId) internal view returns (bool isBlock) {
+  function setObjectCategory(uint16 objectTypeId, ObjectCategory objectCategory) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(objectCategory)), _fieldLayout);
   }
 
   /**
-   * @notice Set isBlock.
+   * @notice Set objectCategory.
    */
-  function setIsBlock(uint8 objectTypeId, bool isBlock) internal {
+  function _setObjectCategory(uint16 objectTypeId, ObjectCategory objectCategory) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isBlock)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(objectCategory)), _fieldLayout);
   }
 
   /**
-   * @notice Set isBlock.
+   * @notice Get stackable.
    */
-  function _setIsBlock(uint8 objectTypeId, bool isBlock) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isBlock)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set isBlock (using the specified store).
-   */
-  function setIsBlock(IStore _store, uint8 objectTypeId, bool isBlock) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isBlock)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get isTool.
-   */
-  function getIsTool(uint8 objectTypeId) internal view returns (bool isTool) {
+  function getStackable(uint16 objectTypeId) internal view returns (uint16 stackable) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
-   * @notice Get isTool.
+   * @notice Get stackable.
    */
-  function _getIsTool(uint8 objectTypeId) internal view returns (bool isTool) {
+  function _getStackable(uint16 objectTypeId) internal view returns (uint16 stackable) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    return (uint16(bytes2(_blob)));
   }
 
   /**
-   * @notice Get isTool (using the specified store).
+   * @notice Set stackable.
    */
-  function getIsTool(IStore _store, uint8 objectTypeId) internal view returns (bool isTool) {
+  function setStackable(uint16 objectTypeId, uint16 stackable) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((stackable)), _fieldLayout);
   }
 
   /**
-   * @notice Set isTool.
+   * @notice Set stackable.
    */
-  function setIsTool(uint8 objectTypeId, bool isTool) internal {
+  function _setStackable(uint16 objectTypeId, uint16 stackable) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((isTool)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((stackable)), _fieldLayout);
   }
 
   /**
-   * @notice Set isTool.
+   * @notice Get maxInventorySlots.
    */
-  function _setIsTool(uint8 objectTypeId, bool isTool) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((isTool)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set isTool (using the specified store).
-   */
-  function setIsTool(IStore _store, uint8 objectTypeId, bool isTool) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((isTool)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get miningDifficulty.
-   */
-  function getMiningDifficulty(uint8 objectTypeId) internal view returns (uint16 miningDifficulty) {
+  function getMaxInventorySlots(uint16 objectTypeId) internal view returns (uint16 maxInventorySlots) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -219,9 +173,9 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Get miningDifficulty.
+   * @notice Get maxInventorySlots.
    */
-  function _getMiningDifficulty(uint8 objectTypeId) internal view returns (uint16 miningDifficulty) {
+  function _getMaxInventorySlots(uint16 objectTypeId) internal view returns (uint16 maxInventorySlots) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -230,239 +184,155 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Get miningDifficulty (using the specified store).
+   * @notice Set maxInventorySlots.
    */
-  function getMiningDifficulty(IStore _store, uint8 objectTypeId) internal view returns (uint16 miningDifficulty) {
+  function setMaxInventorySlots(uint16 objectTypeId, uint16 maxInventorySlots) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (uint16(bytes2(_blob)));
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((maxInventorySlots)), _fieldLayout);
   }
 
   /**
-   * @notice Set miningDifficulty.
+   * @notice Set maxInventorySlots.
    */
-  function setMiningDifficulty(uint8 objectTypeId, uint16 miningDifficulty) internal {
+  function _setMaxInventorySlots(uint16 objectTypeId, uint16 maxInventorySlots) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((miningDifficulty)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((maxInventorySlots)), _fieldLayout);
   }
 
   /**
-   * @notice Set miningDifficulty.
+   * @notice Get mass.
    */
-  function _setMiningDifficulty(uint8 objectTypeId, uint16 miningDifficulty) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((miningDifficulty)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set miningDifficulty (using the specified store).
-   */
-  function setMiningDifficulty(IStore _store, uint8 objectTypeId, uint16 miningDifficulty) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((miningDifficulty)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get stackable.
-   */
-  function getStackable(uint8 objectTypeId) internal view returns (uint8 stackable) {
+  function getMass(uint16 objectTypeId) internal view returns (uint32 mass) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint32(bytes4(_blob)));
   }
 
   /**
-   * @notice Get stackable.
+   * @notice Get mass.
    */
-  function _getStackable(uint8 objectTypeId) internal view returns (uint8 stackable) {
+  function _getMass(uint16 objectTypeId) internal view returns (uint32 mass) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    return (uint32(bytes4(_blob)));
   }
 
   /**
-   * @notice Get stackable (using the specified store).
+   * @notice Set mass.
    */
-  function getStackable(IStore _store, uint8 objectTypeId) internal view returns (uint8 stackable) {
+  function setMass(uint16 objectTypeId, uint32 mass) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (uint8(bytes1(_blob)));
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((mass)), _fieldLayout);
   }
 
   /**
-   * @notice Set stackable.
+   * @notice Set mass.
    */
-  function setStackable(uint8 objectTypeId, uint8 stackable) internal {
+  function _setMass(uint16 objectTypeId, uint32 mass) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((stackable)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((mass)), _fieldLayout);
   }
 
   /**
-   * @notice Set stackable.
+   * @notice Get energy.
    */
-  function _setStackable(uint8 objectTypeId, uint8 stackable) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((stackable)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set stackable (using the specified store).
-   */
-  function setStackable(IStore _store, uint8 objectTypeId, uint8 stackable) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((stackable)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get damage.
-   */
-  function getDamage(uint8 objectTypeId) internal view returns (uint16 damage) {
+  function getEnergy(uint16 objectTypeId) internal view returns (uint32 energy) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
-    return (uint16(bytes2(_blob)));
+    return (uint32(bytes4(_blob)));
   }
 
   /**
-   * @notice Get damage.
+   * @notice Get energy.
    */
-  function _getDamage(uint8 objectTypeId) internal view returns (uint16 damage) {
+  function _getEnergy(uint16 objectTypeId) internal view returns (uint32 energy) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
-    return (uint16(bytes2(_blob)));
+    return (uint32(bytes4(_blob)));
   }
 
   /**
-   * @notice Get damage (using the specified store).
+   * @notice Set energy.
    */
-  function getDamage(IStore _store, uint8 objectTypeId) internal view returns (uint16 damage) {
+  function setEnergy(uint16 objectTypeId, uint32 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
-    return (uint16(bytes2(_blob)));
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((energy)), _fieldLayout);
   }
 
   /**
-   * @notice Set damage.
+   * @notice Set energy.
    */
-  function setDamage(uint8 objectTypeId, uint16 damage) internal {
+  function _setEnergy(uint16 objectTypeId, uint32 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((damage)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((energy)), _fieldLayout);
   }
 
   /**
-   * @notice Set damage.
+   * @notice Get canPassThrough.
    */
-  function _setDamage(uint8 objectTypeId, uint16 damage) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((damage)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set damage (using the specified store).
-   */
-  function setDamage(IStore _store, uint8 objectTypeId, uint16 damage) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((damage)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get durability.
-   */
-  function getDurability(uint8 objectTypeId) internal view returns (uint24 durability) {
+  function getCanPassThrough(uint16 objectTypeId) internal view returns (bool canPassThrough) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
-    return (uint24(bytes3(_blob)));
+    return (_toBool(uint8(bytes1(_blob))));
   }
 
   /**
-   * @notice Get durability.
+   * @notice Get canPassThrough.
    */
-  function _getDurability(uint8 objectTypeId) internal view returns (uint24 durability) {
+  function _getCanPassThrough(uint16 objectTypeId) internal view returns (bool canPassThrough) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
-    return (uint24(bytes3(_blob)));
+    return (_toBool(uint8(bytes1(_blob))));
   }
 
   /**
-   * @notice Get durability (using the specified store).
+   * @notice Set canPassThrough.
    */
-  function getDurability(IStore _store, uint8 objectTypeId) internal view returns (uint24 durability) {
+  function setCanPassThrough(uint16 objectTypeId, bool canPassThrough) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
-    return (uint24(bytes3(_blob)));
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((canPassThrough)), _fieldLayout);
   }
 
   /**
-   * @notice Set durability.
+   * @notice Set canPassThrough.
    */
-  function setDurability(uint8 objectTypeId, uint24 durability) internal {
+  function _setCanPassThrough(uint16 objectTypeId, bool canPassThrough) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((durability)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set durability.
-   */
-  function _setDurability(uint8 objectTypeId, uint24 durability) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((durability)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set durability (using the specified store).
-   */
-  function setDurability(IStore _store, uint8 objectTypeId, uint24 durability) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((durability)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((canPassThrough)), _fieldLayout);
   }
 
   /**
    * @notice Get the full data.
    */
-  function get(uint8 objectTypeId) internal view returns (ObjectTypeMetadataData memory _table) {
+  function get(uint16 objectTypeId) internal view returns (ObjectTypeMetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -477,7 +347,7 @@ library ObjectTypeMetadata {
   /**
    * @notice Get the full data.
    */
-  function _get(uint8 objectTypeId) internal view returns (ObjectTypeMetadataData memory _table) {
+  function _get(uint16 objectTypeId) internal view returns (ObjectTypeMetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -490,33 +360,18 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Get the full data (using the specified store).
-   */
-  function get(IStore _store, uint8 objectTypeId) internal view returns (ObjectTypeMetadataData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
-      _tableId,
-      _keyTuple,
-      _fieldLayout
-    );
-    return decode(_staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Set the full data using individual values.
    */
   function set(
-    uint8 objectTypeId,
-    bool isBlock,
-    bool isTool,
-    uint16 miningDifficulty,
-    uint8 stackable,
-    uint16 damage,
-    uint24 durability
+    uint16 objectTypeId,
+    ObjectCategory objectCategory,
+    uint16 stackable,
+    uint16 maxInventorySlots,
+    uint32 mass,
+    uint32 energy,
+    bool canPassThrough
   ) internal {
-    bytes memory _staticData = encodeStatic(isBlock, isTool, miningDifficulty, stackable, damage, durability);
+    bytes memory _staticData = encodeStatic(objectCategory, stackable, maxInventorySlots, mass, energy, canPassThrough);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -531,15 +386,15 @@ library ObjectTypeMetadata {
    * @notice Set the full data using individual values.
    */
   function _set(
-    uint8 objectTypeId,
-    bool isBlock,
-    bool isTool,
-    uint16 miningDifficulty,
-    uint8 stackable,
-    uint16 damage,
-    uint24 durability
+    uint16 objectTypeId,
+    ObjectCategory objectCategory,
+    uint16 stackable,
+    uint16 maxInventorySlots,
+    uint32 mass,
+    uint32 energy,
+    bool canPassThrough
   ) internal {
-    bytes memory _staticData = encodeStatic(isBlock, isTool, miningDifficulty, stackable, damage, durability);
+    bytes memory _staticData = encodeStatic(objectCategory, stackable, maxInventorySlots, mass, energy, canPassThrough);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -551,40 +406,16 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Set the full data using individual values (using the specified store).
-   */
-  function set(
-    IStore _store,
-    uint8 objectTypeId,
-    bool isBlock,
-    bool isTool,
-    uint16 miningDifficulty,
-    uint8 stackable,
-    uint16 damage,
-    uint24 durability
-  ) internal {
-    bytes memory _staticData = encodeStatic(isBlock, isTool, miningDifficulty, stackable, damage, durability);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Set the full data using the data struct.
    */
-  function set(uint8 objectTypeId, ObjectTypeMetadataData memory _table) internal {
+  function set(uint16 objectTypeId, ObjectTypeMetadataData memory _table) internal {
     bytes memory _staticData = encodeStatic(
-      _table.isBlock,
-      _table.isTool,
-      _table.miningDifficulty,
+      _table.objectCategory,
       _table.stackable,
-      _table.damage,
-      _table.durability
+      _table.maxInventorySlots,
+      _table.mass,
+      _table.energy,
+      _table.canPassThrough
     );
 
     EncodedLengths _encodedLengths;
@@ -599,14 +430,14 @@ library ObjectTypeMetadata {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(uint8 objectTypeId, ObjectTypeMetadataData memory _table) internal {
+  function _set(uint16 objectTypeId, ObjectTypeMetadataData memory _table) internal {
     bytes memory _staticData = encodeStatic(
-      _table.isBlock,
-      _table.isTool,
-      _table.miningDifficulty,
+      _table.objectCategory,
       _table.stackable,
-      _table.damage,
-      _table.durability
+      _table.maxInventorySlots,
+      _table.mass,
+      _table.energy,
+      _table.canPassThrough
     );
 
     EncodedLengths _encodedLengths;
@@ -619,28 +450,6 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Set the full data using the data struct (using the specified store).
-   */
-  function set(IStore _store, uint8 objectTypeId, ObjectTypeMetadataData memory _table) internal {
-    bytes memory _staticData = encodeStatic(
-      _table.isBlock,
-      _table.isTool,
-      _table.miningDifficulty,
-      _table.stackable,
-      _table.damage,
-      _table.durability
-    );
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
   function decodeStatic(
@@ -648,19 +457,26 @@ library ObjectTypeMetadata {
   )
     internal
     pure
-    returns (bool isBlock, bool isTool, uint16 miningDifficulty, uint8 stackable, uint16 damage, uint24 durability)
+    returns (
+      ObjectCategory objectCategory,
+      uint16 stackable,
+      uint16 maxInventorySlots,
+      uint32 mass,
+      uint32 energy,
+      bool canPassThrough
+    )
   {
-    isBlock = (_toBool(uint8(Bytes.getBytes1(_blob, 0))));
+    objectCategory = ObjectCategory(uint8(Bytes.getBytes1(_blob, 0)));
 
-    isTool = (_toBool(uint8(Bytes.getBytes1(_blob, 1))));
+    stackable = (uint16(Bytes.getBytes2(_blob, 1)));
 
-    miningDifficulty = (uint16(Bytes.getBytes2(_blob, 2)));
+    maxInventorySlots = (uint16(Bytes.getBytes2(_blob, 3)));
 
-    stackable = (uint8(Bytes.getBytes1(_blob, 4)));
+    mass = (uint32(Bytes.getBytes4(_blob, 5)));
 
-    damage = (uint16(Bytes.getBytes2(_blob, 5)));
+    energy = (uint32(Bytes.getBytes4(_blob, 9)));
 
-    durability = (uint24(Bytes.getBytes3(_blob, 7)));
+    canPassThrough = (_toBool(uint8(Bytes.getBytes1(_blob, 13))));
   }
 
   /**
@@ -675,19 +491,19 @@ library ObjectTypeMetadata {
     bytes memory
   ) internal pure returns (ObjectTypeMetadataData memory _table) {
     (
-      _table.isBlock,
-      _table.isTool,
-      _table.miningDifficulty,
+      _table.objectCategory,
       _table.stackable,
-      _table.damage,
-      _table.durability
+      _table.maxInventorySlots,
+      _table.mass,
+      _table.energy,
+      _table.canPassThrough
     ) = decodeStatic(_staticData);
   }
 
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(uint8 objectTypeId) internal {
+  function deleteRecord(uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -697,7 +513,7 @@ library ObjectTypeMetadata {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(uint8 objectTypeId) internal {
+  function _deleteRecord(uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -705,28 +521,18 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, uint8 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.deleteRecord(_tableId, _keyTuple);
-  }
-
-  /**
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
   function encodeStatic(
-    bool isBlock,
-    bool isTool,
-    uint16 miningDifficulty,
-    uint8 stackable,
-    uint16 damage,
-    uint24 durability
+    ObjectCategory objectCategory,
+    uint16 stackable,
+    uint16 maxInventorySlots,
+    uint32 mass,
+    uint32 energy,
+    bool canPassThrough
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(isBlock, isTool, miningDifficulty, stackable, damage, durability);
+    return abi.encodePacked(objectCategory, stackable, maxInventorySlots, mass, energy, canPassThrough);
   }
 
   /**
@@ -736,14 +542,14 @@ library ObjectTypeMetadata {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
-    bool isBlock,
-    bool isTool,
-    uint16 miningDifficulty,
-    uint8 stackable,
-    uint16 damage,
-    uint24 durability
+    ObjectCategory objectCategory,
+    uint16 stackable,
+    uint16 maxInventorySlots,
+    uint32 mass,
+    uint32 energy,
+    bool canPassThrough
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(isBlock, isTool, miningDifficulty, stackable, damage, durability);
+    bytes memory _staticData = encodeStatic(objectCategory, stackable, maxInventorySlots, mass, energy, canPassThrough);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -754,7 +560,7 @@ library ObjectTypeMetadata {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(uint8 objectTypeId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(uint16 objectTypeId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 

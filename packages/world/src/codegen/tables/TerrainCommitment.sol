@@ -28,8 +28,8 @@ library TerrainCommitment {
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0040020020200000000000000000000000000000000000000000000000000000);
 
-  // Hex-encoded key schema of (int16, int16, int16)
-  Schema constant _keySchema = Schema.wrap(0x0006030021212100000000000000000000000000000000000000000000000000);
+  // Hex-encoded key schema of (int32, int32, int32)
+  Schema constant _keySchema = Schema.wrap(0x000c030023232300000000000000000000000000000000000000000000000000);
   // Hex-encoded value schema of (uint256, bytes32)
   Schema constant _valueSchema = Schema.wrap(0x004002001f5f0000000000000000000000000000000000000000000000000000);
 
@@ -69,16 +69,9 @@ library TerrainCommitment {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
    * @notice Get blockNumber.
    */
-  function getBlockNumber(int16 x, int16 y, int16 z) internal view returns (uint256 blockNumber) {
+  function getBlockNumber(int32 x, int32 y, int32 z) internal view returns (uint256 blockNumber) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -91,7 +84,7 @@ library TerrainCommitment {
   /**
    * @notice Get blockNumber.
    */
-  function _getBlockNumber(int16 x, int16 y, int16 z) internal view returns (uint256 blockNumber) {
+  function _getBlockNumber(int32 x, int32 y, int32 z) internal view returns (uint256 blockNumber) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -102,22 +95,9 @@ library TerrainCommitment {
   }
 
   /**
-   * @notice Get blockNumber (using the specified store).
-   */
-  function getBlockNumber(IStore _store, int16 x, int16 y, int16 z) internal view returns (uint256 blockNumber) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
-  }
-
-  /**
    * @notice Set blockNumber.
    */
-  function setBlockNumber(int16 x, int16 y, int16 z, uint256 blockNumber) internal {
+  function setBlockNumber(int32 x, int32 y, int32 z, uint256 blockNumber) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -129,7 +109,7 @@ library TerrainCommitment {
   /**
    * @notice Set blockNumber.
    */
-  function _setBlockNumber(int16 x, int16 y, int16 z, uint256 blockNumber) internal {
+  function _setBlockNumber(int32 x, int32 y, int32 z, uint256 blockNumber) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -139,21 +119,9 @@ library TerrainCommitment {
   }
 
   /**
-   * @notice Set blockNumber (using the specified store).
-   */
-  function setBlockNumber(IStore _store, int16 x, int16 y, int16 z, uint256 blockNumber) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((blockNumber)), _fieldLayout);
-  }
-
-  /**
    * @notice Get committerEntityId.
    */
-  function getCommitterEntityId(int16 x, int16 y, int16 z) internal view returns (bytes32 committerEntityId) {
+  function getCommitterEntityId(int32 x, int32 y, int32 z) internal view returns (bytes32 committerEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -166,7 +134,7 @@ library TerrainCommitment {
   /**
    * @notice Get committerEntityId.
    */
-  function _getCommitterEntityId(int16 x, int16 y, int16 z) internal view returns (bytes32 committerEntityId) {
+  function _getCommitterEntityId(int32 x, int32 y, int32 z) internal view returns (bytes32 committerEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -177,27 +145,9 @@ library TerrainCommitment {
   }
 
   /**
-   * @notice Get committerEntityId (using the specified store).
-   */
-  function getCommitterEntityId(
-    IStore _store,
-    int16 x,
-    int16 y,
-    int16 z
-  ) internal view returns (bytes32 committerEntityId) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (bytes32(_blob));
-  }
-
-  /**
    * @notice Set committerEntityId.
    */
-  function setCommitterEntityId(int16 x, int16 y, int16 z, bytes32 committerEntityId) internal {
+  function setCommitterEntityId(int32 x, int32 y, int32 z, bytes32 committerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -209,7 +159,7 @@ library TerrainCommitment {
   /**
    * @notice Set committerEntityId.
    */
-  function _setCommitterEntityId(int16 x, int16 y, int16 z, bytes32 committerEntityId) internal {
+  function _setCommitterEntityId(int32 x, int32 y, int32 z, bytes32 committerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -219,21 +169,9 @@ library TerrainCommitment {
   }
 
   /**
-   * @notice Set committerEntityId (using the specified store).
-   */
-  function setCommitterEntityId(IStore _store, int16 x, int16 y, int16 z, bytes32 committerEntityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
-
-    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((committerEntityId)), _fieldLayout);
-  }
-
-  /**
    * @notice Get the full data.
    */
-  function get(int16 x, int16 y, int16 z) internal view returns (TerrainCommitmentData memory _table) {
+  function get(int32 x, int32 y, int32 z) internal view returns (TerrainCommitmentData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -250,7 +188,7 @@ library TerrainCommitment {
   /**
    * @notice Get the full data.
    */
-  function _get(int16 x, int16 y, int16 z) internal view returns (TerrainCommitmentData memory _table) {
+  function _get(int32 x, int32 y, int32 z) internal view returns (TerrainCommitmentData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -265,26 +203,9 @@ library TerrainCommitment {
   }
 
   /**
-   * @notice Get the full data (using the specified store).
-   */
-  function get(IStore _store, int16 x, int16 y, int16 z) internal view returns (TerrainCommitmentData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
-
-    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
-      _tableId,
-      _keyTuple,
-      _fieldLayout
-    );
-    return decode(_staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Set the full data using individual values.
    */
-  function set(int16 x, int16 y, int16 z, uint256 blockNumber, bytes32 committerEntityId) internal {
+  function set(int32 x, int32 y, int32 z, uint256 blockNumber, bytes32 committerEntityId) internal {
     bytes memory _staticData = encodeStatic(blockNumber, committerEntityId);
 
     EncodedLengths _encodedLengths;
@@ -301,7 +222,7 @@ library TerrainCommitment {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(int16 x, int16 y, int16 z, uint256 blockNumber, bytes32 committerEntityId) internal {
+  function _set(int32 x, int32 y, int32 z, uint256 blockNumber, bytes32 committerEntityId) internal {
     bytes memory _staticData = encodeStatic(blockNumber, committerEntityId);
 
     EncodedLengths _encodedLengths;
@@ -316,26 +237,9 @@ library TerrainCommitment {
   }
 
   /**
-   * @notice Set the full data using individual values (using the specified store).
-   */
-  function set(IStore _store, int16 x, int16 y, int16 z, uint256 blockNumber, bytes32 committerEntityId) internal {
-    bytes memory _staticData = encodeStatic(blockNumber, committerEntityId);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Set the full data using the data struct.
    */
-  function set(int16 x, int16 y, int16 z, TerrainCommitmentData memory _table) internal {
+  function set(int32 x, int32 y, int32 z, TerrainCommitmentData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.blockNumber, _table.committerEntityId);
 
     EncodedLengths _encodedLengths;
@@ -352,7 +256,7 @@ library TerrainCommitment {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(int16 x, int16 y, int16 z, TerrainCommitmentData memory _table) internal {
+  function _set(int32 x, int32 y, int32 z, TerrainCommitmentData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.blockNumber, _table.committerEntityId);
 
     EncodedLengths _encodedLengths;
@@ -364,23 +268,6 @@ library TerrainCommitment {
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
-  }
-
-  /**
-   * @notice Set the full data using the data struct (using the specified store).
-   */
-  function set(IStore _store, int16 x, int16 y, int16 z, TerrainCommitmentData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.blockNumber, _table.committerEntityId);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
 
   /**
@@ -409,7 +296,7 @@ library TerrainCommitment {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(int16 x, int16 y, int16 z) internal {
+  function deleteRecord(int32 x, int32 y, int32 z) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -421,25 +308,13 @@ library TerrainCommitment {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(int16 x, int16 y, int16 z) internal {
+  function _deleteRecord(int32 x, int32 y, int32 z) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
-  }
-
-  /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, int16 x, int16 y, int16 z) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
-
-    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**
@@ -471,7 +346,7 @@ library TerrainCommitment {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(int16 x, int16 y, int16 z) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(int32 x, int32 y, int32 z) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));

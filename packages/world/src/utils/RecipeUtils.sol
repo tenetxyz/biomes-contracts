@@ -8,15 +8,15 @@ import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { NullObjectTypeId } from "../ObjectTypeIds.sol";
 
 function createSingleInputWithStationRecipe(
-  uint8 stationObjectTypeId,
-  uint8 inputObjectTypeId,
-  uint8 inputObjectTypeAmount,
-  uint8 outputObjectTypeId,
-  uint8 outputObjectTypeAmount
+  uint16 stationObjectTypeId,
+  uint16 inputObjectTypeId,
+  uint16 inputObjectTypeAmount,
+  uint16 outputObjectTypeId,
+  uint16 outputObjectTypeAmount
 ) {
-  uint8[] memory inputObjectTypeIds = new uint8[](1);
+  uint16[] memory inputObjectTypeIds = new uint16[](1);
   inputObjectTypeIds[0] = inputObjectTypeId;
-  uint8[] memory inputObjectTypeAmounts = new uint8[](1);
+  uint16[] memory inputObjectTypeAmounts = new uint16[](1);
   inputObjectTypeAmounts[0] = inputObjectTypeAmount;
 
   // Form recipe id from input and output object type ids
@@ -37,10 +37,10 @@ function createSingleInputWithStationRecipe(
 }
 
 function createSingleInputRecipe(
-  uint8 inputObjectTypeId,
-  uint8 inputObjectTypeAmount,
-  uint8 outputObjectTypeId,
-  uint8 outputObjectTypeAmount
+  uint16 inputObjectTypeId,
+  uint16 inputObjectTypeAmount,
+  uint16 outputObjectTypeId,
+  uint16 outputObjectTypeAmount
 ) {
   createSingleInputWithStationRecipe(
     NullObjectTypeId,
@@ -52,19 +52,19 @@ function createSingleInputRecipe(
 }
 
 function createDoubleInputWithStationRecipe(
-  uint8 stationObjectTypeId,
-  uint8 inputObjectTypeId1,
-  uint8 inputObjectTypeAmount1,
-  uint8 inputObjectTypeId2,
-  uint8 inputObjectTypeAmount2,
-  uint8 outputObjectTypeId,
-  uint8 outputObjectTypeAmount
+  uint16 stationObjectTypeId,
+  uint16 inputObjectTypeId1,
+  uint16 inputObjectTypeAmount1,
+  uint16 inputObjectTypeId2,
+  uint16 inputObjectTypeAmount2,
+  uint16 outputObjectTypeId,
+  uint16 outputObjectTypeAmount
 ) {
-  uint8[] memory inputObjectTypeIds = new uint8[](2);
+  uint16[] memory inputObjectTypeIds = new uint16[](2);
   inputObjectTypeIds[0] = inputObjectTypeId1;
   inputObjectTypeIds[1] = inputObjectTypeId2;
 
-  uint8[] memory inputObjectTypeAmounts = new uint8[](2);
+  uint16[] memory inputObjectTypeAmounts = new uint16[](2);
   inputObjectTypeAmounts[0] = inputObjectTypeAmount1;
   inputObjectTypeAmounts[1] = inputObjectTypeAmount2;
 
@@ -104,12 +104,12 @@ function createDoubleInputWithStationRecipe(
 }
 
 function createDoubleInputRecipe(
-  uint8 inputObjectTypeId1,
-  uint8 inputObjectTypeAmount1,
-  uint8 inputObjectTypeId2,
-  uint8 inputObjectTypeAmount2,
-  uint8 outputObjectTypeId,
-  uint8 outputObjectTypeAmount
+  uint16 inputObjectTypeId1,
+  uint16 inputObjectTypeAmount1,
+  uint16 inputObjectTypeId2,
+  uint16 inputObjectTypeAmount2,
+  uint16 outputObjectTypeId,
+  uint16 outputObjectTypeAmount
 ) {
   createDoubleInputWithStationRecipe(
     NullObjectTypeId,

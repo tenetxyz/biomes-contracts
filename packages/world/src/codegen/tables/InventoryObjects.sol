@@ -25,8 +25,8 @@ library InventoryObjects {
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint8[])
-  Schema constant _valueSchema = Schema.wrap(0x0000000162000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint16[])
+  Schema constant _valueSchema = Schema.wrap(0x0000000163000000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -61,82 +61,53 @@ library InventoryObjects {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
    * @notice Get objectTypeIds.
    */
-  function getObjectTypeIds(bytes32 ownerEntityId) internal view returns (uint8[] memory objectTypeIds) {
+  function getObjectTypeIds(bytes32 ownerEntityId) internal view returns (uint16[] memory objectTypeIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint16());
   }
 
   /**
    * @notice Get objectTypeIds.
    */
-  function _getObjectTypeIds(bytes32 ownerEntityId) internal view returns (uint8[] memory objectTypeIds) {
+  function _getObjectTypeIds(bytes32 ownerEntityId) internal view returns (uint16[] memory objectTypeIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
-  }
-
-  /**
-   * @notice Get objectTypeIds (using the specified store).
-   */
-  function getObjectTypeIds(IStore _store, bytes32 ownerEntityId) internal view returns (uint8[] memory objectTypeIds) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 0);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint16());
   }
 
   /**
    * @notice Get objectTypeIds.
    */
-  function get(bytes32 ownerEntityId) internal view returns (uint8[] memory objectTypeIds) {
+  function get(bytes32 ownerEntityId) internal view returns (uint16[] memory objectTypeIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint16());
   }
 
   /**
    * @notice Get objectTypeIds.
    */
-  function _get(bytes32 ownerEntityId) internal view returns (uint8[] memory objectTypeIds) {
+  function _get(bytes32 ownerEntityId) internal view returns (uint16[] memory objectTypeIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
-  }
-
-  /**
-   * @notice Get objectTypeIds (using the specified store).
-   */
-  function get(IStore _store, bytes32 ownerEntityId) internal view returns (uint8[] memory objectTypeIds) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 0);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint16());
   }
 
   /**
    * @notice Set objectTypeIds.
    */
-  function setObjectTypeIds(bytes32 ownerEntityId, uint8[] memory objectTypeIds) internal {
+  function setObjectTypeIds(bytes32 ownerEntityId, uint16[] memory objectTypeIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
@@ -146,7 +117,7 @@ library InventoryObjects {
   /**
    * @notice Set objectTypeIds.
    */
-  function _setObjectTypeIds(bytes32 ownerEntityId, uint8[] memory objectTypeIds) internal {
+  function _setObjectTypeIds(bytes32 ownerEntityId, uint16[] memory objectTypeIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
@@ -154,19 +125,9 @@ library InventoryObjects {
   }
 
   /**
-   * @notice Set objectTypeIds (using the specified store).
-   */
-  function setObjectTypeIds(IStore _store, bytes32 ownerEntityId, uint8[] memory objectTypeIds) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    _store.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((objectTypeIds)));
-  }
-
-  /**
    * @notice Set objectTypeIds.
    */
-  function set(bytes32 ownerEntityId, uint8[] memory objectTypeIds) internal {
+  function set(bytes32 ownerEntityId, uint16[] memory objectTypeIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
@@ -176,21 +137,11 @@ library InventoryObjects {
   /**
    * @notice Set objectTypeIds.
    */
-  function _set(bytes32 ownerEntityId, uint8[] memory objectTypeIds) internal {
+  function _set(bytes32 ownerEntityId, uint16[] memory objectTypeIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((objectTypeIds)));
-  }
-
-  /**
-   * @notice Set objectTypeIds (using the specified store).
-   */
-  function set(IStore _store, bytes32 ownerEntityId, uint8[] memory objectTypeIds) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    _store.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((objectTypeIds)));
   }
 
   /**
@@ -202,7 +153,7 @@ library InventoryObjects {
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
-      return _byteLength / 1;
+      return _byteLength / 2;
     }
   }
 
@@ -215,20 +166,7 @@ library InventoryObjects {
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
-      return _byteLength / 1;
-    }
-  }
-
-  /**
-   * @notice Get the length of objectTypeIds (using the specified store).
-   */
-  function lengthObjectTypeIds(IStore _store, bytes32 ownerEntityId) internal view returns (uint256) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 0);
-    unchecked {
-      return _byteLength / 1;
+      return _byteLength / 2;
     }
   }
 
@@ -241,7 +179,7 @@ library InventoryObjects {
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
-      return _byteLength / 1;
+      return _byteLength / 2;
     }
   }
 
@@ -254,20 +192,7 @@ library InventoryObjects {
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
-      return _byteLength / 1;
-    }
-  }
-
-  /**
-   * @notice Get the length of objectTypeIds (using the specified store).
-   */
-  function length(IStore _store, bytes32 ownerEntityId) internal view returns (uint256) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 0);
-    unchecked {
-      return _byteLength / 1;
+      return _byteLength / 2;
     }
   }
 
@@ -275,13 +200,13 @@ library InventoryObjects {
    * @notice Get an item of objectTypeIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemObjectTypeIds(bytes32 ownerEntityId, uint256 _index) internal view returns (uint8) {
+  function getItemObjectTypeIds(bytes32 ownerEntityId, uint256 _index) internal view returns (uint16) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     unchecked {
-      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
-      return (uint8(bytes1(_blob)));
+      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 2, (_index + 1) * 2);
+      return (uint16(bytes2(_blob)));
     }
   }
 
@@ -289,27 +214,13 @@ library InventoryObjects {
    * @notice Get an item of objectTypeIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemObjectTypeIds(bytes32 ownerEntityId, uint256 _index) internal view returns (uint8) {
+  function _getItemObjectTypeIds(bytes32 ownerEntityId, uint256 _index) internal view returns (uint16) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     unchecked {
-      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
-      return (uint8(bytes1(_blob)));
-    }
-  }
-
-  /**
-   * @notice Get an item of objectTypeIds (using the specified store).
-   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
-   */
-  function getItemObjectTypeIds(IStore _store, bytes32 ownerEntityId, uint256 _index) internal view returns (uint8) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    unchecked {
-      bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
-      return (uint8(bytes1(_blob)));
+      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 2, (_index + 1) * 2);
+      return (uint16(bytes2(_blob)));
     }
   }
 
@@ -317,13 +228,13 @@ library InventoryObjects {
    * @notice Get an item of objectTypeIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItem(bytes32 ownerEntityId, uint256 _index) internal view returns (uint8) {
+  function getItem(bytes32 ownerEntityId, uint256 _index) internal view returns (uint16) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     unchecked {
-      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
-      return (uint8(bytes1(_blob)));
+      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 2, (_index + 1) * 2);
+      return (uint16(bytes2(_blob)));
     }
   }
 
@@ -331,34 +242,20 @@ library InventoryObjects {
    * @notice Get an item of objectTypeIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItem(bytes32 ownerEntityId, uint256 _index) internal view returns (uint8) {
+  function _getItem(bytes32 ownerEntityId, uint256 _index) internal view returns (uint16) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     unchecked {
-      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
-      return (uint8(bytes1(_blob)));
-    }
-  }
-
-  /**
-   * @notice Get an item of objectTypeIds (using the specified store).
-   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
-   */
-  function getItem(IStore _store, bytes32 ownerEntityId, uint256 _index) internal view returns (uint8) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    unchecked {
-      bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
-      return (uint8(bytes1(_blob)));
+      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 2, (_index + 1) * 2);
+      return (uint16(bytes2(_blob)));
     }
   }
 
   /**
    * @notice Push an element to objectTypeIds.
    */
-  function pushObjectTypeIds(bytes32 ownerEntityId, uint8 _element) internal {
+  function pushObjectTypeIds(bytes32 ownerEntityId, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
@@ -368,7 +265,7 @@ library InventoryObjects {
   /**
    * @notice Push an element to objectTypeIds.
    */
-  function _pushObjectTypeIds(bytes32 ownerEntityId, uint8 _element) internal {
+  function _pushObjectTypeIds(bytes32 ownerEntityId, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
@@ -376,19 +273,9 @@ library InventoryObjects {
   }
 
   /**
-   * @notice Push an element to objectTypeIds (using the specified store).
-   */
-  function pushObjectTypeIds(IStore _store, bytes32 ownerEntityId, uint8 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    _store.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
-  }
-
-  /**
    * @notice Push an element to objectTypeIds.
    */
-  function push(bytes32 ownerEntityId, uint8 _element) internal {
+  function push(bytes32 ownerEntityId, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
@@ -398,21 +285,11 @@ library InventoryObjects {
   /**
    * @notice Push an element to objectTypeIds.
    */
-  function _push(bytes32 ownerEntityId, uint8 _element) internal {
+  function _push(bytes32 ownerEntityId, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
-  }
-
-  /**
-   * @notice Push an element to objectTypeIds (using the specified store).
-   */
-  function push(IStore _store, bytes32 ownerEntityId, uint8 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    _store.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
 
   /**
@@ -422,7 +299,7 @@ library InventoryObjects {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
-    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 1);
+    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 2);
   }
 
   /**
@@ -432,17 +309,7 @@ library InventoryObjects {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
-    StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 1);
-  }
-
-  /**
-   * @notice Pop an element from objectTypeIds (using the specified store).
-   */
-  function popObjectTypeIds(IStore _store, bytes32 ownerEntityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    _store.popFromDynamicField(_tableId, _keyTuple, 0, 1);
+    StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 2);
   }
 
   /**
@@ -452,7 +319,7 @@ library InventoryObjects {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
-    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 1);
+    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 2);
   }
 
   /**
@@ -462,94 +329,58 @@ library InventoryObjects {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
-    StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 1);
-  }
-
-  /**
-   * @notice Pop an element from objectTypeIds (using the specified store).
-   */
-  function pop(IStore _store, bytes32 ownerEntityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    _store.popFromDynamicField(_tableId, _keyTuple, 0, 1);
+    StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 2);
   }
 
   /**
    * @notice Update an element of objectTypeIds at `_index`.
    */
-  function updateObjectTypeIds(bytes32 ownerEntityId, uint256 _index, uint8 _element) internal {
+  function updateObjectTypeIds(bytes32 ownerEntityId, uint256 _index, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
-      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 1), uint40(_encoded.length), _encoded);
+      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 2), uint40(_encoded.length), _encoded);
     }
   }
 
   /**
    * @notice Update an element of objectTypeIds at `_index`.
    */
-  function _updateObjectTypeIds(bytes32 ownerEntityId, uint256 _index, uint8 _element) internal {
+  function _updateObjectTypeIds(bytes32 ownerEntityId, uint256 _index, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
-      StoreCore.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 1), uint40(_encoded.length), _encoded);
-    }
-  }
-
-  /**
-   * @notice Update an element of objectTypeIds (using the specified store) at `_index`.
-   */
-  function updateObjectTypeIds(IStore _store, bytes32 ownerEntityId, uint256 _index, uint8 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    unchecked {
-      bytes memory _encoded = abi.encodePacked((_element));
-      _store.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 1), uint40(_encoded.length), _encoded);
+      StoreCore.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 2), uint40(_encoded.length), _encoded);
     }
   }
 
   /**
    * @notice Update an element of objectTypeIds at `_index`.
    */
-  function update(bytes32 ownerEntityId, uint256 _index, uint8 _element) internal {
+  function update(bytes32 ownerEntityId, uint256 _index, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
-      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 1), uint40(_encoded.length), _encoded);
+      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 2), uint40(_encoded.length), _encoded);
     }
   }
 
   /**
    * @notice Update an element of objectTypeIds at `_index`.
    */
-  function _update(bytes32 ownerEntityId, uint256 _index, uint8 _element) internal {
+  function _update(bytes32 ownerEntityId, uint256 _index, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = ownerEntityId;
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
-      StoreCore.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 1), uint40(_encoded.length), _encoded);
-    }
-  }
-
-  /**
-   * @notice Update an element of objectTypeIds (using the specified store) at `_index`.
-   */
-  function update(IStore _store, bytes32 ownerEntityId, uint256 _index, uint8 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    unchecked {
-      bytes memory _encoded = abi.encodePacked((_element));
-      _store.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 1), uint40(_encoded.length), _encoded);
+      StoreCore.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 2), uint40(_encoded.length), _encoded);
     }
   }
 
@@ -574,23 +405,13 @@ library InventoryObjects {
   }
 
   /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, bytes32 ownerEntityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
-
-    _store.deleteRecord(_tableId, _keyTuple);
-  }
-
-  /**
    * @notice Tightly pack dynamic data lengths using this table's schema.
    * @return _encodedLengths The lengths of the dynamic fields (packed into a single bytes32 value).
    */
-  function encodeLengths(uint8[] memory objectTypeIds) internal pure returns (EncodedLengths _encodedLengths) {
+  function encodeLengths(uint16[] memory objectTypeIds) internal pure returns (EncodedLengths _encodedLengths) {
     // Lengths are effectively checked during copy by 2**40 bytes exceeding gas limits
     unchecked {
-      _encodedLengths = EncodedLengthsLib.pack(objectTypeIds.length * 1);
+      _encodedLengths = EncodedLengthsLib.pack(objectTypeIds.length * 2);
     }
   }
 
@@ -598,7 +419,7 @@ library InventoryObjects {
    * @notice Tightly pack dynamic (variable length) data using this table's schema.
    * @return The dynamic data, encoded into a sequence of bytes.
    */
-  function encodeDynamic(uint8[] memory objectTypeIds) internal pure returns (bytes memory) {
+  function encodeDynamic(uint16[] memory objectTypeIds) internal pure returns (bytes memory) {
     return abi.encodePacked(EncodeArray.encode((objectTypeIds)));
   }
 
@@ -608,7 +429,7 @@ library InventoryObjects {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(uint8[] memory objectTypeIds) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+  function encode(uint16[] memory objectTypeIds) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(objectTypeIds);
     bytes memory _dynamicData = encodeDynamic(objectTypeIds);

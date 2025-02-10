@@ -9,15 +9,11 @@ pragma solidity >=0.8.24;
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IChipSystem {
-  function attachChip(bytes32 entityId, address chipAddress, bytes memory extraData) external payable;
+  function attachChipWithExtraData(bytes32 entityId, address chipAddress, bytes memory extraData) external payable;
+
+  function detachChipWithExtraData(bytes32 entityId, bytes memory extraData) external payable;
 
   function attachChip(bytes32 entityId, address chipAddress) external;
 
-  function detachChip(bytes32 entityId, bytes memory extraData) external payable;
-
   function detachChip(bytes32 entityId) external;
-
-  function powerChip(bytes32 entityId, uint16 numBattery) external;
-
-  function hitChip(bytes32 entityId) external;
 }

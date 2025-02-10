@@ -11,9 +11,9 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IAdminSpawnSystem {
-  function setObjectAtCoord(uint8 objectTypeId, VoxelCoord memory coord) external;
+  function setObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) external;
 
-  function setObjectAtCoord(uint8 objectTypeId, VoxelCoord[] memory coord) external;
+  function setObjectAtCoord(uint16 objectTypeId, VoxelCoord[] memory coord) external;
 
-  function setObjectAtCoord(uint8[] memory objectTypeId, VoxelCoord[] memory coord) external;
+  function setObjectAtCoord(uint16[] memory objectTypeId, VoxelCoord[] memory coord) external;
 }

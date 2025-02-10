@@ -17,12 +17,12 @@ function decodeAddressExchangeResourceId(bytes32 resourceId) pure returns (addre
   return address(uint160(uint256(resourceId)));
 }
 
-function encodeObjectExchangeResourceId(uint8 objectTypeId) pure returns (bytes32) {
+function encodeObjectExchangeResourceId(uint16 objectTypeId) pure returns (bytes32) {
   return bytes32(uint256(objectTypeId));
 }
 
-function decodeObjectExchangeResourceId(bytes32 resourceId) pure returns (uint8) {
-  return uint8(uint256(resourceId));
+function decodeObjectExchangeResourceId(bytes32 resourceId) pure returns (uint16) {
+  return uint16(uint256(resourceId));
 }
 
 function exchangeExists(bytes32 entityId, bytes32 exchangeId) view returns (bool) {

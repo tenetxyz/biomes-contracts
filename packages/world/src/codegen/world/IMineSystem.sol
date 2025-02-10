@@ -11,7 +11,7 @@ import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IMineSystem {
-  function mine(VoxelCoord memory coord, bytes memory extraData) external payable;
+  function mineWithExtraData(VoxelCoord memory coord, bytes memory extraData) external payable;
 
   function mine(VoxelCoord memory coord) external payable;
 }

@@ -4,8 +4,9 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
+import { ObjectCategory } from "../../codegen/common.sol";
 
-import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
+import { MAX_BLOCK_STACKABLE, MAX_ITEM_STACKABLE } from "../../Constants.sol";
 import { CobblestoneObjectID, CobblestoneBrickObjectID, CobblestoneCarvedObjectID, CobblestonePolishedObjectID, CobblestoneShinglesObjectID } from "../../ObjectTypeIds.sol";
 import { StoneObjectID, StoneBrickObjectID, StoneCarvedObjectID, StonePolishedObjectID, StoneShinglesObjectID } from "../../ObjectTypeIds.sol";
 import { BasaltObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID } from "../../ObjectTypeIds.sol";
@@ -23,30 +24,30 @@ import { ThermoblasterObjectID } from "../../ObjectTypeIds.sol";
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitThermoblastSystem is System {
-  function createBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty) internal {
+  function createBlock(uint16 terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
-        isBlock: true,
-        isTool: false,
-        miningDifficulty: miningDifficulty,
+        objectCategory: ObjectCategory.Block,
         stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0
+        maxInventorySlots: 0,
+        mass: mass,
+        energy: 0,
+        canPassThrough: false
       })
     );
   }
 
-  function createItem(uint8 itemObjectTypeId) internal {
+  function createItem(uint16 itemObjectTypeId) internal {
     ObjectTypeMetadata._set(
       itemObjectTypeId,
       ObjectTypeMetadataData({
-        isBlock: false,
-        isTool: false,
-        miningDifficulty: 0,
-        stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0
+        objectCategory: ObjectCategory.Item,
+        stackable: MAX_ITEM_STACKABLE,
+        maxInventorySlots: 0,
+        mass: 0,
+        energy: 0,
+        canPassThrough: false
       })
     );
   }

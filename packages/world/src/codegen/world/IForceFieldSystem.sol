@@ -14,7 +14,7 @@ interface IForceFieldSystem {
   function requireBuildsAllowed(
     bytes32 playerEntityId,
     bytes32 baseEntityId,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     VoxelCoord[] memory coords,
     bytes memory extraData
   ) external payable;
@@ -22,7 +22,7 @@ interface IForceFieldSystem {
   function requireMinesAllowed(
     bytes32 playerEntityId,
     bytes32 baseEntityId,
-    uint8 objectTypeId,
+    uint16 objectTypeId,
     VoxelCoord[] memory coords,
     bytes memory extraData
   ) external payable;

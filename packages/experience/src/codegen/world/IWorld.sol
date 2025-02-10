@@ -18,20 +18,6 @@ import { IPipeSystem } from "./IPipeSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
 import { ISmartItemMetadataSystem } from "./ISmartItemMetadataSystem.sol";
 import { ITokenMetadataSystem } from "./ITokenMetadataSystem.sol";
-import { IAreaSystem } from "./IAreaSystem.sol";
-import { IBuildsSystem } from "./IBuildsSystem.sol";
-import { IChestMetadataSystem } from "./IChestMetadataSystem.sol";
-import { IChipNamespaceSystem } from "./IChipNamespaceSystem.sol";
-import { ICountdownSystem } from "./ICountdownSystem.sol";
-import { IDisplaySystem } from "./IDisplaySystem.sol";
-import { IExpMetadataSystem } from "./IExpMetadataSystem.sol";
-import { IFFApprovalsSystem } from "./IFFApprovalsSystem.sol";
-import { IFFMetadataSystem } from "./IFFMetadataSystem.sol";
-import { IItemShopNotifSystem } from "./IItemShopNotifSystem.sol";
-import { INFTSystem } from "./INFTSystem.sol";
-import { IPlayerSystem } from "./IPlayerSystem.sol";
-import { IShopSystem } from "./IShopSystem.sol";
-import { ITokenSystem } from "./ITokenSystem.sol";
 
 /**
  * @title IWorld
@@ -55,19 +41,5 @@ interface IWorld is
   IPipeSystem,
   IReadSystem,
   ISmartItemMetadataSystem,
-  ITokenMetadataSystem,
-  IAreaSystem,
-  IBuildsSystem,
-  IChestMetadataSystem,
-  IChipNamespaceSystem,
-  ICountdownSystem,
-  IDisplaySystem,
-  IExpMetadataSystem,
-  IFFApprovalsSystem,
-  IFFMetadataSystem,
-  IItemShopNotifSystem,
-  INFTSystem,
-  IPlayerSystem,
-  IShopSystem,
-  ITokenSystem
+  ITokenMetadataSystem
 {}

@@ -6,8 +6,6 @@ pragma solidity >=0.8.24;
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { EntityData, EntityDataWithBaseEntity, InventoryObject } from "../../Types.sol";
-import { HealthData } from "../tables/Health.sol";
-import { StaminaData } from "../tables/Stamina.sol";
 
 /**
  * @title IReadSystem
@@ -26,11 +24,7 @@ interface IReadSystem {
     address delegatee
   ) external view returns (ResourceId delegationControlId);
 
-  function getObjectTypeIdAtCoord(VoxelCoord memory coord) external view returns (uint8);
-
-  function getObjectTypeIdAtCoordOrTerrain(VoxelCoord memory coord) external view returns (uint8);
-
-  function getMultipleObjectTypeIdAtCoordOrTerrain(VoxelCoord[] memory coord) external view returns (uint8[] memory);
+  function getObjectTypeIdAtCoord(VoxelCoord memory coord) external view returns (uint16);
 
   function getEntityIdAtCoord(VoxelCoord memory coord) external view returns (bytes32);
 
@@ -51,10 +45,6 @@ interface IReadSystem {
   ) external view returns (EntityDataWithBaseEntity[] memory);
 
   function getLastActivityTime(address player) external view returns (uint256);
-
-  function getHealth(address player) external view returns (HealthData memory);
-
-  function getStamina(address player) external view returns (StaminaData memory);
 
   function getInventory(address player) external view returns (InventoryObject[] memory);
 

@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
+import { ObjectCategory } from "../../codegen/common.sol";
 
 import { MAX_TOOL_STACKABLE, MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
@@ -15,51 +16,51 @@ import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitWorkbenchSystem is System {
-  function createTool(uint8 toolObjectTypeId, uint24 durability, uint16 damage) internal {
+  function createTool(uint16 toolObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
-        isBlock: false,
-        isTool: true,
-        miningDifficulty: 0,
+        objectCategory: ObjectCategory.Tool,
         stackable: MAX_TOOL_STACKABLE,
-        durability: durability,
-        damage: damage
+        maxInventorySlots: 0,
+        mass: mass,
+        energy: 0,
+        canPassThrough: false
       })
     );
   }
 
-  function createBlock(uint8 terrainBlockObjectTypeId, uint16 miningDifficulty) internal {
+  function createBlock(uint16 terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
-        isBlock: true,
-        isTool: false,
-        miningDifficulty: miningDifficulty,
+        objectCategory: ObjectCategory.Block,
         stackable: MAX_BLOCK_STACKABLE,
-        durability: 0,
-        damage: 0
+        maxInventorySlots: 0,
+        mass: mass,
+        energy: 0,
+        canPassThrough: false
       })
     );
   }
 
   function initWorkbenchObjectTypes() public {
-    createTool(StonePickObjectID, 100000, 120);
-    createTool(StoneAxeObjectID, 100000, 120);
-    createTool(StoneWhackerObjectID, 100000, 120);
+    createTool(StonePickObjectID, 100000);
+    createTool(StoneAxeObjectID, 100000);
+    createTool(StoneWhackerObjectID, 100000);
 
-    createTool(SilverPickObjectID, 1400000, 160);
-    createTool(SilverAxeObjectID, 1400000, 160);
-    createTool(SilverWhackerObjectID, 1400000, 160);
+    createTool(SilverPickObjectID, 1400000);
+    createTool(SilverAxeObjectID, 1400000);
+    createTool(SilverWhackerObjectID, 1400000);
 
-    createTool(GoldPickObjectID, 1200000, 200);
-    createTool(GoldAxeObjectID, 1200000, 200);
+    createTool(GoldPickObjectID, 1200000);
+    createTool(GoldAxeObjectID, 1200000);
 
-    createTool(DiamondPickObjectID, 1900000, 240);
-    createTool(DiamondAxeObjectID, 1900000, 240);
+    createTool(DiamondPickObjectID, 1900000);
+    createTool(DiamondAxeObjectID, 1900000);
 
-    createTool(NeptuniumPickObjectID, 5500000, 280);
-    createTool(NeptuniumAxeObjectID, 5500000, 280);
+    createTool(NeptuniumPickObjectID, 5500000);
+    createTool(NeptuniumAxeObjectID, 5500000);
 
     createBlock(ReinforcedOakLumberObjectID, 140);
     createBlock(ReinforcedRubberLumberObjectID, 140);

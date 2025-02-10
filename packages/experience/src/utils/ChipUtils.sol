@@ -8,13 +8,8 @@ import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
 import { ChipMetadataData } from "../codegen/tables/ChipMetadata.sol";
-import { ItemShopData } from "../codegen/tables/ItemShop.sol";
-import { FFMetadataData } from "../codegen/tables/FFMetadata.sol";
-import { ChestMetadataData } from "../codegen/tables/ChestMetadata.sol";
-import { ForceFieldApprovalsData } from "../codegen/tables/ForceFieldApprovals.sol";
 import { SmartItemMetadataData } from "../codegen/tables/SmartItemMetadata.sol";
 import { GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
-import { ItemShopNotifData } from "../codegen/tables/ItemShopNotif.sol";
 import { ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
 import { ExchangeNotifData } from "../codegen/tables/ExchangeNotif.sol";
 

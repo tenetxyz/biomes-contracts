@@ -7,36 +7,20 @@ import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 
 import { ChipMetadata, ChipMetadataData } from "../src/codegen/tables/ChipMetadata.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { Tokens } from "../src/codegen/tables/Tokens.sol";
-import { NFTs } from "../src/codegen/tables/NFTs.sol";
-import { ERC20Metadata } from "../src/codegen/tables/ERC20Metadata.sol";
-import { ERC721Metadata } from "../src/codegen/tables/ERC721Metadata.sol";
-import { ItemShop } from "../src/codegen/tables/ItemShop.sol";
 import { ChipAttachment } from "../src/codegen/tables/ChipAttachment.sol";
 import { ChipAdmin } from "../src/codegen/tables/ChipAdmin.sol";
-import { ForceFieldApprovals } from "../src/codegen/tables/ForceFieldApprovals.sol";
 import { GateApprovals, GateApprovalsData } from "../src/codegen/tables/GateApprovals.sol";
 import { SmartItemMetadata, SmartItemMetadataData } from "../src/codegen/tables/SmartItemMetadata.sol";
 import { Chip } from "@biomesaw/world/src/codegen/tables/Chip.sol";
-import { NamespaceId } from "../src/codegen/tables/NamespaceId.sol";
-import { ResourceId, WorldResourceIdLib, WorldResourceIdInstance } from "@latticexyz/world/src/WorldResourceId.sol";
-import { Assets } from "../src/codegen/tables/Assets.sol";
 import { ResourceType } from "../src/codegen/common.sol";
 import { Exchanges } from "../src/codegen/tables/Exchanges.sol";
 import { ExchangeInfo, ExchangeInfoData } from "../src/codegen/tables/ExchangeInfo.sol";
 import { encodeAddressExchangeResourceId, encodeObjectExchangeResourceId } from "../src/utils/ExchangeUtils.sol";
 
-import { numMaxInChest, getCount } from "../src/utils/EntityUtils.sol";
-import { ExchangeInfoDataWithExchangeId } from "../src/Types.sol";
 import { SakuraLogObjectID, StoneObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
 
 bytes32 constant BUY_EXCHANGE_ID = bytes32("buy");
 bytes32 constant SELL_EXCHANGE_ID = bytes32("sell");
-
-struct ExchangeInfoDataWithEntityId {
-  bytes32 entityId;
-  ExchangeInfoDataWithExchangeId[] exchangeInfoData;
-}
 
 contract Upgrade is Script {
   function run(address worldAddress) external {
@@ -48,10 +32,6 @@ contract Upgrade is Script {
 
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
-
-    // console.logUint(ItemShop.getBalance(0x000000000000000000000000000000000000000000000000000000000002ec2d));
-    // console.log(ItemShop.getPaymentToken(0x000000000000000000000000000000000000000000000000000000000002ec2d));
-    // ItemShop.setBalance(0x000000000000000000000000000000000000000000000000000000000002ec2d, type(uint256).max);
 
     bytes32 chestEntityId = 0x0000000000000000000000000000000000000000000000000000000000258775;
     ExchangeInfo.set(

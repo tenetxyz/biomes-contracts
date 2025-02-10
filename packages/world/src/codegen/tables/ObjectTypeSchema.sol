@@ -17,9 +17,9 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 struct ObjectTypeSchemaData {
-  int16[] relativePositionsX;
-  int16[] relativePositionsY;
-  int16[] relativePositionsZ;
+  int32[] relativePositionsX;
+  int32[] relativePositionsY;
+  int32[] relativePositionsZ;
 }
 
 library ObjectTypeSchema {
@@ -29,10 +29,10 @@ library ObjectTypeSchema {
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0000000300000000000000000000000000000000000000000000000000000000);
 
-  // Hex-encoded key schema of (uint8)
-  Schema constant _keySchema = Schema.wrap(0x0001010000000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (int16[], int16[], int16[])
-  Schema constant _valueSchema = Schema.wrap(0x0000000383838300000000000000000000000000000000000000000000000000);
+  // Hex-encoded key schema of (uint16)
+  Schema constant _keySchema = Schema.wrap(0x0002010001000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (int32[], int32[], int32[])
+  Schema constant _valueSchema = Schema.wrap(0x0000000385858500000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -69,52 +69,31 @@ library ObjectTypeSchema {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
    * @notice Get relativePositionsX.
    */
-  function getRelativePositionsX(uint8 objectTypeId) internal view returns (int16[] memory relativePositionsX) {
+  function getRelativePositionsX(uint16 objectTypeId) internal view returns (int32[] memory relativePositionsX) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int16());
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int32());
   }
 
   /**
    * @notice Get relativePositionsX.
    */
-  function _getRelativePositionsX(uint8 objectTypeId) internal view returns (int16[] memory relativePositionsX) {
+  function _getRelativePositionsX(uint16 objectTypeId) internal view returns (int32[] memory relativePositionsX) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int16());
-  }
-
-  /**
-   * @notice Get relativePositionsX (using the specified store).
-   */
-  function getRelativePositionsX(
-    IStore _store,
-    uint8 objectTypeId
-  ) internal view returns (int16[] memory relativePositionsX) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 0);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int16());
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int32());
   }
 
   /**
    * @notice Set relativePositionsX.
    */
-  function setRelativePositionsX(uint8 objectTypeId, int16[] memory relativePositionsX) internal {
+  function setRelativePositionsX(uint16 objectTypeId, int32[] memory relativePositionsX) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -124,7 +103,7 @@ library ObjectTypeSchema {
   /**
    * @notice Set relativePositionsX.
    */
-  function _setRelativePositionsX(uint8 objectTypeId, int16[] memory relativePositionsX) internal {
+  function _setRelativePositionsX(uint16 objectTypeId, int32[] memory relativePositionsX) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -132,51 +111,28 @@ library ObjectTypeSchema {
   }
 
   /**
-   * @notice Set relativePositionsX (using the specified store).
-   */
-  function setRelativePositionsX(IStore _store, uint8 objectTypeId, int16[] memory relativePositionsX) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((relativePositionsX)));
-  }
-
-  /**
    * @notice Get the length of relativePositionsX.
    */
-  function lengthRelativePositionsX(uint8 objectTypeId) internal view returns (uint256) {
+  function lengthRelativePositionsX(uint16 objectTypeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
-      return _byteLength / 2;
+      return _byteLength / 4;
     }
   }
 
   /**
    * @notice Get the length of relativePositionsX.
    */
-  function _lengthRelativePositionsX(uint8 objectTypeId) internal view returns (uint256) {
+  function _lengthRelativePositionsX(uint16 objectTypeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
-      return _byteLength / 2;
-    }
-  }
-
-  /**
-   * @notice Get the length of relativePositionsX (using the specified store).
-   */
-  function lengthRelativePositionsX(IStore _store, uint8 objectTypeId) internal view returns (uint256) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 0);
-    unchecked {
-      return _byteLength / 2;
+      return _byteLength / 4;
     }
   }
 
@@ -184,13 +140,13 @@ library ObjectTypeSchema {
    * @notice Get an item of relativePositionsX.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemRelativePositionsX(uint8 objectTypeId, uint256 _index) internal view returns (int16) {
+  function getItemRelativePositionsX(uint16 objectTypeId, uint256 _index) internal view returns (int32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     unchecked {
-      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 2, (_index + 1) * 2);
-      return (int16(uint16(bytes2(_blob))));
+      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 4, (_index + 1) * 4);
+      return (int32(uint32(bytes4(_blob))));
     }
   }
 
@@ -198,34 +154,20 @@ library ObjectTypeSchema {
    * @notice Get an item of relativePositionsX.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemRelativePositionsX(uint8 objectTypeId, uint256 _index) internal view returns (int16) {
+  function _getItemRelativePositionsX(uint16 objectTypeId, uint256 _index) internal view returns (int32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     unchecked {
-      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 2, (_index + 1) * 2);
-      return (int16(uint16(bytes2(_blob))));
-    }
-  }
-
-  /**
-   * @notice Get an item of relativePositionsX (using the specified store).
-   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
-   */
-  function getItemRelativePositionsX(IStore _store, uint8 objectTypeId, uint256 _index) internal view returns (int16) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    unchecked {
-      bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 2, (_index + 1) * 2);
-      return (int16(uint16(bytes2(_blob))));
+      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 4, (_index + 1) * 4);
+      return (int32(uint32(bytes4(_blob))));
     }
   }
 
   /**
    * @notice Push an element to relativePositionsX.
    */
-  function pushRelativePositionsX(uint8 objectTypeId, int16 _element) internal {
+  function pushRelativePositionsX(uint16 objectTypeId, int32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -235,7 +177,7 @@ library ObjectTypeSchema {
   /**
    * @notice Push an element to relativePositionsX.
    */
-  function _pushRelativePositionsX(uint8 objectTypeId, int16 _element) internal {
+  function _pushRelativePositionsX(uint16 objectTypeId, int32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -243,124 +185,77 @@ library ObjectTypeSchema {
   }
 
   /**
-   * @notice Push an element to relativePositionsX (using the specified store).
+   * @notice Pop an element from relativePositionsX.
    */
-  function pushRelativePositionsX(IStore _store, uint8 objectTypeId, int16 _element) internal {
+  function popRelativePositionsX(uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    _store.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
+    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 4);
   }
 
   /**
    * @notice Pop an element from relativePositionsX.
    */
-  function popRelativePositionsX(uint8 objectTypeId) internal {
+  function _popRelativePositionsX(uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 2);
-  }
-
-  /**
-   * @notice Pop an element from relativePositionsX.
-   */
-  function _popRelativePositionsX(uint8 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 2);
-  }
-
-  /**
-   * @notice Pop an element from relativePositionsX (using the specified store).
-   */
-  function popRelativePositionsX(IStore _store, uint8 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.popFromDynamicField(_tableId, _keyTuple, 0, 2);
+    StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 4);
   }
 
   /**
    * @notice Update an element of relativePositionsX at `_index`.
    */
-  function updateRelativePositionsX(uint8 objectTypeId, uint256 _index, int16 _element) internal {
+  function updateRelativePositionsX(uint16 objectTypeId, uint256 _index, int32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
-      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 2), uint40(_encoded.length), _encoded);
+      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 4), uint40(_encoded.length), _encoded);
     }
   }
 
   /**
    * @notice Update an element of relativePositionsX at `_index`.
    */
-  function _updateRelativePositionsX(uint8 objectTypeId, uint256 _index, int16 _element) internal {
+  function _updateRelativePositionsX(uint16 objectTypeId, uint256 _index, int32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
-      StoreCore.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 2), uint40(_encoded.length), _encoded);
-    }
-  }
-
-  /**
-   * @notice Update an element of relativePositionsX (using the specified store) at `_index`.
-   */
-  function updateRelativePositionsX(IStore _store, uint8 objectTypeId, uint256 _index, int16 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    unchecked {
-      bytes memory _encoded = abi.encodePacked((_element));
-      _store.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 2), uint40(_encoded.length), _encoded);
+      StoreCore.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 4), uint40(_encoded.length), _encoded);
     }
   }
 
   /**
    * @notice Get relativePositionsY.
    */
-  function getRelativePositionsY(uint8 objectTypeId) internal view returns (int16[] memory relativePositionsY) {
+  function getRelativePositionsY(uint16 objectTypeId) internal view returns (int32[] memory relativePositionsY) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 1);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int16());
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int32());
   }
 
   /**
    * @notice Get relativePositionsY.
    */
-  function _getRelativePositionsY(uint8 objectTypeId) internal view returns (int16[] memory relativePositionsY) {
+  function _getRelativePositionsY(uint16 objectTypeId) internal view returns (int32[] memory relativePositionsY) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 1);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int16());
-  }
-
-  /**
-   * @notice Get relativePositionsY (using the specified store).
-   */
-  function getRelativePositionsY(
-    IStore _store,
-    uint8 objectTypeId
-  ) internal view returns (int16[] memory relativePositionsY) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 1);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int16());
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int32());
   }
 
   /**
    * @notice Set relativePositionsY.
    */
-  function setRelativePositionsY(uint8 objectTypeId, int16[] memory relativePositionsY) internal {
+  function setRelativePositionsY(uint16 objectTypeId, int32[] memory relativePositionsY) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -370,7 +265,7 @@ library ObjectTypeSchema {
   /**
    * @notice Set relativePositionsY.
    */
-  function _setRelativePositionsY(uint8 objectTypeId, int16[] memory relativePositionsY) internal {
+  function _setRelativePositionsY(uint16 objectTypeId, int32[] memory relativePositionsY) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -378,51 +273,28 @@ library ObjectTypeSchema {
   }
 
   /**
-   * @notice Set relativePositionsY (using the specified store).
-   */
-  function setRelativePositionsY(IStore _store, uint8 objectTypeId, int16[] memory relativePositionsY) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setDynamicField(_tableId, _keyTuple, 1, EncodeArray.encode((relativePositionsY)));
-  }
-
-  /**
    * @notice Get the length of relativePositionsY.
    */
-  function lengthRelativePositionsY(uint8 objectTypeId) internal view returns (uint256) {
+  function lengthRelativePositionsY(uint16 objectTypeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 1);
     unchecked {
-      return _byteLength / 2;
+      return _byteLength / 4;
     }
   }
 
   /**
    * @notice Get the length of relativePositionsY.
    */
-  function _lengthRelativePositionsY(uint8 objectTypeId) internal view returns (uint256) {
+  function _lengthRelativePositionsY(uint16 objectTypeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 1);
     unchecked {
-      return _byteLength / 2;
-    }
-  }
-
-  /**
-   * @notice Get the length of relativePositionsY (using the specified store).
-   */
-  function lengthRelativePositionsY(IStore _store, uint8 objectTypeId) internal view returns (uint256) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 1);
-    unchecked {
-      return _byteLength / 2;
+      return _byteLength / 4;
     }
   }
 
@@ -430,13 +302,13 @@ library ObjectTypeSchema {
    * @notice Get an item of relativePositionsY.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemRelativePositionsY(uint8 objectTypeId, uint256 _index) internal view returns (int16) {
+  function getItemRelativePositionsY(uint16 objectTypeId, uint256 _index) internal view returns (int32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     unchecked {
-      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 2, (_index + 1) * 2);
-      return (int16(uint16(bytes2(_blob))));
+      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 4, (_index + 1) * 4);
+      return (int32(uint32(bytes4(_blob))));
     }
   }
 
@@ -444,34 +316,20 @@ library ObjectTypeSchema {
    * @notice Get an item of relativePositionsY.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemRelativePositionsY(uint8 objectTypeId, uint256 _index) internal view returns (int16) {
+  function _getItemRelativePositionsY(uint16 objectTypeId, uint256 _index) internal view returns (int32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     unchecked {
-      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 2, (_index + 1) * 2);
-      return (int16(uint16(bytes2(_blob))));
-    }
-  }
-
-  /**
-   * @notice Get an item of relativePositionsY (using the specified store).
-   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
-   */
-  function getItemRelativePositionsY(IStore _store, uint8 objectTypeId, uint256 _index) internal view returns (int16) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    unchecked {
-      bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 2, (_index + 1) * 2);
-      return (int16(uint16(bytes2(_blob))));
+      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 4, (_index + 1) * 4);
+      return (int32(uint32(bytes4(_blob))));
     }
   }
 
   /**
    * @notice Push an element to relativePositionsY.
    */
-  function pushRelativePositionsY(uint8 objectTypeId, int16 _element) internal {
+  function pushRelativePositionsY(uint16 objectTypeId, int32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -481,7 +339,7 @@ library ObjectTypeSchema {
   /**
    * @notice Push an element to relativePositionsY.
    */
-  function _pushRelativePositionsY(uint8 objectTypeId, int16 _element) internal {
+  function _pushRelativePositionsY(uint16 objectTypeId, int32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -489,124 +347,77 @@ library ObjectTypeSchema {
   }
 
   /**
-   * @notice Push an element to relativePositionsY (using the specified store).
+   * @notice Pop an element from relativePositionsY.
    */
-  function pushRelativePositionsY(IStore _store, uint8 objectTypeId, int16 _element) internal {
+  function popRelativePositionsY(uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    _store.pushToDynamicField(_tableId, _keyTuple, 1, abi.encodePacked((_element)));
+    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 1, 4);
   }
 
   /**
    * @notice Pop an element from relativePositionsY.
    */
-  function popRelativePositionsY(uint8 objectTypeId) internal {
+  function _popRelativePositionsY(uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 1, 2);
-  }
-
-  /**
-   * @notice Pop an element from relativePositionsY.
-   */
-  function _popRelativePositionsY(uint8 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.popFromDynamicField(_tableId, _keyTuple, 1, 2);
-  }
-
-  /**
-   * @notice Pop an element from relativePositionsY (using the specified store).
-   */
-  function popRelativePositionsY(IStore _store, uint8 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.popFromDynamicField(_tableId, _keyTuple, 1, 2);
+    StoreCore.popFromDynamicField(_tableId, _keyTuple, 1, 4);
   }
 
   /**
    * @notice Update an element of relativePositionsY at `_index`.
    */
-  function updateRelativePositionsY(uint8 objectTypeId, uint256 _index, int16 _element) internal {
+  function updateRelativePositionsY(uint16 objectTypeId, uint256 _index, int32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
-      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 2), uint40(_encoded.length), _encoded);
+      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 4), uint40(_encoded.length), _encoded);
     }
   }
 
   /**
    * @notice Update an element of relativePositionsY at `_index`.
    */
-  function _updateRelativePositionsY(uint8 objectTypeId, uint256 _index, int16 _element) internal {
+  function _updateRelativePositionsY(uint16 objectTypeId, uint256 _index, int32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
-      StoreCore.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 2), uint40(_encoded.length), _encoded);
-    }
-  }
-
-  /**
-   * @notice Update an element of relativePositionsY (using the specified store) at `_index`.
-   */
-  function updateRelativePositionsY(IStore _store, uint8 objectTypeId, uint256 _index, int16 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    unchecked {
-      bytes memory _encoded = abi.encodePacked((_element));
-      _store.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 2), uint40(_encoded.length), _encoded);
+      StoreCore.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 4), uint40(_encoded.length), _encoded);
     }
   }
 
   /**
    * @notice Get relativePositionsZ.
    */
-  function getRelativePositionsZ(uint8 objectTypeId) internal view returns (int16[] memory relativePositionsZ) {
+  function getRelativePositionsZ(uint16 objectTypeId) internal view returns (int32[] memory relativePositionsZ) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 2);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int16());
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int32());
   }
 
   /**
    * @notice Get relativePositionsZ.
    */
-  function _getRelativePositionsZ(uint8 objectTypeId) internal view returns (int16[] memory relativePositionsZ) {
+  function _getRelativePositionsZ(uint16 objectTypeId) internal view returns (int32[] memory relativePositionsZ) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 2);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int16());
-  }
-
-  /**
-   * @notice Get relativePositionsZ (using the specified store).
-   */
-  function getRelativePositionsZ(
-    IStore _store,
-    uint8 objectTypeId
-  ) internal view returns (int16[] memory relativePositionsZ) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 2);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int16());
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_int32());
   }
 
   /**
    * @notice Set relativePositionsZ.
    */
-  function setRelativePositionsZ(uint8 objectTypeId, int16[] memory relativePositionsZ) internal {
+  function setRelativePositionsZ(uint16 objectTypeId, int32[] memory relativePositionsZ) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -616,7 +427,7 @@ library ObjectTypeSchema {
   /**
    * @notice Set relativePositionsZ.
    */
-  function _setRelativePositionsZ(uint8 objectTypeId, int16[] memory relativePositionsZ) internal {
+  function _setRelativePositionsZ(uint16 objectTypeId, int32[] memory relativePositionsZ) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -624,51 +435,28 @@ library ObjectTypeSchema {
   }
 
   /**
-   * @notice Set relativePositionsZ (using the specified store).
-   */
-  function setRelativePositionsZ(IStore _store, uint8 objectTypeId, int16[] memory relativePositionsZ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setDynamicField(_tableId, _keyTuple, 2, EncodeArray.encode((relativePositionsZ)));
-  }
-
-  /**
    * @notice Get the length of relativePositionsZ.
    */
-  function lengthRelativePositionsZ(uint8 objectTypeId) internal view returns (uint256) {
+  function lengthRelativePositionsZ(uint16 objectTypeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 2);
     unchecked {
-      return _byteLength / 2;
+      return _byteLength / 4;
     }
   }
 
   /**
    * @notice Get the length of relativePositionsZ.
    */
-  function _lengthRelativePositionsZ(uint8 objectTypeId) internal view returns (uint256) {
+  function _lengthRelativePositionsZ(uint16 objectTypeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 2);
     unchecked {
-      return _byteLength / 2;
-    }
-  }
-
-  /**
-   * @notice Get the length of relativePositionsZ (using the specified store).
-   */
-  function lengthRelativePositionsZ(IStore _store, uint8 objectTypeId) internal view returns (uint256) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 2);
-    unchecked {
-      return _byteLength / 2;
+      return _byteLength / 4;
     }
   }
 
@@ -676,13 +464,13 @@ library ObjectTypeSchema {
    * @notice Get an item of relativePositionsZ.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemRelativePositionsZ(uint8 objectTypeId, uint256 _index) internal view returns (int16) {
+  function getItemRelativePositionsZ(uint16 objectTypeId, uint256 _index) internal view returns (int32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     unchecked {
-      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 2, _index * 2, (_index + 1) * 2);
-      return (int16(uint16(bytes2(_blob))));
+      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 2, _index * 4, (_index + 1) * 4);
+      return (int32(uint32(bytes4(_blob))));
     }
   }
 
@@ -690,34 +478,20 @@ library ObjectTypeSchema {
    * @notice Get an item of relativePositionsZ.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemRelativePositionsZ(uint8 objectTypeId, uint256 _index) internal view returns (int16) {
+  function _getItemRelativePositionsZ(uint16 objectTypeId, uint256 _index) internal view returns (int32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     unchecked {
-      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 2, _index * 2, (_index + 1) * 2);
-      return (int16(uint16(bytes2(_blob))));
-    }
-  }
-
-  /**
-   * @notice Get an item of relativePositionsZ (using the specified store).
-   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
-   */
-  function getItemRelativePositionsZ(IStore _store, uint8 objectTypeId, uint256 _index) internal view returns (int16) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    unchecked {
-      bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 2, _index * 2, (_index + 1) * 2);
-      return (int16(uint16(bytes2(_blob))));
+      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 2, _index * 4, (_index + 1) * 4);
+      return (int32(uint32(bytes4(_blob))));
     }
   }
 
   /**
    * @notice Push an element to relativePositionsZ.
    */
-  function pushRelativePositionsZ(uint8 objectTypeId, int16 _element) internal {
+  function pushRelativePositionsZ(uint16 objectTypeId, int32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -727,7 +501,7 @@ library ObjectTypeSchema {
   /**
    * @notice Push an element to relativePositionsZ.
    */
-  function _pushRelativePositionsZ(uint8 objectTypeId, int16 _element) internal {
+  function _pushRelativePositionsZ(uint16 objectTypeId, int32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -735,88 +509,55 @@ library ObjectTypeSchema {
   }
 
   /**
-   * @notice Push an element to relativePositionsZ (using the specified store).
+   * @notice Pop an element from relativePositionsZ.
    */
-  function pushRelativePositionsZ(IStore _store, uint8 objectTypeId, int16 _element) internal {
+  function popRelativePositionsZ(uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    _store.pushToDynamicField(_tableId, _keyTuple, 2, abi.encodePacked((_element)));
+    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 2, 4);
   }
 
   /**
    * @notice Pop an element from relativePositionsZ.
    */
-  function popRelativePositionsZ(uint8 objectTypeId) internal {
+  function _popRelativePositionsZ(uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 2, 2);
-  }
-
-  /**
-   * @notice Pop an element from relativePositionsZ.
-   */
-  function _popRelativePositionsZ(uint8 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.popFromDynamicField(_tableId, _keyTuple, 2, 2);
-  }
-
-  /**
-   * @notice Pop an element from relativePositionsZ (using the specified store).
-   */
-  function popRelativePositionsZ(IStore _store, uint8 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.popFromDynamicField(_tableId, _keyTuple, 2, 2);
+    StoreCore.popFromDynamicField(_tableId, _keyTuple, 2, 4);
   }
 
   /**
    * @notice Update an element of relativePositionsZ at `_index`.
    */
-  function updateRelativePositionsZ(uint8 objectTypeId, uint256 _index, int16 _element) internal {
+  function updateRelativePositionsZ(uint16 objectTypeId, uint256 _index, int32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
-      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 2, uint40(_index * 2), uint40(_encoded.length), _encoded);
+      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 2, uint40(_index * 4), uint40(_encoded.length), _encoded);
     }
   }
 
   /**
    * @notice Update an element of relativePositionsZ at `_index`.
    */
-  function _updateRelativePositionsZ(uint8 objectTypeId, uint256 _index, int16 _element) internal {
+  function _updateRelativePositionsZ(uint16 objectTypeId, uint256 _index, int32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
-      StoreCore.spliceDynamicData(_tableId, _keyTuple, 2, uint40(_index * 2), uint40(_encoded.length), _encoded);
-    }
-  }
-
-  /**
-   * @notice Update an element of relativePositionsZ (using the specified store) at `_index`.
-   */
-  function updateRelativePositionsZ(IStore _store, uint8 objectTypeId, uint256 _index, int16 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    unchecked {
-      bytes memory _encoded = abi.encodePacked((_element));
-      _store.spliceDynamicData(_tableId, _keyTuple, 2, uint40(_index * 2), uint40(_encoded.length), _encoded);
+      StoreCore.spliceDynamicData(_tableId, _keyTuple, 2, uint40(_index * 4), uint40(_encoded.length), _encoded);
     }
   }
 
   /**
    * @notice Get the full data.
    */
-  function get(uint8 objectTypeId) internal view returns (ObjectTypeSchemaData memory _table) {
+  function get(uint16 objectTypeId) internal view returns (ObjectTypeSchemaData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -831,7 +572,7 @@ library ObjectTypeSchema {
   /**
    * @notice Get the full data.
    */
-  function _get(uint8 objectTypeId) internal view returns (ObjectTypeSchemaData memory _table) {
+  function _get(uint16 objectTypeId) internal view returns (ObjectTypeSchemaData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -844,28 +585,13 @@ library ObjectTypeSchema {
   }
 
   /**
-   * @notice Get the full data (using the specified store).
-   */
-  function get(IStore _store, uint8 objectTypeId) internal view returns (ObjectTypeSchemaData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
-      _tableId,
-      _keyTuple,
-      _fieldLayout
-    );
-    return decode(_staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Set the full data using individual values.
    */
   function set(
-    uint8 objectTypeId,
-    int16[] memory relativePositionsX,
-    int16[] memory relativePositionsY,
-    int16[] memory relativePositionsZ
+    uint16 objectTypeId,
+    int32[] memory relativePositionsX,
+    int32[] memory relativePositionsY,
+    int32[] memory relativePositionsZ
   ) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(relativePositionsX, relativePositionsY, relativePositionsZ);
@@ -881,10 +607,10 @@ library ObjectTypeSchema {
    * @notice Set the full data using individual values.
    */
   function _set(
-    uint8 objectTypeId,
-    int16[] memory relativePositionsX,
-    int16[] memory relativePositionsY,
-    int16[] memory relativePositionsZ
+    uint16 objectTypeId,
+    int32[] memory relativePositionsX,
+    int32[] memory relativePositionsY,
+    int32[] memory relativePositionsZ
   ) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(relativePositionsX, relativePositionsY, relativePositionsZ);
@@ -897,29 +623,9 @@ library ObjectTypeSchema {
   }
 
   /**
-   * @notice Set the full data using individual values (using the specified store).
-   */
-  function set(
-    IStore _store,
-    uint8 objectTypeId,
-    int16[] memory relativePositionsX,
-    int16[] memory relativePositionsY,
-    int16[] memory relativePositionsZ
-  ) internal {
-    bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(relativePositionsX, relativePositionsY, relativePositionsZ);
-    bytes memory _dynamicData = encodeDynamic(relativePositionsX, relativePositionsY, relativePositionsZ);
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Set the full data using the data struct.
    */
-  function set(uint8 objectTypeId, ObjectTypeSchemaData memory _table) internal {
+  function set(uint16 objectTypeId, ObjectTypeSchemaData memory _table) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(
       _table.relativePositionsX,
@@ -941,7 +647,7 @@ library ObjectTypeSchema {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(uint8 objectTypeId, ObjectTypeSchemaData memory _table) internal {
+  function _set(uint16 objectTypeId, ObjectTypeSchemaData memory _table) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(
       _table.relativePositionsX,
@@ -961,28 +667,6 @@ library ObjectTypeSchema {
   }
 
   /**
-   * @notice Set the full data using the data struct (using the specified store).
-   */
-  function set(IStore _store, uint8 objectTypeId, ObjectTypeSchemaData memory _table) internal {
-    bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(
-      _table.relativePositionsX,
-      _table.relativePositionsY,
-      _table.relativePositionsZ
-    );
-    bytes memory _dynamicData = encodeDynamic(
-      _table.relativePositionsX,
-      _table.relativePositionsY,
-      _table.relativePositionsZ
-    );
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Decode the tightly packed blob of dynamic data using the encoded lengths.
    */
   function decodeDynamic(
@@ -991,26 +675,26 @@ library ObjectTypeSchema {
   )
     internal
     pure
-    returns (int16[] memory relativePositionsX, int16[] memory relativePositionsY, int16[] memory relativePositionsZ)
+    returns (int32[] memory relativePositionsX, int32[] memory relativePositionsY, int32[] memory relativePositionsZ)
   {
     uint256 _start;
     uint256 _end;
     unchecked {
       _end = _encodedLengths.atIndex(0);
     }
-    relativePositionsX = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_int16());
+    relativePositionsX = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_int32());
 
     _start = _end;
     unchecked {
       _end += _encodedLengths.atIndex(1);
     }
-    relativePositionsY = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_int16());
+    relativePositionsY = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_int32());
 
     _start = _end;
     unchecked {
       _end += _encodedLengths.atIndex(2);
     }
-    relativePositionsZ = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_int16());
+    relativePositionsZ = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_int32());
   }
 
   /**
@@ -1033,7 +717,7 @@ library ObjectTypeSchema {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(uint8 objectTypeId) internal {
+  function deleteRecord(uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -1043,7 +727,7 @@ library ObjectTypeSchema {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(uint8 objectTypeId) internal {
+  function _deleteRecord(uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
@@ -1051,30 +735,20 @@ library ObjectTypeSchema {
   }
 
   /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, uint8 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    _store.deleteRecord(_tableId, _keyTuple);
-  }
-
-  /**
    * @notice Tightly pack dynamic data lengths using this table's schema.
    * @return _encodedLengths The lengths of the dynamic fields (packed into a single bytes32 value).
    */
   function encodeLengths(
-    int16[] memory relativePositionsX,
-    int16[] memory relativePositionsY,
-    int16[] memory relativePositionsZ
+    int32[] memory relativePositionsX,
+    int32[] memory relativePositionsY,
+    int32[] memory relativePositionsZ
   ) internal pure returns (EncodedLengths _encodedLengths) {
     // Lengths are effectively checked during copy by 2**40 bytes exceeding gas limits
     unchecked {
       _encodedLengths = EncodedLengthsLib.pack(
-        relativePositionsX.length * 2,
-        relativePositionsY.length * 2,
-        relativePositionsZ.length * 2
+        relativePositionsX.length * 4,
+        relativePositionsY.length * 4,
+        relativePositionsZ.length * 4
       );
     }
   }
@@ -1084,9 +758,9 @@ library ObjectTypeSchema {
    * @return The dynamic data, encoded into a sequence of bytes.
    */
   function encodeDynamic(
-    int16[] memory relativePositionsX,
-    int16[] memory relativePositionsY,
-    int16[] memory relativePositionsZ
+    int32[] memory relativePositionsX,
+    int32[] memory relativePositionsY,
+    int32[] memory relativePositionsZ
   ) internal pure returns (bytes memory) {
     return
       abi.encodePacked(
@@ -1103,9 +777,9 @@ library ObjectTypeSchema {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
-    int16[] memory relativePositionsX,
-    int16[] memory relativePositionsY,
-    int16[] memory relativePositionsZ
+    int32[] memory relativePositionsX,
+    int32[] memory relativePositionsY,
+    int32[] memory relativePositionsZ
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(relativePositionsX, relativePositionsY, relativePositionsZ);
@@ -1117,7 +791,7 @@ library ObjectTypeSchema {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(uint8 objectTypeId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(uint16 objectTypeId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 

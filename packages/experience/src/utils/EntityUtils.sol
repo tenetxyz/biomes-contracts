@@ -13,23 +13,19 @@ import { IWorld } from "@biomesaw/world/src/codegen/world/IWorld.sol";
 import { ObjectTypeMetadata } from "@biomesaw/world/src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "@biomesaw/world/src/codegen/tables/Player.sol";
 import { ReversePlayer } from "@biomesaw/world/src/codegen/tables/ReversePlayer.sol";
-import { PlayerMetadata } from "@biomesaw/world/src/codegen/tables/PlayerMetadata.sol";
+import { PlayerStatus } from "@biomesaw/world/src/codegen/tables/PlayerStatus.sol";
 import { ObjectType } from "@biomesaw/world/src/codegen/tables/ObjectType.sol";
 import { Position } from "@biomesaw/world/src/codegen/tables/Position.sol";
 import { ReversePosition } from "@biomesaw/world/src/codegen/tables/ReversePosition.sol";
 import { Equipped } from "@biomesaw/world/src/codegen/tables/Equipped.sol";
-import { Health, HealthData } from "@biomesaw/world/src/codegen/tables/Health.sol";
-import { Stamina, StaminaData } from "@biomesaw/world/src/codegen/tables/Stamina.sol";
 import { InventoryObjects } from "@biomesaw/world/src/codegen/tables/InventoryObjects.sol";
 import { InventoryTool } from "@biomesaw/world/src/codegen/tables/InventoryTool.sol";
 import { ReverseInventoryTool } from "@biomesaw/world/src/codegen/tables/ReverseInventoryTool.sol";
 import { InventorySlots } from "@biomesaw/world/src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "@biomesaw/world/src/codegen/tables/InventoryCount.sol";
-import { Equipped } from "@biomesaw/world/src/codegen/tables/Equipped.sol";
-import { ItemMetadata } from "@biomesaw/world/src/codegen/tables/ItemMetadata.sol";
-import { Recipes, RecipesData } from "@biomesaw/world/src/codegen/tables/Recipes.sol";
+import { ObjectCategory } from "@biomesaw/world/src/codegen/tables/ObjectTypeMetadata.sol";
 
-import { MAX_CHEST_INVENTORY_SLOTS } from "@biomesaw/world/src/Constants.sol";
+import { ChestObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { positionDataToVoxelCoord } from "@biomesaw/world/src/Utils.sol";
 
@@ -48,19 +44,10 @@ function hasDelegated(address delegator, address delegatee) view returns (bool) 
   return Delegation.isUnlimited(UserDelegationControl.getDelegationControlId(delegator, delegatee));
 }
 
-function getTerrainBlock(VoxelCoord memory coord) view returns (uint8) {
-  return IWorld(WorldContextConsumerLib._world()).getTerrainBlock(coord);
-}
-
-function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (uint8) {
+function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (uint16) {
   bytes32 entityId = getEntityAtCoord(coord);
 
-  uint8 objectTypeId;
-  if (entityId == bytes32(0)) {
-    objectTypeId = getTerrainBlock(coord);
-  } else {
-    objectTypeId = getObjectType(entityId);
-  }
+  uint16 objectTypeId = getObjectType(entityId);
 
   return objectTypeId;
 }
@@ -69,32 +56,20 @@ function getPosition(bytes32 entityId) view returns (VoxelCoord memory) {
   return positionDataToVoxelCoord(Position.get(entityId));
 }
 
-function getObjectType(bytes32 entityId) view returns (uint8) {
+function getObjectType(bytes32 entityId) view returns (uint16) {
   return ObjectType.get(entityId);
 }
 
-function getMiningDifficulty(uint8 objectTypeId) view returns (uint16) {
-  return ObjectTypeMetadata.getMiningDifficulty(objectTypeId);
-}
-
-function getStackable(uint8 objectTypeId) view returns (uint8) {
+function getStackable(uint16 objectTypeId) view returns (uint16) {
   return ObjectTypeMetadata.getStackable(objectTypeId);
 }
 
-function getDamage(uint8 objectTypeId) view returns (uint16) {
-  return ObjectTypeMetadata.getDamage(objectTypeId);
+function isTool(uint16 objectTypeId) view returns (bool) {
+  return ObjectTypeMetadata.getObjectCategory(objectTypeId) == ObjectCategory.Tool;
 }
 
-function getDurability(uint8 objectTypeId) view returns (uint24) {
-  return ObjectTypeMetadata.getDurability(objectTypeId);
-}
-
-function isTool(uint8 objectTypeId) view returns (bool) {
-  return ObjectTypeMetadata.getIsTool(objectTypeId);
-}
-
-function isBlock(uint8 objectTypeId) view returns (bool) {
-  return ObjectTypeMetadata.getIsBlock(objectTypeId);
+function isBlock(uint16 objectTypeId) view returns (bool) {
+  return ObjectTypeMetadata.getObjectCategory(objectTypeId) == ObjectCategory.Block;
 }
 
 function getEntityFromPlayer(address playerAddress) view returns (bytes32) {
@@ -109,27 +84,15 @@ function getEquipped(bytes32 playerEntityId) view returns (bytes32) {
   return Equipped.get(playerEntityId);
 }
 
-function getHealth(bytes32 playerEntityId) view returns (uint16) {
-  return Health.getHealth(playerEntityId);
-}
-
-function getStamina(bytes32 playerEntityId) view returns (uint32) {
-  return Stamina.getStamina(playerEntityId);
-}
-
 function getIsLoggedOff(bytes32 playerEntityId) view returns (bool) {
-  return PlayerMetadata.getIsLoggedOff(playerEntityId);
-}
-
-function getLastHitTime(bytes32 playerEntityId) view returns (uint256) {
-  return PlayerMetadata.getLastHitTime(playerEntityId);
+  return PlayerStatus.getIsLoggedOff(playerEntityId);
 }
 
 function getInventoryTool(bytes32 playerEntityId) view returns (bytes32[] memory) {
   return ReverseInventoryTool.getToolEntityIds(playerEntityId);
 }
 
-function getInventoryObjects(bytes32 entityId) view returns (uint8[] memory) {
+function getInventoryObjects(bytes32 entityId) view returns (uint16[] memory) {
   return InventoryObjects.getObjectTypeIds(entityId);
 }
 
@@ -137,7 +100,7 @@ function getNumInventoryObjects(bytes32 entityId) view returns (uint256) {
   return InventoryObjects.lengthObjectTypeIds(entityId);
 }
 
-function getCount(bytes32 entityId, uint8 objectTypeId) view returns (uint16) {
+function getCount(bytes32 entityId, uint16 objectTypeId) view returns (uint16) {
   return InventoryCount.getCount(entityId, objectTypeId);
 }
 
@@ -145,14 +108,10 @@ function getNumSlotsUsed(bytes32 entityId) view returns (uint16) {
   return InventorySlots.getNumSlotsUsed(entityId);
 }
 
-function getNumUsesLeft(bytes32 toolEntityId) view returns (uint24) {
-  return ItemMetadata.getNumUsesLeft(toolEntityId);
-}
-
 function getEntityAtCoord(VoxelCoord memory coord) view returns (bytes32) {
   return ReversePosition.getEntityId(coord.x, coord.y, coord.z);
 }
 
-function numMaxInChest(uint8 objectTypeId) view returns (uint16) {
-  return getStackable(objectTypeId) * MAX_CHEST_INVENTORY_SLOTS;
+function numMaxInChest(uint16 objectTypeId) view returns (uint16) {
+  return getStackable(objectTypeId) * ObjectTypeMetadata.getMaxInventorySlots(ChestObjectID);
 }
