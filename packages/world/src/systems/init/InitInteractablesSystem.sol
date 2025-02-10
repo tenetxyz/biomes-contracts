@@ -29,7 +29,8 @@ contract InitInteractablesSystem is System {
         stackable: stackable,
         maxInventorySlots: maxInventorySlots,
         mass: mass,
-        energy: 0
+        energy: 0,
+        canPassThrough: false
       })
     );
 

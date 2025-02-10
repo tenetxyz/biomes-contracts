@@ -32,7 +32,8 @@ contract InitThermoblastSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         maxInventorySlots: 0,
         mass: mass,
-        energy: 0
+        energy: 0,
+        canPassThrough: false
       })
     );
   }
@@ -45,7 +46,8 @@ contract InitThermoblastSystem is System {
         stackable: MAX_ITEM_STACKABLE,
         maxInventorySlots: 0,
         mass: 0,
-        energy: 0
+        energy: 0,
+        canPassThrough: false
       })
     );
   }

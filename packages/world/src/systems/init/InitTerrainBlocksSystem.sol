@@ -21,7 +21,8 @@ contract InitTerrainBlocksSystem is System {
         stackable: MAX_BLOCK_STACKABLE,
         maxInventorySlots: 0,
         mass: mass,
-        energy: 0
+        energy: 0,
+        canPassThrough: false
       })
     );
   }

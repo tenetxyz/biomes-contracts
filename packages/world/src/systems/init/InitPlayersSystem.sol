@@ -18,7 +18,8 @@ contract InitPlayersSystem is System {
         stackable: 0,
         maxInventorySlots: 36,
         mass: 10,
-        energy: 10
+        energy: 10,
+        canPassThrough: false
       })
     );
   }

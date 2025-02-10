@@ -42,6 +42,7 @@ export default defineWorld({
         maxInventorySlots: "uint16",
         mass: "uint32",
         energy: "uint32",
+        canPassThrough: "bool",
       },
       key: ["objectTypeId"],
     },
@@ -124,7 +125,7 @@ export default defineWorld({
       },
       key: [],
     },
-    EnergyPool: {
+    LocalEnergyPool: {
       schema: {
         x: "int32",
         y: "int32",
@@ -196,17 +197,17 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    PlayerStatus: {
-      schema: {
-        entityId: "bytes32",
-        isLoggedOff: "bool",
-      },
-      key: ["entityId"],
-    },
     PlayerActivity: {
       schema: {
         entityId: "bytes32",
         lastActionTime: "uint256",
+      },
+      key: ["entityId"],
+    },
+    PlayerStatus: {
+      schema: {
+        entityId: "bytes32",
+        isLoggedOff: "bool",
       },
       key: ["entityId"],
     },
