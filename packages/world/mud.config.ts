@@ -106,7 +106,6 @@ export default defineWorld({
     Mass: {
       schema: {
         entityId: "bytes32",
-        lastUpdatedTime: "uint256",
         mass: "uint256",
       },
       key: ["entityId"],
@@ -118,12 +117,6 @@ export default defineWorld({
         energy: "uint256",
       },
       key: ["entityId"],
-    },
-    GlobalEnergyPool: {
-      schema: {
-        energy: "uint256",
-      },
-      key: [],
     },
     LocalEnergyPool: {
       schema: {
