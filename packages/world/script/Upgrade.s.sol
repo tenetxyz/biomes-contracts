@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 

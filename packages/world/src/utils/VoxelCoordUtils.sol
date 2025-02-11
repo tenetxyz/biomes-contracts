@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord, VoxelCoordDirection, VoxelCoordDirectionVonNeumann } from "./Types.sol";
+import { VoxelCoord, VoxelCoordDirection, VoxelCoordDirectionVonNeumann } from "../Types.sol";
 import { floorDiv, absInt32 } from "./MathUtils.sol";
 
 function voxelCoordsAreEqual(VoxelCoord memory c1, VoxelCoord memory c2) pure returns (bool) {

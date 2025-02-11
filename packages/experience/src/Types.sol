@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { BlockEntityData } from "@biomesaw/world/src/Types.sol";
+import { VoxelCoord, BlockEntityData } from "@biomesaw/world/src/Types.sol";
 
 import { SmartItemMetadataData } from "./codegen/tables/SmartItemMetadata.sol";
 import { GateApprovalsData } from "./codegen/tables/GateApprovals.sol";

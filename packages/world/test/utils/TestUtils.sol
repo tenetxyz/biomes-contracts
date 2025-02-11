@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { VoxelCoord } from "../../src/Types.sol";
 
 import { UniqueEntity } from "../../src/codegen/tables/UniqueEntity.sol";
 import { ReversePosition } from "../../src/codegen/tables/ReversePosition.sol";

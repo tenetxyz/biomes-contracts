@@ -5,6 +5,8 @@ import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { console } from "forge-std/console.sol";
+import { VoxelCoord } from "../src/Types.sol";
+import { coordToShardCoord } from "../src/utils/VoxelCoordUtils.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
@@ -25,8 +27,6 @@ import { Chip } from "../src/codegen/tables/Chip.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { Energy } from "../src/codegen/tables/Energy.sol";
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { coordToShardCoord } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
 import { FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
 

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
 import { NullObjectTypeId } from "../ObjectTypeIds.sol";

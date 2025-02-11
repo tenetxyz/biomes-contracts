@@ -5,8 +5,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { OptionalSystemHooks } from "@latticexyz/world/src/codegen/tables/OptionalSystemHooks.sol";
 import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/UserDelegationControl.sol";
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { staticCallInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
+import { VoxelCoord } from "../../Types.sol";
+import { staticCallInternalSystem } from "../../utils/CallUtils.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";

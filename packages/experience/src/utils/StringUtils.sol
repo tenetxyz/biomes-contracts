@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { VoxelCoord } from "@biomesaw/world/src/Types.sol";
 import { AirObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
 
 import { getObjectTypeAtCoord } from "./EntityUtils.sol";

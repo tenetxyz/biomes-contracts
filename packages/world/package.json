@@ -21,7 +21,6 @@
     "test": "./runTests.bash"
   },
   "dependencies": {
-    "@biomesaw/utils": "workspace:*",
     "@latticexyz/cli": "link:../../../mud/packages/cli",
     "@latticexyz/config": "link:../../../mud/packages/config",
     "@latticexyz/schema-type": "link:../../../mud/packages/schema-type",

@@ -3,9 +3,8 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { inSurroundingCube } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
-import { callInternalSystem } from "@biomesaw/utils/src/CallUtils.sol";
+import { VoxelCoord } from "../Types.sol";
+import { callInternalSystem } from "../utils/CallUtils.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";

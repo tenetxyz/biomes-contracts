@@ -20,7 +20,6 @@
   },
   "dependencies": {
     "@biomesaw/world": "workspace:*",
-    "@biomesaw/utils": "workspace:*",
     "@latticexyz/cli": "link:../../../mud/packages/cli",
     "@latticexyz/schema-type": "link:../../../mud/packages/schema-type",
     "@latticexyz/store": "link:../../../mud/packages/store",

@@ -2,6 +2,7 @@
   "name": "biomesaw",
   "scripts": {
     "build": "pnpm recursive run build",
+    "clean": "pnpm recursive run clean",
     "dev": "mprocs",
     "deploy:local": "pnpm --filter 'world' deploy:local && pnpm --filter 'experience' run deploy && pnpm --filter 'scripts' setupSpawn",
     "deploy:testnet": "NODE_ENV=testnet pnpm --filter 'world' deploy:testnet && pnpm --filter 'experience' run deploy && pnpm --filter 'scripts' setupSpawn",

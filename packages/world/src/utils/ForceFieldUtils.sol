@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
-import { coordToShardCoord } from "@biomesaw/utils/src/VoxelCoordUtils.sol";
+import { VoxelCoord } from "../Types.sol";
+import { coordToShardCoord } from "./VoxelCoordUtils.sol";
 
 import { ForceField } from "../codegen/tables/ForceField.sol";
 

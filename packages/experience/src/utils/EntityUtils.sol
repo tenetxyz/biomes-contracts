@@ -26,7 +26,7 @@ import { InventoryCount } from "@biomesaw/world/src/codegen/tables/InventoryCoun
 import { ObjectCategory } from "@biomesaw/world/src/codegen/tables/ObjectTypeMetadata.sol";
 
 import { ChestObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
-import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
+import { VoxelCoord } from "@biomesaw/world/src/Types.sol";
 import { positionDataToVoxelCoord } from "@biomesaw/world/src/Utils.sol";
 
 function hasBeforeAndAfterSystemHook(address hookAddress, address player, ResourceId systemId) view returns (bool) {
