@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { VoxelCoord } from "../../src/Types.sol";
+import { EntityId } from "../../src/EntityId.sol";
 
 import { UniqueEntity } from "../../src/codegen/tables/UniqueEntity.sol";
 import { ReversePosition } from "../../src/codegen/tables/ReversePosition.sol";
@@ -18,17 +19,17 @@ import { ObjectCategory } from "../../src/codegen/common.sol";
 
 import { PlayerObjectID, ChestObjectID, SmartChestObjectID, AirObjectID, WaterObjectID } from "../../src/ObjectTypeIds.sol";
 
-function testGetUniqueEntity() returns (bytes32) {
+function testGetUniqueEntity() returns (EntityId) {
   uint256 uniqueEntity = UniqueEntity.get() + 1;
   UniqueEntity.set(uniqueEntity);
 
-  return bytes32(uniqueEntity);
+  return EntityId.wrap(bytes32(uniqueEntity));
 }
 
 function testGravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
-  bytes32 belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
-  require(belowEntityId != bytes32(0), "Attempted to apply gravity but encountered an unrevealed block");
+  EntityId belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
+  require(belowEntityId.exists(), "Attempted to apply gravity but encountered an unrevealed block");
   uint16 belowObjectTypeId = ObjectType.get(belowEntityId);
   if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
     return false;
@@ -38,7 +39,7 @@ function testGravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
 }
 
 function testAddToInventoryCount(
-  bytes32 ownerEntityId,
+  EntityId ownerEntityId,
   uint16 ownerObjectTypeId,
   uint16 objectTypeId,
   uint16 numObjectsToAdd
@@ -66,7 +67,7 @@ function testAddToInventoryCount(
   }
 }
 
-function testRemoveFromInventoryCount(bytes32 ownerEntityId, uint16 objectTypeId, uint16 numObjectsToRemove) {
+function testRemoveFromInventoryCount(EntityId ownerEntityId, uint16 objectTypeId, uint16 numObjectsToRemove) {
   uint16 numInitialObjects = InventoryCount.get(ownerEntityId, objectTypeId);
   require(numInitialObjects >= numObjectsToRemove, "Not enough objects in the inventory");
 
@@ -99,12 +100,12 @@ function testRemoveFromInventoryCount(bytes32 ownerEntityId, uint16 objectTypeId
 }
 
 function testUseEquipped(
-  bytes32 entityId,
-  bytes32 inventoryEntityId,
+  EntityId entityId,
+  EntityId inventoryEntityId,
   uint16 inventoryObjectTypeId,
   uint24 durabilityDecrease
 ) {
-  if (inventoryEntityId != bytes32(0)) {
+  if (inventoryEntityId.exists()) {
     uint128 durabilityLeft = Mass.getMass(inventoryEntityId);
     // Allow mining even if durability is exactly or less than required, then break the tool
     require(durabilityLeft > 0, "Tool is already broken");
@@ -123,12 +124,12 @@ function testUseEquipped(
   }
 }
 
-function testRemoveEntityIdFromReverseInventoryTool(bytes32 ownerEntityId, bytes32 removeInventoryEntityId) {
+function testRemoveEntityIdFromReverseInventoryTool(EntityId ownerEntityId, EntityId removeInventoryEntityId) {
   bytes32[] memory inventoryEntityIds = ReverseInventoryTool._get(ownerEntityId);
   bytes32[] memory newInventoryEntityIds = new bytes32[](inventoryEntityIds.length - 1);
   uint256 j = 0;
   for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
-    if (inventoryEntityIds[i] != removeInventoryEntityId) {
+    if (inventoryEntityIds[i] != EntityId.unwrap(removeInventoryEntityId)) {
       newInventoryEntityIds[j] = inventoryEntityIds[i];
       j++;
     }
@@ -140,7 +141,7 @@ function testRemoveEntityIdFromReverseInventoryTool(bytes32 ownerEntityId, bytes
   }
 }
 
-function testRemoveObjectTypeIdFromInventoryObjects(bytes32 ownerEntityId, uint16 removeObjectTypeId) {
+function testRemoveObjectTypeIdFromInventoryObjects(EntityId ownerEntityId, uint16 removeObjectTypeId) {
   uint16[] memory currentObjectTypeIds = InventoryObjects._get(ownerEntityId);
   uint16[] memory newObjectTypeIds = new uint16[](currentObjectTypeIds.length - 1);
   uint256 j = 0;
@@ -158,8 +159,8 @@ function testRemoveObjectTypeIdFromInventoryObjects(bytes32 ownerEntityId, uint1
 }
 
 function testTransferAllInventoryEntities(
-  bytes32 fromEntityId,
-  bytes32 toEntityId,
+  EntityId fromEntityId,
+  EntityId toEntityId,
   uint16 toObjectTypeId
 ) returns (uint256) {
   uint256 numTransferred = 0;
@@ -173,7 +174,7 @@ function testTransferAllInventoryEntities(
 
   bytes32[] memory fromInventoryEntityIds = ReverseInventoryTool._get(fromEntityId);
   for (uint256 i = 0; i < fromInventoryEntityIds.length; i++) {
-    InventoryTool._set(fromInventoryEntityIds[i], toEntityId);
+    InventoryTool._set(EntityId.wrap(fromInventoryEntityIds[i]), toEntityId);
     ReverseInventoryTool.push(toEntityId, fromInventoryEntityIds[i]);
   }
   if (fromInventoryEntityIds.length > 0) {
@@ -184,8 +185,8 @@ function testTransferAllInventoryEntities(
 }
 
 function testTransferInventoryNonTool(
-  bytes32 srcEntityId,
-  bytes32 dstEntityId,
+  EntityId srcEntityId,
+  EntityId dstEntityId,
   uint16 dstObjectTypeId,
   uint16 transferObjectTypeId,
   uint16 numObjectsToTransfer
@@ -200,17 +201,17 @@ function testTransferInventoryNonTool(
 }
 
 function testTransferInventoryTool(
-  bytes32 srcEntityId,
-  bytes32 dstEntityId,
+  EntityId srcEntityId,
+  EntityId dstEntityId,
   uint16 dstObjectTypeId,
-  bytes32 toolEntityId
+  EntityId toolEntityId
 ) returns (uint16) {
   require(InventoryTool.get(toolEntityId) == srcEntityId, "Entity does not own inventory item");
   if (Equipped.get(srcEntityId) == toolEntityId) {
     Equipped.deleteRecord(srcEntityId);
   }
   InventoryTool.set(toolEntityId, dstEntityId);
-  ReverseInventoryTool.push(dstEntityId, toolEntityId);
+  ReverseInventoryTool.push(dstEntityId, EntityId.unwrap(toolEntityId));
   testRemoveEntityIdFromReverseInventoryTool(srcEntityId, toolEntityId);
 
   uint16 inventoryObjectTypeId = ObjectType._get(toolEntityId);

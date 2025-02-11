@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "@biomesaw/world/src/EntityId.sol";
+
 library ChipAttachment {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "ChipAttachment", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e636500000000436869704174746163686d656e740000);
@@ -70,9 +73,9 @@ library ChipAttachment {
   /**
    * @notice Get attacher.
    */
-  function getAttacher(bytes32 entityId) internal view returns (address attacher) {
+  function getAttacher(EntityId entityId) internal view returns (address attacher) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -81,9 +84,9 @@ library ChipAttachment {
   /**
    * @notice Get attacher.
    */
-  function _getAttacher(bytes32 entityId) internal view returns (address attacher) {
+  function _getAttacher(EntityId entityId) internal view returns (address attacher) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -92,9 +95,9 @@ library ChipAttachment {
   /**
    * @notice Get attacher (using the specified store).
    */
-  function getAttacher(IStore _store, bytes32 entityId) internal view returns (address attacher) {
+  function getAttacher(IStore _store, EntityId entityId) internal view returns (address attacher) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -103,9 +106,9 @@ library ChipAttachment {
   /**
    * @notice Get attacher.
    */
-  function get(bytes32 entityId) internal view returns (address attacher) {
+  function get(EntityId entityId) internal view returns (address attacher) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -114,9 +117,9 @@ library ChipAttachment {
   /**
    * @notice Get attacher.
    */
-  function _get(bytes32 entityId) internal view returns (address attacher) {
+  function _get(EntityId entityId) internal view returns (address attacher) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -125,9 +128,9 @@ library ChipAttachment {
   /**
    * @notice Get attacher (using the specified store).
    */
-  function get(IStore _store, bytes32 entityId) internal view returns (address attacher) {
+  function get(IStore _store, EntityId entityId) internal view returns (address attacher) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -136,9 +139,9 @@ library ChipAttachment {
   /**
    * @notice Set attacher.
    */
-  function setAttacher(bytes32 entityId, address attacher) internal {
+  function setAttacher(EntityId entityId, address attacher) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((attacher)), _fieldLayout);
   }
@@ -146,9 +149,9 @@ library ChipAttachment {
   /**
    * @notice Set attacher.
    */
-  function _setAttacher(bytes32 entityId, address attacher) internal {
+  function _setAttacher(EntityId entityId, address attacher) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((attacher)), _fieldLayout);
   }
@@ -156,9 +159,9 @@ library ChipAttachment {
   /**
    * @notice Set attacher (using the specified store).
    */
-  function setAttacher(IStore _store, bytes32 entityId, address attacher) internal {
+  function setAttacher(IStore _store, EntityId entityId, address attacher) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((attacher)), _fieldLayout);
   }
@@ -166,9 +169,9 @@ library ChipAttachment {
   /**
    * @notice Set attacher.
    */
-  function set(bytes32 entityId, address attacher) internal {
+  function set(EntityId entityId, address attacher) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((attacher)), _fieldLayout);
   }
@@ -176,9 +179,9 @@ library ChipAttachment {
   /**
    * @notice Set attacher.
    */
-  function _set(bytes32 entityId, address attacher) internal {
+  function _set(EntityId entityId, address attacher) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((attacher)), _fieldLayout);
   }
@@ -186,9 +189,9 @@ library ChipAttachment {
   /**
    * @notice Set attacher (using the specified store).
    */
-  function set(IStore _store, bytes32 entityId, address attacher) internal {
+  function set(IStore _store, EntityId entityId, address attacher) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((attacher)), _fieldLayout);
   }
@@ -196,9 +199,9 @@ library ChipAttachment {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 entityId) internal {
+  function deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -206,9 +209,9 @@ library ChipAttachment {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 entityId) internal {
+  function _deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -216,9 +219,9 @@ library ChipAttachment {
   /**
    * @notice Delete all data for given keys (using the specified store).
    */
-  function deleteRecord(IStore _store, bytes32 entityId) internal {
+  function deleteRecord(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.deleteRecord(_tableId, _keyTuple);
   }
@@ -249,9 +252,9 @@ library ChipAttachment {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId entityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     return _keyTuple;
   }

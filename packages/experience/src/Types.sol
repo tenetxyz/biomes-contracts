@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 import { VoxelCoord, BlockEntityData } from "@biomesaw/world/src/Types.sol";
 
 import { SmartItemMetadataData } from "./codegen/tables/SmartItemMetadata.sol";
@@ -14,7 +15,7 @@ struct ExchangeInfoDataWithExchangeId {
 }
 
 struct PipeAccessDataWithEntityId {
-  bytes32 entityId;
+  EntityId entityId;
   PipeAccessData pipeAccessData;
 }
 

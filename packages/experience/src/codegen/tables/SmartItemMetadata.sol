@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "@biomesaw/world/src/EntityId.sol";
+
 struct SmartItemMetadataData {
   string name;
   string description;
@@ -76,9 +79,9 @@ library SmartItemMetadata {
   /**
    * @notice Get name.
    */
-  function getName(bytes32 entityId) internal view returns (string memory name) {
+  function getName(EntityId entityId) internal view returns (string memory name) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
     return (string(_blob));
@@ -87,9 +90,9 @@ library SmartItemMetadata {
   /**
    * @notice Get name.
    */
-  function _getName(bytes32 entityId) internal view returns (string memory name) {
+  function _getName(EntityId entityId) internal view returns (string memory name) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
     return (string(_blob));
@@ -98,9 +101,9 @@ library SmartItemMetadata {
   /**
    * @notice Get name (using the specified store).
    */
-  function getName(IStore _store, bytes32 entityId) internal view returns (string memory name) {
+  function getName(IStore _store, EntityId entityId) internal view returns (string memory name) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 0);
     return (string(_blob));
@@ -109,9 +112,9 @@ library SmartItemMetadata {
   /**
    * @notice Set name.
    */
-  function setName(bytes32 entityId, string memory name) internal {
+  function setName(EntityId entityId, string memory name) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, bytes((name)));
   }
@@ -119,9 +122,9 @@ library SmartItemMetadata {
   /**
    * @notice Set name.
    */
-  function _setName(bytes32 entityId, string memory name) internal {
+  function _setName(EntityId entityId, string memory name) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 0, bytes((name)));
   }
@@ -129,9 +132,9 @@ library SmartItemMetadata {
   /**
    * @notice Set name (using the specified store).
    */
-  function setName(IStore _store, bytes32 entityId, string memory name) internal {
+  function setName(IStore _store, EntityId entityId, string memory name) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setDynamicField(_tableId, _keyTuple, 0, bytes((name)));
   }
@@ -139,9 +142,9 @@ library SmartItemMetadata {
   /**
    * @notice Get the length of name.
    */
-  function lengthName(bytes32 entityId) internal view returns (uint256) {
+  function lengthName(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -152,9 +155,9 @@ library SmartItemMetadata {
   /**
    * @notice Get the length of name.
    */
-  function _lengthName(bytes32 entityId) internal view returns (uint256) {
+  function _lengthName(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -165,9 +168,9 @@ library SmartItemMetadata {
   /**
    * @notice Get the length of name (using the specified store).
    */
-  function lengthName(IStore _store, bytes32 entityId) internal view returns (uint256) {
+  function lengthName(IStore _store, EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -179,9 +182,9 @@ library SmartItemMetadata {
    * @notice Get an item of name.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemName(bytes32 entityId, uint256 _index) internal view returns (string memory) {
+  function getItemName(EntityId entityId, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
@@ -193,9 +196,9 @@ library SmartItemMetadata {
    * @notice Get an item of name.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemName(bytes32 entityId, uint256 _index) internal view returns (string memory) {
+  function _getItemName(EntityId entityId, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
@@ -207,9 +210,9 @@ library SmartItemMetadata {
    * @notice Get an item of name (using the specified store).
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemName(IStore _store, bytes32 entityId, uint256 _index) internal view returns (string memory) {
+  function getItemName(IStore _store, EntityId entityId, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
@@ -220,9 +223,9 @@ library SmartItemMetadata {
   /**
    * @notice Push a slice to name.
    */
-  function pushName(bytes32 entityId, string memory _slice) internal {
+  function pushName(EntityId entityId, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 0, bytes((_slice)));
   }
@@ -230,9 +233,9 @@ library SmartItemMetadata {
   /**
    * @notice Push a slice to name.
    */
-  function _pushName(bytes32 entityId, string memory _slice) internal {
+  function _pushName(EntityId entityId, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, bytes((_slice)));
   }
@@ -240,9 +243,9 @@ library SmartItemMetadata {
   /**
    * @notice Push a slice to name (using the specified store).
    */
-  function pushName(IStore _store, bytes32 entityId, string memory _slice) internal {
+  function pushName(IStore _store, EntityId entityId, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.pushToDynamicField(_tableId, _keyTuple, 0, bytes((_slice)));
   }
@@ -250,9 +253,9 @@ library SmartItemMetadata {
   /**
    * @notice Pop a slice from name.
    */
-  function popName(bytes32 entityId) internal {
+  function popName(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 1);
   }
@@ -260,9 +263,9 @@ library SmartItemMetadata {
   /**
    * @notice Pop a slice from name.
    */
-  function _popName(bytes32 entityId) internal {
+  function _popName(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 1);
   }
@@ -270,9 +273,9 @@ library SmartItemMetadata {
   /**
    * @notice Pop a slice from name (using the specified store).
    */
-  function popName(IStore _store, bytes32 entityId) internal {
+  function popName(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.popFromDynamicField(_tableId, _keyTuple, 0, 1);
   }
@@ -280,9 +283,9 @@ library SmartItemMetadata {
   /**
    * @notice Update a slice of name at `_index`.
    */
-  function updateName(bytes32 entityId, uint256 _index, string memory _slice) internal {
+  function updateName(EntityId entityId, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
@@ -293,9 +296,9 @@ library SmartItemMetadata {
   /**
    * @notice Update a slice of name at `_index`.
    */
-  function _updateName(bytes32 entityId, uint256 _index, string memory _slice) internal {
+  function _updateName(EntityId entityId, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
@@ -306,9 +309,9 @@ library SmartItemMetadata {
   /**
    * @notice Update a slice of name (using the specified store) at `_index`.
    */
-  function updateName(IStore _store, bytes32 entityId, uint256 _index, string memory _slice) internal {
+  function updateName(IStore _store, EntityId entityId, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
@@ -319,9 +322,9 @@ library SmartItemMetadata {
   /**
    * @notice Get description.
    */
-  function getDescription(bytes32 entityId) internal view returns (string memory description) {
+  function getDescription(EntityId entityId) internal view returns (string memory description) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 1);
     return (string(_blob));
@@ -330,9 +333,9 @@ library SmartItemMetadata {
   /**
    * @notice Get description.
    */
-  function _getDescription(bytes32 entityId) internal view returns (string memory description) {
+  function _getDescription(EntityId entityId) internal view returns (string memory description) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 1);
     return (string(_blob));
@@ -341,9 +344,9 @@ library SmartItemMetadata {
   /**
    * @notice Get description (using the specified store).
    */
-  function getDescription(IStore _store, bytes32 entityId) internal view returns (string memory description) {
+  function getDescription(IStore _store, EntityId entityId) internal view returns (string memory description) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 1);
     return (string(_blob));
@@ -352,9 +355,9 @@ library SmartItemMetadata {
   /**
    * @notice Set description.
    */
-  function setDescription(bytes32 entityId, string memory description) internal {
+  function setDescription(EntityId entityId, string memory description) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setDynamicField(_tableId, _keyTuple, 1, bytes((description)));
   }
@@ -362,9 +365,9 @@ library SmartItemMetadata {
   /**
    * @notice Set description.
    */
-  function _setDescription(bytes32 entityId, string memory description) internal {
+  function _setDescription(EntityId entityId, string memory description) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 1, bytes((description)));
   }
@@ -372,9 +375,9 @@ library SmartItemMetadata {
   /**
    * @notice Set description (using the specified store).
    */
-  function setDescription(IStore _store, bytes32 entityId, string memory description) internal {
+  function setDescription(IStore _store, EntityId entityId, string memory description) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setDynamicField(_tableId, _keyTuple, 1, bytes((description)));
   }
@@ -382,9 +385,9 @@ library SmartItemMetadata {
   /**
    * @notice Get the length of description.
    */
-  function lengthDescription(bytes32 entityId) internal view returns (uint256) {
+  function lengthDescription(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 1);
     unchecked {
@@ -395,9 +398,9 @@ library SmartItemMetadata {
   /**
    * @notice Get the length of description.
    */
-  function _lengthDescription(bytes32 entityId) internal view returns (uint256) {
+  function _lengthDescription(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 1);
     unchecked {
@@ -408,9 +411,9 @@ library SmartItemMetadata {
   /**
    * @notice Get the length of description (using the specified store).
    */
-  function lengthDescription(IStore _store, bytes32 entityId) internal view returns (uint256) {
+  function lengthDescription(IStore _store, EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 1);
     unchecked {
@@ -422,9 +425,9 @@ library SmartItemMetadata {
    * @notice Get an item of description.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemDescription(bytes32 entityId, uint256 _index) internal view returns (string memory) {
+  function getItemDescription(EntityId entityId, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 1, (_index + 1) * 1);
@@ -436,9 +439,9 @@ library SmartItemMetadata {
    * @notice Get an item of description.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemDescription(bytes32 entityId, uint256 _index) internal view returns (string memory) {
+  function _getItemDescription(EntityId entityId, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 1, (_index + 1) * 1);
@@ -450,9 +453,9 @@ library SmartItemMetadata {
    * @notice Get an item of description (using the specified store).
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemDescription(IStore _store, bytes32 entityId, uint256 _index) internal view returns (string memory) {
+  function getItemDescription(IStore _store, EntityId entityId, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 1, (_index + 1) * 1);
@@ -463,9 +466,9 @@ library SmartItemMetadata {
   /**
    * @notice Push a slice to description.
    */
-  function pushDescription(bytes32 entityId, string memory _slice) internal {
+  function pushDescription(EntityId entityId, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 1, bytes((_slice)));
   }
@@ -473,9 +476,9 @@ library SmartItemMetadata {
   /**
    * @notice Push a slice to description.
    */
-  function _pushDescription(bytes32 entityId, string memory _slice) internal {
+  function _pushDescription(EntityId entityId, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 1, bytes((_slice)));
   }
@@ -483,9 +486,9 @@ library SmartItemMetadata {
   /**
    * @notice Push a slice to description (using the specified store).
    */
-  function pushDescription(IStore _store, bytes32 entityId, string memory _slice) internal {
+  function pushDescription(IStore _store, EntityId entityId, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.pushToDynamicField(_tableId, _keyTuple, 1, bytes((_slice)));
   }
@@ -493,9 +496,9 @@ library SmartItemMetadata {
   /**
    * @notice Pop a slice from description.
    */
-  function popDescription(bytes32 entityId) internal {
+  function popDescription(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 1, 1);
   }
@@ -503,9 +506,9 @@ library SmartItemMetadata {
   /**
    * @notice Pop a slice from description.
    */
-  function _popDescription(bytes32 entityId) internal {
+  function _popDescription(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 1, 1);
   }
@@ -513,9 +516,9 @@ library SmartItemMetadata {
   /**
    * @notice Pop a slice from description (using the specified store).
    */
-  function popDescription(IStore _store, bytes32 entityId) internal {
+  function popDescription(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.popFromDynamicField(_tableId, _keyTuple, 1, 1);
   }
@@ -523,9 +526,9 @@ library SmartItemMetadata {
   /**
    * @notice Update a slice of description at `_index`.
    */
-  function updateDescription(bytes32 entityId, uint256 _index, string memory _slice) internal {
+  function updateDescription(EntityId entityId, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
@@ -536,9 +539,9 @@ library SmartItemMetadata {
   /**
    * @notice Update a slice of description at `_index`.
    */
-  function _updateDescription(bytes32 entityId, uint256 _index, string memory _slice) internal {
+  function _updateDescription(EntityId entityId, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
@@ -549,9 +552,9 @@ library SmartItemMetadata {
   /**
    * @notice Update a slice of description (using the specified store) at `_index`.
    */
-  function updateDescription(IStore _store, bytes32 entityId, uint256 _index, string memory _slice) internal {
+  function updateDescription(IStore _store, EntityId entityId, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
@@ -562,9 +565,9 @@ library SmartItemMetadata {
   /**
    * @notice Get the full data.
    */
-  function get(bytes32 entityId) internal view returns (SmartItemMetadataData memory _table) {
+  function get(EntityId entityId) internal view returns (SmartItemMetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
       _tableId,
@@ -577,9 +580,9 @@ library SmartItemMetadata {
   /**
    * @notice Get the full data.
    */
-  function _get(bytes32 entityId) internal view returns (SmartItemMetadataData memory _table) {
+  function _get(EntityId entityId) internal view returns (SmartItemMetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
       _tableId,
@@ -592,9 +595,9 @@ library SmartItemMetadata {
   /**
    * @notice Get the full data (using the specified store).
    */
-  function get(IStore _store, bytes32 entityId) internal view returns (SmartItemMetadataData memory _table) {
+  function get(IStore _store, EntityId entityId) internal view returns (SmartItemMetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
       _tableId,
@@ -607,13 +610,13 @@ library SmartItemMetadata {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 entityId, string memory name, string memory description) internal {
+  function set(EntityId entityId, string memory name, string memory description) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(name, description);
     bytes memory _dynamicData = encodeDynamic(name, description);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -621,13 +624,13 @@ library SmartItemMetadata {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 entityId, string memory name, string memory description) internal {
+  function _set(EntityId entityId, string memory name, string memory description) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(name, description);
     bytes memory _dynamicData = encodeDynamic(name, description);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -635,13 +638,13 @@ library SmartItemMetadata {
   /**
    * @notice Set the full data using individual values (using the specified store).
    */
-  function set(IStore _store, bytes32 entityId, string memory name, string memory description) internal {
+  function set(IStore _store, EntityId entityId, string memory name, string memory description) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(name, description);
     bytes memory _dynamicData = encodeDynamic(name, description);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -649,13 +652,13 @@ library SmartItemMetadata {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(bytes32 entityId, SmartItemMetadataData memory _table) internal {
+  function set(EntityId entityId, SmartItemMetadataData memory _table) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(_table.name, _table.description);
     bytes memory _dynamicData = encodeDynamic(_table.name, _table.description);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -663,13 +666,13 @@ library SmartItemMetadata {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(bytes32 entityId, SmartItemMetadataData memory _table) internal {
+  function _set(EntityId entityId, SmartItemMetadataData memory _table) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(_table.name, _table.description);
     bytes memory _dynamicData = encodeDynamic(_table.name, _table.description);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -677,13 +680,13 @@ library SmartItemMetadata {
   /**
    * @notice Set the full data using the data struct (using the specified store).
    */
-  function set(IStore _store, bytes32 entityId, SmartItemMetadataData memory _table) internal {
+  function set(IStore _store, EntityId entityId, SmartItemMetadataData memory _table) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(_table.name, _table.description);
     bytes memory _dynamicData = encodeDynamic(_table.name, _table.description);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -726,9 +729,9 @@ library SmartItemMetadata {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 entityId) internal {
+  function deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -736,9 +739,9 @@ library SmartItemMetadata {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 entityId) internal {
+  function _deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -746,9 +749,9 @@ library SmartItemMetadata {
   /**
    * @notice Delete all data for given keys (using the specified store).
    */
-  function deleteRecord(IStore _store, bytes32 entityId) internal {
+  function deleteRecord(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.deleteRecord(_tableId, _keyTuple);
   }
@@ -795,9 +798,9 @@ library SmartItemMetadata {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId entityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     return _keyTuple;
   }

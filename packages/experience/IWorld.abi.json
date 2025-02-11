@@ -157,7 +157,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "exchangeId",
@@ -235,7 +235,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -248,7 +248,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -268,7 +268,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "exchangeId",
@@ -286,7 +286,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -299,7 +299,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -312,7 +312,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -346,12 +346,12 @@
       {
         "name": "targetEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "callerEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -364,7 +364,7 @@
       {
         "name": "targetEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -377,7 +377,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -397,7 +397,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "notifData",
@@ -452,7 +452,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [
@@ -469,12 +469,12 @@
               {
                 "name": "entityId",
                 "type": "bytes32",
-                "internalType": "bytes32"
+                "internalType": "EntityId"
               },
               {
                 "name": "baseEntityId",
                 "type": "bytes32",
-                "internalType": "bytes32"
+                "internalType": "EntityId"
               },
               {
                 "name": "objectTypeId",
@@ -526,7 +526,7 @@
                       {
                         "name": "entityId",
                         "type": "bytes32",
-                        "internalType": "bytes32"
+                        "internalType": "EntityId"
                       },
                       {
                         "name": "numUsesLeft",
@@ -655,7 +655,7 @@
               {
                 "name": "entityId",
                 "type": "bytes32",
-                "internalType": "bytes32"
+                "internalType": "EntityId"
               },
               {
                 "name": "pipeAccessData",
@@ -688,7 +688,7 @@
       {
         "name": "entityIds",
         "type": "bytes32[]",
-        "internalType": "bytes32[]"
+        "internalType": "EntityId[]"
       }
     ],
     "outputs": [
@@ -705,12 +705,12 @@
               {
                 "name": "entityId",
                 "type": "bytes32",
-                "internalType": "bytes32"
+                "internalType": "EntityId"
               },
               {
                 "name": "baseEntityId",
                 "type": "bytes32",
-                "internalType": "bytes32"
+                "internalType": "EntityId"
               },
               {
                 "name": "objectTypeId",
@@ -762,7 +762,7 @@
                       {
                         "name": "entityId",
                         "type": "bytes32",
-                        "internalType": "bytes32"
+                        "internalType": "EntityId"
                       },
                       {
                         "name": "numUsesLeft",
@@ -891,7 +891,7 @@
               {
                 "name": "entityId",
                 "type": "bytes32",
-                "internalType": "bytes32"
+                "internalType": "EntityId"
               },
               {
                 "name": "pipeAccessData",
@@ -924,7 +924,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -937,7 +937,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -950,7 +950,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "nft",
@@ -968,7 +968,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "player",
@@ -1004,7 +1004,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "admin",
@@ -1022,7 +1022,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "attacher",
@@ -1070,7 +1070,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "exchangeId",
@@ -1093,7 +1093,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "exchangeId",
@@ -1116,7 +1116,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "exchangeId",
@@ -1139,7 +1139,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "exchangeId",
@@ -1162,7 +1162,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "exchangeIds",
@@ -1227,7 +1227,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "approvals",
@@ -1257,7 +1257,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "nfts",
@@ -1275,7 +1275,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "players",
@@ -1474,12 +1474,12 @@
       {
         "name": "targetEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "callerEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "depositAllowed",
@@ -1502,7 +1502,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "description",
@@ -1520,7 +1520,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "metadata",
@@ -1550,7 +1550,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "name",
@@ -1618,7 +1618,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "index",
@@ -1641,7 +1641,7 @@
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "index",

@@ -6,7 +6,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -84,7 +84,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "chipAddress",
@@ -102,7 +102,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "chipAddress",
@@ -221,7 +221,7 @@ declare const abi: [
       {
         "name": "",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "stateMutability": "payable"
@@ -267,7 +267,7 @@ declare const abi: [
       {
         "name": "",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "stateMutability": "payable"
@@ -337,7 +337,7 @@ declare const abi: [
       {
         "name": "stationEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -404,7 +404,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -417,7 +417,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "extraData",
@@ -475,7 +475,7 @@ declare const abi: [
       {
         "name": "toolEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "coord",
@@ -510,7 +510,7 @@ declare const abi: [
       {
         "name": "toolEntityIds",
         "type": "bytes32[]",
-        "internalType": "bytes32[]"
+        "internalType": "EntityId[]"
       },
       {
         "name": "coord",
@@ -545,7 +545,7 @@ declare const abi: [
       {
         "name": "inventoryEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -558,7 +558,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [
@@ -570,12 +570,12 @@ declare const abi: [
           {
             "name": "entityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "baseEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "objectTypeId",
@@ -627,7 +627,7 @@ declare const abi: [
                   {
                     "name": "entityId",
                     "type": "bytes32",
-                    "internalType": "bytes32"
+                    "internalType": "EntityId"
                   },
                   {
                     "name": "numUsesLeft",
@@ -655,7 +655,7 @@ declare const abi: [
       {
         "name": "entityIds",
         "type": "bytes32[]",
-        "internalType": "bytes32[]"
+        "internalType": "EntityId[]"
       }
     ],
     "outputs": [
@@ -667,12 +667,12 @@ declare const abi: [
           {
             "name": "entityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "baseEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "objectTypeId",
@@ -724,7 +724,7 @@ declare const abi: [
                   {
                     "name": "entityId",
                     "type": "bytes32",
-                    "internalType": "bytes32"
+                    "internalType": "EntityId"
                   },
                   {
                     "name": "numUsesLeft",
@@ -752,7 +752,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [
@@ -788,7 +788,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [
@@ -916,7 +916,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [
@@ -933,12 +933,12 @@ declare const abi: [
           {
             "name": "entityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "baseEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "inventory",
@@ -963,7 +963,7 @@ declare const abi: [
                   {
                     "name": "entityId",
                     "type": "bytes32",
-                    "internalType": "bytes32"
+                    "internalType": "EntityId"
                   },
                   {
                     "name": "numUsesLeft",
@@ -1042,12 +1042,12 @@ declare const abi: [
           {
             "name": "entityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "baseEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "inventory",
@@ -1072,7 +1072,7 @@ declare const abi: [
                   {
                     "name": "entityId",
                     "type": "bytes32",
-                    "internalType": "bytes32"
+                    "internalType": "EntityId"
                   },
                   {
                     "name": "numUsesLeft",
@@ -1141,7 +1141,7 @@ declare const abi: [
       {
         "name": "",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "stateMutability": "view"
@@ -1298,7 +1298,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [
@@ -1325,7 +1325,7 @@ declare const abi: [
               {
                 "name": "entityId",
                 "type": "bytes32",
-                "internalType": "bytes32"
+                "internalType": "EntityId"
               },
               {
                 "name": "numUsesLeft",
@@ -1373,7 +1373,7 @@ declare const abi: [
               {
                 "name": "entityId",
                 "type": "bytes32",
-                "internalType": "bytes32"
+                "internalType": "EntityId"
               },
               {
                 "name": "numUsesLeft",
@@ -1466,12 +1466,12 @@ declare const abi: [
           {
             "name": "entityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "baseEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "inventory",
@@ -1496,7 +1496,7 @@ declare const abi: [
                   {
                     "name": "entityId",
                     "type": "bytes32",
-                    "internalType": "bytes32"
+                    "internalType": "EntityId"
                   },
                   {
                     "name": "numUsesLeft",
@@ -1659,7 +1659,7 @@ declare const abi: [
           {
             "name": "entityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "position",
@@ -1691,7 +1691,7 @@ declare const abi: [
           {
             "name": "equippedEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "inventory",
@@ -1716,7 +1716,7 @@ declare const abi: [
                   {
                     "name": "entityId",
                     "type": "bytes32",
-                    "internalType": "bytes32"
+                    "internalType": "EntityId"
                   },
                   {
                     "name": "numUsesLeft",
@@ -1810,7 +1810,7 @@ declare const abi: [
           {
             "name": "entityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "position",
@@ -1842,7 +1842,7 @@ declare const abi: [
           {
             "name": "equippedEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "inventory",
@@ -1867,7 +1867,7 @@ declare const abi: [
                   {
                     "name": "entityId",
                     "type": "bytes32",
-                    "internalType": "bytes32"
+                    "internalType": "EntityId"
                   },
                   {
                     "name": "numUsesLeft",
@@ -2142,7 +2142,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -2717,7 +2717,7 @@ declare const abi: [
       {
         "name": "playerEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "playerCoord",
@@ -2861,7 +2861,7 @@ declare const abi: [
       {
         "name": "pickupTools",
         "type": "bytes32[]",
-        "internalType": "bytes32[]"
+        "internalType": "EntityId[]"
       },
       {
         "name": "coord",
@@ -2896,7 +2896,7 @@ declare const abi: [
       {
         "name": "toolEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "coord",
@@ -2931,7 +2931,7 @@ declare const abi: [
       {
         "name": "callerEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "isDeposit",
@@ -2946,7 +2946,7 @@ declare const abi: [
           {
             "name": "targetEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "path",
@@ -2971,7 +2971,7 @@ declare const abi: [
               {
                 "name": "toolEntityIds",
                 "type": "bytes32[]",
-                "internalType": "bytes32[]"
+                "internalType": "EntityId[]"
               }
             ]
           },
@@ -2993,7 +2993,7 @@ declare const abi: [
       {
         "name": "callerEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "callerObjectTypeId",
@@ -3035,7 +3035,7 @@ declare const abi: [
           {
             "name": "targetEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "path",
@@ -3060,7 +3060,7 @@ declare const abi: [
               {
                 "name": "toolEntityIds",
                 "type": "bytes32[]",
-                "internalType": "bytes32[]"
+                "internalType": "EntityId[]"
               }
             ]
           },
@@ -3155,7 +3155,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "numBattery",
@@ -3461,12 +3461,12 @@ declare const abi: [
       {
         "name": "playerEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "baseEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "objectTypeId",
@@ -3511,12 +3511,12 @@ declare const abi: [
       {
         "name": "playerEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "baseEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "objectTypeId",
@@ -3615,7 +3615,7 @@ declare const abi: [
       {
         "name": "playerEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "playerCoord",
@@ -3692,7 +3692,7 @@ declare const abi: [
       {
         "name": "entityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "content",
@@ -4006,7 +4006,7 @@ declare const abi: [
       {
         "name": "",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "stateMutability": "nonpayable"
@@ -4097,12 +4097,12 @@ declare const abi: [
       {
         "name": "srcEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "dstEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "transferObjectTypeId",
@@ -4176,12 +4176,12 @@ declare const abi: [
       {
         "name": "srcEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "dstEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [
@@ -4193,12 +4193,12 @@ declare const abi: [
           {
             "name": "playerEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "chestEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "chestCoord",
@@ -4277,17 +4277,17 @@ declare const abi: [
       {
         "name": "srcEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "dstEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "toolEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -4300,17 +4300,17 @@ declare const abi: [
       {
         "name": "srcEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "dstEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "toolEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "extraData",
@@ -4328,17 +4328,17 @@ declare const abi: [
       {
         "name": "srcEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "dstEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "toolEntityIds",
         "type": "bytes32[]",
-        "internalType": "bytes32[]"
+        "internalType": "EntityId[]"
       }
     ],
     "outputs": [],
@@ -4351,17 +4351,17 @@ declare const abi: [
       {
         "name": "srcEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "dstEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "toolEntityIds",
         "type": "bytes32[]",
-        "internalType": "bytes32[]"
+        "internalType": "EntityId[]"
       },
       {
         "name": "extraData",
@@ -4379,12 +4379,12 @@ declare const abi: [
       {
         "name": "srcEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "dstEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "transferObjectTypeId",
@@ -4412,12 +4412,12 @@ declare const abi: [
       {
         "name": "srcEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "dstEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "transferData",
@@ -4437,7 +4437,7 @@ declare const abi: [
           {
             "name": "toolEntityIds",
             "type": "bytes32[]",
-            "internalType": "bytes32[]"
+            "internalType": "EntityId[]"
           }
         ]
       },
@@ -4449,7 +4449,7 @@ declare const abi: [
           {
             "name": "targetEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "path",
@@ -4474,7 +4474,7 @@ declare const abi: [
               {
                 "name": "toolEntityIds",
                 "type": "bytes32[]",
-                "internalType": "bytes32[]"
+                "internalType": "EntityId[]"
               }
             ]
           },
@@ -4496,12 +4496,12 @@ declare const abi: [
       {
         "name": "srcEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "dstEntityId",
         "type": "bytes32",
-        "internalType": "bytes32"
+        "internalType": "EntityId"
       },
       {
         "name": "transferData",
@@ -4521,7 +4521,7 @@ declare const abi: [
           {
             "name": "toolEntityIds",
             "type": "bytes32[]",
-            "internalType": "bytes32[]"
+            "internalType": "EntityId[]"
           }
         ]
       },
@@ -4533,7 +4533,7 @@ declare const abi: [
           {
             "name": "targetEntityId",
             "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "EntityId"
           },
           {
             "name": "path",
@@ -4558,7 +4558,7 @@ declare const abi: [
               {
                 "name": "toolEntityIds",
                 "type": "bytes32[]",
-                "internalType": "bytes32[]"
+                "internalType": "EntityId[]"
               }
             ]
           },

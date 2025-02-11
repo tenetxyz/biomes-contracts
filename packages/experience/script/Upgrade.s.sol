@@ -5,19 +5,20 @@ import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 
+import { Chip } from "@biomesaw/world/src/codegen/tables/Chip.sol";
+import { EntityId } from "@biomesaw/world/src/EntityId.sol";
+import { SakuraLogObjectID, StoneObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
+
 import { ChipMetadata, ChipMetadataData } from "../src/codegen/tables/ChipMetadata.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { ChipAttachment } from "../src/codegen/tables/ChipAttachment.sol";
 import { ChipAdmin } from "../src/codegen/tables/ChipAdmin.sol";
 import { GateApprovals, GateApprovalsData } from "../src/codegen/tables/GateApprovals.sol";
 import { SmartItemMetadata, SmartItemMetadataData } from "../src/codegen/tables/SmartItemMetadata.sol";
-import { Chip } from "@biomesaw/world/src/codegen/tables/Chip.sol";
 import { ResourceType } from "../src/codegen/common.sol";
 import { Exchanges } from "../src/codegen/tables/Exchanges.sol";
 import { ExchangeInfo, ExchangeInfoData } from "../src/codegen/tables/ExchangeInfo.sol";
 import { encodeAddressExchangeResourceId, encodeObjectExchangeResourceId } from "../src/utils/ExchangeUtils.sol";
-
-import { SakuraLogObjectID, StoneObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
 
 bytes32 constant BUY_EXCHANGE_ID = bytes32("buy");
 bytes32 constant SELL_EXCHANGE_ID = bytes32("sell");
@@ -33,7 +34,7 @@ contract Upgrade is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
-    bytes32 chestEntityId = 0x0000000000000000000000000000000000000000000000000000000000258775;
+    EntityId chestEntityId = EntityId.wrap(0x0000000000000000000000000000000000000000000000000000000000258775);
     ExchangeInfo.set(
       chestEntityId,
       BUY_EXCHANGE_ID,

@@ -32,11 +32,9 @@ function getEntityInventory(EntityId entityId) view returns (InventoryObject[] m
     if (numTools > 0) {
       uint256 k = 0;
       for (uint256 j = 0; j < allInventoryTools.length; j++) {
-        if (ObjectType._get(EntityId.wrap(allInventoryTools[j])) == objectTypeId) {
-          inventoryTools[k] = InventoryTool({
-            entityId: allInventoryTools[j],
-            numUsesLeft: Mass._getMass(EntityId.wrap(allInventoryTools[j]))
-          });
+        EntityId toolEntityId = EntityId.wrap(allInventoryTools[j]);
+        if (ObjectType._get(toolEntityId) == objectTypeId) {
+          inventoryTools[k] = InventoryTool({ entityId: toolEntityId, numUsesLeft: Mass._getMass(toolEntityId) });
           k++;
         }
       }

@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "@biomesaw/world/src/EntityId.sol";
+
 library PipeAccessList {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "PipeAccessList", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e636500000000506970654163636573734c6973740000);
@@ -70,9 +73,9 @@ library PipeAccessList {
   /**
    * @notice Get allowedEntityIds.
    */
-  function getAllowedEntityIds(bytes32 entityId) internal view returns (bytes32[] memory allowedEntityIds) {
+  function getAllowedEntityIds(EntityId entityId) internal view returns (bytes32[] memory allowedEntityIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -81,9 +84,9 @@ library PipeAccessList {
   /**
    * @notice Get allowedEntityIds.
    */
-  function _getAllowedEntityIds(bytes32 entityId) internal view returns (bytes32[] memory allowedEntityIds) {
+  function _getAllowedEntityIds(EntityId entityId) internal view returns (bytes32[] memory allowedEntityIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -94,10 +97,10 @@ library PipeAccessList {
    */
   function getAllowedEntityIds(
     IStore _store,
-    bytes32 entityId
+    EntityId entityId
   ) internal view returns (bytes32[] memory allowedEntityIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -106,9 +109,9 @@ library PipeAccessList {
   /**
    * @notice Get allowedEntityIds.
    */
-  function get(bytes32 entityId) internal view returns (bytes32[] memory allowedEntityIds) {
+  function get(EntityId entityId) internal view returns (bytes32[] memory allowedEntityIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -117,9 +120,9 @@ library PipeAccessList {
   /**
    * @notice Get allowedEntityIds.
    */
-  function _get(bytes32 entityId) internal view returns (bytes32[] memory allowedEntityIds) {
+  function _get(EntityId entityId) internal view returns (bytes32[] memory allowedEntityIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -128,9 +131,9 @@ library PipeAccessList {
   /**
    * @notice Get allowedEntityIds (using the specified store).
    */
-  function get(IStore _store, bytes32 entityId) internal view returns (bytes32[] memory allowedEntityIds) {
+  function get(IStore _store, EntityId entityId) internal view returns (bytes32[] memory allowedEntityIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -139,9 +142,9 @@ library PipeAccessList {
   /**
    * @notice Set allowedEntityIds.
    */
-  function setAllowedEntityIds(bytes32 entityId, bytes32[] memory allowedEntityIds) internal {
+  function setAllowedEntityIds(EntityId entityId, bytes32[] memory allowedEntityIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((allowedEntityIds)));
   }
@@ -149,9 +152,9 @@ library PipeAccessList {
   /**
    * @notice Set allowedEntityIds.
    */
-  function _setAllowedEntityIds(bytes32 entityId, bytes32[] memory allowedEntityIds) internal {
+  function _setAllowedEntityIds(EntityId entityId, bytes32[] memory allowedEntityIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((allowedEntityIds)));
   }
@@ -159,9 +162,9 @@ library PipeAccessList {
   /**
    * @notice Set allowedEntityIds (using the specified store).
    */
-  function setAllowedEntityIds(IStore _store, bytes32 entityId, bytes32[] memory allowedEntityIds) internal {
+  function setAllowedEntityIds(IStore _store, EntityId entityId, bytes32[] memory allowedEntityIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((allowedEntityIds)));
   }
@@ -169,9 +172,9 @@ library PipeAccessList {
   /**
    * @notice Set allowedEntityIds.
    */
-  function set(bytes32 entityId, bytes32[] memory allowedEntityIds) internal {
+  function set(EntityId entityId, bytes32[] memory allowedEntityIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((allowedEntityIds)));
   }
@@ -179,9 +182,9 @@ library PipeAccessList {
   /**
    * @notice Set allowedEntityIds.
    */
-  function _set(bytes32 entityId, bytes32[] memory allowedEntityIds) internal {
+  function _set(EntityId entityId, bytes32[] memory allowedEntityIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((allowedEntityIds)));
   }
@@ -189,9 +192,9 @@ library PipeAccessList {
   /**
    * @notice Set allowedEntityIds (using the specified store).
    */
-  function set(IStore _store, bytes32 entityId, bytes32[] memory allowedEntityIds) internal {
+  function set(IStore _store, EntityId entityId, bytes32[] memory allowedEntityIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((allowedEntityIds)));
   }
@@ -199,9 +202,9 @@ library PipeAccessList {
   /**
    * @notice Get the length of allowedEntityIds.
    */
-  function lengthAllowedEntityIds(bytes32 entityId) internal view returns (uint256) {
+  function lengthAllowedEntityIds(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -212,9 +215,9 @@ library PipeAccessList {
   /**
    * @notice Get the length of allowedEntityIds.
    */
-  function _lengthAllowedEntityIds(bytes32 entityId) internal view returns (uint256) {
+  function _lengthAllowedEntityIds(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -225,9 +228,9 @@ library PipeAccessList {
   /**
    * @notice Get the length of allowedEntityIds (using the specified store).
    */
-  function lengthAllowedEntityIds(IStore _store, bytes32 entityId) internal view returns (uint256) {
+  function lengthAllowedEntityIds(IStore _store, EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -238,9 +241,9 @@ library PipeAccessList {
   /**
    * @notice Get the length of allowedEntityIds.
    */
-  function length(bytes32 entityId) internal view returns (uint256) {
+  function length(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -251,9 +254,9 @@ library PipeAccessList {
   /**
    * @notice Get the length of allowedEntityIds.
    */
-  function _length(bytes32 entityId) internal view returns (uint256) {
+  function _length(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -264,9 +267,9 @@ library PipeAccessList {
   /**
    * @notice Get the length of allowedEntityIds (using the specified store).
    */
-  function length(IStore _store, bytes32 entityId) internal view returns (uint256) {
+  function length(IStore _store, EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -278,9 +281,9 @@ library PipeAccessList {
    * @notice Get an item of allowedEntityIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemAllowedEntityIds(bytes32 entityId, uint256 _index) internal view returns (bytes32) {
+  function getItemAllowedEntityIds(EntityId entityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -292,9 +295,9 @@ library PipeAccessList {
    * @notice Get an item of allowedEntityIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemAllowedEntityIds(bytes32 entityId, uint256 _index) internal view returns (bytes32) {
+  function _getItemAllowedEntityIds(EntityId entityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -306,9 +309,9 @@ library PipeAccessList {
    * @notice Get an item of allowedEntityIds (using the specified store).
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemAllowedEntityIds(IStore _store, bytes32 entityId, uint256 _index) internal view returns (bytes32) {
+  function getItemAllowedEntityIds(IStore _store, EntityId entityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -320,9 +323,9 @@ library PipeAccessList {
    * @notice Get an item of allowedEntityIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItem(bytes32 entityId, uint256 _index) internal view returns (bytes32) {
+  function getItem(EntityId entityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -334,9 +337,9 @@ library PipeAccessList {
    * @notice Get an item of allowedEntityIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItem(bytes32 entityId, uint256 _index) internal view returns (bytes32) {
+  function _getItem(EntityId entityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -348,9 +351,9 @@ library PipeAccessList {
    * @notice Get an item of allowedEntityIds (using the specified store).
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItem(IStore _store, bytes32 entityId, uint256 _index) internal view returns (bytes32) {
+  function getItem(IStore _store, EntityId entityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -361,9 +364,9 @@ library PipeAccessList {
   /**
    * @notice Push an element to allowedEntityIds.
    */
-  function pushAllowedEntityIds(bytes32 entityId, bytes32 _element) internal {
+  function pushAllowedEntityIds(EntityId entityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -371,9 +374,9 @@ library PipeAccessList {
   /**
    * @notice Push an element to allowedEntityIds.
    */
-  function _pushAllowedEntityIds(bytes32 entityId, bytes32 _element) internal {
+  function _pushAllowedEntityIds(EntityId entityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -381,9 +384,9 @@ library PipeAccessList {
   /**
    * @notice Push an element to allowedEntityIds (using the specified store).
    */
-  function pushAllowedEntityIds(IStore _store, bytes32 entityId, bytes32 _element) internal {
+  function pushAllowedEntityIds(IStore _store, EntityId entityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -391,9 +394,9 @@ library PipeAccessList {
   /**
    * @notice Push an element to allowedEntityIds.
    */
-  function push(bytes32 entityId, bytes32 _element) internal {
+  function push(EntityId entityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -401,9 +404,9 @@ library PipeAccessList {
   /**
    * @notice Push an element to allowedEntityIds.
    */
-  function _push(bytes32 entityId, bytes32 _element) internal {
+  function _push(EntityId entityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -411,9 +414,9 @@ library PipeAccessList {
   /**
    * @notice Push an element to allowedEntityIds (using the specified store).
    */
-  function push(IStore _store, bytes32 entityId, bytes32 _element) internal {
+  function push(IStore _store, EntityId entityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -421,9 +424,9 @@ library PipeAccessList {
   /**
    * @notice Pop an element from allowedEntityIds.
    */
-  function popAllowedEntityIds(bytes32 entityId) internal {
+  function popAllowedEntityIds(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -431,9 +434,9 @@ library PipeAccessList {
   /**
    * @notice Pop an element from allowedEntityIds.
    */
-  function _popAllowedEntityIds(bytes32 entityId) internal {
+  function _popAllowedEntityIds(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -441,9 +444,9 @@ library PipeAccessList {
   /**
    * @notice Pop an element from allowedEntityIds (using the specified store).
    */
-  function popAllowedEntityIds(IStore _store, bytes32 entityId) internal {
+  function popAllowedEntityIds(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -451,9 +454,9 @@ library PipeAccessList {
   /**
    * @notice Pop an element from allowedEntityIds.
    */
-  function pop(bytes32 entityId) internal {
+  function pop(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -461,9 +464,9 @@ library PipeAccessList {
   /**
    * @notice Pop an element from allowedEntityIds.
    */
-  function _pop(bytes32 entityId) internal {
+  function _pop(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -471,9 +474,9 @@ library PipeAccessList {
   /**
    * @notice Pop an element from allowedEntityIds (using the specified store).
    */
-  function pop(IStore _store, bytes32 entityId) internal {
+  function pop(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -481,9 +484,9 @@ library PipeAccessList {
   /**
    * @notice Update an element of allowedEntityIds at `_index`.
    */
-  function updateAllowedEntityIds(bytes32 entityId, uint256 _index, bytes32 _element) internal {
+  function updateAllowedEntityIds(EntityId entityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -494,9 +497,9 @@ library PipeAccessList {
   /**
    * @notice Update an element of allowedEntityIds at `_index`.
    */
-  function _updateAllowedEntityIds(bytes32 entityId, uint256 _index, bytes32 _element) internal {
+  function _updateAllowedEntityIds(EntityId entityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -507,9 +510,9 @@ library PipeAccessList {
   /**
    * @notice Update an element of allowedEntityIds (using the specified store) at `_index`.
    */
-  function updateAllowedEntityIds(IStore _store, bytes32 entityId, uint256 _index, bytes32 _element) internal {
+  function updateAllowedEntityIds(IStore _store, EntityId entityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -520,9 +523,9 @@ library PipeAccessList {
   /**
    * @notice Update an element of allowedEntityIds at `_index`.
    */
-  function update(bytes32 entityId, uint256 _index, bytes32 _element) internal {
+  function update(EntityId entityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -533,9 +536,9 @@ library PipeAccessList {
   /**
    * @notice Update an element of allowedEntityIds at `_index`.
    */
-  function _update(bytes32 entityId, uint256 _index, bytes32 _element) internal {
+  function _update(EntityId entityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -546,9 +549,9 @@ library PipeAccessList {
   /**
    * @notice Update an element of allowedEntityIds (using the specified store) at `_index`.
    */
-  function update(IStore _store, bytes32 entityId, uint256 _index, bytes32 _element) internal {
+  function update(IStore _store, EntityId entityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -559,9 +562,9 @@ library PipeAccessList {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 entityId) internal {
+  function deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -569,9 +572,9 @@ library PipeAccessList {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 entityId) internal {
+  function _deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -579,9 +582,9 @@ library PipeAccessList {
   /**
    * @notice Delete all data for given keys (using the specified store).
    */
-  function deleteRecord(IStore _store, bytes32 entityId) internal {
+  function deleteRecord(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.deleteRecord(_tableId, _keyTuple);
   }
@@ -624,9 +627,9 @@ library PipeAccessList {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId entityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     return _keyTuple;
   }

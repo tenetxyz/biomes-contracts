@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "@biomesaw/world/src/EntityId.sol";
+
 library ChipAdmin {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "ChipAdmin", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e6365000000004368697041646d696e00000000000000);
@@ -70,9 +73,9 @@ library ChipAdmin {
   /**
    * @notice Get admin.
    */
-  function getAdmin(bytes32 entityId) internal view returns (address admin) {
+  function getAdmin(EntityId entityId) internal view returns (address admin) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -81,9 +84,9 @@ library ChipAdmin {
   /**
    * @notice Get admin.
    */
-  function _getAdmin(bytes32 entityId) internal view returns (address admin) {
+  function _getAdmin(EntityId entityId) internal view returns (address admin) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -92,9 +95,9 @@ library ChipAdmin {
   /**
    * @notice Get admin (using the specified store).
    */
-  function getAdmin(IStore _store, bytes32 entityId) internal view returns (address admin) {
+  function getAdmin(IStore _store, EntityId entityId) internal view returns (address admin) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -103,9 +106,9 @@ library ChipAdmin {
   /**
    * @notice Get admin.
    */
-  function get(bytes32 entityId) internal view returns (address admin) {
+  function get(EntityId entityId) internal view returns (address admin) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -114,9 +117,9 @@ library ChipAdmin {
   /**
    * @notice Get admin.
    */
-  function _get(bytes32 entityId) internal view returns (address admin) {
+  function _get(EntityId entityId) internal view returns (address admin) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -125,9 +128,9 @@ library ChipAdmin {
   /**
    * @notice Get admin (using the specified store).
    */
-  function get(IStore _store, bytes32 entityId) internal view returns (address admin) {
+  function get(IStore _store, EntityId entityId) internal view returns (address admin) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -136,9 +139,9 @@ library ChipAdmin {
   /**
    * @notice Set admin.
    */
-  function setAdmin(bytes32 entityId, address admin) internal {
+  function setAdmin(EntityId entityId, address admin) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
   }
@@ -146,9 +149,9 @@ library ChipAdmin {
   /**
    * @notice Set admin.
    */
-  function _setAdmin(bytes32 entityId, address admin) internal {
+  function _setAdmin(EntityId entityId, address admin) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
   }
@@ -156,9 +159,9 @@ library ChipAdmin {
   /**
    * @notice Set admin (using the specified store).
    */
-  function setAdmin(IStore _store, bytes32 entityId, address admin) internal {
+  function setAdmin(IStore _store, EntityId entityId, address admin) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
   }
@@ -166,9 +169,9 @@ library ChipAdmin {
   /**
    * @notice Set admin.
    */
-  function set(bytes32 entityId, address admin) internal {
+  function set(EntityId entityId, address admin) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
   }
@@ -176,9 +179,9 @@ library ChipAdmin {
   /**
    * @notice Set admin.
    */
-  function _set(bytes32 entityId, address admin) internal {
+  function _set(EntityId entityId, address admin) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
   }
@@ -186,9 +189,9 @@ library ChipAdmin {
   /**
    * @notice Set admin (using the specified store).
    */
-  function set(IStore _store, bytes32 entityId, address admin) internal {
+  function set(IStore _store, EntityId entityId, address admin) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
   }
@@ -196,9 +199,9 @@ library ChipAdmin {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 entityId) internal {
+  function deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -206,9 +209,9 @@ library ChipAdmin {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 entityId) internal {
+  function _deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -216,9 +219,9 @@ library ChipAdmin {
   /**
    * @notice Delete all data for given keys (using the specified store).
    */
-  function deleteRecord(IStore _store, bytes32 entityId) internal {
+  function deleteRecord(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.deleteRecord(_tableId, _keyTuple);
   }
@@ -249,9 +252,9 @@ library ChipAdmin {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId entityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     return _keyTuple;
   }
