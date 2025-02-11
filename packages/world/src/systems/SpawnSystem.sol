@@ -22,12 +22,15 @@ import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { coordToShardCoordIgnoreY } from "../utils/VoxelCoordUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
 contract SpawnSystem is System {
   function randomSpawn(uint256 blockNumber, int32 y) public returns (EntityId) {
     checkWorldStatus();
+    // TODO: use constant
+    require(blockNumber < block.number - 10, "Can only choose past 10 blocks");
 
     VoxelCoord memory spawnCoord;
     spawnCoord.y = y;
@@ -36,6 +39,9 @@ contract SpawnSystem is System {
     uint256 randZ = uint256(keccak256(abi.encodePacked(randX)));
     spawnCoord.x = int32(int256(randX % uint256(int256(WORLD_DIM_X)))) - WORLD_DIM_X / 2;
     spawnCoord.z = int32(int256(randZ % uint256(int256(WORLD_DIM_X)))) - WORLD_DIM_X / 2;
+
+    EntityId forceFieldEntityId = getForceField(spawnCoord);
+    require(!forceFieldEntityId.exists(), "Cannot spawn in force field");
 
     // TODO: this is not really necessary
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
