@@ -41,9 +41,9 @@ contract MachineSystem is System {
       PowerMachineNotifData({ machineEntityId: baseEntityId, machineCoord: entityCoord, numBattery: numBattery })
     );
 
-    safeCallChip(
-      Chip._getChipAddress(baseEntityId),
-      abi.encodeCall(IForceFieldChip.onPowered, (playerEntityId, baseEntityId, numBattery))
-    );
+    // safeCallChip(
+    //   Chip._getChipAddress(baseEntityId),
+    //   abi.encodeCall(IForceFieldChip.onPowered, (playerEntityId, baseEntityId, numBattery))
+    // );
   }
 }

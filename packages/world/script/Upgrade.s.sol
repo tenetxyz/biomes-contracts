@@ -4,6 +4,8 @@ pragma solidity >=0.8.24;
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
@@ -49,8 +51,11 @@ contract Upgrade is Script {
       // ) {
       //   continue;
       // }
-      require(Chip.getChipAddress(entityId) == 0x4509365cf5eCd4a8dB0BE9259c6339F1e49882C2, "Chip address not set");
-      Chip.setChipAddress(entityId, 0xCfEEc31cc4ac48830D1bc0c630B082Aeac3c4912);
+      ResourceId chipSystemId = Chip.getChipSystemId(entityId);
+      (address chipAddress, ) = Systems.get(chipSystemId);
+      require(chipAddress == 0x4509365cf5eCd4a8dB0BE9259c6339F1e49882C2, "Chip address not set");
+      // TODO: not sure about these hardcoded addresses
+      // Chip.setChipAddress(entityId, 0xCfEEc31cc4ac48830D1bc0c630B082Aeac3c4912);
     }
 
     // bytes32 recipeId1 = keccak256(abi.encodePacked(GoldOreObjectID, uint16(4), GoldBarObjectID, uint16(1)));

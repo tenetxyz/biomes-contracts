@@ -43,7 +43,7 @@ contract PipeTransferSystem is System {
     require(isStorageContainer(callerObjectTypeId), "Source object type is not a chest");
 
     VoxelCoord memory callerCoord = positionDataToVoxelCoord(Position._get(callerEntityId));
-    address chipAddress = Chip._get(callerEntityId);
+    address chipAddress = callerEntityId.getChipAddress();
     uint256 machineEnergyLevel = 0;
     EntityId callerForceFieldEntityId = getForceField(callerCoord);
     if (callerForceFieldEntityId.exists()) {

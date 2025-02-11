@@ -56,7 +56,7 @@ library PipeTransferLib {
     require(pipeTransferData.transferData.numToTransfer > 0, "Amount must be greater than 0");
     VoxelCoord memory targetCoord = positionDataToVoxelCoord(Position._get(pipeTransferData.targetEntityId));
     uint16 targetObjectTypeId = ObjectType._get(pipeTransferData.targetEntityId);
-    address chipAddress = Chip._get(pipeTransferData.targetEntityId);
+    address chipAddress = pipeTransferData.targetEntityId.getChipAddress();
     uint128 machineEnergyLevel = 0;
     EntityId targetForceFieldEntityId = getForceField(targetCoord);
     if (targetForceFieldEntityId.exists()) {

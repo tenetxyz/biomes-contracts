@@ -52,7 +52,7 @@ library TransferLib {
     EntityId chestEntityId = isDeposit ? baseDstEntityId : baseSrcEntityId;
     VoxelCoord memory chestCoord = isDeposit ? dstCoord : srcCoord;
 
-    address chipAddress = Chip._get(chestEntityId);
+    address chipAddress = chestEntityId.getChipAddress();
     EntityId forceFieldEntityId = getForceField(chestCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {

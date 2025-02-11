@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import { IWorldCall } from "@latticexyz/world/src/IWorldKernel.sol";
+import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { VoxelCoord } from "../Types.sol";
 
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
@@ -34,14 +37,21 @@ contract DisplaySystem is System {
     VoxelCoord memory entityCoord = positionDataToVoxelCoord(Position._get(baseEntityId));
 
     EntityId forceFieldEntityId = getForceField(entityCoord);
-    address chipAddress = Chip._getChipAddress(baseEntityId);
+    ResourceId chipSystemId = Chip._getChipSystemId(baseEntityId);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
       EnergyData memory machineData = getLatestEnergyData(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
     }
-    if (chipAddress != address(0) && machineEnergyLevel > 0) {
-      return IDisplayChip(chipAddress).getDisplayContent(baseEntityId);
+    if (chipSystemId.unwrap() != 0 && machineEnergyLevel > 0) {
+      bytes memory getDisplayContentCall = abi.encodeCall(IDisplayChip.getDisplayContent, (baseEntityId));
+      // TODO: maybe we should include staticcall in mud world
+      bytes memory worldCall = abi.encodeCall(IWorldCall.call, (chipSystemId, getDisplayContentCall));
+      (bool success, bytes memory returnData) = _world().staticcall(worldCall);
+
+      if (!success) revertWithBytes(returnData);
+
+      return abi.decode(returnData, (DisplayContentData));
     }
 
     return DisplayContentData({ contentType: DisplayContentType.None, content: bytes("") });

@@ -97,7 +97,7 @@ contract ReadTwoSystem is System {
         objectTypeId: ObjectType._get(entityId),
         position: positionDataToVoxelCoord(Position._get(entityId)),
         inventory: getEntityInventory(baseEntityId),
-        chipAddress: Chip._getChipAddress(baseEntityId)
+        chipAddress: baseEntityId.getChipAddress()
       });
   }
 

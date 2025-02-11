@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
 import { VoxelCoord } from "../Types.sol";
 
@@ -25,14 +27,16 @@ import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract ChipSystem is System {
-  function attachChipWithExtraData(EntityId entityId, address chipAddress, bytes memory extraData) public payable {
+  function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) public payable {
     (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
 
     uint16 objectTypeId = ObjectType._get(baseEntityId);
-    require(Chip._getChipAddress(baseEntityId) == address(0), "Chip already attached");
-    require(chipAddress != address(0), "Invalid chip address");
+    require(Chip._getChipSystemId(baseEntityId).unwrap() == 0, "Chip already attached");
+    require(chipSystemId.unwrap() != 0, "Invalid chip system id");
+
+    (address chipAddress, ) = Systems._get(chipSystemId);
 
     if (objectTypeId == ForceFieldObjectID) {
       require(
@@ -55,7 +59,7 @@ contract ChipSystem is System {
 
     removeFromInventoryCount(playerEntityId, ChipObjectID, 1);
 
-    Chip._setChipAddress(baseEntityId, chipAddress);
+    Chip._setChipSystemId(baseEntityId, chipSystemId);
 
     notify(
       playerEntityId,
@@ -71,10 +75,12 @@ contract ChipSystem is System {
     (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
+    ResourceId chipSystemId = Chip._getChipSystemId(baseEntityId);
 
-    address chipAddress = Chip._getChipAddress(baseEntityId);
+    (address chipAddress, ) = Systems._get(chipSystemId);
     require(chipAddress != address(0), "No chip attached");
 
+    // TODO: should we check that object type is smart object?
     uint16 objectTypeId = ObjectType._get(baseEntityId);
     EntityId forceFieldEntityId = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
@@ -84,7 +90,7 @@ contract ChipSystem is System {
 
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
-    Chip._setChipAddress(baseEntityId, address(0));
+    Chip._deleteRecord(baseEntityId);
 
     notify(
       playerEntityId,
@@ -100,8 +106,8 @@ contract ChipSystem is System {
     }
   }
 
-  function attachChip(EntityId entityId, address chipAddress) public {
-    attachChipWithExtraData(entityId, chipAddress, new bytes(0));
+  function attachChip(EntityId entityId, ResourceId chipSystemId) public {
+    attachChipWithExtraData(entityId, chipSystemId, new bytes(0));
   }
 
   function detachChip(EntityId entityId) public {
