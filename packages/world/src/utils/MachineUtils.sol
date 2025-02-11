@@ -10,14 +10,14 @@ function getLatestEnergyData(bytes32 entityId) view returns (EnergyData memory) 
     // TODO: check if its a machine
 
     // Calculate how much time has passed since last update
-    uint256 timeSinceLastUpdate = block.timestamp - energyData.lastUpdatedTime;
+    uint128 timeSinceLastUpdate = uint128(block.timestamp) - energyData.lastUpdatedTime;
     if (timeSinceLastUpdate == 0) {
       return energyData;
     }
 
-    uint256 newEnergy = energyData.energy > timeSinceLastUpdate ? energyData.energy - timeSinceLastUpdate : 0;
+    uint128 newEnergy = energyData.energy > timeSinceLastUpdate ? energyData.energy - timeSinceLastUpdate : 0;
     energyData.energy = newEnergy;
-    energyData.lastUpdatedTime = block.timestamp;
+    energyData.lastUpdatedTime = uint128(block.timestamp);
   }
 
   return energyData;
@@ -30,14 +30,14 @@ function updateMachineEnergyLevel(bytes32 entityId) returns (EnergyData memory) 
     // TODO: check if its a machine
 
     // Calculate how much time has passed since last update
-    uint256 timeSinceLastUpdate = block.timestamp - energyData.lastUpdatedTime;
+    uint128 timeSinceLastUpdate = uint128(block.timestamp) - energyData.lastUpdatedTime;
     if (timeSinceLastUpdate == 0) {
       return energyData;
     }
 
-    uint256 newEnergy = energyData.energy > timeSinceLastUpdate ? energyData.energy - timeSinceLastUpdate : 0;
+    uint128 newEnergy = energyData.energy > timeSinceLastUpdate ? energyData.energy - timeSinceLastUpdate : 0;
     energyData.energy = newEnergy;
-    energyData.lastUpdatedTime = block.timestamp;
+    energyData.lastUpdatedTime = uint128(block.timestamp);
     Energy._set(entityId, energyData);
   }
 

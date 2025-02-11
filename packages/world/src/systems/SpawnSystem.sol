@@ -49,10 +49,10 @@ contract SpawnSystem is System {
     ReversePlayer._set(playerEntityId, newPlayer);
 
     // TODO: set initial mass and energy
-    Energy._set(playerEntityId, EnergyData({ energy: 100, lastUpdatedTime: block.timestamp }));
+    Energy._set(playerEntityId, EnergyData({ energy: 100, lastUpdatedTime: uint128(block.timestamp) }));
     Mass._set(playerEntityId, 10);
 
-    PlayerActivity._set(playerEntityId, block.timestamp);
+    PlayerActivity._set(playerEntityId, uint128(block.timestamp));
     require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     PlayerActionNotif._set(

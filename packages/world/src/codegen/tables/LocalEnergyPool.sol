@@ -21,12 +21,12 @@ library LocalEnergyPool {
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004c6f63616c456e65726779506f6f6c00);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0010010010000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (int32, int32, int32)
   Schema constant _keySchema = Schema.wrap(0x000c030023232300000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint256)
-  Schema constant _valueSchema = Schema.wrap(0x002001001f000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint128)
+  Schema constant _valueSchema = Schema.wrap(0x001001000f000000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -65,59 +65,59 @@ library LocalEnergyPool {
   /**
    * @notice Get energy.
    */
-  function getEnergy(int32 x, int32 y, int32 z) internal view returns (uint256 energy) {
+  function getEnergy(int32 x, int32 y, int32 z) internal view returns (uint128 energy) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
+    return (uint128(bytes16(_blob)));
   }
 
   /**
    * @notice Get energy.
    */
-  function _getEnergy(int32 x, int32 y, int32 z) internal view returns (uint256 energy) {
+  function _getEnergy(int32 x, int32 y, int32 z) internal view returns (uint128 energy) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
+    return (uint128(bytes16(_blob)));
   }
 
   /**
    * @notice Get energy.
    */
-  function get(int32 x, int32 y, int32 z) internal view returns (uint256 energy) {
+  function get(int32 x, int32 y, int32 z) internal view returns (uint128 energy) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
+    return (uint128(bytes16(_blob)));
   }
 
   /**
    * @notice Get energy.
    */
-  function _get(int32 x, int32 y, int32 z) internal view returns (uint256 energy) {
+  function _get(int32 x, int32 y, int32 z) internal view returns (uint128 energy) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
+    return (uint128(bytes16(_blob)));
   }
 
   /**
    * @notice Set energy.
    */
-  function setEnergy(int32 x, int32 y, int32 z, uint256 energy) internal {
+  function setEnergy(int32 x, int32 y, int32 z, uint128 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -129,7 +129,7 @@ library LocalEnergyPool {
   /**
    * @notice Set energy.
    */
-  function _setEnergy(int32 x, int32 y, int32 z, uint256 energy) internal {
+  function _setEnergy(int32 x, int32 y, int32 z, uint128 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -141,7 +141,7 @@ library LocalEnergyPool {
   /**
    * @notice Set energy.
    */
-  function set(int32 x, int32 y, int32 z, uint256 energy) internal {
+  function set(int32 x, int32 y, int32 z, uint128 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -153,7 +153,7 @@ library LocalEnergyPool {
   /**
    * @notice Set energy.
    */
-  function _set(int32 x, int32 y, int32 z, uint256 energy) internal {
+  function _set(int32 x, int32 y, int32 z, uint128 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -190,7 +190,7 @@ library LocalEnergyPool {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint256 energy) internal pure returns (bytes memory) {
+  function encodeStatic(uint128 energy) internal pure returns (bytes memory) {
     return abi.encodePacked(energy);
   }
 
@@ -200,7 +200,7 @@ library LocalEnergyPool {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(uint256 energy) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+  function encode(uint128 energy) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(energy);
 
     EncodedLengths _encodedLengths;

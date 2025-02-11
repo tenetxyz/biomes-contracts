@@ -105,7 +105,7 @@ function testUseEquipped(
   uint24 durabilityDecrease
 ) {
   if (inventoryEntityId != bytes32(0)) {
-    uint256 durabilityLeft = Mass.getMass(inventoryEntityId);
+    uint128 durabilityLeft = Mass.getMass(inventoryEntityId);
     // Allow mining even if durability is exactly or less than required, then break the tool
     require(durabilityLeft > 0, "Tool is already broken");
 

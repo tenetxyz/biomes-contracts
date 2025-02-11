@@ -117,7 +117,7 @@ contract CraftSystem is System {
         ObjectType._set(newInventoryEntityId, recipeData.outputObjectTypeId);
         InventoryTool._set(newInventoryEntityId, playerEntityId);
         ReverseInventoryTool._push(playerEntityId, newInventoryEntityId);
-        uint256 mass = ObjectTypeMetadata._getMass(recipeData.outputObjectTypeId);
+        uint128 mass = ObjectTypeMetadata._getMass(recipeData.outputObjectTypeId);
         if (mass > 0) {
           Mass._setMass(newInventoryEntityId, mass);
         }

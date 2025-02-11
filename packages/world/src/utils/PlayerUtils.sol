@@ -30,7 +30,7 @@ function requireValidPlayer(address player) returns (bytes32, VoxelCoord memory)
   // TODO: update energy, should decrease over time
   Energy._setEnergy(playerEntityId, Energy._getEnergy(playerEntityId) + 1);
 
-  PlayerActivity._set(playerEntityId, block.timestamp);
+  PlayerActivity._set(playerEntityId, uint128(block.timestamp));
 
   return (playerEntityId, playerCoord);
 }

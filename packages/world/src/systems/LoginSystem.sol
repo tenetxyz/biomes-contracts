@@ -48,7 +48,7 @@ contract LoginSystem is System {
     LastKnownPosition._deleteRecord(playerEntityId);
     PlayerStatus._set(playerEntityId, false);
 
-    PlayerActivity._set(playerEntityId, block.timestamp);
+    PlayerActivity._set(playerEntityId, uint128(block.timestamp));
 
     // TODO: apply cost for being logged off
 

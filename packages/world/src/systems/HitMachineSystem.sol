@@ -45,7 +45,7 @@ contract HitMachineSystem is System {
     PlayerActionNotif._set(
       playerEntityId,
       PlayerActionNotifData({
-        actionType: ActionType.HitChip,
+        actionType: ActionType.HitMachine,
         entityId: machineEntityId,
         objectTypeId: objectTypeId,
         coordX: machineCoord.x,

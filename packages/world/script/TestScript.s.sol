@@ -66,7 +66,7 @@ contract TestScript is Script {
     ObjectType.set(newInventoryEntityId, NeptuniumPickObjectID);
     InventoryTool.set(newInventoryEntityId, playerEntityId);
     ReverseInventoryTool.push(playerEntityId, newInventoryEntityId);
-    uint256 mass = ObjectTypeMetadata.getMass(NeptuniumPickObjectID);
+    uint128 mass = ObjectTypeMetadata.getMass(NeptuniumPickObjectID);
     require(mass > 0, "Mass must be greater than 0");
     Mass.setMass(newInventoryEntityId, mass);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, NeptuniumPickObjectID, 1);

@@ -83,7 +83,7 @@ function useEquipped(
 ) {
   if (inventoryEntityId != bytes32(0)) {
     // TOOD: fix
-    uint256 durabilityLeft = Mass._getMass(inventoryEntityId);
+    uint128 durabilityLeft = Mass._getMass(inventoryEntityId);
     // Allow mining even if durability is exactly or less than required, then break the tool
     require(durabilityLeft > 0, "Tool is already broken");
 

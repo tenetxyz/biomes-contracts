@@ -21,12 +21,12 @@ library PlayerActivity {
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000506c6179657241637469766974790000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0010010010000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint256)
-  Schema constant _valueSchema = Schema.wrap(0x002001001f000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint128)
+  Schema constant _valueSchema = Schema.wrap(0x001001000f000000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -63,51 +63,51 @@ library PlayerActivity {
   /**
    * @notice Get lastActionTime.
    */
-  function getLastActionTime(bytes32 entityId) internal view returns (uint256 lastActionTime) {
+  function getLastActionTime(bytes32 entityId) internal view returns (uint128 lastActionTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
+    return (uint128(bytes16(_blob)));
   }
 
   /**
    * @notice Get lastActionTime.
    */
-  function _getLastActionTime(bytes32 entityId) internal view returns (uint256 lastActionTime) {
+  function _getLastActionTime(bytes32 entityId) internal view returns (uint128 lastActionTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
+    return (uint128(bytes16(_blob)));
   }
 
   /**
    * @notice Get lastActionTime.
    */
-  function get(bytes32 entityId) internal view returns (uint256 lastActionTime) {
+  function get(bytes32 entityId) internal view returns (uint128 lastActionTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
+    return (uint128(bytes16(_blob)));
   }
 
   /**
    * @notice Get lastActionTime.
    */
-  function _get(bytes32 entityId) internal view returns (uint256 lastActionTime) {
+  function _get(bytes32 entityId) internal view returns (uint128 lastActionTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
+    return (uint128(bytes16(_blob)));
   }
 
   /**
    * @notice Set lastActionTime.
    */
-  function setLastActionTime(bytes32 entityId, uint256 lastActionTime) internal {
+  function setLastActionTime(bytes32 entityId, uint128 lastActionTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -117,7 +117,7 @@ library PlayerActivity {
   /**
    * @notice Set lastActionTime.
    */
-  function _setLastActionTime(bytes32 entityId, uint256 lastActionTime) internal {
+  function _setLastActionTime(bytes32 entityId, uint128 lastActionTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -127,7 +127,7 @@ library PlayerActivity {
   /**
    * @notice Set lastActionTime.
    */
-  function set(bytes32 entityId, uint256 lastActionTime) internal {
+  function set(bytes32 entityId, uint128 lastActionTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -137,7 +137,7 @@ library PlayerActivity {
   /**
    * @notice Set lastActionTime.
    */
-  function _set(bytes32 entityId, uint256 lastActionTime) internal {
+  function _set(bytes32 entityId, uint128 lastActionTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -168,7 +168,7 @@ library PlayerActivity {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint256 lastActionTime) internal pure returns (bytes memory) {
+  function encodeStatic(uint128 lastActionTime) internal pure returns (bytes memory) {
     return abi.encodePacked(lastActionTime);
   }
 
@@ -178,7 +178,7 @@ library PlayerActivity {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(uint256 lastActionTime) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+  function encode(uint128 lastActionTime) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(lastActionTime);
 
     EncodedLengths _encodedLengths;

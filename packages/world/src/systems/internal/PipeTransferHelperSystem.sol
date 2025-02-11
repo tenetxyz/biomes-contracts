@@ -58,7 +58,7 @@ contract PipeTransferHelperSystem is System {
     VoxelCoord memory targetCoord = positionDataToVoxelCoord(Position._get(pipeTransferData.targetEntityId));
     uint16 targetObjectTypeId = ObjectType._get(pipeTransferData.targetEntityId);
     address chipAddress = Chip._get(pipeTransferData.targetEntityId);
-    uint256 machineEnergyLevel = 0;
+    uint128 machineEnergyLevel = 0;
     bytes32 targetForceFieldEntityId = getForceField(targetCoord);
     if (targetForceFieldEntityId != bytes32(0)) {
       EnergyData memory machineData = updateMachineEnergyLevel(targetForceFieldEntityId);
@@ -99,10 +99,12 @@ contract PipeTransferHelperSystem is System {
             pipeTransferData.transferData.objectTypeId == ChipBatteryObjectID,
             "Force field can only accept chip batteries"
           );
-          uint256 newEnergyLevel = machineEnergyLevel + (uint256(pipeTransferData.transferData.numToTransfer) * 10);
+          uint128 newEnergyLevel = machineEnergyLevel + (uint128(pipeTransferData.transferData.numToTransfer) * 10);
 
-          Energy._setEnergy(pipeTransferData.targetEntityId, newEnergyLevel);
-          Energy._setLastUpdatedTime(pipeTransferData.targetEntityId, block.timestamp);
+          Energy._set(
+            pipeTransferData.targetEntityId,
+            EnergyData({ energy: newEnergyLevel, lastUpdatedTime: uint128(block.timestamp) })
+          );
 
           safeCallChip(
             chipAddress,

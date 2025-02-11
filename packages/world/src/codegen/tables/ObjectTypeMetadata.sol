@@ -21,11 +21,11 @@ import { ObjectCategory } from "../common.sol";
 
 struct ObjectTypeMetadataData {
   ObjectCategory objectCategory;
+  bool canPassThrough;
   uint16 stackable;
   uint16 maxInventorySlots;
   uint32 mass;
   uint32 energy;
-  bool canPassThrough;
 }
 
 library ObjectTypeMetadata {
@@ -33,12 +33,12 @@ library ObjectTypeMetadata {
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004f626a656374547970654d6574616461);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x000e060001020204040100000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x000e060001010202040400000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (uint16)
   Schema constant _keySchema = Schema.wrap(0x0002010001000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint8, uint16, uint16, uint32, uint32, bool)
-  Schema constant _valueSchema = Schema.wrap(0x000e060000010103036000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint8, bool, uint16, uint16, uint32, uint32)
+  Schema constant _valueSchema = Schema.wrap(0x000e060000600101030300000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -56,11 +56,11 @@ library ObjectTypeMetadata {
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](6);
     fieldNames[0] = "objectCategory";
-    fieldNames[1] = "stackable";
-    fieldNames[2] = "maxInventorySlots";
-    fieldNames[3] = "mass";
-    fieldNames[4] = "energy";
-    fieldNames[5] = "canPassThrough";
+    fieldNames[1] = "canPassThrough";
+    fieldNames[2] = "stackable";
+    fieldNames[3] = "maxInventorySlots";
+    fieldNames[4] = "mass";
+    fieldNames[5] = "energy";
   }
 
   /**
@@ -120,181 +120,13 @@ library ObjectTypeMetadata {
   }
 
   /**
-   * @notice Get stackable.
-   */
-  function getStackable(uint16 objectTypeId) internal view returns (uint16 stackable) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Get stackable.
-   */
-  function _getStackable(uint16 objectTypeId) internal view returns (uint16 stackable) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Set stackable.
-   */
-  function setStackable(uint16 objectTypeId, uint16 stackable) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((stackable)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set stackable.
-   */
-  function _setStackable(uint16 objectTypeId, uint16 stackable) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((stackable)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get maxInventorySlots.
-   */
-  function getMaxInventorySlots(uint16 objectTypeId) internal view returns (uint16 maxInventorySlots) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Get maxInventorySlots.
-   */
-  function _getMaxInventorySlots(uint16 objectTypeId) internal view returns (uint16 maxInventorySlots) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Set maxInventorySlots.
-   */
-  function setMaxInventorySlots(uint16 objectTypeId, uint16 maxInventorySlots) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((maxInventorySlots)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set maxInventorySlots.
-   */
-  function _setMaxInventorySlots(uint16 objectTypeId, uint16 maxInventorySlots) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((maxInventorySlots)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get mass.
-   */
-  function getMass(uint16 objectTypeId) internal view returns (uint32 mass) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (uint32(bytes4(_blob)));
-  }
-
-  /**
-   * @notice Get mass.
-   */
-  function _getMass(uint16 objectTypeId) internal view returns (uint32 mass) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (uint32(bytes4(_blob)));
-  }
-
-  /**
-   * @notice Set mass.
-   */
-  function setMass(uint16 objectTypeId, uint32 mass) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((mass)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set mass.
-   */
-  function _setMass(uint16 objectTypeId, uint32 mass) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((mass)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get energy.
-   */
-  function getEnergy(uint16 objectTypeId) internal view returns (uint32 energy) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
-    return (uint32(bytes4(_blob)));
-  }
-
-  /**
-   * @notice Get energy.
-   */
-  function _getEnergy(uint16 objectTypeId) internal view returns (uint32 energy) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
-    return (uint32(bytes4(_blob)));
-  }
-
-  /**
-   * @notice Set energy.
-   */
-  function setEnergy(uint16 objectTypeId, uint32 energy) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((energy)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set energy.
-   */
-  function _setEnergy(uint16 objectTypeId, uint32 energy) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(objectTypeId));
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((energy)), _fieldLayout);
-  }
-
-  /**
    * @notice Get canPassThrough.
    */
   function getCanPassThrough(uint16 objectTypeId) internal view returns (bool canPassThrough) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
   }
 
@@ -305,7 +137,7 @@ library ObjectTypeMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
   }
 
@@ -316,7 +148,7 @@ library ObjectTypeMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((canPassThrough)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((canPassThrough)), _fieldLayout);
   }
 
   /**
@@ -326,7 +158,175 @@ library ObjectTypeMetadata {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(objectTypeId));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((canPassThrough)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((canPassThrough)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get stackable.
+   */
+  function getStackable(uint16 objectTypeId) internal view returns (uint16 stackable) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint16(bytes2(_blob)));
+  }
+
+  /**
+   * @notice Get stackable.
+   */
+  function _getStackable(uint16 objectTypeId) internal view returns (uint16 stackable) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint16(bytes2(_blob)));
+  }
+
+  /**
+   * @notice Set stackable.
+   */
+  function setStackable(uint16 objectTypeId, uint16 stackable) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((stackable)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set stackable.
+   */
+  function _setStackable(uint16 objectTypeId, uint16 stackable) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((stackable)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get maxInventorySlots.
+   */
+  function getMaxInventorySlots(uint16 objectTypeId) internal view returns (uint16 maxInventorySlots) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    return (uint16(bytes2(_blob)));
+  }
+
+  /**
+   * @notice Get maxInventorySlots.
+   */
+  function _getMaxInventorySlots(uint16 objectTypeId) internal view returns (uint16 maxInventorySlots) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    return (uint16(bytes2(_blob)));
+  }
+
+  /**
+   * @notice Set maxInventorySlots.
+   */
+  function setMaxInventorySlots(uint16 objectTypeId, uint16 maxInventorySlots) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((maxInventorySlots)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set maxInventorySlots.
+   */
+  function _setMaxInventorySlots(uint16 objectTypeId, uint16 maxInventorySlots) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((maxInventorySlots)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get mass.
+   */
+  function getMass(uint16 objectTypeId) internal view returns (uint32 mass) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    return (uint32(bytes4(_blob)));
+  }
+
+  /**
+   * @notice Get mass.
+   */
+  function _getMass(uint16 objectTypeId) internal view returns (uint32 mass) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    return (uint32(bytes4(_blob)));
+  }
+
+  /**
+   * @notice Set mass.
+   */
+  function setMass(uint16 objectTypeId, uint32 mass) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((mass)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set mass.
+   */
+  function _setMass(uint16 objectTypeId, uint32 mass) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((mass)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get energy.
+   */
+  function getEnergy(uint16 objectTypeId) internal view returns (uint32 energy) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    return (uint32(bytes4(_blob)));
+  }
+
+  /**
+   * @notice Get energy.
+   */
+  function _getEnergy(uint16 objectTypeId) internal view returns (uint32 energy) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    return (uint32(bytes4(_blob)));
+  }
+
+  /**
+   * @notice Set energy.
+   */
+  function setEnergy(uint16 objectTypeId, uint32 energy) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((energy)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set energy.
+   */
+  function _setEnergy(uint16 objectTypeId, uint32 energy) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(objectTypeId));
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((energy)), _fieldLayout);
   }
 
   /**
@@ -365,13 +365,13 @@ library ObjectTypeMetadata {
   function set(
     uint16 objectTypeId,
     ObjectCategory objectCategory,
+    bool canPassThrough,
     uint16 stackable,
     uint16 maxInventorySlots,
     uint32 mass,
-    uint32 energy,
-    bool canPassThrough
+    uint32 energy
   ) internal {
-    bytes memory _staticData = encodeStatic(objectCategory, stackable, maxInventorySlots, mass, energy, canPassThrough);
+    bytes memory _staticData = encodeStatic(objectCategory, canPassThrough, stackable, maxInventorySlots, mass, energy);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -388,13 +388,13 @@ library ObjectTypeMetadata {
   function _set(
     uint16 objectTypeId,
     ObjectCategory objectCategory,
+    bool canPassThrough,
     uint16 stackable,
     uint16 maxInventorySlots,
     uint32 mass,
-    uint32 energy,
-    bool canPassThrough
+    uint32 energy
   ) internal {
-    bytes memory _staticData = encodeStatic(objectCategory, stackable, maxInventorySlots, mass, energy, canPassThrough);
+    bytes memory _staticData = encodeStatic(objectCategory, canPassThrough, stackable, maxInventorySlots, mass, energy);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -411,11 +411,11 @@ library ObjectTypeMetadata {
   function set(uint16 objectTypeId, ObjectTypeMetadataData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.objectCategory,
+      _table.canPassThrough,
       _table.stackable,
       _table.maxInventorySlots,
       _table.mass,
-      _table.energy,
-      _table.canPassThrough
+      _table.energy
     );
 
     EncodedLengths _encodedLengths;
@@ -433,11 +433,11 @@ library ObjectTypeMetadata {
   function _set(uint16 objectTypeId, ObjectTypeMetadataData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.objectCategory,
+      _table.canPassThrough,
       _table.stackable,
       _table.maxInventorySlots,
       _table.mass,
-      _table.energy,
-      _table.canPassThrough
+      _table.energy
     );
 
     EncodedLengths _encodedLengths;
@@ -459,24 +459,24 @@ library ObjectTypeMetadata {
     pure
     returns (
       ObjectCategory objectCategory,
+      bool canPassThrough,
       uint16 stackable,
       uint16 maxInventorySlots,
       uint32 mass,
-      uint32 energy,
-      bool canPassThrough
+      uint32 energy
     )
   {
     objectCategory = ObjectCategory(uint8(Bytes.getBytes1(_blob, 0)));
 
-    stackable = (uint16(Bytes.getBytes2(_blob, 1)));
+    canPassThrough = (_toBool(uint8(Bytes.getBytes1(_blob, 1))));
 
-    maxInventorySlots = (uint16(Bytes.getBytes2(_blob, 3)));
+    stackable = (uint16(Bytes.getBytes2(_blob, 2)));
 
-    mass = (uint32(Bytes.getBytes4(_blob, 5)));
+    maxInventorySlots = (uint16(Bytes.getBytes2(_blob, 4)));
 
-    energy = (uint32(Bytes.getBytes4(_blob, 9)));
+    mass = (uint32(Bytes.getBytes4(_blob, 6)));
 
-    canPassThrough = (_toBool(uint8(Bytes.getBytes1(_blob, 13))));
+    energy = (uint32(Bytes.getBytes4(_blob, 10)));
   }
 
   /**
@@ -492,11 +492,11 @@ library ObjectTypeMetadata {
   ) internal pure returns (ObjectTypeMetadataData memory _table) {
     (
       _table.objectCategory,
+      _table.canPassThrough,
       _table.stackable,
       _table.maxInventorySlots,
       _table.mass,
-      _table.energy,
-      _table.canPassThrough
+      _table.energy
     ) = decodeStatic(_staticData);
   }
 
@@ -526,13 +526,13 @@ library ObjectTypeMetadata {
    */
   function encodeStatic(
     ObjectCategory objectCategory,
+    bool canPassThrough,
     uint16 stackable,
     uint16 maxInventorySlots,
     uint32 mass,
-    uint32 energy,
-    bool canPassThrough
+    uint32 energy
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(objectCategory, stackable, maxInventorySlots, mass, energy, canPassThrough);
+    return abi.encodePacked(objectCategory, canPassThrough, stackable, maxInventorySlots, mass, energy);
   }
 
   /**
@@ -543,13 +543,13 @@ library ObjectTypeMetadata {
    */
   function encode(
     ObjectCategory objectCategory,
+    bool canPassThrough,
     uint16 stackable,
     uint16 maxInventorySlots,
     uint32 mass,
-    uint32 energy,
-    bool canPassThrough
+    uint32 energy
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(objectCategory, stackable, maxInventorySlots, mass, energy, canPassThrough);
+    bytes memory _staticData = encodeStatic(objectCategory, canPassThrough, stackable, maxInventorySlots, mass, energy);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

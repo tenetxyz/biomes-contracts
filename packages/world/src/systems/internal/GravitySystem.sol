@@ -38,8 +38,8 @@ contract GravitySystem is System {
     Position._set(playerEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
     ReversePosition._set(belowCoord.x, belowCoord.y, belowCoord.z, playerEntityId);
 
-    if (PlayerActivity._get(playerEntityId) != block.timestamp) {
-      PlayerActivity._set(playerEntityId, block.timestamp);
+    if (PlayerActivity._get(playerEntityId) != uint128(block.timestamp)) {
+      PlayerActivity._set(playerEntityId, uint128(block.timestamp));
     }
 
     // TODO: apply some energy cost for gravity

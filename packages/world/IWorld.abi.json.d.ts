@@ -1739,13 +1739,13 @@ declare const abi: [
             "components": [
               {
                 "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
+                "type": "uint128",
+                "internalType": "uint128"
               },
               {
                 "name": "energy",
-                "type": "uint256",
-                "internalType": "uint256"
+                "type": "uint128",
+                "internalType": "uint128"
               }
             ]
           },
@@ -1890,13 +1890,13 @@ declare const abi: [
             "components": [
               {
                 "name": "lastUpdatedTime",
-                "type": "uint256",
-                "internalType": "uint256"
+                "type": "uint128",
+                "internalType": "uint128"
               },
               {
                 "name": "energy",
-                "type": "uint256",
-                "internalType": "uint256"
+                "type": "uint128",
+                "internalType": "uint128"
               }
             ]
           },
