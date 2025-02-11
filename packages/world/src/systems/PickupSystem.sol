@@ -15,16 +15,17 @@ import { transferInventoryNonTool, transferInventoryTool, transferAllInventoryEn
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 import { PickupData } from "../Types.sol";
+import { EntityId } from "../EntityId.sol";
 
 contract PickupSystem is System {
-  function pickupCommon(VoxelCoord memory coord) internal returns (bytes32, bytes32) {
+  function pickupCommon(VoxelCoord memory coord) internal returns (EntityId, EntityId) {
     require(inWorldBorder(coord), "Cannot pickup outside the world border");
 
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId != bytes32(0), "Cannot pickup from an unrevealed block");
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    require(entityId.exists(), "Cannot pickup from an unrevealed block");
 
     uint16 objectTypeId = ObjectType._get(entityId);
     require(objectTypeId == AirObjectID, "Cannot pickup from a non-air block");
@@ -33,7 +34,7 @@ contract PickupSystem is System {
   }
 
   function pickupAll(VoxelCoord memory coord) public {
-    (bytes32 playerEntityId, bytes32 entityId) = pickupCommon(coord);
+    (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
     uint256 numTransferred = transferAllInventoryEntities(entityId, playerEntityId, PlayerObjectID);
 
     PlayerActionNotif._set(
@@ -51,7 +52,7 @@ contract PickupSystem is System {
   }
 
   function pickup(uint16 pickupObjectTypeId, uint16 numToPickup, VoxelCoord memory coord) public {
-    (bytes32 playerEntityId, bytes32 entityId) = pickupCommon(coord);
+    (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
     transferInventoryNonTool(entityId, playerEntityId, PlayerObjectID, pickupObjectTypeId, numToPickup);
 
     PlayerActionNotif._set(
@@ -68,8 +69,8 @@ contract PickupSystem is System {
     );
   }
 
-  function pickupTool(bytes32 toolEntityId, VoxelCoord memory coord) public {
-    (bytes32 playerEntityId, bytes32 entityId) = pickupCommon(coord);
+  function pickupTool(EntityId toolEntityId, VoxelCoord memory coord) public {
+    (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
     uint16 toolObjectTypeId = transferInventoryTool(entityId, playerEntityId, PlayerObjectID, toolEntityId);
 
     PlayerActionNotif._set(
@@ -88,10 +89,10 @@ contract PickupSystem is System {
 
   function pickupMultiple(
     PickupData[] memory pickupObjects,
-    bytes32[] memory pickupTools,
+    EntityId[] memory pickupTools,
     VoxelCoord memory coord
   ) public {
-    (bytes32 playerEntityId, bytes32 entityId) = pickupCommon(coord);
+    (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
 
     for (uint256 i = 0; i < pickupObjects.length; i++) {
       PickupData memory pickupObject = pickupObjects[i];

@@ -19,20 +19,21 @@ import { BlockPrevrandao } from "../codegen/tables/BlockPrevrandao.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getRandomNumberBetween0And99 } from "../Utils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { EntityId } from "../EntityId.sol";
 
 contract OreSystem is System {
   function initiateOreReveal(VoxelCoord memory coord) public {
     require(inWorldBorder(coord), "Cannot reveal ore outside world border");
 
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
     if (TerrainCommitment._getBlockNumber(coord.x, coord.y, coord.z) != 0) {
       revealOre(coord);
       return;
     }
 
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId != bytes32(0), "Cannot initiate ore reveal on unrevealed terrain");
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    require(entityId.exists(), "Cannot initiate ore reveal on unrevealed terrain");
     uint16 mineObjectTypeId = ObjectType._get(entityId);
     require(mineObjectTypeId == AnyOreObjectID, "Terrain is not an ore");
 
@@ -64,8 +65,8 @@ contract OreSystem is System {
     // TODO: Fix
     uint16 oreObjectTypeId = CoalOreObjectID;
 
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId != bytes32(0), "Cannot reveal ore on unrevealed terrain");
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    require(entityId.exists(), "Cannot reveal ore on unrevealed terrain");
 
     uint16 mineObjectTypeId = ObjectType._get(entityId);
     require(mineObjectTypeId == AnyOreObjectID, "Terrain is not an ore");
@@ -100,8 +101,8 @@ contract OreSystem is System {
     TerrainCommitment._deleteRecord(coord.x, coord.y, coord.z);
     Commitment._deleteRecord(terrainCommitmentData.committerEntityId);
 
-    bytes32 playerEntityId = Player._get(_msgSender());
-    if (playerEntityId != bytes32(0)) {
+    EntityId playerEntityId = Player._get(_msgSender());
+    if (playerEntityId.exists()) {
       PlayerActionNotif._set(
         playerEntityId,
         PlayerActionNotifData({

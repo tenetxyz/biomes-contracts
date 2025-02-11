@@ -11,11 +11,13 @@ import { ActionType } from "../codegen/common.sol";
 
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 
+import { EntityId } from "../EntityId.sol";
+
 contract UnequipSystem is System {
   function unequip() public {
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
-    bytes32 equippedEntityId = Equipped._get(playerEntityId);
-    if (equippedEntityId == bytes32(0)) {
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    EntityId equippedEntityId = Equipped._get(playerEntityId);
+    if (!equippedEntityId.exists()) {
       return;
     }
     uint16 equippedObjectId = ObjectType._get(equippedEntityId);

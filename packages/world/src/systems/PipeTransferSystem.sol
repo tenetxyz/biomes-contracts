@@ -20,6 +20,7 @@ import { IN_MAINTENANCE } from "../Constants.sol";
 
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
+import { EntityId } from "../EntityId.sol";
 
 contract PipeTransferSystem is System {
   function requireAllowed(
@@ -35,7 +36,7 @@ contract PipeTransferSystem is System {
   }
 
   function pipeTransfer(
-    bytes32 callerEntityId,
+    EntityId callerEntityId,
     bool isDeposit,
     PipeTransferData memory pipeTransferData
   ) public payable {
@@ -46,8 +47,8 @@ contract PipeTransferSystem is System {
     VoxelCoord memory callerCoord = positionDataToVoxelCoord(Position._get(callerEntityId));
     address chipAddress = Chip._get(callerEntityId);
     uint256 machineEnergyLevel = 0;
-    bytes32 callerForceFieldEntityId = getForceField(callerCoord);
-    if (callerForceFieldEntityId != bytes32(0)) {
+    EntityId callerForceFieldEntityId = getForceField(callerCoord);
+    if (callerForceFieldEntityId.exists()) {
       EnergyData memory machineData = updateMachineEnergyLevel(callerForceFieldEntityId);
       machineEnergyLevel = machineData.energy;
     }
@@ -70,7 +71,7 @@ contract PipeTransferSystem is System {
         pipeCtx.chipAddress,
         pipeCtx.machineEnergyLevel,
         ChipOnPipeTransferData({
-          playerEntityId: bytes32(0), // this is a transfer initiated by a chest, not a player
+          playerEntityId: EntityId.wrap(0), // this is a transfer initiated by a chest, not a player
           targetEntityId: pipeTransferData.targetEntityId,
           callerEntityId: callerEntityId,
           isDeposit: isDeposit,

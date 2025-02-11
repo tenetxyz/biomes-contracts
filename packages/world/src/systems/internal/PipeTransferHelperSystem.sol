@@ -23,6 +23,7 @@ import { isStorageContainer } from "../../utils/ObjectTypeUtils.sol";
 import { transferInventoryTool, transferInventoryNonTool, addToInventoryCount, removeFromInventoryCount } from "../../utils/InventoryUtils.sol";
 
 import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
+import { EntityId } from "../../EntityId.sol";
 
 contract PipeTransferHelperSystem is System {
   function requireValidPath(
@@ -35,7 +36,7 @@ contract PipeTransferHelperSystem is System {
     for (uint i = 0; i < path.length; i++) {
       pathCoords[i] = transformVoxelCoordVonNeumann(i == 0 ? srcCoord : pathCoords[i - 1], path[i]);
       EntityId pathEntityId = ReversePosition._get(pathCoords[i].x, pathCoords[i].y, pathCoords[i].z);
-      require(pathEntityId != bytes32(0), "Path coord is not in the world");
+      require(pathEntityId.exists(), "Path coord is not in the world");
       require(ObjectType._get(pathEntityId) == PipeObjectID, "Path coord is not a pipe");
     }
 
@@ -47,7 +48,7 @@ contract PipeTransferHelperSystem is System {
   }
 
   function pipeTransferCommon(
-    bytes32 callerEntityId,
+    EntityId callerEntityId,
     uint16 callerObjectTypeId,
     VoxelCoord memory callerCoord,
     bool isDeposit,
@@ -59,8 +60,8 @@ contract PipeTransferHelperSystem is System {
     uint16 targetObjectTypeId = ObjectType._get(pipeTransferData.targetEntityId);
     address chipAddress = Chip._get(pipeTransferData.targetEntityId);
     uint128 machineEnergyLevel = 0;
-    bytes32 targetForceFieldEntityId = getForceField(targetCoord);
-    if (targetForceFieldEntityId != bytes32(0)) {
+    EntityId targetForceFieldEntityId = getForceField(targetCoord);
+    if (targetForceFieldEntityId.exists()) {
       EnergyData memory machineData = updateMachineEnergyLevel(targetForceFieldEntityId);
       machineEnergyLevel = machineData.energy;
     }

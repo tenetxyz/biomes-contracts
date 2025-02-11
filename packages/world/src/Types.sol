@@ -100,7 +100,7 @@ struct PickupData {
 struct TransferData {
   uint16 objectTypeId;
   uint16 numToTransfer;
-  bytes32[] toolEntityIds;
+  EntityId[] toolEntityIds;
 }
 
 struct PipeTransferData {

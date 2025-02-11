@@ -14,8 +14,12 @@ function exists(EntityId self) pure returns (bool) {
   return EntityId.unwrap(self) != bytes32(0);
 }
 
-function equals(EntityId self, EntityId other) pure returns (bool) {
+function eq(EntityId self, EntityId other) pure returns (bool) {
   return EntityId.unwrap(self) == EntityId.unwrap(other);
 }
 
-using { baseEntityId, exists, equals as == } for EntityId global;
+function neq(EntityId self, EntityId other) pure returns (bool) {
+  return EntityId.unwrap(self) != EntityId.unwrap(other);
+}
+
+using { baseEntityId, exists, eq as ==, neq as != } for EntityId global;
