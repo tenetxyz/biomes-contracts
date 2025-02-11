@@ -2,9 +2,8 @@
 pragma solidity >=0.8.24;
 
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { IWorldCall } from "@latticexyz/world/src/IWorldKernel.sol";
-import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { VoxelCoord } from "../Types.sol";
 
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
@@ -44,14 +43,9 @@ contract DisplaySystem is System {
       machineEnergyLevel = machineData.energy;
     }
     if (chipSystemId.unwrap() != 0 && machineEnergyLevel > 0) {
-      bytes memory getDisplayContentCall = abi.encodeCall(IDisplayChip.getDisplayContent, (baseEntityId));
-      // TODO: maybe we should include staticcall in mud world
-      bytes memory worldCall = abi.encodeCall(IWorldCall.call, (chipSystemId, getDisplayContentCall));
-      (bool success, bytes memory returnData) = _world().staticcall(worldCall);
-
-      if (!success) revertWithBytes(returnData);
-
-      return abi.decode(returnData, (DisplayContentData));
+      (address chipAddress, ) = Systems._get(chipSystemId);
+      // We can call the chip directly as we are a root system
+      return IDisplayChip(chipAddress).getDisplayContent(baseEntityId);
     }
 
     return DisplayContentData({ contentType: DisplayContentType.None, content: bytes("") });
