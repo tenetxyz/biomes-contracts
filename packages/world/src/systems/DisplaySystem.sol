@@ -4,6 +4,8 @@ pragma solidity >=0.8.24;
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import { IWorldCall } from "@latticexyz/world/src/IWorldKernel.sol";
+import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { VoxelCoord } from "../Types.sol";
 
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
@@ -36,16 +38,14 @@ contract DisplaySystem is System {
     VoxelCoord memory entityCoord = positionDataToVoxelCoord(Position._get(baseEntityId));
 
     EntityId forceFieldEntityId = getForceField(entityCoord);
-    ResourceId chipSystemId = Chip._getChipSystemId(baseEntityId);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
       EnergyData memory machineData = getLatestEnergyData(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
     }
-    if (chipSystemId.unwrap() != 0 && machineEnergyLevel > 0) {
-      (address chipAddress, ) = Systems._get(chipSystemId);
+    if (machineEnergyLevel > 0) {
       // We can call the chip directly as we are a root system
-      return IDisplayChip(chipAddress).getDisplayContent(baseEntityId);
+      return IDisplayChip(baseEntityId.getChipAddress()).getDisplayContent(baseEntityId);
     }
 
     return DisplayContentData({ contentType: DisplayContentType.None, content: bytes("") });

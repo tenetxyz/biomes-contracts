@@ -14,7 +14,6 @@ function baseEntityId(EntityId self) view returns (EntityId) {
   return EntityId.unwrap(base) == bytes32(0) ? self : base;
 }
 
-// TODO: Not sure if it should be included here or if it should be a standalone util
 function getChipAddress(EntityId entityId) view returns (address) {
   ResourceId chipSystemId = Chip.getChipSystemId(entityId);
   (address chipAddress, ) = Systems.get(chipSystemId);
