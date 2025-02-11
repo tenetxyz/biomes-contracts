@@ -15,6 +15,7 @@ import { Spawn, SpawnData } from "../../codegen/tables/Spawn.sol";
 import { SPAWN_SHARD_DIM } from "../../Constants.sol";
 import { AirObjectID, BasaltCarvedObjectID, StoneObjectID, DirtObjectID, GrassObjectID } from "../../ObjectTypeIds.sol";
 import { getUniqueEntity, inWorldBorder } from "../../Utils.sol";
+import { EntityId } from "../../EntityId.sol";
 
 contract InitSpawnSystem is System {
   function addSpawn(VoxelCoord memory lowerSouthwestCorner, VoxelCoord memory size) public {
@@ -160,8 +161,8 @@ contract InitSpawnSystem is System {
   }
 
   function setObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) internal {
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    if (entityId == bytes32(0)) {
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (!entityId.exists()) {
       entityId = getUniqueEntity();
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
     } else {

@@ -23,6 +23,7 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
 import { Recipes } from "../src/codegen/tables/Recipes.sol";
 
+import { EntityId } from "../src/EntityId.sol";
 import { BedrockObjectID, ChestObjectID, AnyReinforcedLumberObjectID, SandObjectID, CoalOreObjectID, ChipBatteryObjectID, GlassObjectID, StoneObjectID, QuartziteObjectID, LimestoneObjectID, EmberstoneObjectID, MoonstoneObjectID, SunstoneObjectID, GoldOreObjectID, GoldBarObjectID, SilverOreObjectID, SilverBarObjectID, DiamondOreObjectID, DiamondObjectID, NeptuniumOreObjectID, NeptuniumBarObjectID } from "../src/ObjectTypeIds.sol";
 
 contract Upgrade is Script {
@@ -43,7 +44,7 @@ contract Upgrade is Script {
     entityIds[3] = 0x000000000000000000000000000000000000000000000000000000000000ae8d;
 
     for (uint i = 0; i < entityIds.length; i++) {
-      bytes32 entityId = entityIds[i];
+      EntityId entityId = EntityId.wrap(entityIds[i]);
       // if (
       //   entityId == 0x00000000000000000000000000000000000000000000000000000000000309d4 ||
       //   entityId == 0x00000000000000000000000000000000000000000000000000000000002a4960

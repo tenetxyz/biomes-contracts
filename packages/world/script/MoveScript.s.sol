@@ -23,6 +23,7 @@ import { LastKnownPosition } from "../src/codegen/tables/LastKnownPosition.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
 import { VoxelCoord } from "../src/Types.sol";
+import { EntityId } from "../src/EntityId.sol";
 import { WaterObjectID, GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID } from "../src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
@@ -39,14 +40,12 @@ contract MoveScript is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
-    IWorld world = IWorld(worldAddress);
-
-    bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
+    EntityId playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
     VoxelCoord memory finalCoord = VoxelCoord(-604, -44, -754);
 
-    require(playerEntityId != bytes32(0), "Player entity not found");
-    bytes32 finalEntityId = ReversePosition.get(finalCoord.x, finalCoord.y, finalCoord.z);
-    require(finalEntityId != bytes32(0), "Cannot move to unrevealed block");
+    require(playerEntityId.exists(), "Player entity not found");
+    EntityId finalEntityId = ReversePosition.get(finalCoord.x, finalCoord.y, finalCoord.z);
+    require(finalEntityId.exists(), "Cannot move to unrevealed block");
     require(ObjectType.get(finalEntityId) == AirObjectID, "Cannot move to non-air block");
     testTransferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
     require(!testGravityApplies(finalCoord), "Gravity applies to player");

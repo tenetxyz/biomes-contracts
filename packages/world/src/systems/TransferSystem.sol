@@ -13,14 +13,15 @@ import { IChestChip } from "../prototypes/IChestChip.sol";
 import { ChipOnTransferData, TransferData, TransferCommonContext } from "../Types.sol";
 
 import { ITransferHelperSystem } from "../codegen/world/ITransferHelperSystem.sol";
+import { EntityId } from "../EntityId.sol";
 
 contract TransferSystem is System {
   function requireAllowed(
     uint256 machineEnergyLevel,
     address chipAddress,
     bool isDeposit,
-    bytes32 playerEntityId,
-    bytes32 chestEntityId,
+    EntityId playerEntityId,
+    EntityId chestEntityId,
     TransferData memory transferData,
     bytes memory extraData
   ) internal {
@@ -41,8 +42,8 @@ contract TransferSystem is System {
   }
 
   function transferWithExtraData(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
+    EntityId srcEntityId,
+    EntityId dstEntityId,
     uint16 transferObjectTypeId,
     uint16 numToTransfer,
     bytes memory extraData
@@ -85,27 +86,27 @@ contract TransferSystem is System {
       TransferData({
         objectTypeId: transferObjectTypeId,
         numToTransfer: numToTransfer,
-        toolEntityIds: new bytes32[](0)
+        toolEntityIds: new EntityId[](0)
       }),
       extraData
     );
   }
 
   function transferToolWithExtraData(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    bytes32 toolEntityId,
+    EntityId srcEntityId,
+    EntityId dstEntityId,
+    EntityId toolEntityId,
     bytes memory extraData
   ) public payable {
-    bytes32[] memory toolEntityIds = new bytes32[](1);
+    EntityId[] memory toolEntityIds = new EntityId[](1);
     toolEntityIds[0] = toolEntityId;
     transferToolsWithExtraData(srcEntityId, dstEntityId, toolEntityIds, extraData);
   }
 
   function transferToolsWithExtraData(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
-    bytes32[] memory toolEntityIds,
+    EntityId srcEntityId,
+    EntityId dstEntityId,
+    EntityId[] memory toolEntityIds,
     bytes memory extraData
   ) public payable {
     require(toolEntityIds.length > 0, "Must transfer at least one tool");
@@ -162,19 +163,19 @@ contract TransferSystem is System {
   }
 
   function transfer(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
+    EntityId srcEntityId,
+    EntityId dstEntityId,
     uint16 transferObjectTypeId,
     uint16 numToTransfer
   ) public payable {
     transferWithExtraData(srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, new bytes(0));
   }
 
-  function transferTool(bytes32 srcEntityId, bytes32 dstEntityId, bytes32 toolEntityId) public payable {
+  function transferTool(EntityId srcEntityId, EntityId dstEntityId, EntityId toolEntityId) public payable {
     transferToolWithExtraData(srcEntityId, dstEntityId, toolEntityId, new bytes(0));
   }
 
-  function transferTools(bytes32 srcEntityId, bytes32 dstEntityId, bytes32[] memory toolEntityIds) public payable {
+  function transferTools(EntityId srcEntityId, EntityId dstEntityId, EntityId[] memory toolEntityIds) public payable {
     transferToolsWithExtraData(srcEntityId, dstEntityId, toolEntityIds, new bytes(0));
   }
 }

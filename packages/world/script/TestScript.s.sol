@@ -26,6 +26,7 @@ import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObj
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID, PowerStoneObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
 import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount, testRemoveEntityIdFromReverseInventoryTool } from "../test/utils/TestUtils.sol";
+import { EntityId } from "../src/EntityId.sol";
 
 contract TestScript is Script {
   function run(address worldAddress) external {
@@ -38,10 +39,8 @@ contract TestScript is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
-    IWorld world = IWorld(worldAddress);
-
-    bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
-    require(playerEntityId != bytes32(0), "Player entity not found");
+    EntityId playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
+    require(playerEntityId.exists(), "Player entity not found");
     // testRemoveFromInventoryCount(playerEntityId, 162, 10);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockObjectID, 4);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 10);
@@ -60,10 +59,10 @@ contract TestScript is Script {
     testAddToInventoryCount(playerEntityId, PlayerObjectID, SandObjectID, 99);
     testAddToInventoryCount(playerEntityId, PlayerObjectID, StoneObjectID, 99);
 
-    bytes32 newInventoryEntityId = testGetUniqueEntity();
+    EntityId newInventoryEntityId = testGetUniqueEntity();
     ObjectType.set(newInventoryEntityId, NeptuniumPickObjectID);
     InventoryTool.set(newInventoryEntityId, playerEntityId);
-    ReverseInventoryTool.push(playerEntityId, newInventoryEntityId);
+    ReverseInventoryTool.push(playerEntityId, EntityId.unwrap(newInventoryEntityId));
     uint128 mass = ObjectTypeMetadata.getMass(NeptuniumPickObjectID);
     require(mass > 0, "Mass must be greater than 0");
     Mass.setMass(newInventoryEntityId, mass);

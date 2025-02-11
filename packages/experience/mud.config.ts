@@ -11,6 +11,7 @@ export default defineWorld({
   },
   userTypes: {
     ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", type: "bytes32" },
+    EntityId: { filePath: "@biomesaw/world/src/EntityId.sol", type: "bytes32" },
   },
   namespace: "experience",
   tables: {
@@ -38,7 +39,7 @@ export default defineWorld({
     },
     ChipAttachment: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         attacher: "address",
       },
       key: ["entityId"],
@@ -48,7 +49,7 @@ export default defineWorld({
     },
     ChipAdmin: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         admin: "address",
       },
       key: ["entityId"],
@@ -58,7 +59,7 @@ export default defineWorld({
     },
     SmartItemMetadata: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         name: "string",
         description: "string",
       },
@@ -69,7 +70,7 @@ export default defineWorld({
     },
     ExchangeInfo: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         exchangeId: "bytes32",
         inResourceType: "ResourceType",
         inResourceId: "bytes32",
@@ -87,7 +88,7 @@ export default defineWorld({
     },
     Exchanges: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         exchangeIds: "bytes32[]",
       },
       key: ["entityId"],
@@ -97,8 +98,8 @@ export default defineWorld({
     },
     PipeAccess: {
       schema: {
-        targetEntityId: "bytes32",
-        callerEntityId: "bytes32",
+        targetEntityId: "EntityId",
+        callerEntityId: "EntityId",
         depositAllowed: "bool",
         withdrawAllowed: "bool",
       },
@@ -109,7 +110,7 @@ export default defineWorld({
     },
     PipeAccessList: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         allowedEntityIds: "bytes32[]",
       },
       key: ["entityId"],
@@ -119,7 +120,7 @@ export default defineWorld({
     },
     GateApprovals: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         players: "address[]",
         nfts: "address[]",
       },
@@ -142,7 +143,7 @@ export default defineWorld({
     },
     ExchangeNotif: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         player: "address",
         inResourceType: "ResourceType",
         inResourceId: "bytes32",

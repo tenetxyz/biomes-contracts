@@ -19,14 +19,16 @@ import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 
+import { EntityId } from "../EntityId.sol";
+
 contract LogoffSystem is System {
-  function logoffCommon(bytes32 playerEntityId, VoxelCoord memory playerCoord) internal {
+  function logoffCommon(EntityId playerEntityId, VoxelCoord memory playerCoord) internal {
     LastKnownPosition._set(playerEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
     Position._deleteRecord(playerEntityId);
     PlayerStatus._set(playerEntityId, true);
 
     // Create air entity at this position
-    bytes32 airEntityId = getUniqueEntity();
+    EntityId airEntityId = getUniqueEntity();
     ObjectType._set(airEntityId, AirObjectID);
     Position._set(airEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
     ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, airEntityId);
@@ -46,7 +48,7 @@ contract LogoffSystem is System {
   }
 
   function logoffPlayer() public {
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     logoffCommon(playerEntityId, playerCoord);
   }
 
@@ -57,7 +59,7 @@ contract LogoffSystem is System {
       block.timestamp - PlayerActivity._get(Player._get(player)) > MIN_TIME_BEFORE_AUTO_LOGOFF,
       "Player has recent actions and cannot be logged off"
     );
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(player);
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(player);
     logoffCommon(playerEntityId, playerCoord);
   }
 }

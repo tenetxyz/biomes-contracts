@@ -15,8 +15,10 @@ import { AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { callGravity, gravityApplies, inWorldBorder } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
 
+import { EntityId } from "../../EntityId.sol";
+
 contract MoveHelperSystem is System {
-  function movePlayer(bytes32 playerEntityId, VoxelCoord memory playerCoord, VoxelCoord[] memory newCoords) public {
+  function movePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord, VoxelCoord[] memory newCoords) public {
     // no-ops
     if (newCoords.length == 0) {
       return;
@@ -26,7 +28,7 @@ contract MoveHelperSystem is System {
 
     VoxelCoord memory oldCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
 
-    bytes32 finalEntityId;
+    EntityId finalEntityId;
     bool gravityAppliesForCoord = false;
     uint256 numJumps = 0;
     uint256 numFalls = 0;
@@ -73,8 +75,8 @@ contract MoveHelperSystem is System {
     }
 
     VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-    bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-    if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+    EntityId aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+    if (aboveEntityId.exists() && ObjectType._get(aboveEntityId) == PlayerObjectID) {
       callGravity(aboveEntityId, aboveCoord);
     }
 
@@ -93,15 +95,15 @@ contract MoveHelperSystem is System {
   }
 
   function move(
-    bytes32 playerEntityId,
+    EntityId playerEntityId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
-  ) internal view returns (bytes32, bool) {
+  ) internal view returns (EntityId, bool) {
     require(inWorldBorder(newCoord), "Cannot move outside the world border");
     require(inSurroundingCube(oldCoord, 1, newCoord), "New coord is too far from old coord");
 
-    bytes32 newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
-    require(newEntityId != bytes32(0), "Cannot move to an unrevealed block");
+    EntityId newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
+    require(newEntityId.exists(), "Cannot move to an unrevealed block");
 
     // If the entity we're moving into is this player, then it's fine as
     // the player will be moved from the old position to the new position

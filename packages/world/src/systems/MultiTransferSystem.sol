@@ -16,6 +16,7 @@ import { transferInventoryTool, removeFromInventoryCount, addToInventoryCount } 
 import { ITransferHelperSystem } from "../codegen/world/ITransferHelperSystem.sol";
 import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
+import { EntityId } from "../EntityId.sol";
 
 contract MultiTransferSystem is System {
   function requireAllowed(
@@ -43,8 +44,8 @@ contract MultiTransferSystem is System {
   }
 
   function transferWithPipesWithExtraData(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
+    EntityId srcEntityId,
+    EntityId dstEntityId,
     TransferData memory transferData,
     PipeTransferData[] memory pipesTransferData,
     bytes memory extraData
@@ -96,7 +97,7 @@ contract MultiTransferSystem is System {
     for (uint i = 0; i < pipesTransferData.length; i++) {
       totalTools += pipesTransferData[i].transferData.toolEntityIds.length;
     }
-    bytes32[] memory allToolEntityIds = new bytes32[](totalTools);
+    EntityId[] memory allToolEntityIds = new EntityId[](totalTools);
     uint16 allToolEntityIdsIdx = 0;
     for (uint i = 0; i < transferData.toolEntityIds.length; i++) {
       allToolEntityIds[allToolEntityIdsIdx] = transferData.toolEntityIds[i];
@@ -197,8 +198,8 @@ contract MultiTransferSystem is System {
   }
 
   function transferWithPipes(
-    bytes32 srcEntityId,
-    bytes32 dstEntityId,
+    EntityId srcEntityId,
+    EntityId dstEntityId,
     TransferData memory transferData,
     PipeTransferData[] memory pipesTransferData
   ) public payable {

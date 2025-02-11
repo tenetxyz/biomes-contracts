@@ -20,11 +20,13 @@ import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol
 import { lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 
+import { EntityId } from "../EntityId.sol";
+
 contract LoginSystem is System {
   function loginPlayer(VoxelCoord memory respawnCoord) public {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
-    bytes32 playerEntityId = Player._get(_msgSender());
-    require(playerEntityId != bytes32(0), "Player does not exist");
+    EntityId playerEntityId = Player._get(_msgSender());
+    require(playerEntityId.exists(), "Player does not exist");
     require(PlayerStatus._getIsLoggedOff(playerEntityId), "Player is already logged in");
 
     VoxelCoord memory lastKnownCoord = lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(playerEntityId));
@@ -34,8 +36,8 @@ contract LoginSystem is System {
       "Respawn coord too far from logged off coord"
     );
 
-    bytes32 respawnEntityId = ReversePosition._get(respawnCoord.x, respawnCoord.y, respawnCoord.z);
-    require(respawnEntityId != bytes32(0), "Cannot respawn on an unrevealed block");
+    EntityId respawnEntityId = ReversePosition._get(respawnCoord.x, respawnCoord.y, respawnCoord.z);
+    require(respawnEntityId.exists(), "Cannot respawn on an unrevealed block");
     require(ObjectType._get(respawnEntityId) == AirObjectID, "Cannot respawn on non-air block");
 
     // Transfer any dropped items

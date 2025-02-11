@@ -27,6 +27,7 @@ import { ObjectCategory } from "@biomesaw/world/src/codegen/tables/ObjectTypeMet
 
 import { ChestObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
 import { VoxelCoord } from "@biomesaw/world/src/Types.sol";
+import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 import { positionDataToVoxelCoord } from "@biomesaw/world/src/Utils.sol";
 
 function hasBeforeAndAfterSystemHook(address hookAddress, address player, ResourceId systemId) view returns (bool) {
@@ -45,18 +46,18 @@ function hasDelegated(address delegator, address delegatee) view returns (bool) 
 }
 
 function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (uint16) {
-  bytes32 entityId = getEntityAtCoord(coord);
+  EntityId entityId = getEntityAtCoord(coord);
 
   uint16 objectTypeId = getObjectType(entityId);
 
   return objectTypeId;
 }
 
-function getPosition(bytes32 entityId) view returns (VoxelCoord memory) {
+function getPosition(EntityId entityId) view returns (VoxelCoord memory) {
   return positionDataToVoxelCoord(Position.get(entityId));
 }
 
-function getObjectType(bytes32 entityId) view returns (uint16) {
+function getObjectType(EntityId entityId) view returns (uint16) {
   return ObjectType.get(entityId);
 }
 
@@ -72,43 +73,43 @@ function isBlock(uint16 objectTypeId) view returns (bool) {
   return ObjectTypeMetadata.getObjectCategory(objectTypeId) == ObjectCategory.Block;
 }
 
-function getEntityFromPlayer(address playerAddress) view returns (bytes32) {
+function getEntityFromPlayer(address playerAddress) view returns (EntityId) {
   return Player.getEntityId(playerAddress);
 }
 
-function getPlayerFromEntity(bytes32 entityId) view returns (address) {
+function getPlayerFromEntity(EntityId entityId) view returns (address) {
   return ReversePlayer.getPlayer(entityId);
 }
 
-function getEquipped(bytes32 playerEntityId) view returns (bytes32) {
+function getEquipped(EntityId playerEntityId) view returns (EntityId) {
   return Equipped.get(playerEntityId);
 }
 
-function getIsLoggedOff(bytes32 playerEntityId) view returns (bool) {
+function getIsLoggedOff(EntityId playerEntityId) view returns (bool) {
   return PlayerStatus.getIsLoggedOff(playerEntityId);
 }
 
-function getInventoryTool(bytes32 playerEntityId) view returns (bytes32[] memory) {
+function getInventoryTool(EntityId playerEntityId) view returns (bytes32[] memory) {
   return ReverseInventoryTool.getToolEntityIds(playerEntityId);
 }
 
-function getInventoryObjects(bytes32 entityId) view returns (uint16[] memory) {
+function getInventoryObjects(EntityId entityId) view returns (uint16[] memory) {
   return InventoryObjects.getObjectTypeIds(entityId);
 }
 
-function getNumInventoryObjects(bytes32 entityId) view returns (uint256) {
+function getNumInventoryObjects(EntityId entityId) view returns (uint256) {
   return InventoryObjects.lengthObjectTypeIds(entityId);
 }
 
-function getCount(bytes32 entityId, uint16 objectTypeId) view returns (uint16) {
+function getCount(EntityId entityId, uint16 objectTypeId) view returns (uint16) {
   return InventoryCount.getCount(entityId, objectTypeId);
 }
 
-function getNumSlotsUsed(bytes32 entityId) view returns (uint16) {
+function getNumSlotsUsed(EntityId entityId) view returns (uint16) {
   return InventorySlots.getNumSlotsUsed(entityId);
 }
 
-function getEntityAtCoord(VoxelCoord memory coord) view returns (bytes32) {
+function getEntityAtCoord(VoxelCoord memory coord) view returns (EntityId) {
   return ReversePosition.getEntityId(coord.x, coord.y, coord.z);
 }
 

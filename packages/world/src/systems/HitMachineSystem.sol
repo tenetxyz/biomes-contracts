@@ -24,8 +24,14 @@ import { positionDataToVoxelCoord, safeCallChip } from "../Utils.sol";
 
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
+import { EntityId } from "../EntityId.sol";
+
 contract HitMachineSystem is System {
-  function hitMachineCommon(bytes32 playerEntityId, bytes32 machineEntityId, VoxelCoord memory machineCoord) internal {
+  function hitMachineCommon(
+    EntityId playerEntityId,
+    EntityId machineEntityId,
+    VoxelCoord memory machineCoord
+  ) internal {
     EnergyData memory machineData = updateMachineEnergyLevel(machineEntityId);
     if (machineData.energy == 0) {
       return;
@@ -33,8 +39,8 @@ contract HitMachineSystem is System {
 
     uint16 objectTypeId = ObjectType._get(machineEntityId);
 
-    bytes32 equippedEntityId = Equipped._get(playerEntityId);
-    require(equippedEntityId != bytes32(0), "You must use a whacker to hit machines");
+    EntityId equippedEntityId = Equipped._get(playerEntityId);
+    require(equippedEntityId.exists(), "You must use a whacker to hit machines");
     uint16 equippedObjectTypeId = ObjectType._get(equippedEntityId);
     require(isWhacker(equippedObjectTypeId), "You must use a whacker to hit machines");
 
@@ -61,20 +67,19 @@ contract HitMachineSystem is System {
     );
   }
 
-  function hitMachine(bytes32 entityId) public {
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+  function hitMachine(EntityId entityId) public {
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
-    bytes32 baseEntityId = BaseEntity._get(entityId);
-    baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+    EntityId baseEntityId = entityId.baseEntityId();
 
     hitMachineCommon(playerEntityId, baseEntityId, entityCoord);
   }
 
   function hitForceField(VoxelCoord memory entityCoord) public {
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, entityCoord);
-    bytes32 forceFieldEntityId = getForceField(entityCoord);
-    require(forceFieldEntityId != bytes32(0), "No force field at this location");
+    EntityId forceFieldEntityId = getForceField(entityCoord);
+    require(forceFieldEntityId.exists(), "No force field at this location");
     VoxelCoord memory forceFieldCoord = positionDataToVoxelCoord(Position._get(forceFieldEntityId));
     hitMachineCommon(playerEntityId, forceFieldEntityId, forceFieldCoord);
   }

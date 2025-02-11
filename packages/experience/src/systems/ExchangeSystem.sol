@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 
 import { ExchangeInfo, ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
 import { Exchanges } from "../codegen/tables/Exchanges.sol";
@@ -11,7 +12,7 @@ import { exchangeExists } from "../utils/ExchangeUtils.sol";
 
 contract ExchangeSystem is System {
   function setExchanges(
-    bytes32 entityId,
+    EntityId entityId,
     bytes32[] memory exchangeIds,
     ExchangeInfoData[] memory exchangeInfoData
   ) public {
@@ -23,14 +24,14 @@ contract ExchangeSystem is System {
     Exchanges.set(entityId, exchangeIds);
   }
 
-  function addExchange(bytes32 entityId, bytes32 exchangeId, ExchangeInfoData memory exchangeInfoData) public {
+  function addExchange(EntityId entityId, bytes32 exchangeId, ExchangeInfoData memory exchangeInfoData) public {
     requireChipOwner(entityId);
     require(!exchangeExists(entityId, exchangeId), "Exchange already exists");
     ExchangeInfo.set(entityId, exchangeId, exchangeInfoData);
     Exchanges.push(entityId, exchangeId);
   }
 
-  function deleteExchange(bytes32 entityId, bytes32 exchangeId) public {
+  function deleteExchange(EntityId entityId, bytes32 exchangeId) public {
     requireChipOwner(entityId);
     require(exchangeExists(entityId, exchangeId), "Exchange does not exist");
     bytes32[] memory exchangeIds = Exchanges.get(entityId);
@@ -47,7 +48,7 @@ contract ExchangeSystem is System {
     Exchanges.set(entityId, newExchangeIds);
   }
 
-  function deleteExchanges(bytes32 entityId) public {
+  function deleteExchanges(EntityId entityId) public {
     requireChipOwnerOrNoOwner(entityId);
     bytes32[] memory exchangeIds = Exchanges.get(entityId);
     for (uint256 i = 0; i < exchangeIds.length; i++) {
@@ -56,25 +57,25 @@ contract ExchangeSystem is System {
     Exchanges.deleteRecord(entityId);
   }
 
-  function setExchangeInUnitAmount(bytes32 entityId, bytes32 exchangeId, uint256 inUnitAmount) public {
+  function setExchangeInUnitAmount(EntityId entityId, bytes32 exchangeId, uint256 inUnitAmount) public {
     requireChipOwner(entityId);
     require(exchangeExists(entityId, exchangeId), "Exchange does not exist");
     ExchangeInfo.setInUnitAmount(entityId, exchangeId, inUnitAmount);
   }
 
-  function setExchangeOutUnitAmount(bytes32 entityId, bytes32 exchangeId, uint256 outUnitAmount) public {
+  function setExchangeOutUnitAmount(EntityId entityId, bytes32 exchangeId, uint256 outUnitAmount) public {
     requireChipOwner(entityId);
     require(exchangeExists(entityId, exchangeId), "Exchange does not exist");
     ExchangeInfo.setOutUnitAmount(entityId, exchangeId, outUnitAmount);
   }
 
-  function setExchangeInMaxAmount(bytes32 entityId, bytes32 exchangeId, uint256 inMaxAmount) public {
+  function setExchangeInMaxAmount(EntityId entityId, bytes32 exchangeId, uint256 inMaxAmount) public {
     requireChipOwner(entityId);
     require(exchangeExists(entityId, exchangeId), "Exchange does not exist");
     ExchangeInfo.setInMaxAmount(entityId, exchangeId, inMaxAmount);
   }
 
-  function setExchangeOutMaxAmount(bytes32 entityId, bytes32 exchangeId, uint256 outMaxAmount) public {
+  function setExchangeOutMaxAmount(EntityId entityId, bytes32 exchangeId, uint256 outMaxAmount) public {
     requireChipOwner(entityId);
     require(exchangeExists(entityId, exchangeId), "Exchange does not exist");
     ExchangeInfo.setOutMaxAmount(entityId, exchangeId, outMaxAmount);

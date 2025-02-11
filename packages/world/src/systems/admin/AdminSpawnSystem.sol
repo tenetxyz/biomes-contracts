@@ -19,6 +19,7 @@ import { inWorldBorder, getUniqueEntity } from "../../Utils.sol";
 import { PlayerObjectID, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
 import { isStorageContainer } from "../../utils/ObjectTypeUtils.sol";
 import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
+import { EntityId } from "../../EntityId.sol";
 
 contract AdminSpawnSystem is System {
   function setObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) public {
@@ -26,8 +27,8 @@ contract AdminSpawnSystem is System {
     require(inWorldBorder(coord), "Cannot build outside world border");
     require(ObjectTypeMetadata._getObjectCategory(objectTypeId) == ObjectCategory.Block, "Object type is not a block");
 
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    if (entityId == bytes32(0)) {
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (!entityId.exists()) {
       entityId = getUniqueEntity();
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
     } else {

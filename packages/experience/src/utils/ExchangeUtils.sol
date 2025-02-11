@@ -7,6 +7,8 @@ import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
+import { EntityId } from "@biomesaw/world/src/EntityId.sol";
+
 import { Exchanges } from "../codegen/tables/Exchanges.sol";
 
 function encodeAddressExchangeResourceId(address resourceAddress) pure returns (bytes32) {
@@ -25,7 +27,7 @@ function decodeObjectExchangeResourceId(bytes32 resourceId) pure returns (uint16
   return uint16(uint256(resourceId));
 }
 
-function exchangeExists(bytes32 entityId, bytes32 exchangeId) view returns (bool) {
+function exchangeExists(EntityId entityId, bytes32 exchangeId) view returns (bool) {
   bytes32[] memory exchangeIds = Exchanges.get(entityId);
   for (uint256 i = 0; i < exchangeIds.length; i++) {
     if (exchangeIds[i] == exchangeId) {

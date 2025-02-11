@@ -20,18 +20,20 @@ import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity, gravityApplies, inWorldBorder, inSpawnArea } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 
+import { EntityId } from "../EntityId.sol";
+
 contract SpawnSystem is System {
-  function spawnPlayer(VoxelCoord memory spawnCoord) public returns (bytes32) {
+  function spawnPlayer(VoxelCoord memory spawnCoord) public returns (EntityId) {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
     require(inSpawnArea(spawnCoord), "Cannot spawn outside the spawn area");
 
     address newPlayer = _msgSender();
-    require(Player._get(newPlayer) == bytes32(0), "Player already spawned");
+    require(!Player._get(newPlayer).exists(), "Player already spawned");
 
-    bytes32 playerEntityId = getUniqueEntity();
-    bytes32 existingEntityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    require(existingEntityId != bytes32(0), "Cannot spawn on an unrevealed block");
+    EntityId playerEntityId = getUniqueEntity();
+    EntityId existingEntityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
+    require(existingEntityId.exists(), "Cannot spawn on an unrevealed block");
     require(ObjectType._get(existingEntityId) == AirObjectID, "Cannot spawn on a non-air block");
 
     // Transfer any dropped items

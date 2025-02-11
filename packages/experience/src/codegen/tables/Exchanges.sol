@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "@biomesaw/world/src/EntityId.sol";
+
 library Exchanges {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "Exchanges", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e63650000000045786368616e67657300000000000000);
@@ -70,9 +73,9 @@ library Exchanges {
   /**
    * @notice Get exchangeIds.
    */
-  function getExchangeIds(bytes32 entityId) internal view returns (bytes32[] memory exchangeIds) {
+  function getExchangeIds(EntityId entityId) internal view returns (bytes32[] memory exchangeIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -81,9 +84,9 @@ library Exchanges {
   /**
    * @notice Get exchangeIds.
    */
-  function _getExchangeIds(bytes32 entityId) internal view returns (bytes32[] memory exchangeIds) {
+  function _getExchangeIds(EntityId entityId) internal view returns (bytes32[] memory exchangeIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -92,9 +95,9 @@ library Exchanges {
   /**
    * @notice Get exchangeIds (using the specified store).
    */
-  function getExchangeIds(IStore _store, bytes32 entityId) internal view returns (bytes32[] memory exchangeIds) {
+  function getExchangeIds(IStore _store, EntityId entityId) internal view returns (bytes32[] memory exchangeIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -103,9 +106,9 @@ library Exchanges {
   /**
    * @notice Get exchangeIds.
    */
-  function get(bytes32 entityId) internal view returns (bytes32[] memory exchangeIds) {
+  function get(EntityId entityId) internal view returns (bytes32[] memory exchangeIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -114,9 +117,9 @@ library Exchanges {
   /**
    * @notice Get exchangeIds.
    */
-  function _get(bytes32 entityId) internal view returns (bytes32[] memory exchangeIds) {
+  function _get(EntityId entityId) internal view returns (bytes32[] memory exchangeIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -125,9 +128,9 @@ library Exchanges {
   /**
    * @notice Get exchangeIds (using the specified store).
    */
-  function get(IStore _store, bytes32 entityId) internal view returns (bytes32[] memory exchangeIds) {
+  function get(IStore _store, EntityId entityId) internal view returns (bytes32[] memory exchangeIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -136,9 +139,9 @@ library Exchanges {
   /**
    * @notice Set exchangeIds.
    */
-  function setExchangeIds(bytes32 entityId, bytes32[] memory exchangeIds) internal {
+  function setExchangeIds(EntityId entityId, bytes32[] memory exchangeIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((exchangeIds)));
   }
@@ -146,9 +149,9 @@ library Exchanges {
   /**
    * @notice Set exchangeIds.
    */
-  function _setExchangeIds(bytes32 entityId, bytes32[] memory exchangeIds) internal {
+  function _setExchangeIds(EntityId entityId, bytes32[] memory exchangeIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((exchangeIds)));
   }
@@ -156,9 +159,9 @@ library Exchanges {
   /**
    * @notice Set exchangeIds (using the specified store).
    */
-  function setExchangeIds(IStore _store, bytes32 entityId, bytes32[] memory exchangeIds) internal {
+  function setExchangeIds(IStore _store, EntityId entityId, bytes32[] memory exchangeIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((exchangeIds)));
   }
@@ -166,9 +169,9 @@ library Exchanges {
   /**
    * @notice Set exchangeIds.
    */
-  function set(bytes32 entityId, bytes32[] memory exchangeIds) internal {
+  function set(EntityId entityId, bytes32[] memory exchangeIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((exchangeIds)));
   }
@@ -176,9 +179,9 @@ library Exchanges {
   /**
    * @notice Set exchangeIds.
    */
-  function _set(bytes32 entityId, bytes32[] memory exchangeIds) internal {
+  function _set(EntityId entityId, bytes32[] memory exchangeIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((exchangeIds)));
   }
@@ -186,9 +189,9 @@ library Exchanges {
   /**
    * @notice Set exchangeIds (using the specified store).
    */
-  function set(IStore _store, bytes32 entityId, bytes32[] memory exchangeIds) internal {
+  function set(IStore _store, EntityId entityId, bytes32[] memory exchangeIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((exchangeIds)));
   }
@@ -196,9 +199,9 @@ library Exchanges {
   /**
    * @notice Get the length of exchangeIds.
    */
-  function lengthExchangeIds(bytes32 entityId) internal view returns (uint256) {
+  function lengthExchangeIds(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -209,9 +212,9 @@ library Exchanges {
   /**
    * @notice Get the length of exchangeIds.
    */
-  function _lengthExchangeIds(bytes32 entityId) internal view returns (uint256) {
+  function _lengthExchangeIds(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -222,9 +225,9 @@ library Exchanges {
   /**
    * @notice Get the length of exchangeIds (using the specified store).
    */
-  function lengthExchangeIds(IStore _store, bytes32 entityId) internal view returns (uint256) {
+  function lengthExchangeIds(IStore _store, EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -235,9 +238,9 @@ library Exchanges {
   /**
    * @notice Get the length of exchangeIds.
    */
-  function length(bytes32 entityId) internal view returns (uint256) {
+  function length(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -248,9 +251,9 @@ library Exchanges {
   /**
    * @notice Get the length of exchangeIds.
    */
-  function _length(bytes32 entityId) internal view returns (uint256) {
+  function _length(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -261,9 +264,9 @@ library Exchanges {
   /**
    * @notice Get the length of exchangeIds (using the specified store).
    */
-  function length(IStore _store, bytes32 entityId) internal view returns (uint256) {
+  function length(IStore _store, EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -275,9 +278,9 @@ library Exchanges {
    * @notice Get an item of exchangeIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemExchangeIds(bytes32 entityId, uint256 _index) internal view returns (bytes32) {
+  function getItemExchangeIds(EntityId entityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -289,9 +292,9 @@ library Exchanges {
    * @notice Get an item of exchangeIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemExchangeIds(bytes32 entityId, uint256 _index) internal view returns (bytes32) {
+  function _getItemExchangeIds(EntityId entityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -303,9 +306,9 @@ library Exchanges {
    * @notice Get an item of exchangeIds (using the specified store).
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemExchangeIds(IStore _store, bytes32 entityId, uint256 _index) internal view returns (bytes32) {
+  function getItemExchangeIds(IStore _store, EntityId entityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -317,9 +320,9 @@ library Exchanges {
    * @notice Get an item of exchangeIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItem(bytes32 entityId, uint256 _index) internal view returns (bytes32) {
+  function getItem(EntityId entityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -331,9 +334,9 @@ library Exchanges {
    * @notice Get an item of exchangeIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItem(bytes32 entityId, uint256 _index) internal view returns (bytes32) {
+  function _getItem(EntityId entityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -345,9 +348,9 @@ library Exchanges {
    * @notice Get an item of exchangeIds (using the specified store).
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItem(IStore _store, bytes32 entityId, uint256 _index) internal view returns (bytes32) {
+  function getItem(IStore _store, EntityId entityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -358,9 +361,9 @@ library Exchanges {
   /**
    * @notice Push an element to exchangeIds.
    */
-  function pushExchangeIds(bytes32 entityId, bytes32 _element) internal {
+  function pushExchangeIds(EntityId entityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -368,9 +371,9 @@ library Exchanges {
   /**
    * @notice Push an element to exchangeIds.
    */
-  function _pushExchangeIds(bytes32 entityId, bytes32 _element) internal {
+  function _pushExchangeIds(EntityId entityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -378,9 +381,9 @@ library Exchanges {
   /**
    * @notice Push an element to exchangeIds (using the specified store).
    */
-  function pushExchangeIds(IStore _store, bytes32 entityId, bytes32 _element) internal {
+  function pushExchangeIds(IStore _store, EntityId entityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -388,9 +391,9 @@ library Exchanges {
   /**
    * @notice Push an element to exchangeIds.
    */
-  function push(bytes32 entityId, bytes32 _element) internal {
+  function push(EntityId entityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -398,9 +401,9 @@ library Exchanges {
   /**
    * @notice Push an element to exchangeIds.
    */
-  function _push(bytes32 entityId, bytes32 _element) internal {
+  function _push(EntityId entityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -408,9 +411,9 @@ library Exchanges {
   /**
    * @notice Push an element to exchangeIds (using the specified store).
    */
-  function push(IStore _store, bytes32 entityId, bytes32 _element) internal {
+  function push(IStore _store, EntityId entityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -418,9 +421,9 @@ library Exchanges {
   /**
    * @notice Pop an element from exchangeIds.
    */
-  function popExchangeIds(bytes32 entityId) internal {
+  function popExchangeIds(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -428,9 +431,9 @@ library Exchanges {
   /**
    * @notice Pop an element from exchangeIds.
    */
-  function _popExchangeIds(bytes32 entityId) internal {
+  function _popExchangeIds(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -438,9 +441,9 @@ library Exchanges {
   /**
    * @notice Pop an element from exchangeIds (using the specified store).
    */
-  function popExchangeIds(IStore _store, bytes32 entityId) internal {
+  function popExchangeIds(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -448,9 +451,9 @@ library Exchanges {
   /**
    * @notice Pop an element from exchangeIds.
    */
-  function pop(bytes32 entityId) internal {
+  function pop(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -458,9 +461,9 @@ library Exchanges {
   /**
    * @notice Pop an element from exchangeIds.
    */
-  function _pop(bytes32 entityId) internal {
+  function _pop(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -468,9 +471,9 @@ library Exchanges {
   /**
    * @notice Pop an element from exchangeIds (using the specified store).
    */
-  function pop(IStore _store, bytes32 entityId) internal {
+  function pop(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -478,9 +481,9 @@ library Exchanges {
   /**
    * @notice Update an element of exchangeIds at `_index`.
    */
-  function updateExchangeIds(bytes32 entityId, uint256 _index, bytes32 _element) internal {
+  function updateExchangeIds(EntityId entityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -491,9 +494,9 @@ library Exchanges {
   /**
    * @notice Update an element of exchangeIds at `_index`.
    */
-  function _updateExchangeIds(bytes32 entityId, uint256 _index, bytes32 _element) internal {
+  function _updateExchangeIds(EntityId entityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -504,9 +507,9 @@ library Exchanges {
   /**
    * @notice Update an element of exchangeIds (using the specified store) at `_index`.
    */
-  function updateExchangeIds(IStore _store, bytes32 entityId, uint256 _index, bytes32 _element) internal {
+  function updateExchangeIds(IStore _store, EntityId entityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -517,9 +520,9 @@ library Exchanges {
   /**
    * @notice Update an element of exchangeIds at `_index`.
    */
-  function update(bytes32 entityId, uint256 _index, bytes32 _element) internal {
+  function update(EntityId entityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -530,9 +533,9 @@ library Exchanges {
   /**
    * @notice Update an element of exchangeIds at `_index`.
    */
-  function _update(bytes32 entityId, uint256 _index, bytes32 _element) internal {
+  function _update(EntityId entityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -543,9 +546,9 @@ library Exchanges {
   /**
    * @notice Update an element of exchangeIds (using the specified store) at `_index`.
    */
-  function update(IStore _store, bytes32 entityId, uint256 _index, bytes32 _element) internal {
+  function update(IStore _store, EntityId entityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -556,9 +559,9 @@ library Exchanges {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 entityId) internal {
+  function deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -566,9 +569,9 @@ library Exchanges {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 entityId) internal {
+  function _deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -576,9 +579,9 @@ library Exchanges {
   /**
    * @notice Delete all data for given keys (using the specified store).
    */
-  function deleteRecord(IStore _store, bytes32 entityId) internal {
+  function deleteRecord(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.deleteRecord(_tableId, _keyTuple);
   }
@@ -619,9 +622,9 @@ library Exchanges {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId entityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     return _keyTuple;
   }

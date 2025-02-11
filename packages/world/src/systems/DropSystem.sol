@@ -13,23 +13,24 @@ import { AirObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonTool, transferInventoryTool } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { EntityId } from "../EntityId.sol";
 
 // TODO: combine the tool and non-tool drop functions
 contract DropSystem is System {
-  function dropCommon(VoxelCoord memory coord) internal returns (bytes32, bytes32) {
+  function dropCommon(VoxelCoord memory coord) internal returns (EntityId, EntityId) {
     require(inWorldBorder(coord), "Cannot drop outside the world border");
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId != bytes32(0), "Cannot drop on an unrevealed block");
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    require(entityId.exists(), "Cannot drop on an unrevealed block");
     require(ObjectType._get(entityId) == AirObjectID, "Cannot drop on non-air block");
 
     return (playerEntityId, entityId);
   }
 
   function drop(uint16 dropObjectTypeId, uint16 numToDrop, VoxelCoord memory coord) public {
-    (bytes32 playerEntityId, bytes32 entityId) = dropCommon(coord);
+    (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
     transferInventoryNonTool(playerEntityId, entityId, AirObjectID, dropObjectTypeId, numToDrop);
 
     PlayerActionNotif._set(
@@ -46,8 +47,8 @@ contract DropSystem is System {
     );
   }
 
-  function dropTool(bytes32 toolEntityId, VoxelCoord memory coord) public {
-    (bytes32 playerEntityId, bytes32 entityId) = dropCommon(coord);
+  function dropTool(EntityId toolEntityId, VoxelCoord memory coord) public {
+    (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
     uint16 toolObjectTypeId = transferInventoryTool(playerEntityId, entityId, AirObjectID, toolEntityId);
 
     PlayerActionNotif._set(
@@ -64,10 +65,10 @@ contract DropSystem is System {
     );
   }
 
-  function dropTools(bytes32[] memory toolEntityIds, VoxelCoord memory coord) public {
+  function dropTools(EntityId[] memory toolEntityIds, VoxelCoord memory coord) public {
     require(toolEntityIds.length > 0, "Must drop at least one tool");
 
-    (bytes32 playerEntityId, bytes32 entityId) = dropCommon(coord);
+    (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
 
     uint16 toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {

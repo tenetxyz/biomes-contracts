@@ -3,17 +3,19 @@ pragma solidity >=0.8.24;
 
 import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
 
+import { EntityId } from "../EntityId.sol";
+
 // Interface for a chip
 interface IChip is IERC165 {
   function onAttached(
-    bytes32 callerEntityId,
-    bytes32 targetEntityId,
+    EntityId callerEntityId,
+    EntityId targetEntityId,
     bytes memory extraData
   ) external payable returns (bool isAllowed);
 
   function onDetached(
-    bytes32 callerEntityId,
-    bytes32 targetEntityId,
+    EntityId callerEntityId,
+    EntityId targetEntityId,
     bytes memory extraData
   ) external payable returns (bool isAllowed);
 }

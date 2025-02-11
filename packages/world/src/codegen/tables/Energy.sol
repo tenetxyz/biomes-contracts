@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "../../EntityId.sol";
+
 struct EnergyData {
   uint128 lastUpdatedTime;
   uint128 energy;
@@ -69,9 +72,9 @@ library Energy {
   /**
    * @notice Get lastUpdatedTime.
    */
-  function getLastUpdatedTime(bytes32 entityId) internal view returns (uint128 lastUpdatedTime) {
+  function getLastUpdatedTime(EntityId entityId) internal view returns (uint128 lastUpdatedTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint128(bytes16(_blob)));
@@ -80,9 +83,9 @@ library Energy {
   /**
    * @notice Get lastUpdatedTime.
    */
-  function _getLastUpdatedTime(bytes32 entityId) internal view returns (uint128 lastUpdatedTime) {
+  function _getLastUpdatedTime(EntityId entityId) internal view returns (uint128 lastUpdatedTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint128(bytes16(_blob)));
@@ -91,9 +94,9 @@ library Energy {
   /**
    * @notice Set lastUpdatedTime.
    */
-  function setLastUpdatedTime(bytes32 entityId, uint128 lastUpdatedTime) internal {
+  function setLastUpdatedTime(EntityId entityId, uint128 lastUpdatedTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastUpdatedTime)), _fieldLayout);
   }
@@ -101,9 +104,9 @@ library Energy {
   /**
    * @notice Set lastUpdatedTime.
    */
-  function _setLastUpdatedTime(bytes32 entityId, uint128 lastUpdatedTime) internal {
+  function _setLastUpdatedTime(EntityId entityId, uint128 lastUpdatedTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastUpdatedTime)), _fieldLayout);
   }
@@ -111,9 +114,9 @@ library Energy {
   /**
    * @notice Get energy.
    */
-  function getEnergy(bytes32 entityId) internal view returns (uint128 energy) {
+  function getEnergy(EntityId entityId) internal view returns (uint128 energy) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (uint128(bytes16(_blob)));
@@ -122,9 +125,9 @@ library Energy {
   /**
    * @notice Get energy.
    */
-  function _getEnergy(bytes32 entityId) internal view returns (uint128 energy) {
+  function _getEnergy(EntityId entityId) internal view returns (uint128 energy) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (uint128(bytes16(_blob)));
@@ -133,9 +136,9 @@ library Energy {
   /**
    * @notice Set energy.
    */
-  function setEnergy(bytes32 entityId, uint128 energy) internal {
+  function setEnergy(EntityId entityId, uint128 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((energy)), _fieldLayout);
   }
@@ -143,9 +146,9 @@ library Energy {
   /**
    * @notice Set energy.
    */
-  function _setEnergy(bytes32 entityId, uint128 energy) internal {
+  function _setEnergy(EntityId entityId, uint128 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((energy)), _fieldLayout);
   }
@@ -153,9 +156,9 @@ library Energy {
   /**
    * @notice Get the full data.
    */
-  function get(bytes32 entityId) internal view returns (EnergyData memory _table) {
+  function get(EntityId entityId) internal view returns (EnergyData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
       _tableId,
@@ -168,9 +171,9 @@ library Energy {
   /**
    * @notice Get the full data.
    */
-  function _get(bytes32 entityId) internal view returns (EnergyData memory _table) {
+  function _get(EntityId entityId) internal view returns (EnergyData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
       _tableId,
@@ -183,14 +186,14 @@ library Energy {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 entityId, uint128 lastUpdatedTime, uint128 energy) internal {
+  function set(EntityId entityId, uint128 lastUpdatedTime, uint128 energy) internal {
     bytes memory _staticData = encodeStatic(lastUpdatedTime, energy);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -198,14 +201,14 @@ library Energy {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 entityId, uint128 lastUpdatedTime, uint128 energy) internal {
+  function _set(EntityId entityId, uint128 lastUpdatedTime, uint128 energy) internal {
     bytes memory _staticData = encodeStatic(lastUpdatedTime, energy);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -213,14 +216,14 @@ library Energy {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(bytes32 entityId, EnergyData memory _table) internal {
+  function set(EntityId entityId, EnergyData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.energy);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -228,14 +231,14 @@ library Energy {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(bytes32 entityId, EnergyData memory _table) internal {
+  function _set(EntityId entityId, EnergyData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.energy);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -266,9 +269,9 @@ library Energy {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 entityId) internal {
+  function deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -276,9 +279,9 @@ library Energy {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 entityId) internal {
+  function _deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -312,9 +315,9 @@ library Energy {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId entityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     return _keyTuple;
   }

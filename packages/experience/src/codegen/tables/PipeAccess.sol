@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "@biomesaw/world/src/EntityId.sol";
+
 struct PipeAccessData {
   bool depositAllowed;
   bool withdrawAllowed;
@@ -78,12 +81,12 @@ library PipeAccess {
    * @notice Get depositAllowed.
    */
   function getDepositAllowed(
-    bytes32 targetEntityId,
-    bytes32 callerEntityId
+    EntityId targetEntityId,
+    EntityId callerEntityId
   ) internal view returns (bool depositAllowed) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -93,12 +96,12 @@ library PipeAccess {
    * @notice Get depositAllowed.
    */
   function _getDepositAllowed(
-    bytes32 targetEntityId,
-    bytes32 callerEntityId
+    EntityId targetEntityId,
+    EntityId callerEntityId
   ) internal view returns (bool depositAllowed) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -109,12 +112,12 @@ library PipeAccess {
    */
   function getDepositAllowed(
     IStore _store,
-    bytes32 targetEntityId,
-    bytes32 callerEntityId
+    EntityId targetEntityId,
+    EntityId callerEntityId
   ) internal view returns (bool depositAllowed) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -123,10 +126,10 @@ library PipeAccess {
   /**
    * @notice Set depositAllowed.
    */
-  function setDepositAllowed(bytes32 targetEntityId, bytes32 callerEntityId, bool depositAllowed) internal {
+  function setDepositAllowed(EntityId targetEntityId, EntityId callerEntityId, bool depositAllowed) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((depositAllowed)), _fieldLayout);
   }
@@ -134,10 +137,10 @@ library PipeAccess {
   /**
    * @notice Set depositAllowed.
    */
-  function _setDepositAllowed(bytes32 targetEntityId, bytes32 callerEntityId, bool depositAllowed) internal {
+  function _setDepositAllowed(EntityId targetEntityId, EntityId callerEntityId, bool depositAllowed) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((depositAllowed)), _fieldLayout);
   }
@@ -147,13 +150,13 @@ library PipeAccess {
    */
   function setDepositAllowed(
     IStore _store,
-    bytes32 targetEntityId,
-    bytes32 callerEntityId,
+    EntityId targetEntityId,
+    EntityId callerEntityId,
     bool depositAllowed
   ) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((depositAllowed)), _fieldLayout);
   }
@@ -162,12 +165,12 @@ library PipeAccess {
    * @notice Get withdrawAllowed.
    */
   function getWithdrawAllowed(
-    bytes32 targetEntityId,
-    bytes32 callerEntityId
+    EntityId targetEntityId,
+    EntityId callerEntityId
   ) internal view returns (bool withdrawAllowed) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -177,12 +180,12 @@ library PipeAccess {
    * @notice Get withdrawAllowed.
    */
   function _getWithdrawAllowed(
-    bytes32 targetEntityId,
-    bytes32 callerEntityId
+    EntityId targetEntityId,
+    EntityId callerEntityId
   ) internal view returns (bool withdrawAllowed) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -193,12 +196,12 @@ library PipeAccess {
    */
   function getWithdrawAllowed(
     IStore _store,
-    bytes32 targetEntityId,
-    bytes32 callerEntityId
+    EntityId targetEntityId,
+    EntityId callerEntityId
   ) internal view returns (bool withdrawAllowed) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -207,10 +210,10 @@ library PipeAccess {
   /**
    * @notice Set withdrawAllowed.
    */
-  function setWithdrawAllowed(bytes32 targetEntityId, bytes32 callerEntityId, bool withdrawAllowed) internal {
+  function setWithdrawAllowed(EntityId targetEntityId, EntityId callerEntityId, bool withdrawAllowed) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((withdrawAllowed)), _fieldLayout);
   }
@@ -218,10 +221,10 @@ library PipeAccess {
   /**
    * @notice Set withdrawAllowed.
    */
-  function _setWithdrawAllowed(bytes32 targetEntityId, bytes32 callerEntityId, bool withdrawAllowed) internal {
+  function _setWithdrawAllowed(EntityId targetEntityId, EntityId callerEntityId, bool withdrawAllowed) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((withdrawAllowed)), _fieldLayout);
   }
@@ -231,13 +234,13 @@ library PipeAccess {
    */
   function setWithdrawAllowed(
     IStore _store,
-    bytes32 targetEntityId,
-    bytes32 callerEntityId,
+    EntityId targetEntityId,
+    EntityId callerEntityId,
     bool withdrawAllowed
   ) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((withdrawAllowed)), _fieldLayout);
   }
@@ -245,10 +248,10 @@ library PipeAccess {
   /**
    * @notice Get the full data.
    */
-  function get(bytes32 targetEntityId, bytes32 callerEntityId) internal view returns (PipeAccessData memory _table) {
+  function get(EntityId targetEntityId, EntityId callerEntityId) internal view returns (PipeAccessData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
       _tableId,
@@ -261,10 +264,10 @@ library PipeAccess {
   /**
    * @notice Get the full data.
    */
-  function _get(bytes32 targetEntityId, bytes32 callerEntityId) internal view returns (PipeAccessData memory _table) {
+  function _get(EntityId targetEntityId, EntityId callerEntityId) internal view returns (PipeAccessData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
       _tableId,
@@ -279,12 +282,12 @@ library PipeAccess {
    */
   function get(
     IStore _store,
-    bytes32 targetEntityId,
-    bytes32 callerEntityId
+    EntityId targetEntityId,
+    EntityId callerEntityId
   ) internal view returns (PipeAccessData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
       _tableId,
@@ -297,15 +300,15 @@ library PipeAccess {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 targetEntityId, bytes32 callerEntityId, bool depositAllowed, bool withdrawAllowed) internal {
+  function set(EntityId targetEntityId, EntityId callerEntityId, bool depositAllowed, bool withdrawAllowed) internal {
     bytes memory _staticData = encodeStatic(depositAllowed, withdrawAllowed);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -313,15 +316,15 @@ library PipeAccess {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 targetEntityId, bytes32 callerEntityId, bool depositAllowed, bool withdrawAllowed) internal {
+  function _set(EntityId targetEntityId, EntityId callerEntityId, bool depositAllowed, bool withdrawAllowed) internal {
     bytes memory _staticData = encodeStatic(depositAllowed, withdrawAllowed);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -331,8 +334,8 @@ library PipeAccess {
    */
   function set(
     IStore _store,
-    bytes32 targetEntityId,
-    bytes32 callerEntityId,
+    EntityId targetEntityId,
+    EntityId callerEntityId,
     bool depositAllowed,
     bool withdrawAllowed
   ) internal {
@@ -342,8 +345,8 @@ library PipeAccess {
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -351,15 +354,15 @@ library PipeAccess {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(bytes32 targetEntityId, bytes32 callerEntityId, PipeAccessData memory _table) internal {
+  function set(EntityId targetEntityId, EntityId callerEntityId, PipeAccessData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.depositAllowed, _table.withdrawAllowed);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -367,15 +370,15 @@ library PipeAccess {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(bytes32 targetEntityId, bytes32 callerEntityId, PipeAccessData memory _table) internal {
+  function _set(EntityId targetEntityId, EntityId callerEntityId, PipeAccessData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.depositAllowed, _table.withdrawAllowed);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -383,15 +386,15 @@ library PipeAccess {
   /**
    * @notice Set the full data using the data struct (using the specified store).
    */
-  function set(IStore _store, bytes32 targetEntityId, bytes32 callerEntityId, PipeAccessData memory _table) internal {
+  function set(IStore _store, EntityId targetEntityId, EntityId callerEntityId, PipeAccessData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.depositAllowed, _table.withdrawAllowed);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -422,10 +425,10 @@ library PipeAccess {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 targetEntityId, bytes32 callerEntityId) internal {
+  function deleteRecord(EntityId targetEntityId, EntityId callerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -433,10 +436,10 @@ library PipeAccess {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 targetEntityId, bytes32 callerEntityId) internal {
+  function _deleteRecord(EntityId targetEntityId, EntityId callerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -444,10 +447,10 @@ library PipeAccess {
   /**
    * @notice Delete all data for given keys (using the specified store).
    */
-  function deleteRecord(IStore _store, bytes32 targetEntityId, bytes32 callerEntityId) internal {
+  function deleteRecord(IStore _store, EntityId targetEntityId, EntityId callerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     _store.deleteRecord(_tableId, _keyTuple);
   }
@@ -481,10 +484,10 @@ library PipeAccess {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 targetEntityId, bytes32 callerEntityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId targetEntityId, EntityId callerEntityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = targetEntityId;
-    _keyTuple[1] = callerEntityId;
+    _keyTuple[0] = EntityId.unwrap(targetEntityId);
+    _keyTuple[1] = EntityId.unwrap(callerEntityId);
 
     return _keyTuple;
   }

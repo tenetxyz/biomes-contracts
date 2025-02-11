@@ -13,23 +13,25 @@ import { getForceField, setupForceField, destroyForceField } from "../../utils/F
 
 import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 
+import { EntityId } from "../../EntityId.sol";
+
 contract ForceFieldSystem is System {
   function requireBuildsAllowed(
-    bytes32 playerEntityId,
-    bytes32 baseEntityId,
+    EntityId playerEntityId,
+    EntityId baseEntityId,
     uint16 objectTypeId,
     VoxelCoord[] memory coords,
     bytes memory extraData
   ) public payable {
     for (uint256 i = 0; i < coords.length; i++) {
       VoxelCoord memory coord = coords[i];
-      bytes32 forceFieldEntityId = getForceField(coord);
+      EntityId forceFieldEntityId = getForceField(coord);
       if (objectTypeId == ForceFieldObjectID) {
-        require(forceFieldEntityId == bytes32(0), "Force field overlaps with another force field");
+        require(!forceFieldEntityId.exists(), "Force field overlaps with another force field");
         setupForceField(baseEntityId, coord);
       }
 
-      if (forceFieldEntityId != bytes32(0)) {
+      if (forceFieldEntityId.exists()) {
         address chipAddress = Chip._get(forceFieldEntityId);
         EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
         if (chipAddress != address(0) && machineData.energy > 0) {
@@ -47,16 +49,16 @@ contract ForceFieldSystem is System {
   }
 
   function requireMinesAllowed(
-    bytes32 playerEntityId,
-    bytes32 baseEntityId,
+    EntityId playerEntityId,
+    EntityId baseEntityId,
     uint16 objectTypeId,
     VoxelCoord[] memory coords,
     bytes memory extraData
   ) public payable {
     for (uint256 i = 0; i < coords.length; i++) {
       VoxelCoord memory coord = coords[i];
-      bytes32 forceFieldEntityId = getForceField(coord);
-      if (forceFieldEntityId != bytes32(0)) {
+      EntityId forceFieldEntityId = getForceField(coord);
+      if (forceFieldEntityId.exists()) {
         address chipAddress = Chip._get(forceFieldEntityId);
         EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
         if (chipAddress != address(0) && machineData.energy > 0) {

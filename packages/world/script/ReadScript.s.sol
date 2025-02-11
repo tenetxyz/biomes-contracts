@@ -6,6 +6,7 @@ import { console } from "forge-std/console.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { console } from "forge-std/console.sol";
 import { VoxelCoord } from "../src/Types.sol";
+import { EntityId } from "../src/EntityId.sol";
 import { coordToShardCoord } from "../src/utils/VoxelCoordUtils.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
@@ -41,18 +42,16 @@ contract ReadScript is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
-    IWorld world = IWorld(worldAddress);
-
-    bytes32 playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
-    require(playerEntityId != bytes32(0), "Player entity not found");
+    EntityId playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
+    require(playerEntityId.exists(), "Player entity not found");
     console.log("Player");
-    console.logBytes32(playerEntityId);
+    console.logBytes32(EntityId.unwrap(playerEntityId));
     console.logBool(PlayerStatus.getIsLoggedOff(playerEntityId));
 
     // VoxelCoord memory coord = VoxelCoord(150, 1, -160);
-    bytes32 entityId = 0x00000000000000000000000000000000000000000000000000000000002a4960;
+    EntityId entityId = EntityId.wrap(0x00000000000000000000000000000000000000000000000000000000002a4960);
     console.log("Entity at position:");
-    console.logBytes32(entityId);
+    console.logBytes32(EntityId.unwrap(entityId));
     console.logUint(ObjectType.get(entityId));
     VoxelCoord memory coord = positionDataToVoxelCoord(Position.get(entityId));
     console.log("Coord");
@@ -66,13 +65,13 @@ contract ReadScript is Script {
     console.log("Energy level:");
     console.logUint(energyLevel);
     VoxelCoord memory shardCoord = coordToShardCoord(coord, FORCE_FIELD_SHARD_DIM);
-    bytes32 forceFieldEntityId = ForceField.get(shardCoord.x, shardCoord.y, shardCoord.z);
-    if (forceFieldEntityId == bytes32(0)) {
+    EntityId forceFieldEntityId = ForceField.get(shardCoord.x, shardCoord.y, shardCoord.z);
+    if (!forceFieldEntityId.exists()) {
       console.log("No force field found at position");
     } else {
       PositionData memory positionData = Position.get(forceFieldEntityId);
       console.log("Force field position:");
-      console.logBytes32(forceFieldEntityId);
+      console.logBytes32(EntityId.unwrap(forceFieldEntityId));
       console.logInt(positionData.x);
       console.logInt(positionData.y);
       console.logInt(positionData.z);

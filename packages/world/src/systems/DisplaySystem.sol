@@ -20,23 +20,23 @@ import { getLatestEnergyData } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 import { isBasicDisplay } from "../utils/ObjectTypeUtils.sol";
+import { EntityId } from "../EntityId.sol";
 
 contract DisplaySystem is System {
-  function getDisplayContent(bytes32 entityId) public view returns (DisplayContentData memory) {
-    require(entityId != bytes32(0), "Entity does not exist");
+  function getDisplayContent(EntityId entityId) public view returns (DisplayContentData memory) {
+    require(entityId.exists(), "Entity does not exist");
 
-    bytes32 baseEntityId = BaseEntity._get(entityId);
-    baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+    EntityId baseEntityId = entityId.baseEntityId();
     uint16 objectTypeId = ObjectType._get(baseEntityId);
     if (!isSmartItem(objectTypeId)) {
       return DisplayContent._get(baseEntityId);
     }
     VoxelCoord memory entityCoord = positionDataToVoxelCoord(Position._get(baseEntityId));
 
-    bytes32 forceFieldEntityId = getForceField(entityCoord);
+    EntityId forceFieldEntityId = getForceField(entityCoord);
     address chipAddress = Chip._getChipAddress(baseEntityId);
     uint256 machineEnergyLevel = 0;
-    if (forceFieldEntityId != bytes32(0)) {
+    if (forceFieldEntityId.exists()) {
       EnergyData memory machineData = getLatestEnergyData(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
     }
@@ -47,9 +47,8 @@ contract DisplaySystem is System {
     return DisplayContentData({ contentType: DisplayContentType.None, content: bytes("") });
   }
 
-  function setDisplayContent(bytes32 entityId, DisplayContentData memory content) public {
-    bytes32 baseEntityId = BaseEntity._get(entityId);
-    baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+  function setDisplayContent(EntityId entityId, DisplayContentData memory content) public {
+    EntityId baseEntityId = entityId.baseEntityId();
     require(isBasicDisplay(ObjectType._get(baseEntityId)), "You can only set the display content of a basic display");
     VoxelCoord memory entityCoord = positionDataToVoxelCoord(Position._get(baseEntityId));
     require(

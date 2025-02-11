@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "@biomesaw/world/src/EntityId.sol";
+
 struct GateApprovalsData {
   address[] players;
   address[] nfts;
@@ -76,9 +79,9 @@ library GateApprovals {
   /**
    * @notice Get players.
    */
-  function getPlayers(bytes32 entityId) internal view returns (address[] memory players) {
+  function getPlayers(EntityId entityId) internal view returns (address[] memory players) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_address());
@@ -87,9 +90,9 @@ library GateApprovals {
   /**
    * @notice Get players.
    */
-  function _getPlayers(bytes32 entityId) internal view returns (address[] memory players) {
+  function _getPlayers(EntityId entityId) internal view returns (address[] memory players) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_address());
@@ -98,9 +101,9 @@ library GateApprovals {
   /**
    * @notice Get players (using the specified store).
    */
-  function getPlayers(IStore _store, bytes32 entityId) internal view returns (address[] memory players) {
+  function getPlayers(IStore _store, EntityId entityId) internal view returns (address[] memory players) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_address());
@@ -109,9 +112,9 @@ library GateApprovals {
   /**
    * @notice Set players.
    */
-  function setPlayers(bytes32 entityId, address[] memory players) internal {
+  function setPlayers(EntityId entityId, address[] memory players) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((players)));
   }
@@ -119,9 +122,9 @@ library GateApprovals {
   /**
    * @notice Set players.
    */
-  function _setPlayers(bytes32 entityId, address[] memory players) internal {
+  function _setPlayers(EntityId entityId, address[] memory players) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((players)));
   }
@@ -129,9 +132,9 @@ library GateApprovals {
   /**
    * @notice Set players (using the specified store).
    */
-  function setPlayers(IStore _store, bytes32 entityId, address[] memory players) internal {
+  function setPlayers(IStore _store, EntityId entityId, address[] memory players) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((players)));
   }
@@ -139,9 +142,9 @@ library GateApprovals {
   /**
    * @notice Get the length of players.
    */
-  function lengthPlayers(bytes32 entityId) internal view returns (uint256) {
+  function lengthPlayers(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -152,9 +155,9 @@ library GateApprovals {
   /**
    * @notice Get the length of players.
    */
-  function _lengthPlayers(bytes32 entityId) internal view returns (uint256) {
+  function _lengthPlayers(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -165,9 +168,9 @@ library GateApprovals {
   /**
    * @notice Get the length of players (using the specified store).
    */
-  function lengthPlayers(IStore _store, bytes32 entityId) internal view returns (uint256) {
+  function lengthPlayers(IStore _store, EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -179,9 +182,9 @@ library GateApprovals {
    * @notice Get an item of players.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemPlayers(bytes32 entityId, uint256 _index) internal view returns (address) {
+  function getItemPlayers(EntityId entityId, uint256 _index) internal view returns (address) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 20, (_index + 1) * 20);
@@ -193,9 +196,9 @@ library GateApprovals {
    * @notice Get an item of players.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemPlayers(bytes32 entityId, uint256 _index) internal view returns (address) {
+  function _getItemPlayers(EntityId entityId, uint256 _index) internal view returns (address) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 20, (_index + 1) * 20);
@@ -207,9 +210,9 @@ library GateApprovals {
    * @notice Get an item of players (using the specified store).
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemPlayers(IStore _store, bytes32 entityId, uint256 _index) internal view returns (address) {
+  function getItemPlayers(IStore _store, EntityId entityId, uint256 _index) internal view returns (address) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 20, (_index + 1) * 20);
@@ -220,9 +223,9 @@ library GateApprovals {
   /**
    * @notice Push an element to players.
    */
-  function pushPlayers(bytes32 entityId, address _element) internal {
+  function pushPlayers(EntityId entityId, address _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -230,9 +233,9 @@ library GateApprovals {
   /**
    * @notice Push an element to players.
    */
-  function _pushPlayers(bytes32 entityId, address _element) internal {
+  function _pushPlayers(EntityId entityId, address _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -240,9 +243,9 @@ library GateApprovals {
   /**
    * @notice Push an element to players (using the specified store).
    */
-  function pushPlayers(IStore _store, bytes32 entityId, address _element) internal {
+  function pushPlayers(IStore _store, EntityId entityId, address _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -250,9 +253,9 @@ library GateApprovals {
   /**
    * @notice Pop an element from players.
    */
-  function popPlayers(bytes32 entityId) internal {
+  function popPlayers(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 20);
   }
@@ -260,9 +263,9 @@ library GateApprovals {
   /**
    * @notice Pop an element from players.
    */
-  function _popPlayers(bytes32 entityId) internal {
+  function _popPlayers(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 20);
   }
@@ -270,9 +273,9 @@ library GateApprovals {
   /**
    * @notice Pop an element from players (using the specified store).
    */
-  function popPlayers(IStore _store, bytes32 entityId) internal {
+  function popPlayers(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.popFromDynamicField(_tableId, _keyTuple, 0, 20);
   }
@@ -280,9 +283,9 @@ library GateApprovals {
   /**
    * @notice Update an element of players at `_index`.
    */
-  function updatePlayers(bytes32 entityId, uint256 _index, address _element) internal {
+  function updatePlayers(EntityId entityId, uint256 _index, address _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -293,9 +296,9 @@ library GateApprovals {
   /**
    * @notice Update an element of players at `_index`.
    */
-  function _updatePlayers(bytes32 entityId, uint256 _index, address _element) internal {
+  function _updatePlayers(EntityId entityId, uint256 _index, address _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -306,9 +309,9 @@ library GateApprovals {
   /**
    * @notice Update an element of players (using the specified store) at `_index`.
    */
-  function updatePlayers(IStore _store, bytes32 entityId, uint256 _index, address _element) internal {
+  function updatePlayers(IStore _store, EntityId entityId, uint256 _index, address _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -319,9 +322,9 @@ library GateApprovals {
   /**
    * @notice Get nfts.
    */
-  function getNfts(bytes32 entityId) internal view returns (address[] memory nfts) {
+  function getNfts(EntityId entityId) internal view returns (address[] memory nfts) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 1);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_address());
@@ -330,9 +333,9 @@ library GateApprovals {
   /**
    * @notice Get nfts.
    */
-  function _getNfts(bytes32 entityId) internal view returns (address[] memory nfts) {
+  function _getNfts(EntityId entityId) internal view returns (address[] memory nfts) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 1);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_address());
@@ -341,9 +344,9 @@ library GateApprovals {
   /**
    * @notice Get nfts (using the specified store).
    */
-  function getNfts(IStore _store, bytes32 entityId) internal view returns (address[] memory nfts) {
+  function getNfts(IStore _store, EntityId entityId) internal view returns (address[] memory nfts) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = _store.getDynamicField(_tableId, _keyTuple, 1);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_address());
@@ -352,9 +355,9 @@ library GateApprovals {
   /**
    * @notice Set nfts.
    */
-  function setNfts(bytes32 entityId, address[] memory nfts) internal {
+  function setNfts(EntityId entityId, address[] memory nfts) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setDynamicField(_tableId, _keyTuple, 1, EncodeArray.encode((nfts)));
   }
@@ -362,9 +365,9 @@ library GateApprovals {
   /**
    * @notice Set nfts.
    */
-  function _setNfts(bytes32 entityId, address[] memory nfts) internal {
+  function _setNfts(EntityId entityId, address[] memory nfts) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 1, EncodeArray.encode((nfts)));
   }
@@ -372,9 +375,9 @@ library GateApprovals {
   /**
    * @notice Set nfts (using the specified store).
    */
-  function setNfts(IStore _store, bytes32 entityId, address[] memory nfts) internal {
+  function setNfts(IStore _store, EntityId entityId, address[] memory nfts) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setDynamicField(_tableId, _keyTuple, 1, EncodeArray.encode((nfts)));
   }
@@ -382,9 +385,9 @@ library GateApprovals {
   /**
    * @notice Get the length of nfts.
    */
-  function lengthNfts(bytes32 entityId) internal view returns (uint256) {
+  function lengthNfts(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 1);
     unchecked {
@@ -395,9 +398,9 @@ library GateApprovals {
   /**
    * @notice Get the length of nfts.
    */
-  function _lengthNfts(bytes32 entityId) internal view returns (uint256) {
+  function _lengthNfts(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 1);
     unchecked {
@@ -408,9 +411,9 @@ library GateApprovals {
   /**
    * @notice Get the length of nfts (using the specified store).
    */
-  function lengthNfts(IStore _store, bytes32 entityId) internal view returns (uint256) {
+  function lengthNfts(IStore _store, EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = _store.getDynamicFieldLength(_tableId, _keyTuple, 1);
     unchecked {
@@ -422,9 +425,9 @@ library GateApprovals {
    * @notice Get an item of nfts.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemNfts(bytes32 entityId, uint256 _index) internal view returns (address) {
+  function getItemNfts(EntityId entityId, uint256 _index) internal view returns (address) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 20, (_index + 1) * 20);
@@ -436,9 +439,9 @@ library GateApprovals {
    * @notice Get an item of nfts.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemNfts(bytes32 entityId, uint256 _index) internal view returns (address) {
+  function _getItemNfts(EntityId entityId, uint256 _index) internal view returns (address) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 20, (_index + 1) * 20);
@@ -450,9 +453,9 @@ library GateApprovals {
    * @notice Get an item of nfts (using the specified store).
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemNfts(IStore _store, bytes32 entityId, uint256 _index) internal view returns (address) {
+  function getItemNfts(IStore _store, EntityId entityId, uint256 _index) internal view returns (address) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = _store.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 20, (_index + 1) * 20);
@@ -463,9 +466,9 @@ library GateApprovals {
   /**
    * @notice Push an element to nfts.
    */
-  function pushNfts(bytes32 entityId, address _element) internal {
+  function pushNfts(EntityId entityId, address _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 1, abi.encodePacked((_element)));
   }
@@ -473,9 +476,9 @@ library GateApprovals {
   /**
    * @notice Push an element to nfts.
    */
-  function _pushNfts(bytes32 entityId, address _element) internal {
+  function _pushNfts(EntityId entityId, address _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 1, abi.encodePacked((_element)));
   }
@@ -483,9 +486,9 @@ library GateApprovals {
   /**
    * @notice Push an element to nfts (using the specified store).
    */
-  function pushNfts(IStore _store, bytes32 entityId, address _element) internal {
+  function pushNfts(IStore _store, EntityId entityId, address _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.pushToDynamicField(_tableId, _keyTuple, 1, abi.encodePacked((_element)));
   }
@@ -493,9 +496,9 @@ library GateApprovals {
   /**
    * @notice Pop an element from nfts.
    */
-  function popNfts(bytes32 entityId) internal {
+  function popNfts(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 1, 20);
   }
@@ -503,9 +506,9 @@ library GateApprovals {
   /**
    * @notice Pop an element from nfts.
    */
-  function _popNfts(bytes32 entityId) internal {
+  function _popNfts(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 1, 20);
   }
@@ -513,9 +516,9 @@ library GateApprovals {
   /**
    * @notice Pop an element from nfts (using the specified store).
    */
-  function popNfts(IStore _store, bytes32 entityId) internal {
+  function popNfts(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.popFromDynamicField(_tableId, _keyTuple, 1, 20);
   }
@@ -523,9 +526,9 @@ library GateApprovals {
   /**
    * @notice Update an element of nfts at `_index`.
    */
-  function updateNfts(bytes32 entityId, uint256 _index, address _element) internal {
+  function updateNfts(EntityId entityId, uint256 _index, address _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -536,9 +539,9 @@ library GateApprovals {
   /**
    * @notice Update an element of nfts at `_index`.
    */
-  function _updateNfts(bytes32 entityId, uint256 _index, address _element) internal {
+  function _updateNfts(EntityId entityId, uint256 _index, address _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -549,9 +552,9 @@ library GateApprovals {
   /**
    * @notice Update an element of nfts (using the specified store) at `_index`.
    */
-  function updateNfts(IStore _store, bytes32 entityId, uint256 _index, address _element) internal {
+  function updateNfts(IStore _store, EntityId entityId, uint256 _index, address _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -562,9 +565,9 @@ library GateApprovals {
   /**
    * @notice Get the full data.
    */
-  function get(bytes32 entityId) internal view returns (GateApprovalsData memory _table) {
+  function get(EntityId entityId) internal view returns (GateApprovalsData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
       _tableId,
@@ -577,9 +580,9 @@ library GateApprovals {
   /**
    * @notice Get the full data.
    */
-  function _get(bytes32 entityId) internal view returns (GateApprovalsData memory _table) {
+  function _get(EntityId entityId) internal view returns (GateApprovalsData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
       _tableId,
@@ -592,9 +595,9 @@ library GateApprovals {
   /**
    * @notice Get the full data (using the specified store).
    */
-  function get(IStore _store, bytes32 entityId) internal view returns (GateApprovalsData memory _table) {
+  function get(IStore _store, EntityId entityId) internal view returns (GateApprovalsData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
       _tableId,
@@ -607,13 +610,13 @@ library GateApprovals {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 entityId, address[] memory players, address[] memory nfts) internal {
+  function set(EntityId entityId, address[] memory players, address[] memory nfts) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(players, nfts);
     bytes memory _dynamicData = encodeDynamic(players, nfts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -621,13 +624,13 @@ library GateApprovals {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 entityId, address[] memory players, address[] memory nfts) internal {
+  function _set(EntityId entityId, address[] memory players, address[] memory nfts) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(players, nfts);
     bytes memory _dynamicData = encodeDynamic(players, nfts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -635,13 +638,13 @@ library GateApprovals {
   /**
    * @notice Set the full data using individual values (using the specified store).
    */
-  function set(IStore _store, bytes32 entityId, address[] memory players, address[] memory nfts) internal {
+  function set(IStore _store, EntityId entityId, address[] memory players, address[] memory nfts) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(players, nfts);
     bytes memory _dynamicData = encodeDynamic(players, nfts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -649,13 +652,13 @@ library GateApprovals {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(bytes32 entityId, GateApprovalsData memory _table) internal {
+  function set(EntityId entityId, GateApprovalsData memory _table) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(_table.players, _table.nfts);
     bytes memory _dynamicData = encodeDynamic(_table.players, _table.nfts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -663,13 +666,13 @@ library GateApprovals {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(bytes32 entityId, GateApprovalsData memory _table) internal {
+  function _set(EntityId entityId, GateApprovalsData memory _table) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(_table.players, _table.nfts);
     bytes memory _dynamicData = encodeDynamic(_table.players, _table.nfts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -677,13 +680,13 @@ library GateApprovals {
   /**
    * @notice Set the full data using the data struct (using the specified store).
    */
-  function set(IStore _store, bytes32 entityId, GateApprovalsData memory _table) internal {
+  function set(IStore _store, EntityId entityId, GateApprovalsData memory _table) internal {
     bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(_table.players, _table.nfts);
     bytes memory _dynamicData = encodeDynamic(_table.players, _table.nfts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -726,9 +729,9 @@ library GateApprovals {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 entityId) internal {
+  function deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -736,9 +739,9 @@ library GateApprovals {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 entityId) internal {
+  function _deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -746,9 +749,9 @@ library GateApprovals {
   /**
    * @notice Delete all data for given keys (using the specified store).
    */
-  function deleteRecord(IStore _store, bytes32 entityId) internal {
+  function deleteRecord(IStore _store, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     _store.deleteRecord(_tableId, _keyTuple);
   }
@@ -795,9 +798,9 @@ library GateApprovals {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId entityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     return _keyTuple;
   }

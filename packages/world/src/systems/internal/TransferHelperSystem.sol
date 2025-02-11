@@ -19,19 +19,19 @@ import { getForceField } from "../../utils/ForceFieldUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { TransferCommonContext } from "../../Types.sol";
 
+import { EntityId } from "../../EntityId.sol";
+
 contract TransferHelperSystem is System {
   function transferCommon(
     address msgSender,
-    bytes32 srcEntityId,
-    bytes32 dstEntityId
+    EntityId srcEntityId,
+    EntityId dstEntityId
   ) public payable returns (TransferCommonContext memory) {
-    (bytes32 playerEntityId, ) = requireValidPlayer(msgSender);
+    (EntityId playerEntityId, ) = requireValidPlayer(msgSender);
 
-    bytes32 baseSrcEntityId = BaseEntity._get(srcEntityId);
-    baseSrcEntityId = baseSrcEntityId == bytes32(0) ? srcEntityId : baseSrcEntityId;
+    EntityId baseSrcEntityId = srcEntityId.baseEntityId();
 
-    bytes32 baseDstEntityId = BaseEntity._get(dstEntityId);
-    baseDstEntityId = baseDstEntityId == bytes32(0) ? dstEntityId : baseDstEntityId;
+    EntityId baseDstEntityId = dstEntityId.baseEntityId();
 
     require(baseDstEntityId != baseSrcEntityId, "Cannot transfer to self");
     VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(baseSrcEntityId));
@@ -51,13 +51,13 @@ contract TransferHelperSystem is System {
       revert("Invalid transfer operation");
     }
 
-    bytes32 chestEntityId = isDeposit ? baseDstEntityId : baseSrcEntityId;
+    EntityId chestEntityId = isDeposit ? baseDstEntityId : baseSrcEntityId;
     VoxelCoord memory chestCoord = isDeposit ? dstCoord : srcCoord;
 
     address chipAddress = Chip._get(chestEntityId);
-    bytes32 forceFieldEntityId = getForceField(chestCoord);
+    EntityId forceFieldEntityId = getForceField(chestCoord);
     uint256 machineEnergyLevel = 0;
-    if (forceFieldEntityId != bytes32(0)) {
+    if (forceFieldEntityId.exists()) {
       EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
     }

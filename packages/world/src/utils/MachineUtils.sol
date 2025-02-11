@@ -3,7 +3,9 @@ pragma solidity >=0.8.24;
 
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
-function getLatestEnergyData(bytes32 entityId) view returns (EnergyData memory) {
+import { EntityId } from "../EntityId.sol";
+
+function getLatestEnergyData(EntityId entityId) view returns (EnergyData memory) {
   EnergyData memory energyData = Energy._get(entityId);
 
   if (energyData.energy > 0) {
@@ -23,7 +25,7 @@ function getLatestEnergyData(bytes32 entityId) view returns (EnergyData memory) 
   return energyData;
 }
 
-function updateMachineEnergyLevel(bytes32 entityId) returns (EnergyData memory) {
+function updateMachineEnergyLevel(EntityId entityId) returns (EnergyData memory) {
   EnergyData memory energyData = Energy._get(entityId);
 
   if (energyData.energy > 0) {

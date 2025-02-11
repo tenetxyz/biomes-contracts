@@ -31,19 +31,20 @@ import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { InventoryObject, PlayerEntityData, BlockEntityData } from "../../Types.sol";
 
 import { IReadSystem } from "../../codegen/world/IReadSystem.sol";
+import { EntityId } from "../../EntityId.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadTwoSystem is System {
   function getPlayerEntityData(address player) public view returns (PlayerEntityData memory) {
-    bytes32 entityId = Player._get(player);
-    if (entityId == bytes32(0)) {
+    EntityId entityId = Player._get(player);
+    if (!entityId.exists()) {
       return
         PlayerEntityData({
           playerAddress: player,
-          entityId: bytes32(0),
+          entityId: EntityId.wrap(0),
           position: VoxelCoord(0, 0, 0),
           isLoggedOff: false,
-          equippedEntityId: bytes32(0),
+          equippedEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
           mass: 0,
           energy: EnergyData({ energy: 0, lastUpdatedTime: 0 }),
@@ -80,12 +81,12 @@ contract ReadTwoSystem is System {
     return playersEntityData;
   }
 
-  function getBlockEntityData(bytes32 entityId) public view returns (BlockEntityData memory) {
-    if (entityId == bytes32(0)) {
+  function getBlockEntityData(EntityId entityId) public view returns (BlockEntityData memory) {
+    if (!entityId.exists()) {
       return
         BlockEntityData({
-          entityId: bytes32(0),
-          baseEntityId: bytes32(0),
+          entityId: EntityId.wrap(0),
+          baseEntityId: EntityId.wrap(0),
           objectTypeId: 0,
           position: VoxelCoord(0, 0, 0),
           inventory: new InventoryObject[](0),
@@ -93,19 +94,19 @@ contract ReadTwoSystem is System {
         });
     }
 
-    bytes32 baseEntityId = BaseEntity._get(entityId);
+    EntityId baseEntityId = entityId.baseEntityId();
     return
       BlockEntityData({
         entityId: entityId,
         baseEntityId: baseEntityId,
         objectTypeId: ObjectType._get(entityId),
         position: positionDataToVoxelCoord(Position._get(entityId)),
-        inventory: getEntityInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
-        chipAddress: Chip._getChipAddress(baseEntityId == bytes32(0) ? entityId : baseEntityId)
+        inventory: getEntityInventory(baseEntityId),
+        chipAddress: Chip._getChipAddress(baseEntityId)
       });
   }
 
-  function getBlocksEntityData(bytes32[] memory entityIds) public view returns (BlockEntityData[] memory) {
+  function getBlocksEntityData(EntityId[] memory entityIds) public view returns (BlockEntityData[] memory) {
     BlockEntityData[] memory blocksEntityData = new BlockEntityData[](entityIds.length);
     for (uint256 i = 0; i < entityIds.length; i++) {
       blocksEntityData[i] = getBlockEntityData(entityIds[i]);

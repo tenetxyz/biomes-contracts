@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "../../EntityId.sol";
+
 library PlayerStatus {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "PlayerStatus", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000506c6179657253746174757300000000);
@@ -63,9 +66,9 @@ library PlayerStatus {
   /**
    * @notice Get isLoggedOff.
    */
-  function getIsLoggedOff(bytes32 entityId) internal view returns (bool isLoggedOff) {
+  function getIsLoggedOff(EntityId entityId) internal view returns (bool isLoggedOff) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -74,9 +77,9 @@ library PlayerStatus {
   /**
    * @notice Get isLoggedOff.
    */
-  function _getIsLoggedOff(bytes32 entityId) internal view returns (bool isLoggedOff) {
+  function _getIsLoggedOff(EntityId entityId) internal view returns (bool isLoggedOff) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -85,9 +88,9 @@ library PlayerStatus {
   /**
    * @notice Get isLoggedOff.
    */
-  function get(bytes32 entityId) internal view returns (bool isLoggedOff) {
+  function get(EntityId entityId) internal view returns (bool isLoggedOff) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -96,9 +99,9 @@ library PlayerStatus {
   /**
    * @notice Get isLoggedOff.
    */
-  function _get(bytes32 entityId) internal view returns (bool isLoggedOff) {
+  function _get(EntityId entityId) internal view returns (bool isLoggedOff) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -107,9 +110,9 @@ library PlayerStatus {
   /**
    * @notice Set isLoggedOff.
    */
-  function setIsLoggedOff(bytes32 entityId, bool isLoggedOff) internal {
+  function setIsLoggedOff(EntityId entityId, bool isLoggedOff) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isLoggedOff)), _fieldLayout);
   }
@@ -117,9 +120,9 @@ library PlayerStatus {
   /**
    * @notice Set isLoggedOff.
    */
-  function _setIsLoggedOff(bytes32 entityId, bool isLoggedOff) internal {
+  function _setIsLoggedOff(EntityId entityId, bool isLoggedOff) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isLoggedOff)), _fieldLayout);
   }
@@ -127,9 +130,9 @@ library PlayerStatus {
   /**
    * @notice Set isLoggedOff.
    */
-  function set(bytes32 entityId, bool isLoggedOff) internal {
+  function set(EntityId entityId, bool isLoggedOff) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isLoggedOff)), _fieldLayout);
   }
@@ -137,9 +140,9 @@ library PlayerStatus {
   /**
    * @notice Set isLoggedOff.
    */
-  function _set(bytes32 entityId, bool isLoggedOff) internal {
+  function _set(EntityId entityId, bool isLoggedOff) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isLoggedOff)), _fieldLayout);
   }
@@ -147,9 +150,9 @@ library PlayerStatus {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 entityId) internal {
+  function deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -157,9 +160,9 @@ library PlayerStatus {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 entityId) internal {
+  function _deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -190,9 +193,9 @@ library PlayerStatus {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId entityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     return _keyTuple;
   }

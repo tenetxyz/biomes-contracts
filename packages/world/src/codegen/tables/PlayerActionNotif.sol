@@ -17,11 +17,12 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
+import { EntityId } from "../../EntityId.sol";
 import { ActionType } from "../common.sol";
 
 struct PlayerActionNotifData {
   ActionType actionType;
-  bytes32 entityId;
+  EntityId entityId;
   uint16 objectTypeId;
   int32 coordX;
   int32 coordY;
@@ -82,9 +83,9 @@ library PlayerActionNotif {
   /**
    * @notice Set actionType.
    */
-  function setActionType(bytes32 playerEntityId, ActionType actionType) internal {
+  function setActionType(EntityId playerEntityId, ActionType actionType) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(actionType)), _fieldLayout);
   }
@@ -92,9 +93,9 @@ library PlayerActionNotif {
   /**
    * @notice Set actionType.
    */
-  function _setActionType(bytes32 playerEntityId, ActionType actionType) internal {
+  function _setActionType(EntityId playerEntityId, ActionType actionType) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(actionType)), _fieldLayout);
   }
@@ -102,29 +103,29 @@ library PlayerActionNotif {
   /**
    * @notice Set entityId.
    */
-  function setEntityId(bytes32 playerEntityId, bytes32 entityId) internal {
+  function setEntityId(EntityId playerEntityId, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((entityId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
 
   /**
    * @notice Set entityId.
    */
-  function _setEntityId(bytes32 playerEntityId, bytes32 entityId) internal {
+  function _setEntityId(EntityId playerEntityId, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((entityId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
 
   /**
    * @notice Set objectTypeId.
    */
-  function setObjectTypeId(bytes32 playerEntityId, uint16 objectTypeId) internal {
+  function setObjectTypeId(EntityId playerEntityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((objectTypeId)), _fieldLayout);
   }
@@ -132,9 +133,9 @@ library PlayerActionNotif {
   /**
    * @notice Set objectTypeId.
    */
-  function _setObjectTypeId(bytes32 playerEntityId, uint16 objectTypeId) internal {
+  function _setObjectTypeId(EntityId playerEntityId, uint16 objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((objectTypeId)), _fieldLayout);
   }
@@ -142,9 +143,9 @@ library PlayerActionNotif {
   /**
    * @notice Set coordX.
    */
-  function setCoordX(bytes32 playerEntityId, int32 coordX) internal {
+  function setCoordX(EntityId playerEntityId, int32 coordX) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((coordX)), _fieldLayout);
   }
@@ -152,9 +153,9 @@ library PlayerActionNotif {
   /**
    * @notice Set coordX.
    */
-  function _setCoordX(bytes32 playerEntityId, int32 coordX) internal {
+  function _setCoordX(EntityId playerEntityId, int32 coordX) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((coordX)), _fieldLayout);
   }
@@ -162,9 +163,9 @@ library PlayerActionNotif {
   /**
    * @notice Set coordY.
    */
-  function setCoordY(bytes32 playerEntityId, int32 coordY) internal {
+  function setCoordY(EntityId playerEntityId, int32 coordY) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((coordY)), _fieldLayout);
   }
@@ -172,9 +173,9 @@ library PlayerActionNotif {
   /**
    * @notice Set coordY.
    */
-  function _setCoordY(bytes32 playerEntityId, int32 coordY) internal {
+  function _setCoordY(EntityId playerEntityId, int32 coordY) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((coordY)), _fieldLayout);
   }
@@ -182,9 +183,9 @@ library PlayerActionNotif {
   /**
    * @notice Set coordZ.
    */
-  function setCoordZ(bytes32 playerEntityId, int32 coordZ) internal {
+  function setCoordZ(EntityId playerEntityId, int32 coordZ) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((coordZ)), _fieldLayout);
   }
@@ -192,9 +193,9 @@ library PlayerActionNotif {
   /**
    * @notice Set coordZ.
    */
-  function _setCoordZ(bytes32 playerEntityId, int32 coordZ) internal {
+  function _setCoordZ(EntityId playerEntityId, int32 coordZ) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((coordZ)), _fieldLayout);
   }
@@ -202,9 +203,9 @@ library PlayerActionNotif {
   /**
    * @notice Set amount.
    */
-  function setAmount(bytes32 playerEntityId, uint256 amount) internal {
+  function setAmount(EntityId playerEntityId, uint256 amount) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((amount)), _fieldLayout);
   }
@@ -212,9 +213,9 @@ library PlayerActionNotif {
   /**
    * @notice Set amount.
    */
-  function _setAmount(bytes32 playerEntityId, uint256 amount) internal {
+  function _setAmount(EntityId playerEntityId, uint256 amount) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((amount)), _fieldLayout);
   }
@@ -223,9 +224,9 @@ library PlayerActionNotif {
    * @notice Set the full data using individual values.
    */
   function set(
-    bytes32 playerEntityId,
+    EntityId playerEntityId,
     ActionType actionType,
-    bytes32 entityId,
+    EntityId entityId,
     uint16 objectTypeId,
     int32 coordX,
     int32 coordY,
@@ -238,7 +239,7 @@ library PlayerActionNotif {
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -247,9 +248,9 @@ library PlayerActionNotif {
    * @notice Set the full data using individual values.
    */
   function _set(
-    bytes32 playerEntityId,
+    EntityId playerEntityId,
     ActionType actionType,
-    bytes32 entityId,
+    EntityId entityId,
     uint16 objectTypeId,
     int32 coordX,
     int32 coordY,
@@ -262,7 +263,7 @@ library PlayerActionNotif {
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -270,7 +271,7 @@ library PlayerActionNotif {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(bytes32 playerEntityId, PlayerActionNotifData memory _table) internal {
+  function set(EntityId playerEntityId, PlayerActionNotifData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.actionType,
       _table.entityId,
@@ -285,7 +286,7 @@ library PlayerActionNotif {
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -293,7 +294,7 @@ library PlayerActionNotif {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(bytes32 playerEntityId, PlayerActionNotifData memory _table) internal {
+  function _set(EntityId playerEntityId, PlayerActionNotifData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.actionType,
       _table.entityId,
@@ -308,7 +309,7 @@ library PlayerActionNotif {
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -323,7 +324,7 @@ library PlayerActionNotif {
     pure
     returns (
       ActionType actionType,
-      bytes32 entityId,
+      EntityId entityId,
       uint16 objectTypeId,
       int32 coordX,
       int32 coordY,
@@ -333,7 +334,7 @@ library PlayerActionNotif {
   {
     actionType = ActionType(uint8(Bytes.getBytes1(_blob, 0)));
 
-    entityId = (Bytes.getBytes32(_blob, 1));
+    entityId = EntityId.wrap(Bytes.getBytes32(_blob, 1));
 
     objectTypeId = (uint16(Bytes.getBytes2(_blob, 33)));
 
@@ -371,9 +372,9 @@ library PlayerActionNotif {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 playerEntityId) internal {
+  function deleteRecord(EntityId playerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -381,9 +382,9 @@ library PlayerActionNotif {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 playerEntityId) internal {
+  function _deleteRecord(EntityId playerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -394,7 +395,7 @@ library PlayerActionNotif {
    */
   function encodeStatic(
     ActionType actionType,
-    bytes32 entityId,
+    EntityId entityId,
     uint16 objectTypeId,
     int32 coordX,
     int32 coordY,
@@ -412,7 +413,7 @@ library PlayerActionNotif {
    */
   function encode(
     ActionType actionType,
-    bytes32 entityId,
+    EntityId entityId,
     uint16 objectTypeId,
     int32 coordX,
     int32 coordY,
@@ -430,9 +431,9 @@ library PlayerActionNotif {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 playerEntityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId playerEntityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = playerEntityId;
+    _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
     return _keyTuple;
   }

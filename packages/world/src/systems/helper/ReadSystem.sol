@@ -24,6 +24,7 @@ import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { NullObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { lastKnownPositionDataToVoxelCoord, positionDataToVoxelCoord } from "../../Utils.sol";
 import { InventoryObject, EntityData } from "../../Types.sol";
+import { EntityId } from "../../EntityId.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {
@@ -43,62 +44,62 @@ contract ReadSystem is System {
   }
 
   function getObjectTypeIdAtCoord(VoxelCoord memory coord) public view returns (uint16) {
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    if (entityId == bytes32(0)) {
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (!entityId.exists()) {
       return NullObjectTypeId;
     }
     return ObjectType._get(entityId);
   }
 
-  function getEntityIdAtCoord(VoxelCoord memory coord) public view returns (bytes32) {
+  function getEntityIdAtCoord(VoxelCoord memory coord) public view returns (EntityId) {
     return ReversePosition._get(coord.x, coord.y, coord.z);
   }
 
-  function getEntityData(bytes32 entityId) public view returns (EntityData memory) {
-    if (entityId == bytes32(0)) {
+  function getEntityData(EntityId entityId) public view returns (EntityData memory) {
+    if (!entityId.exists()) {
       return
         EntityData({
           objectTypeId: NullObjectTypeId,
-          entityId: bytes32(0),
-          baseEntityId: bytes32(0),
+          entityId: EntityId.wrap(0),
+          baseEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
           position: VoxelCoord(0, 0, 0)
         });
     }
 
-    bytes32 baseEntityId = BaseEntity._get(entityId);
+    EntityId baseEntityId = entityId.baseEntityId();
 
     return
       EntityData({
         objectTypeId: ObjectType._get(entityId),
         entityId: entityId,
         baseEntityId: baseEntityId,
-        inventory: getInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
+        inventory: getInventory(baseEntityId),
         position: getCoordForEntityId(entityId)
       });
   }
 
   function getEntityDataAtCoord(VoxelCoord memory coord) public view returns (EntityData memory) {
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    if (entityId == bytes32(0)) {
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (!entityId.exists()) {
       return
         EntityData({
           objectTypeId: NullObjectTypeId,
-          entityId: bytes32(0),
-          baseEntityId: bytes32(0),
+          entityId: EntityId.wrap(0),
+          baseEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
           position: coord
         });
     }
 
-    bytes32 baseEntityId = BaseEntity._get(entityId);
+    EntityId baseEntityId = entityId.baseEntityId();
 
     return
       EntityData({
         objectTypeId: ObjectType._get(entityId),
         entityId: entityId,
         baseEntityId: baseEntityId,
-        inventory: getInventory(baseEntityId == bytes32(0) ? entityId : baseEntityId),
+        inventory: getInventory(baseEntityId),
         position: coord
       });
   }
@@ -112,7 +113,7 @@ contract ReadSystem is System {
   }
 
   function getLastActivityTime(address player) public view returns (uint256) {
-    bytes32 playerEntityId = Player._get(player);
+    EntityId playerEntityId = Player._get(player);
     if (PlayerStatus._getIsLoggedOff(playerEntityId)) {
       return 0;
     }
@@ -120,16 +121,16 @@ contract ReadSystem is System {
   }
 
   function getInventory(address player) public view returns (InventoryObject[] memory) {
-    bytes32 playerEntityId = Player._get(player);
-    require(playerEntityId != bytes32(0), "Player not found");
+    EntityId playerEntityId = Player._get(player);
+    require(playerEntityId.exists(), "Player not found");
     return getInventory(playerEntityId);
   }
 
-  function getInventory(bytes32 entityId) public view returns (InventoryObject[] memory) {
+  function getInventory(EntityId entityId) public view returns (InventoryObject[] memory) {
     return getEntityInventory(entityId);
   }
 
-  function getCoordForEntityId(bytes32 entityId) public view returns (VoxelCoord memory) {
+  function getCoordForEntityId(EntityId entityId) public view returns (VoxelCoord memory) {
     uint16 objectTypeId = ObjectType._get(entityId);
     if (objectTypeId == PlayerObjectID && PlayerStatus._getIsLoggedOff(entityId)) {
       return lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(entityId));
@@ -139,8 +140,8 @@ contract ReadSystem is System {
   }
 
   function getPlayerCoord(address player) public view returns (VoxelCoord memory) {
-    bytes32 playerEntityId = Player._get(player);
-    require(playerEntityId != bytes32(0), "Player not found");
+    EntityId playerEntityId = Player._get(player);
+    require(playerEntityId.exists(), "Player not found");
     return getCoordForEntityId(playerEntityId);
   }
 }

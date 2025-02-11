@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { CommitmentData } from "./codegen/tables/Commitment.sol";
 import { EnergyData } from "./codegen/tables/Energy.sol";
+import { EntityId } from "./EntityId.sol";
 
 struct VoxelCoord {
   int32 x;
@@ -51,7 +52,7 @@ enum VoxelCoordDirectionVonNeumann {
 }
 
 struct InventoryTool {
-  bytes32 entityId;
+  EntityId entityId;
   uint256 numUsesLeft;
 }
 
@@ -63,10 +64,10 @@ struct InventoryObject {
 
 struct PlayerEntityData {
   address playerAddress;
-  bytes32 entityId;
+  EntityId entityId;
   VoxelCoord position;
   bool isLoggedOff;
-  bytes32 equippedEntityId;
+  EntityId equippedEntityId;
   InventoryObject[] inventory;
   uint256 mass;
   EnergyData energy;
@@ -75,8 +76,8 @@ struct PlayerEntityData {
 }
 
 struct BlockEntityData {
-  bytes32 entityId;
-  bytes32 baseEntityId;
+  EntityId entityId;
+  EntityId baseEntityId;
   uint16 objectTypeId;
   VoxelCoord position;
   InventoryObject[] inventory;
@@ -85,8 +86,8 @@ struct BlockEntityData {
 
 struct EntityData {
   uint16 objectTypeId;
-  bytes32 entityId;
-  bytes32 baseEntityId;
+  EntityId entityId;
+  EntityId baseEntityId;
   InventoryObject[] inventory;
   VoxelCoord position;
 }
@@ -99,28 +100,28 @@ struct PickupData {
 struct TransferData {
   uint16 objectTypeId;
   uint16 numToTransfer;
-  bytes32[] toolEntityIds;
+  EntityId[] toolEntityIds;
 }
 
 struct PipeTransferData {
-  bytes32 targetEntityId;
+  EntityId targetEntityId;
   VoxelCoordDirectionVonNeumann[] path;
   TransferData transferData;
   bytes extraData;
 }
 
 struct ChipOnTransferData {
-  bytes32 targetEntityId; // The entity whose chip is being called
-  bytes32 callerEntityId; // The entity initiating the transfer
+  EntityId targetEntityId; // The entity whose chip is being called
+  EntityId callerEntityId; // The entity initiating the transfer
   bool isDeposit; // true = caller->target, false = target->caller
   TransferData transferData;
   bytes extraData;
 }
 
 struct ChipOnPipeTransferData {
-  bytes32 playerEntityId;
-  bytes32 targetEntityId; // The entity whose chip is being called
-  bytes32 callerEntityId; // The entity initiating the transfer
+  EntityId playerEntityId;
+  EntityId targetEntityId; // The entity whose chip is being called
+  EntityId callerEntityId; // The entity initiating the transfer
   bool isDeposit; // true = caller->target, false = target->caller
   VoxelCoordDirectionVonNeumann[] path;
   TransferData transferData;
@@ -128,8 +129,8 @@ struct ChipOnPipeTransferData {
 }
 
 struct TransferCommonContext {
-  bytes32 playerEntityId;
-  bytes32 chestEntityId;
+  EntityId playerEntityId;
+  EntityId chestEntityId;
   VoxelCoord chestCoord;
   uint16 chestObjectTypeId;
   uint16 dstObjectTypeId;

@@ -25,12 +25,14 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
+import { EntityId } from "../EntityId.sol";
+
 contract MineSystem is System {
-  function mineObjectAtCoord(VoxelCoord memory coord) internal returns (bytes32, uint16) {
+  function mineObjectAtCoord(VoxelCoord memory coord) internal returns (EntityId, uint16) {
     require(inWorldBorder(coord), "Cannot mine outside the world border");
 
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId != bytes32(0), "Cannot mine an unrevealed block");
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    require(entityId.exists(), "Cannot mine an unrevealed block");
     uint16 mineObjectTypeId = ObjectType._get(entityId);
     address chipAddress = Chip._get(entityId);
     require(chipAddress == address(0), "Cannot mine a chipped block");
@@ -52,16 +54,16 @@ contract MineSystem is System {
   }
 
   function mineWithExtraData(VoxelCoord memory coord, bytes memory extraData) public payable {
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    (bytes32 firstEntityId, uint16 mineObjectTypeId) = mineObjectAtCoord(coord);
+    (EntityId firstEntityId, uint16 mineObjectTypeId) = mineObjectAtCoord(coord);
     uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(mineObjectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
 
     VoxelCoord memory baseCoord = coord;
-    bytes32 baseEntityId = BaseEntity._get(firstEntityId);
-    if (baseEntityId != bytes32(0)) {
+    EntityId baseEntityId = BaseEntity._get(firstEntityId);
+    if (baseEntityId.exists()) {
       baseCoord = positionDataToVoxelCoord(Position._get(baseEntityId));
       mineObjectAtCoord(baseCoord);
       BaseEntity._deleteRecord(firstEntityId);
@@ -80,7 +82,7 @@ contract MineSystem is System {
         if (voxelCoordsAreEqual(relativeCoord, coord)) {
           continue;
         }
-        (bytes32 relativeEntityId, ) = mineObjectAtCoord(relativeCoord);
+        (EntityId relativeEntityId, ) = mineObjectAtCoord(relativeCoord);
         BaseEntity._deleteRecord(relativeEntityId);
       }
     }
@@ -92,8 +94,8 @@ contract MineSystem is System {
 
     for (uint256 i = 0; i < coords.length; i++) {
       VoxelCoord memory aboveCoord = VoxelCoord(coords[i].x, coords[i].y + 1, coords[i].z);
-      bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-      if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+      EntityId aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+      if (aboveEntityId.exists() && ObjectType._get(aboveEntityId) == PlayerObjectID) {
         callGravity(aboveEntityId, aboveCoord);
       }
     }
@@ -102,7 +104,7 @@ contract MineSystem is System {
       playerEntityId,
       PlayerActionNotifData({
         actionType: ActionType.Mine,
-        entityId: baseEntityId != bytes32(0) ? baseEntityId : firstEntityId,
+        entityId: baseEntityId.exists() ? baseEntityId : firstEntityId,
         objectTypeId: mineObjectTypeId,
         coordX: baseCoord.x,
         coordY: baseCoord.y,
@@ -114,7 +116,7 @@ contract MineSystem is System {
     callInternalSystem(
       abi.encodeCall(
         IForceFieldSystem.requireMinesAllowed,
-        (playerEntityId, baseEntityId != bytes32(0) ? baseEntityId : firstEntityId, mineObjectTypeId, coords, extraData)
+        (playerEntityId, baseEntityId.exists() ? baseEntityId : firstEntityId, mineObjectTypeId, coords, extraData)
       ),
       _msgValue()
     );
