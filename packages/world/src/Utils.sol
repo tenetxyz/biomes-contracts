@@ -85,6 +85,7 @@ function safeCallChip(address chipAddress, bytes memory callData) {
   if (chipAddress == address(0)) {
     return;
   }
+  // TODO: pass in a fixed amount of gas
   (bool success, ) = chipAddress.call{ value: WorldContextConsumerLib._msgValue() }(callData);
   if (!success) {
     // Note: we want the TX to revert if the chip call runs out of gas, but because

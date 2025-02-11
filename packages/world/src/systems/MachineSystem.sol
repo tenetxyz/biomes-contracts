@@ -16,7 +16,7 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { safeCallChip } from "../Utils.sol";
 
-import { IChip } from "../prototypes/IChip.sol";
+import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
 contract MachineSystem is System {
   function powerMachine(bytes32 entityId, uint16 numBattery) public {
@@ -50,7 +50,7 @@ contract MachineSystem is System {
 
     safeCallChip(
       Chip._getChipAddress(baseEntityId),
-      abi.encodeCall(IChip.onPowered, (playerEntityId, baseEntityId, numBattery))
+      abi.encodeCall(IForceFieldChip.onPowered, (playerEntityId, baseEntityId, numBattery))
     );
   }
 }

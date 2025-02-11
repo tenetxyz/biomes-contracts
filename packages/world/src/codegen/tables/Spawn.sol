@@ -74,13 +74,6 @@ library Spawn {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
-   */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
    * @notice Get initialized.
    */
   function getInitialized(int32 x, int32 z) internal view returns (bool initialized) {
@@ -105,18 +98,6 @@ library Spawn {
   }
 
   /**
-   * @notice Get initialized (using the specified store).
-   */
-  function getInitialized(IStore _store, int32 x, int32 z) internal view returns (bool initialized) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
-  }
-
-  /**
    * @notice Set initialized.
    */
   function setInitialized(int32 x, int32 z, bool initialized) internal {
@@ -136,17 +117,6 @@ library Spawn {
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((initialized)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set initialized (using the specified store).
-   */
-  function setInitialized(IStore _store, int32 x, int32 z, bool initialized) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((initialized)), _fieldLayout);
   }
 
   /**
@@ -174,18 +144,6 @@ library Spawn {
   }
 
   /**
-   * @notice Get spawnLowX (using the specified store).
-   */
-  function getSpawnLowX(IStore _store, int32 x, int32 z) internal view returns (int32 spawnLowX) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (int32(uint32(bytes4(_blob))));
-  }
-
-  /**
    * @notice Set spawnLowX.
    */
   function setSpawnLowX(int32 x, int32 z, int32 spawnLowX) internal {
@@ -205,17 +163,6 @@ library Spawn {
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((spawnLowX)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set spawnLowX (using the specified store).
-   */
-  function setSpawnLowX(IStore _store, int32 x, int32 z, int32 spawnLowX) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    _store.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((spawnLowX)), _fieldLayout);
   }
 
   /**
@@ -243,18 +190,6 @@ library Spawn {
   }
 
   /**
-   * @notice Get spawnHighX (using the specified store).
-   */
-  function getSpawnHighX(IStore _store, int32 x, int32 z) internal view returns (int32 spawnHighX) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (int32(uint32(bytes4(_blob))));
-  }
-
-  /**
    * @notice Set spawnHighX.
    */
   function setSpawnHighX(int32 x, int32 z, int32 spawnHighX) internal {
@@ -274,17 +209,6 @@ library Spawn {
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((spawnHighX)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set spawnHighX (using the specified store).
-   */
-  function setSpawnHighX(IStore _store, int32 x, int32 z, int32 spawnHighX) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    _store.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((spawnHighX)), _fieldLayout);
   }
 
   /**
@@ -312,18 +236,6 @@ library Spawn {
   }
 
   /**
-   * @notice Get spawnLowZ (using the specified store).
-   */
-  function getSpawnLowZ(IStore _store, int32 x, int32 z) internal view returns (int32 spawnLowZ) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (int32(uint32(bytes4(_blob))));
-  }
-
-  /**
    * @notice Set spawnLowZ.
    */
   function setSpawnLowZ(int32 x, int32 z, int32 spawnLowZ) internal {
@@ -343,17 +255,6 @@ library Spawn {
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((spawnLowZ)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set spawnLowZ (using the specified store).
-   */
-  function setSpawnLowZ(IStore _store, int32 x, int32 z, int32 spawnLowZ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    _store.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((spawnLowZ)), _fieldLayout);
   }
 
   /**
@@ -381,18 +282,6 @@ library Spawn {
   }
 
   /**
-   * @notice Get spawnHighZ (using the specified store).
-   */
-  function getSpawnHighZ(IStore _store, int32 x, int32 z) internal view returns (int32 spawnHighZ) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
-    return (int32(uint32(bytes4(_blob))));
-  }
-
-  /**
    * @notice Set spawnHighZ.
    */
   function setSpawnHighZ(int32 x, int32 z, int32 spawnHighZ) internal {
@@ -412,17 +301,6 @@ library Spawn {
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((spawnHighZ)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set spawnHighZ (using the specified store).
-   */
-  function setSpawnHighZ(IStore _store, int32 x, int32 z, int32 spawnHighZ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    _store.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((spawnHighZ)), _fieldLayout);
   }
 
   /**
@@ -450,22 +328,6 @@ library Spawn {
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
-      _tableId,
-      _keyTuple,
-      _fieldLayout
-    );
-    return decode(_staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
-   * @notice Get the full data (using the specified store).
-   */
-  function get(IStore _store, int32 x, int32 z) internal view returns (SpawnData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = _store.getRecord(
       _tableId,
       _keyTuple,
       _fieldLayout
@@ -522,31 +384,6 @@ library Spawn {
   }
 
   /**
-   * @notice Set the full data using individual values (using the specified store).
-   */
-  function set(
-    IStore _store,
-    int32 x,
-    int32 z,
-    bool initialized,
-    int32 spawnLowX,
-    int32 spawnHighX,
-    int32 spawnLowZ,
-    int32 spawnHighZ
-  ) internal {
-    bytes memory _staticData = encodeStatic(initialized, spawnLowX, spawnHighX, spawnLowZ, spawnHighZ);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
    * @notice Set the full data using the data struct.
    */
   function set(int32 x, int32 z, SpawnData memory _table) internal {
@@ -588,28 +425,6 @@ library Spawn {
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
-  }
-
-  /**
-   * @notice Set the full data using the data struct (using the specified store).
-   */
-  function set(IStore _store, int32 x, int32 z, SpawnData memory _table) internal {
-    bytes memory _staticData = encodeStatic(
-      _table.initialized,
-      _table.spawnLowX,
-      _table.spawnHighX,
-      _table.spawnLowZ,
-      _table.spawnHighZ
-    );
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    _store.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
 
   /**
@@ -665,17 +480,6 @@ library Spawn {
     _keyTuple[1] = bytes32(uint256(int256(z)));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
-  }
-
-  /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, int32 x, int32 z) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(z)));
-
-    _store.deleteRecord(_tableId, _keyTuple);
   }
 
   /**

@@ -22,7 +22,7 @@ import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { isWhacker } from "../utils/ObjectTypeUtils.sol";
 import { positionDataToVoxelCoord, safeCallChip } from "../Utils.sol";
 
-import { IChip } from "../prototypes/IChip.sol";
+import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
 contract HitMachineSystem is System {
   function hitMachineCommon(bytes32 playerEntityId, bytes32 machineEntityId, VoxelCoord memory machineCoord) internal {
@@ -57,7 +57,7 @@ contract HitMachineSystem is System {
 
     safeCallChip(
       Chip._getChipAddress(machineEntityId),
-      abi.encodeCall(IChip.onChipHit, (playerEntityId, machineEntityId))
+      abi.encodeCall(IForceFieldChip.onForceFieldHit, (playerEntityId, machineEntityId))
     );
   }
 

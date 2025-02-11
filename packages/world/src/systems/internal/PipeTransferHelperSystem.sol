@@ -22,7 +22,7 @@ import { getForceField } from "../../utils/ForceFieldUtils.sol";
 import { isStorageContainer } from "../../utils/ObjectTypeUtils.sol";
 import { transferInventoryTool, transferInventoryNonTool, addToInventoryCount, removeFromInventoryCount } from "../../utils/InventoryUtils.sol";
 
-import { IChip } from "../../prototypes/IChip.sol";
+import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 
 contract PipeTransferHelperSystem is System {
   function requireValidPath(
@@ -107,7 +107,7 @@ contract PipeTransferHelperSystem is System {
           safeCallChip(
             chipAddress,
             abi.encodeCall(
-              IChip.onPowered,
+              IForceFieldChip.onPowered,
               (callerEntityId, pipeTransferData.targetEntityId, pipeTransferData.transferData.numToTransfer)
             )
           );

@@ -252,9 +252,6 @@ export default defineWorld({
         spawnHighZ: "int32",
       },
       key: ["x", "z"],
-      codegen: {
-        storeArgument: true,
-      },
     },
     // ------------------------------------------------------------
     // Ores
