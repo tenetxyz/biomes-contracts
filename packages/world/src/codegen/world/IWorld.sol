@@ -26,7 +26,6 @@ import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
 import { IAdminHookSystem } from "./IAdminHookSystem.sol";
 import { IAdminSpawnSystem } from "./IAdminSpawnSystem.sol";
-import { IInitSpawnSystem } from "./IInitSpawnSystem.sol";
 import { IOracleSystem } from "./IOracleSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
 import { IReadTwoSystem } from "./IReadTwoSystem.sol";
@@ -74,7 +73,6 @@ interface IWorld is
   IUnequipSystem,
   IAdminHookSystem,
   IAdminSpawnSystem,
-  IInitSpawnSystem,
   IOracleSystem,
   IReadSystem,
   IReadTwoSystem,

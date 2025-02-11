@@ -10,22 +10,35 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
+import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
+import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ActionType } from "../codegen/common.sol";
 
+import { WORLD_DIM_X, WORLD_DIM_Z, SPAWN_ENERGY, SPAWN_SHARD_DIM } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder, inSpawnArea } from "../Utils.sol";
+import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
+import { coordToShardCoordIgnoreY } from "../utils/VoxelCoordUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
 contract SpawnSystem is System {
-  function spawnPlayer(VoxelCoord memory spawnCoord) public returns (EntityId) {
+  function randomSpawn(uint256 blockNumber, int32 y) public returns (EntityId) {
     checkWorldStatus();
+
+    VoxelCoord memory spawnCoord;
+    spawnCoord.y = y;
+
+    uint256 randX = uint256(keccak256(abi.encodePacked(blockhash(blockNumber), _msgSender())));
+    uint256 randZ = uint256(keccak256(abi.encodePacked(randX)));
+    spawnCoord.x = int32(int256(randX % uint256(int256(WORLD_DIM_X)))) - WORLD_DIM_X / 2;
+    spawnCoord.z = int32(int256(randZ % uint256(int256(WORLD_DIM_X)))) - WORLD_DIM_X / 2;
+
+    // TODO: this is not really necessary
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
-    require(inSpawnArea(spawnCoord), "Cannot spawn outside the spawn area");
 
     address newPlayer = _msgSender();
     require(!Player._get(newPlayer).exists(), "Player already spawned");
@@ -49,8 +62,12 @@ contract SpawnSystem is System {
     Player._set(newPlayer, playerEntityId);
     ReversePlayer._set(playerEntityId, newPlayer);
 
-    // TODO: set initial mass and energy
-    Energy._set(playerEntityId, EnergyData({ energy: 100, lastUpdatedTime: uint128(block.timestamp) }));
+    VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
+    uint128 localEnergy = LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z);
+    require(localEnergy >= SPAWN_ENERGY, "Not enough energy in local energy pool");
+    LocalEnergyPool._set(shardCoord.x, 0, shardCoord.z, localEnergy - SPAWN_ENERGY);
+    Energy._set(playerEntityId, EnergyData({ energy: SPAWN_ENERGY, lastUpdatedTime: uint128(block.timestamp) }));
+    // TODO: check how mass should work
     Mass._set(playerEntityId, 10);
 
     PlayerActivity._set(playerEntityId, uint128(block.timestamp));

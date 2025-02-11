@@ -12,13 +12,11 @@ import { Position, PositionData } from "./codegen/tables/Position.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
 import { UniqueEntity } from "./codegen/tables/UniqueEntity.sol";
-import { Spawn, SpawnData } from "./codegen/tables/Spawn.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
 import { BlockHash } from "./codegen/tables/BlockHash.sol";
 import { BlockPrevrandao } from "./codegen/tables/BlockPrevrandao.sol";
 import { WorldStatus } from "./codegen/tables/WorldStatus.sol";
-import { SPAWN_SHARD_DIM } from "./Constants.sol";
-import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "./Constants.sol";
+import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z, SPAWN_SHARD_DIM } from "./Constants.sol";
 import { AirObjectID, WaterObjectID } from "./ObjectTypeIds.sol";
 
 import { IGravitySystem } from "./codegen/world/IGravitySystem.sol";
@@ -33,7 +31,7 @@ function lastKnownPositionDataToVoxelCoord(LastKnownPositionData memory coord) p
   return VoxelCoord(coord.x, coord.y, coord.z);
 }
 
-function checkWorldStatus() {
+function checkWorldStatus() view {
   require(!WorldStatus._getInMaintenance(), "Biomes is in maintenance mode. Try again later");
 }
 
@@ -45,20 +43,6 @@ function inWorldBorder(VoxelCoord memory coord) pure returns (bool) {
     coord.y <= WORLD_BORDER_HIGH_Y &&
     coord.z >= WORLD_BORDER_LOW_Z &&
     coord.z <= WORLD_BORDER_HIGH_Z;
-}
-
-function inSpawnArea(VoxelCoord memory coord) view returns (bool) {
-  VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(coord, SPAWN_SHARD_DIM);
-  SpawnData memory spawnData = Spawn._get(shardCoord.x, shardCoord.z);
-  if (!spawnData.initialized) {
-    return false;
-  }
-
-  return
-    coord.x >= spawnData.spawnLowX &&
-    coord.x <= spawnData.spawnHighX &&
-    coord.z >= spawnData.spawnLowZ &&
-    coord.z <= spawnData.spawnHighZ;
 }
 
 function callGravity(EntityId playerEntityId, VoxelCoord memory playerCoord) returns (bool) {
