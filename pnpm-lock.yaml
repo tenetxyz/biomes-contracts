@@ -91,54 +91,6 @@ importers:
         specifier: 8.3.0
         version: 8.3.0(tsx@4.7.2)(typescript@5.4.2)
 
-  packages/scripts:
-    dependencies:
-      '@biomesaw/experience':
-        specifier: workspace:*
-        version: link:../experience
-      '@biomesaw/world':
-        specifier: workspace:*
-        version: link:../world
-      '@latticexyz/common':
-        specifier: link:../../../mud/packages/common
-        version: link:../../../mud/packages/common
-      '@latticexyz/noise':
-        specifier: link:../../../noise
-        version: link:../../../noise
-      '@latticexyz/store':
-        specifier: link:../../../mud/packages/store
-        version: link:../../../mud/packages/store
-      '@latticexyz/store-sync':
-        specifier: link:../../../mud/packages/store-sync
-        version: link:../../../mud/packages/store-sync
-      '@latticexyz/utils':
-        specifier: link:../../../mud/packages/utils
-        version: link:../../../mud/packages/utils
-      '@latticexyz/world-modules':
-        specifier: link:../../../mud/packages/world-modules
-        version: link:../../../mud/packages/world-modules
-      csv-parser:
-        specifier: ^3.0.0
-        version: 3.0.0
-      dotenv:
-        specifier: ^16.3.1
-        version: 16.4.5
-      ethers:
-        specifier: ^5.7.2
-        version: 5.7.2
-      p-limit:
-        specifier: ^6.1.0
-        version: 6.1.0
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-      tsx:
-        specifier: ^4.7.2
-        version: 4.7.2
-      viem:
-        specifier: 2.21.19
-        version: 2.21.19(typescript@5.4.2)
-
   packages/world:
     dependencies:
       '@latticexyz/cli':
@@ -193,6 +145,54 @@ importers:
       tsx:
         specifier: ^4.7.2
         version: 4.7.2
+
+  scripts:
+    dependencies:
+      '@biomesaw/experience':
+        specifier: link:../experience
+        version: link:../experience
+      '@biomesaw/world':
+        specifier: link:../world
+        version: link:../world
+      '@latticexyz/common':
+        specifier: link:../../mud/packages/common
+        version: link:../../mud/packages/common
+      '@latticexyz/noise':
+        specifier: link:../../noise
+        version: link:../../noise
+      '@latticexyz/store':
+        specifier: link:../../mud/packages/store
+        version: link:../../mud/packages/store
+      '@latticexyz/store-sync':
+        specifier: link:../../mud/packages/store-sync
+        version: link:../../mud/packages/store-sync
+      '@latticexyz/utils':
+        specifier: link:../../mud/packages/utils
+        version: link:../../mud/packages/utils
+      '@latticexyz/world-modules':
+        specifier: link:../../mud/packages/world-modules
+        version: link:../../mud/packages/world-modules
+      csv-parser:
+        specifier: ^3.0.0
+        version: 3.2.0
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.4.7
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
+      p-limit:
+        specifier: ^6.1.0
+        version: 6.2.0
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      tsx:
+        specifier: ^4.7.2
+        version: 4.7.2
+      viem:
+        specifier: 2.21.19
+        version: 2.21.19(typescript@5.4.2)
 
 packages:
 
@@ -941,8 +941,8 @@ packages:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
 
-  bn.js@4.12.0:
-    resolution: {integrity: sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==}
+  bn.js@4.12.1:
+    resolution: {integrity: sha512-k8TVBiPkPJT9uHLdOKfFpqcfprwBFOAAXXozRubr7R7PfIuKvQlzcI4M0pALeqXN09vdaMbUdUj+pass+uULAg==}
 
   bn.js@5.2.1:
     resolution: {integrity: sha512-eXRvHzWyYPBuB4NBy0cmYQjGitUrtqwbvlzP3G6VFnNRbsZQIxQ10PbKKHt8gZ/HW/D/747aDl+QkDqg3KQLMQ==}
@@ -1027,8 +1027,8 @@ packages:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
 
-  csv-parser@3.0.0:
-    resolution: {integrity: sha512-s6OYSXAK3IdKqYO33y09jhypG/bSDHPuyCme/IdEHfWpLf/jKcpitVFyOC6UemgGk8v7Q5u2XE0vvwmanxhGlQ==}
+  csv-parser@3.2.0:
+    resolution: {integrity: sha512-fgKbp+AJbn1h2dcAHKIdKNSSjfp43BZZykXsCjzALjKy80VXQNHPFJ6T9Afwdzoj24aMkq8GwDS7KGcDPpejrA==}
     engines: {node: '>= 10'}
     hasBin: true
 
@@ -1061,8 +1061,8 @@ packages:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
 
-  dotenv@16.4.5:
-    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
+  dotenv@16.4.7:
+    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
 
   ds-test@https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0:
@@ -1496,8 +1496,8 @@ packages:
     resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
     engines: {node: '>=10'}
 
-  p-limit@6.1.0:
-    resolution: {integrity: sha512-H0jc0q1vOzlEk0TqAKXKZxdl7kX3OFUzCnNVUnq5Pc3DGo0kpeaMuPqxQn235HibwBEb0/pm9dgKTjXy66fBkg==}
+  p-limit@6.2.0:
+    resolution: {integrity: sha512-kuUqqHNUqoIWp/c467RI4X6mmyuojY5jGutNU0wVTmEOOfcuwLqyMVoAi9MKi2Ak+5i9+nhmrK4ufZE8069kHA==}
     engines: {node: '>=18'}
 
   p-locate@5.0.0:
@@ -2642,7 +2642,7 @@ snapshots:
 
   binary-extensions@2.2.0: {}
 
-  bn.js@4.12.0: {}
+  bn.js@4.12.1: {}
 
   bn.js@5.2.1: {}
 
@@ -2728,9 +2728,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  csv-parser@3.0.0:
-    dependencies:
-      minimist: 1.2.8
+  csv-parser@3.2.0: {}
 
   debug@4.3.4:
     dependencies:
@@ -2750,7 +2748,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dotenv@16.4.5: {}
+  dotenv@16.4.7: {}
 
   ds-test@https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0: {}
 
@@ -2758,7 +2756,7 @@ snapshots:
 
   elliptic@6.5.4:
     dependencies:
-      bn.js: 4.12.0
+      bn.js: 4.12.1
       brorand: 1.1.0
       hash.js: 1.1.7
       hmac-drbg: 1.0.1
@@ -3264,7 +3262,7 @@ snapshots:
     dependencies:
       yocto-queue: 0.1.0
 
-  p-limit@6.1.0:
+  p-limit@6.2.0:
     dependencies:
       yocto-queue: 1.1.1
 
