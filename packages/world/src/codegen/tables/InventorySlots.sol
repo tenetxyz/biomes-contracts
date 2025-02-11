@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "../../EntityId.sol";
+
 library InventorySlots {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "InventorySlots", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000496e76656e746f7279536c6f74730000);
@@ -63,9 +66,9 @@ library InventorySlots {
   /**
    * @notice Get numSlotsUsed.
    */
-  function getNumSlotsUsed(bytes32 ownerEntityId) internal view returns (uint16 numSlotsUsed) {
+  function getNumSlotsUsed(EntityId ownerEntityId) internal view returns (uint16 numSlotsUsed) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint16(bytes2(_blob)));
@@ -74,9 +77,9 @@ library InventorySlots {
   /**
    * @notice Get numSlotsUsed.
    */
-  function _getNumSlotsUsed(bytes32 ownerEntityId) internal view returns (uint16 numSlotsUsed) {
+  function _getNumSlotsUsed(EntityId ownerEntityId) internal view returns (uint16 numSlotsUsed) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint16(bytes2(_blob)));
@@ -85,9 +88,9 @@ library InventorySlots {
   /**
    * @notice Get numSlotsUsed.
    */
-  function get(bytes32 ownerEntityId) internal view returns (uint16 numSlotsUsed) {
+  function get(EntityId ownerEntityId) internal view returns (uint16 numSlotsUsed) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint16(bytes2(_blob)));
@@ -96,9 +99,9 @@ library InventorySlots {
   /**
    * @notice Get numSlotsUsed.
    */
-  function _get(bytes32 ownerEntityId) internal view returns (uint16 numSlotsUsed) {
+  function _get(EntityId ownerEntityId) internal view returns (uint16 numSlotsUsed) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint16(bytes2(_blob)));
@@ -107,9 +110,9 @@ library InventorySlots {
   /**
    * @notice Set numSlotsUsed.
    */
-  function setNumSlotsUsed(bytes32 ownerEntityId, uint16 numSlotsUsed) internal {
+  function setNumSlotsUsed(EntityId ownerEntityId, uint16 numSlotsUsed) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numSlotsUsed)), _fieldLayout);
   }
@@ -117,9 +120,9 @@ library InventorySlots {
   /**
    * @notice Set numSlotsUsed.
    */
-  function _setNumSlotsUsed(bytes32 ownerEntityId, uint16 numSlotsUsed) internal {
+  function _setNumSlotsUsed(EntityId ownerEntityId, uint16 numSlotsUsed) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numSlotsUsed)), _fieldLayout);
   }
@@ -127,9 +130,9 @@ library InventorySlots {
   /**
    * @notice Set numSlotsUsed.
    */
-  function set(bytes32 ownerEntityId, uint16 numSlotsUsed) internal {
+  function set(EntityId ownerEntityId, uint16 numSlotsUsed) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numSlotsUsed)), _fieldLayout);
   }
@@ -137,9 +140,9 @@ library InventorySlots {
   /**
    * @notice Set numSlotsUsed.
    */
-  function _set(bytes32 ownerEntityId, uint16 numSlotsUsed) internal {
+  function _set(EntityId ownerEntityId, uint16 numSlotsUsed) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((numSlotsUsed)), _fieldLayout);
   }
@@ -147,9 +150,9 @@ library InventorySlots {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 ownerEntityId) internal {
+  function deleteRecord(EntityId ownerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -157,9 +160,9 @@ library InventorySlots {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 ownerEntityId) internal {
+  function _deleteRecord(EntityId ownerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -190,9 +193,9 @@ library InventorySlots {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 ownerEntityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId ownerEntityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     return _keyTuple;
   }

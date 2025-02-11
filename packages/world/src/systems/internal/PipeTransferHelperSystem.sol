@@ -34,7 +34,7 @@ contract PipeTransferHelperSystem is System {
     VoxelCoord[] memory pathCoords = new VoxelCoord[](path.length);
     for (uint i = 0; i < path.length; i++) {
       pathCoords[i] = transformVoxelCoordVonNeumann(i == 0 ? srcCoord : pathCoords[i - 1], path[i]);
-      bytes32 pathEntityId = ReversePosition._get(pathCoords[i].x, pathCoords[i].y, pathCoords[i].z);
+      EntityId pathEntityId = ReversePosition._get(pathCoords[i].x, pathCoords[i].y, pathCoords[i].z);
       require(pathEntityId != bytes32(0), "Path coord is not in the world");
       require(ObjectType._get(pathEntityId) == PipeObjectID, "Path coord is not a pipe");
     }

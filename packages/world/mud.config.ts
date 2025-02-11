@@ -29,6 +29,9 @@ export default defineWorld({
     ],
     DisplayContentType: ["None", "Text", "Image"],
   },
+  userTypes: {
+    EntityId: { filePath: "./src/EntityId.sol", type: "bytes32" },
+  },
   tables: {
     // ------------------------------------------------------------
     // Static Data
@@ -79,14 +82,14 @@ export default defineWorld({
     // ------------------------------------------------------------
     ObjectType: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         objectTypeId: "uint16",
       },
       key: ["entityId"],
     },
     Position: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         x: "int32",
         y: "int32",
         z: "int32",
@@ -98,20 +101,20 @@ export default defineWorld({
         x: "int32",
         y: "int32",
         z: "int32",
-        entityId: "bytes32",
+        entityId: "EntityId",
       },
       key: ["x", "y", "z"],
     },
     Mass: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         mass: "uint128",
       },
       key: ["entityId"],
     },
     Energy: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         lastUpdatedTime: "uint128",
         energy: "uint128",
       },
@@ -131,21 +134,21 @@ export default defineWorld({
     // ------------------------------------------------------------
     InventorySlots: {
       schema: {
-        ownerEntityId: "bytes32",
+        ownerEntityId: "EntityId",
         numSlotsUsed: "uint16",
       },
       key: ["ownerEntityId"],
     },
     InventoryObjects: {
       schema: {
-        ownerEntityId: "bytes32",
+        ownerEntityId: "EntityId",
         objectTypeIds: "uint16[]",
       },
       key: ["ownerEntityId"],
     },
     InventoryCount: {
       schema: {
-        ownerEntityId: "bytes32",
+        ownerEntityId: "EntityId",
         objectTypeId: "uint16",
         count: "uint16",
       },
@@ -153,22 +156,22 @@ export default defineWorld({
     },
     InventoryTool: {
       schema: {
-        toolEntityId: "bytes32",
-        ownerEntityId: "bytes32",
+        toolEntityId: "EntityId",
+        ownerEntityId: "EntityId",
       },
       key: ["toolEntityId"],
     },
     ReverseInventoryTool: {
       schema: {
-        ownerEntityId: "bytes32",
+        ownerEntityId: "EntityId",
         toolEntityIds: "bytes32[]",
       },
       key: ["ownerEntityId"],
     },
     Equipped: {
       schema: {
-        ownerEntityId: "bytes32",
-        toolEntityId: "bytes32",
+        ownerEntityId: "EntityId",
+        toolEntityId: "EntityId",
       },
       key: ["ownerEntityId"],
     },
@@ -178,34 +181,34 @@ export default defineWorld({
     Player: {
       schema: {
         player: "address",
-        entityId: "bytes32",
+        entityId: "EntityId",
       },
       key: ["player"],
     },
     ReversePlayer: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         player: "address",
       },
       key: ["entityId"],
     },
     PlayerActivity: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         lastActionTime: "uint128",
       },
       key: ["entityId"],
     },
     PlayerStatus: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         isLoggedOff: "bool",
       },
       key: ["entityId"],
     },
     LastKnownPosition: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         x: "int32",
         y: "int32",
         z: "int32",
@@ -217,7 +220,7 @@ export default defineWorld({
     // ------------------------------------------------------------
     Chip: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         chipAddress: "address",
       },
       key: ["entityId"],
@@ -227,13 +230,13 @@ export default defineWorld({
         x: "int32",
         y: "int32",
         z: "int32",
-        forceFieldEntityId: "bytes32",
+        forceFieldEntityId: "EntityId",
       },
       key: ["x", "y", "z"],
     },
     DisplayContent: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         contentType: "DisplayContentType",
         content: "bytes",
       },
@@ -261,13 +264,13 @@ export default defineWorld({
         y: "int32",
         z: "int32",
         blockNumber: "uint256",
-        committerEntityId: "bytes32",
+        committerEntityId: "EntityId",
       },
       key: ["x", "y", "z"],
     },
     Commitment: {
       schema: {
-        entityId: "bytes32",
+        entityId: "EntityId",
         hasCommitted: "bool",
         x: "int32",
         y: "int32",
@@ -280,9 +283,9 @@ export default defineWorld({
     // ------------------------------------------------------------
     PlayerActionNotif: {
       schema: {
-        playerEntityId: "bytes32",
+        playerEntityId: "EntityId",
         actionType: "ActionType",
-        entityId: "bytes32",
+        entityId: "EntityId",
         objectTypeId: "uint16",
         coordX: "int32",
         coordY: "int32",
@@ -303,8 +306,8 @@ export default defineWorld({
     },
     BaseEntity: {
       schema: {
-        entityId: "bytes32",
-        baseEntityId: "bytes32",
+        entityId: "EntityId",
+        baseEntityId: "EntityId",
       },
       key: ["entityId"],
     },

@@ -10,8 +10,9 @@ import { ObjectCategory } from "../codegen/common.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 
 import { InventoryObject, InventoryTool } from "../Types.sol";
+import { EntityId } from "../EntityId.sol";
 
-function getEntityInventory(bytes32 entityId) view returns (InventoryObject[] memory) {
+function getEntityInventory(EntityId entityId) view returns (InventoryObject[] memory) {
   uint16[] memory objectTypeIds = InventoryObjects._get(entityId);
   InventoryObject[] memory inventoryObjects = new InventoryObject[](objectTypeIds.length);
   bytes32[] memory allInventoryTools = ReverseInventoryTool._get(entityId);
@@ -22,7 +23,7 @@ function getEntityInventory(bytes32 entityId) view returns (InventoryObject[] me
     uint256 numTools = 0;
     if (isTool) {
       for (uint256 j = 0; j < allInventoryTools.length; j++) {
-        if (ObjectType._get(allInventoryTools[j]) == objectTypeId) {
+        if (ObjectType._get(EntityId.wrap(allInventoryTools[j])) == objectTypeId) {
           numTools++;
         }
       }
@@ -31,10 +32,10 @@ function getEntityInventory(bytes32 entityId) view returns (InventoryObject[] me
     if (numTools > 0) {
       uint256 k = 0;
       for (uint256 j = 0; j < allInventoryTools.length; j++) {
-        if (ObjectType._get(allInventoryTools[j]) == objectTypeId) {
+        if (ObjectType._get(EntityId.wrap(allInventoryTools[j])) == objectTypeId) {
           inventoryTools[k] = InventoryTool({
             entityId: allInventoryTools[j],
-            numUsesLeft: Mass._getMass(allInventoryTools[j])
+            numUsesLeft: Mass._getMass(EntityId.wrap(allInventoryTools[j]))
           });
           k++;
         }

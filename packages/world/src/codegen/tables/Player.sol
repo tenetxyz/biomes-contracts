@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "../../EntityId.sol";
+
 library Player {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Player", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000506c6179657200000000000000000000);
@@ -63,85 +66,85 @@ library Player {
   /**
    * @notice Get entityId.
    */
-  function getEntityId(address player) internal view returns (bytes32 entityId) {
+  function getEntityId(address player) internal view returns (EntityId entityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(player)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
    * @notice Get entityId.
    */
-  function _getEntityId(address player) internal view returns (bytes32 entityId) {
+  function _getEntityId(address player) internal view returns (EntityId entityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(player)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
    * @notice Get entityId.
    */
-  function get(address player) internal view returns (bytes32 entityId) {
+  function get(address player) internal view returns (EntityId entityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(player)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
    * @notice Get entityId.
    */
-  function _get(address player) internal view returns (bytes32 entityId) {
+  function _get(address player) internal view returns (EntityId entityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(player)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
    * @notice Set entityId.
    */
-  function setEntityId(address player, bytes32 entityId) internal {
+  function setEntityId(address player, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(player)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
 
   /**
    * @notice Set entityId.
    */
-  function _setEntityId(address player, bytes32 entityId) internal {
+  function _setEntityId(address player, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(player)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
 
   /**
    * @notice Set entityId.
    */
-  function set(address player, bytes32 entityId) internal {
+  function set(address player, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(player)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
 
   /**
    * @notice Set entityId.
    */
-  function _set(address player, bytes32 entityId) internal {
+  function _set(address player, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(player)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
 
   /**
@@ -168,7 +171,7 @@ library Player {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(bytes32 entityId) internal pure returns (bytes memory) {
+  function encodeStatic(EntityId entityId) internal pure returns (bytes memory) {
     return abi.encodePacked(entityId);
   }
 
@@ -178,7 +181,7 @@ library Player {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(bytes32 entityId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+  function encode(EntityId entityId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(entityId);
 
     EncodedLengths _encodedLengths;

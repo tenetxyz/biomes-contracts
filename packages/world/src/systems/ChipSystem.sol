@@ -22,13 +22,13 @@ import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
+import { EntityId } from "../EntityId.sol";
 
 contract ChipSystem is System {
-  function attachChipWithExtraData(bytes32 entityId, address chipAddress, bytes memory extraData) public payable {
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+  function attachChipWithExtraData(EntityId entityId, address chipAddress, bytes memory extraData) public payable {
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
-    bytes32 baseEntityId = BaseEntity._get(entityId);
-    baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+    EntityId baseEntityId = entityId.baseEntityId();
 
     uint16 objectTypeId = ObjectType._get(baseEntityId);
     require(Chip._getChipAddress(baseEntityId) == address(0), "Chip already attached");
@@ -75,19 +75,18 @@ contract ChipSystem is System {
     require(isAllowed, "Chip does not allow attachment");
   }
 
-  function detachChipWithExtraData(bytes32 entityId, bytes memory extraData) public payable {
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+  function detachChipWithExtraData(EntityId entityId, bytes memory extraData) public payable {
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
-    bytes32 baseEntityId = BaseEntity._get(entityId);
-    baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+    EntityId baseEntityId = entityId.baseEntityId();
 
     address chipAddress = Chip._getChipAddress(baseEntityId);
     require(chipAddress != address(0), "No chip attached");
 
     uint16 objectTypeId = ObjectType._get(baseEntityId);
-    bytes32 forceFieldEntityId = getForceField(entityCoord);
+    EntityId forceFieldEntityId = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
-    if (forceFieldEntityId != bytes32(0)) {
+    if (forceFieldEntityId.exists()) {
       machineEnergyLevel = updateMachineEnergyLevel(forceFieldEntityId).energy;
     }
 
@@ -117,11 +116,11 @@ contract ChipSystem is System {
     }
   }
 
-  function attachChip(bytes32 entityId, address chipAddress) public {
+  function attachChip(EntityId entityId, address chipAddress) public {
     attachChipWithExtraData(entityId, chipAddress, new bytes(0));
   }
 
-  function detachChip(bytes32 entityId) public {
+  function detachChip(EntityId entityId) public {
     detachChipWithExtraData(entityId, new bytes(0));
   }
 }

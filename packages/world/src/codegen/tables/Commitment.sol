@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "../../EntityId.sol";
+
 struct CommitmentData {
   bool hasCommitted;
   int32 x;
@@ -73,9 +76,9 @@ library Commitment {
   /**
    * @notice Get hasCommitted.
    */
-  function getHasCommitted(bytes32 entityId) internal view returns (bool hasCommitted) {
+  function getHasCommitted(EntityId entityId) internal view returns (bool hasCommitted) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -84,9 +87,9 @@ library Commitment {
   /**
    * @notice Get hasCommitted.
    */
-  function _getHasCommitted(bytes32 entityId) internal view returns (bool hasCommitted) {
+  function _getHasCommitted(EntityId entityId) internal view returns (bool hasCommitted) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -95,9 +98,9 @@ library Commitment {
   /**
    * @notice Set hasCommitted.
    */
-  function setHasCommitted(bytes32 entityId, bool hasCommitted) internal {
+  function setHasCommitted(EntityId entityId, bool hasCommitted) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((hasCommitted)), _fieldLayout);
   }
@@ -105,9 +108,9 @@ library Commitment {
   /**
    * @notice Set hasCommitted.
    */
-  function _setHasCommitted(bytes32 entityId, bool hasCommitted) internal {
+  function _setHasCommitted(EntityId entityId, bool hasCommitted) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((hasCommitted)), _fieldLayout);
   }
@@ -115,9 +118,9 @@ library Commitment {
   /**
    * @notice Get x.
    */
-  function getX(bytes32 entityId) internal view returns (int32 x) {
+  function getX(EntityId entityId) internal view returns (int32 x) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (int32(uint32(bytes4(_blob))));
@@ -126,9 +129,9 @@ library Commitment {
   /**
    * @notice Get x.
    */
-  function _getX(bytes32 entityId) internal view returns (int32 x) {
+  function _getX(EntityId entityId) internal view returns (int32 x) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (int32(uint32(bytes4(_blob))));
@@ -137,9 +140,9 @@ library Commitment {
   /**
    * @notice Set x.
    */
-  function setX(bytes32 entityId, int32 x) internal {
+  function setX(EntityId entityId, int32 x) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((x)), _fieldLayout);
   }
@@ -147,9 +150,9 @@ library Commitment {
   /**
    * @notice Set x.
    */
-  function _setX(bytes32 entityId, int32 x) internal {
+  function _setX(EntityId entityId, int32 x) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((x)), _fieldLayout);
   }
@@ -157,9 +160,9 @@ library Commitment {
   /**
    * @notice Get y.
    */
-  function getY(bytes32 entityId) internal view returns (int32 y) {
+  function getY(EntityId entityId) internal view returns (int32 y) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (int32(uint32(bytes4(_blob))));
@@ -168,9 +171,9 @@ library Commitment {
   /**
    * @notice Get y.
    */
-  function _getY(bytes32 entityId) internal view returns (int32 y) {
+  function _getY(EntityId entityId) internal view returns (int32 y) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (int32(uint32(bytes4(_blob))));
@@ -179,9 +182,9 @@ library Commitment {
   /**
    * @notice Set y.
    */
-  function setY(bytes32 entityId, int32 y) internal {
+  function setY(EntityId entityId, int32 y) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((y)), _fieldLayout);
   }
@@ -189,9 +192,9 @@ library Commitment {
   /**
    * @notice Set y.
    */
-  function _setY(bytes32 entityId, int32 y) internal {
+  function _setY(EntityId entityId, int32 y) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((y)), _fieldLayout);
   }
@@ -199,9 +202,9 @@ library Commitment {
   /**
    * @notice Get z.
    */
-  function getZ(bytes32 entityId) internal view returns (int32 z) {
+  function getZ(EntityId entityId) internal view returns (int32 z) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (int32(uint32(bytes4(_blob))));
@@ -210,9 +213,9 @@ library Commitment {
   /**
    * @notice Get z.
    */
-  function _getZ(bytes32 entityId) internal view returns (int32 z) {
+  function _getZ(EntityId entityId) internal view returns (int32 z) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (int32(uint32(bytes4(_blob))));
@@ -221,9 +224,9 @@ library Commitment {
   /**
    * @notice Set z.
    */
-  function setZ(bytes32 entityId, int32 z) internal {
+  function setZ(EntityId entityId, int32 z) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((z)), _fieldLayout);
   }
@@ -231,9 +234,9 @@ library Commitment {
   /**
    * @notice Set z.
    */
-  function _setZ(bytes32 entityId, int32 z) internal {
+  function _setZ(EntityId entityId, int32 z) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((z)), _fieldLayout);
   }
@@ -241,9 +244,9 @@ library Commitment {
   /**
    * @notice Get the full data.
    */
-  function get(bytes32 entityId) internal view returns (CommitmentData memory _table) {
+  function get(EntityId entityId) internal view returns (CommitmentData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
       _tableId,
@@ -256,9 +259,9 @@ library Commitment {
   /**
    * @notice Get the full data.
    */
-  function _get(bytes32 entityId) internal view returns (CommitmentData memory _table) {
+  function _get(EntityId entityId) internal view returns (CommitmentData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
       _tableId,
@@ -271,14 +274,14 @@ library Commitment {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 entityId, bool hasCommitted, int32 x, int32 y, int32 z) internal {
+  function set(EntityId entityId, bool hasCommitted, int32 x, int32 y, int32 z) internal {
     bytes memory _staticData = encodeStatic(hasCommitted, x, y, z);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -286,14 +289,14 @@ library Commitment {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 entityId, bool hasCommitted, int32 x, int32 y, int32 z) internal {
+  function _set(EntityId entityId, bool hasCommitted, int32 x, int32 y, int32 z) internal {
     bytes memory _staticData = encodeStatic(hasCommitted, x, y, z);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -301,14 +304,14 @@ library Commitment {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(bytes32 entityId, CommitmentData memory _table) internal {
+  function set(EntityId entityId, CommitmentData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.hasCommitted, _table.x, _table.y, _table.z);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -316,14 +319,14 @@ library Commitment {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(bytes32 entityId, CommitmentData memory _table) internal {
+  function _set(EntityId entityId, CommitmentData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.hasCommitted, _table.x, _table.y, _table.z);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -358,9 +361,9 @@ library Commitment {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 entityId) internal {
+  function deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -368,9 +371,9 @@ library Commitment {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 entityId) internal {
+  function _deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -406,9 +409,9 @@ library Commitment {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId entityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     return _keyTuple;
   }

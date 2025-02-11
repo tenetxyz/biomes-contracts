@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "../../EntityId.sol";
+
 library InventoryTool {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "InventoryTool", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000496e76656e746f7279546f6f6c000000);
@@ -63,93 +66,93 @@ library InventoryTool {
   /**
    * @notice Get ownerEntityId.
    */
-  function getOwnerEntityId(bytes32 toolEntityId) internal view returns (bytes32 ownerEntityId) {
+  function getOwnerEntityId(EntityId toolEntityId) internal view returns (EntityId ownerEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
+    _keyTuple[0] = EntityId.unwrap(toolEntityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
    * @notice Get ownerEntityId.
    */
-  function _getOwnerEntityId(bytes32 toolEntityId) internal view returns (bytes32 ownerEntityId) {
+  function _getOwnerEntityId(EntityId toolEntityId) internal view returns (EntityId ownerEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
+    _keyTuple[0] = EntityId.unwrap(toolEntityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
    * @notice Get ownerEntityId.
    */
-  function get(bytes32 toolEntityId) internal view returns (bytes32 ownerEntityId) {
+  function get(EntityId toolEntityId) internal view returns (EntityId ownerEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
+    _keyTuple[0] = EntityId.unwrap(toolEntityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
    * @notice Get ownerEntityId.
    */
-  function _get(bytes32 toolEntityId) internal view returns (bytes32 ownerEntityId) {
+  function _get(EntityId toolEntityId) internal view returns (EntityId ownerEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
+    _keyTuple[0] = EntityId.unwrap(toolEntityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes32(_blob));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
    * @notice Set ownerEntityId.
    */
-  function setOwnerEntityId(bytes32 toolEntityId, bytes32 ownerEntityId) internal {
+  function setOwnerEntityId(EntityId toolEntityId, EntityId ownerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
+    _keyTuple[0] = EntityId.unwrap(toolEntityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((ownerEntityId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(ownerEntityId)), _fieldLayout);
   }
 
   /**
    * @notice Set ownerEntityId.
    */
-  function _setOwnerEntityId(bytes32 toolEntityId, bytes32 ownerEntityId) internal {
+  function _setOwnerEntityId(EntityId toolEntityId, EntityId ownerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
+    _keyTuple[0] = EntityId.unwrap(toolEntityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((ownerEntityId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(ownerEntityId)), _fieldLayout);
   }
 
   /**
    * @notice Set ownerEntityId.
    */
-  function set(bytes32 toolEntityId, bytes32 ownerEntityId) internal {
+  function set(EntityId toolEntityId, EntityId ownerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
+    _keyTuple[0] = EntityId.unwrap(toolEntityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((ownerEntityId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(ownerEntityId)), _fieldLayout);
   }
 
   /**
    * @notice Set ownerEntityId.
    */
-  function _set(bytes32 toolEntityId, bytes32 ownerEntityId) internal {
+  function _set(EntityId toolEntityId, EntityId ownerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
+    _keyTuple[0] = EntityId.unwrap(toolEntityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((ownerEntityId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(ownerEntityId)), _fieldLayout);
   }
 
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 toolEntityId) internal {
+  function deleteRecord(EntityId toolEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
+    _keyTuple[0] = EntityId.unwrap(toolEntityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -157,9 +160,9 @@ library InventoryTool {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 toolEntityId) internal {
+  function _deleteRecord(EntityId toolEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
+    _keyTuple[0] = EntityId.unwrap(toolEntityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -168,7 +171,7 @@ library InventoryTool {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(bytes32 ownerEntityId) internal pure returns (bytes memory) {
+  function encodeStatic(EntityId ownerEntityId) internal pure returns (bytes memory) {
     return abi.encodePacked(ownerEntityId);
   }
 
@@ -178,7 +181,7 @@ library InventoryTool {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(bytes32 ownerEntityId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+  function encode(EntityId ownerEntityId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(ownerEntityId);
 
     EncodedLengths _encodedLengths;
@@ -190,9 +193,9 @@ library InventoryTool {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 toolEntityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId toolEntityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = toolEntityId;
+    _keyTuple[0] = EntityId.unwrap(toolEntityId);
 
     return _keyTuple;
   }

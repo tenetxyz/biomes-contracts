@@ -21,12 +21,13 @@ import { addToInventoryCount, removeFromInventoryCount } from "../utils/Inventor
 import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes, getCottonBlockObjectTypes, getGlassObjectTypes } from "../utils/ObjectTypeUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
-contract CraftSystem is System {
-  function craft(bytes32 recipeId, bytes32 stationEntityId) public {
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+import { EntityId } from "../EntityId.sol";
 
-    bytes32 baseStationEntityId = BaseEntity._get(stationEntityId);
-    baseStationEntityId = baseStationEntityId == bytes32(0) ? stationEntityId : baseStationEntityId;
+contract CraftSystem is System {
+  function craft(bytes32 recipeId, EntityId stationEntityId) public {
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+
+    EntityId baseStationEntityId = stationEntityId.baseEntityId();
 
     RecipesData memory recipeData = Recipes._get(recipeId);
     require(recipeData.inputObjectTypeIds.length > 0, "Recipe not found");
@@ -113,10 +114,10 @@ contract CraftSystem is System {
     // Create the crafted objects
     if (ObjectTypeMetadata._getObjectCategory(recipeData.outputObjectTypeId) == ObjectCategory.Tool) {
       for (uint256 i = 0; i < recipeData.outputObjectTypeAmount; i++) {
-        bytes32 newInventoryEntityId = getUniqueEntity();
+        EntityId newInventoryEntityId = getUniqueEntity();
         ObjectType._set(newInventoryEntityId, recipeData.outputObjectTypeId);
         InventoryTool._set(newInventoryEntityId, playerEntityId);
-        ReverseInventoryTool._push(playerEntityId, newInventoryEntityId);
+        ReverseInventoryTool._push(playerEntityId, EntityId.unwrap(newInventoryEntityId));
         uint128 mass = ObjectTypeMetadata._getMass(recipeData.outputObjectTypeId);
         if (mass > 0) {
           Mass._setMass(newInventoryEntityId, mass);

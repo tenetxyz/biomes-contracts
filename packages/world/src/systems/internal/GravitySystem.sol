@@ -13,15 +13,17 @@ import { AirObjectID, WaterObjectID, PlayerObjectID } from "../../ObjectTypeIds.
 import { inWorldBorder } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
 
+import { EntityId } from "../../EntityId.sol";
+
 contract GravitySystem is System {
-  function runGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) public returns (bool) {
+  function runGravity(EntityId playerEntityId, VoxelCoord memory playerCoord) public returns (bool) {
     VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
     if (!inWorldBorder(belowCoord)) {
       return false;
     }
 
-    bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
-    require(belowEntityId != bytes32(0), "Attempted to apply gravity but encountered an unrevealed block");
+    EntityId belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
+    require(belowEntityId.exists(), "Attempted to apply gravity but encountered an unrevealed block");
     uint16 belowObjectTypeId = ObjectType._get(belowEntityId);
     // TODO: deal with florae
     if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
@@ -46,8 +48,8 @@ contract GravitySystem is System {
 
     // Check if entity above player is another player, if so we need to apply gravity to that player
     VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-    bytes32 aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-    if (aboveEntityId != bytes32(0) && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+    EntityId aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+    if (aboveEntityId.exists() && ObjectType._get(aboveEntityId) == PlayerObjectID) {
       runGravity(aboveEntityId, aboveCoord);
     }
 

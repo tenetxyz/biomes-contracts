@@ -13,11 +13,13 @@ import { PlayerObjectID, NullObjectTypeId } from "../ObjectTypeIds.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 
+import { EntityId } from "../EntityId.sol";
+
 contract ActivateSystem is System {
-  function activate(bytes32 entityId) public {
+  function activate(EntityId entityId) public {
     require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
 
-    require(entityId != bytes32(0), "Entity does not exist");
+    require(entityId.exists(), "Entity does not exist");
     uint16 objectTypeId = ObjectType._get(entityId);
     require(objectTypeId != NullObjectTypeId, "Entity has no object type");
 
@@ -25,9 +27,7 @@ contract ActivateSystem is System {
       requireValidPlayer(ReversePlayer._get(entityId));
     } else {
       // if there's no chip, it'll just do nothing
-      bytes32 baseEntityId = BaseEntity._get(entityId);
-      baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
-      updateMachineEnergyLevel(baseEntityId);
+      updateMachineEnergyLevel(entityId.baseEntityId());
     }
   }
 

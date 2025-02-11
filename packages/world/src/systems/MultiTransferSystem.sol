@@ -16,6 +16,7 @@ import { transferInventoryTool, removeFromInventoryCount, addToInventoryCount } 
 import { ITransferHelperSystem } from "../codegen/world/ITransferHelperSystem.sol";
 import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
+import { EntityId } from "../EntityId.sol";
 
 contract MultiTransferSystem is System {
   function requireAllowed(

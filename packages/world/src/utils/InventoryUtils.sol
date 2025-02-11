@@ -14,8 +14,10 @@ import { ObjectCategory } from "../codegen/common.sol";
 
 import { PlayerObjectID, ChestObjectID, SmartChestObjectID } from "../ObjectTypeIds.sol";
 
+import { EntityId } from "../EntityId.sol";
+
 function addToInventoryCount(
-  bytes32 ownerEntityId,
+  EntityId ownerEntityId,
   uint16 ownerObjectTypeId,
   uint16 objectTypeId,
   uint16 numObjectsToAdd
@@ -43,7 +45,7 @@ function addToInventoryCount(
   }
 }
 
-function removeFromInventoryCount(bytes32 ownerEntityId, uint16 objectTypeId, uint16 numObjectsToRemove) {
+function removeFromInventoryCount(EntityId ownerEntityId, uint16 objectTypeId, uint16 numObjectsToRemove) {
   uint16 numInitialObjects = InventoryCount._get(ownerEntityId, objectTypeId);
   require(numInitialObjects >= numObjectsToRemove, "Not enough objects in the inventory");
 
@@ -76,12 +78,12 @@ function removeFromInventoryCount(bytes32 ownerEntityId, uint16 objectTypeId, ui
 }
 
 function useEquipped(
-  bytes32 entityId,
-  bytes32 inventoryEntityId,
+  EntityId entityId,
+  EntityId inventoryEntityId,
   uint16 inventoryObjectTypeId,
   uint24 durabilityDecrease
 ) {
-  if (inventoryEntityId != bytes32(0)) {
+  if (inventoryEntityId.exists()) {
     // TOOD: fix
     uint128 durabilityLeft = Mass._getMass(inventoryEntityId);
     // Allow mining even if durability is exactly or less than required, then break the tool
@@ -101,12 +103,12 @@ function useEquipped(
   }
 }
 
-function removeEntityIdFromReverseInventoryTool(bytes32 ownerEntityId, bytes32 removeInventoryEntityId) {
+function removeEntityIdFromReverseInventoryTool(EntityId ownerEntityId, EntityId removeInventoryEntityId) {
   bytes32[] memory inventoryEntityIds = ReverseInventoryTool._get(ownerEntityId);
   bytes32[] memory newInventoryEntityIds = new bytes32[](inventoryEntityIds.length - 1);
   uint256 j = 0;
   for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
-    if (inventoryEntityIds[i] != removeInventoryEntityId) {
+    if (inventoryEntityIds[i] != EntityId.unwrap(removeInventoryEntityId)) {
       newInventoryEntityIds[j] = inventoryEntityIds[i];
       j++;
     }
@@ -118,7 +120,7 @@ function removeEntityIdFromReverseInventoryTool(bytes32 ownerEntityId, bytes32 r
   }
 }
 
-function removeObjectTypeIdFromInventoryObjects(bytes32 ownerEntityId, uint16 removeObjectTypeId) {
+function removeObjectTypeIdFromInventoryObjects(EntityId ownerEntityId, uint16 removeObjectTypeId) {
   uint16[] memory currentObjectTypeIds = InventoryObjects._get(ownerEntityId);
   uint16[] memory newObjectTypeIds = new uint16[](currentObjectTypeIds.length - 1);
   uint256 j = 0;
@@ -136,8 +138,8 @@ function removeObjectTypeIdFromInventoryObjects(bytes32 ownerEntityId, uint16 re
 }
 
 function transferAllInventoryEntities(
-  bytes32 fromEntityId,
-  bytes32 toEntityId,
+  EntityId fromEntityId,
+  EntityId toEntityId,
   uint16 toObjectTypeId
 ) returns (uint256) {
   uint256 numTransferred = 0;
@@ -151,7 +153,7 @@ function transferAllInventoryEntities(
 
   bytes32[] memory fromInventoryEntityIds = ReverseInventoryTool._get(fromEntityId);
   for (uint256 i = 0; i < fromInventoryEntityIds.length; i++) {
-    InventoryTool._set(fromInventoryEntityIds[i], toEntityId);
+    InventoryTool._set(EntityId.wrap(fromInventoryEntityIds[i]), toEntityId);
     ReverseInventoryTool._push(toEntityId, fromInventoryEntityIds[i]);
   }
   if (fromInventoryEntityIds.length > 0) {
@@ -162,8 +164,8 @@ function transferAllInventoryEntities(
 }
 
 function transferInventoryNonTool(
-  bytes32 srcEntityId,
-  bytes32 dstEntityId,
+  EntityId srcEntityId,
+  EntityId dstEntityId,
   uint16 dstObjectTypeId,
   uint16 transferObjectTypeId,
   uint16 numObjectsToTransfer
@@ -178,17 +180,17 @@ function transferInventoryNonTool(
 }
 
 function transferInventoryTool(
-  bytes32 srcEntityId,
-  bytes32 dstEntityId,
+  EntityId srcEntityId,
+  EntityId dstEntityId,
   uint16 dstObjectTypeId,
-  bytes32 toolEntityId
+  EntityId toolEntityId
 ) returns (uint16) {
   require(InventoryTool._get(toolEntityId) == srcEntityId, "Entity does not own inventory item");
   if (Equipped._get(srcEntityId) == toolEntityId) {
     Equipped._deleteRecord(srcEntityId);
   }
   InventoryTool._set(toolEntityId, dstEntityId);
-  ReverseInventoryTool._push(dstEntityId, toolEntityId);
+  ReverseInventoryTool._push(dstEntityId, EntityId.unwrap(toolEntityId));
   removeEntityIdFromReverseInventoryTool(srcEntityId, toolEntityId);
 
   uint16 inventoryObjectTypeId = ObjectType._get(toolEntityId);

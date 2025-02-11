@@ -11,10 +11,11 @@ import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/Play
 import { ActionType } from "../codegen/common.sol";
 
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
+import { EntityId } from "../EntityId.sol";
 
 contract EquipSystem is System {
-  function equip(bytes32 inventoryEntityId) public {
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+  function equip(EntityId inventoryEntityId) public {
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     require(InventoryTool._get(inventoryEntityId) == playerEntityId, "Player does not own inventory item");
     Equipped._set(playerEntityId, inventoryEntityId);
 

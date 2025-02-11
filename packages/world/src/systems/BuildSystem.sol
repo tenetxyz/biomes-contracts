@@ -23,11 +23,13 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
+import { EntityId } from "../EntityId.sol";
+
 contract BuildSystem is System {
-  function buildObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) internal returns (bytes32) {
+  function buildObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
-    bytes32 entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId != bytes32(0), "Cannot build on an unrevealed block");
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    require(entityId.exists(), "Cannot build on an unrevealed block");
     require(ObjectType._get(entityId) == AirObjectID, "Cannot build on a non-air block");
     require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot build where there are dropped objects");
 
@@ -40,15 +42,15 @@ contract BuildSystem is System {
     uint16 objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
-  ) public payable returns (bytes32) {
+  ) public payable returns (EntityId) {
     require(
       ObjectTypeMetadata._getObjectCategory(objectTypeId) == ObjectCategory.Block,
       "Cannot build non-block object"
     );
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    bytes32 baseEntityId = buildObjectAtCoord(objectTypeId, coord);
+    EntityId baseEntityId = buildObjectAtCoord(objectTypeId, coord);
     uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(objectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
     coords[0] = coord;
@@ -61,7 +63,7 @@ contract BuildSystem is System {
           coord.z + schemaData.relativePositionsZ[i]
         );
         coords[i + 1] = relativeCoord;
-        bytes32 entityId = buildObjectAtCoord(objectTypeId, relativeCoord);
+        EntityId entityId = buildObjectAtCoord(objectTypeId, relativeCoord);
         BaseEntity._set(entityId, baseEntityId);
       }
     }
@@ -94,11 +96,11 @@ contract BuildSystem is System {
   }
 
   function jumpBuildWithExtraData(uint16 objectTypeId, bytes memory extraData) public payable {
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     require(inWorldBorder(jumpCoord), "Cannot jump outside world border");
-    bytes32 newEntityId = ReversePosition._get(jumpCoord.x, jumpCoord.y, jumpCoord.z);
-    require(newEntityId != bytes32(0), "Cannot jump on an unrevealed block");
+    EntityId newEntityId = ReversePosition._get(jumpCoord.x, jumpCoord.y, jumpCoord.z);
+    require(newEntityId.exists(), "Cannot jump on an unrevealed block");
     require(ObjectType._get(newEntityId) == AirObjectID, "Cannot jump on a non-air block");
     transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
 
@@ -131,7 +133,7 @@ contract BuildSystem is System {
     jumpBuildWithExtraData(objectTypeId, new bytes(0));
   }
 
-  function build(uint16 objectTypeId, VoxelCoord memory coord) public payable returns (bytes32) {
+  function build(uint16 objectTypeId, VoxelCoord memory coord) public payable returns (EntityId) {
     return buildWithExtraData(objectTypeId, coord, new bytes(0));
   }
 }

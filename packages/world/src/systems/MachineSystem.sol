@@ -18,13 +18,14 @@ import { safeCallChip } from "../Utils.sol";
 
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
+import { EntityId } from "../EntityId.sol";
+
 contract MachineSystem is System {
-  function powerMachine(bytes32 entityId, uint16 numBattery) public {
-    (bytes32 playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+  function powerMachine(EntityId entityId, uint16 numBattery) public {
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
-    bytes32 baseEntityId = BaseEntity._get(entityId);
-    baseEntityId = baseEntityId == bytes32(0) ? entityId : baseEntityId;
+    EntityId baseEntityId = entityId.baseEntityId();
 
     removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, numBattery);
 

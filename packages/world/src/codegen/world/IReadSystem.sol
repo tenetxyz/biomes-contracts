@@ -5,6 +5,7 @@ pragma solidity >=0.8.24;
 
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { VoxelCoord, EntityData, InventoryObject } from "../../Types.sol";
+import { EntityId } from "../../EntityId.sol";
 
 /**
  * @title IReadSystem
@@ -25,9 +26,9 @@ interface IReadSystem {
 
   function getObjectTypeIdAtCoord(VoxelCoord memory coord) external view returns (uint16);
 
-  function getEntityIdAtCoord(VoxelCoord memory coord) external view returns (bytes32);
+  function getEntityIdAtCoord(VoxelCoord memory coord) external view returns (EntityId);
 
-  function getEntityData(bytes32 entityId) external view returns (EntityData memory);
+  function getEntityData(EntityId entityId) external view returns (EntityData memory);
 
   function getEntityDataAtCoord(VoxelCoord memory coord) external view returns (EntityData memory);
 
@@ -37,9 +38,9 @@ interface IReadSystem {
 
   function getInventory(address player) external view returns (InventoryObject[] memory);
 
-  function getInventory(bytes32 entityId) external view returns (InventoryObject[] memory);
+  function getInventory(EntityId entityId) external view returns (InventoryObject[] memory);
 
-  function getCoordForEntityId(bytes32 entityId) external view returns (VoxelCoord memory);
+  function getCoordForEntityId(EntityId entityId) external view returns (VoxelCoord memory);
 
   function getPlayerCoord(address player) external view returns (VoxelCoord memory);
 }

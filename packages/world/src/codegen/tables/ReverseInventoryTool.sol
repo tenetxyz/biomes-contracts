@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "../../EntityId.sol";
+
 library ReverseInventoryTool {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ReverseInventory", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000052657665727365496e76656e746f7279);
@@ -63,9 +66,9 @@ library ReverseInventoryTool {
   /**
    * @notice Get toolEntityIds.
    */
-  function getToolEntityIds(bytes32 ownerEntityId) internal view returns (bytes32[] memory toolEntityIds) {
+  function getToolEntityIds(EntityId ownerEntityId) internal view returns (bytes32[] memory toolEntityIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -74,9 +77,9 @@ library ReverseInventoryTool {
   /**
    * @notice Get toolEntityIds.
    */
-  function _getToolEntityIds(bytes32 ownerEntityId) internal view returns (bytes32[] memory toolEntityIds) {
+  function _getToolEntityIds(EntityId ownerEntityId) internal view returns (bytes32[] memory toolEntityIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -85,9 +88,9 @@ library ReverseInventoryTool {
   /**
    * @notice Get toolEntityIds.
    */
-  function get(bytes32 ownerEntityId) internal view returns (bytes32[] memory toolEntityIds) {
+  function get(EntityId ownerEntityId) internal view returns (bytes32[] memory toolEntityIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -96,9 +99,9 @@ library ReverseInventoryTool {
   /**
    * @notice Get toolEntityIds.
    */
-  function _get(bytes32 ownerEntityId) internal view returns (bytes32[] memory toolEntityIds) {
+  function _get(EntityId ownerEntityId) internal view returns (bytes32[] memory toolEntityIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
@@ -107,9 +110,9 @@ library ReverseInventoryTool {
   /**
    * @notice Set toolEntityIds.
    */
-  function setToolEntityIds(bytes32 ownerEntityId, bytes32[] memory toolEntityIds) internal {
+  function setToolEntityIds(EntityId ownerEntityId, bytes32[] memory toolEntityIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((toolEntityIds)));
   }
@@ -117,9 +120,9 @@ library ReverseInventoryTool {
   /**
    * @notice Set toolEntityIds.
    */
-  function _setToolEntityIds(bytes32 ownerEntityId, bytes32[] memory toolEntityIds) internal {
+  function _setToolEntityIds(EntityId ownerEntityId, bytes32[] memory toolEntityIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((toolEntityIds)));
   }
@@ -127,9 +130,9 @@ library ReverseInventoryTool {
   /**
    * @notice Set toolEntityIds.
    */
-  function set(bytes32 ownerEntityId, bytes32[] memory toolEntityIds) internal {
+  function set(EntityId ownerEntityId, bytes32[] memory toolEntityIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((toolEntityIds)));
   }
@@ -137,9 +140,9 @@ library ReverseInventoryTool {
   /**
    * @notice Set toolEntityIds.
    */
-  function _set(bytes32 ownerEntityId, bytes32[] memory toolEntityIds) internal {
+  function _set(EntityId ownerEntityId, bytes32[] memory toolEntityIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((toolEntityIds)));
   }
@@ -147,9 +150,9 @@ library ReverseInventoryTool {
   /**
    * @notice Get the length of toolEntityIds.
    */
-  function lengthToolEntityIds(bytes32 ownerEntityId) internal view returns (uint256) {
+  function lengthToolEntityIds(EntityId ownerEntityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -160,9 +163,9 @@ library ReverseInventoryTool {
   /**
    * @notice Get the length of toolEntityIds.
    */
-  function _lengthToolEntityIds(bytes32 ownerEntityId) internal view returns (uint256) {
+  function _lengthToolEntityIds(EntityId ownerEntityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -173,9 +176,9 @@ library ReverseInventoryTool {
   /**
    * @notice Get the length of toolEntityIds.
    */
-  function length(bytes32 ownerEntityId) internal view returns (uint256) {
+  function length(EntityId ownerEntityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -186,9 +189,9 @@ library ReverseInventoryTool {
   /**
    * @notice Get the length of toolEntityIds.
    */
-  function _length(bytes32 ownerEntityId) internal view returns (uint256) {
+  function _length(EntityId ownerEntityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -200,9 +203,9 @@ library ReverseInventoryTool {
    * @notice Get an item of toolEntityIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemToolEntityIds(bytes32 ownerEntityId, uint256 _index) internal view returns (bytes32) {
+  function getItemToolEntityIds(EntityId ownerEntityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -214,9 +217,9 @@ library ReverseInventoryTool {
    * @notice Get an item of toolEntityIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemToolEntityIds(bytes32 ownerEntityId, uint256 _index) internal view returns (bytes32) {
+  function _getItemToolEntityIds(EntityId ownerEntityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -228,9 +231,9 @@ library ReverseInventoryTool {
    * @notice Get an item of toolEntityIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItem(bytes32 ownerEntityId, uint256 _index) internal view returns (bytes32) {
+  function getItem(EntityId ownerEntityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -242,9 +245,9 @@ library ReverseInventoryTool {
    * @notice Get an item of toolEntityIds.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItem(bytes32 ownerEntityId, uint256 _index) internal view returns (bytes32) {
+  function _getItem(EntityId ownerEntityId, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 32, (_index + 1) * 32);
@@ -255,9 +258,9 @@ library ReverseInventoryTool {
   /**
    * @notice Push an element to toolEntityIds.
    */
-  function pushToolEntityIds(bytes32 ownerEntityId, bytes32 _element) internal {
+  function pushToolEntityIds(EntityId ownerEntityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -265,9 +268,9 @@ library ReverseInventoryTool {
   /**
    * @notice Push an element to toolEntityIds.
    */
-  function _pushToolEntityIds(bytes32 ownerEntityId, bytes32 _element) internal {
+  function _pushToolEntityIds(EntityId ownerEntityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -275,9 +278,9 @@ library ReverseInventoryTool {
   /**
    * @notice Push an element to toolEntityIds.
    */
-  function push(bytes32 ownerEntityId, bytes32 _element) internal {
+  function push(EntityId ownerEntityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -285,9 +288,9 @@ library ReverseInventoryTool {
   /**
    * @notice Push an element to toolEntityIds.
    */
-  function _push(bytes32 ownerEntityId, bytes32 _element) internal {
+  function _push(EntityId ownerEntityId, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
   }
@@ -295,9 +298,9 @@ library ReverseInventoryTool {
   /**
    * @notice Pop an element from toolEntityIds.
    */
-  function popToolEntityIds(bytes32 ownerEntityId) internal {
+  function popToolEntityIds(EntityId ownerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -305,9 +308,9 @@ library ReverseInventoryTool {
   /**
    * @notice Pop an element from toolEntityIds.
    */
-  function _popToolEntityIds(bytes32 ownerEntityId) internal {
+  function _popToolEntityIds(EntityId ownerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -315,9 +318,9 @@ library ReverseInventoryTool {
   /**
    * @notice Pop an element from toolEntityIds.
    */
-  function pop(bytes32 ownerEntityId) internal {
+  function pop(EntityId ownerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -325,9 +328,9 @@ library ReverseInventoryTool {
   /**
    * @notice Pop an element from toolEntityIds.
    */
-  function _pop(bytes32 ownerEntityId) internal {
+  function _pop(EntityId ownerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 32);
   }
@@ -335,9 +338,9 @@ library ReverseInventoryTool {
   /**
    * @notice Update an element of toolEntityIds at `_index`.
    */
-  function updateToolEntityIds(bytes32 ownerEntityId, uint256 _index, bytes32 _element) internal {
+  function updateToolEntityIds(EntityId ownerEntityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -348,9 +351,9 @@ library ReverseInventoryTool {
   /**
    * @notice Update an element of toolEntityIds at `_index`.
    */
-  function _updateToolEntityIds(bytes32 ownerEntityId, uint256 _index, bytes32 _element) internal {
+  function _updateToolEntityIds(EntityId ownerEntityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -361,9 +364,9 @@ library ReverseInventoryTool {
   /**
    * @notice Update an element of toolEntityIds at `_index`.
    */
-  function update(bytes32 ownerEntityId, uint256 _index, bytes32 _element) internal {
+  function update(EntityId ownerEntityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -374,9 +377,9 @@ library ReverseInventoryTool {
   /**
    * @notice Update an element of toolEntityIds at `_index`.
    */
-  function _update(bytes32 ownerEntityId, uint256 _index, bytes32 _element) internal {
+  function _update(EntityId ownerEntityId, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
@@ -387,9 +390,9 @@ library ReverseInventoryTool {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 ownerEntityId) internal {
+  function deleteRecord(EntityId ownerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -397,9 +400,9 @@ library ReverseInventoryTool {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 ownerEntityId) internal {
+  function _deleteRecord(EntityId ownerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -440,9 +443,9 @@ library ReverseInventoryTool {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 ownerEntityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId ownerEntityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ownerEntityId;
+    _keyTuple[0] = EntityId.unwrap(ownerEntityId);
 
     return _keyTuple;
   }

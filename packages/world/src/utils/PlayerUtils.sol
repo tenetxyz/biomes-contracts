@@ -19,10 +19,12 @@ import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, IN_MAINTENANCE } from "../Constants.so
 import { AirObjectID } from "../ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../Utils.sol";
 
-function requireValidPlayer(address player) returns (bytes32, VoxelCoord memory) {
+import { EntityId } from "../EntityId.sol";
+
+function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory) {
   require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
-  bytes32 playerEntityId = Player._get(player);
-  require(playerEntityId != bytes32(0), "Player does not exist");
+  EntityId playerEntityId = Player._get(player);
+  require(playerEntityId.exists(), "Player does not exist");
   require(!PlayerStatus._getIsLoggedOff(playerEntityId), "Player isn't logged in");
   require(!Commitment._getHasCommitted(playerEntityId), "Player is in a commitment");
   VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
@@ -39,7 +41,7 @@ function requireBesidePlayer(VoxelCoord memory playerCoord, VoxelCoord memory co
   require(inSurroundingCube(playerCoord, 1, coord), "Player is too far");
 }
 
-function requireBesidePlayer(VoxelCoord memory playerCoord, bytes32 entityId) view returns (VoxelCoord memory) {
+function requireBesidePlayer(VoxelCoord memory playerCoord, EntityId entityId) view returns (VoxelCoord memory) {
   VoxelCoord memory coord = positionDataToVoxelCoord(Position._get(entityId));
   requireBesidePlayer(playerCoord, coord);
   return coord;
@@ -49,13 +51,13 @@ function requireInPlayerInfluence(VoxelCoord memory playerCoord, VoxelCoord memo
   require(inSurroundingCube(playerCoord, MAX_PLAYER_INFLUENCE_HALF_WIDTH, coord), "Player is too far");
 }
 
-function requireInPlayerInfluence(VoxelCoord memory playerCoord, bytes32 entityId) view returns (VoxelCoord memory) {
+function requireInPlayerInfluence(VoxelCoord memory playerCoord, EntityId entityId) view returns (VoxelCoord memory) {
   VoxelCoord memory coord = positionDataToVoxelCoord(Position._get(entityId));
   requireInPlayerInfluence(playerCoord, coord);
   return coord;
 }
 
-function despawnPlayer(bytes32 playerEntityId) {
+function despawnPlayer(EntityId playerEntityId) {
   // Note: Inventory is already attached to the entity id, which means it'll be
   // attached to air, ie it's a "dropped" item
   ObjectType._set(playerEntityId, AirObjectID);
@@ -63,7 +65,7 @@ function despawnPlayer(bytes32 playerEntityId) {
   Mass._deleteRecord(playerEntityId);
   Energy._deleteRecord(playerEntityId);
 
-  if (Equipped._get(playerEntityId) != bytes32(0)) {
+  if (Equipped._get(playerEntityId).exists()) {
     Equipped._deleteRecord(playerEntityId);
   }
 

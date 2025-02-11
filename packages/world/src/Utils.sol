@@ -23,6 +23,8 @@ import { AirObjectID, WaterObjectID } from "./ObjectTypeIds.sol";
 
 import { IGravitySystem } from "./codegen/world/IGravitySystem.sol";
 
+import { EntityId } from "./EntityId.sol";
+
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);
 }
@@ -55,7 +57,7 @@ function inSpawnArea(VoxelCoord memory coord) view returns (bool) {
     coord.z <= spawnData.spawnHighZ;
 }
 
-function callGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) returns (bool) {
+function callGravity(EntityId playerEntityId, VoxelCoord memory playerCoord) returns (bool) {
   bytes memory callData = abi.encodeCall(IGravitySystem.runGravity, (playerEntityId, playerCoord));
   bytes memory returnData = callInternalSystem(callData, 0);
   return abi.decode(returnData, (bool));
@@ -63,8 +65,8 @@ function callGravity(bytes32 playerEntityId, VoxelCoord memory playerCoord) retu
 
 function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
-  bytes32 belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
-  require(belowEntityId != bytes32(0), "Attempted to apply gravity but encountered an unrevealed block");
+  EntityId belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
+  require(belowEntityId.exists(), "Attempted to apply gravity but encountered an unrevealed block");
   uint16 belowObjectTypeId = ObjectType._get(belowEntityId);
   if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
     return false;
@@ -73,11 +75,11 @@ function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   return true;
 }
 
-function getUniqueEntity() returns (bytes32) {
+function getUniqueEntity() returns (EntityId) {
   uint256 uniqueEntity = UniqueEntity._get() + 1;
   UniqueEntity._set(uniqueEntity);
 
-  return bytes32(uniqueEntity);
+  return EntityId.wrap(bytes32(uniqueEntity));
 }
 
 // Safe as in do not block the chip tx

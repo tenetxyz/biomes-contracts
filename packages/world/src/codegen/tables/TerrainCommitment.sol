@@ -16,9 +16,12 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { EntityId } from "../../EntityId.sol";
+
 struct TerrainCommitmentData {
   uint256 blockNumber;
-  bytes32 committerEntityId;
+  EntityId committerEntityId;
 }
 
 library TerrainCommitment {
@@ -121,51 +124,63 @@ library TerrainCommitment {
   /**
    * @notice Get committerEntityId.
    */
-  function getCommitterEntityId(int32 x, int32 y, int32 z) internal view returns (bytes32 committerEntityId) {
+  function getCommitterEntityId(int32 x, int32 y, int32 z) internal view returns (EntityId committerEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (bytes32(_blob));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
    * @notice Get committerEntityId.
    */
-  function _getCommitterEntityId(int32 x, int32 y, int32 z) internal view returns (bytes32 committerEntityId) {
+  function _getCommitterEntityId(int32 x, int32 y, int32 z) internal view returns (EntityId committerEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (bytes32(_blob));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
    * @notice Set committerEntityId.
    */
-  function setCommitterEntityId(int32 x, int32 y, int32 z, bytes32 committerEntityId) internal {
+  function setCommitterEntityId(int32 x, int32 y, int32 z, EntityId committerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((committerEntityId)), _fieldLayout);
+    StoreSwitch.setStaticField(
+      _tableId,
+      _keyTuple,
+      1,
+      abi.encodePacked(EntityId.unwrap(committerEntityId)),
+      _fieldLayout
+    );
   }
 
   /**
    * @notice Set committerEntityId.
    */
-  function _setCommitterEntityId(int32 x, int32 y, int32 z, bytes32 committerEntityId) internal {
+  function _setCommitterEntityId(int32 x, int32 y, int32 z, EntityId committerEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((committerEntityId)), _fieldLayout);
+    StoreCore.setStaticField(
+      _tableId,
+      _keyTuple,
+      1,
+      abi.encodePacked(EntityId.unwrap(committerEntityId)),
+      _fieldLayout
+    );
   }
 
   /**
@@ -205,7 +220,7 @@ library TerrainCommitment {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(int32 x, int32 y, int32 z, uint256 blockNumber, bytes32 committerEntityId) internal {
+  function set(int32 x, int32 y, int32 z, uint256 blockNumber, EntityId committerEntityId) internal {
     bytes memory _staticData = encodeStatic(blockNumber, committerEntityId);
 
     EncodedLengths _encodedLengths;
@@ -222,7 +237,7 @@ library TerrainCommitment {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(int32 x, int32 y, int32 z, uint256 blockNumber, bytes32 committerEntityId) internal {
+  function _set(int32 x, int32 y, int32 z, uint256 blockNumber, EntityId committerEntityId) internal {
     bytes memory _staticData = encodeStatic(blockNumber, committerEntityId);
 
     EncodedLengths _encodedLengths;
@@ -273,10 +288,10 @@ library TerrainCommitment {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (uint256 blockNumber, bytes32 committerEntityId) {
+  function decodeStatic(bytes memory _blob) internal pure returns (uint256 blockNumber, EntityId committerEntityId) {
     blockNumber = (uint256(Bytes.getBytes32(_blob, 0)));
 
-    committerEntityId = (Bytes.getBytes32(_blob, 32));
+    committerEntityId = EntityId.wrap(Bytes.getBytes32(_blob, 32));
   }
 
   /**
@@ -321,7 +336,7 @@ library TerrainCommitment {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint256 blockNumber, bytes32 committerEntityId) internal pure returns (bytes memory) {
+  function encodeStatic(uint256 blockNumber, EntityId committerEntityId) internal pure returns (bytes memory) {
     return abi.encodePacked(blockNumber, committerEntityId);
   }
 
@@ -333,7 +348,7 @@ library TerrainCommitment {
    */
   function encode(
     uint256 blockNumber,
-    bytes32 committerEntityId
+    EntityId committerEntityId
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(blockNumber, committerEntityId);
 

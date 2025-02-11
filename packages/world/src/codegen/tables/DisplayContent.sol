@@ -17,6 +17,7 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
+import { EntityId } from "../../EntityId.sol";
 import { DisplayContentType } from "../common.sol";
 
 struct DisplayContentData {
@@ -72,9 +73,9 @@ library DisplayContent {
   /**
    * @notice Get contentType.
    */
-  function getContentType(bytes32 entityId) internal view returns (DisplayContentType contentType) {
+  function getContentType(EntityId entityId) internal view returns (DisplayContentType contentType) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return DisplayContentType(uint8(bytes1(_blob)));
@@ -83,9 +84,9 @@ library DisplayContent {
   /**
    * @notice Get contentType.
    */
-  function _getContentType(bytes32 entityId) internal view returns (DisplayContentType contentType) {
+  function _getContentType(EntityId entityId) internal view returns (DisplayContentType contentType) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return DisplayContentType(uint8(bytes1(_blob)));
@@ -94,9 +95,9 @@ library DisplayContent {
   /**
    * @notice Set contentType.
    */
-  function setContentType(bytes32 entityId, DisplayContentType contentType) internal {
+  function setContentType(EntityId entityId, DisplayContentType contentType) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(contentType)), _fieldLayout);
   }
@@ -104,9 +105,9 @@ library DisplayContent {
   /**
    * @notice Set contentType.
    */
-  function _setContentType(bytes32 entityId, DisplayContentType contentType) internal {
+  function _setContentType(EntityId entityId, DisplayContentType contentType) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(contentType)), _fieldLayout);
   }
@@ -114,9 +115,9 @@ library DisplayContent {
   /**
    * @notice Get content.
    */
-  function getContent(bytes32 entityId) internal view returns (bytes memory content) {
+  function getContent(EntityId entityId) internal view returns (bytes memory content) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
     return (bytes(_blob));
@@ -125,9 +126,9 @@ library DisplayContent {
   /**
    * @notice Get content.
    */
-  function _getContent(bytes32 entityId) internal view returns (bytes memory content) {
+  function _getContent(EntityId entityId) internal view returns (bytes memory content) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
     return (bytes(_blob));
@@ -136,9 +137,9 @@ library DisplayContent {
   /**
    * @notice Set content.
    */
-  function setContent(bytes32 entityId, bytes memory content) internal {
+  function setContent(EntityId entityId, bytes memory content) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, bytes((content)));
   }
@@ -146,9 +147,9 @@ library DisplayContent {
   /**
    * @notice Set content.
    */
-  function _setContent(bytes32 entityId, bytes memory content) internal {
+  function _setContent(EntityId entityId, bytes memory content) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setDynamicField(_tableId, _keyTuple, 0, bytes((content)));
   }
@@ -156,9 +157,9 @@ library DisplayContent {
   /**
    * @notice Get the length of content.
    */
-  function lengthContent(bytes32 entityId) internal view returns (uint256) {
+  function lengthContent(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -169,9 +170,9 @@ library DisplayContent {
   /**
    * @notice Get the length of content.
    */
-  function _lengthContent(bytes32 entityId) internal view returns (uint256) {
+  function _lengthContent(EntityId entityId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -183,9 +184,9 @@ library DisplayContent {
    * @notice Get an item of content.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemContent(bytes32 entityId, uint256 _index) internal view returns (bytes memory) {
+  function getItemContent(EntityId entityId, uint256 _index) internal view returns (bytes memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
@@ -197,9 +198,9 @@ library DisplayContent {
    * @notice Get an item of content.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemContent(bytes32 entityId, uint256 _index) internal view returns (bytes memory) {
+  function _getItemContent(EntityId entityId, uint256 _index) internal view returns (bytes memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
@@ -210,9 +211,9 @@ library DisplayContent {
   /**
    * @notice Push a slice to content.
    */
-  function pushContent(bytes32 entityId, bytes memory _slice) internal {
+  function pushContent(EntityId entityId, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 0, bytes((_slice)));
   }
@@ -220,9 +221,9 @@ library DisplayContent {
   /**
    * @notice Push a slice to content.
    */
-  function _pushContent(bytes32 entityId, bytes memory _slice) internal {
+  function _pushContent(EntityId entityId, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, bytes((_slice)));
   }
@@ -230,9 +231,9 @@ library DisplayContent {
   /**
    * @notice Pop a slice from content.
    */
-  function popContent(bytes32 entityId) internal {
+  function popContent(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 1);
   }
@@ -240,9 +241,9 @@ library DisplayContent {
   /**
    * @notice Pop a slice from content.
    */
-  function _popContent(bytes32 entityId) internal {
+  function _popContent(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 1);
   }
@@ -250,9 +251,9 @@ library DisplayContent {
   /**
    * @notice Update a slice of content at `_index`.
    */
-  function updateContent(bytes32 entityId, uint256 _index, bytes memory _slice) internal {
+  function updateContent(EntityId entityId, uint256 _index, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
@@ -263,9 +264,9 @@ library DisplayContent {
   /**
    * @notice Update a slice of content at `_index`.
    */
-  function _updateContent(bytes32 entityId, uint256 _index, bytes memory _slice) internal {
+  function _updateContent(EntityId entityId, uint256 _index, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
@@ -276,9 +277,9 @@ library DisplayContent {
   /**
    * @notice Get the full data.
    */
-  function get(bytes32 entityId) internal view returns (DisplayContentData memory _table) {
+  function get(EntityId entityId) internal view returns (DisplayContentData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
       _tableId,
@@ -291,9 +292,9 @@ library DisplayContent {
   /**
    * @notice Get the full data.
    */
-  function _get(bytes32 entityId) internal view returns (DisplayContentData memory _table) {
+  function _get(EntityId entityId) internal view returns (DisplayContentData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
       _tableId,
@@ -306,14 +307,14 @@ library DisplayContent {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 entityId, DisplayContentType contentType, bytes memory content) internal {
+  function set(EntityId entityId, DisplayContentType contentType, bytes memory content) internal {
     bytes memory _staticData = encodeStatic(contentType);
 
     EncodedLengths _encodedLengths = encodeLengths(content);
     bytes memory _dynamicData = encodeDynamic(content);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -321,14 +322,14 @@ library DisplayContent {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 entityId, DisplayContentType contentType, bytes memory content) internal {
+  function _set(EntityId entityId, DisplayContentType contentType, bytes memory content) internal {
     bytes memory _staticData = encodeStatic(contentType);
 
     EncodedLengths _encodedLengths = encodeLengths(content);
     bytes memory _dynamicData = encodeDynamic(content);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -336,14 +337,14 @@ library DisplayContent {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(bytes32 entityId, DisplayContentData memory _table) internal {
+  function set(EntityId entityId, DisplayContentData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.contentType);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.content);
     bytes memory _dynamicData = encodeDynamic(_table.content);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -351,14 +352,14 @@ library DisplayContent {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(bytes32 entityId, DisplayContentData memory _table) internal {
+  function _set(EntityId entityId, DisplayContentData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.contentType);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.content);
     bytes memory _dynamicData = encodeDynamic(_table.content);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -404,9 +405,9 @@ library DisplayContent {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 entityId) internal {
+  function deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -414,9 +415,9 @@ library DisplayContent {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 entityId) internal {
+  function _deleteRecord(EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -469,9 +470,9 @@ library DisplayContent {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(EntityId entityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = entityId;
+    _keyTuple[0] = EntityId.unwrap(entityId);
 
     return _keyTuple;
   }
