@@ -27,6 +27,7 @@ library Terrain {
   function getBlockType(VoxelCoord memory coord) internal view returns (uint8) {
     ChunkCoord memory chunkCoord = _getChunkCoord(coord);
     address chunkPointer = ExploredChunk.get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
+    require(chunkPointer != address(0), "Chunk not explored");
 
     bytes1 version = chunkPointer.readBytes1(0);
     if (version != _VERSION) {
