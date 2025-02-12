@@ -28,7 +28,6 @@ export default defineWorld({
       "RevealOre",
     ],
     DisplayContentType: ["None", "Text", "Image"],
-    ChunkEncoding: ["V1"],
   },
   userTypes: {
     EntityId: { filePath: "./src/EntityId.sol", type: "bytes32" },
