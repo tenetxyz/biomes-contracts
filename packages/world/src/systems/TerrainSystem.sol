@@ -39,11 +39,22 @@ library Terrain {
       });
   }
 
+  // Get the relative coordinate of a voxel coordinate within a chunk
+  function _getRelativeCoord(VoxelCoord memory coord) internal pure returns (VoxelCoord memory) {
+    return
+      VoxelCoord({
+        x: int32(uint32(mod(coord.x, CHUNK_SIZE))),
+        y: int32(uint32(mod(coord.y, CHUNK_SIZE))),
+        z: int32(uint32(mod(coord.z, CHUNK_SIZE)))
+      });
+  }
+
   // Get the index within the chunk of a voxel coordinate
   function _getBlockIndex(VoxelCoord memory coord) internal pure returns (uint256) {
+    VoxelCoord memory relativeCoord = _getRelativeCoord(coord);
     return
-      (mod(coord.x, CHUNK_SIZE) * uint256(uint32(CHUNK_SIZE)) ** 2) +
-      (mod(coord.y, CHUNK_SIZE) * uint256(uint32(CHUNK_SIZE))) +
-      mod(coord.z, CHUNK_SIZE);
+      uint256(
+        int256(relativeCoord.x) * CHUNK_SIZE ** 2 + int256(relativeCoord.y) * CHUNK_SIZE + int256(relativeCoord.z)
+      );
   }
 }
