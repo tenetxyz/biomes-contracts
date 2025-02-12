@@ -16,7 +16,7 @@ import { Spawn, SpawnData } from "./codegen/tables/Spawn.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
 import { BlockHash } from "./codegen/tables/BlockHash.sol";
 import { BlockPrevrandao } from "./codegen/tables/BlockPrevrandao.sol";
-
+import { WorldStatus } from "./codegen/tables/WorldStatus.sol";
 import { SPAWN_SHARD_DIM } from "./Constants.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "./Constants.sol";
 import { AirObjectID, WaterObjectID } from "./ObjectTypeIds.sol";
@@ -31,6 +31,10 @@ function positionDataToVoxelCoord(PositionData memory coord) pure returns (Voxel
 
 function lastKnownPositionDataToVoxelCoord(LastKnownPositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);
+}
+
+function checkWorldStatus() {
+  require(!WorldStatus._getInMaintenance(), "Biomes is in maintenance mode. Try again later");
 }
 
 function inWorldBorder(VoxelCoord memory coord) pure returns (bool) {

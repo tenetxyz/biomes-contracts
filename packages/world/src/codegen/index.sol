@@ -31,6 +31,7 @@ import { Spawn, SpawnData } from "./tables/Spawn.sol";
 import { TerrainCommitment, TerrainCommitmentData } from "./tables/TerrainCommitment.sol";
 import { Commitment, CommitmentData } from "./tables/Commitment.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "./tables/PlayerActionNotif.sol";
+import { WorldStatus } from "./tables/WorldStatus.sol";
 import { UniqueEntity } from "./tables/UniqueEntity.sol";
 import { BaseEntity } from "./tables/BaseEntity.sol";
 import { BlockHash } from "./tables/BlockHash.sol";

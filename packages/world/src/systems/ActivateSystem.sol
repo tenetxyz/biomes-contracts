@@ -8,16 +8,16 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 
-import { IN_MAINTENANCE } from "../Constants.sol";
 import { PlayerObjectID, NullObjectTypeId } from "../ObjectTypeIds.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { checkWorldStatus } from "../Utils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
 contract ActivateSystem is System {
   function activate(EntityId entityId) public {
-    require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
+    checkWorldStatus();
 
     require(entityId.exists(), "Entity does not exist");
     uint16 objectTypeId = ObjectType._get(entityId);

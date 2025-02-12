@@ -15,14 +15,14 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { Energy } from "../codegen/tables/Energy.sol";
 import { Commitment } from "../codegen/tables/Commitment.sol";
 
-import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, IN_MAINTENANCE } from "../Constants.sol";
+import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord } from "../Utils.sol";
+import { checkWorldStatus, positionDataToVoxelCoord } from "../Utils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
 function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory) {
-  require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
+  checkWorldStatus();
   EntityId playerEntityId = Player._get(player);
   require(playerEntityId.exists(), "Player does not exist");
   require(!PlayerStatus._getIsLoggedOff(playerEntityId), "Player isn't logged in");

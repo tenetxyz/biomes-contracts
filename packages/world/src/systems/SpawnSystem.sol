@@ -14,9 +14,8 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { IN_MAINTENANCE } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { getUniqueEntity, gravityApplies, inWorldBorder, inSpawnArea } from "../Utils.sol";
+import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder, inSpawnArea } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 
@@ -24,7 +23,7 @@ import { EntityId } from "../EntityId.sol";
 
 contract SpawnSystem is System {
   function spawnPlayer(VoxelCoord memory spawnCoord) public returns (EntityId) {
-    require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
+    checkWorldStatus();
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
     require(inSpawnArea(spawnCoord), "Cannot spawn outside the spawn area");
 
