@@ -242,19 +242,6 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    // TODO: replace with spawn tiles
-    Spawn: {
-      schema: {
-        x: "int32",
-        z: "int32",
-        initialized: "bool",
-        spawnLowX: "int32",
-        spawnHighX: "int32",
-        spawnLowZ: "int32",
-        spawnHighZ: "int32",
-      },
-      key: ["x", "z"],
-    },
     // ------------------------------------------------------------
     // Ores
     // ------------------------------------------------------------
