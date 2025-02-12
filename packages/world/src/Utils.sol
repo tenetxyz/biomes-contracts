@@ -19,8 +19,6 @@ import { WorldStatus } from "./codegen/tables/WorldStatus.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z, SPAWN_SHARD_DIM } from "./Constants.sol";
 import { AirObjectID, WaterObjectID } from "./ObjectTypeIds.sol";
 
-import { IGravitySystem } from "./codegen/world/IGravitySystem.sol";
-
 import { EntityId } from "./EntityId.sol";
 
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
@@ -43,12 +41,6 @@ function inWorldBorder(VoxelCoord memory coord) pure returns (bool) {
     coord.y <= WORLD_BORDER_HIGH_Y &&
     coord.z >= WORLD_BORDER_LOW_Z &&
     coord.z <= WORLD_BORDER_HIGH_Z;
-}
-
-function callGravity(EntityId playerEntityId, VoxelCoord memory playerCoord) returns (bool) {
-  bytes memory callData = abi.encodeCall(IGravitySystem.runGravity, (playerEntityId, playerCoord));
-  bytes memory returnData = callInternalSystem(callData, 0);
-  return abi.decode(returnData, (bool));
 }
 
 function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {

@@ -18,13 +18,13 @@ import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayCon
 import { ObjectCategory, ActionType, DisplayContentType } from "../codegen/common.sol";
 
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { callGravity, inWorldBorder, positionDataToVoxelCoord } from "../Utils.sol";
+import { inWorldBorder, positionDataToVoxelCoord } from "../Utils.sol";
 import { addToInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
-import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
-
+import { GravityLib } from "./libraries/GravityLib.sol";
+import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract MineSystem is System {
@@ -96,7 +96,7 @@ contract MineSystem is System {
       VoxelCoord memory aboveCoord = VoxelCoord(coords[i].x, coords[i].y + 1, coords[i].z);
       EntityId aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
       if (aboveEntityId.exists() && ObjectType._get(aboveEntityId) == PlayerObjectID) {
-        callGravity(aboveEntityId, aboveCoord);
+        GravityLib.runGravity(aboveEntityId, aboveCoord);
       }
     }
 
@@ -109,12 +109,12 @@ contract MineSystem is System {
       })
     );
 
-    callInternalSystem(
-      abi.encodeCall(
-        IForceFieldSystem.requireMinesAllowed,
-        (playerEntityId, baseEntityId.exists() ? baseEntityId : firstEntityId, mineObjectTypeId, coords, extraData)
-      ),
-      _msgValue()
+    ForceFieldLib.requireMinesAllowed(
+      playerEntityId,
+      baseEntityId.exists() ? baseEntityId : firstEntityId,
+      mineObjectTypeId,
+      coords,
+      extraData
     );
   }
 

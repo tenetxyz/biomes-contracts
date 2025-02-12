@@ -13,8 +13,8 @@ import { TransferData, PipeTransferData, ChipOnTransferData, ChipOnPipeTransferD
 import { transferInventoryEntity, removeFromInventoryCount, addToInventoryCount } from "../utils/InventoryUtils.sol";
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
 
-import { ITransferHelperSystem } from "../codegen/world/ITransferHelperSystem.sol";
-import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
+import { TransferLib } from "./libraries/TransferLib.sol";
+import { PipeTransferLib } from "./libraries/PipeTransferLib.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { EntityId } from "../EntityId.sol";
 
@@ -51,13 +51,7 @@ contract MultiTransferSystem is System {
     bytes memory extraData
   ) public payable {
     require(pipesTransferData.length > 0, "Must transfer through at least one pipe");
-    TransferCommonContext memory ctx = abi.decode(
-      callInternalSystem(
-        abi.encodeCall(ITransferHelperSystem.transferCommon, (_msgSender(), srcEntityId, dstEntityId)),
-        0
-      ),
-      (TransferCommonContext)
-    );
+    TransferCommonContext memory ctx = TransferLib.transferCommon(_msgSender(), srcEntityId, dstEntityId);
     uint16 totalTransfer = transferData.numToTransfer;
     if (transferData.toolEntityIds.length == 0) {
       if (transferData.numToTransfer > 0) {
@@ -111,15 +105,12 @@ contract MultiTransferSystem is System {
         pipeTransferData.transferData.objectTypeId == transferData.objectTypeId,
         "All pipes must be of the same object type"
       );
-      pipeCtxs[i] = abi.decode(
-        callInternalSystem(
-          abi.encodeCall(
-            IPipeTransferHelperSystem.pipeTransferCommon,
-            (ctx.playerEntityId, PlayerObjectID, ctx.chestCoord, ctx.isDeposit, pipeTransferData)
-          ),
-          0
-        ),
-        (PipeTransferCommonContext)
+      pipeCtxs[i] = PipeTransferLib.pipeTransferCommon(
+        ctx.playerEntityId,
+        PlayerObjectID,
+        ctx.chestCoord,
+        ctx.isDeposit,
+        pipeTransferData
       );
 
       totalTransfer += pipeTransferData.transferData.numToTransfer;

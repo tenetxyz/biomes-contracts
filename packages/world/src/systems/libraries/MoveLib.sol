@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../../Types.sol";
 import { inSurroundingCube, voxelCoordsAreEqual } from "../../utils/VoxelCoordUtils.sol";
 
@@ -11,13 +10,14 @@ import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../../codegen/common.sol";
 
 import { AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
-import { callGravity, gravityApplies, inWorldBorder } from "../../Utils.sol";
+import { gravityApplies, inWorldBorder } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
+import { GravityLib } from "./GravityLib.sol";
 
 import { EntityId } from "../../EntityId.sol";
 
-contract MoveHelperSystem is System {
+library MoveLib {
   function movePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord, VoxelCoord[] memory newCoords) public {
     // no-ops
     if (newCoords.length == 0) {
@@ -71,13 +71,13 @@ contract MoveHelperSystem is System {
     // TODO: apply energy cost to moving
 
     if (gravityAppliesForCoord) {
-      callGravity(playerEntityId, finalCoord);
+      GravityLib.runGravity(playerEntityId, finalCoord);
     }
 
     VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     EntityId aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
     if (aboveEntityId.exists() && ObjectType._get(aboveEntityId) == PlayerObjectID) {
-      callGravity(aboveEntityId, aboveCoord);
+      GravityLib.runGravity(aboveEntityId, aboveCoord);
     }
 
     notify(playerEntityId, MoveNotifData({ moveCoords: newCoords }));

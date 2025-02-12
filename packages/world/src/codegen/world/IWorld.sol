@@ -34,11 +34,6 @@ import { IInitPlayersSystem } from "./IInitPlayersSystem.sol";
 import { IInitTerrainBlocksSystem } from "./IInitTerrainBlocksSystem.sol";
 import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
 import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
-import { IForceFieldSystem } from "./IForceFieldSystem.sol";
-import { IGravitySystem } from "./IGravitySystem.sol";
-import { IMoveHelperSystem } from "./IMoveHelperSystem.sol";
-import { IPipeTransferHelperSystem } from "./IPipeTransferHelperSystem.sol";
-import { ITransferHelperSystem } from "./ITransferHelperSystem.sol";
 
 /**
  * @title IWorld
@@ -78,10 +73,5 @@ interface IWorld is
   IInitPlayersSystem,
   IInitTerrainBlocksSystem,
   IInitThermoblastSystem,
-  IInitWorkbenchSystem,
-  IForceFieldSystem,
-  IGravitySystem,
-  IMoveHelperSystem,
-  IPipeTransferHelperSystem,
-  ITransferHelperSystem
+  IInitWorkbenchSystem
 {}

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../../Types.sol";
 
 import { Position } from "../../codegen/tables/Position.sol";
@@ -15,7 +14,7 @@ import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
 
 import { EntityId } from "../../EntityId.sol";
 
-contract GravitySystem is System {
+library GravityLib {
   function runGravity(EntityId playerEntityId, VoxelCoord memory playerCoord) public returns (bool) {
     VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
     if (!inWorldBorder(belowCoord)) {

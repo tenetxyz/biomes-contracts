@@ -20,7 +20,7 @@ import { inWorldBorder } from "../Utils.sol";
 import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
-import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
+import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -76,13 +76,7 @@ contract BuildSystem is System {
     );
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
-    callInternalSystem(
-      abi.encodeCall(
-        IForceFieldSystem.requireBuildsAllowed,
-        (playerEntityId, baseEntityId, objectTypeId, coords, extraData)
-      ),
-      _msgValue()
-    );
+    ForceFieldLib.requireBuildsAllowed(playerEntityId, baseEntityId, objectTypeId, coords, extraData);
 
     return baseEntityId;
   }
