@@ -7,7 +7,7 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables
 import { ObjectCategory } from "../../codegen/common.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
-import { AirObjectID, WaterObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, SandObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossBlockObjectID, LavaObjectID } from "../../ObjectTypeIds.sol";
+import { AirObjectID, WaterObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, SandObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, GrassObjectID, DirtObjectID, MossBlockObjectID, LavaObjectID } from "../../ObjectTypeIds.sol";
 import { CoalOreObjectID, GoldOreObjectID, SilverOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID, CottonBlockObjectID } from "../../ObjectTypeIds.sol";
 import { OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../../ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID } from "../../ObjectTypeIds.sol";
@@ -32,10 +32,9 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(WaterObjectID, 0);
     createTerrainBlock(LavaObjectID, 115);
     createTerrainBlock(GrassObjectID, 12);
-    // createTerrainBlock(MuckGrassObjectID, 4);
     createTerrainBlock(DirtObjectID, 40);
-    // createTerrainBlock(MuckDirtObjectID, 4);
     createTerrainBlock(MossBlockObjectID, 35);
+    createTerrainBlock(SnowObjectID, 40);
     createTerrainBlock(GravelObjectID, 5);
     createTerrainBlock(SandObjectID, 35);
     createTerrainBlock(BedrockObjectID, 1000);
@@ -52,7 +51,7 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(RedMushroomObjectID, 1);
     createTerrainBlock(BellflowerObjectID, 1);
     createTerrainBlock(CottonBushObjectID, 1);
-    // createTerrainBlock(SwitchGrassObjectID, 1);
+    createTerrainBlock(SwitchGrassObjectID, 1);
     createTerrainBlock(DaylilyObjectID, 1);
     createTerrainBlock(AzaleaObjectID, 1);
     createTerrainBlock(RoseObjectID, 1);
