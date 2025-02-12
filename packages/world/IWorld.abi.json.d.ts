@@ -35,9 +35,9 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "chipAddress",
-        "type": "address",
-        "internalType": "address"
+        "name": "chipSystemId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
       }
     ],
     "outputs": [],
@@ -53,9 +53,9 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "chipAddress",
-        "type": "address",
-        "internalType": "address"
+        "name": "chipSystemId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
       },
       {
         "name": "extraData",
