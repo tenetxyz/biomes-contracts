@@ -11,7 +11,7 @@ import { ObjectCategory, ActionType } from "../codegen/common.sol";
 
 import { PlayerObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { TransferData, PipeTransferData, ChipOnTransferData, ChipOnPipeTransferData, TransferCommonContext, PipeTransferCommonContext } from "../Types.sol";
-import { transferInventoryTool, removeFromInventoryCount, addToInventoryCount } from "../utils/InventoryUtils.sol";
+import { transferInventoryEntity, removeFromInventoryCount, addToInventoryCount } from "../utils/InventoryUtils.sol";
 
 import { ITransferHelperSystem } from "../codegen/world/ITransferHelperSystem.sol";
 import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
@@ -81,7 +81,7 @@ contract MultiTransferSystem is System {
     } else {
       require(uint16(transferData.toolEntityIds.length) == transferData.numToTransfer, "Invalid tool count");
       for (uint i = 0; i < transferData.toolEntityIds.length; i++) {
-        uint16 toolObjectTypeId = transferInventoryTool(
+        uint16 toolObjectTypeId = transferInventoryEntity(
           ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
           ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
           ctx.dstObjectTypeId,

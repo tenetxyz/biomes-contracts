@@ -620,9 +620,9 @@ declare const abi: [
                 "internalType": "uint16"
               },
               {
-                "name": "tools",
+                "name": "inventoryEntities",
                 "type": "tuple[]",
-                "internalType": "struct InventoryTool[]",
+                "internalType": "struct InventoryEntity[]",
                 "components": [
                   {
                     "name": "entityId",
@@ -630,9 +630,9 @@ declare const abi: [
                     "internalType": "EntityId"
                   },
                   {
-                    "name": "numUsesLeft",
-                    "type": "uint256",
-                    "internalType": "uint256"
+                    "name": "mass",
+                    "type": "uint128",
+                    "internalType": "uint128"
                   }
                 ]
               }
@@ -717,9 +717,9 @@ declare const abi: [
                 "internalType": "uint16"
               },
               {
-                "name": "tools",
+                "name": "inventoryEntities",
                 "type": "tuple[]",
-                "internalType": "struct InventoryTool[]",
+                "internalType": "struct InventoryEntity[]",
                 "components": [
                   {
                     "name": "entityId",
@@ -727,9 +727,9 @@ declare const abi: [
                     "internalType": "EntityId"
                   },
                   {
-                    "name": "numUsesLeft",
-                    "type": "uint256",
-                    "internalType": "uint256"
+                    "name": "mass",
+                    "type": "uint128",
+                    "internalType": "uint128"
                   }
                 ]
               }
@@ -956,9 +956,9 @@ declare const abi: [
                 "internalType": "uint16"
               },
               {
-                "name": "tools",
+                "name": "inventoryEntities",
                 "type": "tuple[]",
-                "internalType": "struct InventoryTool[]",
+                "internalType": "struct InventoryEntity[]",
                 "components": [
                   {
                     "name": "entityId",
@@ -966,9 +966,9 @@ declare const abi: [
                     "internalType": "EntityId"
                   },
                   {
-                    "name": "numUsesLeft",
-                    "type": "uint256",
-                    "internalType": "uint256"
+                    "name": "mass",
+                    "type": "uint128",
+                    "internalType": "uint128"
                   }
                 ]
               }
@@ -1065,9 +1065,9 @@ declare const abi: [
                 "internalType": "uint16"
               },
               {
-                "name": "tools",
+                "name": "inventoryEntities",
                 "type": "tuple[]",
-                "internalType": "struct InventoryTool[]",
+                "internalType": "struct InventoryEntity[]",
                 "components": [
                   {
                     "name": "entityId",
@@ -1075,9 +1075,9 @@ declare const abi: [
                     "internalType": "EntityId"
                   },
                   {
-                    "name": "numUsesLeft",
-                    "type": "uint256",
-                    "internalType": "uint256"
+                    "name": "mass",
+                    "type": "uint128",
+                    "internalType": "uint128"
                   }
                 ]
               }
@@ -1318,9 +1318,9 @@ declare const abi: [
             "internalType": "uint16"
           },
           {
-            "name": "tools",
+            "name": "inventoryEntities",
             "type": "tuple[]",
-            "internalType": "struct InventoryTool[]",
+            "internalType": "struct InventoryEntity[]",
             "components": [
               {
                 "name": "entityId",
@@ -1328,9 +1328,9 @@ declare const abi: [
                 "internalType": "EntityId"
               },
               {
-                "name": "numUsesLeft",
-                "type": "uint256",
-                "internalType": "uint256"
+                "name": "mass",
+                "type": "uint128",
+                "internalType": "uint128"
               }
             ]
           }
@@ -1366,9 +1366,9 @@ declare const abi: [
             "internalType": "uint16"
           },
           {
-            "name": "tools",
+            "name": "inventoryEntities",
             "type": "tuple[]",
-            "internalType": "struct InventoryTool[]",
+            "internalType": "struct InventoryEntity[]",
             "components": [
               {
                 "name": "entityId",
@@ -1376,9 +1376,9 @@ declare const abi: [
                 "internalType": "EntityId"
               },
               {
-                "name": "numUsesLeft",
-                "type": "uint256",
-                "internalType": "uint256"
+                "name": "mass",
+                "type": "uint128",
+                "internalType": "uint128"
               }
             ]
           }
@@ -1489,9 +1489,9 @@ declare const abi: [
                 "internalType": "uint16"
               },
               {
-                "name": "tools",
+                "name": "inventoryEntities",
                 "type": "tuple[]",
-                "internalType": "struct InventoryTool[]",
+                "internalType": "struct InventoryEntity[]",
                 "components": [
                   {
                     "name": "entityId",
@@ -1499,9 +1499,9 @@ declare const abi: [
                     "internalType": "EntityId"
                   },
                   {
-                    "name": "numUsesLeft",
-                    "type": "uint256",
-                    "internalType": "uint256"
+                    "name": "mass",
+                    "type": "uint128",
+                    "internalType": "uint128"
                   }
                 ]
               }
@@ -1709,9 +1709,9 @@ declare const abi: [
                 "internalType": "uint16"
               },
               {
-                "name": "tools",
+                "name": "inventoryEntities",
                 "type": "tuple[]",
-                "internalType": "struct InventoryTool[]",
+                "internalType": "struct InventoryEntity[]",
                 "components": [
                   {
                     "name": "entityId",
@@ -1719,9 +1719,9 @@ declare const abi: [
                     "internalType": "EntityId"
                   },
                   {
-                    "name": "numUsesLeft",
-                    "type": "uint256",
-                    "internalType": "uint256"
+                    "name": "mass",
+                    "type": "uint128",
+                    "internalType": "uint128"
                   }
                 ]
               }
@@ -1860,9 +1860,9 @@ declare const abi: [
                 "internalType": "uint16"
               },
               {
-                "name": "tools",
+                "name": "inventoryEntities",
                 "type": "tuple[]",
-                "internalType": "struct InventoryTool[]",
+                "internalType": "struct InventoryEntity[]",
                 "components": [
                   {
                     "name": "entityId",
@@ -1870,9 +1870,9 @@ declare const abi: [
                     "internalType": "EntityId"
                   },
                   {
-                    "name": "numUsesLeft",
-                    "type": "uint256",
-                    "internalType": "uint256"
+                    "name": "mass",
+                    "type": "uint128",
+                    "internalType": "uint128"
                   }
                 ]
               }

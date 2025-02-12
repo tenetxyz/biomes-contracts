@@ -7,8 +7,8 @@ import { EntityId } from "../../src/EntityId.sol";
 import { UniqueEntity } from "../../src/codegen/tables/UniqueEntity.sol";
 import { ReversePosition } from "../../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";
-import { InventoryTool } from "../../src/codegen/tables/InventoryTool.sol";
-import { ReverseInventoryTool } from "../../src/codegen/tables/ReverseInventoryTool.sol";
+import { InventoryEntity } from "../../src/codegen/tables/InventoryEntity.sol";
+import { ReverseInventoryEntity } from "../../src/codegen/tables/ReverseInventoryEntity.sol";
 import { InventorySlots } from "../../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../../src/codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../../src/codegen/tables/InventoryObjects.sol";
@@ -63,7 +63,7 @@ function testAddToInventoryCount(
   InventoryCount.set(ownerEntityId, objectTypeId, numFinalObjects);
 
   if (numInitialObjects == 0) {
-    InventoryObjects._push(ownerEntityId, objectTypeId);
+    InventoryObjects.push(ownerEntityId, objectTypeId);
   }
 }
 
@@ -115,8 +115,8 @@ function testUseEquipped(
       // Destroy equipped item
       testRemoveFromInventoryCount(entityId, inventoryObjectTypeId, 1);
       Mass.deleteRecord(inventoryEntityId);
-      InventoryTool.deleteRecord(inventoryEntityId);
-      testRemoveEntityIdFromReverseInventoryTool(entityId, inventoryEntityId);
+      InventoryEntity.deleteRecord(inventoryEntityId);
+      testRemoveEntityIdFromReverseInventoryEntity(entityId, inventoryEntityId);
       Equipped.deleteRecord(entityId);
     } else {
       Mass.setMass(inventoryEntityId, durabilityLeft - durabilityDecrease);
@@ -124,8 +124,8 @@ function testUseEquipped(
   }
 }
 
-function testRemoveEntityIdFromReverseInventoryTool(EntityId ownerEntityId, EntityId removeInventoryEntityId) {
-  bytes32[] memory inventoryEntityIds = ReverseInventoryTool._get(ownerEntityId);
+function testRemoveEntityIdFromReverseInventoryEntity(EntityId ownerEntityId, EntityId removeInventoryEntityId) {
+  bytes32[] memory inventoryEntityIds = ReverseInventoryEntity.get(ownerEntityId);
   bytes32[] memory newInventoryEntityIds = new bytes32[](inventoryEntityIds.length - 1);
   uint256 j = 0;
   for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
@@ -135,14 +135,14 @@ function testRemoveEntityIdFromReverseInventoryTool(EntityId ownerEntityId, Enti
     }
   }
   if (newInventoryEntityIds.length == 0) {
-    ReverseInventoryTool.deleteRecord(ownerEntityId);
+    ReverseInventoryEntity.deleteRecord(ownerEntityId);
   } else {
-    ReverseInventoryTool.set(ownerEntityId, newInventoryEntityIds);
+    ReverseInventoryEntity.set(ownerEntityId, newInventoryEntityIds);
   }
 }
 
 function testRemoveObjectTypeIdFromInventoryObjects(EntityId ownerEntityId, uint16 removeObjectTypeId) {
-  uint16[] memory currentObjectTypeIds = InventoryObjects._get(ownerEntityId);
+  uint16[] memory currentObjectTypeIds = InventoryObjects.get(ownerEntityId);
   uint16[] memory newObjectTypeIds = new uint16[](currentObjectTypeIds.length - 1);
   uint256 j = 0;
   for (uint256 i = 0; i < currentObjectTypeIds.length; i++) {
@@ -164,57 +164,58 @@ function testTransferAllInventoryEntities(
   uint16 toObjectTypeId
 ) returns (uint256) {
   uint256 numTransferred = 0;
-  uint16[] memory fromObjectTypeIds = InventoryObjects._get(fromEntityId);
+  uint16[] memory fromObjectTypeIds = InventoryObjects.get(fromEntityId);
   for (uint256 i = 0; i < fromObjectTypeIds.length; i++) {
-    uint16 objectTypeCount = InventoryCount._get(fromEntityId, fromObjectTypeIds[i]);
+    uint16 objectTypeCount = InventoryCount.get(fromEntityId, fromObjectTypeIds[i]);
     testAddToInventoryCount(toEntityId, toObjectTypeId, fromObjectTypeIds[i], objectTypeCount);
     testRemoveFromInventoryCount(fromEntityId, fromObjectTypeIds[i], objectTypeCount);
     numTransferred += objectTypeCount;
   }
 
-  bytes32[] memory fromInventoryEntityIds = ReverseInventoryTool._get(fromEntityId);
+  bytes32[] memory fromInventoryEntityIds = ReverseInventoryEntity.get(fromEntityId);
   for (uint256 i = 0; i < fromInventoryEntityIds.length; i++) {
-    InventoryTool._set(EntityId.wrap(fromInventoryEntityIds[i]), toEntityId);
-    ReverseInventoryTool.push(toEntityId, fromInventoryEntityIds[i]);
+    InventoryEntity.set(EntityId.wrap(fromInventoryEntityIds[i]), toEntityId);
+    ReverseInventoryEntity.push(toEntityId, fromInventoryEntityIds[i]);
   }
   if (fromInventoryEntityIds.length > 0) {
-    ReverseInventoryTool.deleteRecord(fromEntityId);
+    ReverseInventoryEntity.deleteRecord(fromEntityId);
   }
 
   return numTransferred;
 }
 
-function testTransferInventoryNonTool(
+function testTransferInventoryNonEntity(
   EntityId srcEntityId,
   EntityId dstEntityId,
   uint16 dstObjectTypeId,
   uint16 transferObjectTypeId,
   uint16 numObjectsToTransfer
 ) {
+  ObjectCategory objectCategory = ObjectTypeMetadata.getObjectCategory(transferObjectTypeId);
   require(
-    ObjectTypeMetadata.getObjectCategory(transferObjectTypeId) == ObjectCategory.Block,
-    "Object type is not a block"
+    objectCategory == ObjectCategory.Block || objectCategory == ObjectCategory.Item,
+    "Object type is not a block or item"
   );
   require(numObjectsToTransfer > 0, "Amount must be greater than 0");
   testRemoveFromInventoryCount(srcEntityId, transferObjectTypeId, numObjectsToTransfer);
   testAddToInventoryCount(dstEntityId, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);
 }
 
-function testTransferInventoryTool(
+function testTransferInventoryEntity(
   EntityId srcEntityId,
   EntityId dstEntityId,
   uint16 dstObjectTypeId,
-  EntityId toolEntityId
+  EntityId inventoryEntityId
 ) returns (uint16) {
-  require(InventoryTool.get(toolEntityId) == srcEntityId, "Entity does not own inventory item");
-  if (Equipped.get(srcEntityId) == toolEntityId) {
+  require(InventoryEntity.get(inventoryEntityId) == srcEntityId, "Entity does not own inventory item");
+  if (Equipped.get(srcEntityId) == inventoryEntityId) {
     Equipped.deleteRecord(srcEntityId);
   }
-  InventoryTool.set(toolEntityId, dstEntityId);
-  ReverseInventoryTool.push(dstEntityId, EntityId.unwrap(toolEntityId));
-  testRemoveEntityIdFromReverseInventoryTool(srcEntityId, toolEntityId);
+  InventoryEntity.set(inventoryEntityId, dstEntityId);
+  ReverseInventoryEntity.push(dstEntityId, EntityId.unwrap(inventoryEntityId));
+  testRemoveEntityIdFromReverseInventoryEntity(srcEntityId, inventoryEntityId);
 
-  uint16 inventoryObjectTypeId = ObjectType._get(toolEntityId);
+  uint16 inventoryObjectTypeId = ObjectType.get(inventoryEntityId);
   testRemoveFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);
   testAddToInventoryCount(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
   return inventoryObjectTypeId;

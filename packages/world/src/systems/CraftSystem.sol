@@ -6,8 +6,8 @@ import { VoxelCoord } from "../Types.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { InventoryTool } from "../codegen/tables/InventoryTool.sol";
-import { ReverseInventoryTool } from "../codegen/tables/ReverseInventoryTool.sol";
+import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
+import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
@@ -116,8 +116,8 @@ contract CraftSystem is System {
       for (uint256 i = 0; i < recipeData.outputObjectTypeAmount; i++) {
         EntityId newInventoryEntityId = getUniqueEntity();
         ObjectType._set(newInventoryEntityId, recipeData.outputObjectTypeId);
-        InventoryTool._set(newInventoryEntityId, playerEntityId);
-        ReverseInventoryTool._push(playerEntityId, EntityId.unwrap(newInventoryEntityId));
+        InventoryEntity._set(newInventoryEntityId, playerEntityId);
+        ReverseInventoryEntity._push(playerEntityId, EntityId.unwrap(newInventoryEntityId));
         uint128 mass = ObjectTypeMetadata._getMass(recipeData.outputObjectTypeId);
         if (mass > 0) {
           Mass._setMass(newInventoryEntityId, mass);

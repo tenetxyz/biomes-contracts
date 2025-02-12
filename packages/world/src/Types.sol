@@ -51,15 +51,15 @@ enum VoxelCoordDirectionVonNeumann {
   NegativeZ
 }
 
-struct InventoryTool {
+struct InventoryEntity {
   EntityId entityId;
-  uint256 numUsesLeft;
+  uint128 mass;
 }
 
 struct InventoryObject {
   uint16 objectTypeId;
   uint16 numObjects;
-  InventoryTool[] tools;
+  InventoryEntity[] inventoryEntities;
 }
 
 struct PlayerEntityData {

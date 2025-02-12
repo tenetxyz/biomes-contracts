@@ -2,8 +2,8 @@
 pragma solidity >=0.8.24;
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { InventoryTool } from "../codegen/tables/InventoryTool.sol";
-import { ReverseInventoryTool } from "../codegen/tables/ReverseInventoryTool.sol";
+import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
+import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
 import { InventorySlots } from "../codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
@@ -94,8 +94,8 @@ function useEquipped(
       // Destroy equipped item
       removeFromInventoryCount(entityId, inventoryObjectTypeId, 1);
       Mass._deleteRecord(inventoryEntityId);
-      InventoryTool._deleteRecord(inventoryEntityId);
-      removeEntityIdFromReverseInventoryTool(entityId, inventoryEntityId);
+      InventoryEntity._deleteRecord(inventoryEntityId);
+      removeEntityIdFromReverseInventoryEntity(entityId, inventoryEntityId);
       Equipped._deleteRecord(entityId);
     } else {
       Mass._setMass(inventoryEntityId, durabilityLeft - durabilityDecrease);
@@ -103,8 +103,8 @@ function useEquipped(
   }
 }
 
-function removeEntityIdFromReverseInventoryTool(EntityId ownerEntityId, EntityId removeInventoryEntityId) {
-  bytes32[] memory inventoryEntityIds = ReverseInventoryTool._get(ownerEntityId);
+function removeEntityIdFromReverseInventoryEntity(EntityId ownerEntityId, EntityId removeInventoryEntityId) {
+  bytes32[] memory inventoryEntityIds = ReverseInventoryEntity._get(ownerEntityId);
   bytes32[] memory newInventoryEntityIds = new bytes32[](inventoryEntityIds.length - 1);
   uint256 j = 0;
   for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
@@ -114,9 +114,9 @@ function removeEntityIdFromReverseInventoryTool(EntityId ownerEntityId, EntityId
     }
   }
   if (newInventoryEntityIds.length == 0) {
-    ReverseInventoryTool._deleteRecord(ownerEntityId);
+    ReverseInventoryEntity._deleteRecord(ownerEntityId);
   } else {
-    ReverseInventoryTool._set(ownerEntityId, newInventoryEntityIds);
+    ReverseInventoryEntity._set(ownerEntityId, newInventoryEntityIds);
   }
 }
 
@@ -151,49 +151,50 @@ function transferAllInventoryEntities(
     numTransferred += objectTypeCount;
   }
 
-  bytes32[] memory fromInventoryEntityIds = ReverseInventoryTool._get(fromEntityId);
+  bytes32[] memory fromInventoryEntityIds = ReverseInventoryEntity._get(fromEntityId);
   for (uint256 i = 0; i < fromInventoryEntityIds.length; i++) {
-    InventoryTool._set(EntityId.wrap(fromInventoryEntityIds[i]), toEntityId);
-    ReverseInventoryTool._push(toEntityId, fromInventoryEntityIds[i]);
+    InventoryEntity._set(EntityId.wrap(fromInventoryEntityIds[i]), toEntityId);
+    ReverseInventoryEntity._push(toEntityId, fromInventoryEntityIds[i]);
   }
   if (fromInventoryEntityIds.length > 0) {
-    ReverseInventoryTool._deleteRecord(fromEntityId);
+    ReverseInventoryEntity._deleteRecord(fromEntityId);
   }
 
   return numTransferred;
 }
 
-function transferInventoryNonTool(
+function transferInventoryNonEntity(
   EntityId srcEntityId,
   EntityId dstEntityId,
   uint16 dstObjectTypeId,
   uint16 transferObjectTypeId,
   uint16 numObjectsToTransfer
 ) {
+  ObjectCategory objectCategory = ObjectTypeMetadata._getObjectCategory(transferObjectTypeId);
   require(
-    ObjectTypeMetadata._getObjectCategory(transferObjectTypeId) == ObjectCategory.Block,
-    "Object type is not a block"
+    objectCategory == ObjectCategory.Block || objectCategory == ObjectCategory.Item,
+    "Object type is not a block or item"
   );
   require(numObjectsToTransfer > 0, "Amount must be greater than 0");
   removeFromInventoryCount(srcEntityId, transferObjectTypeId, numObjectsToTransfer);
   addToInventoryCount(dstEntityId, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);
 }
 
-function transferInventoryTool(
+function transferInventoryEntity(
   EntityId srcEntityId,
   EntityId dstEntityId,
   uint16 dstObjectTypeId,
-  EntityId toolEntityId
+  EntityId inventoryEntityId
 ) returns (uint16) {
-  require(InventoryTool._get(toolEntityId) == srcEntityId, "Entity does not own inventory item");
-  if (Equipped._get(srcEntityId) == toolEntityId) {
+  require(InventoryEntity._get(inventoryEntityId) == srcEntityId, "Entity does not own inventory item");
+  if (Equipped._get(srcEntityId) == inventoryEntityId) {
     Equipped._deleteRecord(srcEntityId);
   }
-  InventoryTool._set(toolEntityId, dstEntityId);
-  ReverseInventoryTool._push(dstEntityId, EntityId.unwrap(toolEntityId));
-  removeEntityIdFromReverseInventoryTool(srcEntityId, toolEntityId);
+  InventoryEntity._set(inventoryEntityId, dstEntityId);
+  ReverseInventoryEntity._push(dstEntityId, EntityId.unwrap(inventoryEntityId));
+  removeEntityIdFromReverseInventoryEntity(srcEntityId, inventoryEntityId);
 
-  uint16 inventoryObjectTypeId = ObjectType._get(toolEntityId);
+  uint16 inventoryObjectTypeId = ObjectType._get(inventoryEntityId);
   removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);
   addToInventoryCount(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
   return inventoryObjectTypeId;

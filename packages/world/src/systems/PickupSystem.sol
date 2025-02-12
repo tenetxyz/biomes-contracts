@@ -11,7 +11,7 @@ import { ActionType } from "../codegen/common.sol";
 
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder } from "../Utils.sol";
-import { transferInventoryNonTool, transferInventoryTool, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { transferInventoryNonEntity, transferInventoryEntity, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 import { PickupData } from "../Types.sol";
@@ -53,7 +53,7 @@ contract PickupSystem is System {
 
   function pickup(uint16 pickupObjectTypeId, uint16 numToPickup, VoxelCoord memory coord) public {
     (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
-    transferInventoryNonTool(entityId, playerEntityId, PlayerObjectID, pickupObjectTypeId, numToPickup);
+    transferInventoryNonEntity(entityId, playerEntityId, PlayerObjectID, pickupObjectTypeId, numToPickup);
 
     PlayerActionNotif._set(
       playerEntityId,
@@ -71,7 +71,7 @@ contract PickupSystem is System {
 
   function pickupTool(EntityId toolEntityId, VoxelCoord memory coord) public {
     (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
-    uint16 toolObjectTypeId = transferInventoryTool(entityId, playerEntityId, PlayerObjectID, toolEntityId);
+    uint16 toolObjectTypeId = transferInventoryEntity(entityId, playerEntityId, PlayerObjectID, toolEntityId);
 
     PlayerActionNotif._set(
       playerEntityId,
@@ -96,7 +96,7 @@ contract PickupSystem is System {
 
     for (uint256 i = 0; i < pickupObjects.length; i++) {
       PickupData memory pickupObject = pickupObjects[i];
-      transferInventoryNonTool(
+      transferInventoryNonEntity(
         entityId,
         playerEntityId,
         PlayerObjectID,
@@ -119,7 +119,7 @@ contract PickupSystem is System {
     }
 
     for (uint256 i = 0; i < pickupTools.length; i++) {
-      uint16 toolObjectTypeId = transferInventoryTool(entityId, playerEntityId, PlayerObjectID, pickupTools[i]);
+      uint16 toolObjectTypeId = transferInventoryEntity(entityId, playerEntityId, PlayerObjectID, pickupTools[i]);
 
       PlayerActionNotif._set(
         playerEntityId,

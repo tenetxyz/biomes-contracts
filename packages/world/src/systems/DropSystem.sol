@@ -11,7 +11,7 @@ import { ActionType } from "../codegen/common.sol";
 
 import { AirObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
-import { transferInventoryNonTool, transferInventoryTool } from "../utils/InventoryUtils.sol";
+import { transferInventoryNonEntity, transferInventoryEntity } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
@@ -31,7 +31,7 @@ contract DropSystem is System {
 
   function drop(uint16 dropObjectTypeId, uint16 numToDrop, VoxelCoord memory coord) public {
     (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
-    transferInventoryNonTool(playerEntityId, entityId, AirObjectID, dropObjectTypeId, numToDrop);
+    transferInventoryNonEntity(playerEntityId, entityId, AirObjectID, dropObjectTypeId, numToDrop);
 
     PlayerActionNotif._set(
       playerEntityId,
@@ -49,7 +49,7 @@ contract DropSystem is System {
 
   function dropTool(EntityId toolEntityId, VoxelCoord memory coord) public {
     (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
-    uint16 toolObjectTypeId = transferInventoryTool(playerEntityId, entityId, AirObjectID, toolEntityId);
+    uint16 toolObjectTypeId = transferInventoryEntity(playerEntityId, entityId, AirObjectID, toolEntityId);
 
     PlayerActionNotif._set(
       playerEntityId,
@@ -72,7 +72,7 @@ contract DropSystem is System {
 
     uint16 toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
-      uint16 currentToolObjectTypeId = transferInventoryTool(playerEntityId, entityId, AirObjectID, toolEntityIds[i]);
+      uint16 currentToolObjectTypeId = transferInventoryEntity(playerEntityId, entityId, AirObjectID, toolEntityIds[i]);
       if (i > 0) {
         require(toolObjectTypeId == currentToolObjectTypeId, "All tools must be of the same type");
       } else {

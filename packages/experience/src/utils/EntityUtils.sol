@@ -19,8 +19,8 @@ import { Position } from "@biomesaw/world/src/codegen/tables/Position.sol";
 import { ReversePosition } from "@biomesaw/world/src/codegen/tables/ReversePosition.sol";
 import { Equipped } from "@biomesaw/world/src/codegen/tables/Equipped.sol";
 import { InventoryObjects } from "@biomesaw/world/src/codegen/tables/InventoryObjects.sol";
-import { InventoryTool } from "@biomesaw/world/src/codegen/tables/InventoryTool.sol";
-import { ReverseInventoryTool } from "@biomesaw/world/src/codegen/tables/ReverseInventoryTool.sol";
+import { InventoryEntity } from "@biomesaw/world/src/codegen/tables/InventoryEntity.sol";
+import { ReverseInventoryEntity } from "@biomesaw/world/src/codegen/tables/ReverseInventoryEntity.sol";
 import { InventorySlots } from "@biomesaw/world/src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "@biomesaw/world/src/codegen/tables/InventoryCount.sol";
 import { ObjectCategory } from "@biomesaw/world/src/codegen/tables/ObjectTypeMetadata.sol";
@@ -89,8 +89,8 @@ function getIsLoggedOff(EntityId playerEntityId) view returns (bool) {
   return PlayerStatus.getIsLoggedOff(playerEntityId);
 }
 
-function getInventoryTool(EntityId playerEntityId) view returns (bytes32[] memory) {
-  return ReverseInventoryTool.getToolEntityIds(playerEntityId);
+function getInventoryEntityIds(EntityId playerEntityId) view returns (bytes32[] memory) {
+  return ReverseInventoryEntity.getEntityIds(playerEntityId);
 }
 
 function getInventoryObjects(EntityId entityId) view returns (uint16[] memory) {

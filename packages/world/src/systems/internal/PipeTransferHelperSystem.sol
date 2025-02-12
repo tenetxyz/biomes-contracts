@@ -20,7 +20,7 @@ import { ChipOnPipeTransferData, PipeTransferData, PipeTransferCommonContext } f
 import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
 import { isStorageContainer } from "../../utils/ObjectTypeUtils.sol";
-import { transferInventoryTool, transferInventoryNonTool, addToInventoryCount, removeFromInventoryCount } from "../../utils/InventoryUtils.sol";
+import { transferInventoryEntity, transferInventoryNonEntity, addToInventoryCount, removeFromInventoryCount } from "../../utils/InventoryUtils.sol";
 
 import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 import { EntityId } from "../../EntityId.sol";
@@ -143,7 +143,7 @@ contract PipeTransferHelperSystem is System {
       );
 
       for (uint i = 0; i < pipeTransferData.transferData.toolEntityIds.length; i++) {
-        uint16 toolObjectTypeId = transferInventoryTool(
+        uint16 toolObjectTypeId = transferInventoryEntity(
           isDeposit ? callerEntityId : pipeTransferData.targetEntityId,
           isDeposit ? pipeTransferData.targetEntityId : callerEntityId,
           isDeposit ? targetObjectTypeId : callerObjectTypeId,

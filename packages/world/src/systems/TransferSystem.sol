@@ -8,7 +8,7 @@ import { Chip } from "../codegen/tables/Chip.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { transferInventoryTool, transferInventoryNonTool } from "../utils/InventoryUtils.sol";
+import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { ChipOnTransferData, TransferData, TransferCommonContext } from "../Types.sol";
 
@@ -55,7 +55,7 @@ contract TransferSystem is System {
       ),
       (TransferCommonContext)
     );
-    transferInventoryNonTool(
+    transferInventoryNonEntity(
       ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
       ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
       ctx.dstObjectTypeId,
@@ -120,7 +120,7 @@ contract TransferSystem is System {
     );
     uint16 toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
-      uint16 currentToolObjectTypeId = transferInventoryTool(
+      uint16 currentToolObjectTypeId = transferInventoryEntity(
         ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
         ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
         ctx.dstObjectTypeId,

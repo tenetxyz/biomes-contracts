@@ -8,8 +8,8 @@ import { console } from "forge-std/console.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { InventoryTool } from "../src/codegen/tables/InventoryTool.sol";
-import { ReverseInventoryTool } from "../src/codegen/tables/ReverseInventoryTool.sol";
+import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
+import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
@@ -25,7 +25,7 @@ import { Mass } from "../src/codegen/tables/Mass.sol";
 import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, NeptuniumPickObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID, SmartChestObjectID, TextSignObjectID, SmartTextSignObjectID, PipeObjectID } from "../src/ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID, PowerStoneObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
-import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount, testRemoveEntityIdFromReverseInventoryTool } from "../test/utils/TestUtils.sol";
+import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount, testRemoveEntityIdFromReverseInventoryEntity } from "../test/utils/TestUtils.sol";
 import { EntityId } from "../src/EntityId.sol";
 
 contract TestScript is Script {
@@ -61,8 +61,8 @@ contract TestScript is Script {
 
     EntityId newInventoryEntityId = testGetUniqueEntity();
     ObjectType.set(newInventoryEntityId, NeptuniumPickObjectID);
-    InventoryTool.set(newInventoryEntityId, playerEntityId);
-    ReverseInventoryTool.push(playerEntityId, EntityId.unwrap(newInventoryEntityId));
+    InventoryEntity.set(newInventoryEntityId, playerEntityId);
+    ReverseInventoryEntity.push(playerEntityId, EntityId.unwrap(newInventoryEntityId));
     uint128 mass = ObjectTypeMetadata.getMass(NeptuniumPickObjectID);
     require(mass > 0, "Mass must be greater than 0");
     Mass.setMass(newInventoryEntityId, mass);
@@ -72,8 +72,8 @@ contract TestScript is Script {
     // bytes32 inventoryEntityId = 0x000000000000000000000000000000000000000000000000000000000004bbb3;
     // testRemoveFromInventoryCount(playerEntityId, NeptuniumPickObjectID, 1);
     // Mass.deleteRecord(inventoryEntityId);
-    // InventoryTool.deleteRecord(inventoryEntityId);
-    // testRemoveEntityIdFromReverseInventoryTool(playerEntityId, inventoryEntityId);
+    // InventoryEntity.deleteRecord(inventoryEntityId);
+    // testRemoveEntityIdFromReverseInventoryEntity(playerEntityId, inventoryEntityId);
     // Equipped.deleteRecord(playerEntityId);
 
     vm.stopBroadcast();

@@ -154,24 +154,24 @@ export default defineWorld({
       },
       key: ["ownerEntityId", "objectTypeId"],
     },
-    InventoryTool: {
+    InventoryEntity: {
       schema: {
-        toolEntityId: "EntityId",
+        entityId: "EntityId",
         ownerEntityId: "EntityId",
       },
-      key: ["toolEntityId"],
+      key: ["entityId"],
     },
-    ReverseInventoryTool: {
+    ReverseInventoryEntity: {
       schema: {
         ownerEntityId: "EntityId",
-        toolEntityIds: "bytes32[]",
+        entityIds: "bytes32[]",
       },
       key: ["ownerEntityId"],
     },
     Equipped: {
       schema: {
         ownerEntityId: "EntityId",
-        toolEntityId: "EntityId",
+        entityId: "EntityId",
       },
       key: ["ownerEntityId"],
     },

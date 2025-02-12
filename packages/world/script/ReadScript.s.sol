@@ -11,8 +11,6 @@ import { coordToShardCoord } from "../src/utils/VoxelCoordUtils.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { InventoryTool } from "../src/codegen/tables/InventoryTool.sol";
-import { ReverseInventoryTool } from "../src/codegen/tables/ReverseInventoryTool.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";

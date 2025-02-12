@@ -18,7 +18,6 @@ import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
-import { ReverseInventoryTool } from "../../codegen/tables/ReverseInventoryTool.sol";
 
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { NullObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
