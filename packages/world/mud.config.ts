@@ -134,7 +134,7 @@ export default defineWorld({
         x: "int32",
         y: "int32",
         z: "int32",
-        pointer: "address",
+        explorer: "address",
       },
       key: ["x", "y", "z"],
     },

@@ -82,7 +82,7 @@ contract TerrainTest is MudTest, GasReporter {
     assertEq(index, 0 * 256 + 15 * 16 + 14 + VERSION_PADDING);
   }
 
-  function testEncodeChunk() public {
+  function testExploreChunk() public {
     uint8[][][] memory chunk = new uint8[][][](uint256(int256(CHUNK_SIZE)));
     for (uint256 x = 0; x < uint256(int256(CHUNK_SIZE)); x++) {
       chunk[x] = new uint8[][](uint256(int256(CHUNK_SIZE)));
@@ -102,20 +102,30 @@ contract TerrainTest is MudTest, GasReporter {
     endGasReport();
 
     VoxelCoord memory voxelCoord = VoxelCoord(1, 2, 3);
-    startGasReport("Terrain.getBlockType");
+    startGasReport("Terrain.getBlockType (non-root)");
     uint8 blockType = Terrain.getBlockType(voxelCoord);
+    endGasReport();
+
+    startGasReport("Terrain.getBlockType (root)");
+    blockType = Terrain.getBlockType(voxelCoord, worldAddress);
     endGasReport();
 
     assertEq(blockType, chunk[1][2][3]);
 
-    // for (int32 x = 0; x < CHUNK_SIZE; x++) {
-    //   for (int32 y = 0; y < CHUNK_SIZE; y++) {
-    //     for (int32 z = 0; z < CHUNK_SIZE; z++) {
-    //       voxelCoord = VoxelCoord(int32(x), int32(y), int32(z));
-    //       blockType = Terrain.getBlockType(voxelCoord);
-    //       assertEq(blockType, chunk[uint256(int256(x))][uint256(int256(y))][uint256(int256(z))]);
-    //     }
-    //   }
-    // }
+    for (int32 x = 0; x < CHUNK_SIZE; x++) {
+      for (int32 y = 0; y < CHUNK_SIZE; y++) {
+        for (int32 z = 0; z < CHUNK_SIZE; z++) {
+          voxelCoord = VoxelCoord(int32(x), int32(y), int32(z));
+          blockType = Terrain.getBlockType(voxelCoord);
+          assertEq(blockType, chunk[uint256(int256(x))][uint256(int256(y))][uint256(int256(z))]);
+        }
+      }
+    }
+  }
+
+  /// forge-config: default.allow_internal_expect_revert = true
+  function testUnexploredChunk() public {
+    vm.expectRevert("Chunk not explored yet");
+    Terrain.getBlockType(VoxelCoord(0, 0, 0));
   }
 }
