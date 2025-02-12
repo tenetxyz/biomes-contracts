@@ -3,7 +3,6 @@ pragma solidity >=0.8.24;
 
 import { VoxelCoord } from "./Types.sol";
 import { coordToShardCoordIgnoreY } from "./utils/VoxelCoordUtils.sol";
-import { callInternalSystem, staticCallInternalSystem } from "./utils/CallUtils.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";

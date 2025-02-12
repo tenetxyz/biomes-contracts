@@ -2,7 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { callInternalSystem } from "../utils/CallUtils.sol";
 
 import { Chip } from "../codegen/tables/Chip.sol";
 import { ActionType } from "../codegen/common.sol";

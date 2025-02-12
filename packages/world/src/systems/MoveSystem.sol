@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordDirection } from "../Types.sol";
 import { transformVoxelCoord } from "../utils/VoxelCoordUtils.sol";
-import { callInternalSystem } from "../utils/CallUtils.sol";
 
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
