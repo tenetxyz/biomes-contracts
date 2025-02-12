@@ -60,7 +60,7 @@ library Terrain {
       });
   }
 
-  // Get the index within the chunk of a voxel coordinate
+  // Get of a voxel coordinate within an encoded chunk
   function _getBlockIndex(VoxelCoord memory coord) internal pure returns (uint256) {
     VoxelCoord memory relativeCoord = _getRelativeCoord(coord);
     return
