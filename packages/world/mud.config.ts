@@ -129,6 +129,15 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
+    ExploredChunk: {
+      schema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+        chunkData: "address",
+      },
+      key: ["x", "y", "z"],
+    },
     // ------------------------------------------------------------
     // Inventory
     // ------------------------------------------------------------

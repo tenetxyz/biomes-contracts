@@ -13,6 +13,7 @@ import { ReversePosition } from "./tables/ReversePosition.sol";
 import { Mass } from "./tables/Mass.sol";
 import { Energy, EnergyData } from "./tables/Energy.sol";
 import { LocalEnergyPool } from "./tables/LocalEnergyPool.sol";
+import { ExploredChunk } from "./tables/ExploredChunk.sol";
 import { InventorySlots } from "./tables/InventorySlots.sol";
 import { InventoryObjects } from "./tables/InventoryObjects.sol";
 import { InventoryCount } from "./tables/InventoryCount.sol";

@@ -11,6 +11,12 @@ struct VoxelCoord {
   int32 z;
 }
 
+struct ChunkCoord {
+  int32 x;
+  int32 y;
+  int32 z;
+}
+
 // Define an enum representing all possible 3D movements in a Moore neighborhood
 enum VoxelCoordDirection {
   PositiveX, // +1 in the x direction
