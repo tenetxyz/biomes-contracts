@@ -306,29 +306,6 @@
   },
   {
     "type": "function",
-    "name": "deleteAllUserHooks",
-    "inputs": [
-      {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "systemId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
-      },
-      {
-        "name": "callDataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "deleteRecord",
     "inputs": [
       {
@@ -1520,35 +1497,6 @@
   },
   {
     "type": "function",
-    "name": "getOptionalSystemHooks",
-    "inputs": [
-      {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "SystemId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
-      },
-      {
-        "name": "callDataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "hooks",
-        "type": "bytes21[]",
-        "internalType": "bytes21[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
     "name": "getPlayerCoord",
     "inputs": [
       {
@@ -1988,30 +1936,6 @@
         "name": "",
         "type": "bytes32",
         "internalType": "bytes32"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getUserDelegation",
-    "inputs": [
-      {
-        "name": "delegator",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "delegatee",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "delegationControlId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
       }
     ],
     "stateMutability": "view"

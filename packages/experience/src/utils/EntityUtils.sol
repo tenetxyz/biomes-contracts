@@ -1,14 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
-import { OptionalSystemHooks } from "@latticexyz/world/src/codegen/tables/OptionalSystemHooks.sol";
-import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/UserDelegationControl.sol";
-import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
-import { BEFORE_CALL_SYSTEM, AFTER_CALL_SYSTEM, ALL } from "@latticexyz/world/src/systemHookTypes.sol";
-import { Hook } from "@latticexyz/store/src/Hook.sol";
-import { Delegation } from "@latticexyz/world/src/Delegation.sol";
-
 import { IWorld } from "@biomesaw/world/src/codegen/world/IWorld.sol";
 import { ObjectTypeMetadata } from "@biomesaw/world/src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "@biomesaw/world/src/codegen/tables/Player.sol";
@@ -29,21 +21,6 @@ import { ChestObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
 import { VoxelCoord } from "@biomesaw/world/src/Types.sol";
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 import { positionDataToVoxelCoord } from "@biomesaw/world/src/Utils.sol";
-
-function hasBeforeAndAfterSystemHook(address hookAddress, address player, ResourceId systemId) view returns (bool) {
-  bytes21[] memory playerSystemHooks = OptionalSystemHooks.getHooks(player, systemId, bytes32(0));
-  for (uint i = 0; i < playerSystemHooks.length; i++) {
-    Hook hook = Hook.wrap(playerSystemHooks[i]);
-    if (hook.getAddress() == hookAddress && hook.getBitmap() == ALL) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function hasDelegated(address delegator, address delegatee) view returns (bool) {
-  return Delegation.isUnlimited(UserDelegationControl.getDelegationControlId(delegator, delegatee));
-}
 
 function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (uint16) {
   EntityId entityId = getEntityAtCoord(coord);

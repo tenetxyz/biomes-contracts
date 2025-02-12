@@ -24,7 +24,6 @@ import { IPipeTransferSystem } from "./IPipeTransferSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
-import { IAdminHookSystem } from "./IAdminHookSystem.sol";
 import { IOracleSystem } from "./IOracleSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
 import { IReadTwoSystem } from "./IReadTwoSystem.sol";
@@ -70,7 +69,6 @@ interface IWorld is
   ISpawnSystem,
   ITransferSystem,
   IUnequipSystem,
-  IAdminHookSystem,
   IOracleSystem,
   IReadSystem,
   IReadTwoSystem,

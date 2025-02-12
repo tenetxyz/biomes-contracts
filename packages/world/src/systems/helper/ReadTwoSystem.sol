@@ -2,9 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
-import { OptionalSystemHooks } from "@latticexyz/world/src/codegen/tables/OptionalSystemHooks.sol";
-import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/UserDelegationControl.sol";
 import { VoxelCoord } from "../../Types.sol";
 import { staticCallInternalSystem } from "../../utils/CallUtils.sol";
 
