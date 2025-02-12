@@ -315,11 +315,6 @@ export default defineWorld({
     },
   },
   systems: {
-    GravitySystem: {
-      name: "GravitySystem",
-      openAccess: false,
-      accessList: [],
-    },
     ForceFieldSystem: {
       name: "ForceFieldSystem",
       openAccess: false,
