@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../../Types.sol";
 import { inSurroundingCube } from "../../utils/VoxelCoordUtils.sol";
 
@@ -21,12 +20,12 @@ import { TransferCommonContext } from "../../Types.sol";
 
 import { EntityId } from "../../EntityId.sol";
 
-contract TransferHelperSystem is System {
+library TransferLib {
   function transferCommon(
     address msgSender,
     EntityId srcEntityId,
     EntityId dstEntityId
-  ) public payable returns (TransferCommonContext memory) {
+  ) public returns (TransferCommonContext memory) {
     (EntityId playerEntityId, ) = requireValidPlayer(msgSender);
 
     EntityId baseSrcEntityId = srcEntityId.baseEntityId();

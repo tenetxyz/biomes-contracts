@@ -11,7 +11,7 @@ import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/In
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { ChipOnTransferData, TransferData, TransferCommonContext } from "../Types.sol";
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
-import { ITransferHelperSystem } from "../codegen/world/ITransferHelperSystem.sol";
+import { TransferLib } from "./libraries/TransferLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract TransferSystem is System {
@@ -47,13 +47,7 @@ contract TransferSystem is System {
     uint16 numToTransfer,
     bytes memory extraData
   ) public payable {
-    TransferCommonContext memory ctx = abi.decode(
-      callInternalSystem(
-        abi.encodeCall(ITransferHelperSystem.transferCommon, (_msgSender(), srcEntityId, dstEntityId)),
-        0
-      ),
-      (TransferCommonContext)
-    );
+    TransferCommonContext memory ctx = TransferLib.transferCommon(_msgSender(), srcEntityId, dstEntityId);
     transferInventoryNonEntity(
       ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
       ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
@@ -106,14 +100,7 @@ contract TransferSystem is System {
     bytes memory extraData
   ) public payable {
     require(toolEntityIds.length > 0, "Must transfer at least one tool");
-
-    TransferCommonContext memory ctx = abi.decode(
-      callInternalSystem(
-        abi.encodeCall(ITransferHelperSystem.transferCommon, (_msgSender(), srcEntityId, dstEntityId)),
-        0
-      ),
-      (TransferCommonContext)
-    );
+    TransferCommonContext memory ctx = TransferLib.transferCommon(_msgSender(), srcEntityId, dstEntityId);
     uint16 toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
       uint16 currentToolObjectTypeId = transferInventoryEntity(

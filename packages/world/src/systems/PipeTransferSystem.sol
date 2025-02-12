@@ -18,7 +18,7 @@ import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 
 import { IChestChip } from "../prototypes/IChestChip.sol";
-import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
+import { PipeTransferLib } from "./libraries/PipeTransferLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract PipeTransferSystem is System {
@@ -53,16 +53,12 @@ contract PipeTransferSystem is System {
     }
     require(chipAddress == _msgSender(), "Caller is not the chip of the smart item");
     require(machineEnergyLevel > 0, "Caller has no charge");
-
-    PipeTransferCommonContext memory pipeCtx = abi.decode(
-      callInternalSystem(
-        abi.encodeCall(
-          IPipeTransferHelperSystem.pipeTransferCommon,
-          (callerEntityId, callerObjectTypeId, callerCoord, isDeposit, pipeTransferData)
-        ),
-        0
-      ),
-      (PipeTransferCommonContext)
+    PipeTransferCommonContext memory pipeCtx = PipeTransferLib.pipeTransferCommon(
+      callerEntityId,
+      callerObjectTypeId,
+      callerCoord,
+      isDeposit,
+      pipeTransferData
     );
 
     if (pipeCtx.targetObjectTypeId != ForceFieldObjectID) {

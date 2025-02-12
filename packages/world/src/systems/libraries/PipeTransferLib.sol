@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordDirectionVonNeumann } from "../../Types.sol";
 import { transformVoxelCoordVonNeumann, inVonNeumannNeighborhood } from "../../utils/VoxelCoordUtils.sol";
 
@@ -25,7 +24,7 @@ import { transferInventoryEntity, transferInventoryNonEntity, addToInventoryCoun
 import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 import { EntityId } from "../../EntityId.sol";
 
-contract PipeTransferHelperSystem is System {
+library PipeTransferLib {
   function requireValidPath(
     VoxelCoord memory srcCoord,
     VoxelCoord memory dstCoord,
@@ -53,7 +52,7 @@ contract PipeTransferHelperSystem is System {
     VoxelCoord memory callerCoord,
     bool isDeposit,
     PipeTransferData memory pipeTransferData
-  ) public payable returns (PipeTransferCommonContext memory) {
+  ) public returns (PipeTransferCommonContext memory) {
     require(pipeTransferData.targetEntityId != callerEntityId, "Cannot transfer to self");
     require(pipeTransferData.transferData.numToTransfer > 0, "Amount must be greater than 0");
     VoxelCoord memory targetCoord = positionDataToVoxelCoord(Position._get(pipeTransferData.targetEntityId));
