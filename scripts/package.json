@@ -10,7 +10,6 @@
     "readWorld": "npx tsx readWorld.ts",
     "watchWorld": "npx tsx watchWorld.ts",
     "writeWorld": "npx tsx writeWorld.ts",
-    "setupSpawn": "npx tsx setupSpawn.ts",
     "spawnBuild": "npx tsx spawnBuild.ts",
     "measureGas": "npx tsx gas/measureGas.ts",
     "downloadTxHashes": "npx tsx downloadTxHashes.ts",
