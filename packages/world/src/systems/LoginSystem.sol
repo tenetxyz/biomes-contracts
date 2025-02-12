@@ -12,13 +12,13 @@ import { Position } from "../codegen/tables/Position.sol";
 import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH, IN_MAINTENANCE } from "../Constants.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { notify, LoginNotifData } from "../utils/NotifUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -57,17 +57,6 @@ contract LoginSystem is System {
     // We let the user pick a y coord, so we need to apply gravity
     require(!gravityApplies(respawnCoord), "Cannot respawn player here as gravity applies");
 
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Login,
-        entityId: playerEntityId,
-        objectTypeId: PlayerObjectID,
-        coordX: respawnCoord.x,
-        coordY: respawnCoord.y,
-        coordZ: respawnCoord.z,
-        amount: 1
-      })
-    );
+    notify(playerEntityId, LoginNotifData({ loginCoord: respawnCoord }));
   }
 }

@@ -7,10 +7,10 @@ import { VoxelCoord } from "../Types.sol";
 import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
+import { notify, EquipNotifData } from "../utils/NotifUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract EquipSystem is System {
@@ -19,17 +19,6 @@ contract EquipSystem is System {
     require(InventoryEntity._get(inventoryEntityId) == playerEntityId, "Player does not own inventory item");
     Equipped._set(playerEntityId, inventoryEntityId);
 
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Equip,
-        entityId: inventoryEntityId,
-        objectTypeId: ObjectType._get(inventoryEntityId),
-        coordX: playerCoord.x,
-        coordY: playerCoord.y,
-        coordZ: playerCoord.z,
-        amount: 1
-      })
-    );
+    notify(playerEntityId, EquipNotifData({ inventoryEntityId: inventoryEntityId }));
   }
 }

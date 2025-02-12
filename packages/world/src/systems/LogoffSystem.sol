@@ -11,13 +11,13 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { MIN_TIME_BEFORE_AUTO_LOGOFF } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
+import { notify, LogoffNotifData } from "../utils/NotifUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -33,18 +33,7 @@ contract LogoffSystem is System {
     Position._set(airEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
     ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, airEntityId);
 
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Logoff,
-        entityId: playerEntityId,
-        objectTypeId: PlayerObjectID,
-        coordX: playerCoord.x,
-        coordY: playerCoord.y,
-        coordZ: playerCoord.z,
-        amount: 1
-      })
-    );
+    notify(playerEntityId, LogoffNotifData({ logoffCoord: playerCoord }));
   }
 
   function logoffPlayer() public {

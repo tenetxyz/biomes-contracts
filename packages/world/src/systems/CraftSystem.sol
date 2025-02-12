@@ -12,7 +12,6 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ObjectCategory, ActionType } from "../codegen/common.sol";
 
 import { NullObjectTypeId, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyCottonBlockObjectID, AnyGlassObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
@@ -20,6 +19,7 @@ import { getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes, getCottonBlockObjectTypes, getGlassObjectTypes } from "../utils/ObjectTypeUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { notify, CraftNotifData } from "../utils/NotifUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -132,17 +132,6 @@ contract CraftSystem is System {
       recipeData.outputObjectTypeAmount
     );
 
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Craft,
-        entityId: baseStationEntityId,
-        objectTypeId: recipeData.outputObjectTypeId,
-        coordX: playerCoord.x,
-        coordY: playerCoord.y,
-        coordZ: playerCoord.z,
-        amount: recipeData.outputObjectTypeAmount
-      })
-    );
+    notify(playerEntityId, CraftNotifData({ recipeId: recipeId, stationEntityId: stationEntityId }));
   }
 }

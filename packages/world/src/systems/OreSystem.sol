@@ -10,7 +10,6 @@ import { Position } from "../codegen/tables/Position.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 import { TerrainCommitment, TerrainCommitmentData } from "../codegen/tables/TerrainCommitment.sol";
 import { Commitment } from "../codegen/tables/Commitment.sol";
@@ -19,6 +18,7 @@ import { BlockPrevrandao } from "../codegen/tables/BlockPrevrandao.sol";
 import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getRandomNumberBetween0And99 } from "../Utils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { notify, InitiateOreRevealNotifData, RevealOreNotifData } from "../utils/NotifUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract OreSystem is System {
@@ -41,18 +41,7 @@ contract OreSystem is System {
     Commitment._set(playerEntityId, true, coord.x, coord.y, coord.z);
     BlockPrevrandao._set(block.number, block.prevrandao);
 
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.InitiateOreReveal,
-        entityId: playerEntityId,
-        objectTypeId: mineObjectTypeId,
-        coordX: coord.x,
-        coordY: coord.y,
-        coordZ: coord.z,
-        amount: block.number
-      })
-    );
+    notify(playerEntityId, InitiateOreRevealNotifData({ oreCoord: coord }));
   }
 
   // Can be called by anyone
@@ -82,17 +71,9 @@ contract OreSystem is System {
 
         // TODO: apply lava damage
 
-        PlayerActionNotif._set(
+        notify(
           terrainCommitmentData.committerEntityId,
-          PlayerActionNotifData({
-            actionType: ActionType.RevealOre,
-            entityId: terrainCommitmentData.committerEntityId,
-            objectTypeId: oreObjectTypeId,
-            coordX: coord.x,
-            coordY: coord.y,
-            coordZ: coord.z,
-            amount: 0
-          })
+          RevealOreNotifData({ oreCoord: coord, oreObjectTypeId: oreObjectTypeId })
         );
       } // else: the player died, no need to do anything
     }
@@ -100,22 +81,6 @@ contract OreSystem is System {
     // Clear commitment data
     TerrainCommitment._deleteRecord(coord.x, coord.y, coord.z);
     Commitment._deleteRecord(terrainCommitmentData.committerEntityId);
-
-    EntityId playerEntityId = Player._get(_msgSender());
-    if (playerEntityId.exists()) {
-      PlayerActionNotif._set(
-        playerEntityId,
-        PlayerActionNotifData({
-          actionType: ActionType.RevealOre,
-          entityId: terrainCommitmentData.committerEntityId,
-          objectTypeId: oreObjectTypeId,
-          coordX: coord.x,
-          coordY: coord.y,
-          coordZ: coord.z,
-          amount: terrainCommitmentData.blockNumber
-        })
-      );
-    }
 
     return oreObjectTypeId;
   }

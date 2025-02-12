@@ -6,10 +6,10 @@ import { VoxelCoord } from "../Types.sol";
 
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
+import { notify, UnequipNotifData } from "../utils/NotifUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -23,17 +23,6 @@ contract UnequipSystem is System {
     uint16 equippedObjectId = ObjectType._get(equippedEntityId);
     Equipped._deleteRecord(playerEntityId);
 
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Unequip,
-        entityId: equippedEntityId,
-        objectTypeId: equippedObjectId,
-        coordX: playerCoord.x,
-        coordY: playerCoord.y,
-        coordZ: playerCoord.z,
-        amount: 1
-      })
-    );
+    notify(playerEntityId, UnequipNotifData({ inventoryEntityId: equippedEntityId }));
   }
 }

@@ -6,13 +6,13 @@ import { VoxelCoord } from "../Types.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { AirObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonEntity, transferInventoryEntity } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { notify, DropNotifData } from "../utils/NotifUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 // TODO: combine the tool and non-tool drop functions
@@ -33,17 +33,9 @@ contract DropSystem is System {
     (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
     transferInventoryNonEntity(playerEntityId, entityId, AirObjectID, dropObjectTypeId, numToDrop);
 
-    PlayerActionNotif._set(
+    notify(
       playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Drop,
-        entityId: entityId,
-        objectTypeId: dropObjectTypeId,
-        coordX: coord.x,
-        coordY: coord.y,
-        coordZ: coord.z,
-        amount: numToDrop
-      })
+      DropNotifData({ dropCoord: coord, dropObjectTypeId: dropObjectTypeId, dropAmount: numToDrop })
     );
   }
 
@@ -51,18 +43,7 @@ contract DropSystem is System {
     (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
     uint16 toolObjectTypeId = transferInventoryEntity(playerEntityId, entityId, AirObjectID, toolEntityId);
 
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Drop,
-        entityId: entityId,
-        objectTypeId: toolObjectTypeId,
-        coordX: coord.x,
-        coordY: coord.y,
-        coordZ: coord.z,
-        amount: 1
-      })
-    );
+    notify(playerEntityId, DropNotifData({ dropCoord: coord, dropObjectTypeId: toolObjectTypeId, dropAmount: 1 }));
   }
 
   function dropTools(EntityId[] memory toolEntityIds, VoxelCoord memory coord) public {
@@ -80,17 +61,9 @@ contract DropSystem is System {
       }
     }
 
-    PlayerActionNotif._set(
+    notify(
       playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Drop,
-        entityId: entityId,
-        objectTypeId: toolObjectTypeId,
-        coordX: coord.x,
-        coordY: coord.y,
-        coordZ: coord.z,
-        amount: toolEntityIds.length
-      })
+      DropNotifData({ dropCoord: coord, dropObjectTypeId: toolObjectTypeId, dropAmount: uint16(toolEntityIds.length) })
     );
   }
 }

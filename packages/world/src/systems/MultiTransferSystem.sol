@@ -6,12 +6,12 @@ import { callInternalSystem } from "../utils/CallUtils.sol";
 
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ObjectCategory, ActionType } from "../codegen/common.sol";
 
 import { PlayerObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { TransferData, PipeTransferData, ChipOnTransferData, ChipOnPipeTransferData, TransferCommonContext, PipeTransferCommonContext } from "../Types.sol";
 import { transferInventoryEntity, removeFromInventoryCount, addToInventoryCount } from "../utils/InventoryUtils.sol";
+import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
 
 import { ITransferHelperSystem } from "../codegen/world/ITransferHelperSystem.sol";
 import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
@@ -129,16 +129,13 @@ contract MultiTransferSystem is System {
       }
     }
 
-    PlayerActionNotif._set(
+    notify(
       ctx.playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Transfer,
-        entityId: ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
-        objectTypeId: transferData.objectTypeId,
-        coordX: ctx.chestCoord.x,
-        coordY: ctx.chestCoord.y,
-        coordZ: ctx.chestCoord.z,
-        amount: totalTransfer
+      TransferNotifData({
+        transferEntityId: ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
+        transferCoord: ctx.chestCoord,
+        transferObjectTypeId: transferData.objectTypeId,
+        transferAmount: totalTransfer
       })
     );
 

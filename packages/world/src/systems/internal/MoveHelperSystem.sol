@@ -8,12 +8,12 @@ import { inSurroundingCube, voxelCoordsAreEqual } from "../../utils/VoxelCoordUt
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { Position } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../../codegen/common.sol";
 
 import { AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { callGravity, gravityApplies, inWorldBorder } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
+import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 
 import { EntityId } from "../../EntityId.sol";
 
@@ -80,18 +80,7 @@ contract MoveHelperSystem is System {
       callGravity(aboveEntityId, aboveCoord);
     }
 
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Move,
-        entityId: finalEntityId,
-        objectTypeId: PlayerObjectID,
-        coordX: finalCoord.x,
-        coordY: finalCoord.y,
-        coordZ: finalCoord.z,
-        amount: newCoords.length
-      })
-    );
+    notify(playerEntityId, MoveNotifData({ moveCoords: newCoords }));
   }
 
   function move(

@@ -14,7 +14,6 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ObjectCategory, ActionType, DisplayContentType } from "../codegen/common.sol";
 
@@ -23,6 +22,7 @@ import { callGravity, inWorldBorder, positionDataToVoxelCoord } from "../Utils.s
 import { addToInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -100,16 +100,12 @@ contract MineSystem is System {
       }
     }
 
-    PlayerActionNotif._set(
+    notify(
       playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Mine,
-        entityId: baseEntityId.exists() ? baseEntityId : firstEntityId,
-        objectTypeId: mineObjectTypeId,
-        coordX: baseCoord.x,
-        coordY: baseCoord.y,
-        coordZ: baseCoord.z,
-        amount: 1
+      MineNotifData({
+        mineEntityId: baseEntityId.exists() ? baseEntityId : firstEntityId,
+        mineCoord: baseCoord,
+        mineObjectTypeId: mineObjectTypeId
       })
     );
 

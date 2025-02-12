@@ -18,6 +18,7 @@ enum ActionType {
   Move,
   Craft,
   Drop,
+  Pickup,
   Transfer,
   Equip,
   Unequip,
@@ -28,7 +29,6 @@ enum ActionType {
   HitMachine,
   AttachChip,
   DetachChip,
-  Pickup,
   InitiateOreReveal,
   RevealOre
 }

@@ -22,12 +22,7 @@ import { ActionType } from "../common.sol";
 
 struct PlayerActionNotifData {
   ActionType actionType;
-  EntityId entityId;
-  uint16 objectTypeId;
-  int32 coordX;
-  int32 coordY;
-  int32 coordZ;
-  uint256 amount;
+  bytes actionData;
 }
 
 library PlayerActionNotif {
@@ -35,12 +30,12 @@ library PlayerActionNotif {
   ResourceId constant _tableId = ResourceId.wrap(0x6f740000000000000000000000000000506c61796572416374696f6e4e6f7469);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x004f070001200204040420000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0001010101000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint8, bytes32, uint16, int32, int32, int32, uint256)
-  Schema constant _valueSchema = Schema.wrap(0x004f0700005f012323231f000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint8, bytes)
+  Schema constant _valueSchema = Schema.wrap(0x0001010100c40000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -56,14 +51,9 @@ library PlayerActionNotif {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](7);
+    fieldNames = new string[](2);
     fieldNames[0] = "actionType";
-    fieldNames[1] = "entityId";
-    fieldNames[2] = "objectTypeId";
-    fieldNames[3] = "coordX";
-    fieldNames[4] = "coordY";
-    fieldNames[5] = "coordZ";
-    fieldNames[6] = "amount";
+    fieldNames[1] = "actionData";
   }
 
   /**
@@ -101,142 +91,13 @@ library PlayerActionNotif {
   }
 
   /**
-   * @notice Set entityId.
-   */
-  function setEntityId(EntityId playerEntityId, EntityId entityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(playerEntityId);
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set entityId.
-   */
-  function _setEntityId(EntityId playerEntityId, EntityId entityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(playerEntityId);
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set objectTypeId.
-   */
-  function setObjectTypeId(EntityId playerEntityId, uint16 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(playerEntityId);
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((objectTypeId)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set objectTypeId.
-   */
-  function _setObjectTypeId(EntityId playerEntityId, uint16 objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(playerEntityId);
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((objectTypeId)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set coordX.
-   */
-  function setCoordX(EntityId playerEntityId, int32 coordX) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(playerEntityId);
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((coordX)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set coordX.
-   */
-  function _setCoordX(EntityId playerEntityId, int32 coordX) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(playerEntityId);
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((coordX)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set coordY.
-   */
-  function setCoordY(EntityId playerEntityId, int32 coordY) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(playerEntityId);
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((coordY)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set coordY.
-   */
-  function _setCoordY(EntityId playerEntityId, int32 coordY) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(playerEntityId);
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((coordY)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set coordZ.
-   */
-  function setCoordZ(EntityId playerEntityId, int32 coordZ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(playerEntityId);
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((coordZ)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set coordZ.
-   */
-  function _setCoordZ(EntityId playerEntityId, int32 coordZ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(playerEntityId);
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((coordZ)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set amount.
-   */
-  function setAmount(EntityId playerEntityId, uint256 amount) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(playerEntityId);
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((amount)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set amount.
-   */
-  function _setAmount(EntityId playerEntityId, uint256 amount) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(playerEntityId);
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 6, abi.encodePacked((amount)), _fieldLayout);
-  }
-
-  /**
    * @notice Set the full data using individual values.
    */
-  function set(
-    EntityId playerEntityId,
-    ActionType actionType,
-    EntityId entityId,
-    uint16 objectTypeId,
-    int32 coordX,
-    int32 coordY,
-    int32 coordZ,
-    uint256 amount
-  ) internal {
-    bytes memory _staticData = encodeStatic(actionType, entityId, objectTypeId, coordX, coordY, coordZ, amount);
+  function set(EntityId playerEntityId, ActionType actionType, bytes memory actionData) internal {
+    bytes memory _staticData = encodeStatic(actionType);
 
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
+    EncodedLengths _encodedLengths = encodeLengths(actionData);
+    bytes memory _dynamicData = encodeDynamic(actionData);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(playerEntityId);
@@ -247,20 +108,11 @@ library PlayerActionNotif {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(
-    EntityId playerEntityId,
-    ActionType actionType,
-    EntityId entityId,
-    uint16 objectTypeId,
-    int32 coordX,
-    int32 coordY,
-    int32 coordZ,
-    uint256 amount
-  ) internal {
-    bytes memory _staticData = encodeStatic(actionType, entityId, objectTypeId, coordX, coordY, coordZ, amount);
+  function _set(EntityId playerEntityId, ActionType actionType, bytes memory actionData) internal {
+    bytes memory _staticData = encodeStatic(actionType);
 
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
+    EncodedLengths _encodedLengths = encodeLengths(actionData);
+    bytes memory _dynamicData = encodeDynamic(actionData);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(playerEntityId);
@@ -272,18 +124,10 @@ library PlayerActionNotif {
    * @notice Set the full data using the data struct.
    */
   function set(EntityId playerEntityId, PlayerActionNotifData memory _table) internal {
-    bytes memory _staticData = encodeStatic(
-      _table.actionType,
-      _table.entityId,
-      _table.objectTypeId,
-      _table.coordX,
-      _table.coordY,
-      _table.coordZ,
-      _table.amount
-    );
+    bytes memory _staticData = encodeStatic(_table.actionType);
 
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
+    EncodedLengths _encodedLengths = encodeLengths(_table.actionData);
+    bytes memory _dynamicData = encodeDynamic(_table.actionData);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(playerEntityId);
@@ -295,18 +139,10 @@ library PlayerActionNotif {
    * @notice Set the full data using the data struct.
    */
   function _set(EntityId playerEntityId, PlayerActionNotifData memory _table) internal {
-    bytes memory _staticData = encodeStatic(
-      _table.actionType,
-      _table.entityId,
-      _table.objectTypeId,
-      _table.coordX,
-      _table.coordY,
-      _table.coordZ,
-      _table.amount
-    );
+    bytes memory _staticData = encodeStatic(_table.actionType);
 
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
+    EncodedLengths _encodedLengths = encodeLengths(_table.actionData);
+    bytes memory _dynamicData = encodeDynamic(_table.actionData);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(playerEntityId);
@@ -317,56 +153,39 @@ library PlayerActionNotif {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(
-    bytes memory _blob
-  )
-    internal
-    pure
-    returns (
-      ActionType actionType,
-      EntityId entityId,
-      uint16 objectTypeId,
-      int32 coordX,
-      int32 coordY,
-      int32 coordZ,
-      uint256 amount
-    )
-  {
+  function decodeStatic(bytes memory _blob) internal pure returns (ActionType actionType) {
     actionType = ActionType(uint8(Bytes.getBytes1(_blob, 0)));
+  }
 
-    entityId = EntityId.wrap(Bytes.getBytes32(_blob, 1));
-
-    objectTypeId = (uint16(Bytes.getBytes2(_blob, 33)));
-
-    coordX = (int32(uint32(Bytes.getBytes4(_blob, 35))));
-
-    coordY = (int32(uint32(Bytes.getBytes4(_blob, 39))));
-
-    coordZ = (int32(uint32(Bytes.getBytes4(_blob, 43))));
-
-    amount = (uint256(Bytes.getBytes32(_blob, 47)));
+  /**
+   * @notice Decode the tightly packed blob of dynamic data using the encoded lengths.
+   */
+  function decodeDynamic(
+    EncodedLengths _encodedLengths,
+    bytes memory _blob
+  ) internal pure returns (bytes memory actionData) {
+    uint256 _start;
+    uint256 _end;
+    unchecked {
+      _end = _encodedLengths.atIndex(0);
+    }
+    actionData = (bytes(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
   }
 
   /**
    * @notice Decode the tightly packed blobs using this table's field layout.
    * @param _staticData Tightly packed static fields.
-   *
-   *
+   * @param _encodedLengths Encoded lengths of dynamic fields.
+   * @param _dynamicData Tightly packed dynamic fields.
    */
   function decode(
     bytes memory _staticData,
-    EncodedLengths,
-    bytes memory
+    EncodedLengths _encodedLengths,
+    bytes memory _dynamicData
   ) internal pure returns (PlayerActionNotifData memory _table) {
-    (
-      _table.actionType,
-      _table.entityId,
-      _table.objectTypeId,
-      _table.coordX,
-      _table.coordY,
-      _table.coordZ,
-      _table.amount
-    ) = decodeStatic(_staticData);
+    (_table.actionType) = decodeStatic(_staticData);
+
+    (_table.actionData) = decodeDynamic(_encodedLengths, _dynamicData);
   }
 
   /**
@@ -393,16 +212,27 @@ library PlayerActionNotif {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(
-    ActionType actionType,
-    EntityId entityId,
-    uint16 objectTypeId,
-    int32 coordX,
-    int32 coordY,
-    int32 coordZ,
-    uint256 amount
-  ) internal pure returns (bytes memory) {
-    return abi.encodePacked(actionType, entityId, objectTypeId, coordX, coordY, coordZ, amount);
+  function encodeStatic(ActionType actionType) internal pure returns (bytes memory) {
+    return abi.encodePacked(actionType);
+  }
+
+  /**
+   * @notice Tightly pack dynamic data lengths using this table's schema.
+   * @return _encodedLengths The lengths of the dynamic fields (packed into a single bytes32 value).
+   */
+  function encodeLengths(bytes memory actionData) internal pure returns (EncodedLengths _encodedLengths) {
+    // Lengths are effectively checked during copy by 2**40 bytes exceeding gas limits
+    unchecked {
+      _encodedLengths = EncodedLengthsLib.pack(bytes(actionData).length);
+    }
+  }
+
+  /**
+   * @notice Tightly pack dynamic (variable length) data using this table's schema.
+   * @return The dynamic data, encoded into a sequence of bytes.
+   */
+  function encodeDynamic(bytes memory actionData) internal pure returns (bytes memory) {
+    return abi.encodePacked(bytes((actionData)));
   }
 
   /**
@@ -413,17 +243,12 @@ library PlayerActionNotif {
    */
   function encode(
     ActionType actionType,
-    EntityId entityId,
-    uint16 objectTypeId,
-    int32 coordX,
-    int32 coordY,
-    int32 coordZ,
-    uint256 amount
+    bytes memory actionData
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(actionType, entityId, objectTypeId, coordX, coordY, coordZ, amount);
+    bytes memory _staticData = encodeStatic(actionType);
 
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
+    EncodedLengths _encodedLengths = encodeLengths(actionData);
+    bytes memory _dynamicData = encodeDynamic(actionData);
 
     return (_staticData, _encodedLengths, _dynamicData);
   }

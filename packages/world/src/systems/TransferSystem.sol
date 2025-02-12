@@ -5,13 +5,12 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { callInternalSystem } from "../utils/CallUtils.sol";
 
 import { Chip } from "../codegen/tables/Chip.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { ChipOnTransferData, TransferData, TransferCommonContext } from "../Types.sol";
-
+import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
 import { ITransferHelperSystem } from "../codegen/world/ITransferHelperSystem.sol";
 import { EntityId } from "../EntityId.sol";
 
@@ -63,16 +62,13 @@ contract TransferSystem is System {
       numToTransfer
     );
 
-    PlayerActionNotif._set(
+    notify(
       ctx.playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Transfer,
-        entityId: ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
-        objectTypeId: transferObjectTypeId,
-        coordX: ctx.chestCoord.x,
-        coordY: ctx.chestCoord.y,
-        coordZ: ctx.chestCoord.z,
-        amount: numToTransfer
+      TransferNotifData({
+        transferEntityId: ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
+        transferCoord: ctx.chestCoord,
+        transferObjectTypeId: transferObjectTypeId,
+        transferAmount: numToTransfer
       })
     );
 
@@ -133,16 +129,13 @@ contract TransferSystem is System {
       }
     }
 
-    PlayerActionNotif._set(
+    notify(
       ctx.playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Transfer,
-        entityId: ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
-        objectTypeId: toolObjectTypeId,
-        coordX: ctx.chestCoord.x,
-        coordY: ctx.chestCoord.y,
-        coordZ: ctx.chestCoord.z,
-        amount: toolEntityIds.length
+      TransferNotifData({
+        transferEntityId: ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
+        transferCoord: ctx.chestCoord,
+        transferObjectTypeId: toolObjectTypeId,
+        transferAmount: uint16(toolEntityIds.length)
       })
     );
 

@@ -13,7 +13,6 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ObjectCategory, ActionType } from "../codegen/common.sol";
 
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -22,6 +21,7 @@ import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
+import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -70,17 +70,9 @@ contract BuildSystem is System {
 
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
 
-    PlayerActionNotif._set(
+    notify(
       playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Build,
-        entityId: baseEntityId,
-        objectTypeId: objectTypeId,
-        coordX: coord.x,
-        coordY: coord.y,
-        coordZ: coord.z,
-        amount: 1
-      })
+      BuildNotifData({ buildEntityId: baseEntityId, buildCoord: coord, buildObjectTypeId: objectTypeId })
     );
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
@@ -112,19 +104,9 @@ contract BuildSystem is System {
     ReversePosition._set(jumpCoord.x, jumpCoord.y, jumpCoord.z, playerEntityId);
 
     // TODO: apply jump cost
-
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Move,
-        entityId: newEntityId,
-        objectTypeId: PlayerObjectID,
-        coordX: jumpCoord.x,
-        coordY: jumpCoord.y,
-        coordZ: jumpCoord.z,
-        amount: 1
-      })
-    );
+    VoxelCoord[] memory moveCoords = new VoxelCoord[](1);
+    moveCoords[0] = jumpCoord;
+    notify(playerEntityId, MoveNotifData({ moveCoords: moveCoords }));
 
     buildWithExtraData(objectTypeId, playerCoord, extraData);
   }

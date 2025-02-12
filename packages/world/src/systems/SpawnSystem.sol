@@ -10,7 +10,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ActionType } from "../codegen/common.sol";
@@ -19,6 +18,7 @@ import { IN_MAINTENANCE } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity, gravityApplies, inWorldBorder, inSpawnArea } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -57,18 +57,7 @@ contract SpawnSystem is System {
     PlayerActivity._set(playerEntityId, uint128(block.timestamp));
     require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Spawn,
-        entityId: playerEntityId,
-        objectTypeId: PlayerObjectID,
-        coordX: spawnCoord.x,
-        coordY: spawnCoord.y,
-        coordZ: spawnCoord.z,
-        amount: 1
-      })
-    );
+    notify(playerEntityId, SpawnNotifData({ playerAddress: newPlayer, spawnCoord: spawnCoord }));
 
     return playerEntityId;
   }

@@ -6,14 +6,13 @@ import { VoxelCoord } from "../Types.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder } from "../Utils.sol";
 import { transferInventoryNonEntity, transferInventoryEntity, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-
+import { notify, PickupNotifData } from "../utils/NotifUtils.sol";
 import { PickupData } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
 
@@ -37,17 +36,9 @@ contract PickupSystem is System {
     (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
     uint256 numTransferred = transferAllInventoryEntities(entityId, playerEntityId, PlayerObjectID);
 
-    PlayerActionNotif._set(
+    notify(
       playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Pickup,
-        entityId: entityId,
-        objectTypeId: AirObjectID,
-        coordX: coord.x,
-        coordY: coord.y,
-        coordZ: coord.z,
-        amount: numTransferred
-      })
+      PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: AirObjectID, pickupAmount: uint16(numTransferred) })
     );
   }
 
@@ -55,17 +46,9 @@ contract PickupSystem is System {
     (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
     transferInventoryNonEntity(entityId, playerEntityId, PlayerObjectID, pickupObjectTypeId, numToPickup);
 
-    PlayerActionNotif._set(
+    notify(
       playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Pickup,
-        entityId: entityId,
-        objectTypeId: pickupObjectTypeId,
-        coordX: coord.x,
-        coordY: coord.y,
-        coordZ: coord.z,
-        amount: numToPickup
-      })
+      PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: pickupObjectTypeId, pickupAmount: numToPickup })
     );
   }
 
@@ -73,17 +56,9 @@ contract PickupSystem is System {
     (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
     uint16 toolObjectTypeId = transferInventoryEntity(entityId, playerEntityId, PlayerObjectID, toolEntityId);
 
-    PlayerActionNotif._set(
+    notify(
       playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.Pickup,
-        entityId: entityId,
-        objectTypeId: toolObjectTypeId,
-        coordX: coord.x,
-        coordY: coord.y,
-        coordZ: coord.z,
-        amount: 1
-      })
+      PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
     );
   }
 
@@ -104,16 +79,12 @@ contract PickupSystem is System {
         pickupObject.numToPickup
       );
 
-      PlayerActionNotif._set(
+      notify(
         playerEntityId,
-        PlayerActionNotifData({
-          actionType: ActionType.Pickup,
-          entityId: entityId,
-          objectTypeId: pickupObject.objectTypeId,
-          coordX: coord.x,
-          coordY: coord.y,
-          coordZ: coord.z,
-          amount: pickupObject.numToPickup
+        PickupNotifData({
+          pickupCoord: coord,
+          pickupObjectTypeId: pickupObject.objectTypeId,
+          pickupAmount: pickupObject.numToPickup
         })
       );
     }
@@ -121,17 +92,9 @@ contract PickupSystem is System {
     for (uint256 i = 0; i < pickupTools.length; i++) {
       uint16 toolObjectTypeId = transferInventoryEntity(entityId, playerEntityId, PlayerObjectID, pickupTools[i]);
 
-      PlayerActionNotif._set(
+      notify(
         playerEntityId,
-        PlayerActionNotifData({
-          actionType: ActionType.Pickup,
-          entityId: entityId,
-          objectTypeId: toolObjectTypeId,
-          coordX: coord.x,
-          coordY: coord.y,
-          coordZ: coord.z,
-          amount: 1
-        })
+        PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
       );
     }
   }

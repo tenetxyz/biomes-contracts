@@ -12,7 +12,6 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
@@ -21,7 +20,7 @@ import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { isWhacker } from "../utils/ObjectTypeUtils.sol";
 import { positionDataToVoxelCoord, safeCallChip } from "../Utils.sol";
-
+import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -48,18 +47,7 @@ contract HitMachineSystem is System {
 
     // TODO: decrease energy
 
-    PlayerActionNotif._set(
-      playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.HitMachine,
-        entityId: machineEntityId,
-        objectTypeId: objectTypeId,
-        coordX: machineCoord.x,
-        coordY: machineCoord.y,
-        coordZ: machineCoord.z,
-        amount: machineData.energy
-      })
-    );
+    notify(playerEntityId, HitMachineNotifData({ machineEntityId: machineEntityId, machineCoord: machineCoord }));
 
     safeCallChip(
       Chip._getChipAddress(machineEntityId),

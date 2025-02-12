@@ -6,7 +6,6 @@ import { VoxelCoord } from "../Types.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
@@ -15,6 +14,7 @@ import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { safeCallChip } from "../Utils.sol";
+import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
 
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
@@ -36,17 +36,9 @@ contract MachineSystem is System {
 
     Energy._set(baseEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: newEnergyLevel }));
 
-    PlayerActionNotif._set(
+    notify(
       playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.PowerMachine,
-        entityId: baseEntityId,
-        objectTypeId: objectTypeId,
-        coordX: entityCoord.x,
-        coordY: entityCoord.y,
-        coordZ: entityCoord.z,
-        amount: numBattery
-      })
+      PowerMachineNotifData({ machineEntityId: baseEntityId, machineCoord: entityCoord, numBattery: numBattery })
     );
 
     safeCallChip(

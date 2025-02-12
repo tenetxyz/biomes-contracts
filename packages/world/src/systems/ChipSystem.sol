@@ -8,7 +8,6 @@ import { VoxelCoord } from "../Types.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { PlayerObjectID, ChipObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID } from "../ObjectTypeIds.sol";
@@ -17,6 +16,7 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { safeCallChip } from "../Utils.sol";
+import { notify, AttachChipNotifData, DetachChipNotifData } from "../utils/NotifUtils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
@@ -57,17 +57,9 @@ contract ChipSystem is System {
 
     Chip._setChipAddress(baseEntityId, chipAddress);
 
-    PlayerActionNotif._set(
+    notify(
       playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.AttachChip,
-        entityId: baseEntityId,
-        objectTypeId: objectTypeId,
-        coordX: entityCoord.x,
-        coordY: entityCoord.y,
-        coordZ: entityCoord.z,
-        amount: 1
-      })
+      AttachChipNotifData({ attachEntityId: baseEntityId, attachCoord: entityCoord, chipAddress: chipAddress })
     );
 
     // Don't safe call here because we want to revert if the chip doesn't allow the attachment
@@ -94,17 +86,9 @@ contract ChipSystem is System {
 
     Chip._setChipAddress(baseEntityId, address(0));
 
-    PlayerActionNotif._set(
+    notify(
       playerEntityId,
-      PlayerActionNotifData({
-        actionType: ActionType.DetachChip,
-        entityId: baseEntityId,
-        objectTypeId: objectTypeId,
-        coordX: entityCoord.x,
-        coordY: entityCoord.y,
-        coordZ: entityCoord.z,
-        amount: 1
-      })
+      DetachChipNotifData({ detachEntityId: baseEntityId, detachCoord: entityCoord, chipAddress: chipAddress })
     );
 
     if (machineEnergyLevel > 0) {
