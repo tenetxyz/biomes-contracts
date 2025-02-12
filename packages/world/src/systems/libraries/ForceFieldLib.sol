@@ -22,7 +22,7 @@ library ForceFieldLib {
     uint16 objectTypeId,
     VoxelCoord[] memory coords,
     bytes memory extraData
-  ) public payable {
+  ) public {
     for (uint256 i = 0; i < coords.length; i++) {
       VoxelCoord memory coord = coords[i];
       EntityId forceFieldEntityId = getForceField(coord);
@@ -54,7 +54,7 @@ library ForceFieldLib {
     uint16 objectTypeId,
     VoxelCoord[] memory coords,
     bytes memory extraData
-  ) public payable {
+  ) public {
     for (uint256 i = 0; i < coords.length; i++) {
       VoxelCoord memory coord = coords[i];
       EntityId forceFieldEntityId = getForceField(coord);
