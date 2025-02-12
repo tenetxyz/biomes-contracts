@@ -23,22 +23,6 @@ contract PostDeploy is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
-    // Register a sample ERC721, so that the ERC721 Puppet Module is installed
-    // TODO: Figure out a way to do this without having to manually register a ERC721
-    // registerERC721(
-    //   IWorld(worldAddress),
-    //   bytes14("test-721"),
-    //   MUDERC721MetadataData({ symbol: "test-721", name: "test-721", baseURI: "" })
-    // );
-
-    // Register a sample ERC20, so that the ERC20 Puppet Module is installed
-    // TODO: Figure out a way to do this without having to manually register a ERC20
-    // registerERC20(
-    //   IWorld(worldAddress),
-    //   bytes14("test-20"),
-    //   MUDERC20MetadataData({ symbol: "test-20", name: "test-20", decimals: 18 })
-    // );
-
     IWorld(worldAddress).initPlayerObjectTypes();
     IWorld(worldAddress).initTerrainBlockObjectTypes();
 

@@ -323,11 +323,4 @@ export default defineWorld({
       key: ["blockNumber"],
     },
   },
-  modules: [
-    // {
-    //   artifactPath: "@latticexyz/world-modules/out/PuppetModule.sol/PuppetModule.json",
-    //   root: false,
-    //   args: [],
-    // },
-  ],
 });
