@@ -11,5 +11,5 @@ import { ChunkCoord } from "../../Types.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface ITerrainSystem {
-  function exploreChunk(ChunkCoord memory chunkCoord, bytes memory chunkData) external;
+  function exploreChunk(ChunkCoord memory chunkCoord, bytes memory chunkData, bytes32[] memory merkleProof) external;
 }

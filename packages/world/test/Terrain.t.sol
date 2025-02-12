@@ -95,7 +95,11 @@ contract TerrainTest is MudTest, GasReporter {
     }
     bytes memory encodedChunk = encodeChunk(chunk);
     ChunkCoord memory chunkCoord = ChunkCoord(0, 0, 0);
-    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk);
+    bytes32[] memory merkleProof = new bytes32[](0);
+
+    startGasReport("Terrain.exploreChunk");
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, merkleProof);
+    endGasReport();
 
     VoxelCoord memory voxelCoord = VoxelCoord(1, 2, 3);
     startGasReport("Terrain.getBlockType");

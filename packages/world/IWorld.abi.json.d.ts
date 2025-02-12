@@ -506,6 +506,11 @@ declare const abi: [
         "name": "chunkData",
         "type": "bytes",
         "internalType": "bytes"
+      },
+      {
+        "name": "merkleProof",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
       }
     ],
     "outputs": [],

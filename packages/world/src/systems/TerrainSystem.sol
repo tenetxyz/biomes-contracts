@@ -12,9 +12,9 @@ import { floorDiv, mod } from "../utils/MathUtils.sol";
 uint256 constant VERSION_PADDING = 1;
 
 contract TerrainSystem is System {
-  // TODO: attach merkle proof to the chunk data
-  function exploreChunk(ChunkCoord memory chunkCoord, bytes memory chunkData) public {
+  function exploreChunk(ChunkCoord memory chunkCoord, bytes memory chunkData, bytes32[] memory merkleProof) public {
     require(ExploredChunk.get(chunkCoord.x, chunkCoord.y, chunkCoord.z) == address(0), "Chunk already explored");
+    // TODO: verify merkle proof
     address pointer = SSTORE2.write(chunkData);
     ExploredChunk.set(chunkCoord.x, chunkCoord.y, chunkCoord.z, pointer);
   }
