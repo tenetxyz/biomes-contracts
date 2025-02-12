@@ -28,6 +28,7 @@ export default defineWorld({
       "RevealOre",
     ],
     DisplayContentType: ["None", "Text", "Image"],
+    ChunkEncoding: ["V1"],
   },
   userTypes: {
     EntityId: { filePath: "./src/EntityId.sol", type: "bytes32" },
@@ -134,7 +135,7 @@ export default defineWorld({
         x: "int32",
         y: "int32",
         z: "int32",
-        chunkData: "address",
+        pointer: "address",
       },
       key: ["x", "y", "z"],
     },
@@ -324,10 +325,10 @@ export default defineWorld({
     },
   },
   modules: [
-    {
-      artifactPath: "@latticexyz/world-modules/out/PuppetModule.sol/PuppetModule.json",
-      root: false,
-      args: [],
-    },
+    // {
+    //   artifactPath: "@latticexyz/world-modules/out/PuppetModule.sol/PuppetModule.json",
+    //   root: false,
+    //   args: [],
+    // },
   ],
 });

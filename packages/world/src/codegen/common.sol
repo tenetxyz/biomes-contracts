@@ -38,3 +38,7 @@ enum DisplayContentType {
   Text,
   Image
 }
+
+enum ChunkEncoding {
+  V1
+}

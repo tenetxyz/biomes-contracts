@@ -478,6 +478,41 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "exploreChunk",
+    "inputs": [
+      {
+        "name": "chunkCoord",
+        "type": "tuple",
+        "internalType": "struct ChunkCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      },
+      {
+        "name": "chunkData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "getBlockEntityData",
     "inputs": [
       {

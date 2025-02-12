@@ -81,37 +81,37 @@ library SSTORE2 {
     }
   }
 
-  /// @dev Reads a single byte from the deployed storage contract's data.
-  /// @param pointer The address of the storage contract.
-  /// @param index The zero-based index into the stored data (excluding the STOP opcode).
-  /// @return result The byte at the given index.
-  function readBytes1(address pointer, uint256 index) internal view returns (bytes1 result) {
+  /// @dev Returns one byte `data` from the bytecode of the storage contract at `pointer`.
+  function readBytes1(address pointer, uint256 start) internal view returns (bytes1 data) {
     /// @solidity memory-safe-assembly
     assembly {
       let pointerCodesize := extcodesize(pointer)
-      // If the code size is zero, the pointer is invalid.
       if iszero(pointerCodesize) {
-        mstore(0x00, 0x11052bb4) // Function selector for InvalidPointer()
+        // Store the function selector of `InvalidPointer()`.
+        mstore(0x00, 0x11052bb4)
+        // Revert with (offset, size).
         revert(0x1c, 0x04)
       }
-      // Ensure there is at least one data byte (code size must be greater than DATA_OFFSET).
-      if iszero(gt(pointerCodesize, DATA_OFFSET)) {
-        mstore(0x00, 0x84eb0dd1) // Function selector for ReadOutOfBounds()
+
+      // If `!(pointer.code.size > end) || (start > end)`, revert.
+      // This also handles the cases where
+      // `end + DATA_OFFSET` or `start + DATA_OFFSET` overflows.
+      if iszero(
+        and(
+          gt(pointerCodesize, add(start, 1)), // Within bounds.
+          iszero(gt(start, add(start, 1))) // Valid range.
+        )
+      ) {
+        // Store the function selector of `ReadOutOfBounds()`.
+        mstore(0x00, 0x84eb0dd1)
+        // Revert with (offset, size).
         revert(0x1c, 0x04)
       }
-      // Ensure the requested index is within bounds.
-      if iszero(lt(index, sub(pointerCodesize, DATA_OFFSET))) {
-        mstore(0x00, 0x84eb0dd1) // Function selector for ReadOutOfBounds()
-        revert(0x1c, 0x04)
-      }
-      // Calculate the offset within the code.
-      let offset := add(DATA_OFFSET, index)
-      // Get a free memory pointer.
+
+      // Get the pointer to the free memory and copy the code to it.
       let ptr := mload(0x40)
-      // Copy one byte from the contract's code at the calculated offset.
-      extcodecopy(pointer, ptr, offset, 1)
-      // Load 32 bytes from memory and extract the first byte.
-      result := byte(0, mload(ptr))
+      extcodecopy(pointer, ptr, add(start, DATA_OFFSET), 1)
+      data := mload(ptr)
     }
   }
 }

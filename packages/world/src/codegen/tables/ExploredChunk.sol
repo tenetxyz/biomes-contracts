@@ -45,7 +45,7 @@ library ExploredChunk {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "chunkData";
+    fieldNames[0] = "pointer";
   }
 
   /**
@@ -63,9 +63,9 @@ library ExploredChunk {
   }
 
   /**
-   * @notice Get chunkData.
+   * @notice Get pointer.
    */
-  function getChunkData(int32 x, int32 y, int32 z) internal view returns (address chunkData) {
+  function getPointer(int32 x, int32 y, int32 z) internal view returns (address pointer) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -76,9 +76,9 @@ library ExploredChunk {
   }
 
   /**
-   * @notice Get chunkData.
+   * @notice Get pointer.
    */
-  function _getChunkData(int32 x, int32 y, int32 z) internal view returns (address chunkData) {
+  function _getPointer(int32 x, int32 y, int32 z) internal view returns (address pointer) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -89,9 +89,9 @@ library ExploredChunk {
   }
 
   /**
-   * @notice Get chunkData.
+   * @notice Get pointer.
    */
-  function get(int32 x, int32 y, int32 z) internal view returns (address chunkData) {
+  function get(int32 x, int32 y, int32 z) internal view returns (address pointer) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -102,9 +102,9 @@ library ExploredChunk {
   }
 
   /**
-   * @notice Get chunkData.
+   * @notice Get pointer.
    */
-  function _get(int32 x, int32 y, int32 z) internal view returns (address chunkData) {
+  function _get(int32 x, int32 y, int32 z) internal view returns (address pointer) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -115,51 +115,51 @@ library ExploredChunk {
   }
 
   /**
-   * @notice Set chunkData.
+   * @notice Set pointer.
    */
-  function setChunkData(int32 x, int32 y, int32 z, address chunkData) internal {
+  function setPointer(int32 x, int32 y, int32 z, address pointer) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((chunkData)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((pointer)), _fieldLayout);
   }
 
   /**
-   * @notice Set chunkData.
+   * @notice Set pointer.
    */
-  function _setChunkData(int32 x, int32 y, int32 z, address chunkData) internal {
+  function _setPointer(int32 x, int32 y, int32 z, address pointer) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((chunkData)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((pointer)), _fieldLayout);
   }
 
   /**
-   * @notice Set chunkData.
+   * @notice Set pointer.
    */
-  function set(int32 x, int32 y, int32 z, address chunkData) internal {
+  function set(int32 x, int32 y, int32 z, address pointer) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((chunkData)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((pointer)), _fieldLayout);
   }
 
   /**
-   * @notice Set chunkData.
+   * @notice Set pointer.
    */
-  function _set(int32 x, int32 y, int32 z, address chunkData) internal {
+  function _set(int32 x, int32 y, int32 z, address pointer) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((chunkData)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((pointer)), _fieldLayout);
   }
 
   /**
@@ -190,8 +190,8 @@ library ExploredChunk {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(address chunkData) internal pure returns (bytes memory) {
-    return abi.encodePacked(chunkData);
+  function encodeStatic(address pointer) internal pure returns (bytes memory) {
+    return abi.encodePacked(pointer);
   }
 
   /**
@@ -200,8 +200,8 @@ library ExploredChunk {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(address chunkData) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(chunkData);
+  function encode(address pointer) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(pointer);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
