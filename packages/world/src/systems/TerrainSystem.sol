@@ -23,7 +23,7 @@ contract TerrainSystem is System {
 
 library Terrain {
   using SSTORE2 for address;
-  bytes1 constant _VERSION = bytes1(uint8(0));
+  bytes1 constant _VERSION = 0x00;
 
   /// @notice Get the terrain block type of a voxel coordinate.
   /// @dev Assumes to be called from a root system.
