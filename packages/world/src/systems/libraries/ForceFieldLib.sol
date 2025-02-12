@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { VoxelCoord } from "../../Types.sol";
 
 import { Chip } from "../../codegen/tables/Chip.sol";
@@ -15,7 +15,7 @@ import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 
 import { EntityId } from "../../EntityId.sol";
 
-contract ForceFieldSystem is System {
+library ForceFieldLib {
   function requireBuildsAllowed(
     EntityId playerEntityId,
     EntityId baseEntityId,
@@ -35,7 +35,7 @@ contract ForceFieldSystem is System {
         address chipAddress = Chip._get(forceFieldEntityId);
         EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
         if (chipAddress != address(0) && machineData.energy > 0) {
-          bool buildAllowed = IForceFieldChip(chipAddress).onBuild{ value: _msgValue() }(
+          bool buildAllowed = IForceFieldChip(chipAddress).onBuild{ value: WorldContextConsumerLib._msgValue() }(
             forceFieldEntityId,
             playerEntityId,
             objectTypeId,
@@ -62,7 +62,7 @@ contract ForceFieldSystem is System {
         address chipAddress = Chip._get(forceFieldEntityId);
         EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
         if (chipAddress != address(0) && machineData.energy > 0) {
-          bool mineAllowed = IForceFieldChip(chipAddress).onMine{ value: _msgValue() }(
+          bool mineAllowed = IForceFieldChip(chipAddress).onMine{ value: WorldContextConsumerLib._msgValue() }(
             forceFieldEntityId,
             playerEntityId,
             objectTypeId,

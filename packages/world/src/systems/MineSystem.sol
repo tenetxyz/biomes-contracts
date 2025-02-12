@@ -23,9 +23,8 @@ import { addToInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
-import { IForceFieldSystem } from "../codegen/world/IForceFieldSystem.sol";
 import { GravityLib } from "./libraries/GravityLib.sol";
-
+import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract MineSystem is System {
@@ -110,12 +109,12 @@ contract MineSystem is System {
       })
     );
 
-    callInternalSystem(
-      abi.encodeCall(
-        IForceFieldSystem.requireMinesAllowed,
-        (playerEntityId, baseEntityId.exists() ? baseEntityId : firstEntityId, mineObjectTypeId, coords, extraData)
-      ),
-      _msgValue()
+    ForceFieldLib.requireMinesAllowed(
+      playerEntityId,
+      baseEntityId.exists() ? baseEntityId : firstEntityId,
+      mineObjectTypeId,
+      coords,
+      extraData
     );
   }
 

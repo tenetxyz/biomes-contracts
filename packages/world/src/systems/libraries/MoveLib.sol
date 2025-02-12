@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../../Types.sol";
 import { inSurroundingCube, voxelCoordsAreEqual } from "../../utils/VoxelCoordUtils.sol";
 
@@ -18,7 +17,7 @@ import { GravityLib } from "./GravityLib.sol";
 
 import { EntityId } from "../../EntityId.sol";
 
-contract MoveHelperSystem is System {
+library MoveLib {
   function movePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord, VoxelCoord[] memory newCoords) public {
     // no-ops
     if (newCoords.length == 0) {

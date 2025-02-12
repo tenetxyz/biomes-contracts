@@ -314,28 +314,6 @@ export default defineWorld({
       key: ["blockNumber"],
     },
   },
-  systems: {
-    ForceFieldSystem: {
-      name: "ForceFieldSystem",
-      openAccess: false,
-      accessList: [],
-    },
-    MoveHelperSystem: {
-      name: "MoveHelperSystem",
-      openAccess: false,
-      accessList: [],
-    },
-    TransferHelperSystem: {
-      name: "TransferHelperSy",
-      openAccess: false,
-      accessList: [],
-    },
-    PipeTransferHelperSystem: {
-      name: "PipeTransferHelp",
-      openAccess: false,
-      accessList: [],
-    },
-  },
   modules: [
     {
       artifactPath: "@latticexyz/world-modules/out/PuppetModule.sol/PuppetModule.json",
