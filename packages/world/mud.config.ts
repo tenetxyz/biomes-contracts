@@ -293,6 +293,12 @@ export default defineWorld({
     // ------------------------------------------------------------
     // Internal
     // ------------------------------------------------------------
+    WorldStatus: {
+      schema: {
+        inMaintenance: "bool",
+      },
+      key: [],
+    },
     UniqueEntity: {
       schema: {
         value: "uint256",

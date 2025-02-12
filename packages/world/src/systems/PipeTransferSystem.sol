@@ -12,11 +12,10 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { ChipOnPipeTransferData, PipeTransferData, PipeTransferCommonContext } from "../Types.sol";
 import { ForceFieldObjectID } from "../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord } from "../Utils.sol";
+import { checkWorldStatus, positionDataToVoxelCoord } from "../Utils.sol";
 import { isStorageContainer } from "../utils/ObjectTypeUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { IN_MAINTENANCE } from "../Constants.sol";
 
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IPipeTransferHelperSystem } from "../codegen/world/IPipeTransferHelperSystem.sol";
@@ -40,7 +39,7 @@ contract PipeTransferSystem is System {
     bool isDeposit,
     PipeTransferData memory pipeTransferData
   ) public payable {
-    require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
+    checkWorldStatus();
     uint16 callerObjectTypeId = ObjectType._get(callerEntityId);
     require(isStorageContainer(callerObjectTypeId), "Source object type is not a chest");
 

@@ -14,9 +14,9 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { MAX_PLAYER_RESPAWN_HALF_WIDTH, IN_MAINTENANCE } from "../Constants.sol";
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder } from "../Utils.sol";
+import { MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
+import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { checkWorldStatus, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { notify, LoginNotifData } from "../utils/NotifUtils.sol";
 
@@ -24,7 +24,7 @@ import { EntityId } from "../EntityId.sol";
 
 contract LoginSystem is System {
   function loginPlayer(VoxelCoord memory respawnCoord) public {
-    require(!IN_MAINTENANCE, "Biomes is in maintenance mode. Try again later");
+    checkWorldStatus();
     EntityId playerEntityId = Player._get(_msgSender());
     require(playerEntityId.exists(), "Player does not exist");
     require(PlayerStatus._getIsLoggedOff(playerEntityId), "Player is already logged in");
