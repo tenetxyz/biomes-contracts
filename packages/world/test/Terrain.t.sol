@@ -82,8 +82,15 @@ contract TerrainTest is MudTest, GasReporter {
     assertEq(index, 0 * 256 + 15 * 16 + 14 + VERSION_PADDING);
   }
 
-  function testExploreChunk() public {
-    uint8[][][] memory chunk = new uint8[][][](uint256(int256(CHUNK_SIZE)));
+  function testGetChunkSalt() public {
+    ChunkCoord memory chunkCoord = ChunkCoord(1, 2, 3);
+    bytes32 salt = Terrain._getChunkSalt(chunkCoord);
+    assertEq(salt, bytes32(abi.encodePacked(bytes20(0), chunkCoord.x, chunkCoord.y, chunkCoord.z)));
+    assertEq(salt, bytes32(uint256(uint96(bytes12(abi.encodePacked(chunkCoord.x, chunkCoord.y, chunkCoord.z))))));
+  }
+
+  function _getTestChunk() internal pure returns (uint8[][][] memory chunk) {
+    chunk = new uint8[][][](uint256(int256(CHUNK_SIZE)));
     for (uint256 x = 0; x < uint256(int256(CHUNK_SIZE)); x++) {
       chunk[x] = new uint8[][](uint256(int256(CHUNK_SIZE)));
       for (uint256 y = 0; y < uint256(int256(CHUNK_SIZE)); y++) {
@@ -93,6 +100,10 @@ contract TerrainTest is MudTest, GasReporter {
         }
       }
     }
+  }
+
+  function testExploreChunk() public {
+    uint8[][][] memory chunk = _getTestChunk();
     bytes memory encodedChunk = encodeChunk(chunk);
     ChunkCoord memory chunkCoord = ChunkCoord(0, 0, 0);
     bytes32[] memory merkleProof = new bytes32[](0);
@@ -123,8 +134,44 @@ contract TerrainTest is MudTest, GasReporter {
     }
   }
 
+  function testExploreChunk_Fail_ChunkAlreadyExplored() public {
+    uint8[][][] memory chunk = _getTestChunk();
+    bytes memory encodedChunk = encodeChunk(chunk);
+    ChunkCoord memory chunkCoord = ChunkCoord(0, 0, 0);
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+
+    vm.expectRevert("Chunk already explored");
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+  }
+
+  function testGetBlockType() public {
+    uint8[][][] memory chunk = _getTestChunk();
+    bytes memory encodedChunk = encodeChunk(chunk);
+
+    // Test we can get the block type for a voxel in the chunk
+    ChunkCoord memory chunkCoord = ChunkCoord(0, 0, 0);
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+    VoxelCoord memory voxelCoord = VoxelCoord(1, 2, 3);
+    uint8 blockType = Terrain.getBlockType(voxelCoord);
+    assertEq(blockType, chunk[1][2][3]);
+
+    // Test for chunks that are not at the origin
+    chunkCoord = ChunkCoord(1, 2, 3);
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+    voxelCoord = VoxelCoord(16 + 1, 16 * 2 + 2, 16 * 3 + 3);
+    blockType = Terrain.getBlockType(voxelCoord);
+    assertEq(blockType, chunk[1][2][3]);
+
+    // Test for negative coordinates
+    chunkCoord = ChunkCoord(-1, -2, -3);
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+    voxelCoord = VoxelCoord(-16 + 1, -16 * 2 + 2, -16 * 3 + 3);
+    blockType = Terrain.getBlockType(voxelCoord);
+    assertEq(blockType, chunk[1][2][3]);
+  }
+
   /// forge-config: default.allow_internal_expect_revert = true
-  function testUnexploredChunk() public {
+  function testGetBlockType_Fail_ChunkNotExplored() public {
     vm.expectRevert("Chunk not explored yet");
     Terrain.getBlockType(VoxelCoord(0, 0, 0));
   }
