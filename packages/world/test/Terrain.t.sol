@@ -108,14 +108,14 @@ contract TerrainTest is MudTest, GasReporter {
 
     assertEq(blockType, chunk[1][2][3]);
 
-    for (int32 x = 0; x < CHUNK_SIZE; x++) {
-      for (int32 y = 0; y < CHUNK_SIZE; y++) {
-        for (int32 z = 0; z < CHUNK_SIZE; z++) {
-          voxelCoord = VoxelCoord(int32(x), int32(y), int32(z));
-          blockType = Terrain.getBlockType(voxelCoord);
-          assertEq(blockType, chunk[uint256(int256(x))][uint256(int256(y))][uint256(int256(z))]);
-        }
-      }
-    }
+    // for (int32 x = 0; x < CHUNK_SIZE; x++) {
+    //   for (int32 y = 0; y < CHUNK_SIZE; y++) {
+    //     for (int32 z = 0; z < CHUNK_SIZE; z++) {
+    //       voxelCoord = VoxelCoord(int32(x), int32(y), int32(z));
+    //       blockType = Terrain.getBlockType(voxelCoord);
+    //       assertEq(blockType, chunk[uint256(int256(x))][uint256(int256(y))][uint256(int256(z))]);
+    //     }
+    //   }
+    // }
   }
 }

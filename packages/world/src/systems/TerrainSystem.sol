@@ -35,7 +35,8 @@ library Terrain {
     }
 
     uint256 index = _getBlockIndex(coord);
-    bytes1 blockType = chunkPointer.readBytes1(index);
+    // bytes1 blockType = chunkPointer.readBytes1(index);
+    bytes1 blockType = bytes1(chunkPointer.read(index, index + 1));
 
     return uint8(blockType);
   }
