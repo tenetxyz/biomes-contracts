@@ -16,14 +16,15 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ObjectCategory, ActionType, DisplayContentType } from "../codegen/common.sol";
 
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { inWorldBorder, positionDataToVoxelCoord } from "../Utils.sol";
+import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID } from "../ObjectTypeIds.sol";
+import { inWorldBorder, getUniqueEntity, positionDataToVoxelCoord } from "../Utils.sol";
 import { addToInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { GravityLib } from "./libraries/GravityLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
+import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract MineSystem is System {
@@ -31,14 +32,23 @@ contract MineSystem is System {
     require(inWorldBorder(coord), "Cannot mine outside the world border");
 
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId.exists(), "Cannot mine an unrevealed block");
-    uint16 mineObjectTypeId = ObjectType._get(entityId);
-    address chipAddress = Chip._get(entityId);
-    require(chipAddress == address(0), "Cannot mine a chipped block");
-    EnergyData memory machineData = updateMachineEnergyLevel(entityId);
-    require(machineData.energy == 0, "Cannot mine a machine that has energy");
-    if (DisplayContent._getContentType(entityId) != DisplayContentType.None) {
-      DisplayContent._deleteRecord(entityId);
+    uint16 mineObjectTypeId;
+    if (!entityId.exists()) {
+      mineObjectTypeId = TerrainLib._getBlockType(coord);
+      require(mineObjectTypeId != AnyOreObjectID, "Ore must be computed before it can be mined");
+
+      entityId = getUniqueEntity();
+      Position._set(entityId, coord.x, coord.y, coord.z);
+      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
+    } else {
+      mineObjectTypeId = ObjectType._get(entityId);
+      address chipAddress = Chip._get(entityId);
+      require(chipAddress == address(0), "Cannot mine a chipped block");
+      EnergyData memory machineData = updateMachineEnergyLevel(entityId);
+      require(machineData.energy == 0, "Cannot mine a machine that has energy");
+      if (DisplayContent._getContentType(entityId) != DisplayContentType.None) {
+        DisplayContent._deleteRecord(entityId);
+      }
     }
     require(
       ObjectTypeMetadata._getObjectCategory(mineObjectTypeId) == ObjectCategory.Block,

@@ -15,12 +15,13 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectCategory, ActionType } from "../codegen/common.sol";
 
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { inWorldBorder } from "../Utils.sol";
+import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
+import { TerrainLib } from "./libraries/TerrainLib.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -28,9 +29,17 @@ contract BuildSystem is System {
   function buildObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId.exists(), "Cannot build on an unrevealed block");
-    require(ObjectType._get(entityId) == AirObjectID, "Cannot build on a non-air block");
-    require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot build where there are dropped objects");
+    if (!entityId.exists()) {
+      uint16 terrainObjectTypeId = TerrainLib._getBlockType(coord);
+      require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
+
+      entityId = getUniqueEntity();
+      Position._set(entityId, coord.x, coord.y, coord.z);
+      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
+    } else {
+      require(ObjectType._get(entityId) == AirObjectID, "Cannot build on a non-air block");
+      require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot build where there are dropped objects");
+    }
 
     ObjectType._set(entityId, objectTypeId);
 
