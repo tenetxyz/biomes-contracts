@@ -20,6 +20,12 @@ struct InventoryTool {
   uint24 numUsesLeft;
 }
 
+struct ChunkCoord {
+  int32 x;
+  int32 y;
+  int32 z;
+}
+
 struct InventoryObject {
   uint8 objectTypeId;
   uint16 numObjects;

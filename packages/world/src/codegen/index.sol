@@ -13,6 +13,7 @@ import { ObjectType } from "./tables/ObjectType.sol";
 import { Position, PositionData } from "./tables/Position.sol";
 import { ReversePosition } from "./tables/ReversePosition.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./tables/LastKnownPosition.sol";
+import { ExploredChunk } from "./tables/ExploredChunk.sol";
 import { Player } from "./tables/Player.sol";
 import { ReversePlayer } from "./tables/ReversePlayer.sol";
 import { PlayerMetadata, PlayerMetadataData } from "./tables/PlayerMetadata.sol";

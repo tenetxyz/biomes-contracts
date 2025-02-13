@@ -30,6 +30,15 @@ export default defineWorld({
     DisplayContentType: ["None", "Text", "Image"],
   },
   tables: {
+    ExploredChunk: {
+      schema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+        explorer: "address",
+      },
+      key: ["x", "y", "z"],
+    },
     UniqueEntity: {
       schema: {
         value: "uint256",
@@ -431,11 +440,4 @@ export default defineWorld({
       accessList: [],
     },
   },
-  modules: [
-    {
-      artifactPath: "@latticexyz/world-modules/out/PuppetModule.sol/PuppetModule.json",
-      root: false,
-      args: [],
-    },
-  ],
 });
