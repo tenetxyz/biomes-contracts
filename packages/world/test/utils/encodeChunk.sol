@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "../../src/Types.sol";
 import { CHUNK_SIZE } from "../../src/Constants.sol";
-import { VERSION_PADDING } from "../../src/systems/TerrainSystem.sol";
+import { VERSION_PADDING } from "../../src/systems/libraries/TerrainLib.sol";
 
 function encodeChunk(uint8[][][] memory chunk) pure returns (bytes memory encodedChunk) {
   bytes1 version = bytes1(uint8(0));
