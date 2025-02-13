@@ -34,10 +34,10 @@ contract ChipSystem is System {
     EntityId baseEntityId = entityId.baseEntityId();
 
     uint16 objectTypeId = ObjectType._get(baseEntityId);
-    require(Chip._getChipSystemId(baseEntityId).unwrap() == 0, "Chip already attached");
     require(chipSystemId.unwrap() != 0, "Invalid chip system id");
 
-    (address chipAddress, ) = Systems._get(chipSystemId);
+    // TODO: check that system exists
+    address chipAddress = baseEntityId.getChipAddress();
 
     if (objectTypeId == ForceFieldObjectID) {
       require(
