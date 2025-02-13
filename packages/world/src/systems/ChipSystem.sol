@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
-import { SystemCall } from "@latticexyz/world/src/SystemCall.sol";
 import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
 import { VoxelCoord } from "../Types.sol";
