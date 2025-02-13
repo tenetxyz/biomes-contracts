@@ -14,7 +14,7 @@ import { gravityApplies, inWorldBorder } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 import { GravityLib } from "./GravityLib.sol";
-
+import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
 
 library MoveLib {
@@ -92,14 +92,17 @@ library MoveLib {
     require(inSurroundingCube(oldCoord, 1, newCoord), "New coord is too far from old coord");
 
     EntityId newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
-    require(newEntityId.exists(), "Cannot move to an unrevealed block");
-
-    // If the entity we're moving into is this player, then it's fine as
-    // the player will be moved from the old position to the new position
-    if (playerEntityId != newEntityId) {
-      uint16 currentObjectTypeId = ObjectType._get(newEntityId);
-      // TODO: check for water and florae
-      require(currentObjectTypeId == AirObjectID, "Cannot move through a non-air block");
+    if (!newEntityId.exists()) {
+      uint16 terrainObjectTypeId = TerrainLib._getBlockType(newCoord);
+      require(terrainObjectTypeId == AirObjectID, "Cannot move through a non-air block");
+    } else {
+      // If the entity we're moving into is this player, then it's fine as
+      // the player will be moved from the old position to the new position
+      if (playerEntityId != newEntityId) {
+        uint16 currentObjectTypeId = ObjectType._get(newEntityId);
+        // TODO: check for water and florae
+        require(currentObjectTypeId == AirObjectID, "Cannot move through a non-air block");
+      }
     }
 
     return (newEntityId, gravityApplies(newCoord));
