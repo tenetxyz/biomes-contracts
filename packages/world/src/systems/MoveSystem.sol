@@ -17,7 +17,6 @@ contract MoveSystem is System {
   }
 
   function moveDirections(VoxelCoordDirection[] memory directions) public {
-    require(directions.length > 0, "Empty directions array");
     (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
 
     VoxelCoord[] memory newCoords = new VoxelCoord[](directions.length);
