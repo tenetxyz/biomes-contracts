@@ -5,11 +5,12 @@ import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
 import { Terrain, VERSION_PADDING } from "../src/systems/TerrainSystem.sol";
-import { AirObjectID } from "../src/ObjectTypeIds.sol";
+import { AirObjectID, SandObjectID, GrassObjectID, WaterObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
 import { CHUNK_SIZE } from "../src/Constants.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { chunk2_3_1 } from "./utils/mockData.sol";
 
 contract TerrainTest is MudTest, GasReporter {
   function testGetChunkCoord() public {
@@ -174,5 +175,17 @@ contract TerrainTest is MudTest, GasReporter {
   function testGetBlockType_Fail_ChunkNotExplored() public {
     vm.expectRevert("Chunk not explored yet");
     Terrain.getBlockType(VoxelCoord(0, 0, 0));
+  }
+
+  function testMockChunk() public {
+    ChunkCoord memory chunkCoord = ChunkCoord(2, 3, 1);
+    IWorld(worldAddress).exploreChunk(chunkCoord, chunk2_3_1, new bytes32[](0));
+
+    // TODO: update object types to match between client and contracts
+    assertEq(Terrain.getBlockType(VoxelCoord(39, 62, 16)), 83); // WaterObjectID
+    assertEq(Terrain.getBlockType(VoxelCoord(40, 62, 16)), 35); // GrassObjectID
+    assertEq(Terrain.getBlockType(VoxelCoord(41, 62, 16)), 35); // GrassObjectID
+    assertEq(Terrain.getBlockType(VoxelCoord(42, 62, 16)), 42); // SandObjectID
+    assertEq(Terrain.getBlockType(VoxelCoord(43, 62, 16)), 35); // GrassObjectID
   }
 }
