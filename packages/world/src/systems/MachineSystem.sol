@@ -13,7 +13,7 @@ import { PlayerObjectID, ChipBatteryObjectID, ForceFieldObjectID } from "../Obje
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
-import { safeCallChip } from "../Utils.sol";
+import { callChipOrRevert } from "../utils/callChip.sol";
 import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
 
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
@@ -41,9 +41,9 @@ contract MachineSystem is System {
       PowerMachineNotifData({ machineEntityId: baseEntityId, machineCoord: entityCoord, numBattery: numBattery })
     );
 
-    // safeCallChip(
-    //   Chip._getChipAddress(baseEntityId),
-    //   abi.encodeCall(IForceFieldChip.onPowered, (playerEntityId, baseEntityId, numBattery))
-    // );
+    callChipOrRevert(
+      baseEntityId,
+      abi.encodeCall(IForceFieldChip.onPowered, (playerEntityId, baseEntityId, numBattery))
+    );
   }
 }

@@ -11,6 +11,7 @@ import { PlayerObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { TransferData, PipeTransferData, ChipOnTransferData, ChipOnPipeTransferData, TransferCommonContext, PipeTransferCommonContext } from "../Types.sol";
 import { transferInventoryEntity, removeFromInventoryCount, addToInventoryCount } from "../utils/InventoryUtils.sol";
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
+import { callChipOrRevert } from "../utils/callChip.sol";
 
 import { TransferLib } from "./libraries/TransferLib.sol";
 import { PipeTransferLib } from "./libraries/PipeTransferLib.sol";
@@ -19,25 +20,28 @@ import { EntityId } from "../EntityId.sol";
 
 contract MultiTransferSystem is System {
   function requireAllowed(
-    address chipAddress,
+    EntityId entityId,
     uint256 machineEnergyLevel,
     ChipOnTransferData memory chipOnTransferData
   ) internal {
-    if (chipAddress != address(0) && machineEnergyLevel > 0) {
-      // Forward any ether sent with the transaction to the hook
-      // Don't safe call here as we want to revert if the chip doesn't allow the transfer
-      bool transferAllowed = IChestChip(chipAddress).onTransfer{ value: _msgValue() }(chipOnTransferData);
+    if (machineEnergyLevel > 0) {
+      bytes memory returnData = callChipOrRevert(entityId, abi.encodeCall(IChestChip.onTransfer, (chipOnTransferData)));
+      bool transferAllowed = abi.decode(returnData, (bool));
       require(transferAllowed, "Transfer not allowed by chip");
     }
   }
 
   function requirePipeTransferAllowed(
-    address chipAddress,
+    EntityId entityId,
     uint256 machineEnergyLevel,
     ChipOnPipeTransferData memory chipOnPipeTransferData
   ) internal {
-    if (chipAddress != address(0) && machineEnergyLevel > 0) {
-      bool transferAllowed = IChestChip(chipAddress).onPipeTransfer(chipOnPipeTransferData);
+    if (machineEnergyLevel > 0) {
+      bytes memory returnData = callChipOrRevert(
+        entityId,
+        abi.encodeCall(IChestChip.onPipeTransfer, (chipOnPipeTransferData))
+      );
+      bool transferAllowed = abi.decode(returnData, (bool));
       require(transferAllowed, "Transfer not allowed by chip");
     }
   }

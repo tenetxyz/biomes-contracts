@@ -7,13 +7,13 @@ import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Position } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
-import { Chip } from "../../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectCategory } from "../../codegen/common.sol";
 
 import { PlayerObjectID, PipeObjectID, ForceFieldObjectID, ChipBatteryObjectID } from "../../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord, safeCallChip } from "../../Utils.sol";
+import { positionDataToVoxelCoord } from "../../Utils.sol";
+import { callChip } from "../../utils/callChip.sol";
 import { ChipOnPipeTransferData, PipeTransferData, PipeTransferCommonContext } from "../../Types.sol";
 import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
@@ -24,25 +24,22 @@ import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 import { EntityId } from "../../EntityId.sol";
 
 library PipeTransferLib {
-  function requireValidPath(
-    VoxelCoord memory srcCoord,
-    VoxelCoord memory dstCoord,
+  // Validates that the path is non-empty and all coordinates correspond to pipes,
+  // and that the last coordinate is adjacent to the destination.
+  function validatePath(
+    VoxelCoord memory src,
+    VoxelCoord memory dst,
     VoxelCoordDirectionVonNeumann[] memory path
   ) internal view {
-    require(path.length > 0, "Path must be greater than 0");
-    VoxelCoord[] memory pathCoords = new VoxelCoord[](path.length);
+    require(path.length > 0, "Path must not be empty");
+    VoxelCoord memory current = src;
     for (uint i = 0; i < path.length; i++) {
-      pathCoords[i] = (i == 0 ? srcCoord : pathCoords[i - 1]).transform(path[i]);
-      EntityId pathEntityId = ReversePosition._get(pathCoords[i].x, pathCoords[i].y, pathCoords[i].z);
-      require(pathEntityId.exists(), "Path coord is not in the world");
-      require(ObjectType._get(pathEntityId) == PipeObjectID, "Path coord is not a pipe");
+      current = current.transform(path[i]);
+      EntityId entity = ReversePosition._get(current.x, current.y, current.z);
+      require(entity.exists(), "Path coordinate missing in world");
+      require(ObjectType._get(entity) == PipeObjectID, "Coordinate is not a pipe");
     }
-
-    // check if last coord and dstCoord are in von neumann distance of 1
-    require(
-      pathCoords[path.length - 1].inVonNeumannNeighborhood(dstCoord),
-      "Last path coord is not in von neumann distance of 1 from destination coord"
-    );
+    require(current.inVonNeumannNeighborhood(dst), "Destination not adjacent to last path coord");
   }
 
   function pipeTransferCommon(
@@ -56,7 +53,6 @@ library PipeTransferLib {
     require(pipeTransferData.transferData.numToTransfer > 0, "Amount must be greater than 0");
     VoxelCoord memory targetCoord = positionDataToVoxelCoord(Position._get(pipeTransferData.targetEntityId));
     uint16 targetObjectTypeId = ObjectType._get(pipeTransferData.targetEntityId);
-    address chipAddress = pipeTransferData.targetEntityId.getChipAddress();
     uint128 machineEnergyLevel = 0;
     EntityId targetForceFieldEntityId = getForceField(targetCoord);
     if (targetForceFieldEntityId.exists()) {
@@ -64,11 +60,7 @@ library PipeTransferLib {
       machineEnergyLevel = machineData.energy;
     }
 
-    requireValidPath(
-      isDeposit ? callerCoord : targetCoord,
-      isDeposit ? targetCoord : callerCoord,
-      pipeTransferData.path
-    );
+    validatePath(isDeposit ? callerCoord : targetCoord, isDeposit ? targetCoord : callerCoord, pipeTransferData.path);
 
     // TODO: Apply cost for using pipes
 
@@ -105,8 +97,9 @@ library PipeTransferLib {
             EnergyData({ energy: newEnergyLevel, lastUpdatedTime: uint128(block.timestamp) })
           );
 
-          safeCallChip(
-            chipAddress,
+          // TODO: Should this revert?
+          callChip(
+            pipeTransferData.targetEntityId,
             abi.encodeCall(
               IForceFieldChip.onPowered,
               (callerEntityId, pipeTransferData.targetEntityId, pipeTransferData.transferData.numToTransfer)
@@ -154,7 +147,6 @@ library PipeTransferLib {
     return
       PipeTransferCommonContext({
         targetCoord: targetCoord,
-        chipAddress: chipAddress,
         machineEnergyLevel: machineEnergyLevel,
         targetObjectTypeId: targetObjectTypeId
       });

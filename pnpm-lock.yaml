@@ -111,6 +111,9 @@ importers:
       '@latticexyz/world':
         specifier: link:../../../mud/packages/world
         version: link:../../../mud/packages/world
+      '@latticexyz/world-consumer':
+        specifier: link:../../../mud/packages/world-consumer
+        version: link:../../../mud/packages/world-consumer
       '@latticexyz/world-modules':
         specifier: link:../../../mud/packages/world-modules
         version: link:../../../mud/packages/world-modules

@@ -18,7 +18,6 @@ import { addToInventoryCount, removeFromInventoryCount } from "../utils/Inventor
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { safeCallChip } from "../Utils.sol";
 import { notify, AttachChipNotifData, DetachChipNotifData } from "../utils/NotifUtils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
@@ -26,7 +25,7 @@ import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { EntityId } from "../EntityId.sol";
-import { callChip } from "../utils/callChip.sol";
+import { callChip, callChipOrRevert } from "../utils/callChip.sol";
 
 contract ChipSystem is System {
   function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) public payable {
@@ -69,7 +68,7 @@ contract ChipSystem is System {
     );
 
     bytes memory onAttachedCall = abi.encodeCall(IChip.onAttached, (playerEntityId, baseEntityId, extraData));
-    bytes memory returnData = callChip(baseEntityId, onAttachedCall);
+    bytes memory returnData = callChipOrRevert(baseEntityId, onAttachedCall);
 
     bool isAllowed = abi.decode(returnData, (bool));
 
@@ -104,14 +103,13 @@ contract ChipSystem is System {
 
     bytes memory onDetachedCall = abi.encodeCall(IChip.onDetached, (playerEntityId, baseEntityId, extraData));
 
+    // Don't safe call here because we want to revert if the chip doesn't allow the detachment
+    (bool success, bytes memory returnData) = callChip(baseEntityId, onDetachedCall);
+    // If no energy left we don't care about the result
     if (machineEnergyLevel > 0) {
-      // Don't safe call here because we want to revert if the chip doesn't allow the detachment
-      // bool isAllowed = IChip(chipAddress).onDetached{ value: _msgValue() }(playerEntityId, baseEntityId, extraData);
-      bytes memory returnData = callChip(baseEntityId, onDetachedCall);
+      require(success, "Chip call failed");
       bool isAllowed = abi.decode(returnData, (bool));
       require(isAllowed, "Detachment not allowed by chip");
-    } else {
-      safeCallChip(chipAddress, onDetachedCall);
     }
   }
 

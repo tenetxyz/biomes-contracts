@@ -19,6 +19,7 @@ import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { PipeTransferLib } from "./libraries/PipeTransferLib.sol";
 import { EntityId } from "../EntityId.sol";
+import { callChipOrRevert } from "../utils/callChip.sol";
 
 contract PipeTransferSystem is System {
   function requireAllowed(
@@ -43,7 +44,6 @@ contract PipeTransferSystem is System {
     require(isStorageContainer(callerObjectTypeId), "Source object type is not a chest");
 
     VoxelCoord memory callerCoord = positionDataToVoxelCoord(Position._get(callerEntityId));
-    address chipAddress = callerEntityId.getChipAddress();
     uint256 machineEnergyLevel = 0;
     EntityId callerForceFieldEntityId = getForceField(callerCoord);
     if (callerForceFieldEntityId.exists()) {
@@ -60,20 +60,19 @@ contract PipeTransferSystem is System {
       pipeTransferData
     );
 
-    if (pipeCtx.targetObjectTypeId != ForceFieldObjectID) {
-      requireAllowed(
-        pipeCtx.chipAddress,
-        pipeCtx.machineEnergyLevel,
-        ChipOnPipeTransferData({
-          playerEntityId: EntityId.wrap(0), // this is a transfer initiated by a chest, not a player
-          targetEntityId: pipeTransferData.targetEntityId,
-          callerEntityId: callerEntityId,
-          isDeposit: isDeposit,
-          path: pipeTransferData.path,
-          transferData: pipeTransferData.transferData,
-          extraData: pipeTransferData.extraData
-        })
-      );
+    if (pipeCtx.targetObjectTypeId != ForceFieldObjectID && machineEnergyLevel > 0) {
+      ChipOnPipeTransferData memory chipOnPipeTransferData = ChipOnPipeTransferData({
+        playerEntityId: EntityId.wrap(0), // this is a transfer initiated by a chest, not a player
+        targetEntityId: pipeTransferData.targetEntityId,
+        callerEntityId: callerEntityId,
+        isDeposit: isDeposit,
+        path: pipeTransferData.path,
+        transferData: pipeTransferData.transferData,
+        extraData: pipeTransferData.extraData
+      });
+      // we want to revert if the chip doesn't allow the transfer
+      bytes memory onPipeTransferCall = abi.encodeCall(IChestChip.onPipeTransfer, (chipOnPipeTransferData));
+      callChipOrRevert(callerEntityId, onPipeTransferCall);
     }
   }
 }

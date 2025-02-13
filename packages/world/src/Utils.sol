@@ -67,23 +67,6 @@ function getUniqueEntity() returns (EntityId) {
   return EntityId.wrap(bytes32(uniqueEntity));
 }
 
-// Safe as in do not block the chip tx
-function safeCallChip(address chipAddress, bytes memory callData) {
-  if (chipAddress == address(0)) {
-    return;
-  }
-  // TODO: pass in a fixed amount of gas
-  (bool success, ) = chipAddress.call{ value: WorldContextConsumerLib._msgValue() }(callData);
-  if (!success) {
-    // Note: we want the TX to revert if the chip call runs out of gas, but because
-    // this is the last call in the function, we need to consume some dummy gas for it to revert
-    // See: https://github.com/dhvanipa/evm-outofgas-call
-    for (uint256 i = 0; i < 1000; i++) {
-      continue;
-    }
-  }
-}
-
 // Random number between 0 and 99
 function getRandomNumberBetween0And99(uint256 blockNumber) view returns (uint256) {
   bytes32 blockHash = blockhash(blockNumber);

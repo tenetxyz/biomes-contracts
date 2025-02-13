@@ -8,20 +8,25 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { Chip } from "../codegen/tables/Chip.sol";
 import { EntityId } from "../EntityId.sol";
+import { MAX_CHIP_GAS } from "../Constants.sol";
 
-function callChip(EntityId entityId, bytes memory data) returns (bytes memory) {
+function callChip(EntityId entityId, bytes memory callData) returns (bool, bytes memory) {
   ResourceId chipSystemId = Chip._get(entityId);
   require(chipSystemId.unwrap() != 0, "Entity does not have an attached chip");
 
-  (address chipAddress, ) = Systems.get(chipSystemId);
+  (address chipAddress, ) = Systems._get(chipSystemId);
 
-  (bool success, bytes memory returnData) = WorldContextProviderLib.callWithContext(
-    WorldContextConsumerLib._msgSender(),
-    WorldContextConsumerLib._msgValue(),
-    chipAddress,
-    data
-  );
+  address msgSender = WorldContextConsumerLib._msgSender();
+  uint256 msgValue = WorldContextConsumerLib._msgValue();
 
+  return
+    chipAddress.call{ value: 0, gas: MAX_CHIP_GAS }(
+      WorldContextProviderLib.appendContext({ callData: callData, msgSender: msgSender, msgValue: msgValue })
+    );
+}
+
+function callChipOrRevert(EntityId entityId, bytes memory callData) returns (bytes memory) {
+  (bool success, bytes memory returnData) = callChip(entityId, callData);
   if (!success) {
     revertWithBytes(returnData);
   }
