@@ -129,6 +129,15 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
+    ExploredChunk: {
+      schema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+        explorer: "address",
+      },
+      key: ["x", "y", "z"],
+    },
     // ------------------------------------------------------------
     // Inventory
     // ------------------------------------------------------------
@@ -314,11 +323,4 @@ export default defineWorld({
       key: ["blockNumber"],
     },
   },
-  modules: [
-    {
-      artifactPath: "@latticexyz/world-modules/out/PuppetModule.sol/PuppetModule.json",
-      root: false,
-      args: [],
-    },
-  ],
 });

@@ -22,6 +22,7 @@ import { IOreSystem } from "./IOreSystem.sol";
 import { IPickupSystem } from "./IPickupSystem.sol";
 import { IPipeTransferSystem } from "./IPipeTransferSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
+import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
 import { IOracleSystem } from "./IOracleSystem.sol";
@@ -62,6 +63,7 @@ interface IWorld is
   IPickupSystem,
   IPipeTransferSystem,
   ISpawnSystem,
+  ITerrainSystem,
   ITransferSystem,
   IUnequipSystem,
   IOracleSystem,

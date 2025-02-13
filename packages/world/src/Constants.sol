@@ -27,3 +27,6 @@ int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
 address constant ORACLE_ADDRESS = 0xe67AcfFCe0B542540F1520a9eaD7Aa86ff31196E;
 
 uint128 constant SPAWN_ENERGY = 100;
+
+int32 constant CHUNK_SIZE = 16;
+int32 constant AREA_SIZE = 512;
