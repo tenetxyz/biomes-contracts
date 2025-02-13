@@ -26,7 +26,6 @@ import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { Energy } from "../src/codegen/tables/Energy.sol";
 
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
-import { FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
 
 contract ReadScript is Script {
   function run(address worldAddress) external {

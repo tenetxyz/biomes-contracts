@@ -6,8 +6,6 @@ import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 
 import { ForceField } from "@biomesaw/world/src/codegen/tables/ForceField.sol";
 
-import { FORCE_FIELD_SHARD_DIM } from "@biomesaw/world/src/Constants.sol";
-
 import { getPosition } from "./EntityUtils.sol";
 
 function getForceField(EntityId entityId) view returns (EntityId) {
