@@ -17,6 +17,7 @@ import { getForceField, setupForceField, destroyForceField } from "../../utils/F
 
 import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 
+import { callChip } from "../../utils/callChip.sol";
 import { EntityId } from "../../EntityId.sol";
 
 library ForceFieldLib {
@@ -36,16 +37,14 @@ library ForceFieldLib {
       }
 
       if (forceFieldEntityId.exists()) {
-        ResourceId chipSystemId = Chip._get(forceFieldEntityId);
         EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-        if (chipSystemId.unwrap() != 0 && machineData.energy > 0) {
+        if (machineData.energy > 0) {
           bytes memory onBuildCall = abi.encodeCall(
             IForceFieldChip.onBuild,
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
-          // TODO: what should we do about _msgValue()?
-          bytes memory result = IWorld(_world()).call(chipSystemId, onBuildCall);
+          bytes memory result = callChip(forceFieldEntityId, onBuildCall);
 
           bool buildAllowed = abi.decode(result, (bool));
           require(buildAllowed, "Build not allowed by force field's chip");
@@ -65,18 +64,14 @@ library ForceFieldLib {
       VoxelCoord memory coord = coords[i];
       EntityId forceFieldEntityId = getForceField(coord);
       if (forceFieldEntityId.exists()) {
-        ResourceId chipSystemId = Chip._get(forceFieldEntityId);
         EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-
-        // WorldContextConsumerLib._msgValue()
-        if (chipSystemId.unwrap() != 0 && machineData.energy > 0) {
+        if (machineData.energy > 0) {
           bytes memory onMineCall = abi.encodeCall(
             IForceFieldChip.onMine,
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
-          // TODO: what should we do about _msgValue()?
-          bytes memory result = IWorld(_world()).call(chipSystemId, onMineCall);
+          bytes memory result = callChip(forceFieldEntityId, onMineCall);
 
           bool mineAllowed = abi.decode(result, (bool));
           require(mineAllowed, "Mine not allowed by force field's chip");
