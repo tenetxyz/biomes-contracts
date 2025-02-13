@@ -44,7 +44,7 @@ library ForceFieldLib {
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
-          bytes memory result = callChipOrRevert(forceFieldEntityId, onBuildCall);
+          bytes memory result = callChipOrRevert(forceFieldEntityId.getChipAddress(), onBuildCall);
 
           bool buildAllowed = abi.decode(result, (bool));
           require(buildAllowed, "Build not allowed by force field's chip");
@@ -71,7 +71,7 @@ library ForceFieldLib {
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
-          bytes memory result = callChipOrRevert(forceFieldEntityId, onMineCall);
+          bytes memory result = callChipOrRevert(forceFieldEntityId.getChipAddress(), onMineCall);
 
           bool mineAllowed = abi.decode(result, (bool));
           require(mineAllowed, "Mine not allowed by force field's chip");

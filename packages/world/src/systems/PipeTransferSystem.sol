@@ -22,18 +22,6 @@ import { EntityId } from "../EntityId.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 
 contract PipeTransferSystem is System {
-  function requireAllowed(
-    address chipAddress,
-    uint256 machineEnergyLevel,
-    ChipOnPipeTransferData memory chipOnPipeTransferData
-  ) internal {
-    if (chipAddress != address(0) && machineEnergyLevel > 0) {
-      // Don't safe call here as we want to revert if the chip doesn't allow the transfer
-      bool transferAllowed = IChestChip(chipAddress).onPipeTransfer{ value: _msgValue() }(chipOnPipeTransferData);
-      require(transferAllowed, "Transfer not allowed by chip");
-    }
-  }
-
   function pipeTransfer(
     EntityId callerEntityId,
     bool isDeposit,
@@ -43,6 +31,9 @@ contract PipeTransferSystem is System {
     uint16 callerObjectTypeId = ObjectType._get(callerEntityId);
     require(isStorageContainer(callerObjectTypeId), "Source object type is not a chest");
 
+    address chipAddress = callerEntityId.getChipAddress();
+    require(chipAddress == _msgSender(), "Caller is not the chip of the smart item");
+
     VoxelCoord memory callerCoord = positionDataToVoxelCoord(Position._get(callerEntityId));
     uint256 machineEnergyLevel = 0;
     EntityId callerForceFieldEntityId = getForceField(callerCoord);
@@ -50,7 +41,6 @@ contract PipeTransferSystem is System {
       EnergyData memory machineData = updateMachineEnergyLevel(callerForceFieldEntityId);
       machineEnergyLevel = machineData.energy;
     }
-    require(chipAddress == _msgSender(), "Caller is not the chip of the smart item");
     require(machineEnergyLevel > 0, "Caller has no charge");
     PipeTransferCommonContext memory pipeCtx = PipeTransferLib.pipeTransferCommon(
       callerEntityId,
@@ -72,7 +62,7 @@ contract PipeTransferSystem is System {
       });
       // we want to revert if the chip doesn't allow the transfer
       bytes memory onPipeTransferCall = abi.encodeCall(IChestChip.onPipeTransfer, (chipOnPipeTransferData));
-      callChipOrRevert(callerEntityId, onPipeTransferCall);
+      callChipOrRevert(chipAddress, onPipeTransferCall);
     }
   }
 }

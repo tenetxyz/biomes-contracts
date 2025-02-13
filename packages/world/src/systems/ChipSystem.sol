@@ -68,7 +68,7 @@ contract ChipSystem is System {
     );
 
     bytes memory onAttachedCall = abi.encodeCall(IChip.onAttached, (playerEntityId, baseEntityId, extraData));
-    bytes memory returnData = callChipOrRevert(baseEntityId, onAttachedCall);
+    bytes memory returnData = callChipOrRevert(baseEntityId.getChipAddress(), onAttachedCall);
 
     bool isAllowed = abi.decode(returnData, (bool));
 
@@ -104,7 +104,7 @@ contract ChipSystem is System {
     bytes memory onDetachedCall = abi.encodeCall(IChip.onDetached, (playerEntityId, baseEntityId, extraData));
 
     // Don't safe call here because we want to revert if the chip doesn't allow the detachment
-    (bool success, bytes memory returnData) = callChip(baseEntityId, onDetachedCall);
+    (bool success, bytes memory returnData) = callChip(baseEntityId.getChipAddress(), onDetachedCall);
     // If no energy left we don't care about the result
     if (machineEnergyLevel > 0) {
       require(success, "Chip call failed");

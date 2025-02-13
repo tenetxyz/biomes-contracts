@@ -25,7 +25,10 @@ contract MultiTransferSystem is System {
     ChipOnTransferData memory chipOnTransferData
   ) internal {
     if (machineEnergyLevel > 0) {
-      bytes memory returnData = callChipOrRevert(entityId, abi.encodeCall(IChestChip.onTransfer, (chipOnTransferData)));
+      bytes memory returnData = callChipOrRevert(
+        entityId.getChipAddress(),
+        abi.encodeCall(IChestChip.onTransfer, (chipOnTransferData))
+      );
       bool transferAllowed = abi.decode(returnData, (bool));
       require(transferAllowed, "Transfer not allowed by chip");
     }
@@ -38,7 +41,7 @@ contract MultiTransferSystem is System {
   ) internal {
     if (machineEnergyLevel > 0) {
       bytes memory returnData = callChipOrRevert(
-        entityId,
+        entityId.getChipAddress(),
         abi.encodeCall(IChestChip.onPipeTransfer, (chipOnPipeTransferData))
       );
       bool transferAllowed = abi.decode(returnData, (bool));
@@ -87,7 +90,7 @@ contract MultiTransferSystem is System {
         require(toolObjectTypeId == transferData.objectTypeId, "All tools must be of the same type");
       }
     }
-    require(ctx.chipAddress != address(0), "Chest is not a smart item");
+    // require(ctx.chipAddress != address(0), "Chest is not a smart item");
     require(ctx.machineEnergyLevel > 0, "Chest has no charge");
 
     uint256 totalTools = transferData.toolEntityIds.length;
@@ -139,7 +142,7 @@ contract MultiTransferSystem is System {
 
       // Require the pipe transfer to/from the caller entity is allowed
       requirePipeTransferAllowed(
-        ctx.chipAddress,
+        ctx.chestEntityId,
         ctx.machineEnergyLevel,
         ChipOnPipeTransferData({
           playerEntityId: ctx.playerEntityId,
@@ -155,7 +158,7 @@ contract MultiTransferSystem is System {
       // Require the pipe transfer to/from the target entity is allowed
       if (pipeCtxs[i].targetObjectTypeId != ForceFieldObjectID) {
         requirePipeTransferAllowed(
-          pipeCtxs[i].chipAddress,
+          pipeTransferData.targetEntityId,
           pipeCtxs[i].machineEnergyLevel,
           ChipOnPipeTransferData({
             playerEntityId: ctx.playerEntityId,
@@ -172,7 +175,7 @@ contract MultiTransferSystem is System {
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
-      ctx.chipAddress,
+      ctx.chestEntityId,
       ctx.machineEnergyLevel,
       ChipOnTransferData({
         targetEntityId: ctx.chestEntityId,

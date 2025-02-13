@@ -95,14 +95,12 @@ struct TransferCommonContext {
   VoxelCoord chestCoord;
   uint16 chestObjectTypeId;
   uint16 dstObjectTypeId;
-  address chipAddress;
   uint256 machineEnergyLevel;
   bool isDeposit;
 }
 
 struct PipeTransferCommonContext {
   VoxelCoord targetCoord;
-  address chipAddress;
   uint256 machineEnergyLevel;
   uint16 targetObjectTypeId;
 }

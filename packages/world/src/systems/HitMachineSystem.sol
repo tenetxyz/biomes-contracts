@@ -50,7 +50,10 @@ contract HitMachineSystem is System {
 
     notify(playerEntityId, HitMachineNotifData({ machineEntityId: machineEntityId, machineCoord: machineCoord }));
 
-    callChip(machineEntityId, abi.encodeCall(IForceFieldChip.onForceFieldHit, (playerEntityId, machineEntityId)));
+    callChip(
+      machineEntityId.getChipAddress(),
+      abi.encodeCall(IForceFieldChip.onForceFieldHit, (playerEntityId, machineEntityId))
+    );
   }
 
   function hitMachine(EntityId entityId) public {

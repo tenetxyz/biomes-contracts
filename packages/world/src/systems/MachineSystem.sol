@@ -42,7 +42,7 @@ contract MachineSystem is System {
     );
 
     callChipOrRevert(
-      baseEntityId,
+      baseEntityId.getChipAddress(),
       abi.encodeCall(IForceFieldChip.onPowered, (playerEntityId, baseEntityId, numBattery))
     );
   }

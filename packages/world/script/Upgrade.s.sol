@@ -51,8 +51,7 @@ contract Upgrade is Script {
       // ) {
       //   continue;
       // }
-      ResourceId chipSystemId = Chip.getChipSystemId(entityId);
-      (address chipAddress, ) = Systems.get(chipSystemId);
+      address chipAddress = entityId.getChipAddress();
       require(chipAddress == 0x4509365cf5eCd4a8dB0BE9259c6339F1e49882C2, "Chip address not set");
       // TODO: not sure about these hardcoded addresses
       // Chip.setChipAddress(entityId, 0xCfEEc31cc4ac48830D1bc0c630B082Aeac3c4912);

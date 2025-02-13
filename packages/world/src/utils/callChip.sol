@@ -10,12 +10,7 @@ import { Chip } from "../codegen/tables/Chip.sol";
 import { EntityId } from "../EntityId.sol";
 import { MAX_CHIP_GAS } from "../Constants.sol";
 
-function callChip(EntityId entityId, bytes memory callData) returns (bool, bytes memory) {
-  ResourceId chipSystemId = Chip._get(entityId);
-  require(chipSystemId.unwrap() != 0, "Entity does not have an attached chip");
-
-  (address chipAddress, ) = Systems._get(chipSystemId);
-
+function callChip(address chipAddress, bytes memory callData) returns (bool, bytes memory) {
   address msgSender = WorldContextConsumerLib._msgSender();
   uint256 msgValue = WorldContextConsumerLib._msgValue();
 
@@ -25,8 +20,8 @@ function callChip(EntityId entityId, bytes memory callData) returns (bool, bytes
     );
 }
 
-function callChipOrRevert(EntityId entityId, bytes memory callData) returns (bytes memory) {
-  (bool success, bytes memory returnData) = callChip(entityId, callData);
+function callChipOrRevert(address chipAddress, bytes memory callData) returns (bytes memory) {
+  (bool success, bytes memory returnData) = callChip(chipAddress, callData);
   if (!success) {
     revertWithBytes(returnData);
   }

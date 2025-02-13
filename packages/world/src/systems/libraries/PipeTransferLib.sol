@@ -99,7 +99,7 @@ library PipeTransferLib {
 
           // TODO: Should this revert?
           callChip(
-            pipeTransferData.targetEntityId,
+            pipeTransferData.targetEntityId.getChipAddress(),
             abi.encodeCall(
               IForceFieldChip.onPowered,
               (callerEntityId, pipeTransferData.targetEntityId, pipeTransferData.transferData.numToTransfer)

@@ -51,7 +51,8 @@ contract Upgrade is Script {
     );
 
     Exchanges.push(chestEntityId, BUY_EXCHANGE_ID);
-    Chip.setChipAddress(chestEntityId, 0x39EA498e5907F6fA25E11dd50f0bc423B1F03E49);
+    // TODO: use chip system id
+    // Chip.setChipAddress(chestEntityId, 0x39EA498e5907F6fA25E11dd50f0bc423B1F03E49);
 
     vm.stopBroadcast();
   }
