@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "../../Types.sol";
-import { inSurroundingCube, voxelCoordsAreEqual } from "../../utils/VoxelCoordUtils.sol";
+import { VoxelCoord } from "../../VoxelCoord.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { Position } from "../../codegen/tables/Position.sol";
@@ -21,8 +20,6 @@ library MoveLib {
   function movePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord, VoxelCoord[] memory newCoords) public {
     // no-ops
     if (newCoords.length == 0) {
-      return;
-    } else if (newCoords.length == 1 && voxelCoordsAreEqual(playerCoord, newCoords[0])) {
       return;
     }
 
@@ -89,7 +86,7 @@ library MoveLib {
     VoxelCoord memory newCoord
   ) internal view returns (EntityId, bool) {
     require(inWorldBorder(newCoord), "Cannot move outside the world border");
-    require(inSurroundingCube(oldCoord, 1, newCoord), "New coord is too far from old coord");
+    require(oldCoord.inSurroundingCube(1, newCoord), "New coord is too far from old coord");
 
     EntityId newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     require(newEntityId.exists(), "Cannot move to an unrevealed block");

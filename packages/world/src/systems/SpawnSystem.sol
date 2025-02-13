@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "../Types.sol";
+import { VoxelCoord } from "../VoxelCoord.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
@@ -16,12 +16,11 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { WORLD_DIM_X, WORLD_DIM_Z, SPAWN_ENERGY, SPAWN_SHARD_DIM } from "../Constants.sol";
+import { WORLD_DIM_X, WORLD_DIM_Z, SPAWN_ENERGY } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
-import { coordToShardCoordIgnoreY } from "../utils/VoxelCoordUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -68,7 +67,7 @@ contract SpawnSystem is System {
     Player._set(newPlayer, playerEntityId);
     ReversePlayer._set(playerEntityId, newPlayer);
 
-    VoxelCoord memory shardCoord = coordToShardCoordIgnoreY(spawnCoord, SPAWN_SHARD_DIM);
+    VoxelCoord memory shardCoord = spawnCoord.toSpawnShardCoord();
     uint128 localEnergy = LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z);
     require(localEnergy >= SPAWN_ENERGY, "Not enough energy in local energy pool");
     LocalEnergyPool._set(shardCoord.x, 0, shardCoord.z, localEnergy - SPAWN_ENERGY);

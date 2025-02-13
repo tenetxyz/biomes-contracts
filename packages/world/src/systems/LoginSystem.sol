@@ -2,8 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "../Types.sol";
-import { inSurroundingCube } from "../utils/VoxelCoordUtils.sol";
+import { VoxelCoord } from "../VoxelCoord.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
@@ -32,7 +31,7 @@ contract LoginSystem is System {
     VoxelCoord memory lastKnownCoord = lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(playerEntityId));
     require(inWorldBorder(respawnCoord), "Cannot respawn outside world border");
     require(
-      inSurroundingCube(lastKnownCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH, respawnCoord),
+      lastKnownCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, respawnCoord),
       "Respawn coord too far from logged off coord"
     );
 
