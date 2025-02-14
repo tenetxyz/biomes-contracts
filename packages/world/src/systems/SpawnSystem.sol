@@ -23,7 +23,7 @@ import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { coordToShardCoordIgnoreY } from "../utils/VoxelCoordUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-
+import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract SpawnSystem is System {
@@ -51,13 +51,17 @@ contract SpawnSystem is System {
 
     EntityId playerEntityId = getUniqueEntity();
     EntityId existingEntityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    require(existingEntityId.exists(), "Cannot spawn on an unrevealed block");
-    require(ObjectType._get(existingEntityId) == AirObjectID, "Cannot spawn on a non-air block");
+    if (!existingEntityId.exists()) {
+      uint16 terrainObjectTypeId = TerrainLib._getBlockType(spawnCoord);
+      require(terrainObjectTypeId == AirObjectID, "Cannot spawn on a non-air block");
+    } else {
+      require(ObjectType._get(existingEntityId) == AirObjectID, "Cannot spawn on a non-air block");
 
-    // Transfer any dropped items
-    transferAllInventoryEntities(existingEntityId, playerEntityId, PlayerObjectID);
+      // Transfer any dropped items
+      transferAllInventoryEntities(existingEntityId, playerEntityId, PlayerObjectID);
 
-    Position._deleteRecord(existingEntityId);
+      Position._deleteRecord(existingEntityId);
+    }
 
     // Create new entity
     Position._set(playerEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);

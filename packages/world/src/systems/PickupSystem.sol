@@ -24,7 +24,7 @@ contract PickupSystem is System {
     requireInPlayerInfluence(playerCoord, coord);
 
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId.exists(), "Cannot pickup from an unrevealed block");
+    require(entityId.exists(), "No entity at pickup location");
 
     uint16 objectTypeId = ObjectType._get(entityId);
     require(objectTypeId == AirObjectID, "Cannot pickup from a non-air block");
