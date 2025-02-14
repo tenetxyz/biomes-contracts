@@ -32,10 +32,10 @@ contract ChipSystem is System {
     (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
+    require(baseEntityId.getChipAddress() == address(0), "Chip already attached");
 
     uint16 objectTypeId = ObjectType._get(baseEntityId);
 
-    // TODO: check that not already attached?
     (address chipAddress, ) = Systems._get(chipSystemId);
 
     if (objectTypeId == ForceFieldObjectID) {
@@ -75,8 +75,6 @@ contract ChipSystem is System {
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
 
-    // TODO: should we check that object type is smart object?
-    uint16 objectTypeId = ObjectType._get(baseEntityId);
     EntityId forceFieldEntityId = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
@@ -85,9 +83,9 @@ contract ChipSystem is System {
 
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
-    Chip._deleteRecord(baseEntityId);
-
     address chipAddress = baseEntityId.getChipAddress();
+
+    Chip._deleteRecord(baseEntityId);
 
     notify(
       playerEntityId,
