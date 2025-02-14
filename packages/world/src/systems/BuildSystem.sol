@@ -15,10 +15,11 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectCategory, ActionType } from "../codegen/common.sol";
 
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { inWorldBorder } from "../Utils.sol";
+import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
+import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 
@@ -28,9 +29,17 @@ contract BuildSystem is System {
   function buildObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId.exists(), "Cannot build on an unrevealed block");
-    require(ObjectType._get(entityId) == AirObjectID, "Cannot build on a non-air block");
-    require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot build where there are dropped objects");
+    if (!entityId.exists()) {
+      uint16 terrainObjectTypeId = TerrainLib._getBlockType(coord);
+      require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
+
+      entityId = getUniqueEntity();
+      Position._set(entityId, coord.x, coord.y, coord.z);
+      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
+    } else {
+      require(ObjectType._get(entityId) == AirObjectID, "Cannot build on a non-air block");
+      require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot build where there are dropped objects");
+    }
 
     ObjectType._set(entityId, objectTypeId);
 
@@ -85,9 +94,15 @@ contract BuildSystem is System {
     VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     require(inWorldBorder(jumpCoord), "Cannot jump outside world border");
     EntityId newEntityId = ReversePosition._get(jumpCoord.x, jumpCoord.y, jumpCoord.z);
-    require(newEntityId.exists(), "Cannot jump on an unrevealed block");
-    require(ObjectType._get(newEntityId) == AirObjectID, "Cannot jump on a non-air block");
-    transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
+    if (!newEntityId.exists()) {
+      uint16 terrainObjectTypeId = TerrainLib._getBlockType(jumpCoord);
+      require(terrainObjectTypeId == AirObjectID, "Cannot jump on a non-air block");
+      newEntityId = getUniqueEntity();
+      ObjectType._set(newEntityId, AirObjectID);
+    } else {
+      require(ObjectType._get(newEntityId) == AirObjectID, "Cannot jump on a non-air block");
+      transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
+    }
 
     // Swap entity ids
     ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, newEntityId);

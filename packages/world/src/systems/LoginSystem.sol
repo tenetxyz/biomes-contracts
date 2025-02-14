@@ -18,7 +18,7 @@ import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { notify, LoginNotifData } from "../utils/NotifUtils.sol";
-
+import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract LoginSystem is System {
@@ -36,13 +36,17 @@ contract LoginSystem is System {
     );
 
     EntityId respawnEntityId = ReversePosition._get(respawnCoord.x, respawnCoord.y, respawnCoord.z);
-    require(respawnEntityId.exists(), "Cannot respawn on an unrevealed block");
-    require(ObjectType._get(respawnEntityId) == AirObjectID, "Cannot respawn on non-air block");
+    if (!respawnEntityId.exists()) {
+      uint16 terrainObjectTypeId = TerrainLib._getBlockType(respawnCoord);
+      require(terrainObjectTypeId == AirObjectID, "Cannot respawn on non-air block");
+    } else {
+      require(ObjectType._get(respawnEntityId) == AirObjectID, "Cannot respawn on non-air block");
 
-    // Transfer any dropped items
-    transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
+      // Transfer any dropped items
+      transferAllInventoryEntities(respawnEntityId, playerEntityId, PlayerObjectID);
 
-    Position._deleteRecord(respawnEntityId);
+      Position._deleteRecord(respawnEntityId);
+    }
 
     Position._set(playerEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
     ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);

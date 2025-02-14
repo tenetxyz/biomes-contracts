@@ -25,7 +25,8 @@ import { EntityId } from "../src/EntityId.sol";
 import { WaterObjectID, GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID } from "../src/ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID } from "../src/ObjectTypeIds.sol";
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
-import { testTransferAllInventoryEntities, testGravityApplies } from "../test/utils/TestUtils.sol";
+import { testGetUniqueEntity, testTransferAllInventoryEntities, testGravityApplies } from "../test/utils/TestUtils.sol";
+import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 
 contract MoveScript is Script {
   function run(address worldAddress) external {
@@ -43,10 +44,16 @@ contract MoveScript is Script {
 
     require(playerEntityId.exists(), "Player entity not found");
     EntityId finalEntityId = ReversePosition.get(finalCoord.x, finalCoord.y, finalCoord.z);
-    require(finalEntityId.exists(), "Cannot move to unrevealed block");
-    require(ObjectType.get(finalEntityId) == AirObjectID, "Cannot move to non-air block");
-    testTransferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
-    require(!testGravityApplies(finalCoord), "Gravity applies to player");
+    if (!finalEntityId.exists()) {
+      uint16 terrainObjectTypeId = TerrainLib.getBlockType(finalCoord, worldAddress);
+      require(terrainObjectTypeId == AirObjectID, "Cannot move to non-air block");
+      finalEntityId = testGetUniqueEntity();
+      ObjectType.set(finalEntityId, AirObjectID);
+    } else {
+      require(ObjectType.get(finalEntityId) == AirObjectID, "Cannot move to non-air block");
+      testTransferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
+      require(!testGravityApplies(finalCoord), "Gravity applies to player");
+    }
 
     if (PlayerStatus.getIsLoggedOff(playerEntityId)) {
       LastKnownPosition.set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);

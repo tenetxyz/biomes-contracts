@@ -5,6 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../VoxelCoord.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
 
@@ -13,6 +14,7 @@ import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonEntity, transferInventoryEntity } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, DropNotifData } from "../utils/NotifUtils.sol";
+import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 // TODO: combine the tool and non-tool drop functions
@@ -23,8 +25,17 @@ contract DropSystem is System {
     requireInPlayerInfluence(playerCoord, coord);
 
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId.exists(), "Cannot drop on an unrevealed block");
-    require(ObjectType._get(entityId) == AirObjectID, "Cannot drop on non-air block");
+    if (!entityId.exists()) {
+      uint16 terrainObjectTypeId = TerrainLib._getBlockType(coord);
+      require(terrainObjectTypeId == AirObjectID, "Cannot drop on non-air block");
+
+      entityId = getUniqueEntity();
+      ObjectType._set(entityId, AirObjectID);
+      Position._set(entityId, coord.x, coord.y, coord.z);
+      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
+    } else {
+      require(ObjectType._get(entityId) == AirObjectID, "Cannot drop on non-air block");
+    }
 
     return (playerEntityId, entityId);
   }

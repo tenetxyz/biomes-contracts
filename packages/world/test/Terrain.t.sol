@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
-import { Terrain, VERSION_PADDING } from "../src/systems/TerrainSystem.sol";
+import { TerrainLib, VERSION_PADDING } from "../src/systems/libraries/TerrainLib.sol";
 import { AirObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
 import { CHUNK_SIZE } from "../src/Constants.sol";
@@ -14,25 +14,25 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 contract TerrainTest is MudTest, GasReporter {
   function testGetChunkCoord() public {
     VoxelCoord memory coord = VoxelCoord(1, 2, 2);
-    ChunkCoord memory chunkCoord = Terrain._getChunkCoord(coord);
+    ChunkCoord memory chunkCoord = TerrainLib._getChunkCoord(coord);
     assertEq(chunkCoord.x, 0);
     assertEq(chunkCoord.y, 0);
     assertEq(chunkCoord.z, 0);
 
     coord = VoxelCoord(16, 17, 18);
-    chunkCoord = Terrain._getChunkCoord(coord);
+    chunkCoord = TerrainLib._getChunkCoord(coord);
     assertEq(chunkCoord.x, 1);
     assertEq(chunkCoord.y, 1);
     assertEq(chunkCoord.z, 1);
 
     coord = VoxelCoord(-1, -2, -3);
-    chunkCoord = Terrain._getChunkCoord(coord);
+    chunkCoord = TerrainLib._getChunkCoord(coord);
     assertEq(chunkCoord.x, -1);
     assertEq(chunkCoord.y, -1);
     assertEq(chunkCoord.z, -1);
 
     coord = VoxelCoord(16, -17, -18);
-    chunkCoord = Terrain._getChunkCoord(coord);
+    chunkCoord = TerrainLib._getChunkCoord(coord);
     assertEq(chunkCoord.x, 1);
     assertEq(chunkCoord.y, -2);
     assertEq(chunkCoord.z, -2);
@@ -40,25 +40,25 @@ contract TerrainTest is MudTest, GasReporter {
 
   function testGetRelativeCoord() public {
     VoxelCoord memory coord = VoxelCoord(1, 2, 2);
-    VoxelCoord memory relativeCoord = Terrain._getRelativeCoord(coord);
+    VoxelCoord memory relativeCoord = TerrainLib._getRelativeCoord(coord);
     assertEq(relativeCoord.x, 1);
     assertEq(relativeCoord.y, 2);
     assertEq(relativeCoord.z, 2);
 
     coord = VoxelCoord(16, 17, 18);
-    relativeCoord = Terrain._getRelativeCoord(coord);
+    relativeCoord = TerrainLib._getRelativeCoord(coord);
     assertEq(relativeCoord.x, 0);
     assertEq(relativeCoord.y, 1);
     assertEq(relativeCoord.z, 2);
 
     coord = VoxelCoord(-1, -2, -3);
-    relativeCoord = Terrain._getRelativeCoord(coord);
+    relativeCoord = TerrainLib._getRelativeCoord(coord);
     assertEq(relativeCoord.x, 15);
     assertEq(relativeCoord.y, 14);
     assertEq(relativeCoord.z, 13);
 
     coord = VoxelCoord(16, -17, -18);
-    relativeCoord = Terrain._getRelativeCoord(coord);
+    relativeCoord = TerrainLib._getRelativeCoord(coord);
     assertEq(relativeCoord.x, 0);
     assertEq(relativeCoord.y, 15);
     assertEq(relativeCoord.z, 14);
@@ -66,25 +66,25 @@ contract TerrainTest is MudTest, GasReporter {
 
   function testGetBlockIndex() public {
     VoxelCoord memory coord = VoxelCoord(1, 2, 2);
-    uint256 index = Terrain._getBlockIndex(coord);
+    uint256 index = TerrainLib._getBlockIndex(coord);
     assertEq(index, 1 * 256 + 2 * 16 + 2 + VERSION_PADDING);
 
     coord = VoxelCoord(16, 17, 18);
-    index = Terrain._getBlockIndex(coord);
+    index = TerrainLib._getBlockIndex(coord);
     assertEq(index, 0 * 256 + 1 * 16 + 2 + VERSION_PADDING);
 
     coord = VoxelCoord(-1, -2, -3);
-    index = Terrain._getBlockIndex(coord);
+    index = TerrainLib._getBlockIndex(coord);
     assertEq(index, 15 * 256 + 14 * 16 + 13 + VERSION_PADDING);
 
     coord = VoxelCoord(16, -17, -18);
-    index = Terrain._getBlockIndex(coord);
+    index = TerrainLib._getBlockIndex(coord);
     assertEq(index, 0 * 256 + 15 * 16 + 14 + VERSION_PADDING);
   }
 
   function testGetChunkSalt() public {
     ChunkCoord memory chunkCoord = ChunkCoord(1, 2, 3);
-    bytes32 salt = Terrain._getChunkSalt(chunkCoord);
+    bytes32 salt = TerrainLib._getChunkSalt(chunkCoord);
     assertEq(salt, bytes32(abi.encodePacked(bytes20(0), chunkCoord.x, chunkCoord.y, chunkCoord.z)));
     assertEq(salt, bytes32(uint256(uint96(bytes12(abi.encodePacked(chunkCoord.x, chunkCoord.y, chunkCoord.z))))));
   }
@@ -108,17 +108,17 @@ contract TerrainTest is MudTest, GasReporter {
     ChunkCoord memory chunkCoord = ChunkCoord(0, 0, 0);
     bytes32[] memory merkleProof = new bytes32[](0);
 
-    startGasReport("Terrain.exploreChunk");
+    startGasReport("TerrainLib.exploreChunk");
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, merkleProof);
     endGasReport();
 
     VoxelCoord memory voxelCoord = VoxelCoord(1, 2, 3);
-    startGasReport("Terrain.getBlockType (non-root)");
-    uint8 blockType = Terrain.getBlockType(voxelCoord);
+    startGasReport("TerrainLib.getBlockType (non-root)");
+    uint8 blockType = TerrainLib.getBlockType(voxelCoord);
     endGasReport();
 
-    startGasReport("Terrain.getBlockType (root)");
-    blockType = Terrain.getBlockType(voxelCoord, worldAddress);
+    startGasReport("TerrainLib.getBlockType (root)");
+    blockType = TerrainLib.getBlockType(voxelCoord, worldAddress);
     endGasReport();
 
     assertEq(blockType, chunk[1][2][3]);
@@ -127,7 +127,7 @@ contract TerrainTest is MudTest, GasReporter {
       for (int32 y = 0; y < CHUNK_SIZE; y++) {
         for (int32 z = 0; z < CHUNK_SIZE; z++) {
           voxelCoord = VoxelCoord(int32(x), int32(y), int32(z));
-          blockType = Terrain.getBlockType(voxelCoord);
+          blockType = TerrainLib.getBlockType(voxelCoord);
           assertEq(blockType, chunk[uint256(int256(x))][uint256(int256(y))][uint256(int256(z))]);
         }
       }
@@ -152,27 +152,27 @@ contract TerrainTest is MudTest, GasReporter {
     ChunkCoord memory chunkCoord = ChunkCoord(0, 0, 0);
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
     VoxelCoord memory voxelCoord = VoxelCoord(1, 2, 3);
-    uint8 blockType = Terrain.getBlockType(voxelCoord);
+    uint8 blockType = TerrainLib.getBlockType(voxelCoord);
     assertEq(blockType, chunk[1][2][3]);
 
     // Test for chunks that are not at the origin
     chunkCoord = ChunkCoord(1, 2, 3);
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
     voxelCoord = VoxelCoord(16 + 1, 16 * 2 + 2, 16 * 3 + 3);
-    blockType = Terrain.getBlockType(voxelCoord);
+    blockType = TerrainLib.getBlockType(voxelCoord);
     assertEq(blockType, chunk[1][2][3]);
 
     // Test for negative coordinates
     chunkCoord = ChunkCoord(-1, -2, -3);
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
     voxelCoord = VoxelCoord(-16 + 1, -16 * 2 + 2, -16 * 3 + 3);
-    blockType = Terrain.getBlockType(voxelCoord);
+    blockType = TerrainLib.getBlockType(voxelCoord);
     assertEq(blockType, chunk[1][2][3]);
   }
 
   /// forge-config: default.allow_internal_expect_revert = true
   function testGetBlockType_Fail_ChunkNotExplored() public {
     vm.expectRevert("Chunk not explored yet");
-    Terrain.getBlockType(VoxelCoord(0, 0, 0));
+    TerrainLib.getBlockType(VoxelCoord(0, 0, 0));
   }
 }

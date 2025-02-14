@@ -9,9 +9,9 @@ import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 
 import { AirObjectID, WaterObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
-import { inWorldBorder } from "../../Utils.sol";
+import { inWorldBorder, getUniqueEntity } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
-
+import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
 
 library GravityLib {
@@ -22,16 +22,25 @@ library GravityLib {
     }
 
     EntityId belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
-    require(belowEntityId.exists(), "Attempted to apply gravity but encountered an unrevealed block");
-    uint16 belowObjectTypeId = ObjectType._get(belowEntityId);
-    // TODO: deal with florae
-    if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
-      return false;
+    if (!belowEntityId.exists()) {
+      uint16 terrainObjectTypeId = TerrainLib._getBlockType(belowCoord);
+      if (terrainObjectTypeId != AirObjectID && terrainObjectTypeId != WaterObjectID) {
+        return false;
+      }
+
+      // Create new entity
+      belowEntityId = getUniqueEntity();
+      ObjectType._set(belowEntityId, terrainObjectTypeId);
+    } else {
+      uint16 belowObjectTypeId = ObjectType._get(belowEntityId);
+      // TODO: deal with florae
+      if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
+        return false;
+      }
+
+      // Transfer any dropped items
+      transferAllInventoryEntities(belowEntityId, playerEntityId, PlayerObjectID);
     }
-
-    // Transfer any dropped items
-    transferAllInventoryEntities(belowEntityId, playerEntityId, PlayerObjectID);
-
     // Swap entity ids
     ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, belowEntityId);
     Position._set(belowEntityId, playerCoord.x, playerCoord.y, playerCoord.z);

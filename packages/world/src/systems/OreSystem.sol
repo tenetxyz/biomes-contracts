@@ -19,6 +19,7 @@ import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectI
 import { inWorldBorder, positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getRandomNumberBetween0And99 } from "../Utils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, InitiateOreRevealNotifData, RevealOreNotifData } from "../utils/NotifUtils.sol";
+import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract OreSystem is System {
@@ -33,8 +34,8 @@ contract OreSystem is System {
     }
 
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId.exists(), "Cannot initiate ore reveal on unrevealed terrain");
-    uint16 mineObjectTypeId = ObjectType._get(entityId);
+    require(!entityId.exists(), "Ore already revealed");
+    uint16 mineObjectTypeId = TerrainLib._getBlockType(coord);
     require(mineObjectTypeId == AnyOreObjectID, "Terrain is not an ore");
 
     TerrainCommitment._set(coord.x, coord.y, coord.z, block.number, playerEntityId);
@@ -51,14 +52,13 @@ contract OreSystem is System {
 
     uint256 randomNumber = getRandomNumberBetween0And99(terrainCommitmentData.blockNumber);
 
-    // TODO: Fix
-    uint16 oreObjectTypeId = CoalOreObjectID;
-
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(entityId.exists(), "Cannot reveal ore on unrevealed terrain");
+    require(!entityId.exists(), "Ore already revealed");
 
-    uint16 mineObjectTypeId = ObjectType._get(entityId);
+    uint16 mineObjectTypeId = TerrainLib._getBlockType(coord);
     require(mineObjectTypeId == AnyOreObjectID, "Terrain is not an ore");
+    // TODO: Calculate ore object type based on random number
+    uint16 oreObjectTypeId = CoalOreObjectID;
 
     ObjectType._set(entityId, oreObjectTypeId);
 

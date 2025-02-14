@@ -16,7 +16,7 @@ import { Equipped } from "../../src/codegen/tables/Equipped.sol";
 import { Mass } from "../../src/codegen/tables/Mass.sol";
 import { ObjectTypeMetadata } from "../../src/codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectCategory } from "../../src/codegen/common.sol";
-
+import { TerrainLib } from "../../src/systems/libraries/TerrainLib.sol";
 import { PlayerObjectID, ChestObjectID, SmartChestObjectID, AirObjectID, WaterObjectID } from "../../src/ObjectTypeIds.sol";
 
 function testGetUniqueEntity() returns (EntityId) {
@@ -29,10 +29,16 @@ function testGetUniqueEntity() returns (EntityId) {
 function testGravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
   EntityId belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
-  require(belowEntityId.exists(), "Attempted to apply gravity but encountered an unrevealed block");
-  uint16 belowObjectTypeId = ObjectType.get(belowEntityId);
-  if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
-    return false;
+  if (!belowEntityId.exists()) {
+    uint16 terrainObjectTypeId = TerrainLib._getBlockType(belowCoord);
+    if (terrainObjectTypeId != AirObjectID && terrainObjectTypeId != WaterObjectID) {
+      return false;
+    }
+  } else {
+    uint16 belowObjectTypeId = ObjectType.get(belowEntityId);
+    if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
+      return false;
+    }
   }
 
   return true;
