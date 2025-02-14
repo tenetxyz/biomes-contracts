@@ -20,10 +20,12 @@ import { TerrainLib } from "./systems/libraries/TerrainLib.sol";
 
 import { EntityId } from "./EntityId.sol";
 
+// TODO: replace with VoxelCoordLib.toVoxelCoord
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);
 }
 
+// TODO: replace with VoxelCoordLib.toVoxelCoord
 function lastKnownPositionDataToVoxelCoord(LastKnownPositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);
 }

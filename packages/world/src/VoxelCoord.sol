@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { PositionData } from "./codegen/tables/Position.sol";
 import { floorDiv, absInt32 } from "./utils/MathUtils.sol";
 import { FORCE_FIELD_SHARD_DIM, SPAWN_SHARD_DIM } from "./Constants.sol";
 
@@ -233,6 +234,10 @@ library VoxelCoordLib {
     // Sum of distances should be exactly 1 for von Neumann neighborhood
     // This means only one coordinate can differ by 1, others must be 0
     return (dx + dy + dz == 1);
+  }
+
+  function toVoxelCoord(PositionData memory self) internal pure returns (VoxelCoord memory) {
+    return VoxelCoord(self.x, self.y, self.z);
   }
 }
 
