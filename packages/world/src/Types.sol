@@ -21,9 +21,9 @@ struct InventoryTool {
 }
 
 struct ChunkCoord {
-  int32 x;
-  int32 y;
-  int32 z;
+  int16 x;
+  int16 y;
+  int16 z;
 }
 
 struct InventoryObject {

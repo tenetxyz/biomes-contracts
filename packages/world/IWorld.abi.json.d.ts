@@ -896,18 +896,18 @@ declare const abi: [
         "components": [
           {
             "name": "x",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "y",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           },
           {
             "name": "z",
-            "type": "int32",
-            "internalType": "int32"
+            "type": "int16",
+            "internalType": "int16"
           }
         ]
       },

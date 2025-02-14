@@ -85,8 +85,8 @@ contract TerrainTest is MudTest, GasReporter {
   function testGetChunkSalt() public {
     ChunkCoord memory chunkCoord = ChunkCoord(1, 2, 3);
     bytes32 salt = Terrain._getChunkSalt(chunkCoord);
-    assertEq(salt, bytes32(abi.encodePacked(bytes20(0), chunkCoord.x, chunkCoord.y, chunkCoord.z)));
-    assertEq(salt, bytes32(uint256(uint96(bytes12(abi.encodePacked(chunkCoord.x, chunkCoord.y, chunkCoord.z))))));
+    assertEq(salt, bytes32(abi.encodePacked(bytes26(0), chunkCoord.x, chunkCoord.y, chunkCoord.z)));
+    assertEq(salt, bytes32(uint256(uint48(bytes6(abi.encodePacked(chunkCoord.x, chunkCoord.y, chunkCoord.z))))));
   }
 
   function _getTestChunk() internal pure returns (uint8[][][] memory chunk) {
@@ -123,10 +123,10 @@ contract TerrainTest is MudTest, GasReporter {
 
     assertEq(blockType, chunk[1][2][3]);
 
-    for (int32 x = 0; x < CHUNK_SIZE; x++) {
-      for (int32 y = 0; y < CHUNK_SIZE; y++) {
-        for (int32 z = 0; z < CHUNK_SIZE; z++) {
-          voxelCoord = VoxelCoord(int32(x), int32(y), int32(z));
+    for (int16 x = 0; x < CHUNK_SIZE; x++) {
+      for (int16 y = 0; y < CHUNK_SIZE; y++) {
+        for (int16 z = 0; z < CHUNK_SIZE; z++) {
+          voxelCoord = VoxelCoord(x, y, z);
           blockType = Terrain.getBlockType(voxelCoord);
           assertEq(blockType, chunk[uint256(int256(x))][uint256(int256(y))][uint256(int256(z))]);
         }

@@ -8,7 +8,7 @@ import { AirObjectID } from "../ObjectTypeIds.sol";
 import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 import { SSTORE2 } from "../utils/SSTORE2.sol";
 import { CHUNK_SIZE } from "../Constants.sol";
-import { floorDiv, mod } from "../utils/MathUtils.sol";
+import { floorDiv, mod } from "@biomesaw/utils/src/MathUtils.sol";
 
 uint256 constant VERSION_PADDING = 1;
 
@@ -66,9 +66,9 @@ library Terrain {
   function _getRelativeCoord(VoxelCoord memory coord) internal pure returns (VoxelCoord memory) {
     return
       VoxelCoord({
-        x: int32(uint32(mod(coord.x, CHUNK_SIZE))),
-        y: int32(uint32(mod(coord.y, CHUNK_SIZE))),
-        z: int32(uint32(mod(coord.z, CHUNK_SIZE)))
+        x: int16(uint16(mod(coord.x, CHUNK_SIZE))),
+        y: int16(uint16(mod(coord.y, CHUNK_SIZE))),
+        z: int16(uint16(mod(coord.z, CHUNK_SIZE)))
       });
   }
 
@@ -84,7 +84,7 @@ library Terrain {
 
   /// @dev Get the salt for a chunk coordinate
   function _getChunkSalt(ChunkCoord memory coord) internal pure returns (bytes32) {
-    return bytes32(uint256((int256(coord.x) << 64) | (int256(coord.y) << 32) | int256(coord.z)));
+    return bytes32(uint256((int256(coord.x) << 32) | (int256(coord.y) << 16) | int256(coord.z)));
   }
 
   /// @dev Get the address of the chunk pointer based on its deterministic CREATE3 address

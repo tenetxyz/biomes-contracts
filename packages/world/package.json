@@ -14,7 +14,7 @@
     "deploy:local": "pnpm entrykit-deploy && pnpm run build && mud deploy",
     "deploy:testnet": "pnpm run build && mud deploy --profile=garnet --rpcBatch --worldAddress=0x641554ed9d8a6c2c362e6c3fb2835ec2ca4da95c",
     "deploy:mainnet": "pnpm run build && mud deploy --profile=redstone --rpcBatch --worldAddress=0xf75b1b7bdb6932e487c4aa8d210f4a682abeacf0",
-    "dev": "pnpm run build && pnpm mud dev-contracts --rpc http://127.0.0.1:8545",
+    "dev": "pnpm run build && pnpm entrykit-deploy && pnpm mud dev-contracts --rpc http://127.0.0.1:8545",
     "lint": "pnpm run prettier && pnpm run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
