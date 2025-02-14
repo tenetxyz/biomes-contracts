@@ -17,7 +17,7 @@ import { getForceField, setupForceField, destroyForceField } from "../../utils/F
 
 import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 
-import { callChip, callChipOrRevert } from "../../utils/callChip.sol";
+import { callChipOrRevert } from "../../utils/callChip.sol";
 import { EntityId } from "../../EntityId.sol";
 
 library ForceFieldLib {
@@ -44,10 +44,7 @@ library ForceFieldLib {
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
-          bytes memory result = callChipOrRevert(forceFieldEntityId.getChipAddress(), onBuildCall);
-
-          bool buildAllowed = abi.decode(result, (bool));
-          require(buildAllowed, "Build not allowed by force field's chip");
+          callChipOrRevert(forceFieldEntityId.getChipAddress(), onBuildCall);
         }
       }
     }
@@ -71,10 +68,7 @@ library ForceFieldLib {
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
-          bytes memory result = callChipOrRevert(forceFieldEntityId.getChipAddress(), onMineCall);
-
-          bool mineAllowed = abi.decode(result, (bool));
-          require(mineAllowed, "Mine not allowed by force field's chip");
+          callChipOrRevert(forceFieldEntityId.getChipAddress(), onMineCall);
         }
       }
 

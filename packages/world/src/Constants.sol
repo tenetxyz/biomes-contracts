@@ -31,4 +31,4 @@ uint128 constant SPAWN_ENERGY = 100;
 int32 constant CHUNK_SIZE = 16;
 int32 constant AREA_SIZE = 512;
 
-uint256 constant MAX_CHIP_GAS = 1_000_000;
+uint256 constant SAFE_CHIP_GAS = 1_000_000;

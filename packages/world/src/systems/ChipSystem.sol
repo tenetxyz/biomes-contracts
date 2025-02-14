@@ -25,7 +25,7 @@ import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { EntityId } from "../EntityId.sol";
-import { callChip, callChipOrRevert } from "../utils/callChip.sol";
+import { safeCallChip, callChipOrRevert } from "../utils/callChip.sol";
 
 contract ChipSystem is System {
   function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) public payable {
@@ -34,10 +34,9 @@ contract ChipSystem is System {
     EntityId baseEntityId = entityId.baseEntityId();
 
     uint16 objectTypeId = ObjectType._get(baseEntityId);
-    require(chipSystemId.unwrap() != 0, "Invalid chip system id");
 
-    // TODO: check that system exists
-    address chipAddress = baseEntityId.getChipAddress();
+    // TODO: check that not already attached?
+    (address chipAddress, ) = Systems._get(chipSystemId);
 
     if (objectTypeId == ForceFieldObjectID) {
       require(
@@ -68,21 +67,13 @@ contract ChipSystem is System {
     );
 
     bytes memory onAttachedCall = abi.encodeCall(IChip.onAttached, (playerEntityId, baseEntityId, extraData));
-    bytes memory returnData = callChipOrRevert(baseEntityId.getChipAddress(), onAttachedCall);
-
-    bool isAllowed = abi.decode(returnData, (bool));
-
-    require(isAllowed, "Chip does not allow attachment");
+    callChipOrRevert(baseEntityId.getChipAddress(), onAttachedCall);
   }
 
   function detachChipWithExtraData(EntityId entityId, bytes memory extraData) public payable {
     (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
-    ResourceId chipSystemId = Chip._getChipSystemId(baseEntityId);
-
-    (address chipAddress, ) = Systems._get(chipSystemId);
-    require(chipAddress != address(0), "No chip attached");
 
     // TODO: should we check that object type is smart object?
     uint16 objectTypeId = ObjectType._get(baseEntityId);
@@ -96,20 +87,19 @@ contract ChipSystem is System {
 
     Chip._deleteRecord(baseEntityId);
 
+    address chipAddress = baseEntityId.getChipAddress();
+
     notify(
       playerEntityId,
       DetachChipNotifData({ detachEntityId: baseEntityId, detachCoord: entityCoord, chipAddress: chipAddress })
     );
 
     bytes memory onDetachedCall = abi.encodeCall(IChip.onDetached, (playerEntityId, baseEntityId, extraData));
-
-    // Don't safe call here because we want to revert if the chip doesn't allow the detachment
-    (bool success, bytes memory returnData) = callChip(baseEntityId.getChipAddress(), onDetachedCall);
-    // If no energy left we don't care about the result
     if (machineEnergyLevel > 0) {
-      require(success, "Chip call failed");
-      bool isAllowed = abi.decode(returnData, (bool));
-      require(isAllowed, "Detachment not allowed by chip");
+      // Don't safe call here because we want to revert if the chip doesn't allow the detachment
+      callChipOrRevert(chipAddress, onDetachedCall);
+    } else {
+      safeCallChip(chipAddress, onDetachedCall);
     }
   }
 
