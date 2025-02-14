@@ -31,6 +31,7 @@ export default defineWorld({
   },
   userTypes: {
     EntityId: { filePath: "./src/EntityId.sol", type: "bytes32" },
+    ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", type: "bytes32" },
   },
   tables: {
     // ------------------------------------------------------------
@@ -230,7 +231,7 @@ export default defineWorld({
     Chip: {
       schema: {
         entityId: "EntityId",
-        chipAddress: "address",
+        chipSystemId: "ResourceId",
       },
       key: ["entityId"],
     },

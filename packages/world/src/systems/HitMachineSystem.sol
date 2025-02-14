@@ -19,7 +19,8 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { isWhacker } from "../utils/ObjectTypeUtils.sol";
-import { positionDataToVoxelCoord, safeCallChip } from "../Utils.sol";
+import { positionDataToVoxelCoord } from "../Utils.sol";
+import { safeCallChip } from "../utils/callChip.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
@@ -49,8 +50,9 @@ contract HitMachineSystem is System {
 
     notify(playerEntityId, HitMachineNotifData({ machineEntityId: machineEntityId, machineCoord: machineCoord }));
 
+    // Use safeCallChip to use a fixed amount of gas as we don't want the chip to prevent hitting the machine
     safeCallChip(
-      Chip._getChipAddress(machineEntityId),
+      machineEntityId.getChipAddress(),
       abi.encodeCall(IForceFieldChip.onForceFieldHit, (playerEntityId, machineEntityId))
     );
   }

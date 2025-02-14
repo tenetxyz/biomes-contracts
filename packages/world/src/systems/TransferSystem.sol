@@ -12,30 +12,34 @@ import { ChipOnTransferData, TransferData, TransferCommonContext } from "../Type
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
 import { TransferLib } from "./libraries/TransferLib.sol";
 import { EntityId } from "../EntityId.sol";
+import { callChipOrRevert } from "../utils/callChip.sol";
 
 contract TransferSystem is System {
   function requireAllowed(
     uint256 machineEnergyLevel,
-    address chipAddress,
     bool isDeposit,
     EntityId playerEntityId,
     EntityId chestEntityId,
     TransferData memory transferData,
     bytes memory extraData
   ) internal {
+    address chipAddress = chestEntityId.getChipAddress();
     if (chipAddress != address(0) && machineEnergyLevel > 0) {
       // Forward any ether sent with the transaction to the hook
       // Don't safe call here as we want to revert if the chip doesn't allow the transfer
-      bool transferAllowed = IChestChip(chipAddress).onTransfer{ value: _msgValue() }(
-        ChipOnTransferData({
-          targetEntityId: chestEntityId,
-          callerEntityId: playerEntityId,
-          isDeposit: isDeposit,
-          transferData: transferData,
-          extraData: extraData
-        })
+      bytes memory onTransferCall = abi.encodeCall(
+        IChestChip.onTransfer,
+        (
+          ChipOnTransferData({
+            targetEntityId: chestEntityId,
+            callerEntityId: playerEntityId,
+            isDeposit: isDeposit,
+            transferData: transferData,
+            extraData: extraData
+          })
+        )
       );
-      require(transferAllowed, "Transfer not allowed by chip");
+      callChipOrRevert(chipAddress, onTransferCall);
     }
   }
 
@@ -68,7 +72,6 @@ contract TransferSystem is System {
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
       ctx.machineEnergyLevel,
-      ctx.chipAddress,
       ctx.isDeposit,
       ctx.playerEntityId,
       ctx.chestEntityId,
@@ -128,7 +131,6 @@ contract TransferSystem is System {
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     requireAllowed(
       ctx.machineEnergyLevel,
-      ctx.chipAddress,
       ctx.isDeposit,
       ctx.playerEntityId,
       ctx.chestEntityId,

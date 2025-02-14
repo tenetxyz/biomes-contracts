@@ -35,9 +35,9 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "chipAddress",
-        "type": "address",
-        "internalType": "address"
+        "name": "chipSystemId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
       }
     ],
     "outputs": [],
@@ -53,9 +53,9 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "chipAddress",
-        "type": "address",
-        "internalType": "address"
+        "name": "chipSystemId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
       },
       {
         "name": "extraData",
@@ -2571,68 +2571,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "pipeTransfer",
-    "inputs": [
-      {
-        "name": "callerEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "isDeposit",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "pipeTransferData",
-        "type": "tuple",
-        "internalType": "struct PipeTransferData",
-        "components": [
-          {
-            "name": "targetEntityId",
-            "type": "bytes32",
-            "internalType": "EntityId"
-          },
-          {
-            "name": "path",
-            "type": "uint8[]",
-            "internalType": "enum VoxelCoordDirectionVonNeumann[]"
-          },
-          {
-            "name": "transferData",
-            "type": "tuple",
-            "internalType": "struct TransferData",
-            "components": [
-              {
-                "name": "objectTypeId",
-                "type": "uint16",
-                "internalType": "uint16"
-              },
-              {
-                "name": "numToTransfer",
-                "type": "uint16",
-                "internalType": "uint16"
-              },
-              {
-                "name": "toolEntityIds",
-                "type": "bytes32[]",
-                "internalType": "EntityId[]"
-              }
-            ]
-          },
-          {
-            "name": "extraData",
-            "type": "bytes",
-            "internalType": "bytes"
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
     "name": "popFromDynamicField",
     "inputs": [
       {
@@ -2807,6 +2745,34 @@ declare const abi: [
         "name": "initCallData",
         "type": "bytes",
         "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "registerOptionalSystemHook",
+    "inputs": [
+      {
+        "name": "systemId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
+      },
+      {
+        "name": "hookAddress",
+        "type": "address",
+        "internalType": "contract IOptionalSystemHook"
+      },
+      {
+        "name": "enabledHooksBitmap",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "callDataHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "outputs": [],
@@ -3544,179 +3510,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "transferWithPipes",
-    "inputs": [
-      {
-        "name": "srcEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "dstEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "transferData",
-        "type": "tuple",
-        "internalType": "struct TransferData",
-        "components": [
-          {
-            "name": "objectTypeId",
-            "type": "uint16",
-            "internalType": "uint16"
-          },
-          {
-            "name": "numToTransfer",
-            "type": "uint16",
-            "internalType": "uint16"
-          },
-          {
-            "name": "toolEntityIds",
-            "type": "bytes32[]",
-            "internalType": "EntityId[]"
-          }
-        ]
-      },
-      {
-        "name": "pipesTransferData",
-        "type": "tuple[]",
-        "internalType": "struct PipeTransferData[]",
-        "components": [
-          {
-            "name": "targetEntityId",
-            "type": "bytes32",
-            "internalType": "EntityId"
-          },
-          {
-            "name": "path",
-            "type": "uint8[]",
-            "internalType": "enum VoxelCoordDirectionVonNeumann[]"
-          },
-          {
-            "name": "transferData",
-            "type": "tuple",
-            "internalType": "struct TransferData",
-            "components": [
-              {
-                "name": "objectTypeId",
-                "type": "uint16",
-                "internalType": "uint16"
-              },
-              {
-                "name": "numToTransfer",
-                "type": "uint16",
-                "internalType": "uint16"
-              },
-              {
-                "name": "toolEntityIds",
-                "type": "bytes32[]",
-                "internalType": "EntityId[]"
-              }
-            ]
-          },
-          {
-            "name": "extraData",
-            "type": "bytes",
-            "internalType": "bytes"
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "transferWithPipesWithExtraData",
-    "inputs": [
-      {
-        "name": "srcEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "dstEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "transferData",
-        "type": "tuple",
-        "internalType": "struct TransferData",
-        "components": [
-          {
-            "name": "objectTypeId",
-            "type": "uint16",
-            "internalType": "uint16"
-          },
-          {
-            "name": "numToTransfer",
-            "type": "uint16",
-            "internalType": "uint16"
-          },
-          {
-            "name": "toolEntityIds",
-            "type": "bytes32[]",
-            "internalType": "EntityId[]"
-          }
-        ]
-      },
-      {
-        "name": "pipesTransferData",
-        "type": "tuple[]",
-        "internalType": "struct PipeTransferData[]",
-        "components": [
-          {
-            "name": "targetEntityId",
-            "type": "bytes32",
-            "internalType": "EntityId"
-          },
-          {
-            "name": "path",
-            "type": "uint8[]",
-            "internalType": "enum VoxelCoordDirectionVonNeumann[]"
-          },
-          {
-            "name": "transferData",
-            "type": "tuple",
-            "internalType": "struct TransferData",
-            "components": [
-              {
-                "name": "objectTypeId",
-                "type": "uint16",
-                "internalType": "uint16"
-              },
-              {
-                "name": "numToTransfer",
-                "type": "uint16",
-                "internalType": "uint16"
-              },
-              {
-                "name": "toolEntityIds",
-                "type": "bytes32[]",
-                "internalType": "EntityId[]"
-              }
-            ]
-          },
-          {
-            "name": "extraData",
-            "type": "bytes",
-            "internalType": "bytes"
-          }
-        ]
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
     "name": "unequip",
     "inputs": [],
     "outputs": [],
@@ -3743,6 +3536,29 @@ declare const abi: [
         "name": "namespaceId",
         "type": "bytes32",
         "internalType": "ResourceId"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unregisterOptionalSystemHook",
+    "inputs": [
+      {
+        "name": "systemId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
+      },
+      {
+        "name": "hookAddress",
+        "type": "address",
+        "internalType": "contract IOptionalSystemHook"
+      },
+      {
+        "name": "callDataHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "outputs": [],
@@ -4355,6 +4171,11 @@ declare const abi: [
   },
   {
     "type": "error",
+    "name": "World_CustomUnregisterDelegationNotAllowed",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "World_DelegationNotFound",
     "inputs": [
       {
@@ -4468,6 +4289,27 @@ declare const abi: [
         "name": "resourceIdString",
         "type": "string",
         "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "World_OptionalHookAlreadyRegistered",
+    "inputs": [
+      {
+        "name": "systemId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
+      },
+      {
+        "name": "hookAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "callDataHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ]
   },

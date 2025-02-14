@@ -18,18 +18,19 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
 import { EntityId } from "../../EntityId.sol";
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 library Chip {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Chip", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000043686970000000000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0014010014000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (address)
-  Schema constant _valueSchema = Schema.wrap(0x0014010061000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32)
+  Schema constant _valueSchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -46,7 +47,7 @@ library Chip {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "chipAddress";
+    fieldNames[0] = "chipSystemId";
   }
 
   /**
@@ -64,87 +65,87 @@ library Chip {
   }
 
   /**
-   * @notice Get chipAddress.
+   * @notice Get chipSystemId.
    */
-  function getChipAddress(EntityId entityId) internal view returns (address chipAddress) {
+  function getChipSystemId(EntityId entityId) internal view returns (ResourceId chipSystemId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
+    return ResourceId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get chipAddress.
+   * @notice Get chipSystemId.
    */
-  function _getChipAddress(EntityId entityId) internal view returns (address chipAddress) {
+  function _getChipSystemId(EntityId entityId) internal view returns (ResourceId chipSystemId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
+    return ResourceId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get chipAddress.
+   * @notice Get chipSystemId.
    */
-  function get(EntityId entityId) internal view returns (address chipAddress) {
+  function get(EntityId entityId) internal view returns (ResourceId chipSystemId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
+    return ResourceId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get chipAddress.
+   * @notice Get chipSystemId.
    */
-  function _get(EntityId entityId) internal view returns (address chipAddress) {
+  function _get(EntityId entityId) internal view returns (ResourceId chipSystemId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
+    return ResourceId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Set chipAddress.
+   * @notice Set chipSystemId.
    */
-  function setChipAddress(EntityId entityId, address chipAddress) internal {
+  function setChipSystemId(EntityId entityId, ResourceId chipSystemId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((chipAddress)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(chipSystemId)), _fieldLayout);
   }
 
   /**
-   * @notice Set chipAddress.
+   * @notice Set chipSystemId.
    */
-  function _setChipAddress(EntityId entityId, address chipAddress) internal {
+  function _setChipSystemId(EntityId entityId, ResourceId chipSystemId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((chipAddress)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(chipSystemId)), _fieldLayout);
   }
 
   /**
-   * @notice Set chipAddress.
+   * @notice Set chipSystemId.
    */
-  function set(EntityId entityId, address chipAddress) internal {
+  function set(EntityId entityId, ResourceId chipSystemId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((chipAddress)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(chipSystemId)), _fieldLayout);
   }
 
   /**
-   * @notice Set chipAddress.
+   * @notice Set chipSystemId.
    */
-  function _set(EntityId entityId, address chipAddress) internal {
+  function _set(EntityId entityId, ResourceId chipSystemId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((chipAddress)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(chipSystemId)), _fieldLayout);
   }
 
   /**
@@ -171,8 +172,8 @@ library Chip {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(address chipAddress) internal pure returns (bytes memory) {
-    return abi.encodePacked(chipAddress);
+  function encodeStatic(ResourceId chipSystemId) internal pure returns (bytes memory) {
+    return abi.encodePacked(chipSystemId);
   }
 
   /**
@@ -181,8 +182,8 @@ library Chip {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(address chipAddress) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(chipAddress);
+  function encode(ResourceId chipSystemId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(chipSystemId);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

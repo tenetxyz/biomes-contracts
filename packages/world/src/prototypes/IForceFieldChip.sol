@@ -14,7 +14,7 @@ interface IForceFieldChip is IChip {
     uint16 objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
-  ) external payable returns (bool isAllowed);
+  ) external payable;
 
   function onMine(
     EntityId targetEntityId,
@@ -22,7 +22,7 @@ interface IForceFieldChip is IChip {
     uint16 objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
-  ) external payable returns (bool isAllowed);
+  ) external payable;
 
   function onPowered(EntityId callerEntityId, EntityId targetEntityId, uint16 numBattery) external;
 

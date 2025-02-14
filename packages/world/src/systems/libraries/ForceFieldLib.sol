@@ -2,6 +2,10 @@
 pragma solidity >=0.8.24;
 
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
+import { SystemCall } from "@latticexyz/world/src/SystemCall.sol";
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+import { System } from "@latticexyz/world/src/System.sol";
+import { IWorld } from "../../codegen/world/IWorld.sol";
 import { VoxelCoord } from "../../Types.sol";
 
 import { Chip } from "../../codegen/tables/Chip.sol";
@@ -13,6 +17,7 @@ import { getForceField, setupForceField, destroyForceField } from "../../utils/F
 
 import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
 
+import { callChipOrRevert } from "../../utils/callChip.sol";
 import { EntityId } from "../../EntityId.sol";
 
 library ForceFieldLib {
@@ -32,17 +37,14 @@ library ForceFieldLib {
       }
 
       if (forceFieldEntityId.exists()) {
-        address chipAddress = Chip._get(forceFieldEntityId);
         EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-        if (chipAddress != address(0) && machineData.energy > 0) {
-          bool buildAllowed = IForceFieldChip(chipAddress).onBuild{ value: WorldContextConsumerLib._msgValue() }(
-            forceFieldEntityId,
-            playerEntityId,
-            objectTypeId,
-            coord,
-            extraData
+        if (machineData.energy > 0) {
+          bytes memory onBuildCall = abi.encodeCall(
+            IForceFieldChip.onBuild,
+            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
-          require(buildAllowed, "Build not allowed by force field's chip");
+
+          callChipOrRevert(forceFieldEntityId.getChipAddress(), onBuildCall);
         }
       }
     }
@@ -59,17 +61,14 @@ library ForceFieldLib {
       VoxelCoord memory coord = coords[i];
       EntityId forceFieldEntityId = getForceField(coord);
       if (forceFieldEntityId.exists()) {
-        address chipAddress = Chip._get(forceFieldEntityId);
         EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-        if (chipAddress != address(0) && machineData.energy > 0) {
-          bool mineAllowed = IForceFieldChip(chipAddress).onMine{ value: WorldContextConsumerLib._msgValue() }(
-            forceFieldEntityId,
-            playerEntityId,
-            objectTypeId,
-            coord,
-            extraData
+        if (machineData.energy > 0) {
+          bytes memory onMineCall = abi.encodeCall(
+            IForceFieldChip.onMine,
+            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
-          require(mineAllowed, "Mine not allowed by force field's chip");
+
+          callChipOrRevert(forceFieldEntityId.getChipAddress(), onMineCall);
         }
       }
 

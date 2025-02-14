@@ -41,8 +41,7 @@ contract MineSystem is System {
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
     } else {
       mineObjectTypeId = ObjectType._get(entityId);
-      address chipAddress = Chip._get(entityId);
-      require(chipAddress == address(0), "Cannot mine a chipped block");
+      require(entityId.getChipAddress() == address(0), "Cannot mine a chipped block");
       EnergyData memory machineData = updateMachineEnergyLevel(entityId);
       require(machineData.energy == 0, "Cannot mine a machine that has energy");
       if (DisplayContent._getContentType(entityId) != DisplayContentType.None) {

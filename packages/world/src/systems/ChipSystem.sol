@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
+import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
 import { VoxelCoord } from "../Types.sol";
 
@@ -15,7 +18,6 @@ import { addToInventoryCount, removeFromInventoryCount } from "../utils/Inventor
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { safeCallChip } from "../Utils.sol";
 import { notify, AttachChipNotifData, DetachChipNotifData } from "../utils/NotifUtils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
@@ -23,16 +25,18 @@ import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { EntityId } from "../EntityId.sol";
+import { safeCallChip, callChipOrRevert } from "../utils/callChip.sol";
 
 contract ChipSystem is System {
-  function attachChipWithExtraData(EntityId entityId, address chipAddress, bytes memory extraData) public payable {
+  function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) public payable {
     (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
+    require(baseEntityId.getChipAddress() == address(0), "Chip already attached");
 
     uint16 objectTypeId = ObjectType._get(baseEntityId);
-    require(Chip._getChipAddress(baseEntityId) == address(0), "Chip already attached");
-    require(chipAddress != address(0), "Invalid chip address");
+
+    (address chipAddress, ) = Systems._get(chipSystemId);
 
     if (objectTypeId == ForceFieldObjectID) {
       require(
@@ -55,16 +59,15 @@ contract ChipSystem is System {
 
     removeFromInventoryCount(playerEntityId, ChipObjectID, 1);
 
-    Chip._setChipAddress(baseEntityId, chipAddress);
+    Chip._setChipSystemId(baseEntityId, chipSystemId);
 
     notify(
       playerEntityId,
       AttachChipNotifData({ attachEntityId: baseEntityId, attachCoord: entityCoord, chipAddress: chipAddress })
     );
 
-    // Don't safe call here because we want to revert if the chip doesn't allow the attachment
-    bool isAllowed = IChip(chipAddress).onAttached{ value: _msgValue() }(playerEntityId, baseEntityId, extraData);
-    require(isAllowed, "Chip does not allow attachment");
+    bytes memory onAttachedCall = abi.encodeCall(IChip.onAttached, (playerEntityId, baseEntityId, extraData));
+    callChipOrRevert(baseEntityId.getChipAddress(), onAttachedCall);
   }
 
   function detachChipWithExtraData(EntityId entityId, bytes memory extraData) public payable {
@@ -72,10 +75,6 @@ contract ChipSystem is System {
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
 
-    address chipAddress = Chip._getChipAddress(baseEntityId);
-    require(chipAddress != address(0), "No chip attached");
-
-    uint16 objectTypeId = ObjectType._get(baseEntityId);
     EntityId forceFieldEntityId = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
@@ -84,24 +83,26 @@ contract ChipSystem is System {
 
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
-    Chip._setChipAddress(baseEntityId, address(0));
+    address chipAddress = baseEntityId.getChipAddress();
+
+    Chip._deleteRecord(baseEntityId);
 
     notify(
       playerEntityId,
       DetachChipNotifData({ detachEntityId: baseEntityId, detachCoord: entityCoord, chipAddress: chipAddress })
     );
 
+    bytes memory onDetachedCall = abi.encodeCall(IChip.onDetached, (playerEntityId, baseEntityId, extraData));
     if (machineEnergyLevel > 0) {
       // Don't safe call here because we want to revert if the chip doesn't allow the detachment
-      bool isAllowed = IChip(chipAddress).onDetached{ value: _msgValue() }(playerEntityId, baseEntityId, extraData);
-      require(isAllowed, "Detachment not allowed by chip");
+      callChipOrRevert(chipAddress, onDetachedCall);
     } else {
-      safeCallChip(chipAddress, abi.encodeCall(IChip.onDetached, (playerEntityId, baseEntityId, extraData)));
+      safeCallChip(chipAddress, onDetachedCall);
     }
   }
 
-  function attachChip(EntityId entityId, address chipAddress) public {
-    attachChipWithExtraData(entityId, chipAddress, new bytes(0));
+  function attachChip(EntityId entityId, ResourceId chipSystemId) public {
+    attachChipWithExtraData(entityId, chipSystemId, new bytes(0));
   }
 
   function detachChip(EntityId entityId) public {
