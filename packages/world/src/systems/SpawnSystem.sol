@@ -23,6 +23,7 @@ import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
+import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
@@ -53,6 +54,14 @@ contract SpawnSystem is System {
     EntityId forceFieldEntityId = getForceField(spawnCoord);
     require(!forceFieldEntityId.exists(), "Cannot spawn in force field");
 
+    // TODO: energy to mass conversion
+
+    // Extract energy from local pool
+    VoxelCoord memory shardCoord = spawnCoord.toSpawnShardCoord();
+    uint128 localEnergy = LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z);
+    require(localEnergy >= SPAWN_ENERGY, "Not enough energy in local energy pool");
+    LocalEnergyPool._set(shardCoord.x, 0, shardCoord.z, localEnergy - SPAWN_ENERGY);
+
     return _spawnPlayer(spawnCoord);
   }
 
@@ -66,6 +75,17 @@ contract SpawnSystem is System {
 
     VoxelCoord memory spawnTileCoord = Position._get(spawnTileEntityId).toVoxelCoord();
     require(spawnTileCoord.inSurroundingCube(SPAWN_AREA_HALF_WIDTH, spawnCoord));
+
+    EntityId forceFieldEntityId = getForceField(spawnCoord);
+    require(forceFieldEntityId.exists(), "Spawn tile is not inside a force field");
+    EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+    require(machineData.energy >= SPAWN_ENERGY, "Not enough energy in spawn tile forcefield");
+
+    // Decrease force field energy
+    Energy._set(
+      forceFieldEntityId,
+      EnergyData({ energy: machineData.energy - SPAWN_ENERGY, lastUpdatedTime: uint128(block.timestamp) })
+    );
 
     EntityId playerEntityId = _spawnPlayer(spawnCoord);
 
@@ -95,10 +115,6 @@ contract SpawnSystem is System {
       Position._deleteRecord(existingEntityId);
     }
 
-    VoxelCoord memory shardCoord = spawnCoord.toSpawnShardCoord();
-    uint128 localEnergy = LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z);
-    require(localEnergy >= SPAWN_ENERGY, "Not enough energy in local energy pool");
-
     // Create new entity
     Position._set(playerEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
     ReversePosition._set(spawnCoord.x, spawnCoord.y, spawnCoord.z, playerEntityId);
@@ -108,7 +124,6 @@ contract SpawnSystem is System {
     Player._set(playerAddress, playerEntityId);
     ReversePlayer._set(playerEntityId, playerAddress);
 
-    LocalEnergyPool._set(shardCoord.x, 0, shardCoord.z, localEnergy - SPAWN_ENERGY);
     Energy._set(playerEntityId, EnergyData({ energy: SPAWN_ENERGY, lastUpdatedTime: uint128(block.timestamp) }));
     // TODO: check how mass should work
     Mass._set(playerEntityId, 10);
