@@ -46,11 +46,6 @@ contract SpawnSystem is System {
     spawnCoord.x = int32(int256(randX % uint256(int256(WORLD_DIM_X)))) - WORLD_DIM_X / 2;
     spawnCoord.z = int32(int256(randZ % uint256(int256(WORLD_DIM_X)))) - WORLD_DIM_X / 2;
 
-    // TODO: this is not really necessary
-    require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
-
-    require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
-
     EntityId forceFieldEntityId = getForceField(spawnCoord);
     require(!forceFieldEntityId.exists(), "Cannot spawn in force field");
 
@@ -98,6 +93,10 @@ contract SpawnSystem is System {
   }
 
   function _spawnPlayer(VoxelCoord memory spawnCoord) internal returns (EntityId) {
+    require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
+
+    require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
+
     address playerAddress = _msgSender();
     require(!Player._get(playerAddress).exists(), "Player already spawned");
 
