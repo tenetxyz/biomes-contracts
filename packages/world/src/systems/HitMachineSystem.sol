@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
-import { VoxelCoord } from "../Types.sol";
+import { VoxelCoord } from "../VoxelCoord.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord, VoxelCoordDirectionVonNeumann } from "../../Types.sol";
-import { transformVoxelCoordVonNeumann, inVonNeumannNeighborhood } from "../../utils/VoxelCoordUtils.sol";
+import { VoxelCoord, VoxelCoordDirectionVonNeumann } from "../../VoxelCoord.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
@@ -33,7 +32,7 @@ library PipeTransferLib {
     require(path.length > 0, "Path must be greater than 0");
     VoxelCoord[] memory pathCoords = new VoxelCoord[](path.length);
     for (uint i = 0; i < path.length; i++) {
-      pathCoords[i] = transformVoxelCoordVonNeumann(i == 0 ? srcCoord : pathCoords[i - 1], path[i]);
+      pathCoords[i] = (i == 0 ? srcCoord : pathCoords[i - 1]).transform(path[i]);
       EntityId pathEntityId = ReversePosition._get(pathCoords[i].x, pathCoords[i].y, pathCoords[i].z);
       require(pathEntityId.exists(), "Path coord is not in the world");
       require(ObjectType._get(pathEntityId) == PipeObjectID, "Path coord is not a pipe");
@@ -41,7 +40,7 @@ library PipeTransferLib {
 
     // check if last coord and dstCoord are in von neumann distance of 1
     require(
-      inVonNeumannNeighborhood(pathCoords[path.length - 1], dstCoord),
+      pathCoords[path.length - 1].inVonNeumannNeighborhood(dstCoord),
       "Last path coord is not in von neumann distance of 1 from destination coord"
     );
   }

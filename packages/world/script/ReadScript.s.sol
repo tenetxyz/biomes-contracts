@@ -5,9 +5,8 @@ import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { console } from "forge-std/console.sol";
-import { VoxelCoord } from "../src/Types.sol";
+import { VoxelCoord } from "../src/VoxelCoord.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { coordToShardCoord } from "../src/utils/VoxelCoordUtils.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
@@ -27,7 +26,6 @@ import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { Energy } from "../src/codegen/tables/Energy.sol";
 
 import { positionDataToVoxelCoord } from "../src/Utils.sol";
-import { FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
 
 contract ReadScript is Script {
   function run(address worldAddress) external {
@@ -62,7 +60,7 @@ contract ReadScript is Script {
     uint256 energyLevel = Energy.getEnergy(entityId);
     console.log("Energy level:");
     console.logUint(energyLevel);
-    VoxelCoord memory shardCoord = coordToShardCoord(coord, FORCE_FIELD_SHARD_DIM);
+    VoxelCoord memory shardCoord = coord.toForceFieldShardCoord();
     EntityId forceFieldEntityId = ForceField.get(shardCoord.x, shardCoord.y, shardCoord.z);
     if (!forceFieldEntityId.exists()) {
       console.log("No force field found at position");

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "../Types.sol";
-import { inSurroundingCube } from "./VoxelCoordUtils.sol";
+import { VoxelCoord } from "../VoxelCoord.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
@@ -38,7 +37,7 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
 }
 
 function requireBesidePlayer(VoxelCoord memory playerCoord, VoxelCoord memory coord) pure {
-  require(inSurroundingCube(playerCoord, 1, coord), "Player is too far");
+  require(playerCoord.inSurroundingCube(1, coord), "Player is too far");
 }
 
 function requireBesidePlayer(VoxelCoord memory playerCoord, EntityId entityId) view returns (VoxelCoord memory) {
@@ -48,7 +47,7 @@ function requireBesidePlayer(VoxelCoord memory playerCoord, EntityId entityId) v
 }
 
 function requireInPlayerInfluence(VoxelCoord memory playerCoord, VoxelCoord memory coord) pure {
-  require(inSurroundingCube(playerCoord, MAX_PLAYER_INFLUENCE_HALF_WIDTH, coord), "Player is too far");
+  require(playerCoord.inSurroundingCube(MAX_PLAYER_INFLUENCE_HALF_WIDTH, coord), "Player is too far");
 }
 
 function requireInPlayerInfluence(VoxelCoord memory playerCoord, EntityId entityId) view returns (VoxelCoord memory) {

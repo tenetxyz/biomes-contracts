@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "../../Types.sol";
-import { inSurroundingCube } from "../../utils/VoxelCoordUtils.sol";
+import { VoxelCoord } from "../../VoxelCoord.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
@@ -35,7 +34,7 @@ library TransferLib {
     require(baseDstEntityId != baseSrcEntityId, "Cannot transfer to self");
     VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(baseSrcEntityId));
     VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(baseDstEntityId));
-    require(inSurroundingCube(srcCoord, MAX_PLAYER_INFLUENCE_HALF_WIDTH, dstCoord), "Destination too far");
+    require(srcCoord.inSurroundingCube(MAX_PLAYER_INFLUENCE_HALF_WIDTH, dstCoord), "Destination too far");
 
     uint16 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
     uint16 dstObjectTypeId = ObjectType._get(baseDstEntityId);
