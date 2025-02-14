@@ -8,6 +8,7 @@ import { ObjectCategory } from "../../codegen/common.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 
+import { ObjectTypeId } from "../../ObjectTypeIds.sol";
 import { OakLumberObjectID, BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "../../ObjectTypeIds.sol";
 import { CottonBlockObjectID, BlueCottonBlockObjectID, BrownCottonBlockObjectID, GreenCottonBlockObjectID, MagentaCottonBlockObjectID, OrangeCottonBlockObjectID, PinkCottonBlockObjectID, PurpleCottonBlockObjectID, RedCottonBlockObjectID, TanCottonBlockObjectID, WhiteCottonBlockObjectID, YellowCottonBlockObjectID, BlackCottonBlockObjectID, SilverCottonBlockObjectID } from "../../ObjectTypeIds.sol";
 import { GlassObjectID, BlueGlassObjectID, GreenGlassObjectID, OrangeGlassObjectID, PinkGlassObjectID, PurpleGlassObjectID, RedGlassObjectID, WhiteGlassObjectID, YellowGlassObjectID, BlackGlassObjectID } from "../../ObjectTypeIds.sol";
@@ -17,7 +18,7 @@ import { DyeomaticObjectID } from "../../ObjectTypeIds.sol";
 import { createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitDyedBlocksSystem is System {
-  function createDyedBlock(uint16 terrainBlockObjectTypeId, uint32 mass) internal {
+  function createDyedBlock(ObjectTypeId terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
