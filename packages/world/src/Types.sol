@@ -64,27 +64,10 @@ struct TransferData {
   EntityId[] toolEntityIds;
 }
 
-struct PipeTransferData {
-  EntityId targetEntityId;
-  VoxelCoordDirectionVonNeumann[] path;
-  TransferData transferData;
-  bytes extraData;
-}
-
 struct ChipOnTransferData {
   EntityId targetEntityId; // The entity whose chip is being called
   EntityId callerEntityId; // The entity initiating the transfer
   bool isDeposit; // true = caller->target, false = target->caller
-  TransferData transferData;
-  bytes extraData;
-}
-
-struct ChipOnPipeTransferData {
-  EntityId playerEntityId;
-  EntityId targetEntityId; // The entity whose chip is being called
-  EntityId callerEntityId; // The entity initiating the transfer
-  bool isDeposit; // true = caller->target, false = target->caller
-  VoxelCoordDirectionVonNeumann[] path;
   TransferData transferData;
   bytes extraData;
 }
@@ -97,10 +80,4 @@ struct TransferCommonContext {
   uint16 dstObjectTypeId;
   uint256 machineEnergyLevel;
   bool isDeposit;
-}
-
-struct PipeTransferCommonContext {
-  VoxelCoord targetCoord;
-  uint256 machineEnergyLevel;
-  uint16 targetObjectTypeId;
 }
