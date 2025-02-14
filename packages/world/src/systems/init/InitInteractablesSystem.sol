@@ -10,7 +10,7 @@ import { ObjectTypeSchema, ObjectTypeSchemaData } from "../../codegen/tables/Obj
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
 import { ChestObjectID, SmartChestObjectID, ThermoblasterObjectID, PowerStoneObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID, TextSignObjectID, SmartTextSignObjectID, PipeObjectID, SpawnTileObjectID } from "../../ObjectTypeIds.sol";
-import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID, MoonstoneObjectID, SilverBarObjectID } from "../../ObjectTypeIds.sol";
+import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID, MoonstoneObjectID, SilverBarObjectID, NeptuniumOreObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
@@ -98,7 +98,14 @@ contract InitInteractablesSystem is System {
       1
     );
     createDoubleInputWithStationRecipe(WorkbenchObjectID, StoneObjectID, 4, SilverBarObjectID, 1, PipeObjectID, 1);
-    // TODO: set correct recipe
-    createDoubleInputWithStationRecipe(WorkbenchObjectID, StoneObjectID, 4, SilverBarObjectID, 1, SpawnTileObjectID, 1);
+    createDoubleInputWithStationRecipe(
+      ThermoblasterObjectID,
+      ForceFieldObjectID,
+      1,
+      NeptuniumOreObjectID,
+      4,
+      SpawnTileObjectID,
+      1
+    );
   }
 }
