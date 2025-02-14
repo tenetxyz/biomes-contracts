@@ -17,10 +17,8 @@ import { ILogoffSystem } from "./ILogoffSystem.sol";
 import { IMachineSystem } from "./IMachineSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
-import { IMultiTransferSystem } from "./IMultiTransferSystem.sol";
 import { IOreSystem } from "./IOreSystem.sol";
 import { IPickupSystem } from "./IPickupSystem.sol";
-import { IPipeTransferSystem } from "./IPipeTransferSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
@@ -58,10 +56,8 @@ interface IWorld is
   IMachineSystem,
   IMineSystem,
   IMoveSystem,
-  IMultiTransferSystem,
   IOreSystem,
   IPickupSystem,
-  IPipeTransferSystem,
   ISpawnSystem,
   ITerrainSystem,
   ITransferSystem,
