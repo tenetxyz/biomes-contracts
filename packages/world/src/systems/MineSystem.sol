@@ -32,6 +32,7 @@ import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_MINE_ENERGY_COST } from "../Constants.sol";
 import { ChunkCoord } from "../Types.sol";
+import { COMMIT_EXPIRY_BLOCKS } from "../Constants.sol";
 
 function getRandomOre(uint256 blockNum) view returns (ObjectTypeId, uint256) {
   uint256 rand = uint256(blockhash(blockNum));
@@ -83,7 +84,7 @@ contract MineSystem is System {
       if (mineObjectTypeId == AnyOreObjectID) {
         ChunkCoord memory chunkCoord = coord.toChunkCoord();
         uint256 blockNum = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
-        require(blockNum > block.number - 256, "Ore commitment expired");
+        require(blockNum > block.number - COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
         uint256 remaining;
         (mineObjectTypeId, remaining) = getRandomOre(blockNum);
         ObjectCount._set(mineObjectTypeId, remaining - 1);

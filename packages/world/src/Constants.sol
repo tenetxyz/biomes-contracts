@@ -31,8 +31,6 @@ int32 constant AREA_SIZE = 512;
 
 uint256 constant SAFE_CHIP_GAS = 1_000_000;
 
-address constant ORACLE_ADDRESS = 0xe67AcfFCe0B542540F1520a9eaD7Aa86ff31196E;
-
 // ------------------------------------------------------------
 // Values To Tune
 // ------------------------------------------------------------
@@ -57,3 +55,4 @@ uint128 constant PLAYER_CRAFT_ENERGY_COST = 100;
 uint128 constant PLAYER_DROP_ENERGY_COST = 100;
 uint128 constant PLAYER_PICKUP_ENERGY_COST = 100;
 uint128 constant PLAYER_TRANSFER_ENERGY_COST = 100;
+uint256 constant COMMIT_EXPIRY_BLOCKS = 255;

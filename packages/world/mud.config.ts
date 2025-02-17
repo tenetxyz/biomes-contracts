@@ -288,6 +288,7 @@ export default defineWorld({
       key: ["index"],
     },
     // TODO: merge with ObjectTypeMetadata?
+    // Should we keep track of other objects as well?
     ObjectCount: {
       schema: {
         objectTypeId: "ObjectTypeId",

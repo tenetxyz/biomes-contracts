@@ -24,13 +24,12 @@ import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
 import { EntityId } from "../EntityId.sol";
 import { ChunkCoord } from "../Types.sol";
-
-uint256 constant COMMITMENT_EXPIRY = 255;
+import { COMMIT_EXPIRY_BLOCKS } from "../Constants.sol";
 
 contract OreSystem is System {
   using VoxelCoordLib for *;
 
-  // TODO: extract to utils?
+  // TODO: extract to utils
   // TODO: replace with actual implementation
   function inCommitRange(ChunkCoord memory self, ChunkCoord memory other) internal pure returns (bool) {
     return true;
@@ -47,7 +46,7 @@ contract OreSystem is System {
 
     // Check existing commitment
     uint256 blockNumber = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
-    require(blockNumber < block.number - COMMITMENT_EXPIRY, "Existing Terrain commitment");
+    require(blockNumber < block.number - COMMIT_EXPIRY_BLOCKS, "Existing Terrain commitment");
 
     // Commit to next block
     OreCommitment._set(chunkCoord.x, chunkCoord.y, chunkCoord.z, block.number + 1);

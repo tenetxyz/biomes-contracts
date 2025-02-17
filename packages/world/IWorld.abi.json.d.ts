@@ -1913,26 +1913,9 @@ declare const abi: [
     "name": "respawnOre",
     "inputs": [
       {
-        "name": "oreCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "name": "blockNumber",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
