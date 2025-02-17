@@ -330,19 +330,5 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    BlockHash: {
-      schema: {
-        blockNumber: "uint256",
-        blockHash: "bytes32",
-      },
-      key: ["blockNumber"],
-    },
-    BlockPrevrandao: {
-      schema: {
-        blockNumber: "uint256",
-        blockPrevrandao: "uint256",
-      },
-      key: ["blockNumber"],
-    },
   },
 });

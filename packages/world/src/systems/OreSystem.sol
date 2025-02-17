@@ -14,10 +14,9 @@ import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
 import { OreCommitment } from "../codegen/tables/OreCommitment.sol";
-import { BlockPrevrandao } from "../codegen/tables/BlockPrevrandao.sol";
 
 import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectTypeIds.sol";
-import { inWorldBorder, getRandomNumberBetween0And99 } from "../Utils.sol";
+import { inWorldBorder } from "../Utils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, InitiateOreRevealNotifData, RevealOreNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";

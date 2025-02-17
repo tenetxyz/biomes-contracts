@@ -10,8 +10,6 @@ import { Position, PositionData } from "./codegen/tables/Position.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
 import { UniqueEntity } from "./codegen/tables/UniqueEntity.sol";
-import { BlockHash } from "./codegen/tables/BlockHash.sol";
-import { BlockPrevrandao } from "./codegen/tables/BlockPrevrandao.sol";
 import { WorldStatus } from "./codegen/tables/WorldStatus.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z } from "./Constants.sol";
 import { ObjectTypeId, AirObjectID, WaterObjectID } from "./ObjectTypeIds.sol";
@@ -56,23 +54,4 @@ function getUniqueEntity() returns (EntityId) {
   UniqueEntity._set(uniqueEntity);
 
   return EntityId.wrap(bytes32(uniqueEntity));
-}
-
-// Random number between 0 and 99
-function getRandomNumberBetween0And99(uint256 blockNumber) view returns (uint256) {
-  bytes32 blockHash = blockhash(blockNumber);
-  if (blockHash == bytes32(0)) {
-    blockHash = BlockHash._get(blockNumber);
-  }
-  require(
-    blockHash != bytes32(0),
-    string.concat("getRandomNumber: block hash is missing for block ", Strings.toString(blockNumber))
-  );
-
-  uint256 blockPrevrandao = BlockPrevrandao._get(blockNumber);
-
-  // Use the block hash and prevrandao to generate a random number by converting it to uint256 and applying modulo
-  uint256 randomNumber = uint256(keccak256(abi.encodePacked(blockHash, blockPrevrandao))) % 100;
-
-  return randomNumber;
 }

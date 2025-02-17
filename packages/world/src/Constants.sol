@@ -24,6 +24,7 @@ uint256 constant MIN_TIME_BEFORE_AUTO_LOGOFF = 15 minutes;
 int32 constant MAX_PLAYER_INFLUENCE_HALF_WIDTH = 10;
 int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
 
+uint128 constant SPAWN_ENERGY = 100;
 int32 constant SPAWN_AREA_HALF_WIDTH = 5;
 
 int32 constant CHUNK_SIZE = 16;

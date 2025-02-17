@@ -37,5 +37,3 @@ import { PlayerActionNotif, PlayerActionNotifData } from "./tables/PlayerActionN
 import { WorldStatus } from "./tables/WorldStatus.sol";
 import { UniqueEntity } from "./tables/UniqueEntity.sol";
 import { BaseEntity } from "./tables/BaseEntity.sol";
-import { BlockHash } from "./tables/BlockHash.sol";
-import { BlockPrevrandao } from "./tables/BlockPrevrandao.sol";

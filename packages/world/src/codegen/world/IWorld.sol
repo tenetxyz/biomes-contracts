@@ -23,7 +23,6 @@ import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
-import { IOracleSystem } from "./IOracleSystem.sol";
 import { IInitDyedBlocksSystem } from "./IInitDyedBlocksSystem.sol";
 import { IInitHandBlocksSystem } from "./IInitHandBlocksSystem.sol";
 import { IInitInteractablesSystem } from "./IInitInteractablesSystem.sol";
@@ -60,7 +59,6 @@ interface IWorld is
   ITerrainSystem,
   ITransferSystem,
   IUnequipSystem,
-  IOracleSystem,
   IInitDyedBlocksSystem,
   IInitHandBlocksSystem,
   IInitInteractablesSystem,
