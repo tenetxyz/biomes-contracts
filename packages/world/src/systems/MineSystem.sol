@@ -19,7 +19,7 @@ import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectI
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { GravityLib } from "./libraries/GravityLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";

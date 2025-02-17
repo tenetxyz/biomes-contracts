@@ -23,7 +23,7 @@ import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
-import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";

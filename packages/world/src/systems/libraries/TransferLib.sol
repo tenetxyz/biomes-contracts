@@ -11,7 +11,7 @@ import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
 import { ObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../../Constants.sol";
-import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
+import { updateMachineEnergyLevel } from "../../utils/EnergyUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { TransferCommonContext } from "../../Types.sol";

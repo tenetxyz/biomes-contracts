@@ -18,7 +18,7 @@ import { DisplayContentType } from "../codegen/common.sol";
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { ObjectTypeId, TextSignObjectID } from "../ObjectTypeIds.sol";
 import { isSmartItem } from "../utils/ObjectTypeUtils.sol";
-import { getLatestEnergyData } from "../utils/MachineUtils.sol";
+import { getMachineEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { isBasicDisplay } from "../utils/ObjectTypeUtils.sol";
 import { EntityId } from "../EntityId.sol";
@@ -39,7 +39,7 @@ contract DisplaySystem is System {
     EntityId forceFieldEntityId = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
-      EnergyData memory machineData = getLatestEnergyData(forceFieldEntityId);
+      EnergyData memory machineData = getMachineEnergyLevel(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
     }
     if (machineEnergyLevel > 0) {

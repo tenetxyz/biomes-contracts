@@ -12,7 +12,7 @@ import { Chip } from "../codegen/tables/Chip.sol";
 import { ObjectTypeId, PlayerObjectID, ChipBatteryObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
 

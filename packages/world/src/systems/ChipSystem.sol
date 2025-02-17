@@ -16,7 +16,7 @@ import { ActionType } from "../codegen/common.sol";
 import { ObjectTypeId, PlayerObjectID, ChipObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, AttachChipNotifData, DetachChipNotifData } from "../utils/NotifUtils.sol";
 

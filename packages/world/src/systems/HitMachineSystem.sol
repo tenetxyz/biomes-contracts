@@ -16,7 +16,7 @@ import { ActionType } from "../codegen/common.sol";
 
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { isWhacker } from "../utils/ObjectTypeUtils.sol";
 import { safeCallChip } from "../utils/callChip.sol";

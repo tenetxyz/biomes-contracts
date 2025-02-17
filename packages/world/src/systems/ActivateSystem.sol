@@ -10,7 +10,7 @@ import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 
 import { ObjectTypeId, PlayerObjectID, NullObjectTypeId } from "../ObjectTypeIds.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
 import { checkWorldStatus } from "../Utils.sol";
 
 import { EntityId } from "../EntityId.sol";

@@ -12,7 +12,7 @@ import { Chip } from "../../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
 import { ObjectTypeId, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
-import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
+import { updateMachineEnergyLevel } from "../../utils/EnergyUtils.sol";
 import { getForceField, setupForceField, destroyForceField } from "../../utils/ForceFieldUtils.sol";
 
 import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";

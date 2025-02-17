@@ -17,6 +17,7 @@ import { Commitment } from "../codegen/tables/Commitment.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus } from "../Utils.sol";
+import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -29,12 +30,8 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
   require(!PlayerStatus._getIsLoggedOff(playerEntityId), "Player isn't logged in");
   require(!Commitment._getHasCommitted(playerEntityId), "Player is in a commitment");
   VoxelCoord memory playerCoord = Position._get(playerEntityId).toVoxelCoord();
-
-  // TODO: update energy, should decrease over time
-  Energy._setEnergy(playerEntityId, Energy._getEnergy(playerEntityId) + 1);
-
+  updatePlayerEnergyLevel(playerEntityId);
   PlayerActivity._set(playerEntityId, uint128(block.timestamp));
-
   return (playerEntityId, playerCoord);
 }
 
