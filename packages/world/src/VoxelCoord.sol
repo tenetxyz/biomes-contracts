@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { PositionData } from "./codegen/tables/Position.sol";
 import { LocalEnergyPool } from "./codegen/tables/LocalEnergyPool.sol";
 import { LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
+import { MinedOreData } from "./codegen/tables/MinedOre.sol";
 import { floorDiv, absInt32 } from "./utils/MathUtils.sol";
 import { FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM, CHUNK_SIZE } from "./Constants.sol";
 import { ChunkCoord } from "./Types.sol";
@@ -266,6 +267,10 @@ library VoxelCoordLib {
   }
 
   function toVoxelCoord(LastKnownPositionData memory self) internal pure returns (VoxelCoord memory) {
+    return VoxelCoord(self.x, self.y, self.z);
+  }
+
+  function toVoxelCoord(MinedOreData memory self) internal pure returns (VoxelCoord memory) {
     return VoxelCoord(self.x, self.y, self.z);
   }
 }

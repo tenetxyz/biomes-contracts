@@ -44,8 +44,8 @@ ObjectTypeId constant LimestoneObjectID = ObjectTypeId.wrap(Block | 15);
 // Ores
 ObjectTypeId constant AnyOreObjectID = ObjectTypeId.wrap(Block | 16);
 ObjectTypeId constant CoalOreObjectID = ObjectTypeId.wrap(Block | 17);
-ObjectTypeId constant GoldOreObjectID = ObjectTypeId.wrap(Block | 18);
-ObjectTypeId constant SilverOreObjectID = ObjectTypeId.wrap(Block | 19);
+ObjectTypeId constant SilverOreObjectID = ObjectTypeId.wrap(Block | 18);
+ObjectTypeId constant GoldOreObjectID = ObjectTypeId.wrap(Block | 19);
 ObjectTypeId constant DiamondOreObjectID = ObjectTypeId.wrap(Block | 20);
 ObjectTypeId constant NeptuniumOreObjectID = ObjectTypeId.wrap(Block | 21);
 
@@ -277,6 +277,10 @@ function isBlock(ObjectTypeId id) pure returns (bool) {
   return !id.isNull() && ObjectTypeId.unwrap(id) >> OFFSET_BITS == Block;
 }
 
+function isMineable(ObjectTypeId self) pure returns (bool) {
+  return self.isBlock() && self != AirObjectID && self != WaterObjectID;
+}
+
 function isTool(ObjectTypeId id) pure returns (bool) {
   return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Tool;
 }
@@ -289,4 +293,4 @@ function isNull(ObjectTypeId self) pure returns (bool) {
   return self == NullObjectTypeId;
 }
 
-using { isBlock, isTool, isItem, isNull, eq as ==, neq as !=, unwrap } for ObjectTypeId global;
+using { isBlock, isTool, isItem, isNull, isMineable, eq as ==, neq as !=, unwrap } for ObjectTypeId global;

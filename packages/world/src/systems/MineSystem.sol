@@ -4,6 +4,8 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
+import { OreCommitment } from "../codegen/tables/OreCommitment.sol";
+import { ObjectCount } from "../codegen/tables/ObjectCount.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
@@ -17,7 +19,8 @@ import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ActionType, DisplayContentType } from "../codegen/common.sol";
 
-import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -28,6 +31,41 @@ import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_MINE_ENERGY_COST } from "../Constants.sol";
+import { ChunkCoord } from "../Types.sol";
+
+function getRandomOre(uint256 blockNum) view returns (ObjectTypeId, uint256) {
+  uint256 rand = uint256(blockhash(blockNum));
+
+  // TODO: can optimize by not storing these in memory and returning the type depending on for loop index
+  ObjectTypeId[5] memory ores = [
+    CoalOreObjectID,
+    SilverOreObjectID,
+    GoldOreObjectID,
+    DiamondOreObjectID,
+    NeptuniumOreObjectID
+  ];
+
+  // Calculate remaining amounts for each ore
+  uint256[5] memory remaining;
+  uint256 totalRemaining;
+  for (uint256 i = 0; i < remaining.length; i++) {
+    remaining[i] = ObjectCount._get(ores[i]);
+    totalRemaining += remaining[i];
+  }
+
+  // Scale random number to total remaining
+  // TODO: use muldiv from solady or OZ to prevent overflow
+  uint256 scaledRand = (rand * totalRemaining) / type(uint256).max;
+
+  uint256 acc;
+  uint256 j = 0;
+  for (; j < remaining.length - 1; j++) {
+    acc += remaining[j];
+    if (scaledRand < acc) break;
+  }
+
+  return (ores[j], remaining[j]);
+}
 
 contract MineSystem is System {
   using VoxelCoordLib for *;
@@ -40,21 +78,30 @@ contract MineSystem is System {
     if (!entityId.exists()) {
       // TODO: move wrapping to TerrainLib?
       mineObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
-      require(mineObjectTypeId != AnyOreObjectID, "Ore must be computed before it can be mined");
+
+      // TODO: lava?
+      if (mineObjectTypeId == AnyOreObjectID) {
+        ChunkCoord memory chunkCoord = coord.toChunkCoord();
+        uint256 blockNum = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
+        require(blockNum > block.number - 256, "Ore commitment expired");
+        uint256 remaining;
+        (mineObjectTypeId, remaining) = getRandomOre(blockNum);
+        ObjectCount._set(mineObjectTypeId, remaining - 1);
+      }
 
       entityId = getUniqueEntity();
       Position._set(entityId, coord.x, coord.y, coord.z);
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
       Mass._setMass(entityId, ObjectTypeMetadata._getMass(mineObjectTypeId));
     } else {
+      entityId = entityId.baseEntityId();
       mineObjectTypeId = ObjectType._get(entityId);
       require(entityId.getChipAddress() == address(0), "Cannot mine a chipped block");
       EnergyData memory machineData = updateMachineEnergyLevel(entityId);
       require(machineData.energy == 0, "Cannot mine a machine that has energy");
     }
-    require(mineObjectTypeId.isBlock(), "Cannot mine non-block object");
-    require(mineObjectTypeId != AirObjectID, "Cannot mine air");
-    require(mineObjectTypeId != WaterObjectID, "Cannot mine water");
+
+    require(mineObjectTypeId.isMineable(), "Object is not mineable");
 
     return (entityId, mineObjectTypeId);
   }

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { CommitmentData } from "./codegen/tables/Commitment.sol";
 import { EnergyData } from "./codegen/tables/Energy.sol";
 import { VoxelCoord, VoxelCoordDirectionVonNeumann } from "./VoxelCoord.sol";
 import { EntityId } from "./EntityId.sol";
@@ -34,7 +33,6 @@ struct PlayerEntityData {
   uint256 mass;
   EnergyData energy;
   uint256 lastActionTime;
-  CommitmentData commitment;
 }
 
 struct BlockEntityData {

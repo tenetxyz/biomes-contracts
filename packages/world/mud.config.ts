@@ -272,28 +272,28 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
-    RevealedOre: {
+    MinedOreCount: {
       schema: {
-        positionHash: "bytes32[]",
+        count: "uint256",
       },
       key: [],
     },
-    ObjectCount: {
+    MinedOre: {
       schema: {
-        objectTypeId: "uint16",
-        count: "uint256",
-      },
-      key: ["objectTypeId"],
-    },
-    Commitment: {
-      schema: {
-        entityId: "EntityId",
-        hasCommitted: "bool",
+        index: "uint256",
         x: "int32",
         y: "int32",
         z: "int32",
       },
-      key: ["entityId"],
+      key: ["index"],
+    },
+    // TODO: merge with ObjectTypeMetadata?
+    ObjectCount: {
+      schema: {
+        objectTypeId: "ObjectTypeId",
+        count: "uint256",
+      },
+      key: ["objectTypeId"],
     },
     // ------------------------------------------------------------
     // Offchain

@@ -12,7 +12,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { Commitment } from "../codegen/tables/Commitment.sol";
 
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID } from "../ObjectTypeIds.sol";
@@ -28,7 +27,6 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
   EntityId playerEntityId = Player._get(player);
   require(playerEntityId.exists(), "Player does not exist");
   require(!PlayerStatus._getIsLoggedOff(playerEntityId), "Player isn't logged in");
-  require(!Commitment._getHasCommitted(playerEntityId), "Player is in a commitment");
   VoxelCoord memory playerCoord = Position._get(playerEntityId).toVoxelCoord();
   EnergyData memory playerEnergyData = updatePlayerEnergyLevel(playerEntityId);
   PlayerActivity._set(playerEntityId, uint128(block.timestamp));
