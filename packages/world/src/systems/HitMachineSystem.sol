@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
-import { VoxelCoord } from "../VoxelCoord.sol";
+import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
@@ -19,7 +19,6 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { isWhacker } from "../utils/ObjectTypeUtils.sol";
-import { positionDataToVoxelCoord } from "../Utils.sol";
 import { safeCallChip } from "../utils/callChip.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
@@ -27,6 +26,8 @@ import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract HitMachineSystem is System {
+  using VoxelCoordLib for *;
+
   function hitMachineCommon(
     EntityId playerEntityId,
     EntityId machineEntityId,
@@ -70,7 +71,7 @@ contract HitMachineSystem is System {
     requireInPlayerInfluence(playerCoord, entityCoord);
     EntityId forceFieldEntityId = getForceField(entityCoord);
     require(forceFieldEntityId.exists(), "No force field at this location");
-    VoxelCoord memory forceFieldCoord = positionDataToVoxelCoord(Position._get(forceFieldEntityId));
+    VoxelCoord memory forceFieldCoord = Position._get(forceFieldEntityId).toVoxelCoord();
     hitMachineCommon(playerEntityId, forceFieldEntityId, forceFieldCoord);
   }
 }

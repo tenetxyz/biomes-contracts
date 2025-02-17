@@ -37,7 +37,6 @@ contract ChipSystem is System {
 
     uint16 objectTypeId = ObjectType._get(baseEntityId);
 
-    // TODO: check that not already attached?
     (address chipAddress, ) = Systems._get(chipSystemId);
 
     if (objectTypeId == ForceFieldObjectID) {

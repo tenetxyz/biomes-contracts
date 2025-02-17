@@ -15,7 +15,6 @@ import { INFTMetadataSystem } from "./INFTMetadataSystem.sol";
 import { INamespaceIdSystem } from "./INamespaceIdSystem.sol";
 import { INotificationSystem } from "./INotificationSystem.sol";
 import { IPipeSystem } from "./IPipeSystem.sol";
-import { IReadSystem } from "./IReadSystem.sol";
 import { ISmartItemMetadataSystem } from "./ISmartItemMetadataSystem.sol";
 import { ITokenMetadataSystem } from "./ITokenMetadataSystem.sol";
 
@@ -39,7 +38,6 @@ interface IWorld is
   INamespaceIdSystem,
   INotificationSystem,
   IPipeSystem,
-  IReadSystem,
   ISmartItemMetadataSystem,
   ITokenMetadataSystem
 {}

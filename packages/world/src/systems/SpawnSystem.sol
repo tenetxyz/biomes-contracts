@@ -86,7 +86,7 @@ contract SpawnSystem is System {
 
     address chipAddress = spawnTileEntityId.getChipAddress();
 
-    bytes memory onSpawnCall = abi.encodeCall(ISpawnTileChip.onSpawn, (playerEntityId, extraData));
+    bytes memory onSpawnCall = abi.encodeCall(ISpawnTileChip.onSpawn, (playerEntityId, spawnTileEntityId, extraData));
     callChipOrRevert(chipAddress, onSpawnCall);
 
     return playerEntityId;

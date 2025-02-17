@@ -18,9 +18,8 @@ import { InventoryCount } from "@biomesaw/world/src/codegen/tables/InventoryCoun
 import { ObjectCategory } from "@biomesaw/world/src/codegen/tables/ObjectTypeMetadata.sol";
 
 import { ChestObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
-import { VoxelCoord } from "@biomesaw/world/src/Types.sol";
+import { VoxelCoord, VoxelCoordLib } from "@biomesaw/world/src/VoxelCoord.sol";
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
-import { positionDataToVoxelCoord } from "@biomesaw/world/src/Utils.sol";
 
 function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (uint16) {
   EntityId entityId = getEntityAtCoord(coord);
@@ -31,7 +30,7 @@ function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (uint16) {
 }
 
 function getPosition(EntityId entityId) view returns (VoxelCoord memory) {
-  return positionDataToVoxelCoord(Position.get(entityId));
+  return VoxelCoordLib.toVoxelCoord(Position.get(entityId));
 }
 
 function getObjectType(EntityId entityId) view returns (uint16) {

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "../VoxelCoord.sol";
+import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
@@ -15,20 +15,22 @@ import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { checkWorldStatus, lastKnownPositionDataToVoxelCoord, gravityApplies, inWorldBorder } from "../Utils.sol";
+import { checkWorldStatus, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { notify, LoginNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract LoginSystem is System {
+  using VoxelCoordLib for *;
+
   function loginPlayer(VoxelCoord memory respawnCoord) public {
     checkWorldStatus();
     EntityId playerEntityId = Player._get(_msgSender());
     require(playerEntityId.exists(), "Player does not exist");
     require(PlayerStatus._getIsLoggedOff(playerEntityId), "Player is already logged in");
 
-    VoxelCoord memory lastKnownCoord = lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(playerEntityId));
+    VoxelCoord memory lastKnownCoord = LastKnownPosition._get(playerEntityId).toVoxelCoord();
     require(inWorldBorder(respawnCoord), "Cannot respawn outside world border");
     require(
       lastKnownCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, respawnCoord),

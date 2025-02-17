@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "../Types.sol";
+import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
@@ -16,7 +16,7 @@ import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayCon
 import { ObjectCategory, ActionType, DisplayContentType } from "../codegen/common.sol";
 
 import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID } from "../ObjectTypeIds.sol";
-import { inWorldBorder, getUniqueEntity, positionDataToVoxelCoord } from "../Utils.sol";
+import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
@@ -27,6 +27,8 @@ import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract MineSystem is System {
+  using VoxelCoordLib for *;
+
   function mineObjectAtCoord(VoxelCoord memory coord) internal returns (EntityId, uint16) {
     require(inWorldBorder(coord), "Cannot mine outside the world border");
 
@@ -71,7 +73,7 @@ contract MineSystem is System {
     VoxelCoord memory baseCoord = coord;
     EntityId baseEntityId = BaseEntity._get(firstEntityId);
     if (baseEntityId.exists()) {
-      baseCoord = positionDataToVoxelCoord(Position._get(baseEntityId));
+      baseCoord = Position._get(baseEntityId).toVoxelCoord();
       mineObjectAtCoord(baseCoord);
       BaseEntity._deleteRecord(firstEntityId);
     }
