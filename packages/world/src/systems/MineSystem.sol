@@ -4,6 +4,8 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
+import { MinedOre } from "../codegen/tables/MinedOre.sol";
+import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
 import { OreCommitment } from "../codegen/tables/OreCommitment.sol";
 import { ObjectCount } from "../codegen/tables/ObjectCount.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -88,6 +90,9 @@ contract MineSystem is System {
         uint256 remaining;
         (mineObjectTypeId, remaining) = getRandomOre(blockNum);
         ObjectCount._set(mineObjectTypeId, remaining - 1);
+        uint256 count = MinedOreCount._get();
+        MinedOreCount._set(count + 1);
+        MinedOre._set(count, coord.x, coord.y, coord.z);
       }
 
       entityId = getUniqueEntity();
