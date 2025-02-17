@@ -8,7 +8,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder } from "../Utils.sol";
 import { transferInventoryNonEntity, transferInventoryEntity, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -26,7 +26,7 @@ contract PickupSystem is System {
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     require(entityId.exists(), "No entity at pickup location");
 
-    uint16 objectTypeId = ObjectType._get(entityId);
+    ObjectTypeId objectTypeId = ObjectType._get(entityId);
     require(objectTypeId == AirObjectID, "Cannot pickup from a non-air block");
 
     return (playerEntityId, entityId);
@@ -42,7 +42,7 @@ contract PickupSystem is System {
     );
   }
 
-  function pickup(uint16 pickupObjectTypeId, uint16 numToPickup, VoxelCoord memory coord) public {
+  function pickup(ObjectTypeId pickupObjectTypeId, uint16 numToPickup, VoxelCoord memory coord) public {
     (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
     transferInventoryNonEntity(entityId, playerEntityId, PlayerObjectID, pickupObjectTypeId, numToPickup);
 
@@ -54,7 +54,7 @@ contract PickupSystem is System {
 
   function pickupTool(EntityId toolEntityId, VoxelCoord memory coord) public {
     (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
-    uint16 toolObjectTypeId = transferInventoryEntity(entityId, playerEntityId, PlayerObjectID, toolEntityId);
+    ObjectTypeId toolObjectTypeId = transferInventoryEntity(entityId, playerEntityId, PlayerObjectID, toolEntityId);
 
     notify(
       playerEntityId,
@@ -90,7 +90,7 @@ contract PickupSystem is System {
     }
 
     for (uint256 i = 0; i < pickupTools.length; i++) {
-      uint16 toolObjectTypeId = transferInventoryEntity(entityId, playerEntityId, PlayerObjectID, pickupTools[i]);
+      ObjectTypeId toolObjectTypeId = transferInventoryEntity(entityId, playerEntityId, PlayerObjectID, pickupTools[i]);
 
       notify(
         playerEntityId,

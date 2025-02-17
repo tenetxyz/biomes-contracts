@@ -12,6 +12,7 @@ import { ChipOnTransferData, TransferData, TransferCommonContext } from "../Type
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
 import { TransferLib } from "./libraries/TransferLib.sol";
 import { EntityId } from "../EntityId.sol";
+import { ObjectTypeId } from "../ObjectTypeIds.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 
 contract TransferSystem is System {
@@ -46,7 +47,7 @@ contract TransferSystem is System {
   function transferWithExtraData(
     EntityId srcEntityId,
     EntityId dstEntityId,
-    uint16 transferObjectTypeId,
+    ObjectTypeId transferObjectTypeId,
     uint16 numToTransfer,
     bytes memory extraData
   ) public payable {
@@ -103,9 +104,9 @@ contract TransferSystem is System {
   ) public payable {
     require(toolEntityIds.length > 0, "Must transfer at least one tool");
     TransferCommonContext memory ctx = TransferLib.transferCommon(_msgSender(), srcEntityId, dstEntityId);
-    uint16 toolObjectTypeId;
+    ObjectTypeId toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
-      uint16 currentToolObjectTypeId = transferInventoryEntity(
+      ObjectTypeId currentToolObjectTypeId = transferInventoryEntity(
         ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
         ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
         ctx.dstObjectTypeId,
@@ -146,7 +147,7 @@ contract TransferSystem is System {
   function transfer(
     EntityId srcEntityId,
     EntityId dstEntityId,
-    uint16 transferObjectTypeId,
+    ObjectTypeId transferObjectTypeId,
     uint16 numToTransfer
   ) public payable {
     transferWithExtraData(srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, new bytes(0));

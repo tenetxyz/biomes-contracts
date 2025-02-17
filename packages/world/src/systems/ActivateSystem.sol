@@ -8,7 +8,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 
-import { PlayerObjectID, NullObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, PlayerObjectID, NullObjectTypeId } from "../ObjectTypeIds.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
 import { checkWorldStatus } from "../Utils.sol";
@@ -20,8 +20,8 @@ contract ActivateSystem is System {
     checkWorldStatus();
 
     require(entityId.exists(), "Entity does not exist");
-    uint16 objectTypeId = ObjectType._get(entityId);
-    require(objectTypeId != NullObjectTypeId, "Entity has no object type");
+    ObjectTypeId objectTypeId = ObjectType._get(entityId);
+    require(!objectTypeId.isNull(), "Entity has no object type");
 
     if (objectTypeId == PlayerObjectID) {
       requireValidPlayer(ReversePlayer._get(entityId));

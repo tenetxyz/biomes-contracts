@@ -14,7 +14,7 @@ import { BlockHash } from "./codegen/tables/BlockHash.sol";
 import { BlockPrevrandao } from "./codegen/tables/BlockPrevrandao.sol";
 import { WorldStatus } from "./codegen/tables/WorldStatus.sol";
 import { WORLD_BORDER_LOW_X, WORLD_BORDER_LOW_Y, WORLD_BORDER_LOW_Z, WORLD_BORDER_HIGH_X, WORLD_BORDER_HIGH_Y, WORLD_BORDER_HIGH_Z, SPAWN_SHARD_DIM } from "./Constants.sol";
-import { AirObjectID, WaterObjectID } from "./ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, WaterObjectID } from "./ObjectTypeIds.sol";
 import { TerrainLib } from "./systems/libraries/TerrainLib.sol";
 
 import { EntityId } from "./EntityId.sol";
@@ -37,12 +37,12 @@ function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
   EntityId belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
   if (!belowEntityId.exists()) {
-    uint16 terrainObjectTypeId = TerrainLib._getBlockType(belowCoord);
+    ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(belowCoord));
     if (terrainObjectTypeId != AirObjectID && terrainObjectTypeId != WaterObjectID) {
       return false;
     }
   } else {
-    uint16 belowObjectTypeId = ObjectType._get(belowEntityId);
+    ObjectTypeId belowObjectTypeId = ObjectType._get(belowEntityId);
     if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
       return false;
     }

@@ -5,7 +5,6 @@ export default defineWorld({
     upgradeableWorldImplementation: true,
   },
   enums: {
-    ObjectCategory: ["None", "Block", "Item", "Tool", "Player"],
     ActionType: [
       "None",
       "Build",
@@ -30,6 +29,7 @@ export default defineWorld({
     DisplayContentType: ["None", "Text", "Image"],
   },
   userTypes: {
+    ObjectTypeId: { filePath: "./src/ObjectTypeIds.sol", type: "uint16" },
     EntityId: { filePath: "./src/EntityId.sol", type: "bytes32" },
     ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", type: "bytes32" },
   },
@@ -39,8 +39,7 @@ export default defineWorld({
     // ------------------------------------------------------------
     ObjectTypeMetadata: {
       schema: {
-        objectTypeId: "uint16",
-        objectCategory: "ObjectCategory",
+        objectTypeId: "ObjectTypeId",
         canPassThrough: "bool",
         stackable: "uint16",
         maxInventorySlots: "uint16",
@@ -51,7 +50,7 @@ export default defineWorld({
     },
     ObjectTypeSchema: {
       schema: {
-        objectTypeId: "uint16",
+        objectTypeId: "ObjectTypeId",
         relativePositionsX: "int32[]",
         relativePositionsY: "int32[]",
         relativePositionsZ: "int32[]",
@@ -61,8 +60,8 @@ export default defineWorld({
     Recipes: {
       schema: {
         recipeId: "bytes32",
-        stationObjectTypeId: "uint16",
-        outputObjectTypeId: "uint16",
+        stationObjectTypeId: "ObjectTypeId",
+        outputObjectTypeId: "ObjectTypeId",
         outputObjectTypeAmount: "uint16",
         inputObjectTypeIds: "uint16[]",
         inputObjectTypeAmounts: "uint16[]",
@@ -84,7 +83,7 @@ export default defineWorld({
     ObjectType: {
       schema: {
         entityId: "EntityId",
-        objectTypeId: "uint16",
+        objectTypeId: "ObjectTypeId",
       },
       key: ["entityId"],
     },
@@ -159,7 +158,7 @@ export default defineWorld({
     InventoryCount: {
       schema: {
         ownerEntityId: "EntityId",
-        objectTypeId: "uint16",
+        objectTypeId: "ObjectTypeId",
         count: "uint16",
       },
       key: ["ownerEntityId", "objectTypeId"],

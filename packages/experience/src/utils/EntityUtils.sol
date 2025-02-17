@@ -15,16 +15,15 @@ import { InventoryEntity } from "@biomesaw/world/src/codegen/tables/InventoryEnt
 import { ReverseInventoryEntity } from "@biomesaw/world/src/codegen/tables/ReverseInventoryEntity.sol";
 import { InventorySlots } from "@biomesaw/world/src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "@biomesaw/world/src/codegen/tables/InventoryCount.sol";
-import { ObjectCategory } from "@biomesaw/world/src/codegen/tables/ObjectTypeMetadata.sol";
 
-import { ChestObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
+import { ObjectTypeId, ChestObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
 import { VoxelCoord, VoxelCoordLib } from "@biomesaw/world/src/VoxelCoord.sol";
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 
-function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (uint16) {
+function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (ObjectTypeId) {
   EntityId entityId = getEntityAtCoord(coord);
 
-  uint16 objectTypeId = getObjectType(entityId);
+  ObjectTypeId objectTypeId = getObjectType(entityId);
 
   return objectTypeId;
 }
@@ -33,20 +32,12 @@ function getPosition(EntityId entityId) view returns (VoxelCoord memory) {
   return VoxelCoordLib.toVoxelCoord(Position.get(entityId));
 }
 
-function getObjectType(EntityId entityId) view returns (uint16) {
+function getObjectType(EntityId entityId) view returns (ObjectTypeId) {
   return ObjectType.get(entityId);
 }
 
-function getStackable(uint16 objectTypeId) view returns (uint16) {
+function getStackable(ObjectTypeId objectTypeId) view returns (uint16) {
   return ObjectTypeMetadata.getStackable(objectTypeId);
-}
-
-function isTool(uint16 objectTypeId) view returns (bool) {
-  return ObjectTypeMetadata.getObjectCategory(objectTypeId) == ObjectCategory.Tool;
-}
-
-function isBlock(uint16 objectTypeId) view returns (bool) {
-  return ObjectTypeMetadata.getObjectCategory(objectTypeId) == ObjectCategory.Block;
 }
 
 function getEntityFromPlayer(address playerAddress) view returns (EntityId) {
@@ -77,7 +68,7 @@ function getNumInventoryObjects(EntityId entityId) view returns (uint256) {
   return InventoryObjects.lengthObjectTypeIds(entityId);
 }
 
-function getCount(EntityId entityId, uint16 objectTypeId) view returns (uint16) {
+function getCount(EntityId entityId, ObjectTypeId objectTypeId) view returns (uint16) {
   return InventoryCount.getCount(entityId, objectTypeId);
 }
 
@@ -89,6 +80,6 @@ function getEntityAtCoord(VoxelCoord memory coord) view returns (EntityId) {
   return ReversePosition.getEntityId(coord.x, coord.y, coord.z);
 }
 
-function numMaxInChest(uint16 objectTypeId) view returns (uint16) {
+function numMaxInChest(ObjectTypeId objectTypeId) view returns (uint16) {
   return getStackable(objectTypeId) * ObjectTypeMetadata.getMaxInventorySlots(ChestObjectID);
 }

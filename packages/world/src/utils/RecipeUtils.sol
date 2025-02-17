@@ -3,17 +3,17 @@ pragma solidity >=0.8.24;
 
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
-import { NullObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, NullObjectTypeId } from "../ObjectTypeIds.sol";
 
 function createSingleInputWithStationRecipe(
-  uint16 stationObjectTypeId,
-  uint16 inputObjectTypeId,
+  ObjectTypeId stationObjectTypeId,
+  ObjectTypeId inputObjectTypeId,
   uint16 inputObjectTypeAmount,
-  uint16 outputObjectTypeId,
+  ObjectTypeId outputObjectTypeId,
   uint16 outputObjectTypeAmount
 ) {
   uint16[] memory inputObjectTypeIds = new uint16[](1);
-  inputObjectTypeIds[0] = inputObjectTypeId;
+  inputObjectTypeIds[0] = inputObjectTypeId.unwrap();
   uint16[] memory inputObjectTypeAmounts = new uint16[](1);
   inputObjectTypeAmounts[0] = inputObjectTypeAmount;
 
@@ -35,9 +35,9 @@ function createSingleInputWithStationRecipe(
 }
 
 function createSingleInputRecipe(
-  uint16 inputObjectTypeId,
+  ObjectTypeId inputObjectTypeId,
   uint16 inputObjectTypeAmount,
-  uint16 outputObjectTypeId,
+  ObjectTypeId outputObjectTypeId,
   uint16 outputObjectTypeAmount
 ) {
   createSingleInputWithStationRecipe(
@@ -50,24 +50,24 @@ function createSingleInputRecipe(
 }
 
 function createDoubleInputWithStationRecipe(
-  uint16 stationObjectTypeId,
-  uint16 inputObjectTypeId1,
+  ObjectTypeId stationObjectTypeId,
+  ObjectTypeId inputObjectTypeId1,
   uint16 inputObjectTypeAmount1,
-  uint16 inputObjectTypeId2,
+  ObjectTypeId inputObjectTypeId2,
   uint16 inputObjectTypeAmount2,
-  uint16 outputObjectTypeId,
+  ObjectTypeId outputObjectTypeId,
   uint16 outputObjectTypeAmount
 ) {
   uint16[] memory inputObjectTypeIds = new uint16[](2);
-  inputObjectTypeIds[0] = inputObjectTypeId1;
-  inputObjectTypeIds[1] = inputObjectTypeId2;
+  inputObjectTypeIds[0] = inputObjectTypeId1.unwrap();
+  inputObjectTypeIds[1] = inputObjectTypeId2.unwrap();
 
   uint16[] memory inputObjectTypeAmounts = new uint16[](2);
   inputObjectTypeAmounts[0] = inputObjectTypeAmount1;
   inputObjectTypeAmounts[1] = inputObjectTypeAmount2;
 
   // Form recipe id from input and output object type ids
-  bytes32 recipeId = inputObjectTypeId1 < inputObjectTypeId2
+  bytes32 recipeId = inputObjectTypeId1.unwrap() < inputObjectTypeId2.unwrap()
     ? keccak256(
       abi.encodePacked(
         inputObjectTypeId1,
@@ -102,11 +102,11 @@ function createDoubleInputWithStationRecipe(
 }
 
 function createDoubleInputRecipe(
-  uint16 inputObjectTypeId1,
+  ObjectTypeId inputObjectTypeId1,
   uint16 inputObjectTypeAmount1,
-  uint16 inputObjectTypeId2,
+  ObjectTypeId inputObjectTypeId2,
   uint16 inputObjectTypeAmount2,
-  uint16 outputObjectTypeId,
+  ObjectTypeId outputObjectTypeId,
   uint16 outputObjectTypeAmount
 ) {
   createDoubleInputWithStationRecipe(

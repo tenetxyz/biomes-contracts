@@ -11,7 +11,7 @@ import { VoxelCoord } from "../../Types.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
-import { ForceFieldObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
 import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
 import { getForceField, setupForceField, destroyForceField } from "../../utils/ForceFieldUtils.sol";
 
@@ -24,7 +24,7 @@ library ForceFieldLib {
   function requireBuildsAllowed(
     EntityId playerEntityId,
     EntityId baseEntityId,
-    uint16 objectTypeId,
+    ObjectTypeId objectTypeId,
     VoxelCoord[] memory coords,
     bytes memory extraData
   ) public {
@@ -53,7 +53,7 @@ library ForceFieldLib {
   function requireMinesAllowed(
     EntityId playerEntityId,
     EntityId baseEntityId,
-    uint16 objectTypeId,
+    ObjectTypeId objectTypeId,
     VoxelCoord[] memory coords,
     bytes memory extraData
   ) public {

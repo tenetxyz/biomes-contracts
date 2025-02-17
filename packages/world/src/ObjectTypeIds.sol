@@ -1,233 +1,292 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+type ObjectTypeId is uint16;
+
+uint8 constant OFFSET_BITS = 11;
+
+// ------------------------------------------------------------
+// Object Categories
+// ------------------------------------------------------------
+uint16 constant Block = 0;
+uint16 constant Item = uint16(1) << OFFSET_BITS;
+uint16 constant Tool = uint16(2) << OFFSET_BITS;
+// TODO: placeholder
+uint16 constant Misc = uint16(3) << OFFSET_BITS;
+
+// ------------------------------------------------------------
+// Object Type Ids
+// ------------------------------------------------------------
+
 // Note: Do not use 0 as an object ID, as it is reserved
-uint16 constant NullObjectTypeId = 0;
+ObjectTypeId constant NullObjectTypeId = ObjectTypeId.wrap(0);
 
 // ------------------------------------------------------------
 // Terrain Blocks (1-255 is reserved for terrain blocks)
 // ------------------------------------------------------------
-uint16 constant AirObjectID = 1;
-uint16 constant WaterObjectID = 2;
-uint16 constant LavaObjectID = 3;
-uint16 constant GrassObjectID = 4;
-uint16 constant DirtObjectID = 5;
-uint16 constant MossBlockObjectID = 6;
-uint16 constant SnowObjectID = 7;
-uint16 constant GravelObjectID = 8;
-uint16 constant SandObjectID = 9;
-uint16 constant BedrockObjectID = 10;
+ObjectTypeId constant AirObjectID = ObjectTypeId.wrap(Block | 1);
+ObjectTypeId constant WaterObjectID = ObjectTypeId.wrap(Block | 2);
+ObjectTypeId constant LavaObjectID = ObjectTypeId.wrap(Block | 3);
+ObjectTypeId constant GrassObjectID = ObjectTypeId.wrap(Block | 4);
+ObjectTypeId constant DirtObjectID = ObjectTypeId.wrap(Block | 5);
+ObjectTypeId constant MossBlockObjectID = ObjectTypeId.wrap(Block | 6);
+ObjectTypeId constant SnowObjectID = ObjectTypeId.wrap(Block | 7);
+ObjectTypeId constant GravelObjectID = ObjectTypeId.wrap(Block | 8);
+ObjectTypeId constant SandObjectID = ObjectTypeId.wrap(Block | 9);
+ObjectTypeId constant BedrockObjectID = ObjectTypeId.wrap(Block | 10);
 
-uint16 constant StoneObjectID = 11;
-uint16 constant BasaltObjectID = 12;
-uint16 constant GraniteObjectID = 13;
-uint16 constant QuartziteObjectID = 14;
-uint16 constant LimestoneObjectID = 15;
+ObjectTypeId constant StoneObjectID = ObjectTypeId.wrap(Block | 11);
+ObjectTypeId constant BasaltObjectID = ObjectTypeId.wrap(Block | 12);
+ObjectTypeId constant GraniteObjectID = ObjectTypeId.wrap(Block | 13);
+ObjectTypeId constant QuartziteObjectID = ObjectTypeId.wrap(Block | 14);
+ObjectTypeId constant LimestoneObjectID = ObjectTypeId.wrap(Block | 15);
 
 // Ores
-uint16 constant AnyOreObjectID = 16;
-uint16 constant CoalOreObjectID = 17;
-uint16 constant GoldOreObjectID = 18;
-uint16 constant SilverOreObjectID = 19;
-uint16 constant DiamondOreObjectID = 20;
-uint16 constant NeptuniumOreObjectID = 21;
+ObjectTypeId constant AnyOreObjectID = ObjectTypeId.wrap(Block | 16);
+ObjectTypeId constant CoalOreObjectID = ObjectTypeId.wrap(Block | 17);
+ObjectTypeId constant GoldOreObjectID = ObjectTypeId.wrap(Block | 18);
+ObjectTypeId constant SilverOreObjectID = ObjectTypeId.wrap(Block | 19);
+ObjectTypeId constant DiamondOreObjectID = ObjectTypeId.wrap(Block | 20);
+ObjectTypeId constant NeptuniumOreObjectID = ObjectTypeId.wrap(Block | 21);
 
 // Logs
-uint16 constant OakLogObjectID = 22;
-uint16 constant SakuraLogObjectID = 23;
-uint16 constant RubberLogObjectID = 24;
-uint16 constant BirchLogObjectID = 25;
+ObjectTypeId constant OakLogObjectID = ObjectTypeId.wrap(Block | 22);
+ObjectTypeId constant SakuraLogObjectID = ObjectTypeId.wrap(Block | 23);
+ObjectTypeId constant RubberLogObjectID = ObjectTypeId.wrap(Block | 24);
+ObjectTypeId constant BirchLogObjectID = ObjectTypeId.wrap(Block | 25);
 
 // Tree leafs
-uint16 constant OakLeafObjectID = 26;
-uint16 constant BirchLeafObjectID = 27;
-uint16 constant SakuraLeafObjectID = 28;
-uint16 constant RubberLeafObjectID = 29;
+ObjectTypeId constant OakLeafObjectID = ObjectTypeId.wrap(Block | 26);
+ObjectTypeId constant BirchLeafObjectID = ObjectTypeId.wrap(Block | 27);
+ObjectTypeId constant SakuraLeafObjectID = ObjectTypeId.wrap(Block | 28);
+ObjectTypeId constant RubberLeafObjectID = ObjectTypeId.wrap(Block | 29);
 
 // Florae
-uint16 constant CactusObjectID = 30;
-uint16 constant LilacObjectID = 31;
-uint16 constant DandelionObjectID = 32;
-uint16 constant RedMushroomObjectID = 33;
-uint16 constant BellflowerObjectID = 34;
-uint16 constant CottonBushObjectID = 35;
-uint16 constant SwitchGrassObjectID = 36;
-uint16 constant DaylilyObjectID = 37;
-uint16 constant AzaleaObjectID = 38;
-uint16 constant RoseObjectID = 39;
+ObjectTypeId constant CactusObjectID = ObjectTypeId.wrap(Block | 30);
+ObjectTypeId constant LilacObjectID = ObjectTypeId.wrap(Block | 31);
+ObjectTypeId constant DandelionObjectID = ObjectTypeId.wrap(Block | 32);
+ObjectTypeId constant RedMushroomObjectID = ObjectTypeId.wrap(Block | 33);
+ObjectTypeId constant BellflowerObjectID = ObjectTypeId.wrap(Block | 34);
+ObjectTypeId constant CottonBushObjectID = ObjectTypeId.wrap(Block | 35);
+ObjectTypeId constant SwitchGrassObjectID = ObjectTypeId.wrap(Block | 36);
+ObjectTypeId constant DaylilyObjectID = ObjectTypeId.wrap(Block | 37);
+ObjectTypeId constant AzaleaObjectID = ObjectTypeId.wrap(Block | 38);
+ObjectTypeId constant RoseObjectID = ObjectTypeId.wrap(Block | 39);
 
 // ------------------------------------------------------------
 // Non-Terrain Blocks
 // ------------------------------------------------------------
-uint16 constant PlayerObjectID = 256;
 
-uint16 constant GlassObjectID = 257;
-uint16 constant ClayObjectID = 258;
-uint16 constant CobblestoneObjectID = 259;
+ObjectTypeId constant GlassObjectID = ObjectTypeId.wrap(Block | 256);
+ObjectTypeId constant ClayObjectID = ObjectTypeId.wrap(Block | 257);
+ObjectTypeId constant CobblestoneObjectID = ObjectTypeId.wrap(Block | 258);
 
-uint16 constant CobblestoneBrickObjectID = 260;
-uint16 constant CobblestoneCarvedObjectID = 261;
-uint16 constant CobblestonePolishedObjectID = 262;
-uint16 constant CobblestoneShinglesObjectID = 263;
+ObjectTypeId constant CobblestoneBrickObjectID = ObjectTypeId.wrap(Block | 259);
+ObjectTypeId constant CobblestoneCarvedObjectID = ObjectTypeId.wrap(Block | 260);
+ObjectTypeId constant CobblestonePolishedObjectID = ObjectTypeId.wrap(Block | 261);
+ObjectTypeId constant CobblestoneShinglesObjectID = ObjectTypeId.wrap(Block | 262);
 
-uint16 constant StoneBrickObjectID = 264;
-uint16 constant StoneCarvedObjectID = 265;
-uint16 constant StonePolishedObjectID = 266;
-uint16 constant StoneShinglesObjectID = 267;
+ObjectTypeId constant StoneBrickObjectID = ObjectTypeId.wrap(Block | 263);
+ObjectTypeId constant StoneCarvedObjectID = ObjectTypeId.wrap(Block | 264);
+ObjectTypeId constant StonePolishedObjectID = ObjectTypeId.wrap(Block | 265);
+ObjectTypeId constant StoneShinglesObjectID = ObjectTypeId.wrap(Block | 266);
 
-uint16 constant BasaltBrickObjectID = 268;
-uint16 constant BasaltCarvedObjectID = 269;
-uint16 constant BasaltPolishedObjectID = 270;
-uint16 constant BasaltShinglesObjectID = 271;
+ObjectTypeId constant BasaltBrickObjectID = ObjectTypeId.wrap(Block | 267);
+ObjectTypeId constant BasaltCarvedObjectID = ObjectTypeId.wrap(Block | 268);
+ObjectTypeId constant BasaltPolishedObjectID = ObjectTypeId.wrap(Block | 269);
+ObjectTypeId constant BasaltShinglesObjectID = ObjectTypeId.wrap(Block | 270);
 
-uint16 constant ClayBrickObjectID = 272;
-uint16 constant ClayCarvedObjectID = 273;
-uint16 constant ClayPolishedObjectID = 274;
-uint16 constant ClayShinglesObjectID = 275;
+ObjectTypeId constant ClayBrickObjectID = ObjectTypeId.wrap(Block | 271);
+ObjectTypeId constant ClayCarvedObjectID = ObjectTypeId.wrap(Block | 272);
+ObjectTypeId constant ClayPolishedObjectID = ObjectTypeId.wrap(Block | 273);
+ObjectTypeId constant ClayShinglesObjectID = ObjectTypeId.wrap(Block | 274);
 
-uint16 constant GraniteBrickObjectID = 276;
-uint16 constant GraniteCarvedObjectID = 277;
-uint16 constant GranitePolishedObjectID = 278;
-uint16 constant GraniteShinglesObjectID = 279;
+ObjectTypeId constant GraniteBrickObjectID = ObjectTypeId.wrap(Block | 275);
+ObjectTypeId constant GraniteCarvedObjectID = ObjectTypeId.wrap(Block | 276);
+ObjectTypeId constant GranitePolishedObjectID = ObjectTypeId.wrap(Block | 277);
+ObjectTypeId constant GraniteShinglesObjectID = ObjectTypeId.wrap(Block | 278);
 
-uint16 constant QuartziteBrickObjectID = 280;
-uint16 constant QuartziteCarvedObjectID = 281;
-uint16 constant QuartzitePolishedObjectID = 282;
-uint16 constant QuartziteShinglesObjectID = 283;
+ObjectTypeId constant QuartziteBrickObjectID = ObjectTypeId.wrap(Block | 279);
+ObjectTypeId constant QuartziteCarvedObjectID = ObjectTypeId.wrap(Block | 280);
+ObjectTypeId constant QuartzitePolishedObjectID = ObjectTypeId.wrap(Block | 281);
+ObjectTypeId constant QuartziteShinglesObjectID = ObjectTypeId.wrap(Block | 282);
 
-uint16 constant LimestoneBrickObjectID = 284;
-uint16 constant LimestoneCarvedObjectID = 285;
-uint16 constant LimestonePolishedObjectID = 286;
-uint16 constant LimestoneShinglesObjectID = 287;
+ObjectTypeId constant LimestoneBrickObjectID = ObjectTypeId.wrap(Block | 283);
+ObjectTypeId constant LimestoneCarvedObjectID = ObjectTypeId.wrap(Block | 284);
+ObjectTypeId constant LimestonePolishedObjectID = ObjectTypeId.wrap(Block | 285);
+ObjectTypeId constant LimestoneShinglesObjectID = ObjectTypeId.wrap(Block | 286);
 
 // Blocks that glow
-uint16 constant EmberstoneObjectID = 288;
-uint16 constant MoonstoneObjectID = 289;
-uint16 constant SunstoneObjectID = 290;
+ObjectTypeId constant EmberstoneObjectID = ObjectTypeId.wrap(Block | 287);
+ObjectTypeId constant MoonstoneObjectID = ObjectTypeId.wrap(Block | 288);
+ObjectTypeId constant SunstoneObjectID = ObjectTypeId.wrap(Block | 289);
 
 // Ore blocks
-uint16 constant GoldBarObjectID = 291;
-uint16 constant SilverBarObjectID = 292;
-uint16 constant DiamondObjectID = 293;
-uint16 constant NeptuniumBarObjectID = 294;
-
-uint16 constant GoldCubeObjectID = 295;
-uint16 constant SilverCubeObjectID = 296;
-uint16 constant DiamondCubeObjectID = 297;
-uint16 constant NeptuniumCubeObjectID = 298;
+ObjectTypeId constant GoldCubeObjectID = ObjectTypeId.wrap(Block | 294);
+ObjectTypeId constant SilverCubeObjectID = ObjectTypeId.wrap(Block | 295);
+ObjectTypeId constant DiamondCubeObjectID = ObjectTypeId.wrap(Block | 296);
+ObjectTypeId constant NeptuniumCubeObjectID = ObjectTypeId.wrap(Block | 297);
 
 // Florae blocks
-uint16 constant MushroomLeatherBlockObjectID = 299;
-uint16 constant CottonBlockObjectID = 300;
+ObjectTypeId constant MushroomLeatherBlockObjectID = ObjectTypeId.wrap(Block | 298);
+ObjectTypeId constant CottonBlockObjectID = ObjectTypeId.wrap(Block | 299);
 
 // Crafting stations
-uint16 constant ThermoblasterObjectID = 301;
-uint16 constant WorkbenchObjectID = 302;
-uint16 constant DyeomaticObjectID = 303;
-uint16 constant PowerStoneObjectID = 304;
-
-// Smart objects
-uint16 constant ChipObjectID = 305;
-uint16 constant ChipBatteryObjectID = 306;
-
-uint16 constant ForceFieldObjectID = 307;
-
-uint16 constant ChestObjectID = 308;
-uint16 constant SmartChestObjectID = 309;
-uint16 constant TextSignObjectID = 310;
-uint16 constant SmartTextSignObjectID = 311;
-uint16 constant PipeObjectID = 312;
+ObjectTypeId constant ThermoblasterObjectID = ObjectTypeId.wrap(Block | 300);
+ObjectTypeId constant WorkbenchObjectID = ObjectTypeId.wrap(Block | 301);
+ObjectTypeId constant DyeomaticObjectID = ObjectTypeId.wrap(Block | 302);
+ObjectTypeId constant PowerStoneObjectID = ObjectTypeId.wrap(Block | 303);
 
 // Lumber
-uint16 constant OakLumberObjectID = 313;
-uint16 constant SakuraLumberObjectID = 314;
-uint16 constant RubberLumberObjectID = 315;
-uint16 constant BirchLumberObjectID = 316;
-uint16 constant ReinforcedOakLumberObjectID = 317;
-uint16 constant ReinforcedRubberLumberObjectID = 318;
-uint16 constant ReinforcedBirchLumberObjectID = 319;
-
-// Tools
-uint16 constant WoodenPickObjectID = 320;
-uint16 constant WoodenAxeObjectID = 321;
-uint16 constant WoodenWhackerObjectID = 322;
-uint16 constant StonePickObjectID = 323;
-uint16 constant StoneAxeObjectID = 324;
-uint16 constant StoneWhackerObjectID = 325;
-uint16 constant SilverPickObjectID = 326;
-uint16 constant SilverAxeObjectID = 327;
-uint16 constant SilverWhackerObjectID = 328;
-uint16 constant GoldPickObjectID = 329;
-uint16 constant GoldAxeObjectID = 330;
-uint16 constant DiamondPickObjectID = 331;
-uint16 constant DiamondAxeObjectID = 332;
-uint16 constant NeptuniumPickObjectID = 333;
-uint16 constant NeptuniumAxeObjectID = 334;
-
-// Dyes
-uint16 constant BlueDyeObjectID = 335;
-uint16 constant BrownDyeObjectID = 336;
-uint16 constant GreenDyeObjectID = 337;
-uint16 constant MagentaDyeObjectID = 338;
-uint16 constant OrangeDyeObjectID = 339;
-uint16 constant PinkDyeObjectID = 340;
-uint16 constant PurpleDyeObjectID = 341;
-uint16 constant RedDyeObjectID = 342;
-uint16 constant TanDyeObjectID = 343;
-uint16 constant WhiteDyeObjectID = 344;
-uint16 constant YellowDyeObjectID = 345;
-uint16 constant BlackDyeObjectID = 346;
-uint16 constant SilverDyeObjectID = 347;
+ObjectTypeId constant OakLumberObjectID = ObjectTypeId.wrap(Block | 312);
+ObjectTypeId constant SakuraLumberObjectID = ObjectTypeId.wrap(Block | 313);
+ObjectTypeId constant RubberLumberObjectID = ObjectTypeId.wrap(Block | 314);
+ObjectTypeId constant BirchLumberObjectID = ObjectTypeId.wrap(Block | 315);
+ObjectTypeId constant ReinforcedOakLumberObjectID = ObjectTypeId.wrap(Block | 316);
+ObjectTypeId constant ReinforcedRubberLumberObjectID = ObjectTypeId.wrap(Block | 317);
+ObjectTypeId constant ReinforcedBirchLumberObjectID = ObjectTypeId.wrap(Block | 318);
 
 // Dyed Blocks
-uint16 constant BlueOakLumberObjectID = 348;
-uint16 constant BrownOakLumberObjectID = 349;
-uint16 constant GreenOakLumberObjectID = 350;
-uint16 constant MagentaOakLumberObjectID = 351;
-uint16 constant OrangeOakLumberObjectID = 352;
-uint16 constant PinkOakLumberObjectID = 353;
-uint16 constant PurpleOakLumberObjectID = 354;
-uint16 constant RedOakLumberObjectID = 355;
-uint16 constant TanOakLumberObjectID = 356;
-uint16 constant WhiteOakLumberObjectID = 357;
-uint16 constant YellowOakLumberObjectID = 358;
-uint16 constant BlackOakLumberObjectID = 359;
-uint16 constant SilverOakLumberObjectID = 360;
+ObjectTypeId constant BlueOakLumberObjectID = ObjectTypeId.wrap(Block | 347);
+ObjectTypeId constant BrownOakLumberObjectID = ObjectTypeId.wrap(Block | 348);
+ObjectTypeId constant GreenOakLumberObjectID = ObjectTypeId.wrap(Block | 349);
+ObjectTypeId constant MagentaOakLumberObjectID = ObjectTypeId.wrap(Block | 350);
+ObjectTypeId constant OrangeOakLumberObjectID = ObjectTypeId.wrap(Block | 351);
+ObjectTypeId constant PinkOakLumberObjectID = ObjectTypeId.wrap(Block | 352);
+ObjectTypeId constant PurpleOakLumberObjectID = ObjectTypeId.wrap(Block | 353);
+ObjectTypeId constant RedOakLumberObjectID = ObjectTypeId.wrap(Block | 354);
+ObjectTypeId constant TanOakLumberObjectID = ObjectTypeId.wrap(Block | 355);
+ObjectTypeId constant WhiteOakLumberObjectID = ObjectTypeId.wrap(Block | 356);
+ObjectTypeId constant YellowOakLumberObjectID = ObjectTypeId.wrap(Block | 357);
+ObjectTypeId constant BlackOakLumberObjectID = ObjectTypeId.wrap(Block | 358);
+ObjectTypeId constant SilverOakLumberObjectID = ObjectTypeId.wrap(Block | 359);
 
-uint16 constant BlueCottonBlockObjectID = 361;
-uint16 constant BrownCottonBlockObjectID = 362;
-uint16 constant GreenCottonBlockObjectID = 363;
-uint16 constant MagentaCottonBlockObjectID = 364;
-uint16 constant OrangeCottonBlockObjectID = 365;
-uint16 constant PinkCottonBlockObjectID = 366;
-uint16 constant PurpleCottonBlockObjectID = 367;
-uint16 constant RedCottonBlockObjectID = 368;
-uint16 constant TanCottonBlockObjectID = 369;
-uint16 constant WhiteCottonBlockObjectID = 370;
-uint16 constant YellowCottonBlockObjectID = 371;
-uint16 constant BlackCottonBlockObjectID = 372;
-uint16 constant SilverCottonBlockObjectID = 373;
+ObjectTypeId constant BlueCottonBlockObjectID = ObjectTypeId.wrap(Block | 360);
+ObjectTypeId constant BrownCottonBlockObjectID = ObjectTypeId.wrap(Block | 361);
+ObjectTypeId constant GreenCottonBlockObjectID = ObjectTypeId.wrap(Block | 362);
+ObjectTypeId constant MagentaCottonBlockObjectID = ObjectTypeId.wrap(Block | 363);
+ObjectTypeId constant OrangeCottonBlockObjectID = ObjectTypeId.wrap(Block | 364);
+ObjectTypeId constant PinkCottonBlockObjectID = ObjectTypeId.wrap(Block | 365);
+ObjectTypeId constant PurpleCottonBlockObjectID = ObjectTypeId.wrap(Block | 366);
+ObjectTypeId constant RedCottonBlockObjectID = ObjectTypeId.wrap(Block | 367);
+ObjectTypeId constant TanCottonBlockObjectID = ObjectTypeId.wrap(Block | 368);
+ObjectTypeId constant WhiteCottonBlockObjectID = ObjectTypeId.wrap(Block | 369);
+ObjectTypeId constant YellowCottonBlockObjectID = ObjectTypeId.wrap(Block | 370);
+ObjectTypeId constant BlackCottonBlockObjectID = ObjectTypeId.wrap(Block | 371);
+ObjectTypeId constant SilverCottonBlockObjectID = ObjectTypeId.wrap(Block | 372);
 
-uint16 constant BlueGlassObjectID = 374;
-uint16 constant GreenGlassObjectID = 375;
-uint16 constant OrangeGlassObjectID = 376;
-uint16 constant PinkGlassObjectID = 377;
-uint16 constant PurpleGlassObjectID = 378;
-uint16 constant RedGlassObjectID = 379;
-uint16 constant WhiteGlassObjectID = 380;
-uint16 constant YellowGlassObjectID = 381;
-uint16 constant BlackGlassObjectID = 382;
+ObjectTypeId constant BlueGlassObjectID = ObjectTypeId.wrap(Block | 373);
+ObjectTypeId constant GreenGlassObjectID = ObjectTypeId.wrap(Block | 374);
+ObjectTypeId constant OrangeGlassObjectID = ObjectTypeId.wrap(Block | 375);
+ObjectTypeId constant PinkGlassObjectID = ObjectTypeId.wrap(Block | 376);
+ObjectTypeId constant PurpleGlassObjectID = ObjectTypeId.wrap(Block | 377);
+ObjectTypeId constant RedGlassObjectID = ObjectTypeId.wrap(Block | 378);
+ObjectTypeId constant WhiteGlassObjectID = ObjectTypeId.wrap(Block | 379);
+ObjectTypeId constant YellowGlassObjectID = ObjectTypeId.wrap(Block | 380);
+ObjectTypeId constant BlackGlassObjectID = ObjectTypeId.wrap(Block | 381);
 
-// TODO: move to smart objects section and adjust all ids
-uint16 constant SpawnTileObjectID = 383;
+// Smart objects
+// TODO: should these be their own category? for now just leaving some space between previous blocks and these
+ObjectTypeId constant ForceFieldObjectID = ObjectTypeId.wrap(Block | 600);
+ObjectTypeId constant ChestObjectID = ObjectTypeId.wrap(Block | 601);
+ObjectTypeId constant SmartChestObjectID = ObjectTypeId.wrap(Block | 602);
+ObjectTypeId constant TextSignObjectID = ObjectTypeId.wrap(Block | 603);
+ObjectTypeId constant SmartTextSignObjectID = ObjectTypeId.wrap(Block | 604);
+ObjectTypeId constant PipeObjectID = ObjectTypeId.wrap(Block | 605);
+ObjectTypeId constant SpawnTileObjectID = ObjectTypeId.wrap(Block | 606);
+
+// ------------------------------------------------------------
+// Tools
+// ------------------------------------------------------------
+
+ObjectTypeId constant WoodenPickObjectID = ObjectTypeId.wrap(Tool | 0);
+ObjectTypeId constant WoodenAxeObjectID = ObjectTypeId.wrap(Tool | 1);
+ObjectTypeId constant WoodenWhackerObjectID = ObjectTypeId.wrap(Tool | 2);
+ObjectTypeId constant StonePickObjectID = ObjectTypeId.wrap(Tool | 3);
+ObjectTypeId constant StoneAxeObjectID = ObjectTypeId.wrap(Tool | 4);
+ObjectTypeId constant StoneWhackerObjectID = ObjectTypeId.wrap(Tool | 5);
+ObjectTypeId constant SilverPickObjectID = ObjectTypeId.wrap(Tool | 6);
+ObjectTypeId constant SilverAxeObjectID = ObjectTypeId.wrap(Tool | 7);
+ObjectTypeId constant SilverWhackerObjectID = ObjectTypeId.wrap(Tool | 8);
+ObjectTypeId constant GoldPickObjectID = ObjectTypeId.wrap(Tool | 9);
+ObjectTypeId constant GoldAxeObjectID = ObjectTypeId.wrap(Tool | 10);
+ObjectTypeId constant DiamondPickObjectID = ObjectTypeId.wrap(Tool | 11);
+ObjectTypeId constant DiamondAxeObjectID = ObjectTypeId.wrap(Tool | 12);
+ObjectTypeId constant NeptuniumPickObjectID = ObjectTypeId.wrap(Tool | 13);
+ObjectTypeId constant NeptuniumAxeObjectID = ObjectTypeId.wrap(Tool | 14);
+
+// ------------------------------------------------------------
+// Items
+// ------------------------------------------------------------
+
+// Dyes
+ObjectTypeId constant BlueDyeObjectID = ObjectTypeId.wrap(Item | 0);
+ObjectTypeId constant BrownDyeObjectID = ObjectTypeId.wrap(Item | 1);
+ObjectTypeId constant GreenDyeObjectID = ObjectTypeId.wrap(Item | 2);
+ObjectTypeId constant MagentaDyeObjectID = ObjectTypeId.wrap(Item | 3);
+ObjectTypeId constant OrangeDyeObjectID = ObjectTypeId.wrap(Item | 4);
+ObjectTypeId constant PinkDyeObjectID = ObjectTypeId.wrap(Item | 5);
+ObjectTypeId constant PurpleDyeObjectID = ObjectTypeId.wrap(Item | 6);
+ObjectTypeId constant RedDyeObjectID = ObjectTypeId.wrap(Item | 7);
+ObjectTypeId constant TanDyeObjectID = ObjectTypeId.wrap(Item | 8);
+ObjectTypeId constant WhiteDyeObjectID = ObjectTypeId.wrap(Item | 9);
+ObjectTypeId constant YellowDyeObjectID = ObjectTypeId.wrap(Item | 10);
+ObjectTypeId constant BlackDyeObjectID = ObjectTypeId.wrap(Item | 11);
+ObjectTypeId constant SilverDyeObjectID = ObjectTypeId.wrap(Item | 12);
+
+// Ore bars
+ObjectTypeId constant GoldBarObjectID = ObjectTypeId.wrap(Item | 13);
+ObjectTypeId constant SilverBarObjectID = ObjectTypeId.wrap(Item | 14);
+ObjectTypeId constant DiamondObjectID = ObjectTypeId.wrap(Item | 15);
+ObjectTypeId constant NeptuniumBarObjectID = ObjectTypeId.wrap(Item | 16);
+
+// TODO: should chips be their own category or misc or smart object?
+ObjectTypeId constant ChipObjectID = ObjectTypeId.wrap(Item | 17);
+ObjectTypeId constant ChipBatteryObjectID = ObjectTypeId.wrap(Item | 18);
 
 // ------------------------------------------------------------
 // Special Object IDs
 // ------------------------------------------------------------
 
+ObjectTypeId constant PlayerObjectID = ObjectTypeId.wrap(Misc | 0);
+
 // Used for Recipes only
-uint16 constant AnyLogObjectID = 65_535;
-uint16 constant AnyLumberObjectID = 65_534;
-uint16 constant AnyReinforcedLumberObjectID = 65_533;
-uint16 constant AnyCottonBlockObjectID = 65_532;
-uint16 constant AnyGlassObjectID = 65_531;
+ObjectTypeId constant AnyLogObjectID = ObjectTypeId.wrap(Misc | 65_535);
+ObjectTypeId constant AnyLumberObjectID = ObjectTypeId.wrap(Misc | 65_534);
+ObjectTypeId constant AnyReinforcedLumberObjectID = ObjectTypeId.wrap(Misc | 65_533);
+ObjectTypeId constant AnyCottonBlockObjectID = ObjectTypeId.wrap(Misc | 65_532);
+ObjectTypeId constant AnyGlassObjectID = ObjectTypeId.wrap(Misc | 65_531);
+
+// ------------------------------------------------------------
+// ObjectTypeId functions
+// ------------------------------------------------------------
+
+function eq(ObjectTypeId self, ObjectTypeId other) pure returns (bool) {
+  return ObjectTypeId.unwrap(self) == ObjectTypeId.unwrap(other);
+}
+
+function neq(ObjectTypeId self, ObjectTypeId other) pure returns (bool) {
+  return ObjectTypeId.unwrap(self) != ObjectTypeId.unwrap(other);
+}
+
+function unwrap(ObjectTypeId self) pure returns (uint16) {
+  return ObjectTypeId.unwrap(self);
+}
+
+function isBlock(ObjectTypeId id) pure returns (bool) {
+  return !id.isNull() && ObjectTypeId.unwrap(id) >> OFFSET_BITS == Block;
+}
+
+function isTool(ObjectTypeId id) pure returns (bool) {
+  return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Tool;
+}
+
+function isItem(ObjectTypeId id) pure returns (bool) {
+  return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Item;
+}
+
+function isNull(ObjectTypeId self) pure returns (bool) {
+  return self == NullObjectTypeId;
+}
+
+using { isBlock, isTool, isItem, isNull, eq as ==, neq as !=, unwrap } for ObjectTypeId global;

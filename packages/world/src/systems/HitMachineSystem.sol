@@ -23,6 +23,7 @@ import { safeCallChip } from "../utils/callChip.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
+import { ObjectTypeId } from "../ObjectTypeIds.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract HitMachineSystem is System {
@@ -38,11 +39,11 @@ contract HitMachineSystem is System {
       return;
     }
 
-    uint16 objectTypeId = ObjectType._get(machineEntityId);
+    ObjectTypeId objectTypeId = ObjectType._get(machineEntityId);
 
     EntityId equippedEntityId = Equipped._get(playerEntityId);
     require(equippedEntityId.exists(), "You must use a whacker to hit machines");
-    uint16 equippedObjectTypeId = ObjectType._get(equippedEntityId);
+    ObjectTypeId equippedObjectTypeId = ObjectType._get(equippedEntityId);
     require(isWhacker(equippedObjectTypeId), "You must use a whacker to hit machines");
 
     // TODO: useEquipped

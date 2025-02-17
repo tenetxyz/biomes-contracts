@@ -9,7 +9,7 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { AirObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonEntity, transferInventoryEntity } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -26,7 +26,7 @@ contract DropSystem is System {
 
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (!entityId.exists()) {
-      uint16 terrainObjectTypeId = TerrainLib._getBlockType(coord);
+      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
       require(terrainObjectTypeId == AirObjectID, "Cannot drop on non-air block");
 
       entityId = getUniqueEntity();
@@ -40,7 +40,7 @@ contract DropSystem is System {
     return (playerEntityId, entityId);
   }
 
-  function drop(uint16 dropObjectTypeId, uint16 numToDrop, VoxelCoord memory coord) public {
+  function drop(ObjectTypeId dropObjectTypeId, uint16 numToDrop, VoxelCoord memory coord) public {
     (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
     transferInventoryNonEntity(playerEntityId, entityId, AirObjectID, dropObjectTypeId, numToDrop);
 
@@ -52,7 +52,7 @@ contract DropSystem is System {
 
   function dropTool(EntityId toolEntityId, VoxelCoord memory coord) public {
     (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
-    uint16 toolObjectTypeId = transferInventoryEntity(playerEntityId, entityId, AirObjectID, toolEntityId);
+    ObjectTypeId toolObjectTypeId = transferInventoryEntity(playerEntityId, entityId, AirObjectID, toolEntityId);
 
     notify(playerEntityId, DropNotifData({ dropCoord: coord, dropObjectTypeId: toolObjectTypeId, dropAmount: 1 }));
   }
@@ -62,9 +62,14 @@ contract DropSystem is System {
 
     (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
 
-    uint16 toolObjectTypeId;
+    ObjectTypeId toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
-      uint16 currentToolObjectTypeId = transferInventoryEntity(playerEntityId, entityId, AirObjectID, toolEntityIds[i]);
+      ObjectTypeId currentToolObjectTypeId = transferInventoryEntity(
+        playerEntityId,
+        entityId,
+        AirObjectID,
+        toolEntityIds[i]
+      );
       if (i > 0) {
         require(toolObjectTypeId == currentToolObjectTypeId, "All tools must be of the same type");
       } else {
