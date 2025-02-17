@@ -87,6 +87,11 @@ contract TerrainTest is MudTest, GasReporter {
     bytes32 salt = Terrain._getChunkSalt(chunkCoord);
     assertEq(salt, bytes32(abi.encodePacked(bytes26(0), chunkCoord.x, chunkCoord.y, chunkCoord.z)));
     assertEq(salt, bytes32(uint256(uint48(bytes6(abi.encodePacked(chunkCoord.x, chunkCoord.y, chunkCoord.z))))));
+
+    chunkCoord = ChunkCoord(-1, -2, -3);
+    salt = Terrain._getChunkSalt(chunkCoord);
+    assertEq(salt, bytes32(abi.encodePacked(bytes26(0), chunkCoord.x, chunkCoord.y, chunkCoord.z)));
+    assertEq(salt, bytes32(uint256(uint48(bytes6(abi.encodePacked(chunkCoord.x, chunkCoord.y, chunkCoord.z))))));
   }
 
   function _getTestChunk() internal pure returns (uint8[][][] memory chunk) {
