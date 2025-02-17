@@ -218,6 +218,9 @@ uint16 constant WhiteGlassObjectID = 380;
 uint16 constant YellowGlassObjectID = 381;
 uint16 constant BlackGlassObjectID = 382;
 
+// TODO: move to smart objects section and adjust all ids
+uint16 constant SpawnTileObjectID = 383;
+
 // ------------------------------------------------------------
 // Special Object IDs
 // ------------------------------------------------------------

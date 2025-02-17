@@ -13,7 +13,7 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { PlayerObjectID, ChipObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID } from "../ObjectTypeIds.sol";
+import { PlayerObjectID, ChipObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
@@ -24,6 +24,7 @@ import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
+import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { EntityId } from "../EntityId.sol";
 import { safeCallChip, callChipOrRevert } from "../utils/callChip.sol";
 
@@ -51,6 +52,11 @@ contract ChipSystem is System {
     } else if (objectTypeId == SmartTextSignObjectID) {
       require(
         ERC165Checker.supportsInterface(chipAddress, type(IDisplayChip).interfaceId),
+        "Chip does not implement the required interface"
+      );
+    } else if (objectTypeId == SpawnTileObjectID) {
+      require(
+        ERC165Checker.supportsInterface(chipAddress, type(ISpawnTileChip).interfaceId),
         "Chip does not implement the required interface"
       );
     } else {

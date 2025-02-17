@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "../VoxelCoord.sol";
+import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
-import { Position } from "../codegen/tables/Position.sol";
+import { Position, PositionData } from "../codegen/tables/Position.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -16,9 +16,11 @@ import { Commitment } from "../codegen/tables/Commitment.sol";
 
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID } from "../ObjectTypeIds.sol";
-import { checkWorldStatus, positionDataToVoxelCoord } from "../Utils.sol";
+import { checkWorldStatus } from "../Utils.sol";
 
 import { EntityId } from "../EntityId.sol";
+
+using VoxelCoordLib for PositionData;
 
 function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory) {
   checkWorldStatus();
@@ -26,7 +28,7 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
   require(playerEntityId.exists(), "Player does not exist");
   require(!PlayerStatus._getIsLoggedOff(playerEntityId), "Player isn't logged in");
   require(!Commitment._getHasCommitted(playerEntityId), "Player is in a commitment");
-  VoxelCoord memory playerCoord = positionDataToVoxelCoord(Position._get(playerEntityId));
+  VoxelCoord memory playerCoord = Position._get(playerEntityId).toVoxelCoord();
 
   // TODO: update energy, should decrease over time
   Energy._setEnergy(playerEntityId, Energy._getEnergy(playerEntityId) + 1);
@@ -41,7 +43,7 @@ function requireBesidePlayer(VoxelCoord memory playerCoord, VoxelCoord memory co
 }
 
 function requireBesidePlayer(VoxelCoord memory playerCoord, EntityId entityId) view returns (VoxelCoord memory) {
-  VoxelCoord memory coord = positionDataToVoxelCoord(Position._get(entityId));
+  VoxelCoord memory coord = Position._get(entityId).toVoxelCoord();
   requireBesidePlayer(playerCoord, coord);
   return coord;
 }
@@ -51,7 +53,7 @@ function requireInPlayerInfluence(VoxelCoord memory playerCoord, VoxelCoord memo
 }
 
 function requireInPlayerInfluence(VoxelCoord memory playerCoord, EntityId entityId) view returns (VoxelCoord memory) {
-  VoxelCoord memory coord = positionDataToVoxelCoord(Position._get(entityId));
+  VoxelCoord memory coord = Position._get(entityId).toVoxelCoord();
   requireInPlayerInfluence(playerCoord, coord);
   return coord;
 }

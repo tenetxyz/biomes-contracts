@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "../Types.sol";
+import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
@@ -20,11 +20,12 @@ import { TextSignObjectID } from "../ObjectTypeIds.sol";
 import { isSmartItem } from "../utils/ObjectTypeUtils.sol";
 import { getLatestEnergyData } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { positionDataToVoxelCoord } from "../Utils.sol";
 import { isBasicDisplay } from "../utils/ObjectTypeUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract DisplaySystem is System {
+  using VoxelCoordLib for *;
+
   function getDisplayContent(EntityId entityId) public view returns (DisplayContentData memory) {
     require(entityId.exists(), "Entity does not exist");
 
@@ -33,19 +34,17 @@ contract DisplaySystem is System {
     if (!isSmartItem(objectTypeId)) {
       return DisplayContent._get(baseEntityId);
     }
-    VoxelCoord memory entityCoord = positionDataToVoxelCoord(Position._get(baseEntityId));
+    VoxelCoord memory entityCoord = Position._get(baseEntityId).toVoxelCoord();
 
     EntityId forceFieldEntityId = getForceField(entityCoord);
-    ResourceId chipSystemId = Chip._getChipSystemId(baseEntityId);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
       EnergyData memory machineData = getLatestEnergyData(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
     }
-    if (chipSystemId.unwrap() != 0 && machineEnergyLevel > 0) {
-      (address chipAddress, ) = Systems._get(chipSystemId);
+    if (machineEnergyLevel > 0) {
       // We can call the chip directly as we are a root system
-      return IDisplayChip(chipAddress).getDisplayContent(baseEntityId);
+      return IDisplayChip(baseEntityId.getChipAddress()).getDisplayContent(baseEntityId);
     }
 
     return DisplayContentData({ contentType: DisplayContentType.None, content: bytes("") });
@@ -54,7 +53,7 @@ contract DisplaySystem is System {
   function setDisplayContent(EntityId entityId, DisplayContentData memory content) public {
     EntityId baseEntityId = entityId.baseEntityId();
     require(isBasicDisplay(ObjectType._get(baseEntityId)), "You can only set the display content of a basic display");
-    VoxelCoord memory entityCoord = positionDataToVoxelCoord(Position._get(baseEntityId));
+    VoxelCoord memory entityCoord = Position._get(baseEntityId).toVoxelCoord();
     require(
       ReversePosition._get(entityCoord.x, entityCoord.y, entityCoord.z) == baseEntityId,
       "Entity is not at the specified position"

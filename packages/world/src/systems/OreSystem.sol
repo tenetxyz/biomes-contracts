@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "../VoxelCoord.sol";
+import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Player } from "../codegen/tables/Player.sol";
@@ -16,13 +16,15 @@ import { Commitment } from "../codegen/tables/Commitment.sol";
 import { BlockPrevrandao } from "../codegen/tables/BlockPrevrandao.sol";
 
 import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectTypeIds.sol";
-import { inWorldBorder, positionDataToVoxelCoord, lastKnownPositionDataToVoxelCoord, getRandomNumberBetween0And99 } from "../Utils.sol";
+import { inWorldBorder, getRandomNumberBetween0And99 } from "../Utils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, InitiateOreRevealNotifData, RevealOreNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract OreSystem is System {
+  using VoxelCoordLib for *;
+
   function initiateOreReveal(VoxelCoord memory coord) public {
     require(inWorldBorder(coord), "Cannot reveal ore outside world border");
 
@@ -66,8 +68,8 @@ contract OreSystem is System {
       // Apply consequences of lava
       if (ObjectType._get(terrainCommitmentData.committerEntityId) == PlayerObjectID) {
         VoxelCoord memory committerCoord = PlayerStatus._getIsLoggedOff(terrainCommitmentData.committerEntityId)
-          ? lastKnownPositionDataToVoxelCoord(LastKnownPosition._get(terrainCommitmentData.committerEntityId))
-          : positionDataToVoxelCoord(Position._get(terrainCommitmentData.committerEntityId));
+          ? LastKnownPosition._get(terrainCommitmentData.committerEntityId).toVoxelCoord()
+          : Position._get(terrainCommitmentData.committerEntityId).toVoxelCoord();
 
         // TODO: apply lava damage
 

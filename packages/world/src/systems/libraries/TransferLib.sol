@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "../../VoxelCoord.sol";
+import { VoxelCoord, VoxelCoordLib } from "../../VoxelCoord.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
@@ -10,7 +10,6 @@ import { Chip } from "../../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
 import { PlayerObjectID } from "../../ObjectTypeIds.sol";
-import { positionDataToVoxelCoord } from "../../Utils.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../../Constants.sol";
 import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
@@ -20,6 +19,8 @@ import { TransferCommonContext } from "../../Types.sol";
 import { EntityId } from "../../EntityId.sol";
 
 library TransferLib {
+  using VoxelCoordLib for *;
+
   function transferCommon(
     address msgSender,
     EntityId srcEntityId,
@@ -32,8 +33,8 @@ library TransferLib {
     EntityId baseDstEntityId = dstEntityId.baseEntityId();
 
     require(baseDstEntityId != baseSrcEntityId, "Cannot transfer to self");
-    VoxelCoord memory srcCoord = positionDataToVoxelCoord(Position._get(baseSrcEntityId));
-    VoxelCoord memory dstCoord = positionDataToVoxelCoord(Position._get(baseDstEntityId));
+    VoxelCoord memory srcCoord = Position._get(baseSrcEntityId).toVoxelCoord();
+    VoxelCoord memory dstCoord = Position._get(baseDstEntityId).toVoxelCoord();
     require(srcCoord.inSurroundingCube(MAX_PLAYER_INFLUENCE_HALF_WIDTH, dstCoord), "Destination too far");
 
     uint16 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
