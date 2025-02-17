@@ -16,7 +16,7 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { WORLD_DIM_X, WORLD_DIM_Z, SPAWN_ENERGY, SPAWN_AREA_HALF_WIDTH } from "../Constants.sol";
-import { AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
@@ -65,7 +65,7 @@ contract SpawnSystem is System {
     VoxelCoord memory spawnCoord,
     bytes memory extraData
   ) public returns (EntityId) {
-    uint16 objectTypeId = ObjectType._get(spawnTileEntityId);
+    ObjectTypeId objectTypeId = ObjectType._get(spawnTileEntityId);
     require(objectTypeId == SpawnTileObjectID, "Not a spawn tile");
 
     VoxelCoord memory spawnTileCoord = Position._get(spawnTileEntityId).toVoxelCoord();
@@ -104,7 +104,7 @@ contract SpawnSystem is System {
 
     EntityId existingEntityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
     if (!existingEntityId.exists()) {
-      uint16 terrainObjectTypeId = TerrainLib._getBlockType(spawnCoord);
+      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(spawnCoord));
       require(terrainObjectTypeId == AirObjectID, "Cannot spawn on a non-air block");
     } else {
       require(ObjectType._get(existingEntityId) == AirObjectID, "Cannot spawn on a non-air block");

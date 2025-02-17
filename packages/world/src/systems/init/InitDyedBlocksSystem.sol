@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { ObjectCategory } from "../../codegen/common.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 
@@ -22,7 +21,6 @@ contract InitDyedBlocksSystem is System {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
-        objectCategory: ObjectCategory.Block,
         stackable: MAX_BLOCK_STACKABLE,
         maxInventorySlots: 0,
         mass: mass,

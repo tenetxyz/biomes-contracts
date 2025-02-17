@@ -20,6 +20,7 @@ import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { notify, LoginNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
+import { ObjectTypeId } from "../ObjectTypeIds.sol";
 
 contract LoginSystem is System {
   using VoxelCoordLib for *;
@@ -39,7 +40,7 @@ contract LoginSystem is System {
 
     EntityId respawnEntityId = ReversePosition._get(respawnCoord.x, respawnCoord.y, respawnCoord.z);
     if (!respawnEntityId.exists()) {
-      uint16 terrainObjectTypeId = TerrainLib._getBlockType(respawnCoord);
+      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(respawnCoord));
       require(terrainObjectTypeId == AirObjectID, "Cannot respawn on non-air block");
     } else {
       require(ObjectType._get(respawnEntityId) == AirObjectID, "Cannot respawn on non-air block");

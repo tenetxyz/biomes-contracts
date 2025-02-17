@@ -16,7 +16,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { DisplayContentType } from "../codegen/common.sol";
 
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
-import { TextSignObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, TextSignObjectID } from "../ObjectTypeIds.sol";
 import { isSmartItem } from "../utils/ObjectTypeUtils.sol";
 import { getLatestEnergyData } from "../utils/MachineUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
@@ -30,7 +30,7 @@ contract DisplaySystem is System {
     require(entityId.exists(), "Entity does not exist");
 
     EntityId baseEntityId = entityId.baseEntityId();
-    uint16 objectTypeId = ObjectType._get(baseEntityId);
+    ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
     if (!isSmartItem(objectTypeId)) {
       return DisplayContent._get(baseEntityId);
     }

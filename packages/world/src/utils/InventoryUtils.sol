@@ -10,16 +10,15 @@ import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { ObjectCategory } from "../codegen/common.sol";
 
-import { PlayerObjectID, ChestObjectID, SmartChestObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, PlayerObjectID, ChestObjectID, SmartChestObjectID } from "../ObjectTypeIds.sol";
 
 import { EntityId } from "../EntityId.sol";
 
 function addToInventoryCount(
   EntityId ownerEntityId,
-  uint16 ownerObjectTypeId,
-  uint16 objectTypeId,
+  ObjectTypeId ownerObjectTypeId,
+  ObjectTypeId objectTypeId,
   uint16 numObjectsToAdd
 ) {
   uint16 stackable = ObjectTypeMetadata._getStackable(objectTypeId);
@@ -41,11 +40,11 @@ function addToInventoryCount(
   InventoryCount._set(ownerEntityId, objectTypeId, numFinalObjects);
 
   if (numInitialObjects == 0) {
-    InventoryObjects._push(ownerEntityId, objectTypeId);
+    InventoryObjects._push(ownerEntityId, objectTypeId.unwrap());
   }
 }
 
-function removeFromInventoryCount(EntityId ownerEntityId, uint16 objectTypeId, uint16 numObjectsToRemove) {
+function removeFromInventoryCount(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToRemove) {
   uint16 numInitialObjects = InventoryCount._get(ownerEntityId, objectTypeId);
   require(numInitialObjects >= numObjectsToRemove, "Not enough objects in the inventory");
 
@@ -80,7 +79,7 @@ function removeFromInventoryCount(EntityId ownerEntityId, uint16 objectTypeId, u
 function useEquipped(
   EntityId entityId,
   EntityId inventoryEntityId,
-  uint16 inventoryObjectTypeId,
+  ObjectTypeId inventoryObjectTypeId,
   uint24 durabilityDecrease
 ) {
   if (inventoryEntityId.exists()) {
@@ -120,12 +119,12 @@ function removeEntityIdFromReverseInventoryEntity(EntityId ownerEntityId, Entity
   }
 }
 
-function removeObjectTypeIdFromInventoryObjects(EntityId ownerEntityId, uint16 removeObjectTypeId) {
+function removeObjectTypeIdFromInventoryObjects(EntityId ownerEntityId, ObjectTypeId removeObjectTypeId) {
   uint16[] memory currentObjectTypeIds = InventoryObjects._get(ownerEntityId);
   uint16[] memory newObjectTypeIds = new uint16[](currentObjectTypeIds.length - 1);
   uint256 j = 0;
   for (uint256 i = 0; i < currentObjectTypeIds.length; i++) {
-    if (currentObjectTypeIds[i] != removeObjectTypeId) {
+    if (currentObjectTypeIds[i] != removeObjectTypeId.unwrap()) {
       newObjectTypeIds[j] = currentObjectTypeIds[i];
       j++;
     }
@@ -140,14 +139,14 @@ function removeObjectTypeIdFromInventoryObjects(EntityId ownerEntityId, uint16 r
 function transferAllInventoryEntities(
   EntityId fromEntityId,
   EntityId toEntityId,
-  uint16 toObjectTypeId
+  ObjectTypeId toObjectTypeId
 ) returns (uint256) {
   uint256 numTransferred = 0;
   uint16[] memory fromObjectTypeIds = InventoryObjects._get(fromEntityId);
   for (uint256 i = 0; i < fromObjectTypeIds.length; i++) {
-    uint16 objectTypeCount = InventoryCount._get(fromEntityId, fromObjectTypeIds[i]);
-    addToInventoryCount(toEntityId, toObjectTypeId, fromObjectTypeIds[i], objectTypeCount);
-    removeFromInventoryCount(fromEntityId, fromObjectTypeIds[i], objectTypeCount);
+    uint16 objectTypeCount = InventoryCount._get(fromEntityId, ObjectTypeId.wrap(fromObjectTypeIds[i]));
+    addToInventoryCount(toEntityId, toObjectTypeId, ObjectTypeId.wrap(fromObjectTypeIds[i]), objectTypeCount);
+    removeFromInventoryCount(fromEntityId, ObjectTypeId.wrap(fromObjectTypeIds[i]), objectTypeCount);
     numTransferred += objectTypeCount;
   }
 
@@ -166,15 +165,11 @@ function transferAllInventoryEntities(
 function transferInventoryNonEntity(
   EntityId srcEntityId,
   EntityId dstEntityId,
-  uint16 dstObjectTypeId,
-  uint16 transferObjectTypeId,
+  ObjectTypeId dstObjectTypeId,
+  ObjectTypeId transferObjectTypeId,
   uint16 numObjectsToTransfer
 ) {
-  ObjectCategory objectCategory = ObjectTypeMetadata._getObjectCategory(transferObjectTypeId);
-  require(
-    objectCategory == ObjectCategory.Block || objectCategory == ObjectCategory.Item,
-    "Object type is not a block or item"
-  );
+  require(transferObjectTypeId.isBlock() || transferObjectTypeId.isItem(), "Object type is not a block or item");
   require(numObjectsToTransfer > 0, "Amount must be greater than 0");
   removeFromInventoryCount(srcEntityId, transferObjectTypeId, numObjectsToTransfer);
   addToInventoryCount(dstEntityId, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);
@@ -183,9 +178,9 @@ function transferInventoryNonEntity(
 function transferInventoryEntity(
   EntityId srcEntityId,
   EntityId dstEntityId,
-  uint16 dstObjectTypeId,
+  ObjectTypeId dstObjectTypeId,
   EntityId inventoryEntityId
-) returns (uint16) {
+) returns (ObjectTypeId) {
   require(InventoryEntity._get(inventoryEntityId) == srcEntityId, "Entity does not own inventory item");
   if (Equipped._get(srcEntityId) == inventoryEntityId) {
     Equipped._deleteRecord(srcEntityId);
@@ -194,7 +189,7 @@ function transferInventoryEntity(
   ReverseInventoryEntity._push(dstEntityId, EntityId.unwrap(inventoryEntityId));
   removeEntityIdFromReverseInventoryEntity(srcEntityId, inventoryEntityId);
 
-  uint16 inventoryObjectTypeId = ObjectType._get(inventoryEntityId);
+  ObjectTypeId inventoryObjectTypeId = ObjectType._get(inventoryEntityId);
   removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);
   addToInventoryCount(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
   return inventoryObjectTypeId;

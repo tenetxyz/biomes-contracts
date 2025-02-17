@@ -9,7 +9,7 @@ import { Position } from "../../codegen/tables/Position.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
-import { PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../../Constants.sol";
 import { updateMachineEnergyLevel } from "../../utils/MachineUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
@@ -37,8 +37,8 @@ library TransferLib {
     VoxelCoord memory dstCoord = Position._get(baseDstEntityId).toVoxelCoord();
     require(srcCoord.inSurroundingCube(MAX_PLAYER_INFLUENCE_HALF_WIDTH, dstCoord), "Destination too far");
 
-    uint16 srcObjectTypeId = ObjectType._get(baseSrcEntityId);
-    uint16 dstObjectTypeId = ObjectType._get(baseDstEntityId);
+    ObjectTypeId srcObjectTypeId = ObjectType._get(baseSrcEntityId);
+    ObjectTypeId dstObjectTypeId = ObjectType._get(baseDstEntityId);
     bool isDeposit = false;
     if (srcObjectTypeId == PlayerObjectID) {
       require(playerEntityId == baseSrcEntityId, "Caller does not own source inventory");

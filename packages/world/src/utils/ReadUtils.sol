@@ -6,20 +6,20 @@ import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { ObjectCategory } from "../codegen/common.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 
 import { InventoryObject, InventoryEntity } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
+import { ObjectTypeId } from "../ObjectTypeIds.sol";
 
 function getEntityInventory(EntityId entityId) view returns (InventoryObject[] memory) {
   uint16[] memory objectTypeIds = InventoryObjects._get(entityId);
   InventoryObject[] memory inventoryObjects = new InventoryObject[](objectTypeIds.length);
   bytes32[] memory allInventoryEntityIds = ReverseInventoryEntity._get(entityId);
   for (uint256 i = 0; i < objectTypeIds.length; i++) {
-    uint16 objectTypeId = objectTypeIds[i];
+    ObjectTypeId objectTypeId = ObjectTypeId.wrap(objectTypeIds[i]);
     uint16 count = InventoryCount._get(entityId, objectTypeId);
-    bool isTool = ObjectTypeMetadata._getObjectCategory(objectTypeId) == ObjectCategory.Tool;
+    bool isTool = objectTypeId.isTool();
     uint256 numEntities = 0;
     if (isTool) {
       for (uint256 j = 0; j < allInventoryEntityIds.length; j++) {

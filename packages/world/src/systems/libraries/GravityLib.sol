@@ -8,7 +8,7 @@ import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
 import { TerrainLib } from "./TerrainLib.sol";
@@ -23,7 +23,7 @@ library GravityLib {
 
     EntityId belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
     if (!belowEntityId.exists()) {
-      uint16 terrainObjectTypeId = TerrainLib._getBlockType(belowCoord);
+      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(belowCoord));
       if (terrainObjectTypeId != AirObjectID && terrainObjectTypeId != WaterObjectID) {
         return false;
       }
@@ -32,7 +32,7 @@ library GravityLib {
       belowEntityId = getUniqueEntity();
       ObjectType._set(belowEntityId, terrainObjectTypeId);
     } else {
-      uint16 belowObjectTypeId = ObjectType._get(belowEntityId);
+      ObjectTypeId belowObjectTypeId = ObjectType._get(belowEntityId);
       // TODO: deal with florae
       if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
         return false;

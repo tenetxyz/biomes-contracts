@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { ObjectCategory } from "../../codegen/common.sol";
 
 import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectTypeIds.sol";
 import { ClayObjectID, StoneObjectID, CobblestoneObjectID, CottonBlockObjectID } from "../../ObjectTypeIds.sol";
@@ -12,16 +11,16 @@ import { AnyLogObjectID, WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObj
 import { OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
 import { BellflowerObjectID, SakuraLumberObjectID, CactusObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "../../ObjectTypeIds.sol";
 import { DirtObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../ObjectTypeIds.sol";
 
 import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE, MAX_ITEM_STACKABLE } from "../../Constants.sol";
 import { createSingleInputRecipe, createDoubleInputRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitHandBlocksSystem is System {
-  function createHandcraftedBlock(uint16 terrainBlockObjectTypeId, uint32 mass) internal {
+  function createHandcraftedBlock(ObjectTypeId terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
-        objectCategory: ObjectCategory.Block,
         stackable: MAX_BLOCK_STACKABLE,
         maxInventorySlots: 0,
         mass: mass,
@@ -31,11 +30,10 @@ contract InitHandBlocksSystem is System {
     );
   }
 
-  function createHandcraftedTool(uint16 toolObjectTypeId, uint32 mass) internal {
+  function createHandcraftedTool(ObjectTypeId toolObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
-        objectCategory: ObjectCategory.Tool,
         stackable: MAX_TOOL_STACKABLE,
         maxInventorySlots: 0,
         mass: mass,
@@ -45,11 +43,10 @@ contract InitHandBlocksSystem is System {
     );
   }
 
-  function createHandcraftedItem(uint16 itemObjectTypeId) internal {
+  function createHandcraftedItem(ObjectTypeId itemObjectTypeId) internal {
     ObjectTypeMetadata._set(
       itemObjectTypeId,
       ObjectTypeMetadataData({
-        objectCategory: ObjectCategory.Item,
         stackable: MAX_ITEM_STACKABLE,
         maxInventorySlots: 0,
         mass: 0,

@@ -13,7 +13,7 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { PlayerObjectID, ChipObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, PlayerObjectID, ChipObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
@@ -35,7 +35,7 @@ contract ChipSystem is System {
     EntityId baseEntityId = entityId.baseEntityId();
     require(baseEntityId.getChipAddress() == address(0), "Chip already attached");
 
-    uint16 objectTypeId = ObjectType._get(baseEntityId);
+    ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
 
     (address chipAddress, ) = Systems._get(chipSystemId);
 

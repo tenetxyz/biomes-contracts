@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { ObjectCategory } from "../../codegen/common.sol";
 
 import { MAX_TOOL_STACKABLE, MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
@@ -12,15 +11,15 @@ import { AnyLogObjectID, OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, B
 
 import { ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID, OakLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitWorkbenchSystem is System {
-  function createTool(uint16 toolObjectTypeId, uint32 mass) internal {
+  function createTool(ObjectTypeId toolObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       toolObjectTypeId,
       ObjectTypeMetadataData({
-        objectCategory: ObjectCategory.Tool,
         stackable: MAX_TOOL_STACKABLE,
         maxInventorySlots: 0,
         mass: mass,
@@ -30,11 +29,10 @@ contract InitWorkbenchSystem is System {
     );
   }
 
-  function createBlock(uint16 terrainBlockObjectTypeId, uint32 mass) internal {
+  function createBlock(ObjectTypeId terrainBlockObjectTypeId, uint32 mass) internal {
     ObjectTypeMetadata._set(
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
-        objectCategory: ObjectCategory.Block,
         stackable: MAX_BLOCK_STACKABLE,
         maxInventorySlots: 0,
         mass: mass,

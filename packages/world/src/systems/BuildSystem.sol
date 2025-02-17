@@ -12,9 +12,9 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { ObjectCategory, ActionType } from "../codegen/common.sol";
+import { ActionType } from "../codegen/common.sol";
 
-import { AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -26,11 +26,11 @@ import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract BuildSystem is System {
-  function buildObjectAtCoord(uint16 objectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
+  function buildObjectAtCoord(ObjectTypeId objectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (!entityId.exists()) {
-      uint16 terrainObjectTypeId = TerrainLib._getBlockType(coord);
+      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
       require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
 
       entityId = getUniqueEntity();
@@ -47,14 +47,11 @@ contract BuildSystem is System {
   }
 
   function buildWithExtraData(
-    uint16 objectTypeId,
+    ObjectTypeId objectTypeId,
     VoxelCoord memory coord,
     bytes memory extraData
   ) public payable returns (EntityId) {
-    require(
-      ObjectTypeMetadata._getObjectCategory(objectTypeId) == ObjectCategory.Block,
-      "Cannot build non-block object"
-    );
+    require(objectTypeId.isBlock(), "Cannot build non-block object");
     (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
@@ -89,13 +86,13 @@ contract BuildSystem is System {
     return baseEntityId;
   }
 
-  function jumpBuildWithExtraData(uint16 objectTypeId, bytes memory extraData) public payable {
+  function jumpBuildWithExtraData(ObjectTypeId objectTypeId, bytes memory extraData) public payable {
     (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     require(inWorldBorder(jumpCoord), "Cannot jump outside world border");
     EntityId newEntityId = ReversePosition._get(jumpCoord.x, jumpCoord.y, jumpCoord.z);
     if (!newEntityId.exists()) {
-      uint16 terrainObjectTypeId = TerrainLib._getBlockType(jumpCoord);
+      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(jumpCoord));
       require(terrainObjectTypeId == AirObjectID, "Cannot jump on a non-air block");
       newEntityId = getUniqueEntity();
       ObjectType._set(newEntityId, AirObjectID);
@@ -119,11 +116,11 @@ contract BuildSystem is System {
     buildWithExtraData(objectTypeId, playerCoord, extraData);
   }
 
-  function jumpBuild(uint16 objectTypeId) public payable {
+  function jumpBuild(ObjectTypeId objectTypeId) public payable {
     jumpBuildWithExtraData(objectTypeId, new bytes(0));
   }
 
-  function build(uint16 objectTypeId, VoxelCoord memory coord) public payable returns (EntityId) {
+  function build(ObjectTypeId objectTypeId, VoxelCoord memory coord) public payable returns (EntityId) {
     return buildWithExtraData(objectTypeId, coord, new bytes(0));
   }
 }

@@ -140,7 +140,7 @@ declare const abi: [
       {
         "name": "objectTypeId",
         "type": "uint16",
-        "internalType": "uint16"
+        "internalType": "ObjectTypeId"
       },
       {
         "name": "coord",
@@ -181,7 +181,7 @@ declare const abi: [
       {
         "name": "objectTypeId",
         "type": "uint16",
-        "internalType": "uint16"
+        "internalType": "ObjectTypeId"
       },
       {
         "name": "coord",
@@ -360,7 +360,7 @@ declare const abi: [
       {
         "name": "dropObjectTypeId",
         "type": "uint16",
-        "internalType": "uint16"
+        "internalType": "ObjectTypeId"
       },
       {
         "name": "numToDrop",
@@ -1165,7 +1165,7 @@ declare const abi: [
       {
         "name": "objectTypeId",
         "type": "uint16",
-        "internalType": "uint16"
+        "internalType": "ObjectTypeId"
       }
     ],
     "outputs": [],
@@ -1178,7 +1178,7 @@ declare const abi: [
       {
         "name": "objectTypeId",
         "type": "uint16",
-        "internalType": "uint16"
+        "internalType": "ObjectTypeId"
       },
       {
         "name": "extraData",
@@ -1354,7 +1354,7 @@ declare const abi: [
       {
         "name": "pickupObjectTypeId",
         "type": "uint16",
-        "internalType": "uint16"
+        "internalType": "ObjectTypeId"
       },
       {
         "name": "numToPickup",
@@ -1429,7 +1429,7 @@ declare const abi: [
           {
             "name": "objectTypeId",
             "type": "uint16",
-            "internalType": "uint16"
+            "internalType": "ObjectTypeId"
           },
           {
             "name": "numToPickup",
@@ -1893,7 +1893,7 @@ declare const abi: [
       {
         "name": "",
         "type": "uint16",
-        "internalType": "uint16"
+        "internalType": "ObjectTypeId"
       }
     ],
     "stateMutability": "nonpayable"
@@ -2279,7 +2279,7 @@ declare const abi: [
       {
         "name": "transferObjectTypeId",
         "type": "uint16",
-        "internalType": "uint16"
+        "internalType": "ObjectTypeId"
       },
       {
         "name": "numToTransfer",
@@ -2473,7 +2473,7 @@ declare const abi: [
       {
         "name": "transferObjectTypeId",
         "type": "uint16",
-        "internalType": "uint16"
+        "internalType": "ObjectTypeId"
       },
       {
         "name": "numToTransfer",

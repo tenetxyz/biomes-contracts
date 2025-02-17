@@ -8,7 +8,7 @@ import { Position } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../../codegen/common.sol";
 
-import { AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { gravityApplies, inWorldBorder } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
@@ -90,13 +90,13 @@ library MoveLib {
 
     EntityId newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
     if (!newEntityId.exists()) {
-      uint16 terrainObjectTypeId = TerrainLib._getBlockType(newCoord);
+      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(newCoord));
       require(terrainObjectTypeId == AirObjectID, "Cannot move through a non-air block");
     } else {
       // If the entity we're moving into is this player, then it's fine as
       // the player will be moved from the old position to the new position
       if (playerEntityId != newEntityId) {
-        uint16 currentObjectTypeId = ObjectType._get(newEntityId);
+        ObjectTypeId currentObjectTypeId = ObjectType._get(newEntityId);
         // TODO: check for water and florae
         require(currentObjectTypeId == AirObjectID, "Cannot move through a non-air block");
       }

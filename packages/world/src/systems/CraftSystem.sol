@@ -12,9 +12,9 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { ObjectCategory, ActionType } from "../codegen/common.sol";
+import { ActionType } from "../codegen/common.sol";
 
-import { NullObjectTypeId, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyCottonBlockObjectID, AnyGlassObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, NullObjectTypeId, PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, AnyCottonBlockObjectID, AnyGlassObjectID, AnyReinforcedLumberObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes, getCottonBlockObjectTypes, getGlassObjectTypes } from "../utils/ObjectTypeUtils.sol";
@@ -40,9 +40,9 @@ contract CraftSystem is System {
     // And delete the ingredients from the inventory as they are used
     for (uint256 i = 0; i < recipeData.inputObjectTypeIds.length; i++) {
       // TODO: Figure out a generic way to do this
-      if (recipeData.inputObjectTypeIds[i] == AnyLogObjectID) {
+      if (recipeData.inputObjectTypeIds[i] == AnyLogObjectID.unwrap()) {
         uint16 numLogsLeft = recipeData.inputObjectTypeAmounts[i];
-        uint16[4] memory logObjectTypeIds = getLogObjectTypes();
+        ObjectTypeId[4] memory logObjectTypeIds = getLogObjectTypes();
         for (uint256 j = 0; j < logObjectTypeIds.length; j++) {
           uint16 numLogs = InventoryCount._get(playerEntityId, logObjectTypeIds[j]);
           uint16 spendLogs = numLogs > numLogsLeft ? numLogsLeft : uint16(numLogs);
@@ -52,9 +52,9 @@ contract CraftSystem is System {
           }
         }
         require(numLogsLeft == 0, "Not enough logs");
-      } else if (recipeData.inputObjectTypeIds[i] == AnyLumberObjectID) {
+      } else if (recipeData.inputObjectTypeIds[i] == AnyLumberObjectID.unwrap()) {
         uint16 numLumberLeft = recipeData.inputObjectTypeAmounts[i];
-        uint16[17] memory lumberObjectTypeIds = getLumberObjectTypes();
+        ObjectTypeId[17] memory lumberObjectTypeIds = getLumberObjectTypes();
         for (uint256 j = 0; j < lumberObjectTypeIds.length; j++) {
           uint16 numLumber = InventoryCount._get(playerEntityId, lumberObjectTypeIds[j]);
           uint16 spendLumber = numLumber > numLumberLeft ? numLumberLeft : uint16(numLumber);
@@ -64,9 +64,9 @@ contract CraftSystem is System {
           }
         }
         require(numLumberLeft == 0, "Not enough lumber");
-      } else if (recipeData.inputObjectTypeIds[i] == AnyReinforcedLumberObjectID) {
+      } else if (recipeData.inputObjectTypeIds[i] == AnyReinforcedLumberObjectID.unwrap()) {
         uint16 numReinforcedLumberLeft = recipeData.inputObjectTypeAmounts[i];
-        uint16[3] memory reinforcedLumberObjectTypeIds = getReinforcedLumberObjectTypes();
+        ObjectTypeId[3] memory reinforcedLumberObjectTypeIds = getReinforcedLumberObjectTypes();
         for (uint256 j = 0; j < reinforcedLumberObjectTypeIds.length; j++) {
           uint16 numReinforcedLumber = InventoryCount._get(playerEntityId, reinforcedLumberObjectTypeIds[j]);
           uint16 spendReinforcedLumber = numReinforcedLumber > numReinforcedLumberLeft
@@ -78,9 +78,9 @@ contract CraftSystem is System {
           }
         }
         require(numReinforcedLumberLeft == 0, "Not enough reinforced lumber");
-      } else if (recipeData.inputObjectTypeIds[i] == AnyCottonBlockObjectID) {
+      } else if (recipeData.inputObjectTypeIds[i] == AnyCottonBlockObjectID.unwrap()) {
         uint16 numCottonBlockLeft = recipeData.inputObjectTypeAmounts[i];
-        uint16[14] memory cottonBlockObjectTypeIds = getCottonBlockObjectTypes();
+        ObjectTypeId[14] memory cottonBlockObjectTypeIds = getCottonBlockObjectTypes();
         for (uint256 j = 0; j < cottonBlockObjectTypeIds.length; j++) {
           uint16 numCottonBlock = InventoryCount._get(playerEntityId, cottonBlockObjectTypeIds[j]);
           uint16 spendCottonBlock = numCottonBlock > numCottonBlockLeft ? numCottonBlockLeft : uint16(numCottonBlock);
@@ -90,9 +90,9 @@ contract CraftSystem is System {
           }
         }
         require(numCottonBlockLeft == 0, "Not enough cotton blocks");
-      } else if (recipeData.inputObjectTypeIds[i] == AnyGlassObjectID) {
+      } else if (recipeData.inputObjectTypeIds[i] == AnyGlassObjectID.unwrap()) {
         uint16 numGlassLeft = recipeData.inputObjectTypeAmounts[i];
-        uint16[10] memory glassObjectTypeIds = getGlassObjectTypes();
+        ObjectTypeId[10] memory glassObjectTypeIds = getGlassObjectTypes();
         for (uint256 j = 0; j < glassObjectTypeIds.length; j++) {
           uint16 numGlass = InventoryCount._get(playerEntityId, glassObjectTypeIds[j]);
           uint16 spendGlass = numGlass > numGlassLeft ? numGlassLeft : uint16(numGlass);
@@ -105,14 +105,14 @@ contract CraftSystem is System {
       } else {
         removeFromInventoryCount(
           playerEntityId,
-          recipeData.inputObjectTypeIds[i],
+          ObjectTypeId.wrap(recipeData.inputObjectTypeIds[i]),
           recipeData.inputObjectTypeAmounts[i]
         );
       }
     }
 
     // Create the crafted objects
-    if (ObjectTypeMetadata._getObjectCategory(recipeData.outputObjectTypeId) == ObjectCategory.Tool) {
+    if (recipeData.outputObjectTypeId.isTool()) {
       for (uint256 i = 0; i < recipeData.outputObjectTypeAmount; i++) {
         EntityId newInventoryEntityId = getUniqueEntity();
         ObjectType._set(newInventoryEntityId, recipeData.outputObjectTypeId);

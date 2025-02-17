@@ -5,7 +5,6 @@ export default defineWorld({
     upgradeableWorldImplementation: true,
   },
   enums: {
-    ObjectCategory: ["None", "Block", "Item", "Tool", "Player"],
     ActionType: [
       "None",
       "Build",
@@ -41,7 +40,6 @@ export default defineWorld({
     ObjectTypeMetadata: {
       schema: {
         objectTypeId: "ObjectTypeId",
-        objectCategory: "ObjectCategory",
         canPassThrough: "bool",
         stackable: "uint16",
         maxInventorySlots: "uint16",

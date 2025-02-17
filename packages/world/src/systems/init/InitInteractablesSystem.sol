@@ -5,10 +5,10 @@ import { VoxelCoord } from "../../Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { ObjectCategory } from "../../codegen/common.sol";
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../../codegen/tables/ObjectTypeSchema.sol";
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
+import { ObjectTypeId } from "../../ObjectTypeIds.sol";
 import { ChestObjectID, SmartChestObjectID, ThermoblasterObjectID, PowerStoneObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID, TextSignObjectID, SmartTextSignObjectID, PipeObjectID, SpawnTileObjectID } from "../../ObjectTypeIds.sol";
 import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID, MoonstoneObjectID, SilverBarObjectID, NeptuniumOreObjectID } from "../../ObjectTypeIds.sol";
 
@@ -16,7 +16,7 @@ import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWith
 
 contract InitInteractablesSystem is System {
   function createInteractableBlock(
-    uint16 objectTypeId,
+    ObjectTypeId objectTypeId,
     uint32 mass,
     uint16 maxInventorySlots,
     uint16 stackable,
@@ -25,7 +25,6 @@ contract InitInteractablesSystem is System {
     ObjectTypeMetadata._set(
       objectTypeId,
       ObjectTypeMetadataData({
-        objectCategory: ObjectCategory.Block,
         stackable: stackable,
         maxInventorySlots: maxInventorySlots,
         mass: mass,

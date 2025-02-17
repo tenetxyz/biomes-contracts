@@ -13,9 +13,9 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
-import { ObjectCategory, ActionType, DisplayContentType } from "../codegen/common.sol";
+import { ActionType, DisplayContentType } from "../codegen/common.sol";
 
-import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -29,13 +29,14 @@ import { EntityId } from "../EntityId.sol";
 contract MineSystem is System {
   using VoxelCoordLib for *;
 
-  function mineObjectAtCoord(VoxelCoord memory coord) internal returns (EntityId, uint16) {
+  function mineObjectAtCoord(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId) {
     require(inWorldBorder(coord), "Cannot mine outside the world border");
 
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    uint16 mineObjectTypeId;
+    ObjectTypeId mineObjectTypeId;
     if (!entityId.exists()) {
-      mineObjectTypeId = TerrainLib._getBlockType(coord);
+      // TODO: move wrapping to TerrainLib?
+      mineObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
       require(mineObjectTypeId != AnyOreObjectID, "Ore must be computed before it can be mined");
 
       entityId = getUniqueEntity();
@@ -50,10 +51,7 @@ contract MineSystem is System {
         DisplayContent._deleteRecord(entityId);
       }
     }
-    require(
-      ObjectTypeMetadata._getObjectCategory(mineObjectTypeId) == ObjectCategory.Block,
-      "Cannot mine non-block object"
-    );
+    require(mineObjectTypeId.isBlock(), "Cannot mine non-block object");
     require(mineObjectTypeId != AirObjectID, "Cannot mine air");
     require(mineObjectTypeId != WaterObjectID, "Cannot mine water");
 
@@ -66,7 +64,7 @@ contract MineSystem is System {
     (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    (EntityId firstEntityId, uint16 mineObjectTypeId) = mineObjectAtCoord(coord);
+    (EntityId firstEntityId, ObjectTypeId mineObjectTypeId) = mineObjectAtCoord(coord);
     uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(mineObjectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
 
