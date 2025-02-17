@@ -4,15 +4,16 @@ pragma solidity >=0.8.24;
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { EntityId } from "../EntityId.sol";
+import { MASS_TO_ENERGY_MULTIPLIER } from "../Constants.sol";
 import { PLAYER_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_INTERVAL, MIN_PLAYER_ENERGY_THRESHOLD_TO_DRAIN } from "../Constants.sol";
 import { MACHINE_ENERGY_DRAIN_RATE, MACHINE_ENERGY_DRAIN_INTERVAL, MIN_MACHINE_ENERGY_THRESHOLD_TO_DRAIN } from "../Constants.sol";
 
 function massToEnergy(uint128 mass) pure returns (uint128) {
-  return uint128(mass * 50);
+  return uint128(mass * MASS_TO_ENERGY_MULTIPLIER);
 }
 
 function energyToMass(uint128 energy) pure returns (uint128) {
-  return uint128(energy / 50);
+  return uint128(energy / MASS_TO_ENERGY_MULTIPLIER);
 }
 
 function getLatestEnergyData(

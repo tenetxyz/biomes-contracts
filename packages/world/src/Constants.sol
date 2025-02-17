@@ -36,6 +36,8 @@ address constant ORACLE_ADDRESS = 0xe67AcfFCe0B542540F1520a9eaD7Aa86ff31196E;
 // ------------------------------------------------------------
 // Values To Tune
 // ------------------------------------------------------------
+uint128 constant MASS_TO_ENERGY_MULTIPLIER = 50;
+
 uint128 constant MAX_PLAYER_ENERGY = 100_000;
 uint128 constant PLAYER_ENERGY_DRAIN_RATE = 100;
 uint128 constant PLAYER_ENERGY_DRAIN_INTERVAL = 1 seconds;
