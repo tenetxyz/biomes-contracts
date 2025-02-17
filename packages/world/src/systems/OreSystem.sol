@@ -22,9 +22,23 @@ import { notify, InitiateOreRevealNotifData, RevealOreNotifData } from "../utils
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
 import { EntityId } from "../EntityId.sol";
+import { ChunkCoord } from "../Types.sol";
 
 contract OreSystem is System {
   using VoxelCoordLib for *;
+
+  // TODO: extract to utils?
+  // TODO: replace with actual implementation
+  function inCommitRange(ChunkCoord memory self, ChunkCoord memory other) internal pure returns (bool) {
+    return true;
+  }
+
+  function oreChunkCommit(ChunkCoord memory chunkCoord) public {
+    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    ChunkCoord memory playerChunkCoord = playerCoord.toChunkCoord();
+    require(inCommitRange(playerChunkCoord, chunkCoord), "Not in commit range");
+    uint256 blockNum = TerrainCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
+  }
 
   function initiateOreReveal(VoxelCoord memory coord) public {
     require(inWorldBorder(coord), "Cannot reveal ore outside world border");

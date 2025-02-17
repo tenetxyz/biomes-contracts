@@ -29,7 +29,7 @@ import { Chip } from "./tables/Chip.sol";
 import { ForceField } from "./tables/ForceField.sol";
 import { ForceFieldMetadata } from "./tables/ForceFieldMetadata.sol";
 import { DisplayContent, DisplayContentData } from "./tables/DisplayContent.sol";
-import { TerrainCommitment, TerrainCommitmentData } from "./tables/TerrainCommitment.sol";
+import { OreCommitment } from "./tables/OreCommitment.sol";
 import { Commitment, CommitmentData } from "./tables/Commitment.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "./tables/PlayerActionNotif.sol";
 import { WorldStatus } from "./tables/WorldStatus.sol";

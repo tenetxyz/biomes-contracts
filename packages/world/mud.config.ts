@@ -263,15 +263,27 @@ export default defineWorld({
     // ------------------------------------------------------------
     // Ores
     // ------------------------------------------------------------
-    TerrainCommitment: {
+    OreCommitment: {
       schema: {
         x: "int32",
         y: "int32",
         z: "int32",
         blockNumber: "uint256",
-        committerEntityId: "EntityId",
       },
       key: ["x", "y", "z"],
+    },
+    RevealedOre: {
+      schema: {
+        positionHash: "bytes32[]",
+      },
+      key: [],
+    },
+    ObjectCount: {
+      schema: {
+        objectTypeId: "uint16",
+        count: "uint256",
+      },
+      key: ["objectTypeId"],
     },
     Commitment: {
       schema: {
