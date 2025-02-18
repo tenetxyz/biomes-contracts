@@ -9,19 +9,22 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
+import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { isWhacker } from "../utils/ObjectTypeUtils.sol";
 import { safeCallChip } from "../utils/callChip.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+import { PLAYER_HIT_ENERGY_COST } from "../Constants.sol";
 
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
 import { EntityId } from "../EntityId.sol";
@@ -41,14 +44,37 @@ contract HitMachineSystem is System {
 
     ObjectTypeId objectTypeId = ObjectType._get(machineEntityId);
 
-    EntityId equippedEntityId = Equipped._get(playerEntityId);
-    require(equippedEntityId.exists(), "You must use a whacker to hit machines");
-    ObjectTypeId equippedObjectTypeId = ObjectType._get(equippedEntityId);
-    require(isWhacker(equippedObjectTypeId), "You must use a whacker to hit machines");
+    (uint128 toolMassReduction, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId);
+    require(isWhacker(toolObjectTypeId), "You must use a whacker to hit machines");
 
-    // TODO: useEquipped
+    uint128 baseEnergyReduction = PLAYER_HIT_ENERGY_COST + massToEnergy(toolMassReduction);
+    VoxelCoord memory forceFieldShardCoord = machineCoord.toForceFieldShardCoord();
+    uint128 protection = ForceFieldMetadata._getTotalMassInside(
+      forceFieldShardCoord.x,
+      forceFieldShardCoord.y,
+      forceFieldShardCoord.z
+    );
+    // TODO: scale protection otherwise, targetEnergyReduction will be 0
+    uint128 targetEnergyReduction = baseEnergyReduction / protection;
+    targetEnergyReduction = targetEnergyReduction > machineData.energy ? machineData.energy : targetEnergyReduction;
+    Energy._set(
+      machineEntityId,
+      EnergyData({ energy: machineData.energy - targetEnergyReduction, lastUpdatedTime: uint128(block.timestamp) })
+    );
 
-    // TODO: decrease energy
+    uint128 playerEnergy = Energy._getEnergy(playerEntityId);
+    require(playerEnergy >= PLAYER_HIT_ENERGY_COST, "Player does not have enough energy");
+    Energy._set(
+      playerEntityId,
+      EnergyData({ energy: playerEnergy - PLAYER_HIT_ENERGY_COST, lastUpdatedTime: uint128(block.timestamp) })
+    );
+    VoxelCoord memory shardCoord = machineCoord.toLocalEnergyPoolShardCoord();
+    LocalEnergyPool._set(
+      shardCoord.x,
+      0,
+      shardCoord.z,
+      LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z) + PLAYER_HIT_ENERGY_COST + targetEnergyReduction
+    );
 
     notify(playerEntityId, HitMachineNotifData({ machineEntityId: machineEntityId, machineCoord: machineCoord }));
 

@@ -76,10 +76,10 @@ function removeFromInventoryCount(EntityId ownerEntityId, ObjectTypeId objectTyp
   }
 }
 
-function useEquipped(EntityId entityId) returns (uint128 massUsed) {
+function useEquipped(EntityId entityId) returns (uint128 massUsed, ObjectTypeId inventoryObjectTypeId) {
   EntityId inventoryEntityId = Equipped._get(entityId);
   if (inventoryEntityId.exists()) {
-    ObjectTypeId inventoryObjectTypeId = ObjectType._get(inventoryEntityId);
+    inventoryObjectTypeId = ObjectType._get(inventoryEntityId);
     require(inventoryObjectTypeId.isTool(), "Inventory item is not a tool");
     uint128 massLeft = Mass._getMass(inventoryEntityId);
     require(massLeft > 0, "Tool is already broken");

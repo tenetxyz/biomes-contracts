@@ -66,7 +66,11 @@ contract MineSystem is System {
     (EntityId baseEntityId, ObjectTypeId mineObjectTypeId) = mineObjectAtCoord(coord);
     require(!BaseEntity._get(baseEntityId).exists(), "Invalid mine coord, must mine the base coord");
 
-    uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + useEquipped(playerEntityId);
+    uint128 totalMassReduction;
+    {
+      (uint128 toolMassReduction, ) = useEquipped(playerEntityId);
+      totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassReduction;
+    }
     uint128 massLeft = Mass._getMass(baseEntityId);
     transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_MINE_ENERGY_COST);
 
