@@ -7,6 +7,7 @@ import { VoxelCoord } from "../Types.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder } from "../Utils.sol";
@@ -22,7 +23,9 @@ contract PickupSystem is System {
   function pickupCommon(VoxelCoord memory coord) internal returns (EntityId, EntityId) {
     require(inWorldBorder(coord), "Cannot pickup outside the world border");
 
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
+      _msgSender()
+    );
     requireInPlayerInfluence(playerCoord, coord);
 
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
@@ -31,7 +34,7 @@ contract PickupSystem is System {
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
     require(objectTypeId == AirObjectID, "Cannot pickup from a non-air block");
 
-    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_PICKUP_ENERGY_COST);
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_PICKUP_ENERGY_COST);
 
     return (playerEntityId, entityId);
   }

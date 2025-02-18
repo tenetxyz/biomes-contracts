@@ -34,6 +34,7 @@ contract HitMachineSystem is System {
 
   function hitMachineCommon(
     EntityId playerEntityId,
+    EnergyData memory playerEnergyData,
     EntityId machineEntityId,
     VoxelCoord memory machineCoord
   ) internal {
@@ -57,17 +58,8 @@ contract HitMachineSystem is System {
     // TODO: scale protection otherwise, targetEnergyReduction will be 0
     uint128 targetEnergyReduction = baseEnergyReduction / protection;
     targetEnergyReduction = targetEnergyReduction > machineData.energy ? machineData.energy : targetEnergyReduction;
-    Energy._set(
-      machineEntityId,
-      EnergyData({ energy: machineData.energy - targetEnergyReduction, lastUpdatedTime: uint128(block.timestamp) })
-    );
-
-    uint128 playerEnergy = Energy._getEnergy(playerEntityId);
-    require(playerEnergy >= PLAYER_HIT_ENERGY_COST, "Player does not have enough energy");
-    Energy._set(
-      playerEntityId,
-      EnergyData({ energy: playerEnergy - PLAYER_HIT_ENERGY_COST, lastUpdatedTime: uint128(block.timestamp) })
-    );
+    machineEntityId.decreaseEnergy(machineData, targetEnergyReduction);
+    playerEntityId.decreaseEnergy(playerEnergyData, PLAYER_HIT_ENERGY_COST);
     VoxelCoord memory shardCoord = machineCoord.toLocalEnergyPoolShardCoord();
     LocalEnergyPool._set(
       shardCoord.x,
@@ -86,19 +78,23 @@ contract HitMachineSystem is System {
   }
 
   function hitMachine(EntityId entityId) public {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
+      _msgSender()
+    );
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
 
-    hitMachineCommon(playerEntityId, baseEntityId, entityCoord);
+    hitMachineCommon(playerEntityId, playerEnergyData, baseEntityId, entityCoord);
   }
 
   function hitForceField(VoxelCoord memory entityCoord) public {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
+      _msgSender()
+    );
     requireInPlayerInfluence(playerCoord, entityCoord);
     EntityId forceFieldEntityId = getForceField(entityCoord);
     require(forceFieldEntityId.exists(), "No force field at this location");
     VoxelCoord memory forceFieldCoord = Position._get(forceFieldEntityId).toVoxelCoord();
-    hitMachineCommon(playerEntityId, forceFieldEntityId, forceFieldCoord);
+    hitMachineCommon(playerEntityId, playerEnergyData, forceFieldEntityId, forceFieldCoord);
   }
 }

@@ -13,6 +13,7 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -55,7 +56,9 @@ contract BuildSystem is System {
     bytes memory extraData
   ) public payable returns (EntityId) {
     require(objectTypeId.isBlock(), "Cannot build non-block object");
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
+      _msgSender()
+    );
     requireInPlayerInfluence(playerCoord, coord);
 
     EntityId baseEntityId = buildObjectAtCoord(objectTypeId, coord);
@@ -84,7 +87,7 @@ contract BuildSystem is System {
       shardCoord.z,
       ForceFieldMetadata._getTotalMassInside(shardCoord.x, shardCoord.y, shardCoord.z) + mass
     );
-    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_BUILD_ENERGY_COST);
 
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
 
@@ -100,7 +103,7 @@ contract BuildSystem is System {
   }
 
   function jumpBuildWithExtraData(ObjectTypeId objectTypeId, bytes memory extraData) public payable {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     require(inWorldBorder(jumpCoord), "Cannot jump outside world border");
     EntityId newEntityId = ReversePosition._get(jumpCoord.x, jumpCoord.y, jumpCoord.z);

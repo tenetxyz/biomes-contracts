@@ -29,7 +29,7 @@ contract OreSystem is System {
   function initiateOreReveal(VoxelCoord memory coord) public {
     require(inWorldBorder(coord), "Cannot reveal ore outside world border");
 
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
     if (TerrainCommitment._getBlockNumber(coord.x, coord.y, coord.z) != 0) {
       revealOre(coord);

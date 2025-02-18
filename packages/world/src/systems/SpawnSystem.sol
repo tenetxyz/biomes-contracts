@@ -83,12 +83,7 @@ contract SpawnSystem is System {
     uint128 energyRequired = getEnergyCostToSpawn(playerMass);
     EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
     require(machineData.energy >= energyRequired, "Not enough energy in spawn tile forcefield");
-
-    // Decrease force field energy
-    Energy._set(
-      forceFieldEntityId,
-      EnergyData({ energy: machineData.energy - energyRequired, lastUpdatedTime: uint128(block.timestamp) })
-    );
+    forceFieldEntityId.decreaseEnergy(machineData, energyRequired);
 
     EntityId playerEntityId = _spawnPlayer(playerMass, spawnCoord);
 

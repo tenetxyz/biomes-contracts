@@ -25,32 +25,38 @@ library TransferLib {
     EntityId srcEntityId,
     EntityId dstEntityId
   ) public returns (TransferCommonContext memory) {
-    (EntityId playerEntityId, ) = requireValidPlayer(msgSender);
+    (EntityId playerEntityId, , EnergyData memory playerEnergyData) = requireValidPlayer(msgSender);
 
-    EntityId baseSrcEntityId = srcEntityId.baseEntityId();
+    EntityId chestEntityId;
+    VoxelCoord memory chestCoord;
+    ObjectTypeId chestObjectTypeId;
+    ObjectTypeId dstObjectTypeId;
+    bool isDeposit;
+    {
+      EntityId baseSrcEntityId = srcEntityId.baseEntityId();
+      EntityId baseDstEntityId = dstEntityId.baseEntityId();
+      require(baseDstEntityId != baseSrcEntityId, "Cannot transfer to self");
+      VoxelCoord memory srcCoord = Position._get(baseSrcEntityId).toVoxelCoord();
+      VoxelCoord memory dstCoord = Position._get(baseDstEntityId).toVoxelCoord();
+      require(srcCoord.inSurroundingCube(MAX_PLAYER_INFLUENCE_HALF_WIDTH, dstCoord), "Destination too far");
+      ObjectTypeId srcObjectTypeId = ObjectType._get(baseSrcEntityId);
+      dstObjectTypeId = ObjectType._get(baseDstEntityId);
 
-    EntityId baseDstEntityId = dstEntityId.baseEntityId();
+      chestEntityId = isDeposit ? baseDstEntityId : baseSrcEntityId;
+      chestCoord = isDeposit ? dstCoord : srcCoord;
+      chestObjectTypeId = isDeposit ? dstObjectTypeId : srcObjectTypeId;
 
-    require(baseDstEntityId != baseSrcEntityId, "Cannot transfer to self");
-    VoxelCoord memory srcCoord = Position._get(baseSrcEntityId).toVoxelCoord();
-    VoxelCoord memory dstCoord = Position._get(baseDstEntityId).toVoxelCoord();
-    require(srcCoord.inSurroundingCube(MAX_PLAYER_INFLUENCE_HALF_WIDTH, dstCoord), "Destination too far");
-
-    ObjectTypeId srcObjectTypeId = ObjectType._get(baseSrcEntityId);
-    ObjectTypeId dstObjectTypeId = ObjectType._get(baseDstEntityId);
-    bool isDeposit = false;
-    if (srcObjectTypeId == PlayerObjectID) {
-      require(playerEntityId == baseSrcEntityId, "Caller does not own source inventory");
-      isDeposit = true;
-    } else if (dstObjectTypeId == PlayerObjectID) {
-      require(playerEntityId == baseDstEntityId, "Caller does not own destination inventory");
       isDeposit = false;
-    } else {
-      revert("Invalid transfer operation");
+      if (srcObjectTypeId == PlayerObjectID) {
+        require(playerEntityId == baseSrcEntityId, "Caller does not own source inventory");
+        isDeposit = true;
+      } else if (dstObjectTypeId == PlayerObjectID) {
+        require(playerEntityId == baseDstEntityId, "Caller does not own destination inventory");
+        isDeposit = false;
+      } else {
+        revert("Invalid transfer operation");
+      }
     }
-
-    EntityId chestEntityId = isDeposit ? baseDstEntityId : baseSrcEntityId;
-    VoxelCoord memory chestCoord = isDeposit ? dstCoord : srcCoord;
 
     VoxelCoord memory shardCoord = chestCoord.toLocalEnergyPoolShardCoord();
     uint128 energyCost = PLAYER_TRANSFER_ENERGY_COST;
@@ -61,22 +67,10 @@ library TransferLib {
       energyCost += SMART_CHEST_ENERGY_COST;
       EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
-      require(machineData.energy >= SMART_CHEST_ENERGY_COST, "Machine does not have enough energy");
-      Energy._set(
-        forceFieldEntityId,
-        EnergyData({ energy: machineData.energy - SMART_CHEST_ENERGY_COST, lastUpdatedTime: uint128(block.timestamp) })
-      );
+      forceFieldEntityId.decreaseEnergy(machineData, SMART_CHEST_ENERGY_COST);
     }
 
-    {
-      uint128 playerEnergy = Energy._getEnergy(playerEntityId);
-      require(playerEnergy >= PLAYER_TRANSFER_ENERGY_COST, "Player does not have enough energy");
-      Energy._set(
-        playerEntityId,
-        EnergyData({ energy: playerEnergy - PLAYER_TRANSFER_ENERGY_COST, lastUpdatedTime: uint128(block.timestamp) })
-      );
-    }
-
+    playerEntityId.decreaseEnergy(playerEnergyData, PLAYER_TRANSFER_ENERGY_COST);
     LocalEnergyPool._set(
       shardCoord.x,
       0,
@@ -92,7 +86,7 @@ library TransferLib {
         dstObjectTypeId: dstObjectTypeId,
         machineEnergyLevel: machineEnergyLevel,
         isDeposit: isDeposit,
-        chestObjectTypeId: isDeposit ? dstObjectTypeId : srcObjectTypeId
+        chestObjectTypeId: chestObjectTypeId
       });
   }
 }

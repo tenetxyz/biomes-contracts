@@ -60,19 +60,25 @@ contract MineSystem is System {
   }
 
   function mineWithExtraData(VoxelCoord memory coord, bytes memory extraData) public payable {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
+      _msgSender()
+    );
     requireInPlayerInfluence(playerCoord, coord);
 
     (EntityId baseEntityId, ObjectTypeId mineObjectTypeId) = mineObjectAtCoord(coord);
     require(!BaseEntity._get(baseEntityId).exists(), "Invalid mine coord, must mine the base coord");
 
-    uint128 totalMassReduction;
+    bool isFullyMined;
     {
       (uint128 toolMassReduction, ) = useEquipped(playerEntityId);
-      totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassReduction;
+      uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassReduction;
+      uint128 massLeft = Mass._getMass(baseEntityId);
+      transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_MINE_ENERGY_COST);
+      isFullyMined = massLeft <= totalMassReduction;
+      if (!isFullyMined) {
+        Mass._setMass(baseEntityId, massLeft - totalMassReduction);
+      }
     }
-    uint128 massLeft = Mass._getMass(baseEntityId);
-    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_MINE_ENERGY_COST);
 
     uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(mineObjectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
@@ -88,7 +94,7 @@ contract MineSystem is System {
         );
         coords[i + 1] = relativeCoord;
 
-        if (massLeft <= totalMassReduction) {
+        if (isFullyMined) {
           (EntityId relativeEntityId, ) = mineObjectAtCoord(relativeCoord);
           BaseEntity._deleteRecord(relativeEntityId);
           ObjectType._set(relativeEntityId, AirObjectID);
@@ -96,7 +102,7 @@ contract MineSystem is System {
       }
     }
 
-    if (massLeft <= totalMassReduction) {
+    if (isFullyMined) {
       Mass._deleteRecord(baseEntityId);
       if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
         DisplayContent._deleteRecord(baseEntityId);
@@ -112,8 +118,6 @@ contract MineSystem is System {
           GravityLib.runGravity(aboveEntityId, aboveCoord);
         }
       }
-    } else {
-      Mass._setMass(baseEntityId, massLeft - totalMassReduction);
     }
 
     notify(

@@ -16,7 +16,7 @@ import { ObjectTypeId } from "../ObjectTypeIds.sol";
 
 contract UnequipSystem is System {
   function unequip() public {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     EntityId equippedEntityId = Equipped._get(playerEntityId);
     if (!equippedEntityId.exists()) {
       return;

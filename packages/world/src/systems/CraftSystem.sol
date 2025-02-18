@@ -9,6 +9,7 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
 import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
@@ -26,7 +27,9 @@ import { PLAYER_CRAFT_ENERGY_COST } from "../Constants.sol";
 
 contract CraftSystem is System {
   function craft(bytes32 recipeId, EntityId stationEntityId) public {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
+      _msgSender()
+    );
 
     EntityId baseStationEntityId = stationEntityId.baseEntityId();
 
@@ -127,7 +130,7 @@ contract CraftSystem is System {
 
     // TODO: handle dyes
 
-    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_CRAFT_ENERGY_COST);
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_CRAFT_ENERGY_COST);
 
     addToInventoryCount(
       playerEntityId,

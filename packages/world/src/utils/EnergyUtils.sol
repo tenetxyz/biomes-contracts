@@ -76,13 +76,13 @@ function updateMachineEnergyLevel(EntityId entityId) returns (EnergyData memory)
   return energyData;
 }
 
-function transferEnergyFromPlayerToPool(EntityId playerEntityId, VoxelCoord memory playerCoord, uint128 numToTransfer) {
-  uint128 playerEnergy = Energy._getEnergy(playerEntityId);
-  require(playerEnergy >= numToTransfer, "Player does not have enough energy");
-  Energy._set(
-    playerEntityId,
-    EnergyData({ energy: playerEnergy - numToTransfer, lastUpdatedTime: uint128(block.timestamp) })
-  );
+function transferEnergyFromPlayerToPool(
+  EntityId playerEntityId,
+  VoxelCoord memory playerCoord,
+  EnergyData memory playerEnergyData,
+  uint128 numToTransfer
+) {
+  playerEntityId.decreaseEnergy(playerEnergyData, numToTransfer);
   VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
   LocalEnergyPool._set(
     shardCoord.x,
