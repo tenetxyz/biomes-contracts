@@ -85,7 +85,7 @@ function useEquipped(EntityId entityId) returns (uint128 massUsed, ObjectTypeId 
     require(massLeft > 0, "Tool is already broken");
 
     // TODO: separate mine and hit?
-    // use 10% of the mass if it's greater than 0
+    // use 10% of the mass if it's greater than 10
     massUsed = massLeft > 10 ? massLeft / 10 : massLeft;
 
     if (massLeft <= massUsed) {
