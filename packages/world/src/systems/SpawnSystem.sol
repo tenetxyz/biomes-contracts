@@ -101,7 +101,6 @@ contract SpawnSystem is System {
   }
 
   function _spawnPlayer(uint32 playerMass, VoxelCoord memory spawnCoord) internal returns (EntityId) {
-    // TODO: check that it is revealed
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
 
     require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
