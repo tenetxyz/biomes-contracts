@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { PositionData } from "./codegen/tables/Position.sol";
 import { LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
 import { floorDiv, absInt32 } from "./utils/MathUtils.sol";
-import { FORCE_FIELD_SHARD_DIM, SPAWN_SHARD_DIM } from "./Constants.sol";
+import { FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM } from "./Constants.sol";
 
 struct VoxelCoord {
   int32 x;
@@ -99,8 +99,8 @@ library VoxelCoordLib {
     return toShardCoord(coord, FORCE_FIELD_SHARD_DIM, true);
   }
 
-  function toSpawnShardCoord(VoxelCoord memory coord) internal pure returns (VoxelCoord memory) {
-    return toShardCoord(coord, SPAWN_SHARD_DIM, false);
+  function toLocalEnergyPoolShardCoord(VoxelCoord memory coord) internal pure returns (VoxelCoord memory) {
+    return toShardCoord(coord, LOCAL_ENERGY_POOL_SHARD_DIM, false);
   }
 
   function fromShardCoord(VoxelCoord memory coord, int32 shardDim) internal pure returns (VoxelCoord memory) {

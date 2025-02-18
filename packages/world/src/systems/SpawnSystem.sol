@@ -56,7 +56,7 @@ contract SpawnSystem is System {
     require(!forceFieldEntityId.exists(), "Cannot spawn in force field");
 
     // Extract energy from local pool
-    VoxelCoord memory shardCoord = spawnCoord.toSpawnShardCoord();
+    VoxelCoord memory shardCoord = spawnCoord.toLocalEnergyPoolShardCoord();
     uint32 playerMass = ObjectTypeMetadata._getMass(PlayerObjectID);
     uint128 energyRequired = getEnergyCostToSpawn(playerMass);
     uint128 localEnergy = LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z);
