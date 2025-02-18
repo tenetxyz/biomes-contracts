@@ -16,6 +16,8 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { notify, DropNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
+import { PLAYER_DROP_ENERGY_COST } from "../Constants.sol";
+import { transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 
 // TODO: combine the tool and non-tool drop functions
 contract DropSystem is System {
@@ -36,6 +38,8 @@ contract DropSystem is System {
     } else {
       require(ObjectType._get(entityId) == AirObjectID, "Cannot drop on non-air block");
     }
+
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_DROP_ENERGY_COST);
 
     return (playerEntityId, entityId);
   }

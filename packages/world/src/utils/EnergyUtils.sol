@@ -2,7 +2,9 @@
 pragma solidity >=0.8.24;
 
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 
+import { VoxelCoord } from "../VoxelCoord.sol";
 import { EntityId } from "../EntityId.sol";
 import { MASS_TO_ENERGY_MULTIPLIER } from "../Constants.sol";
 import { PLAYER_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_INTERVAL, MIN_PLAYER_ENERGY_THRESHOLD_TO_DRAIN } from "../Constants.sol";
@@ -72,4 +74,17 @@ function updateMachineEnergyLevel(EntityId entityId) returns (EnergyData memory)
   EnergyData memory energyData = getMachineEnergyLevel(entityId);
   Energy._set(entityId, energyData);
   return energyData;
+}
+
+function transferEnergyFromPlayerToPool(EntityId playerEntityId, VoxelCoord memory playerCoord, uint128 numToTransfer) {
+  uint128 playerEnergy = Energy._getEnergy(playerEntityId);
+  require(playerEnergy >= numToTransfer, "Player does not have enough energy");
+  Energy._setEnergy(playerEntityId, playerEnergy - numToTransfer);
+  VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+  LocalEnergyPool._set(
+    shardCoord.x,
+    0,
+    shardCoord.z,
+    LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z) + numToTransfer
+  );
 }

@@ -15,6 +15,8 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { notify, PickupNotifData } from "../utils/NotifUtils.sol";
 import { PickupData } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
+import { PLAYER_PICKUP_ENERGY_COST } from "../Constants.sol";
+import { transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 
 contract PickupSystem is System {
   function pickupCommon(VoxelCoord memory coord) internal returns (EntityId, EntityId) {
@@ -28,6 +30,8 @@ contract PickupSystem is System {
 
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
     require(objectTypeId == AirObjectID, "Cannot pickup from a non-air block");
+
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_PICKUP_ENERGY_COST);
 
     return (playerEntityId, entityId);
   }

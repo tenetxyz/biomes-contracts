@@ -11,11 +11,12 @@ import { ActionType } from "../../codegen/common.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { gravityApplies, inWorldBorder } from "../../Utils.sol";
 import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
+import { PLAYER_MOVE_ENERGY_COST } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 import { GravityLib } from "./GravityLib.sol";
 import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
-
+import { transferEnergyFromPlayerToPool } from "../../utils/EnergyUtils.sol";
 library MoveLib {
   function movePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord, VoxelCoord[] memory newCoords) public {
     // no-ops
@@ -65,7 +66,7 @@ library MoveLib {
       ReversePosition._set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
     }
 
-    // TODO: apply energy cost to moving
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_MOVE_ENERGY_COST * uint128(newCoords.length));
 
     if (gravityAppliesForCoord) {
       GravityLib.runGravity(playerEntityId, finalCoord);

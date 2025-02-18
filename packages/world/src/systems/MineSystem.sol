@@ -21,7 +21,7 @@ import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectI
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel, energyToMass } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergyLevel, energyToMass, transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { GravityLib } from "./libraries/GravityLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
@@ -97,23 +97,12 @@ contract MineSystem is System {
       }
     }
 
-    uint128 toolMassUsed = useEquipped(playerEntityId);
-    uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassUsed;
+    // uint128 toolMassUsed = useEquipped(playerEntityId);
+    // uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassUsed;
     // TODO: reduce
 
     addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
-
-    uint128 energyRequired = PLAYER_MINE_ENERGY_COST;
-    uint128 playerEnergy = Energy._getEnergy(playerEntityId);
-    require(playerEnergy >= energyRequired, "Not enough energy to mine");
-    Energy._setEnergy(playerEntityId, playerEnergy - energyRequired);
-    VoxelCoord memory shardCoord = baseCoord.toLocalEnergyPoolShardCoord();
-    LocalEnergyPool._set(
-      shardCoord.x,
-      0,
-      shardCoord.z,
-      LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z) + energyRequired
-    );
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_MINE_ENERGY_COST);
 
     for (uint256 i = 0; i < coords.length; i++) {
       VoxelCoord memory aboveCoord = VoxelCoord(coords[i].x, coords[i].y + 1, coords[i].z);

@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { VoxelCoord } from "../VoxelCoord.sol";
-
+import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
@@ -19,6 +19,8 @@ import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
+import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
+import { transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
@@ -72,6 +74,8 @@ contract BuildSystem is System {
         BaseEntity._set(entityId, baseEntityId);
       }
     }
+    Mass._setMass(baseEntityId, ObjectTypeMetadata._getMass(objectTypeId));
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
 
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
 
