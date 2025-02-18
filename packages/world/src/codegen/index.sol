@@ -10,6 +10,8 @@ import { InitialEnergyPool } from "./tables/InitialEnergyPool.sol";
 import { ObjectType } from "./tables/ObjectType.sol";
 import { Position, PositionData } from "./tables/Position.sol";
 import { ReversePosition } from "./tables/ReversePosition.sol";
+import { PlayerPosition, PlayerPositionData } from "./tables/PlayerPosition.sol";
+import { ReversePlayerPosition } from "./tables/ReversePlayerPosition.sol";
 import { Mass } from "./tables/Mass.sol";
 import { Energy, EnergyData } from "./tables/Energy.sol";
 import { LocalEnergyPool } from "./tables/LocalEnergyPool.sol";
