@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { PositionData } from "./codegen/tables/Position.sol";
+import { LocalEnergyPool } from "./codegen/tables/LocalEnergyPool.sol";
 import { LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
 import { floorDiv, absInt32 } from "./utils/MathUtils.sol";
 import { FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM } from "./Constants.sol";
@@ -96,11 +97,29 @@ library VoxelCoordLib {
   }
 
   function toForceFieldShardCoord(VoxelCoord memory coord) internal pure returns (VoxelCoord memory) {
-    return toShardCoord(coord, FORCE_FIELD_SHARD_DIM, true);
+    return toShardCoord(coord, FORCE_FIELD_SHARD_DIM, false);
   }
 
+  // Note: Local Energy Pool shards are 2D for now, but the table supports 3D
+  // Thats why the Y is ignored, and 0 in the util functions
   function toLocalEnergyPoolShardCoord(VoxelCoord memory coord) internal pure returns (VoxelCoord memory) {
-    return toShardCoord(coord, LOCAL_ENERGY_POOL_SHARD_DIM, false);
+    return toShardCoord(coord, LOCAL_ENERGY_POOL_SHARD_DIM, true);
+  }
+
+  function removeEnergyFromLocalPool(VoxelCoord memory coord, uint128 numToRemove) internal returns (uint128) {
+    VoxelCoord memory shardCoord = coord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergy = LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z);
+    require(localEnergy >= numToRemove, "Not enough energy in local pool");
+    uint128 newLocalEnergy = localEnergy - numToRemove;
+    LocalEnergyPool._set(shardCoord.x, 0, shardCoord.z, newLocalEnergy);
+    return newLocalEnergy;
+  }
+
+  function addEnergyToLocalPool(VoxelCoord memory coord, uint128 numToAdd) internal returns (uint128) {
+    VoxelCoord memory shardCoord = coord.toLocalEnergyPoolShardCoord();
+    uint128 newLocalEnergy = LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z) + numToAdd;
+    LocalEnergyPool._set(shardCoord.x, 0, shardCoord.z, newLocalEnergy);
+    return newLocalEnergy;
   }
 
   function fromShardCoord(VoxelCoord memory coord, int32 shardDim) internal pure returns (VoxelCoord memory) {

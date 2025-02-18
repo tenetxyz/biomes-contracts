@@ -10,7 +10,7 @@ import { LocalEnergyPool } from "../../codegen/tables/LocalEnergyPool.sol";
 
 import { ObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_TRANSFER_ENERGY_COST, SMART_CHEST_ENERGY_COST } from "../../Constants.sol";
-import { updateMachineEnergyLevel, addEnergyToLocalPool } from "../../utils/EnergyUtils.sol";
+import { updateMachineEnergyLevel } from "../../utils/EnergyUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { TransferCommonContext } from "../../Types.sol";
@@ -70,7 +70,7 @@ library TransferLib {
     }
 
     playerEntityId.decreaseEnergy(playerEnergyData, PLAYER_TRANSFER_ENERGY_COST);
-    addEnergyToLocalPool(chestCoord, energyCost);
+    chestCoord.addEnergyToLocalPool(energyCost);
 
     return
       TransferCommonContext({
