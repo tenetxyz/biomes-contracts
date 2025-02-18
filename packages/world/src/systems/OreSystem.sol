@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
+import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
 import { MinedOre, MinedOreData } from "../codegen/tables/MinedOre.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -23,15 +24,22 @@ import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
 import { EntityId } from "../EntityId.sol";
 import { ChunkCoord } from "../Types.sol";
-import { COMMIT_EXPIRY_BLOCKS } from "../Constants.sol";
+import { COMMIT_EXPIRY_BLOCKS, COMMIT_HALF_WIDTH } from "../Constants.sol";
 
 contract OreSystem is System {
   using VoxelCoordLib for *;
 
-  // TODO: extract to utils
-  // TODO: replace with actual implementation
-  function inCommitRange(ChunkCoord memory self, ChunkCoord memory other) internal pure returns (bool) {
-    return true;
+  // TODO: copied from voxel coords. Figure out way to unify coordinate utils
+  function inSurroundingCube(
+    ChunkCoord memory cubeCenter,
+    int32 halfWidth,
+    ChunkCoord memory checkCoord
+  ) internal pure returns (bool) {
+    bool isInX = checkCoord.x >= cubeCenter.x - halfWidth && checkCoord.x <= cubeCenter.x + halfWidth;
+    bool isInY = checkCoord.y >= cubeCenter.y - halfWidth && checkCoord.y <= cubeCenter.y + halfWidth;
+    bool isInZ = checkCoord.z >= cubeCenter.z - halfWidth && checkCoord.z <= cubeCenter.z + halfWidth;
+
+    return isInX && isInY && isInZ;
   }
 
   function oreChunkCommit(ChunkCoord memory chunkCoord) public {
@@ -41,7 +49,7 @@ contract OreSystem is System {
     (, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     ChunkCoord memory playerChunkCoord = playerCoord.toChunkCoord();
 
-    require(inCommitRange(playerChunkCoord, chunkCoord), "Not in commit range");
+    require(inSurroundingCube(playerChunkCoord, COMMIT_HALF_WIDTH, chunkCoord), "Not in commit range");
 
     // Check existing commitment
     uint256 blockNumber = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
@@ -66,10 +74,11 @@ contract OreSystem is System {
     MinedOre._set(minedOreIdx, last);
     MinedOreCount._set(count - 1);
 
+    // Check existing entity
     EntityId entityId = ReversePosition._get(oreCoord.x, oreCoord.y, oreCoord.z);
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
-    // TODO: should we check that there is no inventory here?
     require(objectTypeId == AirObjectID, "Ore coordinate is not air");
+    require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot respawn where there are dropped objects");
 
     // This is enough to respawn the ore block, as it will be read from the original terrain next time
     ObjectType._deleteRecord(entityId);
