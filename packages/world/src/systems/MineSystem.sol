@@ -45,20 +45,16 @@ contract MineSystem is System {
       entityId = getUniqueEntity();
       Position._set(entityId, coord.x, coord.y, coord.z);
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
+      Mass._setMass(entityId, ObjectTypeMetadata._getMass(mineObjectTypeId));
     } else {
       mineObjectTypeId = ObjectType._get(entityId);
       require(entityId.getChipAddress() == address(0), "Cannot mine a chipped block");
       EnergyData memory machineData = updateMachineEnergyLevel(entityId);
       require(machineData.energy == 0, "Cannot mine a machine that has energy");
-      if (DisplayContent._getContentType(entityId) != DisplayContentType.None) {
-        DisplayContent._deleteRecord(entityId);
-      }
     }
     require(mineObjectTypeId.isBlock(), "Cannot mine non-block object");
     require(mineObjectTypeId != AirObjectID, "Cannot mine air");
     require(mineObjectTypeId != WaterObjectID, "Cannot mine water");
-
-    ObjectType._set(entityId, AirObjectID);
 
     return (entityId, mineObjectTypeId);
   }
@@ -67,67 +63,61 @@ contract MineSystem is System {
     (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    (EntityId firstEntityId, ObjectTypeId mineObjectTypeId) = mineObjectAtCoord(coord);
+    (EntityId baseEntityId, ObjectTypeId mineObjectTypeId) = mineObjectAtCoord(coord);
+    require(!BaseEntity._get(baseEntityId).exists(), "Invalid mine coord, must mine the base coord");
+
+    uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + useEquipped(playerEntityId);
+    uint128 massLeft = Mass._getMass(baseEntityId);
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_MINE_ENERGY_COST);
+
     uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(mineObjectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
-
-    VoxelCoord memory baseCoord = coord;
-    EntityId baseEntityId = BaseEntity._get(firstEntityId);
-    if (baseEntityId.exists()) {
-      baseCoord = Position._get(baseEntityId).toVoxelCoord();
-      mineObjectAtCoord(baseCoord);
-      BaseEntity._deleteRecord(firstEntityId);
-    }
-    coords[0] = baseCoord;
+    coords[0] = coord;
 
     if (numRelativePositions > 0) {
       ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(mineObjectTypeId);
       for (uint256 i = 0; i < numRelativePositions; i++) {
         VoxelCoord memory relativeCoord = VoxelCoord(
-          baseCoord.x + schemaData.relativePositionsX[i],
-          baseCoord.y + schemaData.relativePositionsY[i],
-          baseCoord.z + schemaData.relativePositionsZ[i]
+          coord.x + schemaData.relativePositionsX[i],
+          coord.y + schemaData.relativePositionsY[i],
+          coord.z + schemaData.relativePositionsZ[i]
         );
         coords[i + 1] = relativeCoord;
-        if (relativeCoord.equals(coord)) {
-          continue;
+
+        if (massLeft <= totalMassReduction) {
+          (EntityId relativeEntityId, ) = mineObjectAtCoord(relativeCoord);
+          BaseEntity._deleteRecord(relativeEntityId);
+          ObjectType._set(relativeEntityId, AirObjectID);
         }
-        (EntityId relativeEntityId, ) = mineObjectAtCoord(relativeCoord);
-        BaseEntity._deleteRecord(relativeEntityId);
       }
     }
 
-    // uint128 toolMassUsed = useEquipped(playerEntityId);
-    // uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassUsed;
-    // TODO: reduce
-
-    addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
-    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_MINE_ENERGY_COST);
-
-    for (uint256 i = 0; i < coords.length; i++) {
-      VoxelCoord memory aboveCoord = VoxelCoord(coords[i].x, coords[i].y + 1, coords[i].z);
-      EntityId aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-      if (aboveEntityId.exists() && ObjectType._get(aboveEntityId) == PlayerObjectID) {
-        GravityLib.runGravity(aboveEntityId, aboveCoord);
+    if (massLeft <= totalMassReduction) {
+      Mass._deleteRecord(baseEntityId);
+      if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
+        DisplayContent._deleteRecord(baseEntityId);
       }
+      ObjectType._set(baseEntityId, AirObjectID);
+
+      addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
+
+      for (uint256 i = 0; i < coords.length; i++) {
+        VoxelCoord memory aboveCoord = VoxelCoord(coords[i].x, coords[i].y + 1, coords[i].z);
+        EntityId aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
+        if (aboveEntityId.exists() && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+          GravityLib.runGravity(aboveEntityId, aboveCoord);
+        }
+      }
+    } else {
+      Mass._setMass(baseEntityId, massLeft - totalMassReduction);
     }
 
     notify(
       playerEntityId,
-      MineNotifData({
-        mineEntityId: baseEntityId.exists() ? baseEntityId : firstEntityId,
-        mineCoord: baseCoord,
-        mineObjectTypeId: mineObjectTypeId
-      })
+      MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
     );
 
-    ForceFieldLib.requireMinesAllowed(
-      playerEntityId,
-      baseEntityId.exists() ? baseEntityId : firstEntityId,
-      mineObjectTypeId,
-      coords,
-      extraData
-    );
+    ForceFieldLib.requireMinesAllowed(playerEntityId, baseEntityId, mineObjectTypeId, coords, extraData);
   }
 
   function mine(VoxelCoord memory coord) public payable {
