@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
-import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
-import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 
+import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
@@ -13,24 +11,8 @@ import { TerrainLib, VERSION_PADDING } from "../src/systems/libraries/TerrainLib
 import { AirObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
 import { CHUNK_SIZE, SPAWN_ENERGY } from "../src/Constants.sol";
-import { encodeChunk } from "./utils/encodeChunk.sol";
-import { IWorld } from "../src/codegen/world/IWorld.sol";
 
-contract SpawnTest is MudTest, GasReporter {
-  IWorld private world;
-
-  function setUp() public override {
-    super.setUp();
-
-    world = IWorld(worldAddress);
-
-    // Transfer root ownership to this test contract
-    ResourceId rootNamespace = WorldResourceIdLib.encodeNamespace(bytes14(0));
-    address owner = NamespaceOwner.get(rootNamespace);
-    vm.prank(owner);
-    world.transferOwnership(rootNamespace, address(this));
-  }
-
+contract SpawnTest is BiomesTest {
   function testRandomSpawn() public {
     uint256 blockNumber = block.number - 5;
     address alice = vm.randomAddress();
