@@ -12,6 +12,7 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -74,7 +75,15 @@ contract BuildSystem is System {
         BaseEntity._set(entityId, baseEntityId);
       }
     }
-    Mass._setMass(baseEntityId, ObjectTypeMetadata._getMass(objectTypeId));
+    uint32 mass = ObjectTypeMetadata._getMass(objectTypeId);
+    Mass._setMass(baseEntityId, mass);
+    VoxelCoord memory shardCoord = coord.toForceFieldShardCoord();
+    ForceFieldMetadata._setTotalMassInside(
+      shardCoord.x,
+      shardCoord.y,
+      shardCoord.z,
+      ForceFieldMetadata._getTotalMassInside(shardCoord.x, shardCoord.y, shardCoord.z) + mass
+    );
     transferEnergyFromPlayerToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
 
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);

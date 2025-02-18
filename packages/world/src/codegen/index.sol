@@ -27,6 +27,7 @@ import { PlayerStatus } from "./tables/PlayerStatus.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./tables/LastKnownPosition.sol";
 import { Chip } from "./tables/Chip.sol";
 import { ForceField } from "./tables/ForceField.sol";
+import { ForceFieldMetadata } from "./tables/ForceFieldMetadata.sol";
 import { DisplayContent, DisplayContentData } from "./tables/DisplayContent.sol";
 import { TerrainCommitment, TerrainCommitmentData } from "./tables/TerrainCommitment.sol";
 import { Commitment, CommitmentData } from "./tables/Commitment.sol";

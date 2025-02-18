@@ -243,6 +243,15 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
+    ForceFieldMetadata: {
+      schema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+        totalMassInside: "uint128",
+      },
+      key: ["x", "y", "z"],
+    },
     DisplayContent: {
       schema: {
         entityId: "EntityId",
