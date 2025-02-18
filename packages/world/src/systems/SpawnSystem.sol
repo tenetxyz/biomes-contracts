@@ -39,18 +39,25 @@ contract SpawnSystem is System {
     return energyRequired;
   }
 
-  function randomSpawn(uint256 blockNumber, int32 y) public returns (EntityId) {
-    checkWorldStatus();
-    // TODO: use constant
-    require(blockNumber < block.number - 10, "Can only choose past 10 blocks");
-
-    VoxelCoord memory spawnCoord;
+  function getRandomSpawnCoord(
+    uint256 blockNumber,
+    address sender,
+    int32 y
+  ) public view returns (VoxelCoord memory spawnCoord) {
     spawnCoord.y = y;
 
-    uint256 randX = uint256(keccak256(abi.encodePacked(blockhash(blockNumber), _msgSender())));
+    uint256 randX = uint256(keccak256(abi.encodePacked(blockhash(blockNumber), sender)));
     uint256 randZ = uint256(keccak256(abi.encodePacked(randX)));
     spawnCoord.x = int32(int256(randX % uint256(int256(WORLD_DIM_X)))) - WORLD_DIM_X / 2;
     spawnCoord.z = int32(int256(randZ % uint256(int256(WORLD_DIM_X)))) - WORLD_DIM_X / 2;
+  }
+
+  function randomSpawn(uint256 blockNumber, int32 y) public returns (EntityId) {
+    checkWorldStatus();
+    // TODO: use constant
+    require(blockNumber >= block.number - 10, "Can only choose past 10 blocks");
+
+    VoxelCoord memory spawnCoord = getRandomSpawnCoord(blockNumber, _msgSender(), y);
 
     EntityId forceFieldEntityId = getForceField(spawnCoord);
     require(!forceFieldEntityId.exists(), "Cannot spawn in force field");
@@ -68,6 +75,7 @@ contract SpawnSystem is System {
     VoxelCoord memory spawnCoord,
     bytes memory extraData
   ) public returns (EntityId) {
+    checkWorldStatus();
     ObjectTypeId objectTypeId = ObjectType._get(spawnTileEntityId);
     require(objectTypeId == SpawnTileObjectID, "Not a spawn tile");
 
