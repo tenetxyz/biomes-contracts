@@ -10,7 +10,7 @@ import { LocalEnergyPool } from "../../codegen/tables/LocalEnergyPool.sol";
 
 import { ObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_TRANSFER_ENERGY_COST, SMART_CHEST_ENERGY_COST } from "../../Constants.sol";
-import { updateMachineEnergyLevel } from "../../utils/EnergyUtils.sol";
+import { updateMachineEnergyLevel, addEnergyToLocalPool } from "../../utils/EnergyUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { TransferCommonContext } from "../../Types.sol";
@@ -58,7 +58,6 @@ library TransferLib {
       }
     }
 
-    VoxelCoord memory shardCoord = chestCoord.toLocalEnergyPoolShardCoord();
     uint128 energyCost = PLAYER_TRANSFER_ENERGY_COST;
 
     EntityId forceFieldEntityId = getForceField(chestCoord);
@@ -71,12 +70,7 @@ library TransferLib {
     }
 
     playerEntityId.decreaseEnergy(playerEnergyData, PLAYER_TRANSFER_ENERGY_COST);
-    LocalEnergyPool._set(
-      shardCoord.x,
-      0,
-      shardCoord.z,
-      LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z) + energyCost
-    );
+    addEnergyToLocalPool(chestCoord, energyCost);
 
     return
       TransferCommonContext({

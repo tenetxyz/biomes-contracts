@@ -18,7 +18,7 @@ import { ActionType } from "../codegen/common.sol";
 
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergyLevel, massToEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { isWhacker } from "../utils/ObjectTypeUtils.sol";
 import { safeCallChip } from "../utils/callChip.sol";
@@ -60,13 +60,7 @@ contract HitMachineSystem is System {
     targetEnergyReduction = targetEnergyReduction > machineData.energy ? machineData.energy : targetEnergyReduction;
     machineEntityId.decreaseEnergy(machineData, targetEnergyReduction);
     playerEntityId.decreaseEnergy(playerEnergyData, PLAYER_HIT_ENERGY_COST);
-    VoxelCoord memory shardCoord = machineCoord.toLocalEnergyPoolShardCoord();
-    LocalEnergyPool._set(
-      shardCoord.x,
-      0,
-      shardCoord.z,
-      LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z) + PLAYER_HIT_ENERGY_COST + targetEnergyReduction
-    );
+    addEnergyToLocalPool(machineCoord, PLAYER_HIT_ENERGY_COST + targetEnergyReduction);
 
     notify(playerEntityId, HitMachineNotifData({ machineEntityId: machineEntityId, machineCoord: machineCoord }));
 

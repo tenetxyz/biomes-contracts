@@ -83,11 +83,10 @@ function transferEnergyFromPlayerToPool(
   uint128 numToTransfer
 ) {
   playerEntityId.decreaseEnergy(playerEnergyData, numToTransfer);
-  VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-  LocalEnergyPool._set(
-    shardCoord.x,
-    0,
-    shardCoord.z,
-    LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z) + numToTransfer
-  );
+  addEnergyToLocalPool(playerCoord, numToTransfer);
+}
+
+function addEnergyToLocalPool(VoxelCoord memory coord, uint128 numToAdd) {
+  VoxelCoord memory shardCoord = coord.toLocalEnergyPoolShardCoord();
+  LocalEnergyPool._set(shardCoord.x, 0, shardCoord.z, LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z) + numToAdd);
 }
