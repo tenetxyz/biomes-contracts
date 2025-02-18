@@ -26,21 +26,21 @@ import { EntityId } from "../EntityId.sol";
 import { ChunkCoord } from "../Types.sol";
 import { COMMIT_EXPIRY_BLOCKS, COMMIT_HALF_WIDTH } from "../Constants.sol";
 
+// TODO: copied from voxel coords. Figure out way to unify coordinate utils
+function inSurroundingCube(
+  ChunkCoord memory cubeCenter,
+  int32 halfWidth,
+  ChunkCoord memory checkCoord
+) pure returns (bool) {
+  bool isInX = checkCoord.x >= cubeCenter.x - halfWidth && checkCoord.x <= cubeCenter.x + halfWidth;
+  bool isInY = checkCoord.y >= cubeCenter.y - halfWidth && checkCoord.y <= cubeCenter.y + halfWidth;
+  bool isInZ = checkCoord.z >= cubeCenter.z - halfWidth && checkCoord.z <= cubeCenter.z + halfWidth;
+
+  return isInX && isInY && isInZ;
+}
+
 contract OreSystem is System {
   using VoxelCoordLib for *;
-
-  // TODO: copied from voxel coords. Figure out way to unify coordinate utils
-  function inSurroundingCube(
-    ChunkCoord memory cubeCenter,
-    int32 halfWidth,
-    ChunkCoord memory checkCoord
-  ) internal pure returns (bool) {
-    bool isInX = checkCoord.x >= cubeCenter.x - halfWidth && checkCoord.x <= cubeCenter.x + halfWidth;
-    bool isInY = checkCoord.y >= cubeCenter.y - halfWidth && checkCoord.y <= cubeCenter.y + halfWidth;
-    bool isInZ = checkCoord.z >= cubeCenter.z - halfWidth && checkCoord.z <= cubeCenter.z + halfWidth;
-
-    return isInX && isInY && isInZ;
-  }
 
   function oreChunkCommit(ChunkCoord memory chunkCoord) public {
     // TODO: check chunk is inside world / revealed

@@ -71,8 +71,12 @@ function mineRandomOre(VoxelCoord memory coord) returns (ObjectTypeId) {
   }
 
   ObjectTypeId ore = ores[j];
+  uint256 remainingOre = remaining[j];
 
-  ObjectCount._set(ore, remaining - 1);
+  // NOTE: the data in ObjectCount table must match the terrain, otherwise this can fail
+  require(remainingOre > 0, "No ores available to mine");
+
+  ObjectCount._set(ore, remainingOre - 1);
   uint256 count = MinedOreCount._get();
   MinedOreCount._set(count + 1);
   MinedOre._set(count, coord.x, coord.y, coord.z);
