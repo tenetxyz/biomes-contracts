@@ -12,7 +12,7 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 abstract contract BiomesTest is MudTest, GasReporter {
   IWorld internal world;
 
-  function setUp() public override {
+  function setUp() public virtual override {
     super.setUp();
 
     world = IWorld(worldAddress);

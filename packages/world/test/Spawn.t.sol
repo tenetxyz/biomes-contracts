@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
@@ -11,12 +12,22 @@ import { Position } from "../src/codegen/tables/Position.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 
-import { TerrainLib, VERSION_PADDING } from "../src/systems/libraries/TerrainLib.sol";
-import { AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
+import { massToEnergy } from "../src/utils/EnergyUtils.sol";
+import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
-import { CHUNK_SIZE, SPAWN_ENERGY } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 
 contract SpawnTest is BiomesTest {
+  function setUp() public override {
+    super.setUp();
+    ObjectTypeMetadata.setMass(PlayerObjectID, 10);
+  }
+
+  function spawnEnergy() internal returns (uint128) {
+    uint32 playerMass = ObjectTypeMetadata.getMass(PlayerObjectID);
+    return MAX_PLAYER_ENERGY + massToEnergy(playerMass);
+  }
+
   function randomEntityId() internal returns (EntityId) {
     return EntityId.wrap(bytes32(vm.randomUint()));
   }
@@ -37,8 +48,8 @@ contract SpawnTest is BiomesTest {
     ObjectType.set(belowEntityId, DirtObjectID);
 
     // Give energy for local shard
-    VoxelCoord memory shardCoord = spawnCoord.toSpawnShardCoord();
-    LocalEnergyPool.set(shardCoord.x, 0, shardCoord.z, SPAWN_ENERGY);
+    VoxelCoord memory shardCoord = spawnCoord.toLocalEnergyPoolShardCoord();
+    LocalEnergyPool.set(shardCoord.x, 0, shardCoord.z, spawnEnergy());
 
     vm.prank(alice);
     EntityId playerEntityId = world.randomSpawn(blockNumber, spawnCoord.y);
@@ -72,7 +83,7 @@ contract SpawnTest is BiomesTest {
     EntityId forceFieldEntityId = randomEntityId();
     VoxelCoord memory shardCoord = spawnTileCoord.toForceFieldShardCoord();
     ForceField.set(shardCoord.x, shardCoord.y, shardCoord.z, forceFieldEntityId);
-    Energy.set(forceFieldEntityId, EnergyData({ energy: SPAWN_ENERGY, lastUpdatedTime: uint128(block.timestamp) }));
+    Energy.set(forceFieldEntityId, EnergyData({ energy: spawnEnergy(), lastUpdatedTime: uint128(block.timestamp) }));
 
     // Set below entity to spawn tile
     EntityId spawnTileEntityId = randomEntityId();
@@ -111,7 +122,7 @@ contract SpawnTest is BiomesTest {
     EntityId forceFieldEntityId = randomEntityId();
     VoxelCoord memory shardCoord = spawnTileCoord.toForceFieldShardCoord();
     ForceField.set(shardCoord.x, shardCoord.y, shardCoord.z, forceFieldEntityId);
-    Energy.set(forceFieldEntityId, EnergyData({ energy: SPAWN_ENERGY, lastUpdatedTime: uint128(block.timestamp) }));
+    Energy.set(forceFieldEntityId, EnergyData({ energy: spawnEnergy(), lastUpdatedTime: uint128(block.timestamp) }));
 
     // Set Far away entity to spawn tile
     EntityId spawnTileEntityId = randomEntityId();
