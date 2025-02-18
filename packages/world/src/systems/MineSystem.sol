@@ -36,7 +36,10 @@ import { PLAYER_MINE_ENERGY_COST } from "../Constants.sol";
 import { ChunkCoord } from "../Types.sol";
 import { COMMIT_EXPIRY_BLOCKS } from "../Constants.sol";
 
-function getRandomOre(uint256 blockNum) view returns (ObjectTypeId, uint256) {
+function mineRandomOre(VoxelCoord memory coord) returns (ObjectTypeId) {
+  ChunkCoord memory chunkCoord = coord.toChunkCoord();
+  uint256 blockNum = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
+  require(blockNum > block.number - COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
   uint256 rand = uint256(blockhash(blockNum));
 
   // TODO: can optimize by not storing these in memory and returning the type depending on for loop index
@@ -67,7 +70,14 @@ function getRandomOre(uint256 blockNum) view returns (ObjectTypeId, uint256) {
     if (scaledRand < acc) break;
   }
 
-  return (ores[j], remaining[j]);
+  ObjectTypeId ore = ores[j];
+
+  ObjectCount._set(ore, remaining - 1);
+  uint256 count = MinedOreCount._get();
+  MinedOreCount._set(count + 1);
+  MinedOre._set(count, coord.x, coord.y, coord.z);
+
+  return ore;
 }
 
 contract MineSystem is System {
@@ -82,17 +92,8 @@ contract MineSystem is System {
       // TODO: move wrapping to TerrainLib?
       mineObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
 
-      // TODO: lava?
       if (mineObjectTypeId == AnyOreObjectID) {
-        ChunkCoord memory chunkCoord = coord.toChunkCoord();
-        uint256 blockNum = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
-        require(blockNum > block.number - COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
-        uint256 remaining;
-        (mineObjectTypeId, remaining) = getRandomOre(blockNum);
-        ObjectCount._set(mineObjectTypeId, remaining - 1);
-        uint256 count = MinedOreCount._get();
-        MinedOreCount._set(count + 1);
-        MinedOre._set(count, coord.x, coord.y, coord.z);
+        mineObjectTypeId = mineRandomOre(coord);
       }
 
       entityId = getUniqueEntity();

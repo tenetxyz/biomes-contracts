@@ -68,8 +68,12 @@ contract OreSystem is System {
 
     EntityId entityId = ReversePosition._get(oreCoord.x, oreCoord.y, oreCoord.z);
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
+    // TODO: should we check that there is no inventory here?
     require(objectTypeId == AirObjectID, "Ore coordinate is not air");
 
+    // This is enough to respawn the ore block, as it will be read from the original terrain next time
     ObjectType._deleteRecord(entityId);
+    Position._deleteRecord(entityId);
+    ReversePosition._deleteRecord(oreCoord.x, oreCoord.y, oreCoord.z);
   }
 }
