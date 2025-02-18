@@ -80,12 +80,13 @@ contract BuildSystem is System {
     }
     uint32 mass = ObjectTypeMetadata._getMass(objectTypeId);
     Mass._setMass(baseEntityId, mass);
-    VoxelCoord memory shardCoord = coord.toForceFieldShardCoord();
+    VoxelCoord memory forceFieldShardCoord = coord.toForceFieldShardCoord();
     ForceFieldMetadata._setTotalMassInside(
-      shardCoord.x,
-      shardCoord.y,
-      shardCoord.z,
-      ForceFieldMetadata._getTotalMassInside(shardCoord.x, shardCoord.y, shardCoord.z) + mass
+      forceFieldShardCoord.x,
+      forceFieldShardCoord.y,
+      forceFieldShardCoord.z,
+      ForceFieldMetadata._getTotalMassInside(forceFieldShardCoord.x, forceFieldShardCoord.y, forceFieldShardCoord.z) +
+        mass
     );
     transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_BUILD_ENERGY_COST);
 
