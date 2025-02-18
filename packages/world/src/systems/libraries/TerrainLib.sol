@@ -15,7 +15,7 @@ library TerrainLib {
 
   /// @notice Get the terrain block type of a voxel coordinate.
   /// @dev Assumes to be called from a root system.
-  function _getBlockType(VoxelCoord memory coord) internal view returns (uint8) {
+  function _getBlockType(VoxelCoord memory coord) public view returns (uint8) {
     return getBlockType(coord, address(this));
   }
 

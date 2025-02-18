@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { VoxelCoord } from "../VoxelCoord.sol";
-
+import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
@@ -12,6 +12,8 @@ import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
@@ -19,6 +21,8 @@ import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
+import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
+import { transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
@@ -52,7 +56,9 @@ contract BuildSystem is System {
     bytes memory extraData
   ) public payable returns (EntityId) {
     require(objectTypeId.isBlock(), "Cannot build non-block object");
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
+      _msgSender()
+    );
     requireInPlayerInfluence(playerCoord, coord);
 
     EntityId baseEntityId = buildObjectAtCoord(objectTypeId, coord);
@@ -72,6 +78,17 @@ contract BuildSystem is System {
         BaseEntity._set(entityId, baseEntityId);
       }
     }
+    uint32 mass = ObjectTypeMetadata._getMass(objectTypeId);
+    Mass._setMass(baseEntityId, mass);
+    VoxelCoord memory forceFieldShardCoord = coord.toForceFieldShardCoord();
+    ForceFieldMetadata._setTotalMassInside(
+      forceFieldShardCoord.x,
+      forceFieldShardCoord.y,
+      forceFieldShardCoord.z,
+      ForceFieldMetadata._getTotalMassInside(forceFieldShardCoord.x, forceFieldShardCoord.y, forceFieldShardCoord.z) +
+        mass
+    );
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_BUILD_ENERGY_COST);
 
     removeFromInventoryCount(playerEntityId, objectTypeId, 1);
 
@@ -87,7 +104,7 @@ contract BuildSystem is System {
   }
 
   function jumpBuildWithExtraData(ObjectTypeId objectTypeId, bytes memory extraData) public payable {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     require(inWorldBorder(jumpCoord), "Cannot jump outside world border");
     EntityId newEntityId = ReversePosition._get(jumpCoord.x, jumpCoord.y, jumpCoord.z);

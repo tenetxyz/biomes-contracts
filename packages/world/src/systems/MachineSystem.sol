@@ -12,7 +12,7 @@ import { Chip } from "../codegen/tables/Chip.sol";
 import { ObjectTypeId, PlayerObjectID, ChipBatteryObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
 
@@ -22,7 +22,7 @@ import { EntityId } from "../EntityId.sol";
 
 contract MachineSystem is System {
   function powerMachine(EntityId entityId, uint16 numBattery) public {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
     EntityId baseEntityId = entityId.baseEntityId();

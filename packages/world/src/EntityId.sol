@@ -6,7 +6,7 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { Chip } from "./codegen/tables/Chip.sol";
 import { BaseEntity } from "./codegen/tables/BaseEntity.sol";
-
+import { Energy, EnergyData } from "./codegen/tables/Energy.sol";
 type EntityId is bytes32;
 
 function baseEntityId(EntityId self) view returns (EntityId) {
@@ -33,4 +33,10 @@ function neq(EntityId self, EntityId other) pure returns (bool) {
   return EntityId.unwrap(self) != EntityId.unwrap(other);
 }
 
-using { baseEntityId, getChipAddress, exists, eq as ==, neq as != } for EntityId global;
+function decreaseEnergy(EntityId self, EnergyData memory currentEnergyData, uint128 amount) {
+  uint128 currentEnergy = currentEnergyData.energy;
+  require(currentEnergy >= amount, "Not enough energy");
+  Energy._set(self, EnergyData({ energy: currentEnergy - amount, lastUpdatedTime: uint128(block.timestamp) }));
+}
+
+using { baseEntityId, getChipAddress, exists, eq as ==, neq as !=, decreaseEnergy } for EntityId global;

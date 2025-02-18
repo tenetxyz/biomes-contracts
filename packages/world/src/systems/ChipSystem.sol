@@ -16,7 +16,7 @@ import { ActionType } from "../codegen/common.sol";
 import { ObjectTypeId, PlayerObjectID, ChipObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, AttachChipNotifData, DetachChipNotifData } from "../utils/NotifUtils.sol";
 
@@ -30,7 +30,7 @@ import { safeCallChip, callChipOrRevert } from "../utils/callChip.sol";
 
 contract ChipSystem is System {
   function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) public payable {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
     require(baseEntityId.getChipAddress() == address(0), "Chip already attached");
@@ -77,7 +77,7 @@ contract ChipSystem is System {
   }
 
   function detachChipWithExtraData(EntityId entityId, bytes memory extraData) public payable {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
 

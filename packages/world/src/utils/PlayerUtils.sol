@@ -11,31 +11,28 @@ import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
-import { Energy } from "../codegen/tables/Energy.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Commitment } from "../codegen/tables/Commitment.sol";
 
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus } from "../Utils.sol";
+import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
 using VoxelCoordLib for PositionData;
 
-function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory) {
+function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory, EnergyData memory) {
   checkWorldStatus();
   EntityId playerEntityId = Player._get(player);
   require(playerEntityId.exists(), "Player does not exist");
   require(!PlayerStatus._getIsLoggedOff(playerEntityId), "Player isn't logged in");
   require(!Commitment._getHasCommitted(playerEntityId), "Player is in a commitment");
   VoxelCoord memory playerCoord = Position._get(playerEntityId).toVoxelCoord();
-
-  // TODO: update energy, should decrease over time
-  Energy._setEnergy(playerEntityId, Energy._getEnergy(playerEntityId) + 1);
-
+  EnergyData memory playerEnergyData = updatePlayerEnergyLevel(playerEntityId);
   PlayerActivity._set(playerEntityId, uint128(block.timestamp));
-
-  return (playerEntityId, playerCoord);
+  return (playerEntityId, playerCoord, playerEnergyData);
 }
 
 function requireBesidePlayer(VoxelCoord memory playerCoord, VoxelCoord memory coord) pure {

@@ -76,28 +76,30 @@ function removeFromInventoryCount(EntityId ownerEntityId, ObjectTypeId objectTyp
   }
 }
 
-function useEquipped(
-  EntityId entityId,
-  EntityId inventoryEntityId,
-  ObjectTypeId inventoryObjectTypeId,
-  uint24 durabilityDecrease
-) {
+function useEquipped(EntityId entityId) returns (uint128 massUsed, ObjectTypeId inventoryObjectTypeId) {
+  EntityId inventoryEntityId = Equipped._get(entityId);
   if (inventoryEntityId.exists()) {
-    // TOOD: fix
-    uint128 durabilityLeft = Mass._getMass(inventoryEntityId);
-    // Allow mining even if durability is exactly or less than required, then break the tool
-    require(durabilityLeft > 0, "Tool is already broken");
+    inventoryObjectTypeId = ObjectType._get(inventoryEntityId);
+    require(inventoryObjectTypeId.isTool(), "Inventory item is not a tool");
+    uint128 massLeft = Mass._getMass(inventoryEntityId);
+    require(massLeft > 0, "Tool is already broken");
 
-    if (durabilityLeft <= durabilityDecrease) {
-      // Tool will break after this use, but allow mining
+    // TODO: separate mine and hit?
+    // use 10% of the mass if it's greater than 10
+    massUsed = massLeft > 10 ? massLeft / 10 : massLeft;
+
+    if (massLeft <= massUsed) {
       // Destroy equipped item
       removeFromInventoryCount(entityId, inventoryObjectTypeId, 1);
       Mass._deleteRecord(inventoryEntityId);
       InventoryEntity._deleteRecord(inventoryEntityId);
       removeEntityIdFromReverseInventoryEntity(entityId, inventoryEntityId);
       Equipped._deleteRecord(entityId);
+
+      // TODO: re-spawn ores
+      // TODO: return energy to local pool
     } else {
-      Mass._setMass(inventoryEntityId, durabilityLeft - durabilityDecrease);
+      Mass._setMass(inventoryEntityId, massLeft - massUsed);
     }
   }
 }

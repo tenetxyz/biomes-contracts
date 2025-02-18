@@ -9,19 +9,22 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
+import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { updateMachineEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { isWhacker } from "../utils/ObjectTypeUtils.sol";
 import { safeCallChip } from "../utils/callChip.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+import { PLAYER_HIT_ENERGY_COST } from "../Constants.sol";
 
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
 import { EntityId } from "../EntityId.sol";
@@ -31,6 +34,7 @@ contract HitMachineSystem is System {
 
   function hitMachineCommon(
     EntityId playerEntityId,
+    EnergyData memory playerEnergyData,
     EntityId machineEntityId,
     VoxelCoord memory machineCoord
   ) internal {
@@ -41,14 +45,22 @@ contract HitMachineSystem is System {
 
     ObjectTypeId objectTypeId = ObjectType._get(machineEntityId);
 
-    EntityId equippedEntityId = Equipped._get(playerEntityId);
-    require(equippedEntityId.exists(), "You must use a whacker to hit machines");
-    ObjectTypeId equippedObjectTypeId = ObjectType._get(equippedEntityId);
-    require(isWhacker(equippedObjectTypeId), "You must use a whacker to hit machines");
+    (uint128 toolMassReduction, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId);
+    require(isWhacker(toolObjectTypeId), "You must use a whacker to hit machines");
 
-    // TODO: useEquipped
-
-    // TODO: decrease energy
+    uint128 baseEnergyReduction = PLAYER_HIT_ENERGY_COST + massToEnergy(toolMassReduction);
+    VoxelCoord memory forceFieldShardCoord = machineCoord.toForceFieldShardCoord();
+    uint128 protection = ForceFieldMetadata._getTotalMassInside(
+      forceFieldShardCoord.x,
+      forceFieldShardCoord.y,
+      forceFieldShardCoord.z
+    );
+    // TODO: scale protection otherwise, targetEnergyReduction will be 0
+    uint128 targetEnergyReduction = baseEnergyReduction / protection;
+    targetEnergyReduction = targetEnergyReduction > machineData.energy ? machineData.energy : targetEnergyReduction;
+    machineEntityId.decreaseEnergy(machineData, targetEnergyReduction);
+    playerEntityId.decreaseEnergy(playerEnergyData, PLAYER_HIT_ENERGY_COST);
+    machineCoord.addEnergyToLocalPool(PLAYER_HIT_ENERGY_COST + targetEnergyReduction);
 
     notify(playerEntityId, HitMachineNotifData({ machineEntityId: machineEntityId, machineCoord: machineCoord }));
 
@@ -60,19 +72,23 @@ contract HitMachineSystem is System {
   }
 
   function hitMachine(EntityId entityId) public {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
+      _msgSender()
+    );
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
 
-    hitMachineCommon(playerEntityId, baseEntityId, entityCoord);
+    hitMachineCommon(playerEntityId, playerEnergyData, baseEntityId, entityCoord);
   }
 
   function hitForceField(VoxelCoord memory entityCoord) public {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
+      _msgSender()
+    );
     requireInPlayerInfluence(playerCoord, entityCoord);
     EntityId forceFieldEntityId = getForceField(entityCoord);
     require(forceFieldEntityId.exists(), "No force field at this location");
     VoxelCoord memory forceFieldCoord = Position._get(forceFieldEntityId).toVoxelCoord();
-    hitMachineCommon(playerEntityId, forceFieldEntityId, forceFieldCoord);
+    hitMachineCommon(playerEntityId, playerEnergyData, forceFieldEntityId, forceFieldCoord);
   }
 }

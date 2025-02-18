@@ -9,6 +9,7 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
 import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
@@ -20,12 +21,15 @@ import { addToInventoryCount, removeFromInventoryCount } from "../utils/Inventor
 import { getLogObjectTypes, getLumberObjectTypes, getReinforcedLumberObjectTypes, getCottonBlockObjectTypes, getGlassObjectTypes } from "../utils/ObjectTypeUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, CraftNotifData } from "../utils/NotifUtils.sol";
-
+import { energyToMass, transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 import { EntityId } from "../EntityId.sol";
+import { PLAYER_CRAFT_ENERGY_COST } from "../Constants.sol";
 
 contract CraftSystem is System {
   function craft(bytes32 recipeId, EntityId stationEntityId) public {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
+      _msgSender()
+    );
 
     EntityId baseStationEntityId = stationEntityId.baseEntityId();
 
@@ -38,9 +42,14 @@ contract CraftSystem is System {
 
     // Require that the player has all the ingredients in its inventory
     // And delete the ingredients from the inventory as they are used
+    uint128 totalInputObjectMass = 0;
+    uint128 totalInputObjectEnergy = 0;
     for (uint256 i = 0; i < recipeData.inputObjectTypeIds.length; i++) {
+      ObjectTypeId inputObjectTypeId = ObjectTypeId.wrap(recipeData.inputObjectTypeIds[i]);
+      totalInputObjectMass += ObjectTypeMetadata._getMass(inputObjectTypeId);
+      totalInputObjectEnergy += ObjectTypeMetadata._getEnergy(inputObjectTypeId);
       // TODO: Figure out a generic way to do this
-      if (recipeData.inputObjectTypeIds[i] == AnyLogObjectID.unwrap()) {
+      if (inputObjectTypeId == AnyLogObjectID) {
         uint16 numLogsLeft = recipeData.inputObjectTypeAmounts[i];
         ObjectTypeId[4] memory logObjectTypeIds = getLogObjectTypes();
         for (uint256 j = 0; j < logObjectTypeIds.length; j++) {
@@ -52,7 +61,7 @@ contract CraftSystem is System {
           }
         }
         require(numLogsLeft == 0, "Not enough logs");
-      } else if (recipeData.inputObjectTypeIds[i] == AnyLumberObjectID.unwrap()) {
+      } else if (inputObjectTypeId == AnyLumberObjectID) {
         uint16 numLumberLeft = recipeData.inputObjectTypeAmounts[i];
         ObjectTypeId[17] memory lumberObjectTypeIds = getLumberObjectTypes();
         for (uint256 j = 0; j < lumberObjectTypeIds.length; j++) {
@@ -64,7 +73,7 @@ contract CraftSystem is System {
           }
         }
         require(numLumberLeft == 0, "Not enough lumber");
-      } else if (recipeData.inputObjectTypeIds[i] == AnyReinforcedLumberObjectID.unwrap()) {
+      } else if (inputObjectTypeId == AnyReinforcedLumberObjectID) {
         uint16 numReinforcedLumberLeft = recipeData.inputObjectTypeAmounts[i];
         ObjectTypeId[3] memory reinforcedLumberObjectTypeIds = getReinforcedLumberObjectTypes();
         for (uint256 j = 0; j < reinforcedLumberObjectTypeIds.length; j++) {
@@ -78,7 +87,7 @@ contract CraftSystem is System {
           }
         }
         require(numReinforcedLumberLeft == 0, "Not enough reinforced lumber");
-      } else if (recipeData.inputObjectTypeIds[i] == AnyCottonBlockObjectID.unwrap()) {
+      } else if (inputObjectTypeId == AnyCottonBlockObjectID) {
         uint16 numCottonBlockLeft = recipeData.inputObjectTypeAmounts[i];
         ObjectTypeId[14] memory cottonBlockObjectTypeIds = getCottonBlockObjectTypes();
         for (uint256 j = 0; j < cottonBlockObjectTypeIds.length; j++) {
@@ -90,7 +99,7 @@ contract CraftSystem is System {
           }
         }
         require(numCottonBlockLeft == 0, "Not enough cotton blocks");
-      } else if (recipeData.inputObjectTypeIds[i] == AnyGlassObjectID.unwrap()) {
+      } else if (inputObjectTypeId == AnyGlassObjectID) {
         uint16 numGlassLeft = recipeData.inputObjectTypeAmounts[i];
         ObjectTypeId[10] memory glassObjectTypeIds = getGlassObjectTypes();
         for (uint256 j = 0; j < glassObjectTypeIds.length; j++) {
@@ -103,11 +112,7 @@ contract CraftSystem is System {
         }
         require(numGlassLeft == 0, "Not enough glass");
       } else {
-        removeFromInventoryCount(
-          playerEntityId,
-          ObjectTypeId.wrap(recipeData.inputObjectTypeIds[i]),
-          recipeData.inputObjectTypeAmounts[i]
-        );
+        removeFromInventoryCount(playerEntityId, inputObjectTypeId, recipeData.inputObjectTypeAmounts[i]);
       }
     }
 
@@ -118,12 +123,14 @@ contract CraftSystem is System {
         ObjectType._set(newInventoryEntityId, recipeData.outputObjectTypeId);
         InventoryEntity._set(newInventoryEntityId, playerEntityId);
         ReverseInventoryEntity._push(playerEntityId, EntityId.unwrap(newInventoryEntityId));
-        uint128 mass = ObjectTypeMetadata._getMass(recipeData.outputObjectTypeId);
-        if (mass > 0) {
-          Mass._setMass(newInventoryEntityId, mass);
-        }
+        uint128 toolMass = totalInputObjectMass + energyToMass(totalInputObjectEnergy);
+        Mass._set(newInventoryEntityId, toolMass);
       }
     }
+
+    // TODO: handle dyes
+
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_CRAFT_ENERGY_COST);
 
     addToInventoryCount(
       playerEntityId,

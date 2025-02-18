@@ -8,6 +8,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { ObjectTypeId, AirObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
@@ -16,12 +17,16 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { notify, DropNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
+import { PLAYER_DROP_ENERGY_COST } from "../Constants.sol";
+import { transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 
 // TODO: combine the tool and non-tool drop functions
 contract DropSystem is System {
   function dropCommon(VoxelCoord memory coord) internal returns (EntityId, EntityId) {
     require(inWorldBorder(coord), "Cannot drop outside the world border");
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
+      _msgSender()
+    );
     requireInPlayerInfluence(playerCoord, coord);
 
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
@@ -36,6 +41,8 @@ contract DropSystem is System {
     } else {
       require(ObjectType._get(entityId) == AirObjectID, "Cannot drop on non-air block");
     }
+
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_DROP_ENERGY_COST);
 
     return (playerEntityId, entityId);
   }

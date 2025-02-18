@@ -15,7 +15,7 @@ import { EntityId } from "../EntityId.sol";
 
 contract EquipSystem is System {
   function equip(EntityId inventoryEntityId) public {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     require(InventoryEntity._get(inventoryEntityId) == playerEntityId, "Player does not own inventory item");
     Equipped._set(playerEntityId, inventoryEntityId);
 

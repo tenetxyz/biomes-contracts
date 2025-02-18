@@ -37,7 +37,7 @@ contract LogoffSystem is System {
   }
 
   function logoffPlayer() public {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     logoffCommon(playerEntityId, playerCoord);
   }
 
@@ -48,7 +48,7 @@ contract LogoffSystem is System {
       block.timestamp - PlayerActivity._get(Player._get(player)) > MIN_TIME_BEFORE_AUTO_LOGOFF,
       "Player has recent actions and cannot be logged off"
     );
-    (EntityId playerEntityId, VoxelCoord memory playerCoord) = requireValidPlayer(player);
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(player);
     logoffCommon(playerEntityId, playerCoord);
   }
 }

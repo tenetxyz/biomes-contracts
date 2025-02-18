@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -15,7 +16,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { WORLD_DIM_X, WORLD_DIM_Z, SPAWN_ENERGY, SPAWN_AREA_HALF_WIDTH } from "../Constants.sol";
+import { WORLD_DIM_X, WORLD_DIM_Z, MAX_PLAYER_ENERGY, SPAWN_AREA_HALF_WIDTH } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
@@ -23,7 +24,7 @@ import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
-import { updateMachineEnergyLevel } from "../utils/MachineUtils.sol";
+import { updateMachineEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
@@ -32,6 +33,11 @@ import { EntityId } from "../EntityId.sol";
 
 contract SpawnSystem is System {
   using VoxelCoordLib for *;
+
+  function getEnergyCostToSpawn(uint32 playerMass) internal pure returns (uint128) {
+    uint128 energyRequired = MAX_PLAYER_ENERGY + massToEnergy(playerMass);
+    return energyRequired;
+  }
 
   function randomSpawn(uint256 blockNumber, int32 y) public returns (EntityId) {
     checkWorldStatus();
@@ -49,15 +55,12 @@ contract SpawnSystem is System {
     EntityId forceFieldEntityId = getForceField(spawnCoord);
     require(!forceFieldEntityId.exists(), "Cannot spawn in force field");
 
-    // TODO: energy to mass conversion
-
     // Extract energy from local pool
-    VoxelCoord memory shardCoord = spawnCoord.toSpawnShardCoord();
-    uint128 localEnergy = LocalEnergyPool._get(shardCoord.x, 0, shardCoord.z);
-    require(localEnergy >= SPAWN_ENERGY, "Not enough energy in local energy pool");
-    LocalEnergyPool._set(shardCoord.x, 0, shardCoord.z, localEnergy - SPAWN_ENERGY);
+    uint32 playerMass = ObjectTypeMetadata._getMass(PlayerObjectID);
+    uint128 energyRequired = getEnergyCostToSpawn(playerMass);
+    spawnCoord.removeEnergyFromLocalPool(energyRequired);
 
-    return _spawnPlayer(spawnCoord);
+    return _spawnPlayer(playerMass, spawnCoord);
   }
 
   function spawn(
@@ -73,16 +76,13 @@ contract SpawnSystem is System {
 
     EntityId forceFieldEntityId = getForceField(spawnCoord);
     require(forceFieldEntityId.exists(), "Spawn tile is not inside a force field");
+    uint32 playerMass = ObjectTypeMetadata._getMass(PlayerObjectID);
+    uint128 energyRequired = getEnergyCostToSpawn(playerMass);
     EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-    require(machineData.energy >= SPAWN_ENERGY, "Not enough energy in spawn tile forcefield");
+    require(machineData.energy >= energyRequired, "Not enough energy in spawn tile forcefield");
+    forceFieldEntityId.decreaseEnergy(machineData, energyRequired);
 
-    // Decrease force field energy
-    Energy._set(
-      forceFieldEntityId,
-      EnergyData({ energy: machineData.energy - SPAWN_ENERGY, lastUpdatedTime: uint128(block.timestamp) })
-    );
-
-    EntityId playerEntityId = _spawnPlayer(spawnCoord);
+    EntityId playerEntityId = _spawnPlayer(playerMass, spawnCoord);
 
     address chipAddress = spawnTileEntityId.getChipAddress();
 
@@ -92,7 +92,7 @@ contract SpawnSystem is System {
     return playerEntityId;
   }
 
-  function _spawnPlayer(VoxelCoord memory spawnCoord) internal returns (EntityId) {
+  function _spawnPlayer(uint32 playerMass, VoxelCoord memory spawnCoord) internal returns (EntityId) {
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
 
     require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
@@ -123,9 +123,8 @@ contract SpawnSystem is System {
     Player._set(playerAddress, playerEntityId);
     ReversePlayer._set(playerEntityId, playerAddress);
 
-    Energy._set(playerEntityId, EnergyData({ energy: SPAWN_ENERGY, lastUpdatedTime: uint128(block.timestamp) }));
-    // TODO: check how mass should work
-    Mass._set(playerEntityId, 10);
+    Mass._set(playerEntityId, playerMass);
+    Energy._set(playerEntityId, EnergyData({ energy: MAX_PLAYER_ENERGY, lastUpdatedTime: uint128(block.timestamp) }));
 
     PlayerActivity._set(playerEntityId, uint128(block.timestamp));
 
