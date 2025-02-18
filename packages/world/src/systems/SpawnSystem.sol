@@ -83,7 +83,7 @@ contract SpawnSystem is System {
     require(spawnTileCoord.inSurroundingCube(SPAWN_AREA_HALF_WIDTH, spawnCoord), "Spawn tile is too far away");
 
     EntityId forceFieldEntityId = getForceField(spawnTileCoord);
-    require(forceFieldEntityId.exists(), "Spawn tile is not inside a force field");
+    require(forceFieldEntityId.exists(), "Spawn tile is not inside a forcefield");
     uint32 playerMass = ObjectTypeMetadata._getMass(PlayerObjectID);
     uint128 energyRequired = getEnergyCostToSpawn(playerMass);
     EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);

@@ -12,9 +12,13 @@
   },
   "31337": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "address": "0x080EB750701E7A330e6E97CD6cbc8a897f2F124e"
 =======
     "address": "0xeBb143B3624F5535De6280e2683861cda006BEB1"
 >>>>>>> 3d6781b (wip spawn tests)
+=======
+    "address": "0xc9a9a87476bc84f8E22B775e25689943465c2F6c"
+>>>>>>> 6814eef (Add remaining tests)
   }
 }

@@ -124,7 +124,50 @@ contract SpawnTest is BiomesTest {
     world.spawn(spawnTileEntityId, spawnCoord, "");
   }
 
-  function testSpawnFailsIfNoForceField() public {}
+  function testSpawnFailsIfNoForceField() public {
+    address alice = vm.randomAddress();
+    VoxelCoord memory spawnCoord = VoxelCoord(0, 0, 0);
+    VoxelCoord memory spawnTileCoord = VoxelCoord(0, spawnCoord.y - 1, 0);
 
-  function testSpawnFailsIfNotEnoughForceFieldEnergy() public {}
+    // Set the spawn coord to Air
+    EntityId spawnEntityId = randomEntityId();
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, spawnEntityId);
+    ObjectType.set(spawnEntityId, AirObjectID);
+
+    // Set below entity to spawn tile (no forcefield)
+    EntityId spawnTileEntityId = randomEntityId();
+    Position.set(spawnTileEntityId, spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z);
+    ReversePosition.set(spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z, spawnTileEntityId);
+    ObjectType.set(spawnTileEntityId, SpawnTileObjectID);
+
+    vm.prank(alice);
+    vm.expectRevert("Spawn tile is not inside a forcefield");
+    world.spawn(spawnTileEntityId, spawnCoord, "");
+  }
+
+  function testSpawnFailsIfNotEnoughForceFieldEnergy() public {
+    address alice = vm.randomAddress();
+    VoxelCoord memory spawnCoord = VoxelCoord(0, 0, 0);
+    VoxelCoord memory spawnTileCoord = VoxelCoord(0, spawnCoord.y - 1, 0);
+
+    // Set the spawn coord to Air
+    EntityId spawnEntityId = randomEntityId();
+    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, spawnEntityId);
+    ObjectType.set(spawnEntityId, AirObjectID);
+
+    // Set forcefield with no energy
+    EntityId forceFieldEntityId = randomEntityId();
+    VoxelCoord memory shardCoord = spawnTileCoord.toForceFieldShardCoord();
+    ForceField.set(shardCoord.x, shardCoord.y, shardCoord.z, forceFieldEntityId);
+
+    // Set below entity to spawn tile
+    EntityId spawnTileEntityId = randomEntityId();
+    Position.set(spawnTileEntityId, spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z);
+    ReversePosition.set(spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z, spawnTileEntityId);
+    ObjectType.set(spawnTileEntityId, SpawnTileObjectID);
+
+    vm.prank(alice);
+    vm.expectRevert("Not enough energy in spawn tile forcefield");
+    world.spawn(spawnTileEntityId, spawnCoord, "");
+  }
 }
