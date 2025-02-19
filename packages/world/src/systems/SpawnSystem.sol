@@ -149,6 +149,11 @@ contract SpawnSystem is System {
         spawnCoord.y + schemaData.relativePositionsY[i],
         spawnCoord.z + schemaData.relativePositionsZ[i]
       );
+      (, ObjectTypeId relativeTerrainObjectTypeId) = relativeCoord.getOrCreateEntity();
+      require(
+        relativeTerrainObjectTypeId == AirObjectID && !relativeCoord.getPlayer().exists(),
+        "Cannot spawn on a non-air block"
+      );
       EntityId relativePlayerEntityId = getUniqueEntity();
       ObjectType._set(relativePlayerEntityId, PlayerObjectID);
       relativeCoord.setPlayer(relativePlayerEntityId);

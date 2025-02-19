@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordDirection } from "../VoxelCoord.sol";
 
+import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
@@ -60,7 +61,22 @@ library MoveLib {
       return;
     }
 
+    ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
     VoxelCoord memory oldCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
+
+    EntityId[] memory relativeEntityIds = new EntityId[](schemaData.relativePositionsX.length);
+    VoxelCoord[] memory relativeCoords = new VoxelCoord[](schemaData.relativePositionsX.length);
+    for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+      VoxelCoord memory relativeCoord = VoxelCoord(
+        playerCoord.x + schemaData.relativePositionsX[i],
+        playerCoord.y + schemaData.relativePositionsY[i],
+        playerCoord.z + schemaData.relativePositionsZ[i]
+      );
+      relativeEntityIds[i] = relativeCoord.getPlayer();
+      relativeCoords[i] = relativeCoord;
+      // TODO: do we need this check?
+      require(relativeEntityIds[i].baseEntityId() == playerEntityId, "Base entity mismatch");
+    }
 
     EntityId finalEntityId;
     bool gravityAppliesForCoord = false;
@@ -70,6 +86,21 @@ library MoveLib {
     for (uint256 i = 0; i < newCoords.length; i++) {
       VoxelCoord memory newCoord = newCoords[i];
       (finalEntityId, gravityAppliesForCoord) = move(playerEntityId, oldCoord, newCoord);
+
+      for (uint256 j = 0; j < schemaData.relativePositionsX.length; j++) {
+        VoxelCoord memory oldRelativeCoord = VoxelCoord(
+          oldCoord.x + schemaData.relativePositionsX[j],
+          oldCoord.y + schemaData.relativePositionsY[j],
+          oldCoord.z + schemaData.relativePositionsZ[j]
+        );
+        VoxelCoord memory newRelativeCoord = VoxelCoord(
+          newCoord.x + schemaData.relativePositionsX[j],
+          newCoord.y + schemaData.relativePositionsY[j],
+          newCoord.z + schemaData.relativePositionsZ[j]
+        );
+        move(relativeEntityIds[j], oldRelativeCoord, newRelativeCoord);
+      }
+
       if (gravityAppliesForCoord) {
         if (oldCoord.y < newCoord.y) {
           numJumps++;
@@ -98,6 +129,17 @@ library MoveLib {
     playerCoord.removePlayer();
     finalCoord.setPlayer(playerEntityId);
 
+    for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+      relativeCoords[i].removePlayer();
+      VoxelCoord memory newRelativeCoord = VoxelCoord(
+        finalCoord.x + schemaData.relativePositionsX[i],
+        finalCoord.y + schemaData.relativePositionsY[i],
+        finalCoord.z + schemaData.relativePositionsZ[i]
+      );
+      newRelativeCoord.getOrCreateEntity();
+      newRelativeCoord.setPlayer(relativeEntityIds[i]);
+    }
+
     transferEnergyFromPlayerToPool(
       playerEntityId,
       playerCoord,
@@ -109,10 +151,12 @@ library MoveLib {
       GravityLib.runGravity(playerEntityId, finalCoord);
     }
 
-    VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-    EntityId aboveEntityId = aboveCoord.getPlayer();
-    if (aboveEntityId.exists()) {
-      GravityLib.runGravity(aboveEntityId, aboveCoord);
+    {
+      VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+      EntityId aboveEntityId = aboveCoord.getPlayer();
+      if (aboveEntityId.exists()) {
+        GravityLib.runGravity(aboveEntityId, aboveCoord);
+      }
     }
 
     notify(playerEntityId, MoveNotifData({ moveCoords: newCoords }));
