@@ -29,7 +29,7 @@ contract DropSystem is System {
     );
     requireInPlayerInfluence(playerCoord, coord);
 
-    (EntityId entityId, ObjectTypeId objectTypeId) = coord.getEntity();
+    (EntityId entityId, ObjectTypeId objectTypeId) = coord.getOrCreateEntity();
     require(objectTypeId == AirObjectID, "Cannot drop on a non-air block");
 
     transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_DROP_ENERGY_COST);

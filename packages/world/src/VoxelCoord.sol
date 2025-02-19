@@ -281,7 +281,15 @@ library VoxelCoordLib {
     return VoxelCoord(self.x, self.y, self.z);
   }
 
-  function getEntity(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId) {
+  function getEntity(VoxelCoord memory coord) internal view returns (EntityId, ObjectTypeId) {
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (!entityId.exists()) {
+      return (entityId, ObjectTypeId.wrap(TerrainLib._getBlockType(coord)));
+    }
+    return (entityId, ObjectType._get(entityId));
+  }
+
+  function getOrCreateEntity(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId) {
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     ObjectTypeId objectTypeId;
     if (!entityId.exists()) {
@@ -301,7 +309,7 @@ library VoxelCoordLib {
     return (entityId, objectTypeId);
   }
 
-  function getPlayer(VoxelCoord memory coord) internal returns (EntityId) {
+  function getPlayer(VoxelCoord memory coord) internal view returns (EntityId) {
     return ReversePlayerPosition._get(coord.x, coord.y, coord.z);
   }
 }

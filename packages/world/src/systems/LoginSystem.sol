@@ -37,7 +37,7 @@ contract LoginSystem is System {
       "Respawn coord too far from logged off coord"
     );
 
-    (EntityId respawnEntityId, ObjectTypeId respawnObjectTypeId) = respawnCoord.getEntity();
+    (EntityId respawnEntityId, ObjectTypeId respawnObjectTypeId) = respawnCoord.getOrCreateEntity();
     require(respawnObjectTypeId == AirObjectID, "Cannot respawn on non-air block");
 
     PlayerPosition._set(playerEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);

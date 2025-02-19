@@ -32,7 +32,7 @@ import { EntityId } from "../EntityId.sol";
 contract BuildSystem is System {
   function buildObjectAtCoord(ObjectTypeId objectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
-    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = coord.getEntity();
+    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = coord.getOrCreateEntity();
     require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
     require(
       InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,

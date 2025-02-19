@@ -109,7 +109,7 @@ contract SpawnSystem is System {
     address playerAddress = _msgSender();
     require(!Player._get(playerAddress).exists(), "Player already spawned");
 
-    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = spawnCoord.getEntity();
+    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = spawnCoord.getOrCreateEntity();
     require(terrainObjectTypeId == AirObjectID && !spawnCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
 
     // Create new entity

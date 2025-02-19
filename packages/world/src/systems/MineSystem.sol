@@ -35,7 +35,7 @@ contract MineSystem is System {
   function mineObjectAtCoord(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId) {
     require(inWorldBorder(coord), "Cannot mine outside the world border");
 
-    (EntityId entityId, ObjectTypeId mineObjectTypeId) = coord.getEntity();
+    (EntityId entityId, ObjectTypeId mineObjectTypeId) = coord.getOrCreateEntity();
     require(mineObjectTypeId.isBlock(), "Cannot mine non-block object");
     require(mineObjectTypeId != AnyOreObjectID, "Ore must be computed before it can be mined");
     require(mineObjectTypeId != AirObjectID, "Cannot mine air");
@@ -102,8 +102,8 @@ contract MineSystem is System {
 
       for (uint256 i = 0; i < coords.length; i++) {
         VoxelCoord memory aboveCoord = VoxelCoord(coords[i].x, coords[i].y + 1, coords[i].z);
-        EntityId aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-        if (aboveEntityId.exists() && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+        EntityId aboveEntityId = aboveCoord.getPlayer();
+        if (aboveEntityId.exists()) {
           GravityLib.runGravity(aboveEntityId, aboveCoord);
         }
       }

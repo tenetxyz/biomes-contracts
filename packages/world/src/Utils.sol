@@ -35,17 +35,12 @@ function inWorldBorder(VoxelCoord memory coord) pure returns (bool) {
 
 function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
-  EntityId belowEntityId = ReversePosition._get(belowCoord.x, belowCoord.y, belowCoord.z);
-  if (!belowEntityId.exists()) {
-    ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(belowCoord));
-    if (terrainObjectTypeId != AirObjectID && terrainObjectTypeId != WaterObjectID) {
-      return false;
-    }
-  } else {
-    ObjectTypeId belowObjectTypeId = ObjectType._get(belowEntityId);
-    if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
-      return false;
-    }
+  (EntityId belowEntityId, ObjectTypeId belowObjectTypeId) = belowCoord.getEntity();
+  if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
+    return false;
+  }
+  if (belowCoord.getPlayer().exists()) {
+    return false;
   }
 
   return true;
