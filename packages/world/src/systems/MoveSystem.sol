@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelCoordDirection } from "../VoxelCoord.sol";
+import { VoxelCoord, VoxelCoordDirection, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
@@ -27,6 +27,8 @@ import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract MoveSystem is System {
+  using VoxelCoordLib for *;
+
   function move(VoxelCoord[] memory newCoords) public {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
       _msgSender()
@@ -56,13 +58,7 @@ library MoveLib {
     EnergyData memory playerEnergyData,
     VoxelCoord[] memory newCoords
   ) public {
-    // no-ops
-    if (newCoords.length == 0) {
-      return;
-    }
-
     ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
-    VoxelCoord memory oldCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
 
     EntityId[] memory relativeEntityIds = new EntityId[](schemaData.relativePositionsX.length);
     VoxelCoord[] memory relativeCoords = new VoxelCoord[](schemaData.relativePositionsX.length);
@@ -78,14 +74,14 @@ library MoveLib {
       require(relativeEntityIds[i].baseEntityId() == playerEntityId, "Base entity mismatch");
     }
 
-    EntityId finalEntityId;
     bool gravityAppliesForCoord = false;
     uint256 numJumps = 0;
     uint256 numFalls = 0;
     uint256 numGlides = 0;
+    VoxelCoord memory oldCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
     for (uint256 i = 0; i < newCoords.length; i++) {
       VoxelCoord memory newCoord = newCoords[i];
-      (finalEntityId, gravityAppliesForCoord) = move(playerEntityId, oldCoord, newCoord);
+      (, gravityAppliesForCoord) = move(playerEntityId, oldCoord, newCoord);
 
       for (uint256 j = 0; j < schemaData.relativePositionsX.length; j++) {
         VoxelCoord memory oldRelativeCoord = VoxelCoord(
@@ -122,17 +118,19 @@ library MoveLib {
     }
 
     VoxelCoord memory finalCoord = newCoords[newCoords.length - 1];
-    playerCoord.removePlayer();
-    finalCoord.setPlayer(playerEntityId);
+    if (finalCoord != playerCoord) {
+      playerCoord.removePlayer();
+      finalCoord.setPlayer(playerEntityId);
 
-    for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
-      relativeCoords[i].removePlayer();
-      VoxelCoord memory newRelativeCoord = VoxelCoord(
-        finalCoord.x + schemaData.relativePositionsX[i],
-        finalCoord.y + schemaData.relativePositionsY[i],
-        finalCoord.z + schemaData.relativePositionsZ[i]
-      );
-      newRelativeCoord.setPlayer(relativeEntityIds[i]);
+      for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+        relativeCoords[i].removePlayer();
+        VoxelCoord memory newRelativeCoord = VoxelCoord(
+          finalCoord.x + schemaData.relativePositionsX[i],
+          finalCoord.y + schemaData.relativePositionsY[i],
+          finalCoord.z + schemaData.relativePositionsZ[i]
+        );
+        newRelativeCoord.setPlayer(relativeEntityIds[i]);
+      }
     }
 
     transferEnergyFromPlayerToPool(
