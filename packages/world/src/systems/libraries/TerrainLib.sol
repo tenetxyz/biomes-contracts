@@ -2,7 +2,8 @@
 pragma solidity >=0.8.24;
 
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
-import { VoxelCoord, ChunkCoord } from "../../Types.sol";
+import { VoxelCoord } from "../../VoxelCoord.sol";
+import { ChunkCoord } from "../../Types.sol";
 import { SSTORE2 } from "../../utils/SSTORE2.sol";
 import { CHUNK_SIZE } from "../../Constants.sol";
 import { floorDiv, mod } from "../../utils/MathUtils.sol";

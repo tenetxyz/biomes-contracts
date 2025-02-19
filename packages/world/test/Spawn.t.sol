@@ -14,7 +14,7 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
-import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
+import { VoxelCoord } from "../src/VoxelCoord.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 
 contract SpawnTest is BiomesTest {
