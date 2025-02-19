@@ -59,12 +59,12 @@ contract CraftSystem is System {
 
     // Require that the player has all the ingredients in its inventory
     // And delete the ingredients from the inventory as they are used
-    uint128 totalInputObjectMass = 0;
-    uint128 totalInputObjectEnergy = 0;
+    // uint128 totalInputObjectMass = 0;
+    // uint128 totalInputObjectEnergy = 0;
     for (uint256 i = 0; i < inputTypes.length; i++) {
       ObjectTypeId inputObjectTypeId = inputTypes[i];
-      totalInputObjectMass += ObjectTypeMetadata._getMass(inputObjectTypeId);
-      totalInputObjectEnergy += ObjectTypeMetadata._getEnergy(inputObjectTypeId);
+      // totalInputObjectMass += ObjectTypeMetadata._getMass(inputObjectTypeId);
+      // totalInputObjectEnergy += ObjectTypeMetadata._getEnergy(inputObjectTypeId);
       if (inputObjectTypeId.isAny()) {
         useAny(playerEntityId, inputObjectTypeId, inputAmounts[i]);
       } else {
@@ -83,8 +83,9 @@ contract CraftSystem is System {
           InventoryEntity._set(newInventoryEntityId, playerEntityId);
           ReverseInventoryEntity._push(playerEntityId, EntityId.unwrap(newInventoryEntityId));
           // TODO: figure out how mass should work with multiple inputs/outputs
-          uint128 toolMass = totalInputObjectMass + energyToMass(totalInputObjectEnergy);
-          Mass._set(newInventoryEntityId, toolMass);
+          // TODO: should we check that total output energy == total input energy? or should we do it at the recipe level?
+          // uint128 toolMass = totalInputObjectMass + energyToMass(totalInputObjectEnergy);
+          Mass._set(newInventoryEntityId, ObjectTypeMetadata._getMass(outputType));
         }
       }
 
