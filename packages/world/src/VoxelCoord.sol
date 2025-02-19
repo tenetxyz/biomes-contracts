@@ -18,7 +18,8 @@ import { ObjectTypeId } from "./ObjectTypeIds.sol";
 import { TerrainLib } from "./systems/libraries/TerrainLib.sol";
 import { getUniqueEntity } from "./Utils.sol";
 import { floorDiv, absInt32 } from "./utils/MathUtils.sol";
-import { FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM } from "./Constants.sol";
+import { FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM, CHUNK_SIZE } from "./Constants.sol";
+import { ChunkCoord } from "./Types.sol";
 
 struct VoxelCoord {
   int32 x;
@@ -137,6 +138,10 @@ library VoxelCoordLib {
 
   function fromShardCoord(VoxelCoord memory coord, int32 shardDim) internal pure returns (VoxelCoord memory) {
     return VoxelCoord({ x: coord.x * shardDim, y: coord.y * shardDim, z: coord.z * shardDim });
+  }
+
+  function toChunkCoord(VoxelCoord memory coord) internal pure returns (ChunkCoord memory) {
+    return ChunkCoord({ x: coord.x / CHUNK_SIZE, y: coord.y / CHUNK_SIZE, z: coord.z / CHUNK_SIZE });
   }
 
   // Function to get the new VoxelCoord based on the direction

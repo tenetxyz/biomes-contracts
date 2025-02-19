@@ -156,6 +156,21 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
+    ExploredChunkByIndex: {
+      schema: {
+        index: "uint256",
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      key: ["index"],
+    },
+    ExploredChunkCount: {
+      schema: {
+        count: "uint256",
+      },
+      key: [],
+    },
     // ------------------------------------------------------------
     // Inventory
     // ------------------------------------------------------------
