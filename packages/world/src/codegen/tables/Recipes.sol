@@ -16,15 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-// Import user types
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
-
 struct RecipesData {
-  ObjectTypeId stationObjectTypeId;
-  ObjectTypeId outputObjectTypeId;
-  uint16 outputObjectTypeAmount;
-  uint16[] inputObjectTypeIds;
-  uint16[] inputObjectTypeAmounts;
+  uint16[] outputTypes;
+  uint16[] outputAmounts;
 }
 
 library Recipes {
@@ -32,12 +26,12 @@ library Recipes {
   ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000052656369706573000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0006030202020200000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0000000200000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint16, uint16, uint16, uint16[], uint16[])
-  Schema constant _valueSchema = Schema.wrap(0x0006030201010163630000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint16[], uint16[])
+  Schema constant _valueSchema = Schema.wrap(0x0000000263630000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -53,12 +47,9 @@ library Recipes {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](5);
-    fieldNames[0] = "stationObjectTypeId";
-    fieldNames[1] = "outputObjectTypeId";
-    fieldNames[2] = "outputObjectTypeAmount";
-    fieldNames[3] = "inputObjectTypeIds";
-    fieldNames[4] = "inputObjectTypeAmounts";
+    fieldNames = new string[](2);
+    fieldNames[0] = "outputTypes";
+    fieldNames[1] = "outputAmounts";
   }
 
   /**
@@ -76,159 +67,9 @@ library Recipes {
   }
 
   /**
-   * @notice Get stationObjectTypeId.
+   * @notice Get outputTypes.
    */
-  function getStationObjectTypeId(bytes32 recipeId) internal view returns (ObjectTypeId stationObjectTypeId) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = recipeId;
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ObjectTypeId.wrap(uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Get stationObjectTypeId.
-   */
-  function _getStationObjectTypeId(bytes32 recipeId) internal view returns (ObjectTypeId stationObjectTypeId) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = recipeId;
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ObjectTypeId.wrap(uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Set stationObjectTypeId.
-   */
-  function setStationObjectTypeId(bytes32 recipeId, ObjectTypeId stationObjectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = recipeId;
-
-    StoreSwitch.setStaticField(
-      _tableId,
-      _keyTuple,
-      0,
-      abi.encodePacked(ObjectTypeId.unwrap(stationObjectTypeId)),
-      _fieldLayout
-    );
-  }
-
-  /**
-   * @notice Set stationObjectTypeId.
-   */
-  function _setStationObjectTypeId(bytes32 recipeId, ObjectTypeId stationObjectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = recipeId;
-
-    StoreCore.setStaticField(
-      _tableId,
-      _keyTuple,
-      0,
-      abi.encodePacked(ObjectTypeId.unwrap(stationObjectTypeId)),
-      _fieldLayout
-    );
-  }
-
-  /**
-   * @notice Get outputObjectTypeId.
-   */
-  function getOutputObjectTypeId(bytes32 recipeId) internal view returns (ObjectTypeId outputObjectTypeId) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = recipeId;
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return ObjectTypeId.wrap(uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Get outputObjectTypeId.
-   */
-  function _getOutputObjectTypeId(bytes32 recipeId) internal view returns (ObjectTypeId outputObjectTypeId) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = recipeId;
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return ObjectTypeId.wrap(uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Set outputObjectTypeId.
-   */
-  function setOutputObjectTypeId(bytes32 recipeId, ObjectTypeId outputObjectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = recipeId;
-
-    StoreSwitch.setStaticField(
-      _tableId,
-      _keyTuple,
-      1,
-      abi.encodePacked(ObjectTypeId.unwrap(outputObjectTypeId)),
-      _fieldLayout
-    );
-  }
-
-  /**
-   * @notice Set outputObjectTypeId.
-   */
-  function _setOutputObjectTypeId(bytes32 recipeId, ObjectTypeId outputObjectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = recipeId;
-
-    StoreCore.setStaticField(
-      _tableId,
-      _keyTuple,
-      1,
-      abi.encodePacked(ObjectTypeId.unwrap(outputObjectTypeId)),
-      _fieldLayout
-    );
-  }
-
-  /**
-   * @notice Get outputObjectTypeAmount.
-   */
-  function getOutputObjectTypeAmount(bytes32 recipeId) internal view returns (uint16 outputObjectTypeAmount) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = recipeId;
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Get outputObjectTypeAmount.
-   */
-  function _getOutputObjectTypeAmount(bytes32 recipeId) internal view returns (uint16 outputObjectTypeAmount) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = recipeId;
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (uint16(bytes2(_blob)));
-  }
-
-  /**
-   * @notice Set outputObjectTypeAmount.
-   */
-  function setOutputObjectTypeAmount(bytes32 recipeId, uint16 outputObjectTypeAmount) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = recipeId;
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((outputObjectTypeAmount)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set outputObjectTypeAmount.
-   */
-  function _setOutputObjectTypeAmount(bytes32 recipeId, uint16 outputObjectTypeAmount) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = recipeId;
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((outputObjectTypeAmount)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get inputObjectTypeIds.
-   */
-  function getInputObjectTypeIds(bytes32 recipeId) internal view returns (uint16[] memory inputObjectTypeIds) {
+  function getOutputTypes(bytes32 recipeId) internal view returns (uint16[] memory outputTypes) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -237,9 +78,9 @@ library Recipes {
   }
 
   /**
-   * @notice Get inputObjectTypeIds.
+   * @notice Get outputTypes.
    */
-  function _getInputObjectTypeIds(bytes32 recipeId) internal view returns (uint16[] memory inputObjectTypeIds) {
+  function _getOutputTypes(bytes32 recipeId) internal view returns (uint16[] memory outputTypes) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -248,29 +89,29 @@ library Recipes {
   }
 
   /**
-   * @notice Set inputObjectTypeIds.
+   * @notice Set outputTypes.
    */
-  function setInputObjectTypeIds(bytes32 recipeId, uint16[] memory inputObjectTypeIds) internal {
+  function setOutputTypes(bytes32 recipeId, uint16[] memory outputTypes) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
-    StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((inputObjectTypeIds)));
+    StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((outputTypes)));
   }
 
   /**
-   * @notice Set inputObjectTypeIds.
+   * @notice Set outputTypes.
    */
-  function _setInputObjectTypeIds(bytes32 recipeId, uint16[] memory inputObjectTypeIds) internal {
+  function _setOutputTypes(bytes32 recipeId, uint16[] memory outputTypes) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
-    StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((inputObjectTypeIds)));
+    StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((outputTypes)));
   }
 
   /**
-   * @notice Get the length of inputObjectTypeIds.
+   * @notice Get the length of outputTypes.
    */
-  function lengthInputObjectTypeIds(bytes32 recipeId) internal view returns (uint256) {
+  function lengthOutputTypes(bytes32 recipeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -281,9 +122,9 @@ library Recipes {
   }
 
   /**
-   * @notice Get the length of inputObjectTypeIds.
+   * @notice Get the length of outputTypes.
    */
-  function _lengthInputObjectTypeIds(bytes32 recipeId) internal view returns (uint256) {
+  function _lengthOutputTypes(bytes32 recipeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -294,10 +135,10 @@ library Recipes {
   }
 
   /**
-   * @notice Get an item of inputObjectTypeIds.
+   * @notice Get an item of outputTypes.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemInputObjectTypeIds(bytes32 recipeId, uint256 _index) internal view returns (uint16) {
+  function getItemOutputTypes(bytes32 recipeId, uint256 _index) internal view returns (uint16) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -308,10 +149,10 @@ library Recipes {
   }
 
   /**
-   * @notice Get an item of inputObjectTypeIds.
+   * @notice Get an item of outputTypes.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemInputObjectTypeIds(bytes32 recipeId, uint256 _index) internal view returns (uint16) {
+  function _getItemOutputTypes(bytes32 recipeId, uint256 _index) internal view returns (uint16) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -322,9 +163,9 @@ library Recipes {
   }
 
   /**
-   * @notice Push an element to inputObjectTypeIds.
+   * @notice Push an element to outputTypes.
    */
-  function pushInputObjectTypeIds(bytes32 recipeId, uint16 _element) internal {
+  function pushOutputTypes(bytes32 recipeId, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -332,9 +173,9 @@ library Recipes {
   }
 
   /**
-   * @notice Push an element to inputObjectTypeIds.
+   * @notice Push an element to outputTypes.
    */
-  function _pushInputObjectTypeIds(bytes32 recipeId, uint16 _element) internal {
+  function _pushOutputTypes(bytes32 recipeId, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -342,9 +183,9 @@ library Recipes {
   }
 
   /**
-   * @notice Pop an element from inputObjectTypeIds.
+   * @notice Pop an element from outputTypes.
    */
-  function popInputObjectTypeIds(bytes32 recipeId) internal {
+  function popOutputTypes(bytes32 recipeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -352,9 +193,9 @@ library Recipes {
   }
 
   /**
-   * @notice Pop an element from inputObjectTypeIds.
+   * @notice Pop an element from outputTypes.
    */
-  function _popInputObjectTypeIds(bytes32 recipeId) internal {
+  function _popOutputTypes(bytes32 recipeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -362,9 +203,9 @@ library Recipes {
   }
 
   /**
-   * @notice Update an element of inputObjectTypeIds at `_index`.
+   * @notice Update an element of outputTypes at `_index`.
    */
-  function updateInputObjectTypeIds(bytes32 recipeId, uint256 _index, uint16 _element) internal {
+  function updateOutputTypes(bytes32 recipeId, uint256 _index, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -375,9 +216,9 @@ library Recipes {
   }
 
   /**
-   * @notice Update an element of inputObjectTypeIds at `_index`.
+   * @notice Update an element of outputTypes at `_index`.
    */
-  function _updateInputObjectTypeIds(bytes32 recipeId, uint256 _index, uint16 _element) internal {
+  function _updateOutputTypes(bytes32 recipeId, uint256 _index, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -388,9 +229,9 @@ library Recipes {
   }
 
   /**
-   * @notice Get inputObjectTypeAmounts.
+   * @notice Get outputAmounts.
    */
-  function getInputObjectTypeAmounts(bytes32 recipeId) internal view returns (uint16[] memory inputObjectTypeAmounts) {
+  function getOutputAmounts(bytes32 recipeId) internal view returns (uint16[] memory outputAmounts) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -399,9 +240,9 @@ library Recipes {
   }
 
   /**
-   * @notice Get inputObjectTypeAmounts.
+   * @notice Get outputAmounts.
    */
-  function _getInputObjectTypeAmounts(bytes32 recipeId) internal view returns (uint16[] memory inputObjectTypeAmounts) {
+  function _getOutputAmounts(bytes32 recipeId) internal view returns (uint16[] memory outputAmounts) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -410,29 +251,29 @@ library Recipes {
   }
 
   /**
-   * @notice Set inputObjectTypeAmounts.
+   * @notice Set outputAmounts.
    */
-  function setInputObjectTypeAmounts(bytes32 recipeId, uint16[] memory inputObjectTypeAmounts) internal {
+  function setOutputAmounts(bytes32 recipeId, uint16[] memory outputAmounts) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
-    StoreSwitch.setDynamicField(_tableId, _keyTuple, 1, EncodeArray.encode((inputObjectTypeAmounts)));
+    StoreSwitch.setDynamicField(_tableId, _keyTuple, 1, EncodeArray.encode((outputAmounts)));
   }
 
   /**
-   * @notice Set inputObjectTypeAmounts.
+   * @notice Set outputAmounts.
    */
-  function _setInputObjectTypeAmounts(bytes32 recipeId, uint16[] memory inputObjectTypeAmounts) internal {
+  function _setOutputAmounts(bytes32 recipeId, uint16[] memory outputAmounts) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
-    StoreCore.setDynamicField(_tableId, _keyTuple, 1, EncodeArray.encode((inputObjectTypeAmounts)));
+    StoreCore.setDynamicField(_tableId, _keyTuple, 1, EncodeArray.encode((outputAmounts)));
   }
 
   /**
-   * @notice Get the length of inputObjectTypeAmounts.
+   * @notice Get the length of outputAmounts.
    */
-  function lengthInputObjectTypeAmounts(bytes32 recipeId) internal view returns (uint256) {
+  function lengthOutputAmounts(bytes32 recipeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -443,9 +284,9 @@ library Recipes {
   }
 
   /**
-   * @notice Get the length of inputObjectTypeAmounts.
+   * @notice Get the length of outputAmounts.
    */
-  function _lengthInputObjectTypeAmounts(bytes32 recipeId) internal view returns (uint256) {
+  function _lengthOutputAmounts(bytes32 recipeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -456,10 +297,10 @@ library Recipes {
   }
 
   /**
-   * @notice Get an item of inputObjectTypeAmounts.
+   * @notice Get an item of outputAmounts.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemInputObjectTypeAmounts(bytes32 recipeId, uint256 _index) internal view returns (uint16) {
+  function getItemOutputAmounts(bytes32 recipeId, uint256 _index) internal view returns (uint16) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -470,10 +311,10 @@ library Recipes {
   }
 
   /**
-   * @notice Get an item of inputObjectTypeAmounts.
+   * @notice Get an item of outputAmounts.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemInputObjectTypeAmounts(bytes32 recipeId, uint256 _index) internal view returns (uint16) {
+  function _getItemOutputAmounts(bytes32 recipeId, uint256 _index) internal view returns (uint16) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -484,9 +325,9 @@ library Recipes {
   }
 
   /**
-   * @notice Push an element to inputObjectTypeAmounts.
+   * @notice Push an element to outputAmounts.
    */
-  function pushInputObjectTypeAmounts(bytes32 recipeId, uint16 _element) internal {
+  function pushOutputAmounts(bytes32 recipeId, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -494,9 +335,9 @@ library Recipes {
   }
 
   /**
-   * @notice Push an element to inputObjectTypeAmounts.
+   * @notice Push an element to outputAmounts.
    */
-  function _pushInputObjectTypeAmounts(bytes32 recipeId, uint16 _element) internal {
+  function _pushOutputAmounts(bytes32 recipeId, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -504,9 +345,9 @@ library Recipes {
   }
 
   /**
-   * @notice Pop an element from inputObjectTypeAmounts.
+   * @notice Pop an element from outputAmounts.
    */
-  function popInputObjectTypeAmounts(bytes32 recipeId) internal {
+  function popOutputAmounts(bytes32 recipeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -514,9 +355,9 @@ library Recipes {
   }
 
   /**
-   * @notice Pop an element from inputObjectTypeAmounts.
+   * @notice Pop an element from outputAmounts.
    */
-  function _popInputObjectTypeAmounts(bytes32 recipeId) internal {
+  function _popOutputAmounts(bytes32 recipeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -524,9 +365,9 @@ library Recipes {
   }
 
   /**
-   * @notice Update an element of inputObjectTypeAmounts at `_index`.
+   * @notice Update an element of outputAmounts at `_index`.
    */
-  function updateInputObjectTypeAmounts(bytes32 recipeId, uint256 _index, uint16 _element) internal {
+  function updateOutputAmounts(bytes32 recipeId, uint256 _index, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -537,9 +378,9 @@ library Recipes {
   }
 
   /**
-   * @notice Update an element of inputObjectTypeAmounts at `_index`.
+   * @notice Update an element of outputAmounts at `_index`.
    */
-  function _updateInputObjectTypeAmounts(bytes32 recipeId, uint256 _index, uint16 _element) internal {
+  function _updateOutputAmounts(bytes32 recipeId, uint256 _index, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
 
@@ -582,18 +423,10 @@ library Recipes {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(
-    bytes32 recipeId,
-    ObjectTypeId stationObjectTypeId,
-    ObjectTypeId outputObjectTypeId,
-    uint16 outputObjectTypeAmount,
-    uint16[] memory inputObjectTypeIds,
-    uint16[] memory inputObjectTypeAmounts
-  ) internal {
-    bytes memory _staticData = encodeStatic(stationObjectTypeId, outputObjectTypeId, outputObjectTypeAmount);
-
-    EncodedLengths _encodedLengths = encodeLengths(inputObjectTypeIds, inputObjectTypeAmounts);
-    bytes memory _dynamicData = encodeDynamic(inputObjectTypeIds, inputObjectTypeAmounts);
+  function set(bytes32 recipeId, uint16[] memory outputTypes, uint16[] memory outputAmounts) internal {
+    bytes memory _staticData;
+    EncodedLengths _encodedLengths = encodeLengths(outputTypes, outputAmounts);
+    bytes memory _dynamicData = encodeDynamic(outputTypes, outputAmounts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
@@ -604,18 +437,10 @@ library Recipes {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(
-    bytes32 recipeId,
-    ObjectTypeId stationObjectTypeId,
-    ObjectTypeId outputObjectTypeId,
-    uint16 outputObjectTypeAmount,
-    uint16[] memory inputObjectTypeIds,
-    uint16[] memory inputObjectTypeAmounts
-  ) internal {
-    bytes memory _staticData = encodeStatic(stationObjectTypeId, outputObjectTypeId, outputObjectTypeAmount);
-
-    EncodedLengths _encodedLengths = encodeLengths(inputObjectTypeIds, inputObjectTypeAmounts);
-    bytes memory _dynamicData = encodeDynamic(inputObjectTypeIds, inputObjectTypeAmounts);
+  function _set(bytes32 recipeId, uint16[] memory outputTypes, uint16[] memory outputAmounts) internal {
+    bytes memory _staticData;
+    EncodedLengths _encodedLengths = encodeLengths(outputTypes, outputAmounts);
+    bytes memory _dynamicData = encodeDynamic(outputTypes, outputAmounts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
@@ -627,14 +452,9 @@ library Recipes {
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 recipeId, RecipesData memory _table) internal {
-    bytes memory _staticData = encodeStatic(
-      _table.stationObjectTypeId,
-      _table.outputObjectTypeId,
-      _table.outputObjectTypeAmount
-    );
-
-    EncodedLengths _encodedLengths = encodeLengths(_table.inputObjectTypeIds, _table.inputObjectTypeAmounts);
-    bytes memory _dynamicData = encodeDynamic(_table.inputObjectTypeIds, _table.inputObjectTypeAmounts);
+    bytes memory _staticData;
+    EncodedLengths _encodedLengths = encodeLengths(_table.outputTypes, _table.outputAmounts);
+    bytes memory _dynamicData = encodeDynamic(_table.outputTypes, _table.outputAmounts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
@@ -646,14 +466,9 @@ library Recipes {
    * @notice Set the full data using the data struct.
    */
   function _set(bytes32 recipeId, RecipesData memory _table) internal {
-    bytes memory _staticData = encodeStatic(
-      _table.stationObjectTypeId,
-      _table.outputObjectTypeId,
-      _table.outputObjectTypeAmount
-    );
-
-    EncodedLengths _encodedLengths = encodeLengths(_table.inputObjectTypeIds, _table.inputObjectTypeAmounts);
-    bytes memory _dynamicData = encodeDynamic(_table.inputObjectTypeIds, _table.inputObjectTypeAmounts);
+    bytes memory _staticData;
+    EncodedLengths _encodedLengths = encodeLengths(_table.outputTypes, _table.outputAmounts);
+    bytes memory _dynamicData = encodeDynamic(_table.outputTypes, _table.outputAmounts);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = recipeId;
@@ -662,57 +477,38 @@ library Recipes {
   }
 
   /**
-   * @notice Decode the tightly packed blob of static data using this table's field layout.
-   */
-  function decodeStatic(
-    bytes memory _blob
-  )
-    internal
-    pure
-    returns (ObjectTypeId stationObjectTypeId, ObjectTypeId outputObjectTypeId, uint16 outputObjectTypeAmount)
-  {
-    stationObjectTypeId = ObjectTypeId.wrap(uint16(Bytes.getBytes2(_blob, 0)));
-
-    outputObjectTypeId = ObjectTypeId.wrap(uint16(Bytes.getBytes2(_blob, 2)));
-
-    outputObjectTypeAmount = (uint16(Bytes.getBytes2(_blob, 4)));
-  }
-
-  /**
    * @notice Decode the tightly packed blob of dynamic data using the encoded lengths.
    */
   function decodeDynamic(
     EncodedLengths _encodedLengths,
     bytes memory _blob
-  ) internal pure returns (uint16[] memory inputObjectTypeIds, uint16[] memory inputObjectTypeAmounts) {
+  ) internal pure returns (uint16[] memory outputTypes, uint16[] memory outputAmounts) {
     uint256 _start;
     uint256 _end;
     unchecked {
       _end = _encodedLengths.atIndex(0);
     }
-    inputObjectTypeIds = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_uint16());
+    outputTypes = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_uint16());
 
     _start = _end;
     unchecked {
       _end += _encodedLengths.atIndex(1);
     }
-    inputObjectTypeAmounts = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_uint16());
+    outputAmounts = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_uint16());
   }
 
   /**
    * @notice Decode the tightly packed blobs using this table's field layout.
-   * @param _staticData Tightly packed static fields.
+   *
    * @param _encodedLengths Encoded lengths of dynamic fields.
    * @param _dynamicData Tightly packed dynamic fields.
    */
   function decode(
-    bytes memory _staticData,
+    bytes memory,
     EncodedLengths _encodedLengths,
     bytes memory _dynamicData
   ) internal pure returns (RecipesData memory _table) {
-    (_table.stationObjectTypeId, _table.outputObjectTypeId, _table.outputObjectTypeAmount) = decodeStatic(_staticData);
-
-    (_table.inputObjectTypeIds, _table.inputObjectTypeAmounts) = decodeDynamic(_encodedLengths, _dynamicData);
+    (_table.outputTypes, _table.outputAmounts) = decodeDynamic(_encodedLengths, _dynamicData);
   }
 
   /**
@@ -736,28 +532,16 @@ library Recipes {
   }
 
   /**
-   * @notice Tightly pack static (fixed length) data using this table's schema.
-   * @return The static data, encoded into a sequence of bytes.
-   */
-  function encodeStatic(
-    ObjectTypeId stationObjectTypeId,
-    ObjectTypeId outputObjectTypeId,
-    uint16 outputObjectTypeAmount
-  ) internal pure returns (bytes memory) {
-    return abi.encodePacked(stationObjectTypeId, outputObjectTypeId, outputObjectTypeAmount);
-  }
-
-  /**
    * @notice Tightly pack dynamic data lengths using this table's schema.
    * @return _encodedLengths The lengths of the dynamic fields (packed into a single bytes32 value).
    */
   function encodeLengths(
-    uint16[] memory inputObjectTypeIds,
-    uint16[] memory inputObjectTypeAmounts
+    uint16[] memory outputTypes,
+    uint16[] memory outputAmounts
   ) internal pure returns (EncodedLengths _encodedLengths) {
     // Lengths are effectively checked during copy by 2**40 bytes exceeding gas limits
     unchecked {
-      _encodedLengths = EncodedLengthsLib.pack(inputObjectTypeIds.length * 2, inputObjectTypeAmounts.length * 2);
+      _encodedLengths = EncodedLengthsLib.pack(outputTypes.length * 2, outputAmounts.length * 2);
     }
   }
 
@@ -766,10 +550,10 @@ library Recipes {
    * @return The dynamic data, encoded into a sequence of bytes.
    */
   function encodeDynamic(
-    uint16[] memory inputObjectTypeIds,
-    uint16[] memory inputObjectTypeAmounts
+    uint16[] memory outputTypes,
+    uint16[] memory outputAmounts
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(EncodeArray.encode((inputObjectTypeIds)), EncodeArray.encode((inputObjectTypeAmounts)));
+    return abi.encodePacked(EncodeArray.encode((outputTypes)), EncodeArray.encode((outputAmounts)));
   }
 
   /**
@@ -779,16 +563,12 @@ library Recipes {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
-    ObjectTypeId stationObjectTypeId,
-    ObjectTypeId outputObjectTypeId,
-    uint16 outputObjectTypeAmount,
-    uint16[] memory inputObjectTypeIds,
-    uint16[] memory inputObjectTypeAmounts
+    uint16[] memory outputTypes,
+    uint16[] memory outputAmounts
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(stationObjectTypeId, outputObjectTypeId, outputObjectTypeAmount);
-
-    EncodedLengths _encodedLengths = encodeLengths(inputObjectTypeIds, inputObjectTypeAmounts);
-    bytes memory _dynamicData = encodeDynamic(inputObjectTypeIds, inputObjectTypeAmounts);
+    bytes memory _staticData;
+    EncodedLengths _encodedLengths = encodeLengths(outputTypes, outputAmounts);
+    bytes memory _dynamicData = encodeDynamic(outputTypes, outputAmounts);
 
     return (_staticData, _encodedLengths, _dynamicData);
   }
