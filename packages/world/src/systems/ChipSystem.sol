@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+import { ResourceId, WorldResourceIdInstance } from "@latticexyz/world/src/WorldResourceId.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
+import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
 import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
 import { VoxelCoord } from "../Types.sol";
@@ -29,6 +30,8 @@ import { EntityId } from "../EntityId.sol";
 import { safeCallChip, callChipOrRevert } from "../utils/callChip.sol";
 
 contract ChipSystem is System {
+  using WorldResourceIdInstance for ResourceId;
+
   function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) public payable {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
@@ -37,7 +40,8 @@ contract ChipSystem is System {
 
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
 
-    (address chipAddress, ) = Systems._get(chipSystemId);
+    (address chipAddress, bool publicAccess) = Systems._get(chipSystemId);
+    require(!publicAccess, "Chip system must be private");
 
     if (objectTypeId == ForceFieldObjectID) {
       require(
