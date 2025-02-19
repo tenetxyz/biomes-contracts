@@ -6,6 +6,7 @@ import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { Position, PositionData } from "../codegen/tables/Position.sol";
+import { PlayerPosition, PlayerPositionData } from "../codegen/tables/PlayerPosition.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -22,6 +23,7 @@ import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 using VoxelCoordLib for PositionData;
+using VoxelCoordLib for PlayerPositionData;
 
 function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory, EnergyData memory) {
   checkWorldStatus();
@@ -29,7 +31,7 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
   require(playerEntityId.exists(), "Player does not exist");
   require(!PlayerStatus._getIsLoggedOff(playerEntityId), "Player isn't logged in");
   require(!Commitment._getHasCommitted(playerEntityId), "Player is in a commitment");
-  VoxelCoord memory playerCoord = Position._get(playerEntityId).toVoxelCoord();
+  VoxelCoord memory playerCoord = PlayerPosition._get(playerEntityId).toVoxelCoord();
   EnergyData memory playerEnergyData = updatePlayerEnergyLevel(playerEntityId);
   PlayerActivity._set(playerEntityId, uint128(block.timestamp));
   return (playerEntityId, playerCoord, playerEnergyData);
@@ -53,23 +55,4 @@ function requireInPlayerInfluence(VoxelCoord memory playerCoord, EntityId entity
   VoxelCoord memory coord = Position._get(entityId).toVoxelCoord();
   requireInPlayerInfluence(playerCoord, coord);
   return coord;
-}
-
-function despawnPlayer(EntityId playerEntityId) {
-  // Note: Inventory is already attached to the entity id, which means it'll be
-  // attached to air, ie it's a "dropped" item
-  ObjectType._set(playerEntityId, AirObjectID);
-
-  Mass._deleteRecord(playerEntityId);
-  Energy._deleteRecord(playerEntityId);
-
-  if (Equipped._get(playerEntityId).exists()) {
-    Equipped._deleteRecord(playerEntityId);
-  }
-
-  PlayerStatus._deleteRecord(playerEntityId);
-  PlayerActivity._deleteRecord(playerEntityId);
-  address player = ReversePlayer._get(playerEntityId);
-  Player._deleteRecord(player);
-  ReversePlayer._deleteRecord(playerEntityId);
 }

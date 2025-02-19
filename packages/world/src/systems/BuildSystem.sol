@@ -8,17 +8,17 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
-import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
+import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
-import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
@@ -32,22 +32,19 @@ import { EntityId } from "../EntityId.sol";
 contract BuildSystem is System {
   function buildObjectAtCoord(ObjectTypeId objectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
-    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    if (!entityId.exists()) {
-      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
-      require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
-
-      entityId = getUniqueEntity();
-      Position._set(entityId, coord.x, coord.y, coord.z);
-      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
-    } else {
-      require(ObjectType._get(entityId) == AirObjectID, "Cannot build on a non-air block");
-      require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot build where there are dropped objects");
+    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = coord.getOrCreateEntity();
+    require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
+    require(
+      InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,
+      "Cannot build where there are dropped objects"
+    );
+    if (!ObjectTypeMetadata._getCanPassThrough(terrainObjectTypeId)) {
+      require(!coord.getPlayer().exists(), "Cannot build on a player");
     }
 
-    ObjectType._set(entityId, objectTypeId);
+    ObjectType._set(terrainEntityId, objectTypeId);
 
-    return entityId;
+    return terrainEntityId;
   }
 
   function buildWithExtraData(
@@ -107,23 +104,13 @@ contract BuildSystem is System {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     require(inWorldBorder(jumpCoord), "Cannot jump outside world border");
-    EntityId newEntityId = ReversePosition._get(jumpCoord.x, jumpCoord.y, jumpCoord.z);
-    if (!newEntityId.exists()) {
-      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(jumpCoord));
-      require(terrainObjectTypeId == AirObjectID, "Cannot jump on a non-air block");
-      newEntityId = getUniqueEntity();
-      ObjectType._set(newEntityId, AirObjectID);
-    } else {
-      require(ObjectType._get(newEntityId) == AirObjectID, "Cannot jump on a non-air block");
-      transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
-    }
+    (EntityId newEntityId, ObjectTypeId terrainObjectTypeId) = jumpCoord.getOrCreateEntity();
+    require(ObjectTypeMetadata._getCanPassThrough(terrainObjectTypeId), "Cannot jump on a non-passable block");
 
-    // Swap entity ids
-    ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, newEntityId);
-    Position._set(newEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
+    ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
 
-    Position._set(playerEntityId, jumpCoord.x, jumpCoord.y, jumpCoord.z);
-    ReversePosition._set(jumpCoord.x, jumpCoord.y, jumpCoord.z, playerEntityId);
+    PlayerPosition._set(playerEntityId, jumpCoord.x, jumpCoord.y, jumpCoord.z);
+    ReversePlayerPosition._set(jumpCoord.x, jumpCoord.y, jumpCoord.z, playerEntityId);
 
     // TODO: apply jump cost
     VoxelCoord[] memory moveCoords = new VoxelCoord[](1);

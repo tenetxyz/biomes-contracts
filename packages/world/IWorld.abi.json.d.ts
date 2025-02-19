@@ -3342,14 +3342,14 @@ declare const abi: [
     "name": "transfer",
     "inputs": [
       {
-        "name": "srcEntityId",
+        "name": "chestEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "dstEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
+        "name": "isDeposit",
+        "type": "bool",
+        "internalType": "bool"
       },
       {
         "name": "transferObjectTypeId",
@@ -3434,14 +3434,14 @@ declare const abi: [
     "name": "transferTool",
     "inputs": [
       {
-        "name": "srcEntityId",
+        "name": "chestEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "dstEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
+        "name": "isDeposit",
+        "type": "bool",
+        "internalType": "bool"
       },
       {
         "name": "toolEntityId",
@@ -3457,14 +3457,14 @@ declare const abi: [
     "name": "transferToolWithExtraData",
     "inputs": [
       {
-        "name": "srcEntityId",
+        "name": "chestEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "dstEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
+        "name": "isDeposit",
+        "type": "bool",
+        "internalType": "bool"
       },
       {
         "name": "toolEntityId",
@@ -3485,14 +3485,14 @@ declare const abi: [
     "name": "transferTools",
     "inputs": [
       {
-        "name": "srcEntityId",
+        "name": "chestEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "dstEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
+        "name": "isDeposit",
+        "type": "bool",
+        "internalType": "bool"
       },
       {
         "name": "toolEntityIds",
@@ -3508,14 +3508,14 @@ declare const abi: [
     "name": "transferToolsWithExtraData",
     "inputs": [
       {
-        "name": "srcEntityId",
+        "name": "chestEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "dstEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
+        "name": "isDeposit",
+        "type": "bool",
+        "internalType": "bool"
       },
       {
         "name": "toolEntityIds",
@@ -3536,14 +3536,14 @@ declare const abi: [
     "name": "transferWithExtraData",
     "inputs": [
       {
-        "name": "srcEntityId",
+        "name": "chestEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "dstEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
+        "name": "isDeposit",
+        "type": "bool",
+        "internalType": "bool"
       },
       {
         "name": "transferObjectTypeId",

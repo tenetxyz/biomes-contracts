@@ -13,35 +13,35 @@ import { ObjectTypeId } from "../../ObjectTypeIds.sol";
  */
 interface ITransferSystem {
   function transferWithExtraData(
-    EntityId srcEntityId,
-    EntityId dstEntityId,
+    EntityId chestEntityId,
+    bool isDeposit,
     ObjectTypeId transferObjectTypeId,
     uint16 numToTransfer,
     bytes memory extraData
   ) external payable;
 
   function transferToolWithExtraData(
-    EntityId srcEntityId,
-    EntityId dstEntityId,
+    EntityId chestEntityId,
+    bool isDeposit,
     EntityId toolEntityId,
     bytes memory extraData
   ) external payable;
 
   function transferToolsWithExtraData(
-    EntityId srcEntityId,
-    EntityId dstEntityId,
+    EntityId chestEntityId,
+    bool isDeposit,
     EntityId[] memory toolEntityIds,
     bytes memory extraData
   ) external payable;
 
   function transfer(
-    EntityId srcEntityId,
-    EntityId dstEntityId,
+    EntityId chestEntityId,
+    bool isDeposit,
     ObjectTypeId transferObjectTypeId,
     uint16 numToTransfer
   ) external payable;
 
-  function transferTool(EntityId srcEntityId, EntityId dstEntityId, EntityId toolEntityId) external payable;
+  function transferTool(EntityId chestEntityId, bool isDeposit, EntityId toolEntityId) external payable;
 
-  function transferTools(EntityId srcEntityId, EntityId dstEntityId, EntityId[] memory toolEntityIds) external payable;
+  function transferTools(EntityId chestEntityId, bool isDeposit, EntityId[] memory toolEntityIds) external payable;
 }

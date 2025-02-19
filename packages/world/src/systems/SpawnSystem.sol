@@ -9,6 +9,8 @@ import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
+import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
@@ -21,7 +23,6 @@ import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 import { MAX_PLAYER_ENERGY, SPAWN_AREA_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
-import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
@@ -131,26 +132,18 @@ contract SpawnSystem is System {
     address playerAddress = _msgSender();
     require(!Player._get(playerAddress).exists(), "Player already spawned");
 
-    EntityId playerEntityId = getUniqueEntity();
-
-    EntityId existingEntityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    if (!existingEntityId.exists()) {
-      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(spawnCoord));
-      require(terrainObjectTypeId == AirObjectID, "Cannot spawn on a non-air block");
-    } else {
-      require(ObjectType._get(existingEntityId) == AirObjectID, "Cannot spawn on a non-air block");
-      // Transfer any dropped items
-      transferAllInventoryEntities(existingEntityId, playerEntityId, PlayerObjectID);
-
-      Position._deleteRecord(existingEntityId);
-    }
+    (, ObjectTypeId terrainObjectTypeId) = spawnCoord.getOrCreateEntity();
+    require(terrainObjectTypeId == AirObjectID && !spawnCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
 
     // Create new entity
-    Position._set(playerEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    ReversePosition._set(spawnCoord.x, spawnCoord.y, spawnCoord.z, playerEntityId);
+    EntityId playerEntityId = getUniqueEntity();
 
-    // Set object type to player
+    // TODO: do we need object type here?
     ObjectType._set(playerEntityId, PlayerObjectID);
+
+    PlayerPosition._set(playerEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
+    ReversePlayerPosition._set(spawnCoord.x, spawnCoord.y, spawnCoord.z, playerEntityId);
+
     Player._set(playerAddress, playerEntityId);
     ReversePlayer._set(playerEntityId, playerAddress);
 

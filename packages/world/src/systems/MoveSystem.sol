@@ -4,15 +4,17 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordDirection } from "../VoxelCoord.sol";
 
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
+import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { gravityApplies, inWorldBorder } from "../Utils.sol";
-import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { PLAYER_MOVE_ENERGY_COST } from "../Constants.sol";
 import { notify, MoveNotifData } from "../utils/NotifUtils.sol";
 import { GravityLib } from "./libraries/GravityLib.sol";
@@ -89,16 +91,14 @@ library MoveLib {
     }
 
     VoxelCoord memory finalCoord = newCoords[newCoords.length - 1];
-    if (finalEntityId != playerEntityId) {
-      transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
-
-      // Swap entity ids
-      ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, finalEntityId);
-      Position._set(finalEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
-
-      Position._set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
-      ReversePosition._set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+    if (!finalEntityId.exists()) {
+      finalCoord.getOrCreateEntity();
     }
+
+    ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
+
+    PlayerPosition._set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
+    ReversePlayerPosition._set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
 
     transferEnergyFromPlayerToPool(
       playerEntityId,
@@ -112,8 +112,8 @@ library MoveLib {
     }
 
     VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-    EntityId aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-    if (aboveEntityId.exists() && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+    EntityId aboveEntityId = aboveCoord.getPlayer();
+    if (aboveEntityId.exists()) {
       GravityLib.runGravity(aboveEntityId, aboveCoord);
     }
 
@@ -128,19 +128,13 @@ library MoveLib {
     require(inWorldBorder(newCoord), "Cannot move outside the world border");
     require(oldCoord.inSurroundingCube(1, newCoord), "New coord is too far from old coord");
 
-    EntityId newEntityId = ReversePosition._get(newCoord.x, newCoord.y, newCoord.z);
-    if (!newEntityId.exists()) {
-      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(newCoord));
-      require(terrainObjectTypeId == AirObjectID, "Cannot move through a non-air block");
-    } else {
-      // If the entity we're moving into is this player, then it's fine as
-      // the player will be moved from the old position to the new position
-      if (playerEntityId != newEntityId) {
-        ObjectTypeId currentObjectTypeId = ObjectType._get(newEntityId);
-        // TODO: check for water and florae
-        require(currentObjectTypeId == AirObjectID, "Cannot move through a non-air block");
-      }
-    }
+    (EntityId newEntityId, ObjectTypeId newObjectTypeId) = newCoord.getEntity();
+    require(ObjectTypeMetadata._getCanPassThrough(newObjectTypeId), "Cannot move through a non-passable block");
+
+    EntityId playerEntityIdAtCoord = newCoord.getPlayer();
+    // If the entity we're moving into is this player, then it's fine as
+    // the player will be moved from the old position to the new position
+    require(!playerEntityIdAtCoord.exists() || playerEntityIdAtCoord == playerEntityId, "Cannot move through a player");
 
     return (newEntityId, gravityApplies(newCoord));
   }

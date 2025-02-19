@@ -45,13 +45,13 @@ contract TransferSystem is System {
   }
 
   function transferWithExtraData(
-    EntityId srcEntityId,
-    EntityId dstEntityId,
+    EntityId chestEntityId,
+    bool isDeposit,
     ObjectTypeId transferObjectTypeId,
     uint16 numToTransfer,
     bytes memory extraData
   ) public payable {
-    TransferCommonContext memory ctx = TransferLib.transferCommon(_msgSender(), srcEntityId, dstEntityId);
+    TransferCommonContext memory ctx = TransferLib.transferCommon(_msgSender(), chestEntityId, isDeposit);
     transferInventoryNonEntity(
       ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
       ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
@@ -86,24 +86,24 @@ contract TransferSystem is System {
   }
 
   function transferToolWithExtraData(
-    EntityId srcEntityId,
-    EntityId dstEntityId,
+    EntityId chestEntityId,
+    bool isDeposit,
     EntityId toolEntityId,
     bytes memory extraData
   ) public payable {
     EntityId[] memory toolEntityIds = new EntityId[](1);
     toolEntityIds[0] = toolEntityId;
-    transferToolsWithExtraData(srcEntityId, dstEntityId, toolEntityIds, extraData);
+    transferToolsWithExtraData(chestEntityId, isDeposit, toolEntityIds, extraData);
   }
 
   function transferToolsWithExtraData(
-    EntityId srcEntityId,
-    EntityId dstEntityId,
+    EntityId chestEntityId,
+    bool isDeposit,
     EntityId[] memory toolEntityIds,
     bytes memory extraData
   ) public payable {
     require(toolEntityIds.length > 0, "Must transfer at least one tool");
-    TransferCommonContext memory ctx = TransferLib.transferCommon(_msgSender(), srcEntityId, dstEntityId);
+    TransferCommonContext memory ctx = TransferLib.transferCommon(_msgSender(), chestEntityId, isDeposit);
     ObjectTypeId toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
       ObjectTypeId currentToolObjectTypeId = transferInventoryEntity(
@@ -145,19 +145,19 @@ contract TransferSystem is System {
   }
 
   function transfer(
-    EntityId srcEntityId,
-    EntityId dstEntityId,
+    EntityId chestEntityId,
+    bool isDeposit,
     ObjectTypeId transferObjectTypeId,
     uint16 numToTransfer
   ) public payable {
-    transferWithExtraData(srcEntityId, dstEntityId, transferObjectTypeId, numToTransfer, new bytes(0));
+    transferWithExtraData(chestEntityId, isDeposit, transferObjectTypeId, numToTransfer, new bytes(0));
   }
 
-  function transferTool(EntityId srcEntityId, EntityId dstEntityId, EntityId toolEntityId) public payable {
-    transferToolWithExtraData(srcEntityId, dstEntityId, toolEntityId, new bytes(0));
+  function transferTool(EntityId chestEntityId, bool isDeposit, EntityId toolEntityId) public payable {
+    transferToolWithExtraData(chestEntityId, isDeposit, toolEntityId, new bytes(0));
   }
 
-  function transferTools(EntityId srcEntityId, EntityId dstEntityId, EntityId[] memory toolEntityIds) public payable {
-    transferToolsWithExtraData(srcEntityId, dstEntityId, toolEntityIds, new bytes(0));
+  function transferTools(EntityId chestEntityId, bool isDeposit, EntityId[] memory toolEntityIds) public payable {
+    transferToolsWithExtraData(chestEntityId, isDeposit, toolEntityIds, new bytes(0));
   }
 }
