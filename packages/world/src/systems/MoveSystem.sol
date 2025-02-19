@@ -12,7 +12,6 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { gravityApplies, inWorldBorder } from "../Utils.sol";
-import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { PLAYER_MOVE_ENERGY_COST } from "../Constants.sol";
 import { notify, MoveNotifData } from "../utils/NotifUtils.sol";
 import { GravityLib } from "./libraries/GravityLib.sol";
@@ -90,8 +89,6 @@ library MoveLib {
 
     VoxelCoord memory finalCoord = newCoords[newCoords.length - 1];
     if (finalEntityId != playerEntityId) {
-      transferAllInventoryEntities(finalEntityId, playerEntityId, PlayerObjectID);
-
       // Swap entity ids
       ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, finalEntityId);
       Position._set(finalEntityId, playerCoord.x, playerCoord.y, playerCoord.z);

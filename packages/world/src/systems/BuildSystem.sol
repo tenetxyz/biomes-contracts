@@ -18,7 +18,7 @@ import { ActionType } from "../codegen/common.sol";
 
 import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
-import { removeFromInventoryCount, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
@@ -115,7 +115,6 @@ contract BuildSystem is System {
       ObjectType._set(newEntityId, AirObjectID);
     } else {
       require(ObjectType._get(newEntityId) == AirObjectID, "Cannot jump on a non-air block");
-      transferAllInventoryEntities(newEntityId, playerEntityId, PlayerObjectID);
     }
 
     // Swap entity ids

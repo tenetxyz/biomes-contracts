@@ -10,7 +10,6 @@ import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 
 import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../../Utils.sol";
-import { transferAllInventoryEntities } from "../../utils/InventoryUtils.sol";
 import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
 
@@ -37,9 +36,6 @@ library GravityLib {
       if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
         return false;
       }
-
-      // Transfer any dropped items
-      transferAllInventoryEntities(belowEntityId, playerEntityId, PlayerObjectID);
     }
     // Swap entity ids
     ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, belowEntityId);
