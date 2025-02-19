@@ -32,22 +32,16 @@ import { EntityId } from "../EntityId.sol";
 contract BuildSystem is System {
   function buildObjectAtCoord(ObjectTypeId objectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
-    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    if (!entityId.exists()) {
-      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
-      require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
+    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = coord.getEntity();
+    require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
+    require(
+      InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,
+      "Cannot build where there are dropped objects"
+    );
 
-      entityId = getUniqueEntity();
-      Position._set(entityId, coord.x, coord.y, coord.z);
-      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
-    } else {
-      require(ObjectType._get(entityId) == AirObjectID, "Cannot build on a non-air block");
-      require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot build where there are dropped objects");
-    }
+    ObjectType._set(terrainEntityId, objectTypeId);
 
-    ObjectType._set(entityId, objectTypeId);
-
-    return entityId;
+    return terrainEntityId;
   }
 
   function buildWithExtraData(

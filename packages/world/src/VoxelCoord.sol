@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { EntityId } from "./EntityId.sol";
 
+import { ObjectTypeMetadata } from "./codegen/tables/ObjectTypeMetadata.sol";
 import { PositionData } from "./codegen/tables/Position.sol";
 import { LocalEnergyPool } from "./codegen/tables/LocalEnergyPool.sol";
 import { LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
@@ -10,6 +11,7 @@ import { Position } from "./codegen/tables/Position.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { ReversePlayerPosition } from "./codegen/tables/ReversePlayerPosition.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
+import { Mass } from "./codegen/tables/Mass.sol";
 
 import { ObjectTypeId } from "./ObjectTypeIds.sol";
 import { TerrainLib } from "./systems/libraries/TerrainLib.sol";
@@ -285,6 +287,8 @@ library VoxelCoordLib {
       Position._set(entityId, coord.x, coord.y, coord.z);
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
       ObjectType._set(entityId, objectTypeId);
+
+      Mass._setMass(entityId, ObjectTypeMetadata._getMass(objectTypeId));
     } else {
       objectTypeId = ObjectType._get(entityId);
     }
