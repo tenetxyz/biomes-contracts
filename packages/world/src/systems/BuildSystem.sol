@@ -16,7 +16,7 @@ import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -38,7 +38,9 @@ contract BuildSystem is System {
       InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,
       "Cannot build where there are dropped objects"
     );
-    require(!coord.getPlayer().exists(), "Cannot build on a player");
+    if (!ObjectTypeMetadata._getCanPassThrough(terrainObjectTypeId)) {
+      require(!coord.getPlayer().exists(), "Cannot build on a player");
+    }
 
     ObjectType._set(terrainEntityId, objectTypeId);
 
@@ -103,7 +105,7 @@ contract BuildSystem is System {
     VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     require(inWorldBorder(jumpCoord), "Cannot jump outside world border");
     (EntityId newEntityId, ObjectTypeId terrainObjectTypeId) = jumpCoord.getOrCreateEntity();
-    require(terrainObjectTypeId == AirObjectID, "Cannot jump on a non-air block");
+    require(ObjectTypeMetadata._getCanPassThrough(terrainObjectTypeId), "Cannot jump on a non-passable block");
 
     ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
 

@@ -3,14 +3,13 @@ pragma solidity >=0.8.24;
 
 import { VoxelCoord } from "../../Types.sol";
 
+import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerPosition } from "../../codegen/tables/PlayerPosition.sol";
 import { ReversePlayerPosition } from "../../codegen/tables/ReversePlayerPosition.sol";
-import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 
-import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
-import { inWorldBorder, getUniqueEntity } from "../../Utils.sol";
-import { TerrainLib } from "./TerrainLib.sol";
+import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { inWorldBorder } from "../../Utils.sol";
 import { EntityId } from "../../EntityId.sol";
 
 library GravityLib {
@@ -21,7 +20,7 @@ library GravityLib {
     }
 
     (EntityId belowEntityId, ObjectTypeId belowObjectTypeId) = belowCoord.getOrCreateEntity();
-    if (belowObjectTypeId != AirObjectID && belowObjectTypeId != WaterObjectID) {
+    if (!ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
       return false;
     }
     if (belowCoord.getPlayer().exists()) {

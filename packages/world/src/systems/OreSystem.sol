@@ -15,7 +15,7 @@ import { TerrainCommitment, TerrainCommitmentData } from "../codegen/tables/Terr
 import { Commitment } from "../codegen/tables/Commitment.sol";
 import { BlockPrevrandao } from "../codegen/tables/BlockPrevrandao.sol";
 
-import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getRandomNumberBetween0And99 } from "../Utils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, InitiateOreRevealNotifData, RevealOreNotifData } from "../utils/NotifUtils.sol";

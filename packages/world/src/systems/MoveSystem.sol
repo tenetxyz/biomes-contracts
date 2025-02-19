@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordDirection } from "../VoxelCoord.sol";
 
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
@@ -128,7 +129,7 @@ library MoveLib {
     require(oldCoord.inSurroundingCube(1, newCoord), "New coord is too far from old coord");
 
     (EntityId newEntityId, ObjectTypeId newObjectTypeId) = newCoord.getEntity();
-    require(newObjectTypeId == AirObjectID, "Cannot move through a non-air block");
+    require(ObjectTypeMetadata._getCanPassThrough(newObjectTypeId), "Cannot move through a non-passable block");
 
     EntityId playerEntityIdAtCoord = newCoord.getPlayer();
     // If the entity we're moving into is this player, then it's fine as
