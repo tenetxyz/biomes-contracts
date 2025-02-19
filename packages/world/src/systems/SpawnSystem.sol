@@ -109,24 +109,15 @@ contract SpawnSystem is System {
     address playerAddress = _msgSender();
     require(!Player._get(playerAddress).exists(), "Player already spawned");
 
-    EntityId playerEntityId = getUniqueEntity();
-
-    EntityId existingEntityId = ReversePosition._get(spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    if (!existingEntityId.exists()) {
-      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(spawnCoord));
-      require(terrainObjectTypeId == AirObjectID, "Cannot spawn on a non-air block");
-
-      existingEntityId = getUniqueEntity();
-      Position._set(existingEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
-      ReversePosition._set(spawnCoord.x, spawnCoord.y, spawnCoord.z, existingEntityId);
-      ObjectType._set(existingEntityId, terrainObjectTypeId);
-    } else {
-      require(ObjectType._get(existingEntityId) == AirObjectID, "Cannot spawn on a non-air block");
-    }
+    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = spawnCoord.getEntity();
+    require(terrainObjectTypeId == AirObjectID && !spawnCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
 
     // Create new entity
+    EntityId playerEntityId = getUniqueEntity();
+
     // TODO: do we need object type here?
     ObjectType._set(playerEntityId, PlayerObjectID);
+
     PlayerPosition._set(playerEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
     ReversePlayerPosition._set(spawnCoord.x, spawnCoord.y, spawnCoord.z, playerEntityId);
 

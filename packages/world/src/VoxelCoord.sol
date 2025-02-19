@@ -1,9 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { EntityId } from "./EntityId.sol";
+
 import { PositionData } from "./codegen/tables/Position.sol";
 import { LocalEnergyPool } from "./codegen/tables/LocalEnergyPool.sol";
 import { LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
+import { Position } from "./codegen/tables/Position.sol";
+import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
+import { ReversePlayerPosition } from "./codegen/tables/ReversePlayerPosition.sol";
+import { ObjectType } from "./codegen/tables/ObjectType.sol";
+
+import { ObjectTypeId } from "./ObjectTypeIds.sol";
+import { TerrainLib } from "./systems/libraries/TerrainLib.sol";
+import { getUniqueEntity } from "./Utils.sol";
 import { floorDiv, absInt32 } from "./utils/MathUtils.sol";
 import { FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM } from "./Constants.sol";
 
@@ -262,6 +272,28 @@ library VoxelCoordLib {
 
   function toVoxelCoord(LastKnownPositionData memory self) internal pure returns (VoxelCoord memory) {
     return VoxelCoord(self.x, self.y, self.z);
+  }
+
+  function getEntity(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId) {
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    ObjectTypeId objectTypeId;
+    if (!entityId.exists()) {
+      // TODO: move wrapping to TerrainLib?
+      objectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
+
+      entityId = getUniqueEntity();
+      Position._set(entityId, coord.x, coord.y, coord.z);
+      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
+      ObjectType._set(entityId, objectTypeId);
+    } else {
+      objectTypeId = ObjectType._get(entityId);
+    }
+
+    return (entityId, objectTypeId);
+  }
+
+  function getPlayer(VoxelCoord memory coord) internal returns (EntityId) {
+    return ReversePlayerPosition._get(coord.x, coord.y, coord.z);
   }
 }
 
