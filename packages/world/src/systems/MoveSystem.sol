@@ -122,10 +122,6 @@ library MoveLib {
     }
 
     VoxelCoord memory finalCoord = newCoords[newCoords.length - 1];
-    if (!finalEntityId.exists()) {
-      finalCoord.getOrCreateEntity();
-    }
-
     playerCoord.removePlayer();
     finalCoord.setPlayer(playerEntityId);
 
@@ -136,7 +132,6 @@ library MoveLib {
         finalCoord.y + schemaData.relativePositionsY[i],
         finalCoord.z + schemaData.relativePositionsZ[i]
       );
-      newRelativeCoord.getOrCreateEntity();
       newRelativeCoord.setPlayer(relativeEntityIds[i]);
     }
 

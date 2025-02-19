@@ -134,7 +134,7 @@ contract SpawnSystem is System {
     address playerAddress = _msgSender();
     require(!Player._get(playerAddress).exists(), "Player already spawned");
 
-    (, ObjectTypeId terrainObjectTypeId) = spawnCoord.getOrCreateEntity();
+    (, ObjectTypeId terrainObjectTypeId) = spawnCoord.getEntity();
     require(terrainObjectTypeId == AirObjectID && !spawnCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
 
     // Create new entity
@@ -149,7 +149,7 @@ contract SpawnSystem is System {
         spawnCoord.y + schemaData.relativePositionsY[i],
         spawnCoord.z + schemaData.relativePositionsZ[i]
       );
-      (, ObjectTypeId relativeTerrainObjectTypeId) = relativeCoord.getOrCreateEntity();
+      (, ObjectTypeId relativeTerrainObjectTypeId) = relativeCoord.getEntity();
       require(
         relativeTerrainObjectTypeId == AirObjectID && !relativeCoord.getPlayer().exists(),
         "Cannot spawn on a non-air block"
