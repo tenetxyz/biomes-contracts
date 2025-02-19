@@ -95,10 +95,8 @@ library MoveLib {
       finalCoord.getOrCreateEntity();
     }
 
-    ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
-
-    PlayerPosition._set(playerEntityId, finalCoord.x, finalCoord.y, finalCoord.z);
-    ReversePlayerPosition._set(finalCoord.x, finalCoord.y, finalCoord.z, playerEntityId);
+    playerCoord.removePlayer();
+    finalCoord.setPlayer(playerEntityId);
 
     transferEnergyFromPlayerToPool(
       playerEntityId,

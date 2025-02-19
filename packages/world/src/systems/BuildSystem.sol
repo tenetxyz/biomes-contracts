@@ -107,10 +107,8 @@ contract BuildSystem is System {
     (EntityId newEntityId, ObjectTypeId terrainObjectTypeId) = jumpCoord.getOrCreateEntity();
     require(ObjectTypeMetadata._getCanPassThrough(terrainObjectTypeId), "Cannot jump on a non-passable block");
 
-    ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
-
-    PlayerPosition._set(playerEntityId, jumpCoord.x, jumpCoord.y, jumpCoord.z);
-    ReversePlayerPosition._set(jumpCoord.x, jumpCoord.y, jumpCoord.z, playerEntityId);
+    playerCoord.removePlayer();
+    jumpCoord.setPlayer(playerEntityId);
 
     // TODO: apply jump cost
     VoxelCoord[] memory moveCoords = new VoxelCoord[](1);

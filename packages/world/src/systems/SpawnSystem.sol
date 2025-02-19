@@ -4,6 +4,8 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -136,24 +138,36 @@ contract SpawnSystem is System {
     require(terrainObjectTypeId == AirObjectID && !spawnCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
 
     // Create new entity
-    EntityId playerEntityId = getUniqueEntity();
+    EntityId basePlayerEntityId = getUniqueEntity();
+    ObjectType._set(basePlayerEntityId, PlayerObjectID);
+    spawnCoord.setPlayer(basePlayerEntityId);
 
-    // TODO: do we need object type here?
-    ObjectType._set(playerEntityId, PlayerObjectID);
+    ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
+    for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+      VoxelCoord memory relativeCoord = VoxelCoord(
+        spawnCoord.x + schemaData.relativePositionsX[i],
+        spawnCoord.y + schemaData.relativePositionsY[i],
+        spawnCoord.z + schemaData.relativePositionsZ[i]
+      );
+      EntityId relativePlayerEntityId = getUniqueEntity();
+      ObjectType._set(relativePlayerEntityId, PlayerObjectID);
+      relativeCoord.setPlayer(relativePlayerEntityId);
+      BaseEntity._set(relativePlayerEntityId, basePlayerEntityId);
+    }
 
-    PlayerPosition._set(playerEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    ReversePlayerPosition._set(spawnCoord.x, spawnCoord.y, spawnCoord.z, playerEntityId);
+    Player._set(playerAddress, basePlayerEntityId);
+    ReversePlayer._set(basePlayerEntityId, playerAddress);
 
-    Player._set(playerAddress, playerEntityId);
-    ReversePlayer._set(playerEntityId, playerAddress);
+    Mass._set(basePlayerEntityId, playerMass);
+    Energy._set(
+      basePlayerEntityId,
+      EnergyData({ energy: MAX_PLAYER_ENERGY, lastUpdatedTime: uint128(block.timestamp) })
+    );
 
-    Mass._set(playerEntityId, playerMass);
-    Energy._set(playerEntityId, EnergyData({ energy: MAX_PLAYER_ENERGY, lastUpdatedTime: uint128(block.timestamp) }));
+    PlayerActivity._set(basePlayerEntityId, uint128(block.timestamp));
 
-    PlayerActivity._set(playerEntityId, uint128(block.timestamp));
+    notify(basePlayerEntityId, SpawnNotifData({ playerAddress: playerAddress, spawnCoord: spawnCoord }));
 
-    notify(playerEntityId, SpawnNotifData({ playerAddress: playerAddress, spawnCoord: spawnCoord }));
-
-    return playerEntityId;
+    return basePlayerEntityId;
   }
 }
