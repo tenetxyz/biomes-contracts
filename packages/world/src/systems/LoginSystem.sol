@@ -7,9 +7,9 @@ import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Position } from "../codegen/tables/Position.sol";
+import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
+import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ActionType } from "../codegen/common.sol";
 
@@ -37,18 +37,11 @@ contract LoginSystem is System {
       "Respawn coord too far from logged off coord"
     );
 
-    EntityId respawnEntityId = ReversePosition._get(respawnCoord.x, respawnCoord.y, respawnCoord.z);
-    if (!respawnEntityId.exists()) {
-      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(respawnCoord));
-      require(terrainObjectTypeId == AirObjectID, "Cannot respawn on non-air block");
-    } else {
-      require(ObjectType._get(respawnEntityId) == AirObjectID, "Cannot respawn on non-air block");
+    (EntityId respawnEntityId, ObjectTypeId respawnObjectTypeId) = respawnCoord.getEntity();
+    require(respawnObjectTypeId == AirObjectID, "Cannot respawn on non-air block");
 
-      Position._deleteRecord(respawnEntityId);
-    }
-
-    Position._set(playerEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
-    ReversePosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);
+    PlayerPosition._set(playerEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
+    ReversePlayerPosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);
     LastKnownPosition._deleteRecord(playerEntityId);
     PlayerStatus._set(playerEntityId, false);
 

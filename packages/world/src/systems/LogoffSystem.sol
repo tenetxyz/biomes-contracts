@@ -6,9 +6,8 @@ import { VoxelCoord } from "../Types.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
+import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ActionType } from "../codegen/common.sol";
@@ -24,14 +23,9 @@ import { EntityId } from "../EntityId.sol";
 contract LogoffSystem is System {
   function logoffCommon(EntityId playerEntityId, VoxelCoord memory playerCoord) internal {
     LastKnownPosition._set(playerEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
-    Position._deleteRecord(playerEntityId);
+    PlayerPosition._deleteRecord(playerEntityId);
+    ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
     PlayerStatus._set(playerEntityId, true);
-
-    // Create air entity at this position
-    EntityId airEntityId = getUniqueEntity();
-    ObjectType._set(airEntityId, AirObjectID);
-    Position._set(airEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
-    ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, airEntityId);
 
     notify(playerEntityId, LogoffNotifData({ logoffCoord: playerCoord }));
   }

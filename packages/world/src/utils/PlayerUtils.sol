@@ -56,22 +56,3 @@ function requireInPlayerInfluence(VoxelCoord memory playerCoord, EntityId entity
   requireInPlayerInfluence(playerCoord, coord);
   return coord;
 }
-
-function despawnPlayer(EntityId playerEntityId) {
-  // Note: Inventory is already attached to the entity id, which means it'll be
-  // attached to air, ie it's a "dropped" item
-  ObjectType._set(playerEntityId, AirObjectID);
-
-  Mass._deleteRecord(playerEntityId);
-  Energy._deleteRecord(playerEntityId);
-
-  if (Equipped._get(playerEntityId).exists()) {
-    Equipped._deleteRecord(playerEntityId);
-  }
-
-  PlayerStatus._deleteRecord(playerEntityId);
-  PlayerActivity._deleteRecord(playerEntityId);
-  address player = ReversePlayer._get(playerEntityId);
-  Player._deleteRecord(player);
-  ReversePlayer._deleteRecord(playerEntityId);
-}
