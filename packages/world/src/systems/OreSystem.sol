@@ -44,9 +44,8 @@ contract OreSystem is System {
 
   function oreChunkCommit(ChunkCoord memory chunkCoord) public {
     // TODO: check chunk is inside world / revealed
-    require(TerrainLib._isChunkExplored(chunkCoord, _world()));
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
-    (, VoxelCoord memory playerCoord) = requireValidPlayer(_msgSender());
+    require(TerrainLib._isChunkExplored(chunkCoord, _world()), "Unexplored chunk");
+    (, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     ChunkCoord memory playerChunkCoord = playerCoord.toChunkCoord();
 
     require(inSurroundingCube(playerChunkCoord, COMMIT_HALF_WIDTH, chunkCoord), "Not in commit range");

@@ -1941,42 +1941,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "setBlockHash",
-    "inputs": [
-      {
-        "name": "blockNumber",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "blockHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setBlockPrevrandao",
-    "inputs": [
-      {
-        "name": "blockNumber",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "blockPrevrandao",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "setDisplayContent",
     "inputs": [
       {

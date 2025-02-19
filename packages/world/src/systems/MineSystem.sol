@@ -60,18 +60,20 @@ function mineRandomOre(VoxelCoord memory coord) returns (ObjectTypeId) {
   }
 
   // Scale random number to total remaining
-  // TODO: use muldiv from solady or OZ to prevent overflow
-  uint256 scaledRand = (rand * totalRemaining) / type(uint256).max;
+  uint256 oreIndex = 0;
+  {
+    // TODO: use muldiv from solady or OZ to prevent overflow
+    uint256 scaledRand = (rand * totalRemaining) / type(uint256).max;
 
-  uint256 acc;
-  uint256 j = 0;
-  for (; j < remaining.length - 1; j++) {
-    acc += remaining[j];
-    if (scaledRand < acc) break;
+    uint256 acc;
+    for (; oreIndex < remaining.length - 1; oreIndex++) {
+      acc += remaining[oreIndex];
+      if (scaledRand < acc) break;
+    }
   }
 
-  ObjectTypeId ore = ores[j];
-  uint256 remainingOre = remaining[j];
+  ObjectTypeId ore = ores[oreIndex];
+  uint256 remainingOre = remaining[oreIndex];
 
   // NOTE: the data in ObjectCount table must match the terrain, otherwise this can fail
   require(remainingOre > 0, "No ores available to mine");
