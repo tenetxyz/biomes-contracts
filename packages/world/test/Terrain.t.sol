@@ -6,7 +6,8 @@ import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
 import { TerrainLib, VERSION_PADDING } from "../src/systems/libraries/TerrainLib.sol";
 import { AirObjectID } from "../src/ObjectTypeIds.sol";
-import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
+import { VoxelCoord } from "../src/VoxelCoord.sol";
+import { ChunkCoord } from "../src/Types.sol";
 import { CHUNK_SIZE } from "../src/Constants.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";

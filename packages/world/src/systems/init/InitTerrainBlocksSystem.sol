@@ -26,9 +26,22 @@ contract InitTerrainBlocksSystem is System {
     );
   }
 
+  function createPassableTerrainBlock(ObjectTypeId terrainBlockObjectTypeId, uint32 mass) internal {
+    ObjectTypeMetadata._set(
+      terrainBlockObjectTypeId,
+      ObjectTypeMetadataData({
+        stackable: MAX_BLOCK_STACKABLE,
+        maxInventorySlots: 0,
+        mass: mass,
+        energy: 0,
+        canPassThrough: true
+      })
+    );
+  }
+
   function initTerrainBlockObjectTypes() public {
-    createTerrainBlock(AirObjectID, 0);
-    createTerrainBlock(WaterObjectID, 0);
+    createPassableTerrainBlock(AirObjectID, 0);
+    createPassableTerrainBlock(WaterObjectID, 0);
     createTerrainBlock(LavaObjectID, 115);
     createTerrainBlock(GrassObjectID, 12);
     createTerrainBlock(DirtObjectID, 40);

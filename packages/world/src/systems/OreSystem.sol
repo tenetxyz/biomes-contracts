@@ -16,7 +16,7 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
 import { OreCommitment } from "../codegen/tables/OreCommitment.sol";
 
-import { AirObjectID, WaterObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder } from "../Utils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, InitiateOreRevealNotifData, RevealOreNotifData } from "../utils/NotifUtils.sol";
@@ -43,7 +43,6 @@ contract OreSystem is System {
   using VoxelCoordLib for *;
 
   function oreChunkCommit(ChunkCoord memory chunkCoord) public {
-    // TODO: check chunk is inside world / revealed
     require(TerrainLib._isChunkExplored(chunkCoord, _world()), "Unexplored chunk");
     (, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     ChunkCoord memory playerChunkCoord = playerCoord.toChunkCoord();
@@ -52,20 +51,19 @@ contract OreSystem is System {
 
     // Check existing commitment
     uint256 blockNumber = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
-    require(blockNumber < block.number - COMMIT_EXPIRY_BLOCKS, "Existing Terrain commitment");
+    require(blockNumber < block.number - COMMIT_EXPIRY_BLOCKS, "Existing ore commitment");
 
     // Commit to next block
     OreCommitment._set(chunkCoord.x, chunkCoord.y, chunkCoord.z, block.number + 1);
   }
 
   function respawnOre(uint256 blockNumber) public {
-    uint256 count = MinedOreCount._get();
     // TODO: use constant
     require(blockNumber < block.number - 10, "Can only choose past 10 blocks");
-    // TODO: I don't think it should hash _msgSender in this case as you could automate mining accounts that spawn blocks next to you
+
+    uint256 count = MinedOreCount._get();
     uint256 minedOreIdx = uint256(blockhash(blockNumber)) % count;
 
-    // Check that coord and index match
     VoxelCoord memory oreCoord = MinedOre._get(minedOreIdx).toVoxelCoord();
 
     // Remove from mined ore array

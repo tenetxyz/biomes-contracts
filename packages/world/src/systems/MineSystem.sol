@@ -92,29 +92,17 @@ contract MineSystem is System {
   function mineObjectAtCoord(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId) {
     require(inWorldBorder(coord), "Cannot mine outside the world border");
 
-    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    ObjectTypeId mineObjectTypeId;
-    if (!entityId.exists()) {
-      // TODO: move wrapping to TerrainLib?
-      mineObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
+    require(mineObjectTypeId.isMineable(), "Object is not mineable");
 
-      if (mineObjectTypeId == AnyOreObjectID) {
-        mineObjectTypeId = mineRandomOre(coord);
-      }
+    (EntityId entityId, ObjectTypeId mineObjectTypeId) = coord.getOrCreateEntity();
 
-      entityId = getUniqueEntity();
-      Position._set(entityId, coord.x, coord.y, coord.z);
-      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
-      Mass._setMass(entityId, ObjectTypeMetadata._getMass(mineObjectTypeId));
+    if (mineObjectTypeId == AnyOreObjectID) {
+      mineObjectTypeId = mineRandomOre(coord);
     } else {
-      entityId = entityId.baseEntityId();
-      mineObjectTypeId = ObjectType._get(entityId);
       require(entityId.getChipAddress() == address(0), "Cannot mine a chipped block");
       EnergyData memory machineData = updateMachineEnergyLevel(entityId);
       require(machineData.energy == 0, "Cannot mine a machine that has energy");
     }
-
-    require(mineObjectTypeId.isMineable(), "Object is not mineable");
 
     return (entityId, mineObjectTypeId);
   }
@@ -173,8 +161,8 @@ contract MineSystem is System {
 
       for (uint256 i = 0; i < coords.length; i++) {
         VoxelCoord memory aboveCoord = VoxelCoord(coords[i].x, coords[i].y + 1, coords[i].z);
-        EntityId aboveEntityId = ReversePosition._get(aboveCoord.x, aboveCoord.y, aboveCoord.z);
-        if (aboveEntityId.exists() && ObjectType._get(aboveEntityId) == PlayerObjectID) {
+        EntityId aboveEntityId = aboveCoord.getPlayer();
+        if (aboveEntityId.exists()) {
           GravityLib.runGravity(aboveEntityId, aboveCoord);
         }
       }

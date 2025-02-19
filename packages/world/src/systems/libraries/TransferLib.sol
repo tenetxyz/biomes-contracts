@@ -22,41 +22,17 @@ library TransferLib {
 
   function transferCommon(
     address msgSender,
-    EntityId srcEntityId,
-    EntityId dstEntityId
+    EntityId chestEntityId,
+    bool isDeposit
   ) public returns (TransferCommonContext memory) {
-    (EntityId playerEntityId, , EnergyData memory playerEnergyData) = requireValidPlayer(msgSender);
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
+      msgSender
+    );
 
-    EntityId chestEntityId;
-    VoxelCoord memory chestCoord;
-    ObjectTypeId chestObjectTypeId;
-    ObjectTypeId dstObjectTypeId;
-    bool isDeposit;
-    {
-      EntityId baseSrcEntityId = srcEntityId.baseEntityId();
-      EntityId baseDstEntityId = dstEntityId.baseEntityId();
-      require(baseDstEntityId != baseSrcEntityId, "Cannot transfer to self");
-      VoxelCoord memory srcCoord = Position._get(baseSrcEntityId).toVoxelCoord();
-      VoxelCoord memory dstCoord = Position._get(baseDstEntityId).toVoxelCoord();
-      require(srcCoord.inSurroundingCube(MAX_PLAYER_INFLUENCE_HALF_WIDTH, dstCoord), "Destination too far");
-      ObjectTypeId srcObjectTypeId = ObjectType._get(baseSrcEntityId);
-      dstObjectTypeId = ObjectType._get(baseDstEntityId);
-
-      chestEntityId = isDeposit ? baseDstEntityId : baseSrcEntityId;
-      chestCoord = isDeposit ? dstCoord : srcCoord;
-      chestObjectTypeId = isDeposit ? dstObjectTypeId : srcObjectTypeId;
-
-      isDeposit = false;
-      if (srcObjectTypeId == PlayerObjectID) {
-        require(playerEntityId == baseSrcEntityId, "Caller does not own source inventory");
-        isDeposit = true;
-      } else if (dstObjectTypeId == PlayerObjectID) {
-        require(playerEntityId == baseDstEntityId, "Caller does not own destination inventory");
-        isDeposit = false;
-      } else {
-        revert("Invalid transfer operation");
-      }
-    }
+    VoxelCoord memory chestCoord = Position._get(chestEntityId).toVoxelCoord();
+    require(playerCoord.inSurroundingCube(MAX_PLAYER_INFLUENCE_HALF_WIDTH, chestCoord), "Destination too far");
+    ObjectTypeId chestObjectTypeId = ObjectType._get(chestEntityId);
+    ObjectTypeId dstObjectTypeId = isDeposit ? chestObjectTypeId : PlayerObjectID;
 
     uint128 energyCost = PLAYER_TRANSFER_ENERGY_COST;
 

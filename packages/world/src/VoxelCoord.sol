@@ -1,10 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { EntityId } from "./EntityId.sol";
+
+import { ObjectTypeMetadata } from "./codegen/tables/ObjectTypeMetadata.sol";
 import { PositionData } from "./codegen/tables/Position.sol";
 import { LocalEnergyPool } from "./codegen/tables/LocalEnergyPool.sol";
 import { LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
+<<<<<<< HEAD
 import { MinedOreData } from "./codegen/tables/MinedOre.sol";
+=======
+import { Position } from "./codegen/tables/Position.sol";
+import { PlayerPositionData } from "./codegen/tables/PlayerPosition.sol";
+import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
+import { ReversePlayerPosition } from "./codegen/tables/ReversePlayerPosition.sol";
+import { ObjectType } from "./codegen/tables/ObjectType.sol";
+import { Mass } from "./codegen/tables/Mass.sol";
+
+import { ObjectTypeId } from "./ObjectTypeIds.sol";
+import { TerrainLib } from "./systems/libraries/TerrainLib.sol";
+import { getUniqueEntity } from "./Utils.sol";
+>>>>>>> main
 import { floorDiv, absInt32 } from "./utils/MathUtils.sol";
 import { FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM, CHUNK_SIZE } from "./Constants.sol";
 import { ChunkCoord } from "./Types.sol";
@@ -266,12 +282,48 @@ library VoxelCoordLib {
     return VoxelCoord(self.x, self.y, self.z);
   }
 
+  function toVoxelCoord(PlayerPositionData memory self) internal pure returns (VoxelCoord memory) {
+    return VoxelCoord(self.x, self.y, self.z);
+  }
+
   function toVoxelCoord(LastKnownPositionData memory self) internal pure returns (VoxelCoord memory) {
     return VoxelCoord(self.x, self.y, self.z);
   }
 
   function toVoxelCoord(MinedOreData memory self) internal pure returns (VoxelCoord memory) {
     return VoxelCoord(self.x, self.y, self.z);
+  }
+
+  function getEntity(VoxelCoord memory coord) internal view returns (EntityId, ObjectTypeId) {
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    if (!entityId.exists()) {
+      return (entityId, ObjectTypeId.wrap(TerrainLib._getBlockType(coord)));
+    }
+    return (entityId, ObjectType._get(entityId));
+  }
+
+  function getOrCreateEntity(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId) {
+    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    ObjectTypeId objectTypeId;
+    if (!entityId.exists()) {
+      // TODO: move wrapping to TerrainLib?
+      objectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
+
+      entityId = getUniqueEntity();
+      Position._set(entityId, coord.x, coord.y, coord.z);
+      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
+      ObjectType._set(entityId, objectTypeId);
+
+      Mass._setMass(entityId, ObjectTypeMetadata._getMass(objectTypeId));
+    } else {
+      objectTypeId = ObjectType._get(entityId);
+    }
+
+    return (entityId, objectTypeId);
+  }
+
+  function getPlayer(VoxelCoord memory coord) internal view returns (EntityId) {
+    return ReversePlayerPosition._get(coord.x, coord.y, coord.z);
   }
 }
 

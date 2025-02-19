@@ -105,6 +105,24 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
+    PlayerPosition: {
+      schema: {
+        playerEntityId: "EntityId",
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      key: ["playerEntityId"],
+    },
+    ReversePlayerPosition: {
+      schema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+        playerEntityId: "EntityId",
+      },
+      key: ["x", "y", "z"],
+    },
     Mass: {
       schema: {
         entityId: "EntityId",
@@ -137,6 +155,21 @@ export default defineWorld({
         explorer: "address",
       },
       key: ["x", "y", "z"],
+    },
+    ExploredChunkByIndex: {
+      schema: {
+        index: "uint256",
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      key: ["index"],
+    },
+    ExploredChunkCount: {
+      schema: {
+        count: "uint256",
+      },
+      key: [],
     },
     // ------------------------------------------------------------
     // Inventory

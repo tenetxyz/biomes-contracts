@@ -18,10 +18,6 @@ import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 
 contract OreTest is BiomesTest {
-  function randomEntityId() internal returns (EntityId) {
-    return EntityId.wrap(bytes32(vm.randomUint()));
-  }
-
   function testOreChunkCommit() public {}
 
   function testRespawnOre() public {}
