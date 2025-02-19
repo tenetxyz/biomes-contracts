@@ -93,6 +93,8 @@ contract SpawnSystem is System {
     EntityId playerEntityId = _spawnPlayer(playerMass, spawnCoord);
 
     address chipAddress = spawnTileEntityId.getChipAddress();
+    // TODO: should we do this check at the callChip level?
+    require(chipAddress != address(0), "Spawn tile has no chip");
 
     bytes memory onSpawnCall = abi.encodeCall(ISpawnTileChip.onSpawn, (playerEntityId, spawnTileEntityId, extraData));
     callChipOrRevert(chipAddress, onSpawnCall);

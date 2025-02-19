@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { System } from "@latticexyz/world/src/System.sol";
+import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
+import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
+
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
@@ -12,19 +18,29 @@ import { Position } from "../src/codegen/tables/Position.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 
+import { ISpawnTileChip } from "../src/prototypes/ISpawnTileChip.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
+import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, ChipObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord } from "../src/VoxelCoord.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY } from "../src/Constants.sol";
+import { testAddToInventoryCount } from "./utils/TestUtils.sol";
+
+contract TestSpawnChip is ISpawnTileChip, System {
+  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
+
+  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
+
+  function onSpawn(EntityId callerEntityId, EntityId spawnTileEntityId, bytes memory extraData) external payable {}
+
+  function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
+    return interfaceId == type(ISpawnTileChip).interfaceId || super.supportsInterface(interfaceId);
+  }
+}
 
 contract SpawnTest is BiomesTest {
   function spawnEnergy() internal view returns (uint128) {
     uint32 playerMass = ObjectTypeMetadata.getMass(PlayerObjectID);
     return MAX_PLAYER_ENERGY + massToEnergy(playerMass);
-  }
-
-  function randomEntityId() internal returns (EntityId) {
-    return EntityId.wrap(bytes32(vm.randomUint()));
   }
 
   function testRandomSpawn() public {
@@ -86,6 +102,23 @@ contract SpawnTest is BiomesTest {
     ReversePosition.set(spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z, spawnTileEntityId);
     ObjectType.set(spawnTileEntityId, SpawnTileObjectID);
 
+    TestSpawnChip chip = new TestSpawnChip();
+    bytes14 namespace = "chipNamespace";
+    ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);
+    ResourceId chipSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "chipName");
+    world.registerNamespace(namespaceId);
+    world.registerSystem(chipSystemId, chip, false);
+    world.transferOwnership(namespaceId, address(0));
+
+    // Attach chip with test player
+    (EntityId bobEntityId, address bob) = createTestPlayer(
+      VoxelCoord(spawnTileCoord.x - 1, spawnTileCoord.y, spawnTileCoord.z)
+    );
+    testAddToInventoryCount(bobEntityId, PlayerObjectID, ChipObjectID, 1);
+    vm.prank(bob);
+    world.attachChip(spawnTileEntityId, chipSystemId);
+
+    // Spawn alice
     vm.prank(alice);
     EntityId playerEntityId = world.spawn(spawnTileEntityId, spawnCoord, "");
     assertTrue(playerEntityId.exists());
