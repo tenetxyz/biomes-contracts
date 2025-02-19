@@ -57,6 +57,14 @@ export default defineWorld({
       },
       key: ["objectTypeId"],
     },
+    ObjectTypeOres: {
+      schema: {
+        objectTypeId: "ObjectTypeId",
+        ores: "uint16[]",
+        amounts: "uint16[]",
+      },
+      key: ["objectTypeId"],
+    },
     Recipes: {
       schema: {
         recipeId: "bytes32",

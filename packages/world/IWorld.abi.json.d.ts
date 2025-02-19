@@ -1653,33 +1653,6 @@ declare const abi: [
             "name": "lastActionTime",
             "type": "uint256",
             "internalType": "uint256"
-          },
-          {
-            "name": "commitment",
-            "type": "tuple",
-            "internalType": "struct CommitmentData",
-            "components": [
-              {
-                "name": "hasCommitted",
-                "type": "bool",
-                "internalType": "bool"
-              },
-              {
-                "name": "x",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "y",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "z",
-                "type": "int32",
-                "internalType": "int32"
-              }
-            ]
           }
         ]
       }
@@ -1804,33 +1777,6 @@ declare const abi: [
             "name": "lastActionTime",
             "type": "uint256",
             "internalType": "uint256"
-          },
-          {
-            "name": "commitment",
-            "type": "tuple",
-            "internalType": "struct CommitmentData",
-            "components": [
-              {
-                "name": "hasCommitted",
-                "type": "bool",
-                "internalType": "bool"
-              },
-              {
-                "name": "x",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "y",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "z",
-                "type": "int32",
-                "internalType": "int32"
-              }
-            ]
           }
         ]
       }

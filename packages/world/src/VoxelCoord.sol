@@ -7,9 +7,7 @@ import { ObjectTypeMetadata } from "./codegen/tables/ObjectTypeMetadata.sol";
 import { PositionData } from "./codegen/tables/Position.sol";
 import { LocalEnergyPool } from "./codegen/tables/LocalEnergyPool.sol";
 import { LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
-<<<<<<< HEAD
 import { MinedOreData } from "./codegen/tables/MinedOre.sol";
-=======
 import { Position } from "./codegen/tables/Position.sol";
 import { PlayerPositionData } from "./codegen/tables/PlayerPosition.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
@@ -20,7 +18,6 @@ import { Mass } from "./codegen/tables/Mass.sol";
 import { ObjectTypeId } from "./ObjectTypeIds.sol";
 import { TerrainLib } from "./systems/libraries/TerrainLib.sol";
 import { getUniqueEntity } from "./Utils.sol";
->>>>>>> main
 import { floorDiv, absInt32 } from "./utils/MathUtils.sol";
 import { FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM, CHUNK_SIZE } from "./Constants.sol";
 import { ChunkCoord } from "./Types.sol";

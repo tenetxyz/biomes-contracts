@@ -92,9 +92,9 @@ contract MineSystem is System {
   function mineObjectAtCoord(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId) {
     require(inWorldBorder(coord), "Cannot mine outside the world border");
 
-    require(mineObjectTypeId.isMineable(), "Object is not mineable");
-
     (EntityId entityId, ObjectTypeId mineObjectTypeId) = coord.getOrCreateEntity();
+
+    require(mineObjectTypeId.isMineable(), "Object is not mineable");
 
     if (mineObjectTypeId == AnyOreObjectID) {
       mineObjectTypeId = mineRandomOre(coord);

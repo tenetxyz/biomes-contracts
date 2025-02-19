@@ -59,7 +59,7 @@ contract OreSystem is System {
 
   function respawnOre(uint256 blockNumber) public {
     // TODO: use constant
-    require(blockNumber < block.number - 10, "Can only choose past 10 blocks");
+    require(blockNumber > block.number - 10, "Can only choose past 10 blocks");
 
     uint256 count = MinedOreCount._get();
     uint256 minedOreIdx = uint256(blockhash(blockNumber)) % count;

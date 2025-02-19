@@ -10,14 +10,14 @@ import { Energy, EnergyData } from "./codegen/tables/Energy.sol";
 type EntityId is bytes32;
 
 function baseEntityId(EntityId self) view returns (EntityId) {
-  EntityId base = BaseEntity.get(self);
+  EntityId base = BaseEntity._get(self);
   return EntityId.unwrap(base) == bytes32(0) ? self : base;
 }
 
 // TODO: Not sure if it should be included here or if it should be a standalone util
 function getChipAddress(EntityId entityId) view returns (address) {
-  ResourceId chipSystemId = Chip.getChipSystemId(entityId);
-  (address chipAddress, ) = Systems.get(chipSystemId);
+  ResourceId chipSystemId = Chip._getChipSystemId(entityId);
+  (address chipAddress, ) = Systems._get(chipSystemId);
   return chipAddress;
 }
 

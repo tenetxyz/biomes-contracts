@@ -269,28 +269,41 @@ function neq(ObjectTypeId self, ObjectTypeId other) pure returns (bool) {
   return ObjectTypeId.unwrap(self) != ObjectTypeId.unwrap(other);
 }
 
-function unwrap(ObjectTypeId self) pure returns (uint16) {
-  return ObjectTypeId.unwrap(self);
+library ObjectTypeIdLib {
+  function unwrap(ObjectTypeId self) internal pure returns (uint16) {
+    return ObjectTypeId.unwrap(self);
+  }
+
+  function isBlock(ObjectTypeId id) internal pure returns (bool) {
+    return !id.isNull() && ObjectTypeId.unwrap(id) >> OFFSET_BITS == Block;
+  }
+
+  function isMineable(ObjectTypeId self) internal pure returns (bool) {
+    return self.isBlock() && self != AirObjectID && self != WaterObjectID;
+  }
+
+  function isTool(ObjectTypeId id) internal pure returns (bool) {
+    return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Tool;
+  }
+
+  function isItem(ObjectTypeId id) internal pure returns (bool) {
+    return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Item;
+  }
+
+  function isOre(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return
+      objectTypeId == AnyOreObjectID ||
+      objectTypeId == CoalOreObjectID ||
+      objectTypeId == SilverOreObjectID ||
+      objectTypeId == GoldOreObjectID ||
+      objectTypeId == DiamondOreObjectID ||
+      objectTypeId == NeptuniumOreObjectID;
+  }
+
+  function isNull(ObjectTypeId self) internal pure returns (bool) {
+    return self == NullObjectTypeId;
+  }
 }
 
-function isBlock(ObjectTypeId id) pure returns (bool) {
-  return !id.isNull() && ObjectTypeId.unwrap(id) >> OFFSET_BITS == Block;
-}
-
-function isMineable(ObjectTypeId self) pure returns (bool) {
-  return self.isBlock() && self != AirObjectID && self != WaterObjectID;
-}
-
-function isTool(ObjectTypeId id) pure returns (bool) {
-  return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Tool;
-}
-
-function isItem(ObjectTypeId id) pure returns (bool) {
-  return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Item;
-}
-
-function isNull(ObjectTypeId self) pure returns (bool) {
-  return self == NullObjectTypeId;
-}
-
-using { isBlock, isTool, isItem, isNull, isMineable, eq as ==, neq as !=, unwrap } for ObjectTypeId global;
+using ObjectTypeIdLib for ObjectTypeId global;
+using { eq as ==, neq as != } for ObjectTypeId global;
