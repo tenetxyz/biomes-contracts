@@ -42,8 +42,6 @@ contract ChipSystem is System {
 
     (address chipAddress, bool publicAccess) = Systems._get(chipSystemId);
     require(!publicAccess, "Chip system must be private");
-    // TODO: do we want this?
-    require(NamespaceOwner._get(chipSystemId.getNamespaceId()) == address(0), "Chip namespace's owner not zero");
 
     if (objectTypeId == ForceFieldObjectID) {
       require(
