@@ -38,6 +38,7 @@ contract BuildSystem is System {
       InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,
       "Cannot build where there are dropped objects"
     );
+    require(!coord.getPlayer().exists(), "Cannot build on a player");
 
     ObjectType._set(terrainEntityId, objectTypeId);
 

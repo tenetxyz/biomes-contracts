@@ -29,18 +29,8 @@ contract DropSystem is System {
     );
     requireInPlayerInfluence(playerCoord, coord);
 
-    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    if (!entityId.exists()) {
-      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
-      require(terrainObjectTypeId == AirObjectID, "Cannot drop on non-air block");
-
-      entityId = getUniqueEntity();
-      ObjectType._set(entityId, AirObjectID);
-      Position._set(entityId, coord.x, coord.y, coord.z);
-      ReversePosition._set(coord.x, coord.y, coord.z, entityId);
-    } else {
-      require(ObjectType._get(entityId) == AirObjectID, "Cannot drop on non-air block");
-    }
+    (EntityId entityId, ObjectTypeId objectTypeId) = coord.getEntity();
+    require(objectTypeId == AirObjectID, "Cannot drop on a non-air block");
 
     transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_DROP_ENERGY_COST);
 
