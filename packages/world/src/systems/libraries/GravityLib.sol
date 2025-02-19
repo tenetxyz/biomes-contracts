@@ -3,12 +3,13 @@ pragma solidity >=0.8.24;
 
 import { VoxelCoord } from "../../Types.sol";
 
+import { ObjectTypeSchema, ObjectTypeSchemaData } from "../../codegen/tables/ObjectTypeSchema.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerPosition } from "../../codegen/tables/PlayerPosition.sol";
 import { ReversePlayerPosition } from "../../codegen/tables/ReversePlayerPosition.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { inWorldBorder } from "../../Utils.sol";
 import { EntityId } from "../../EntityId.sol";
 
@@ -27,10 +28,26 @@ library GravityLib {
       return false;
     }
 
-    ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
+    playerCoord.removePlayer();
+    belowCoord.setPlayer(playerEntityId);
 
-    PlayerPosition._set(playerEntityId, belowCoord.x, belowCoord.y, belowCoord.z);
-    ReversePlayerPosition._set(belowCoord.x, belowCoord.y, belowCoord.z, playerEntityId);
+    ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
+    for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+      VoxelCoord memory relativeCoord = VoxelCoord(
+        playerCoord.x + schemaData.relativePositionsX[i],
+        playerCoord.y + schemaData.relativePositionsY[i],
+        playerCoord.z + schemaData.relativePositionsZ[i]
+      );
+      EntityId relativeEntityId = relativeCoord.getPlayer();
+      relativeCoord.removePlayer();
+
+      VoxelCoord memory newRelativeCoord = VoxelCoord(
+        belowCoord.x + schemaData.relativePositionsX[i],
+        belowCoord.y + schemaData.relativePositionsY[i],
+        belowCoord.z + schemaData.relativePositionsZ[i]
+      );
+      newRelativeCoord.setPlayer(relativeEntityId);
+    }
 
     if (PlayerActivity._get(playerEntityId) != uint128(block.timestamp)) {
       PlayerActivity._set(playerEntityId, uint128(block.timestamp));

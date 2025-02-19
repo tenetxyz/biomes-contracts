@@ -43,8 +43,8 @@ contract LoginSystem is System {
       "Cannot respawn on a non-air block"
     );
 
-    PlayerPosition._set(playerEntityId, respawnCoord.x, respawnCoord.y, respawnCoord.z);
-    ReversePlayerPosition._set(respawnCoord.x, respawnCoord.y, respawnCoord.z, playerEntityId);
+    respawnCoord.setPlayer(playerEntityId);
+
     LastKnownPosition._deleteRecord(playerEntityId);
     PlayerStatus._set(playerEntityId, false);
 

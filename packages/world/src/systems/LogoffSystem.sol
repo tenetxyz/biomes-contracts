@@ -24,7 +24,7 @@ contract LogoffSystem is System {
   function logoffCommon(EntityId playerEntityId, VoxelCoord memory playerCoord) internal {
     LastKnownPosition._set(playerEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
     PlayerPosition._deleteRecord(playerEntityId);
-    ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
+    playerCoord.removePlayer();
     PlayerStatus._set(playerEntityId, true);
 
     notify(playerEntityId, LogoffNotifData({ logoffCoord: playerCoord }));
