@@ -36,7 +36,7 @@ function inWorldBorder(VoxelCoord memory coord) pure returns (bool) {
 
 function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
-  (EntityId belowEntityId, ObjectTypeId belowObjectTypeId) = belowCoord.getEntity();
+  (, ObjectTypeId belowObjectTypeId) = belowCoord.getEntity();
   if (!ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
     return false;
   }

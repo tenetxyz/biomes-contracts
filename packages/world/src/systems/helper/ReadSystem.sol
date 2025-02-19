@@ -8,7 +8,9 @@ import { ObjectTypeId } from "../../ObjectTypeIds.sol";
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Position } from "../../codegen/tables/Position.sol";
+import { PlayerPosition } from "../../codegen/tables/PlayerPosition.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
+import { ReversePlayerPosition } from "../../codegen/tables/ReversePlayerPosition.sol";
 import { LastKnownPosition } from "../../codegen/tables/LastKnownPosition.sol";
 import { Player } from "../../codegen/tables/Player.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
@@ -107,8 +109,12 @@ contract ReadSystem is System {
 
   function getCoordForEntityId(EntityId entityId) public view returns (VoxelCoord memory) {
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
-    if (objectTypeId == PlayerObjectID && PlayerStatus._getIsLoggedOff(entityId)) {
-      return LastKnownPosition._get(entityId).toVoxelCoord();
+    if (objectTypeId == PlayerObjectID) {
+      if (PlayerStatus._getIsLoggedOff(entityId)) {
+        return LastKnownPosition._get(entityId).toVoxelCoord();
+      } else {
+        return PlayerPosition._get(entityId).toVoxelCoord();
+      }
     } else {
       return Position._get(entityId).toVoxelCoord();
     }
