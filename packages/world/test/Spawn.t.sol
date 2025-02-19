@@ -18,12 +18,7 @@ import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 
 contract SpawnTest is BiomesTest {
-  function setUp() public override {
-    super.setUp();
-    ObjectTypeMetadata.setMass(PlayerObjectID, 10);
-  }
-
-  function spawnEnergy() internal returns (uint128) {
+  function spawnEnergy() internal view returns (uint128) {
     uint32 playerMass = ObjectTypeMetadata.getMass(PlayerObjectID);
     return MAX_PLAYER_ENERGY + massToEnergy(playerMass);
   }
