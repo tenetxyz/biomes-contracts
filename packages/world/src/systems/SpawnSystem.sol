@@ -14,13 +14,16 @@ import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
-import { ActionType } from "../codegen/common.sol";
+import { ExploredChunkByIndex, ExploredChunkByIndexData } from "../codegen/tables/ExploredChunkByIndex.sol";
+import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
+import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 
-import { WORLD_DIM_X, WORLD_DIM_Z, MAX_PLAYER_ENERGY, SPAWN_AREA_HALF_WIDTH } from "../Constants.sol";
+import { MAX_PLAYER_ENERGY, SPAWN_AREA_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
+import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
@@ -46,10 +49,28 @@ contract SpawnSystem is System {
   ) public view returns (VoxelCoord memory spawnCoord) {
     spawnCoord.y = y;
 
-    uint256 randX = uint256(keccak256(abi.encodePacked(blockhash(blockNumber), sender)));
-    uint256 randZ = uint256(keccak256(abi.encodePacked(randX)));
-    spawnCoord.x = int32(int256(randX % uint256(int256(WORLD_DIM_X)))) - WORLD_DIM_X / 2;
-    spawnCoord.z = int32(int256(randZ % uint256(int256(WORLD_DIM_X)))) - WORLD_DIM_X / 2;
+    uint256 exploredChunkCount = ExploredChunkCount._get();
+    require(exploredChunkCount > 0, "No explored chunks available");
+
+    // Randomness used for the chunk index and relative coordinates
+    uint256 rand = uint256(keccak256(abi.encodePacked(blockhash(blockNumber), sender)));
+    uint256 chunkIndex = rand % exploredChunkCount;
+    ExploredChunkByIndexData memory chunk = ExploredChunkByIndex._get(chunkIndex);
+
+    // Convert chunk coordinates to world coordinates and add random offset
+    int32 chunkWorldX = chunk.x * CHUNK_SIZE;
+    int32 chunkWorldZ = chunk.z * CHUNK_SIZE;
+
+    // Convert CHUNK_SIZE from int32 to uint256
+    uint256 chunkSize = uint256(int256(CHUNK_SIZE));
+
+    // Get random position within the chunk (0 to CHUNK_SIZE-1)
+    uint256 posRand = uint256(keccak256(abi.encodePacked(rand)));
+    int32 relativeX = int32(int256(posRand % chunkSize));
+    int32 relativeZ = int32(int256((posRand / chunkSize) % chunkSize));
+
+    spawnCoord.x = chunkWorldX + relativeX;
+    spawnCoord.z = chunkWorldZ + relativeZ;
   }
 
   function randomSpawn(uint256 blockNumber, int32 y) public returns (EntityId) {

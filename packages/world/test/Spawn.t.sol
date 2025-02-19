@@ -9,6 +9,9 @@ import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
+import { ExploredChunk } from "../src/codegen/tables/ExploredChunk.sol";
+import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
+import { ExploredChunkByIndex } from "../src/codegen/tables/ExploredChunkByIndex.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
@@ -19,6 +22,7 @@ import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 
 import { ISpawnTileChip } from "../src/prototypes/ISpawnTileChip.sol";
+import { ChunkCoord } from "../src/Types.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, ChipObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord } from "../src/VoxelCoord.sol";
@@ -43,9 +47,21 @@ contract SpawnTest is BiomesTest {
     return MAX_PLAYER_ENERGY + massToEnergy(playerMass);
   }
 
+  function exploreChunk(VoxelCoord memory coord) internal {
+    ChunkCoord memory chunkCoord = coord.toChunkCoord();
+    ExploredChunk.set(chunkCoord.x, chunkCoord.y, chunkCoord.z, address(0));
+    uint256 exploredChunkCount = ExploredChunkCount.get();
+    ExploredChunkByIndex.set(exploredChunkCount, chunkCoord.x, chunkCoord.y, chunkCoord.z);
+    ExploredChunkCount.set(exploredChunkCount + 1);
+  }
+
   function testRandomSpawn() public {
     uint256 blockNumber = block.number - 5;
     address alice = vm.randomAddress();
+
+    // Explore chunk at (0, 0, 0)
+    exploreChunk(VoxelCoord(0, 0, 0));
+
     VoxelCoord memory spawnCoord = world.getRandomSpawnCoord(blockNumber, alice, 0);
 
     // Set the spawn coord to Air
