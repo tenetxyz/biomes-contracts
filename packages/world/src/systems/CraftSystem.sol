@@ -10,34 +10,19 @@ import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
 import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { ObjectTypeId, NullObjectTypeId, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity } from "../Utils.sol";
-import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
+import { addToInventoryCount, removeFromInventoryCount, removeAnyFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, CraftNotifData } from "../utils/NotifUtils.sol";
 import { energyToMass, transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 import { hashInputs } from "../utils/RecipeUtils.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_CRAFT_ENERGY_COST } from "../Constants.sol";
-
-function useAny(EntityId playerEntityId, ObjectTypeId inputType, uint16 amount) {
-  uint16 remaining = amount;
-  ObjectTypeId[] memory objectTypeIds = inputType.getObjectTypes();
-  for (uint256 i = 0; i < objectTypeIds.length; i++) {
-    uint16 owned = InventoryCount._get(playerEntityId, objectTypeIds[i]);
-    uint16 spend = owned > remaining ? remaining : owned;
-    if (spend > 0) {
-      removeFromInventoryCount(playerEntityId, objectTypeIds[i], spend);
-      remaining -= spend;
-    }
-  }
-  require(remaining == 0, "Not enough objects");
-}
 
 contract CraftSystem is System {
   function craft(EntityId stationEntityId, ObjectTypeId[] memory inputTypes, uint16[] memory inputAmounts) public {
@@ -66,7 +51,7 @@ contract CraftSystem is System {
       // totalInputObjectMass += ObjectTypeMetadata._getMass(inputObjectTypeId);
       // totalInputObjectEnergy += ObjectTypeMetadata._getEnergy(inputObjectTypeId);
       if (inputObjectTypeId.isAny()) {
-        useAny(playerEntityId, inputObjectTypeId, inputAmounts[i]);
+        removeAnyFromInventoryCount(playerEntityId, inputObjectTypeId, inputAmounts[i]);
       } else {
         removeFromInventoryCount(playerEntityId, inputObjectTypeId, inputAmounts[i]);
       }
