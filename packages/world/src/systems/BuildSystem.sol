@@ -8,8 +8,8 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
-import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
+import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
@@ -102,22 +102,13 @@ contract BuildSystem is System {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
     require(inWorldBorder(jumpCoord), "Cannot jump outside world border");
-    EntityId newEntityId = ReversePosition._get(jumpCoord.x, jumpCoord.y, jumpCoord.z);
-    if (!newEntityId.exists()) {
-      ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(jumpCoord));
-      require(terrainObjectTypeId == AirObjectID, "Cannot jump on a non-air block");
-      newEntityId = getUniqueEntity();
-      ObjectType._set(newEntityId, AirObjectID);
-    } else {
-      require(ObjectType._get(newEntityId) == AirObjectID, "Cannot jump on a non-air block");
-    }
+    (EntityId newEntityId, ObjectTypeId terrainObjectTypeId) = jumpCoord.getOrCreateEntity();
+    require(terrainObjectTypeId == AirObjectID, "Cannot jump on a non-air block");
 
-    // Swap entity ids
-    ReversePosition._set(playerCoord.x, playerCoord.y, playerCoord.z, newEntityId);
-    Position._set(newEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
+    ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
 
-    Position._set(playerEntityId, jumpCoord.x, jumpCoord.y, jumpCoord.z);
-    ReversePosition._set(jumpCoord.x, jumpCoord.y, jumpCoord.z, playerEntityId);
+    PlayerPosition._set(playerEntityId, jumpCoord.x, jumpCoord.y, jumpCoord.z);
+    ReversePlayerPosition._set(jumpCoord.x, jumpCoord.y, jumpCoord.z, playerEntityId);
 
     // TODO: apply jump cost
     VoxelCoord[] memory moveCoords = new VoxelCoord[](1);
