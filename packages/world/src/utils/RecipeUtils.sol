@@ -5,14 +5,6 @@ import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
 import { ObjectTypeId, NullObjectTypeId } from "../ObjectTypeIds.sol";
 
-struct Recipe {
-  ObjectTypeId stationObjectTypeId;
-  ObjectTypeId[] inputTypes;
-  uint16[] inputAmounts;
-  ObjectTypeId[] outputTypes;
-  uint16[] outputAmounts;
-}
-
 function createRecipe(
   ObjectTypeId stationObjectTypeId,
   ObjectTypeId[] memory inputTypes,
