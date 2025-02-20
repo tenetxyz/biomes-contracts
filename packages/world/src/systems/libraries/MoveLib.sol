@@ -91,11 +91,11 @@ library MoveLib {
 
     VoxelCoord memory finalCoord = newCoords[newCoords.length - 1];
     if (!VoxelCoordLib.equals(finalCoord, playerCoord)) {
-      playerCoord.removePlayer();
+      ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
       finalCoord.setPlayer(playerEntityId);
 
       for (uint256 i = 0; i < relativePositions.length; i++) {
-        relativeCoords[i].removePlayer();
+        ReversePlayerPosition._deleteRecord(relativeCoords[i].x, relativeCoords[i].y, relativeCoords[i].z);
         VoxelCoord memory newRelativeCoord = VoxelCoord(
           finalCoord.x + relativePositions[i].x,
           finalCoord.y + relativePositions[i].y,

@@ -323,10 +323,6 @@ library VoxelCoordLib {
     return ReversePlayerPosition._get(coord.x, coord.y, coord.z);
   }
 
-  function removePlayer(VoxelCoord memory coord) internal {
-    ReversePlayerPosition._deleteRecord(coord.x, coord.y, coord.z);
-  }
-
   function setPlayer(VoxelCoord memory coord, EntityId playerEntityId) internal {
     PlayerPosition._set(playerEntityId, coord.x, coord.y, coord.z);
     ReversePlayerPosition._set(coord.x, coord.y, coord.z, playerEntityId);

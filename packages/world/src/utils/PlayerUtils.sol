@@ -7,6 +7,7 @@ import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { Position, PositionData } from "../codegen/tables/Position.sol";
 import { PlayerPosition, PlayerPositionData } from "../codegen/tables/PlayerPosition.sol";
+import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -87,7 +88,7 @@ function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
 function deletePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   ObjectType._deleteRecord(playerEntityId);
   PlayerPosition._deleteRecord(playerEntityId);
-  playerCoord.removePlayer();
+  ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
 
   VoxelCoord[] memory relativePositions = getObjectTypeSchema(PlayerObjectID);
   for (uint256 i = 0; i < relativePositions.length; i++) {
@@ -98,7 +99,7 @@ function deletePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
     );
     EntityId relativePlayerEntityId = relativeCoord.getPlayer();
     PlayerPosition._deleteRecord(relativePlayerEntityId);
-    relativeCoord.removePlayer();
+    ReversePlayerPosition._deleteRecord(relativeCoord.x, relativeCoord.y, relativeCoord.z);
     ObjectType._deleteRecord(relativePlayerEntityId);
     BaseEntity._deleteRecord(relativePlayerEntityId);
   }
