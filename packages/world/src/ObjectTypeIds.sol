@@ -352,9 +352,6 @@ library ObjectTypeIdLib {
   }
 }
 
-using ObjectTypeIdLib for ObjectTypeId global;
-using { eq as ==, neq as != } for ObjectTypeId global;
-
 function getLogObjectTypes() pure returns (ObjectTypeId[] memory) {
   ObjectTypeId[] memory result = new ObjectTypeId[](4);
   result[0] = OakLogObjectID;
@@ -426,3 +423,6 @@ function getGlassObjectTypes() pure returns (ObjectTypeId[] memory) {
   result[9] = BlackGlassObjectID;
   return result;
 }
+
+using ObjectTypeIdLib for ObjectTypeId global;
+using { eq as ==, neq as != } for ObjectTypeId global;
