@@ -141,7 +141,12 @@ library VoxelCoordLib {
   }
 
   function toChunkCoord(VoxelCoord memory coord) internal pure returns (ChunkCoord memory) {
-    return ChunkCoord({ x: coord.x / CHUNK_SIZE, y: coord.y / CHUNK_SIZE, z: coord.z / CHUNK_SIZE });
+    return
+      ChunkCoord({
+        x: floorDiv(coord.x, CHUNK_SIZE),
+        y: floorDiv(coord.y, CHUNK_SIZE),
+        z: floorDiv(coord.z, CHUNK_SIZE)
+      });
   }
 
   // Function to get the new VoxelCoord based on the direction

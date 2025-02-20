@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
-import { VoxelCoord } from "../../VoxelCoord.sol";
+import { VoxelCoord, VoxelCoordLib } from "../../VoxelCoord.sol";
 import { ChunkCoord } from "../../Types.sol";
 import { SSTORE2 } from "../../utils/SSTORE2.sol";
 import { CHUNK_SIZE } from "../../Constants.sol";
@@ -12,6 +12,7 @@ uint256 constant VERSION_PADDING = 1;
 
 library TerrainLib {
   using SSTORE2 for address;
+  using VoxelCoordLib for VoxelCoord;
   bytes1 constant _VERSION = 0x00;
 
   /// @notice Get the terrain block type of a voxel coordinate.
@@ -28,7 +29,7 @@ library TerrainLib {
 
   /// @notice Get the terrain block type of a voxel coordinate.
   function getBlockType(VoxelCoord memory coord, address world) internal view returns (uint8) {
-    ChunkCoord memory chunkCoord = _getChunkCoord(coord);
+    ChunkCoord memory chunkCoord = coord.toChunkCoord();
     require(_isChunkExplored(chunkCoord, world), "Chunk not explored yet");
 
     address chunkPointer = _getChunkPointer(chunkCoord, world);
@@ -39,16 +40,6 @@ library TerrainLib {
     bytes1 blockType = chunkPointer.readBytes1(index);
 
     return uint8(blockType);
-  }
-
-  /// @dev Get the chunk coordinate of a voxel coordinate
-  function _getChunkCoord(VoxelCoord memory chunkCoord) internal pure returns (ChunkCoord memory) {
-    return
-      ChunkCoord({
-        x: floorDiv(chunkCoord.x, CHUNK_SIZE),
-        y: floorDiv(chunkCoord.y, CHUNK_SIZE),
-        z: floorDiv(chunkCoord.z, CHUNK_SIZE)
-      });
   }
 
   /// @dev Get the relative coordinate of a voxel coordinate within a chunk
