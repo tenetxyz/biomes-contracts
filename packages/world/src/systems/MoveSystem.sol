@@ -118,7 +118,7 @@ library MoveLib {
     }
 
     VoxelCoord memory finalCoord = newCoords[newCoords.length - 1];
-    if (finalCoord != playerCoord) {
+    if (!VoxelCoordLib.equals(finalCoord, playerCoord)) {
       playerCoord.removePlayer();
       finalCoord.setPlayer(playerEntityId);
 
