@@ -5,7 +5,8 @@ pragma solidity >=0.8.24;
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "./tables/ObjectTypeMetadata.sol";
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "./tables/ObjectTypeSchema.sol";
-import { ObjectTypeOres, ObjectTypeOresData } from "./tables/ObjectTypeOres.sol";
+import { ObjectTypeOreAmount } from "./tables/ObjectTypeOreAmount.sol";
+import { ObjectTypeOres } from "./tables/ObjectTypeOres.sol";
 import { Recipes, RecipesData } from "./tables/Recipes.sol";
 import { InitialEnergyPool } from "./tables/InitialEnergyPool.sol";
 import { ObjectType } from "./tables/ObjectType.sol";

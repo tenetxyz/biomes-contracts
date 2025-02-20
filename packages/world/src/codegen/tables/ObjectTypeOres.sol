@@ -19,22 +19,17 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { ObjectTypeId } from "../../ObjectTypeIds.sol";
 
-struct ObjectTypeOresData {
-  uint16[] types;
-  uint16[] amounts;
-}
-
 library ObjectTypeOres {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ObjectTypeOres", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004f626a656374547970654f7265730000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0000000200000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0000000100000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (uint16)
   Schema constant _keySchema = Schema.wrap(0x0002010001000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint16[], uint16[])
-  Schema constant _valueSchema = Schema.wrap(0x0000000263630000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint16[])
+  Schema constant _valueSchema = Schema.wrap(0x0000000163000000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -50,9 +45,8 @@ library ObjectTypeOres {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](2);
-    fieldNames[0] = "types";
-    fieldNames[1] = "amounts";
+    fieldNames = new string[](1);
+    fieldNames[0] = "ores";
   }
 
   /**
@@ -70,9 +64,9 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Get types.
+   * @notice Get ores.
    */
-  function getTypes(ObjectTypeId objectTypeId) internal view returns (uint16[] memory types) {
+  function getOres(ObjectTypeId objectTypeId) internal view returns (uint16[] memory ores) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -81,9 +75,9 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Get types.
+   * @notice Get ores.
    */
-  function _getTypes(ObjectTypeId objectTypeId) internal view returns (uint16[] memory types) {
+  function _getOres(ObjectTypeId objectTypeId) internal view returns (uint16[] memory ores) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -92,29 +86,71 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Set types.
+   * @notice Get ores.
    */
-  function setTypes(ObjectTypeId objectTypeId, uint16[] memory types) internal {
+  function get(ObjectTypeId objectTypeId) internal view returns (uint16[] memory ores) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
-    StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((types)));
+    bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint16());
   }
 
   /**
-   * @notice Set types.
+   * @notice Get ores.
    */
-  function _setTypes(ObjectTypeId objectTypeId, uint16[] memory types) internal {
+  function _get(ObjectTypeId objectTypeId) internal view returns (uint16[] memory ores) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
-    StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((types)));
+    bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
+    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint16());
   }
 
   /**
-   * @notice Get the length of types.
+   * @notice Set ores.
    */
-  function lengthTypes(ObjectTypeId objectTypeId) internal view returns (uint256) {
+  function setOres(ObjectTypeId objectTypeId, uint16[] memory ores) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+
+    StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((ores)));
+  }
+
+  /**
+   * @notice Set ores.
+   */
+  function _setOres(ObjectTypeId objectTypeId, uint16[] memory ores) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+
+    StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((ores)));
+  }
+
+  /**
+   * @notice Set ores.
+   */
+  function set(ObjectTypeId objectTypeId, uint16[] memory ores) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+
+    StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((ores)));
+  }
+
+  /**
+   * @notice Set ores.
+   */
+  function _set(ObjectTypeId objectTypeId, uint16[] memory ores) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+
+    StoreCore.setDynamicField(_tableId, _keyTuple, 0, EncodeArray.encode((ores)));
+  }
+
+  /**
+   * @notice Get the length of ores.
+   */
+  function lengthOres(ObjectTypeId objectTypeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -125,9 +161,9 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Get the length of types.
+   * @notice Get the length of ores.
    */
-  function _lengthTypes(ObjectTypeId objectTypeId) internal view returns (uint256) {
+  function _lengthOres(ObjectTypeId objectTypeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -138,10 +174,36 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Get an item of types.
+   * @notice Get the length of ores.
+   */
+  function length(ObjectTypeId objectTypeId) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+
+    uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
+    unchecked {
+      return _byteLength / 2;
+    }
+  }
+
+  /**
+   * @notice Get the length of ores.
+   */
+  function _length(ObjectTypeId objectTypeId) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+
+    uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
+    unchecked {
+      return _byteLength / 2;
+    }
+  }
+
+  /**
+   * @notice Get an item of ores.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemTypes(ObjectTypeId objectTypeId, uint256 _index) internal view returns (uint16) {
+  function getItemOres(ObjectTypeId objectTypeId, uint256 _index) internal view returns (uint16) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -152,10 +214,10 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Get an item of types.
+   * @notice Get an item of ores.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemTypes(ObjectTypeId objectTypeId, uint256 _index) internal view returns (uint16) {
+  function _getItemOres(ObjectTypeId objectTypeId, uint256 _index) internal view returns (uint16) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -166,9 +228,37 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Push an element to types.
+   * @notice Get an item of ores.
+   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function pushTypes(ObjectTypeId objectTypeId, uint16 _element) internal {
+  function getItem(ObjectTypeId objectTypeId, uint256 _index) internal view returns (uint16) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+
+    unchecked {
+      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 2, (_index + 1) * 2);
+      return (uint16(bytes2(_blob)));
+    }
+  }
+
+  /**
+   * @notice Get an item of ores.
+   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
+   */
+  function _getItem(ObjectTypeId objectTypeId, uint256 _index) internal view returns (uint16) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+
+    unchecked {
+      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 2, (_index + 1) * 2);
+      return (uint16(bytes2(_blob)));
+    }
+  }
+
+  /**
+   * @notice Push an element to ores.
+   */
+  function pushOres(ObjectTypeId objectTypeId, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -176,9 +266,9 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Push an element to types.
+   * @notice Push an element to ores.
    */
-  function _pushTypes(ObjectTypeId objectTypeId, uint16 _element) internal {
+  function _pushOres(ObjectTypeId objectTypeId, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -186,9 +276,29 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Pop an element from types.
+   * @notice Push an element to ores.
    */
-  function popTypes(ObjectTypeId objectTypeId) internal {
+  function push(ObjectTypeId objectTypeId, uint16 _element) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+
+    StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
+  }
+
+  /**
+   * @notice Push an element to ores.
+   */
+  function _push(ObjectTypeId objectTypeId, uint16 _element) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+
+    StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, abi.encodePacked((_element)));
+  }
+
+  /**
+   * @notice Pop an element from ores.
+   */
+  function popOres(ObjectTypeId objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -196,9 +306,9 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Pop an element from types.
+   * @notice Pop an element from ores.
    */
-  function _popTypes(ObjectTypeId objectTypeId) internal {
+  function _popOres(ObjectTypeId objectTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -206,9 +316,29 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Update an element of types at `_index`.
+   * @notice Pop an element from ores.
    */
-  function updateTypes(ObjectTypeId objectTypeId, uint256 _index, uint16 _element) internal {
+  function pop(ObjectTypeId objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+
+    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 2);
+  }
+
+  /**
+   * @notice Pop an element from ores.
+   */
+  function _pop(ObjectTypeId objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+
+    StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 2);
+  }
+
+  /**
+   * @notice Update an element of ores at `_index`.
+   */
+  function updateOres(ObjectTypeId objectTypeId, uint256 _index, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -219,9 +349,9 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Update an element of types at `_index`.
+   * @notice Update an element of ores at `_index`.
    */
-  function _updateTypes(ObjectTypeId objectTypeId, uint256 _index, uint16 _element) internal {
+  function _updateOres(ObjectTypeId objectTypeId, uint256 _index, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -232,286 +362,29 @@ library ObjectTypeOres {
   }
 
   /**
-   * @notice Get amounts.
+   * @notice Update an element of ores at `_index`.
    */
-  function getAmounts(ObjectTypeId objectTypeId) internal view returns (uint16[] memory amounts) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 1);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint16());
-  }
-
-  /**
-   * @notice Get amounts.
-   */
-  function _getAmounts(ObjectTypeId objectTypeId) internal view returns (uint16[] memory amounts) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 1);
-    return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint16());
-  }
-
-  /**
-   * @notice Set amounts.
-   */
-  function setAmounts(ObjectTypeId objectTypeId, uint16[] memory amounts) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    StoreSwitch.setDynamicField(_tableId, _keyTuple, 1, EncodeArray.encode((amounts)));
-  }
-
-  /**
-   * @notice Set amounts.
-   */
-  function _setAmounts(ObjectTypeId objectTypeId, uint16[] memory amounts) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    StoreCore.setDynamicField(_tableId, _keyTuple, 1, EncodeArray.encode((amounts)));
-  }
-
-  /**
-   * @notice Get the length of amounts.
-   */
-  function lengthAmounts(ObjectTypeId objectTypeId) internal view returns (uint256) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 1);
-    unchecked {
-      return _byteLength / 2;
-    }
-  }
-
-  /**
-   * @notice Get the length of amounts.
-   */
-  function _lengthAmounts(ObjectTypeId objectTypeId) internal view returns (uint256) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 1);
-    unchecked {
-      return _byteLength / 2;
-    }
-  }
-
-  /**
-   * @notice Get an item of amounts.
-   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
-   */
-  function getItemAmounts(ObjectTypeId objectTypeId, uint256 _index) internal view returns (uint16) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    unchecked {
-      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 2, (_index + 1) * 2);
-      return (uint16(bytes2(_blob)));
-    }
-  }
-
-  /**
-   * @notice Get an item of amounts.
-   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
-   */
-  function _getItemAmounts(ObjectTypeId objectTypeId, uint256 _index) internal view returns (uint16) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    unchecked {
-      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 2, (_index + 1) * 2);
-      return (uint16(bytes2(_blob)));
-    }
-  }
-
-  /**
-   * @notice Push an element to amounts.
-   */
-  function pushAmounts(ObjectTypeId objectTypeId, uint16 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 1, abi.encodePacked((_element)));
-  }
-
-  /**
-   * @notice Push an element to amounts.
-   */
-  function _pushAmounts(ObjectTypeId objectTypeId, uint16 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    StoreCore.pushToDynamicField(_tableId, _keyTuple, 1, abi.encodePacked((_element)));
-  }
-
-  /**
-   * @notice Pop an element from amounts.
-   */
-  function popAmounts(ObjectTypeId objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 1, 2);
-  }
-
-  /**
-   * @notice Pop an element from amounts.
-   */
-  function _popAmounts(ObjectTypeId objectTypeId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    StoreCore.popFromDynamicField(_tableId, _keyTuple, 1, 2);
-  }
-
-  /**
-   * @notice Update an element of amounts at `_index`.
-   */
-  function updateAmounts(ObjectTypeId objectTypeId, uint256 _index, uint16 _element) internal {
+  function update(ObjectTypeId objectTypeId, uint256 _index, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
-      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 2), uint40(_encoded.length), _encoded);
+      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 2), uint40(_encoded.length), _encoded);
     }
   }
 
   /**
-   * @notice Update an element of amounts at `_index`.
+   * @notice Update an element of ores at `_index`.
    */
-  function _updateAmounts(ObjectTypeId objectTypeId, uint256 _index, uint16 _element) internal {
+  function _update(ObjectTypeId objectTypeId, uint256 _index, uint16 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     unchecked {
       bytes memory _encoded = abi.encodePacked((_element));
-      StoreCore.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 2), uint40(_encoded.length), _encoded);
+      StoreCore.spliceDynamicData(_tableId, _keyTuple, 0, uint40(_index * 2), uint40(_encoded.length), _encoded);
     }
-  }
-
-  /**
-   * @notice Get the full data.
-   */
-  function get(ObjectTypeId objectTypeId) internal view returns (ObjectTypeOresData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
-      _tableId,
-      _keyTuple,
-      _fieldLayout
-    );
-    return decode(_staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
-   * @notice Get the full data.
-   */
-  function _get(ObjectTypeId objectTypeId) internal view returns (ObjectTypeOresData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
-      _tableId,
-      _keyTuple,
-      _fieldLayout
-    );
-    return decode(_staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
-   * @notice Set the full data using individual values.
-   */
-  function set(ObjectTypeId objectTypeId, uint16[] memory types, uint16[] memory amounts) internal {
-    bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(types, amounts);
-    bytes memory _dynamicData = encodeDynamic(types, amounts);
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
-   * @notice Set the full data using individual values.
-   */
-  function _set(ObjectTypeId objectTypeId, uint16[] memory types, uint16[] memory amounts) internal {
-    bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(types, amounts);
-    bytes memory _dynamicData = encodeDynamic(types, amounts);
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
-  }
-
-  /**
-   * @notice Set the full data using the data struct.
-   */
-  function set(ObjectTypeId objectTypeId, ObjectTypeOresData memory _table) internal {
-    bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(_table.types, _table.amounts);
-    bytes memory _dynamicData = encodeDynamic(_table.types, _table.amounts);
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
-   * @notice Set the full data using the data struct.
-   */
-  function _set(ObjectTypeId objectTypeId, ObjectTypeOresData memory _table) internal {
-    bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(_table.types, _table.amounts);
-    bytes memory _dynamicData = encodeDynamic(_table.types, _table.amounts);
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
-
-    StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
-  }
-
-  /**
-   * @notice Decode the tightly packed blob of dynamic data using the encoded lengths.
-   */
-  function decodeDynamic(
-    EncodedLengths _encodedLengths,
-    bytes memory _blob
-  ) internal pure returns (uint16[] memory types, uint16[] memory amounts) {
-    uint256 _start;
-    uint256 _end;
-    unchecked {
-      _end = _encodedLengths.atIndex(0);
-    }
-    types = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_uint16());
-
-    _start = _end;
-    unchecked {
-      _end += _encodedLengths.atIndex(1);
-    }
-    amounts = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_uint16());
-  }
-
-  /**
-   * @notice Decode the tightly packed blobs using this table's field layout.
-   *
-   * @param _encodedLengths Encoded lengths of dynamic fields.
-   * @param _dynamicData Tightly packed dynamic fields.
-   */
-  function decode(
-    bytes memory,
-    EncodedLengths _encodedLengths,
-    bytes memory _dynamicData
-  ) internal pure returns (ObjectTypeOresData memory _table) {
-    (_table.types, _table.amounts) = decodeDynamic(_encodedLengths, _dynamicData);
   }
 
   /**
@@ -538,13 +411,10 @@ library ObjectTypeOres {
    * @notice Tightly pack dynamic data lengths using this table's schema.
    * @return _encodedLengths The lengths of the dynamic fields (packed into a single bytes32 value).
    */
-  function encodeLengths(
-    uint16[] memory types,
-    uint16[] memory amounts
-  ) internal pure returns (EncodedLengths _encodedLengths) {
+  function encodeLengths(uint16[] memory ores) internal pure returns (EncodedLengths _encodedLengths) {
     // Lengths are effectively checked during copy by 2**40 bytes exceeding gas limits
     unchecked {
-      _encodedLengths = EncodedLengthsLib.pack(types.length * 2, amounts.length * 2);
+      _encodedLengths = EncodedLengthsLib.pack(ores.length * 2);
     }
   }
 
@@ -552,8 +422,8 @@ library ObjectTypeOres {
    * @notice Tightly pack dynamic (variable length) data using this table's schema.
    * @return The dynamic data, encoded into a sequence of bytes.
    */
-  function encodeDynamic(uint16[] memory types, uint16[] memory amounts) internal pure returns (bytes memory) {
-    return abi.encodePacked(EncodeArray.encode((types)), EncodeArray.encode((amounts)));
+  function encodeDynamic(uint16[] memory ores) internal pure returns (bytes memory) {
+    return abi.encodePacked(EncodeArray.encode((ores)));
   }
 
   /**
@@ -562,13 +432,10 @@ library ObjectTypeOres {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(
-    uint16[] memory types,
-    uint16[] memory amounts
-  ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+  function encode(uint16[] memory ores) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(types, amounts);
-    bytes memory _dynamicData = encodeDynamic(types, amounts);
+    EncodedLengths _encodedLengths = encodeLengths(ores);
+    bytes memory _dynamicData = encodeDynamic(ores);
 
     return (_staticData, _encodedLengths, _dynamicData);
   }

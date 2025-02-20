@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { ObjectCount } from "./codegen/tables/ObjectCount.sol";
+import { ObjectTypeOres } from "./codegen/tables/ObjectTypeOres.sol";
+import { ObjectTypeOreAmount } from "./codegen/tables/ObjectTypeOreAmount.sol";
+
 type ObjectTypeId is uint16;
 
 uint8 constant OFFSET_BITS = 11;
@@ -292,16 +296,25 @@ library ObjectTypeIdLib {
 
   function isOre(ObjectTypeId objectTypeId) internal pure returns (bool) {
     return
-      objectTypeId == AnyOreObjectID ||
       objectTypeId == CoalOreObjectID ||
       objectTypeId == SilverOreObjectID ||
       objectTypeId == GoldOreObjectID ||
       objectTypeId == DiamondOreObjectID ||
-      objectTypeId == NeptuniumOreObjectID;
+      objectTypeId == NeptuniumOreObjectID ||
+      objectTypeId == AnyOreObjectID;
   }
 
   function isNull(ObjectTypeId self) internal pure returns (bool) {
     return self == NullObjectTypeId;
+  }
+
+  function burnOres(ObjectTypeId self) internal {
+    uint16[] memory ores = ObjectTypeOres._get(self);
+    for (uint256 i = 0; i < ores.length; i++) {
+      ObjectTypeId oreType = ObjectTypeId.wrap(ores[i]);
+      uint16 oreAmount = ObjectTypeOreAmount._get(self, oreType);
+      ObjectCount._set(oreType, ObjectCount._get(oreType) + oreAmount);
+    }
   }
 }
 

@@ -10,8 +10,6 @@ import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { ObjectCount } from "../codegen/tables/ObjectCount.sol";
-import { ObjectTypeOresData, ObjectTypeOres } from "../codegen/tables/ObjectTypeOres.sol";
 
 import { ObjectTypeId, PlayerObjectID, ChestObjectID, SmartChestObjectID } from "../ObjectTypeIds.sol";
 
@@ -99,11 +97,7 @@ function useEquipped(EntityId entityId) returns (uint128 massUsed, ObjectTypeId 
       Equipped._deleteRecord(entityId);
 
       // Burn ores and make them available for respawn
-      ObjectTypeOresData memory ores = ObjectTypeOres._get(inventoryObjectTypeId);
-      for (uint256 i = 0; i < ores.types.length; i++) {
-        ObjectTypeId oreType = ObjectTypeId.wrap(ores.types[i]);
-        ObjectCount._set(oreType, ObjectCount._get(oreType) + ores.amounts[i]);
-      }
+      inventoryObjectTypeId.burnOres();
 
       // TODO: return energy to local pool
     } else {
