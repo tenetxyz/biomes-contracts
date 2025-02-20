@@ -69,6 +69,12 @@ contract SpawnTest is BiomesTest {
     ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, entityId);
     ObjectType.set(entityId, AirObjectID);
 
+    {
+      EntityId topEntityId = randomEntityId();
+      ReversePosition.set(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z, topEntityId);
+      ObjectType.set(topEntityId, AirObjectID);
+    }
+
     // Set below entity to dirt so gravity doesn't apply
     EntityId belowEntityId = randomEntityId();
     ReversePosition.set(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z, belowEntityId);
@@ -105,6 +111,13 @@ contract SpawnTest is BiomesTest {
     EntityId spawnEntityId = randomEntityId();
     ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, spawnEntityId);
     ObjectType.set(spawnEntityId, AirObjectID);
+
+    // Set the top entity to Air
+    {
+      EntityId topEntityId = randomEntityId();
+      ReversePosition.set(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z, topEntityId);
+      ObjectType.set(topEntityId, AirObjectID);
+    }
 
     // Set forcefield
     EntityId forceFieldEntityId = randomEntityId();
