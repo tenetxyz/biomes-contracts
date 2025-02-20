@@ -56,10 +56,6 @@ function isLog(ObjectTypeId objectTypeId) pure returns (bool) {
     objectTypeId == RubberLogObjectID;
 }
 
-function getLogObjectTypes() pure returns (ObjectTypeId[4] memory) {
-  return [OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID];
-}
-
 function isLumber(ObjectTypeId objectTypeId) pure returns (bool) {
   return
     objectTypeId == OakLumberObjectID ||
@@ -81,28 +77,6 @@ function isLumber(ObjectTypeId objectTypeId) pure returns (bool) {
     objectTypeId == SilverOakLumberObjectID;
 }
 
-function getLumberObjectTypes() pure returns (ObjectTypeId[17] memory) {
-  return [
-    OakLumberObjectID,
-    SakuraLumberObjectID,
-    RubberLumberObjectID,
-    BirchLumberObjectID,
-    BlueOakLumberObjectID,
-    BrownOakLumberObjectID,
-    GreenOakLumberObjectID,
-    MagentaOakLumberObjectID,
-    OrangeOakLumberObjectID,
-    PinkOakLumberObjectID,
-    PurpleOakLumberObjectID,
-    RedOakLumberObjectID,
-    TanOakLumberObjectID,
-    WhiteOakLumberObjectID,
-    YellowOakLumberObjectID,
-    BlackOakLumberObjectID,
-    SilverOakLumberObjectID
-  ];
-}
-
 function isGlass(ObjectTypeId objectTypeId) pure returns (bool) {
   return
     objectTypeId == GlassObjectID ||
@@ -115,21 +89,6 @@ function isGlass(ObjectTypeId objectTypeId) pure returns (bool) {
     objectTypeId == WhiteGlassObjectID ||
     objectTypeId == YellowGlassObjectID ||
     objectTypeId == BlackGlassObjectID;
-}
-
-function getGlassObjectTypes() pure returns (ObjectTypeId[10] memory) {
-  return [
-    GlassObjectID,
-    BlueGlassObjectID,
-    GreenGlassObjectID,
-    OrangeGlassObjectID,
-    PinkGlassObjectID,
-    PurpleGlassObjectID,
-    RedGlassObjectID,
-    WhiteGlassObjectID,
-    YellowGlassObjectID,
-    BlackGlassObjectID
-  ];
 }
 
 function isCottonBlock(ObjectTypeId objectTypeId) pure returns (bool) {
@@ -148,29 +107,6 @@ function isCottonBlock(ObjectTypeId objectTypeId) pure returns (bool) {
     objectTypeId == YellowCottonBlockObjectID ||
     objectTypeId == BlackCottonBlockObjectID ||
     objectTypeId == SilverCottonBlockObjectID;
-}
-
-function getCottonBlockObjectTypes() pure returns (ObjectTypeId[14] memory) {
-  return [
-    CottonBlockObjectID,
-    BlueCottonBlockObjectID,
-    BrownCottonBlockObjectID,
-    GreenCottonBlockObjectID,
-    MagentaCottonBlockObjectID,
-    OrangeCottonBlockObjectID,
-    PinkCottonBlockObjectID,
-    PurpleCottonBlockObjectID,
-    RedCottonBlockObjectID,
-    TanCottonBlockObjectID,
-    WhiteCottonBlockObjectID,
-    YellowCottonBlockObjectID,
-    BlackCottonBlockObjectID,
-    SilverCottonBlockObjectID
-  ];
-}
-
-function getReinforcedLumberObjectTypes() pure returns (ObjectTypeId[3] memory) {
-  return [ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID];
 }
 
 function isReinforcedLumber(ObjectTypeId objectTypeId) pure returns (bool) {
