@@ -6,7 +6,6 @@ import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
@@ -23,8 +22,9 @@ import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel, energyToMass, transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
-import { GravityLib } from "./libraries/GravityLib.sol";
+import { MoveLib } from "./libraries/MoveLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
+import { getObjectTypeSchema } from "../utils/ObjectTypeUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_MINE_ENERGY_COST } from "../Constants.sol";
@@ -69,25 +69,22 @@ contract MineSystem is System {
       }
     }
 
-    uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(mineObjectTypeId);
-    VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
+    VoxelCoord[] memory relativePositions = getObjectTypeSchema(mineObjectTypeId);
+    VoxelCoord[] memory coords = new VoxelCoord[](relativePositions.length + 1);
     coords[0] = coord;
 
-    if (numRelativePositions > 0) {
-      ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(mineObjectTypeId);
-      for (uint256 i = 0; i < numRelativePositions; i++) {
-        VoxelCoord memory relativeCoord = VoxelCoord(
-          coord.x + schemaData.relativePositionsX[i],
-          coord.y + schemaData.relativePositionsY[i],
-          coord.z + schemaData.relativePositionsZ[i]
-        );
-        coords[i + 1] = relativeCoord;
+    for (uint256 i = 0; i < relativePositions.length; i++) {
+      VoxelCoord memory relativeCoord = VoxelCoord(
+        coord.x + relativePositions[i].x,
+        coord.y + relativePositions[i].y,
+        coord.z + relativePositions[i].z
+      );
+      coords[i + 1] = relativeCoord;
 
-        if (isFullyMined) {
-          (EntityId relativeEntityId, ) = mineObjectAtCoord(relativeCoord);
-          BaseEntity._deleteRecord(relativeEntityId);
-          ObjectType._set(relativeEntityId, AirObjectID);
-        }
+      if (isFullyMined) {
+        (EntityId relativeEntityId, ) = mineObjectAtCoord(relativeCoord);
+        BaseEntity._deleteRecord(relativeEntityId);
+        ObjectType._set(relativeEntityId, AirObjectID);
       }
     }
 
@@ -103,8 +100,8 @@ contract MineSystem is System {
       for (uint256 i = 0; i < coords.length; i++) {
         VoxelCoord memory aboveCoord = VoxelCoord(coords[i].x, coords[i].y + 1, coords[i].z);
         EntityId aboveEntityId = aboveCoord.getPlayer();
-        if (aboveEntityId.exists()) {
-          GravityLib.runGravity(aboveEntityId, aboveCoord);
+        if (aboveEntityId.exists() && aboveEntityId.isBaseEntity()) {
+          MoveLib.runGravity(aboveEntityId, aboveCoord);
         }
       }
     }

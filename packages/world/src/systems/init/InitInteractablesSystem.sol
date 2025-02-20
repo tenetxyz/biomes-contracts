@@ -5,7 +5,6 @@ import { VoxelCoord } from "../../Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { ObjectTypeSchema, ObjectTypeSchemaData } from "../../codegen/tables/ObjectTypeSchema.sol";
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
 import { ObjectTypeId } from "../../ObjectTypeIds.sol";
@@ -19,8 +18,7 @@ contract InitInteractablesSystem is System {
     ObjectTypeId objectTypeId,
     uint32 mass,
     uint16 maxInventorySlots,
-    uint16 stackable,
-    VoxelCoord[] memory relativePositions
+    uint16 stackable
   ) internal {
     ObjectTypeMetadata._set(
       objectTypeId,
@@ -32,34 +30,20 @@ contract InitInteractablesSystem is System {
         canPassThrough: false
       })
     );
-
-    if (relativePositions.length > 0) {
-      int32[] memory relativePositionsX = new int32[](relativePositions.length);
-      int32[] memory relativePositionsY = new int32[](relativePositions.length);
-      int32[] memory relativePositionsZ = new int32[](relativePositions.length);
-      for (uint i = 0; i < relativePositions.length; i++) {
-        relativePositionsX[i] = relativePositions[i].x;
-        relativePositionsY[i] = relativePositions[i].y;
-        relativePositionsZ[i] = relativePositions[i].z;
-      }
-      ObjectTypeSchema._set(objectTypeId, relativePositionsX, relativePositionsY, relativePositionsZ);
-    }
   }
 
   function initInteractableObjectTypes() public {
-    createInteractableBlock(ChestObjectID, 20, 24, 1, new VoxelCoord[](0));
-    createInteractableBlock(SmartChestObjectID, 20, 24, 1, new VoxelCoord[](0));
-    VoxelCoord[] memory textSignRelativePositions = new VoxelCoord[](1);
-    textSignRelativePositions[0] = VoxelCoord(0, 1, 0);
-    createInteractableBlock(TextSignObjectID, 20, 0, 99, textSignRelativePositions);
-    createInteractableBlock(SmartTextSignObjectID, 20, 0, 99, textSignRelativePositions);
-    createInteractableBlock(ThermoblasterObjectID, 80, 0, 1, new VoxelCoord[](0));
-    createInteractableBlock(WorkbenchObjectID, 20, 0, 1, new VoxelCoord[](0));
-    createInteractableBlock(DyeomaticObjectID, 80, 0, 1, new VoxelCoord[](0));
-    createInteractableBlock(PowerStoneObjectID, 80, 0, 1, new VoxelCoord[](0));
-    createInteractableBlock(ForceFieldObjectID, 80, 0, 99, new VoxelCoord[](0));
-    createInteractableBlock(PipeObjectID, 80, 0, 99, new VoxelCoord[](0));
-    createInteractableBlock(SpawnTileObjectID, 80, 0, 99, new VoxelCoord[](0));
+    createInteractableBlock(ChestObjectID, 20, 24, 1);
+    createInteractableBlock(SmartChestObjectID, 20, 24, 1);
+    createInteractableBlock(TextSignObjectID, 20, 0, 99);
+    createInteractableBlock(SmartTextSignObjectID, 20, 0, 99);
+    createInteractableBlock(ThermoblasterObjectID, 80, 0, 1);
+    createInteractableBlock(WorkbenchObjectID, 20, 0, 1);
+    createInteractableBlock(DyeomaticObjectID, 80, 0, 1);
+    createInteractableBlock(PowerStoneObjectID, 80, 0, 1);
+    createInteractableBlock(ForceFieldObjectID, 80, 0, 99);
+    createInteractableBlock(PipeObjectID, 80, 0, 99);
+    createInteractableBlock(SpawnTileObjectID, 80, 0, 99);
   }
 
   function initInteractablesRecipes() public {

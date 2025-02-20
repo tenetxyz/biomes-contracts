@@ -20,14 +20,15 @@ contract ActivateSystem is System {
     checkWorldStatus();
 
     require(entityId.exists(), "Entity does not exist");
-    ObjectTypeId objectTypeId = ObjectType._get(entityId);
+    EntityId baseEntityId = entityId.baseEntityId();
+    ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
     require(!objectTypeId.isNull(), "Entity has no object type");
 
     if (objectTypeId == PlayerObjectID) {
-      requireValidPlayer(ReversePlayer._get(entityId));
+      requireValidPlayer(ReversePlayer._get(baseEntityId));
     } else {
       // if there's no chip, it'll just do nothing
-      updateMachineEnergyLevel(entityId.baseEntityId());
+      updateMachineEnergyLevel(baseEntityId);
     }
   }
 

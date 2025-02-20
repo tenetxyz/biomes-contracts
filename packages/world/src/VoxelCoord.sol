@@ -8,7 +8,7 @@ import { PositionData } from "./codegen/tables/Position.sol";
 import { LocalEnergyPool } from "./codegen/tables/LocalEnergyPool.sol";
 import { LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
 import { Position } from "./codegen/tables/Position.sol";
-import { PlayerPositionData } from "./codegen/tables/PlayerPosition.sol";
+import { PlayerPosition, PlayerPositionData } from "./codegen/tables/PlayerPosition.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { ReversePlayerPosition } from "./codegen/tables/ReversePlayerPosition.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
@@ -321,6 +321,11 @@ library VoxelCoordLib {
 
   function getPlayer(VoxelCoord memory coord) internal view returns (EntityId) {
     return ReversePlayerPosition._get(coord.x, coord.y, coord.z);
+  }
+
+  function setPlayer(VoxelCoord memory coord, EntityId playerEntityId) internal {
+    PlayerPosition._set(playerEntityId, coord.x, coord.y, coord.z);
+    ReversePlayerPosition._set(coord.x, coord.y, coord.z, playerEntityId);
   }
 }
 

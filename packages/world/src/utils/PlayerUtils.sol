@@ -7,19 +7,21 @@ import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { Position, PositionData } from "../codegen/tables/Position.sol";
 import { PlayerPosition, PlayerPositionData } from "../codegen/tables/PlayerPosition.sol";
+import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Commitment } from "../codegen/tables/Commitment.sol";
+import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
-import { AirObjectID } from "../ObjectTypeIds.sol";
-import { checkWorldStatus } from "../Utils.sol";
+import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
-
+import { getObjectTypeSchema } from "./ObjectTypeUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 using VoxelCoordLib for PositionData;
@@ -55,4 +57,50 @@ function requireInPlayerInfluence(VoxelCoord memory playerCoord, EntityId entity
   VoxelCoord memory coord = Position._get(entityId).toVoxelCoord();
   requireInPlayerInfluence(playerCoord, coord);
   return coord;
+}
+
+function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
+  (, ObjectTypeId terrainObjectTypeId) = playerCoord.getEntity();
+  require(terrainObjectTypeId == AirObjectID && !playerCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
+
+  ObjectType._set(playerEntityId, PlayerObjectID);
+  playerCoord.setPlayer(playerEntityId);
+
+  VoxelCoord[] memory relativePositions = getObjectTypeSchema(PlayerObjectID);
+  for (uint256 i = 0; i < relativePositions.length; i++) {
+    VoxelCoord memory relativeCoord = VoxelCoord(
+      playerCoord.x + relativePositions[i].x,
+      playerCoord.y + relativePositions[i].y,
+      playerCoord.z + relativePositions[i].z
+    );
+    (, ObjectTypeId relativeTerrainObjectTypeId) = relativeCoord.getEntity();
+    require(
+      relativeTerrainObjectTypeId == AirObjectID && !relativeCoord.getPlayer().exists(),
+      "Cannot spawn on a non-air block"
+    );
+    EntityId relativePlayerEntityId = getUniqueEntity();
+    ObjectType._set(relativePlayerEntityId, PlayerObjectID);
+    relativeCoord.setPlayer(relativePlayerEntityId);
+    BaseEntity._set(relativePlayerEntityId, playerEntityId);
+  }
+}
+
+function deletePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
+  ObjectType._deleteRecord(playerEntityId);
+  PlayerPosition._deleteRecord(playerEntityId);
+  ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
+
+  VoxelCoord[] memory relativePositions = getObjectTypeSchema(PlayerObjectID);
+  for (uint256 i = 0; i < relativePositions.length; i++) {
+    VoxelCoord memory relativeCoord = VoxelCoord(
+      playerCoord.x + relativePositions[i].x,
+      playerCoord.y + relativePositions[i].y,
+      playerCoord.z + relativePositions[i].z
+    );
+    EntityId relativePlayerEntityId = relativeCoord.getPlayer();
+    PlayerPosition._deleteRecord(relativePlayerEntityId);
+    ReversePlayerPosition._deleteRecord(relativeCoord.x, relativeCoord.y, relativeCoord.z);
+    ObjectType._deleteRecord(relativePlayerEntityId);
+    BaseEntity._deleteRecord(relativePlayerEntityId);
+  }
 }

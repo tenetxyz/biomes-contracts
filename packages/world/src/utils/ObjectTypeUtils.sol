@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { VoxelCoord } from "../VoxelCoord.sol";
+
 import { CobblestoneObjectID, CobblestoneBrickObjectID, CobblestoneCarvedObjectID, CobblestonePolishedObjectID, CobblestoneShinglesObjectID } from "../ObjectTypeIds.sol";
 import { StoneObjectID, StoneBrickObjectID, StoneCarvedObjectID, StonePolishedObjectID, StoneShinglesObjectID } from "../ObjectTypeIds.sol";
 import { BasaltObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID } from "../ObjectTypeIds.sol";
@@ -17,7 +19,7 @@ import { GlassObjectID, BlueGlassObjectID, GreenGlassObjectID, OrangeGlassObject
 import { BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "../ObjectTypeIds.sol";
 import { CottonBlockObjectID, BlueCottonBlockObjectID, BrownCottonBlockObjectID, GreenCottonBlockObjectID, MagentaCottonBlockObjectID, OrangeCottonBlockObjectID, PinkCottonBlockObjectID, PurpleCottonBlockObjectID, RedCottonBlockObjectID, TanCottonBlockObjectID, WhiteCottonBlockObjectID, YellowCottonBlockObjectID, BlackCottonBlockObjectID, SilverCottonBlockObjectID } from "../ObjectTypeIds.sol";
 
-import { ForceFieldObjectID, ChestObjectID, SmartChestObjectID, TextSignObjectID, SmartTextSignObjectID } from "../ObjectTypeIds.sol";
+import { PlayerObjectID, ForceFieldObjectID, ChestObjectID, SmartChestObjectID, TextSignObjectID, SmartTextSignObjectID } from "../ObjectTypeIds.sol";
 
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
 
@@ -137,4 +139,20 @@ function isBasicDisplay(ObjectTypeId objectTypeId) pure returns (bool) {
 
 function isSmartItem(ObjectTypeId objectTypeId) pure returns (bool) {
   return objectTypeId == SmartChestObjectID || objectTypeId == SmartTextSignObjectID;
+}
+
+function getObjectTypeSchema(ObjectTypeId objectTypeId) pure returns (VoxelCoord[] memory) {
+  if (objectTypeId == PlayerObjectID) {
+    VoxelCoord[] memory playerRelativePositions = new VoxelCoord[](1);
+    playerRelativePositions[0] = VoxelCoord(0, 1, 0);
+    return playerRelativePositions;
+  }
+
+  if (objectTypeId == TextSignObjectID || objectTypeId == SmartTextSignObjectID) {
+    VoxelCoord[] memory textSignRelativePositions = new VoxelCoord[](1);
+    textSignRelativePositions[0] = VoxelCoord(0, 1, 0);
+    return textSignRelativePositions;
+  }
+
+  return new VoxelCoord[](0);
 }
