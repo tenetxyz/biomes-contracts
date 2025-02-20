@@ -60,7 +60,7 @@ export default defineWorld({
     ObjectTypeOres: {
       schema: {
         objectTypeId: "ObjectTypeId",
-        ores: "uint16[]",
+        types: "uint16[]",
         amounts: "uint16[]",
       },
       key: ["objectTypeId"],
