@@ -10,7 +10,6 @@ import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
 import { OreCommitment } from "../codegen/tables/OreCommitment.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
@@ -28,8 +27,9 @@ import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel, energyToMass, transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
-import { GravityLib } from "./libraries/GravityLib.sol";
+import { MoveLib } from "./libraries/MoveLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
+import { getObjectTypeSchema } from "../utils/ObjectTypeUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_MINE_ENERGY_COST } from "../Constants.sol";
@@ -112,21 +112,11 @@ contract MineSystem is System {
   function _getSchemaCoords(
     ObjectTypeId objectTypeId,
     VoxelCoord memory baseCoord
-  ) internal view returns (VoxelCoord[] memory) {
-    uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(objectTypeId);
+  ) internal pure returns (VoxelCoord[] memory) {
+    VoxelCoord[] memory coords = getObjectTypeSchema(objectTypeId);
 
-    VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions);
-
-    if (numRelativePositions > 0) {
-      ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(objectTypeId);
-      for (uint256 i = 0; i < numRelativePositions; i++) {
-        VoxelCoord memory absoluteCoord = VoxelCoord(
-          baseCoord.x + schemaData.relativePositionsX[i],
-          baseCoord.y + schemaData.relativePositionsY[i],
-          baseCoord.z + schemaData.relativePositionsZ[i]
-        );
-        coords[i] = absoluteCoord;
-      }
+    for (uint256 i = 0; i < coords.length; i++) {
+      coords[i] = VoxelCoord(baseCoord.x + coords[i].x, baseCoord.y + coords[i].y, baseCoord.z + coords[i].z);
     }
 
     return coords;
@@ -139,7 +129,7 @@ contract MineSystem is System {
     VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);
     EntityId aboveEntityId = aboveCoord.getPlayer();
     if (aboveEntityId.exists()) {
-      GravityLib.runGravity(aboveEntityId, aboveCoord);
+      MoveLib.runGravity(aboveEntityId, aboveCoord);
     }
   }
 

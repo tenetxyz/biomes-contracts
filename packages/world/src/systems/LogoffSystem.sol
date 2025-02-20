@@ -15,7 +15,7 @@ import { ActionType } from "../codegen/common.sol";
 import { MIN_TIME_BEFORE_AUTO_LOGOFF } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { getUniqueEntity } from "../Utils.sol";
-import { requireValidPlayer } from "../utils/PlayerUtils.sol";
+import { requireValidPlayer, deletePlayer } from "../utils/PlayerUtils.sol";
 import { notify, LogoffNotifData } from "../utils/NotifUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -23,8 +23,7 @@ import { EntityId } from "../EntityId.sol";
 contract LogoffSystem is System {
   function logoffCommon(EntityId playerEntityId, VoxelCoord memory playerCoord) internal {
     LastKnownPosition._set(playerEntityId, playerCoord.x, playerCoord.y, playerCoord.z);
-    PlayerPosition._deleteRecord(playerEntityId);
-    ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
+    deletePlayer(playerEntityId, playerCoord);
     PlayerStatus._set(playerEntityId, true);
 
     notify(playerEntityId, LogoffNotifData({ logoffCoord: playerCoord }));

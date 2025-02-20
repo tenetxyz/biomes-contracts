@@ -48,15 +48,6 @@ export default defineWorld({
       },
       key: ["objectTypeId"],
     },
-    ObjectTypeSchema: {
-      schema: {
-        objectTypeId: "ObjectTypeId",
-        relativePositionsX: "int32[]",
-        relativePositionsY: "int32[]",
-        relativePositionsZ: "int32[]",
-      },
-      key: ["objectTypeId"],
-    },
     ObjectTypeOreAmount: {
       schema: {
         objectTypeId: "ObjectTypeId",

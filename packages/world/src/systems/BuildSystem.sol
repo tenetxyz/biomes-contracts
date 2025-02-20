@@ -7,7 +7,6 @@ import { VoxelCoord } from "../VoxelCoord.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
 import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
@@ -26,7 +25,8 @@ import { transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
-
+import { getObjectTypeSchema } from "../utils/ObjectTypeUtils.sol";
+import { MoveLib } from "./libraries/MoveLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract BuildSystem is System {
@@ -59,21 +59,18 @@ contract BuildSystem is System {
     requireInPlayerInfluence(playerCoord, coord);
 
     EntityId baseEntityId = buildObjectAtCoord(objectTypeId, coord);
-    uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(objectTypeId);
-    VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
+    VoxelCoord[] memory relativePositions = getObjectTypeSchema(objectTypeId);
+    VoxelCoord[] memory coords = new VoxelCoord[](relativePositions.length + 1);
     coords[0] = coord;
-    if (numRelativePositions > 0) {
-      ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(objectTypeId);
-      for (uint256 i = 0; i < numRelativePositions; i++) {
-        VoxelCoord memory relativeCoord = VoxelCoord(
-          coord.x + schemaData.relativePositionsX[i],
-          coord.y + schemaData.relativePositionsY[i],
-          coord.z + schemaData.relativePositionsZ[i]
-        );
-        coords[i + 1] = relativeCoord;
-        EntityId entityId = buildObjectAtCoord(objectTypeId, relativeCoord);
-        BaseEntity._set(entityId, baseEntityId);
-      }
+    for (uint256 i = 0; i < relativePositions.length; i++) {
+      VoxelCoord memory relativeCoord = VoxelCoord(
+        coord.x + relativePositions[i].x,
+        coord.y + relativePositions[i].y,
+        coord.z + relativePositions[i].z
+      );
+      coords[i + 1] = relativeCoord;
+      EntityId entityId = buildObjectAtCoord(objectTypeId, relativeCoord);
+      BaseEntity._set(entityId, baseEntityId);
     }
     uint32 mass = ObjectTypeMetadata._getMass(objectTypeId);
     Mass._setMass(baseEntityId, mass);
@@ -102,19 +99,10 @@ contract BuildSystem is System {
 
   function jumpBuildWithExtraData(ObjectTypeId objectTypeId, bytes memory extraData) public payable {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
-    VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-    require(inWorldBorder(jumpCoord), "Cannot jump outside world border");
-    (EntityId newEntityId, ObjectTypeId terrainObjectTypeId) = jumpCoord.getOrCreateEntity();
-    require(ObjectTypeMetadata._getCanPassThrough(terrainObjectTypeId), "Cannot jump on a non-passable block");
 
-    ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
-
-    PlayerPosition._set(playerEntityId, jumpCoord.x, jumpCoord.y, jumpCoord.z);
-    ReversePlayerPosition._set(jumpCoord.x, jumpCoord.y, jumpCoord.z, playerEntityId);
-
-    // TODO: apply jump cost
     VoxelCoord[] memory moveCoords = new VoxelCoord[](1);
-    moveCoords[0] = jumpCoord;
+    moveCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    MoveLib.movePlayer(playerEntityId, playerCoord, moveCoords);
     notify(playerEntityId, MoveNotifData({ moveCoords: moveCoords }));
 
     buildWithExtraData(objectTypeId, playerCoord, extraData);

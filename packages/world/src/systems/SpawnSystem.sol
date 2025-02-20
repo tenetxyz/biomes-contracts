@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -30,6 +31,7 @@ import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 import { updateMachineEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
+import { createPlayer } from "../utils/PlayerUtils.sol";
 
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
@@ -126,34 +128,27 @@ contract SpawnSystem is System {
 
   function _spawnPlayer(uint32 playerMass, VoxelCoord memory spawnCoord) internal returns (EntityId) {
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
-
     require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     address playerAddress = _msgSender();
     require(!Player._get(playerAddress).exists(), "Player already spawned");
 
-    (, ObjectTypeId terrainObjectTypeId) = spawnCoord.getOrCreateEntity();
-    require(terrainObjectTypeId == AirObjectID && !spawnCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
+    EntityId basePlayerEntityId = getUniqueEntity();
+    createPlayer(basePlayerEntityId, spawnCoord);
 
-    // Create new entity
-    EntityId playerEntityId = getUniqueEntity();
+    Player._set(playerAddress, basePlayerEntityId);
+    ReversePlayer._set(basePlayerEntityId, playerAddress);
 
-    // TODO: do we need object type here?
-    ObjectType._set(playerEntityId, PlayerObjectID);
+    Mass._set(basePlayerEntityId, playerMass);
+    Energy._set(
+      basePlayerEntityId,
+      EnergyData({ energy: MAX_PLAYER_ENERGY, lastUpdatedTime: uint128(block.timestamp) })
+    );
 
-    PlayerPosition._set(playerEntityId, spawnCoord.x, spawnCoord.y, spawnCoord.z);
-    ReversePlayerPosition._set(spawnCoord.x, spawnCoord.y, spawnCoord.z, playerEntityId);
+    PlayerActivity._set(basePlayerEntityId, uint128(block.timestamp));
 
-    Player._set(playerAddress, playerEntityId);
-    ReversePlayer._set(playerEntityId, playerAddress);
+    notify(basePlayerEntityId, SpawnNotifData({ playerAddress: playerAddress, spawnCoord: spawnCoord }));
 
-    Mass._set(playerEntityId, playerMass);
-    Energy._set(playerEntityId, EnergyData({ energy: MAX_PLAYER_ENERGY, lastUpdatedTime: uint128(block.timestamp) }));
-
-    PlayerActivity._set(playerEntityId, uint128(block.timestamp));
-
-    notify(playerEntityId, SpawnNotifData({ playerAddress: playerAddress, spawnCoord: spawnCoord }));
-
-    return playerEntityId;
+    return basePlayerEntityId;
   }
 }

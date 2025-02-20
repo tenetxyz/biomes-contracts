@@ -103,119 +103,119 @@ struct RevealOreNotifData {
 
 function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Build, actionData: abi.encode(buildNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, MineNotifData memory mineNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Mine, actionData: abi.encode(mineNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, MoveNotifData memory moveNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Move, actionData: abi.encode(moveNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, CraftNotifData memory craftNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Craft, actionData: abi.encode(craftNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, DropNotifData memory dropNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Drop, actionData: abi.encode(dropNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, PickupNotifData memory pickupNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Pickup, actionData: abi.encode(pickupNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, TransferNotifData memory transferNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Transfer, actionData: abi.encode(transferNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, EquipNotifData memory equipNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Equip, actionData: abi.encode(equipNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, UnequipNotifData memory unequipNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Unequip, actionData: abi.encode(unequipNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, SpawnNotifData memory spawnNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Spawn, actionData: abi.encode(spawnNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, LoginNotifData memory loginNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Login, actionData: abi.encode(loginNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, LogoffNotifData memory logoffNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Logoff, actionData: abi.encode(logoffNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, PowerMachineNotifData memory powerMachineNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.PowerMachine, actionData: abi.encode(powerMachineNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, HitMachineNotifData memory hitMachineNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.HitMachine, actionData: abi.encode(hitMachineNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, AttachChipNotifData memory attachChipNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.AttachChip, actionData: abi.encode(attachChipNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, DetachChipNotifData memory detachChipNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.DetachChip, actionData: abi.encode(detachChipNotifData) })
   );
 }
 
 function notify(EntityId playerEntityId, InitiateOreRevealNotifData memory initiateOreRevealNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({
       actionType: ActionType.InitiateOreReveal,
       actionData: abi.encode(initiateOreRevealNotifData)
@@ -225,7 +225,7 @@ function notify(EntityId playerEntityId, InitiateOreRevealNotifData memory initi
 
 function notify(EntityId playerEntityId, RevealOreNotifData memory revealOreNotifData) {
   PlayerActionNotif._set(
-    playerEntityId.baseEntityId(),
+    playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.RevealOre, actionData: abi.encode(revealOreNotifData) })
   );
 }
