@@ -2,8 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { MinedOreCount } from "./codegen/tables/MinedOreCount.sol";
-import { ObjectTypeOres } from "./codegen/tables/ObjectTypeOres.sol";
-import { ObjectTypeOreAmount } from "./codegen/tables/ObjectTypeOreAmount.sol";
+import { TotalBurnedOreCount } from "./codegen/tables/TotalBurnedOreCount.sol";
 
 type ObjectTypeId is uint16;
 
@@ -274,6 +273,11 @@ function neq(ObjectTypeId self, ObjectTypeId other) pure returns (bool) {
 }
 
 library ObjectTypeIdLib {
+  struct ObjectAmount {
+    ObjectTypeId objectTypeId;
+    uint16 amount;
+  }
+
   function unwrap(ObjectTypeId self) internal pure returns (uint16) {
     return ObjectTypeId.unwrap(self);
   }
@@ -342,12 +346,45 @@ library ObjectTypeIdLib {
     return new ObjectTypeId[](0);
   }
 
+  /// @dev Get ore amounts that should be burned when this object is burned
+  /// Currently it only supports tools, and assumes that only a single type of ore is used
+  function oreAmount(ObjectTypeId self) internal pure returns (ObjectAmount memory) {
+    // Silver tools
+    if (self == SilverPickObjectID || self == SilverAxeObjectID) {
+      return ObjectAmount(SilverOreObjectID, 4); // 4 silver bars = 4 ores
+    }
+    if (self == SilverWhackerObjectID) {
+      return ObjectAmount(SilverOreObjectID, 6); // 6 silver bars = 6 ores
+    }
+
+    // Gold tools
+    if (self == GoldPickObjectID || self == GoldAxeObjectID) {
+      return ObjectAmount(GoldOreObjectID, 4); // 4 gold bars = 4 ores
+    }
+
+    // Diamond tools
+    if (self == DiamondPickObjectID || self == DiamondAxeObjectID) {
+      return ObjectAmount(DiamondOreObjectID, 4); // 4 diamonds
+    }
+
+    // Neptunium tools
+    if (self == NeptuniumPickObjectID || self == NeptuniumAxeObjectID) {
+      return ObjectAmount(NeptuniumOreObjectID, 4); // 4 neptunium bars = 4 ores
+    }
+
+    // Return zero amount for any other tool
+    return ObjectAmount(NullObjectTypeId, 0);
+  }
+
   function burnOres(ObjectTypeId self) internal {
-    uint16[] memory ores = ObjectTypeOres._get(self);
-    for (uint256 i = 0; i < ores.length; i++) {
-      ObjectTypeId oreType = ObjectTypeId.wrap(ores[i]);
-      uint16 oreAmount = ObjectTypeOreAmount._get(self, oreType);
-      MinedOreCount._set(oreType, MinedOreCount._get(oreType) - oreAmount);
+    ObjectAmount memory ores = self.oreAmount();
+    ObjectTypeId objectTypeId = ores.objectTypeId;
+    if (objectTypeId != NullObjectTypeId) {
+      uint256 amount = ores.amount;
+      // This increases the availability of the ores being burned
+      MinedOreCount._set(objectTypeId, MinedOreCount._get(objectTypeId) - amount);
+      // This allows the same amount of ores to respawn
+      TotalBurnedOreCount._set(TotalBurnedOreCount._get() + amount);
     }
   }
 }

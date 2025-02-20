@@ -50,28 +50,31 @@ library ForceFieldLib {
     }
   }
 
-  function requireMineAllowed(
+  function requireMinesAllowed(
     EntityId playerEntityId,
     EntityId baseEntityId,
     ObjectTypeId objectTypeId,
-    VoxelCoord memory coord,
+    VoxelCoord[] memory coords,
     bytes memory extraData
   ) public {
-    EntityId forceFieldEntityId = getForceField(coord);
-    if (forceFieldEntityId.exists()) {
-      EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-      if (machineData.energy > 0) {
-        bytes memory onMineCall = abi.encodeCall(
-          IForceFieldChip.onMine,
-          (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
-        );
+    for (uint256 i = 0; i < coords.length; i++) {
+      VoxelCoord memory coord = coords[i];
+      EntityId forceFieldEntityId = getForceField(coord);
+      if (forceFieldEntityId.exists()) {
+        EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+        if (machineData.energy > 0) {
+          bytes memory onMineCall = abi.encodeCall(
+            IForceFieldChip.onMine,
+            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
+          );
 
-        callChipOrRevert(forceFieldEntityId.getChipAddress(), onMineCall);
+          callChipOrRevert(forceFieldEntityId.getChipAddress(), onMineCall);
+        }
       }
-    }
 
-    if (objectTypeId == ForceFieldObjectID) {
-      destroyForceField(baseEntityId, coord);
+      if (objectTypeId == ForceFieldObjectID) {
+        destroyForceField(baseEntityId, coord);
+      }
     }
   }
 }

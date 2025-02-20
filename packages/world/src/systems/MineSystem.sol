@@ -39,9 +39,10 @@ import { COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_
 library MineLib {
   function mineRandomOre(VoxelCoord memory coord) public returns (ObjectTypeId) {
     ChunkCoord memory chunkCoord = coord.toChunkCoord();
-    uint256 blockNum = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
-    require(blockNum > block.number - COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
-    uint256 rand = uint256(blockhash(blockNum));
+    uint256 commitment = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
+    require(block.number >= commitment, "No ore commitment");
+    require(block.number < commitment + COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
+    uint256 rand = uint256(keccak256(abi.encode(blockhash(commitment), coord)));
 
     // Set total mined ore and add position
     // We do this here to avoid stack too deep issues
@@ -68,13 +69,25 @@ library MineLib {
 
     uint256[5] memory max = [MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM];
 
+    // For y > -50: More common ores (coal, silver)
+    // For y <= -50: More rare ores (gold, diamond, neptunium)
+    // uint256[5] memory depthMultiplier;
+    // if (coord.y > -50) {
+    //   depthMultiplier = [uint256(4), 3, 1, 1, 1];
+    // } else {
+    //   depthMultiplier = [uint256(1), 1, 3, 4, 4];
+    // }
+
     // Calculate remaining amounts for each ore and total remaining
     uint256[5] memory remaining;
     uint256 totalRemaining = 0;
     for (uint256 i = 0; i < remaining.length; i++) {
+      // remaining[i] = (max[i] - mined[i]) * depthMultiplier[i];
       remaining[i] = max[i] - mined[i];
       totalRemaining += remaining[i];
     }
+
+    require(totalRemaining > 0, "No ores available to mine");
 
     uint256 oreIndex = 0;
     {
@@ -90,9 +103,6 @@ library MineLib {
     }
 
     ObjectTypeId ore = ores[oreIndex];
-
-    uint256 remainingOre = remaining[oreIndex];
-    require(remainingOre > 0, "No ores available to mine");
     MinedOreCount._set(ore, mined[oreIndex] + 1);
 
     return ore;
@@ -109,20 +119,27 @@ library MineLib {
 contract MineSystem is System {
   using VoxelCoordLib for *;
 
-  function _getSchemaCoords(
+  /// @dev Get relative schema coords, including base coord
+  function _getRelativeCoords(
     ObjectTypeId objectTypeId,
     VoxelCoord memory baseCoord
   ) internal pure returns (VoxelCoord[] memory) {
-    VoxelCoord[] memory coords = getObjectTypeSchema(objectTypeId);
+    VoxelCoord[] memory schemaCoords = getObjectTypeSchema(objectTypeId);
+    VoxelCoord[] memory coords = new VoxelCoord[](schemaCoords.length + 1);
 
-    for (uint256 i = 0; i < coords.length; i++) {
-      coords[i] = VoxelCoord(baseCoord.x + coords[i].x, baseCoord.y + coords[i].y, baseCoord.z + coords[i].z);
+    coords[0] = baseCoord;
+
+    for (uint256 i = 0; i < schemaCoords.length; i++) {
+      coords[i + 1] = VoxelCoord(
+        baseCoord.x + schemaCoords[i].x,
+        baseCoord.y + schemaCoords[i].y,
+        baseCoord.z + schemaCoords[i].z
+      );
     }
 
     return coords;
   }
 
-  // TODO: if there's a player on top of another one, they won't be updated
   function _removeBlock(EntityId entityId, VoxelCoord memory coord) internal {
     ObjectType._set(entityId, AirObjectID);
 
@@ -157,6 +174,9 @@ contract MineSystem is System {
 
     uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);
 
+    // First coord will be the base coord, the rest is relative schema coords
+    VoxelCoord[] memory coords = _getRelativeCoords(mineObjectTypeId, coord);
+
     if (finalMass == 0) {
       Mass._deleteRecord(baseEntityId);
 
@@ -168,10 +188,9 @@ contract MineSystem is System {
 
       _removeBlock(baseEntityId, coord);
 
-      VoxelCoord[] memory schemaCoords = _getSchemaCoords(mineObjectTypeId, coord);
-
-      for (uint256 i = 0; i < schemaCoords.length; i++) {
-        VoxelCoord memory relativeCoord = schemaCoords[i];
+      // Only iterate through relative schema coords
+      for (uint256 i = 1; i < coords.length; i++) {
+        VoxelCoord memory relativeCoord = coords[i];
         (EntityId relativeEntityId, ) = relativeCoord.getOrCreateEntity();
         BaseEntity._deleteRecord(relativeEntityId);
 
@@ -186,7 +205,7 @@ contract MineSystem is System {
       MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
     );
 
-    ForceFieldLib.requireMineAllowed(playerEntityId, baseEntityId, mineObjectTypeId, coord, extraData);
+    ForceFieldLib.requireMinesAllowed(playerEntityId, baseEntityId, mineObjectTypeId, coords, extraData);
   }
 
   function mine(VoxelCoord memory coord) public payable {

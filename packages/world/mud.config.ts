@@ -48,21 +48,6 @@ export default defineWorld({
       },
       key: ["objectTypeId"],
     },
-    ObjectTypeOreAmount: {
-      schema: {
-        objectTypeId: "ObjectTypeId",
-        oreTypeId: "ObjectTypeId",
-        amount: "uint16",
-      },
-      key: ["objectTypeId", "oreTypeId"],
-    },
-    ObjectTypeOres: {
-      schema: {
-        objectTypeId: "ObjectTypeId",
-        ores: "uint16[]",
-      },
-      key: ["objectTypeId"],
-    },
     Recipes: {
       schema: {
         recipeId: "bytes32",
@@ -329,6 +314,12 @@ export default defineWorld({
         count: "uint256",
       },
       key: ["objectTypeId"],
+    },
+    TotalBurnedOreCount: {
+      schema: {
+        count: "uint256",
+      },
+      key: [],
     },
     // ------------------------------------------------------------
     // Offchain

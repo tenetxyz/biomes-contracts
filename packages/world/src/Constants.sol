@@ -31,7 +31,7 @@ int32 constant AREA_SIZE = 512;
 
 uint256 constant SAFE_CHIP_GAS = 1_000_000;
 
-uint256 constant COMMIT_EXPIRY_BLOCKS = 255;
+uint256 constant COMMIT_EXPIRY_BLOCKS = 256;
 int32 constant COMMIT_HALF_WIDTH = 2;
 
 // ------------------------------------------------------------
