@@ -33,19 +33,17 @@ contract InitInteractablesSystem is System {
   }
 
   function initInteractableObjectTypes() public {
-    createInteractableBlock(ChestObjectID, 20, 24, 1, new VoxelCoord[](0));
-    createInteractableBlock(SmartChestObjectID, 20, 24, 1, new VoxelCoord[](0));
-    VoxelCoord[] memory textSignRelativePositions = new VoxelCoord[](1);
-    textSignRelativePositions[0] = VoxelCoord(0, 1, 0);
-    createInteractableBlock(TextSignObjectID, 20, 0, 99, textSignRelativePositions);
-    createInteractableBlock(SmartTextSignObjectID, 20, 0, 99, textSignRelativePositions);
-    createInteractableBlock(ThermoblasterObjectID, 80, 0, 1, new VoxelCoord[](0));
-    createInteractableBlock(WorkbenchObjectID, 20, 0, 1, new VoxelCoord[](0));
-    createInteractableBlock(DyeomaticObjectID, 80, 0, 1, new VoxelCoord[](0));
-    createInteractableBlock(PowerStoneObjectID, 80, 0, 1, new VoxelCoord[](0));
-    createInteractableBlock(ForceFieldObjectID, 80, 0, 99, new VoxelCoord[](0));
-    createInteractableBlock(PipeObjectID, 80, 0, 99, new VoxelCoord[](0));
-    createInteractableBlock(SpawnTileObjectID, 80, 0, 99, new VoxelCoord[](0));
+    createInteractableBlock(ChestObjectID, 20, 24, 1);
+    createInteractableBlock(SmartChestObjectID, 20, 24, 1);
+    createInteractableBlock(TextSignObjectID, 20, 0, 99);
+    createInteractableBlock(SmartTextSignObjectID, 20, 0, 99);
+    createInteractableBlock(ThermoblasterObjectID, 80, 0, 1);
+    createInteractableBlock(WorkbenchObjectID, 20, 0, 1);
+    createInteractableBlock(DyeomaticObjectID, 80, 0, 1);
+    createInteractableBlock(PowerStoneObjectID, 80, 0, 1);
+    createInteractableBlock(ForceFieldObjectID, 80, 0, 99);
+    createInteractableBlock(PipeObjectID, 80, 0, 99);
+    createInteractableBlock(SpawnTileObjectID, 80, 0, 99);
   }
 
   function initInteractablesRecipes() public {

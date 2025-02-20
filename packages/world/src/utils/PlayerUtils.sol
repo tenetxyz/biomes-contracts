@@ -20,7 +20,7 @@ import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol"
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
-
+import { getObjectTypeSchema } from "./ObjectTypeUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 using VoxelCoordLib for PositionData;
@@ -65,7 +65,7 @@ function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   ObjectType._set(playerEntityId, PlayerObjectID);
   playerCoord.setPlayer(playerEntityId);
 
-  VoxelCoord[] memory relativePositions = PlayerObjectID.getObjectTypeSchema();
+  VoxelCoord[] memory relativePositions = getObjectTypeSchema(PlayerObjectID);
   for (uint256 i = 0; i < relativePositions.length; i++) {
     VoxelCoord memory relativeCoord = VoxelCoord(
       playerCoord.x + relativePositions[i].x,
@@ -89,7 +89,7 @@ function deletePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   PlayerPosition._deleteRecord(playerEntityId);
   playerCoord.removePlayer();
 
-  VoxelCoord[] memory relativePositions = PlayerObjectID.getObjectTypeSchema();
+  VoxelCoord[] memory relativePositions = getObjectTypeSchema(PlayerObjectID);
   for (uint256 i = 0; i < relativePositions.length; i++) {
     VoxelCoord memory relativeCoord = VoxelCoord(
       playerCoord.x + relativePositions[i].x,

@@ -20,6 +20,7 @@ import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
 import { transferEnergyFromPlayerToPool } from "../../utils/EnergyUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
+import { getObjectTypeSchema } from "../../utils/ObjectTypeUtils.sol";
 
 library MoveLib {
   function movePlayer(
@@ -27,7 +28,7 @@ library MoveLib {
     VoxelCoord memory playerCoord,
     VoxelCoord[] memory newCoords
   ) public returns (bool, VoxelCoord memory) {
-    VoxelCoord[] memory relativePositions = PlayerObjectID.getObjectTypeSchema();
+    VoxelCoord[] memory relativePositions = getObjectTypeSchema(PlayerObjectID);
 
     EntityId[] memory relativeEntityIds = new EntityId[](relativePositions.length);
     VoxelCoord[] memory relativeCoords = new VoxelCoord[](relativePositions.length);
@@ -53,16 +54,16 @@ library MoveLib {
         VoxelCoord memory newCoord = newCoords[i];
         (, gravityAppliesForCoord) = move(playerEntityId, oldCoord, newCoord);
 
-        for (uint256 j = 0; j < schemaData.relativePositionsX.length; j++) {
+        for (uint256 j = 0; j < relativePositions.length; j++) {
           VoxelCoord memory oldRelativeCoord = VoxelCoord(
-            oldCoord.x + schemaData.relativePositionsX[j],
-            oldCoord.y + schemaData.relativePositionsY[j],
-            oldCoord.z + schemaData.relativePositionsZ[j]
+            oldCoord.x + relativePositions[j].x,
+            oldCoord.y + relativePositions[j].y,
+            oldCoord.z + relativePositions[j].z
           );
           VoxelCoord memory newRelativeCoord = VoxelCoord(
-            newCoord.x + schemaData.relativePositionsX[j],
-            newCoord.y + schemaData.relativePositionsY[j],
-            newCoord.z + schemaData.relativePositionsZ[j]
+            newCoord.x + relativePositions[j].x,
+            newCoord.y + relativePositions[j].y,
+            newCoord.z + relativePositions[j].z
           );
           move(relativeEntityIds[j], oldRelativeCoord, newRelativeCoord);
         }
@@ -93,12 +94,12 @@ library MoveLib {
       playerCoord.removePlayer();
       finalCoord.setPlayer(playerEntityId);
 
-      for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+      for (uint256 i = 0; i < relativePositions.length; i++) {
         relativeCoords[i].removePlayer();
         VoxelCoord memory newRelativeCoord = VoxelCoord(
-          finalCoord.x + schemaData.relativePositionsX[i],
-          finalCoord.y + schemaData.relativePositionsY[i],
-          finalCoord.z + schemaData.relativePositionsZ[i]
+          finalCoord.x + relativePositions[i].x,
+          finalCoord.y + relativePositions[i].y,
+          finalCoord.z + relativePositions[i].z
         );
         newRelativeCoord.setPlayer(relativeEntityIds[i]);
       }

@@ -395,31 +395,4 @@ function getGlassObjectTypes() pure returns (ObjectTypeId[] memory) {
   return result;
 }
 
-function getObjectTypeSchema(ObjectTypeId self) pure returns (VoxelCoord[] memory) {
-  if (self == TextSignObjectID || self == SmartTextSignObjectID) {
-    VoxelCoord[] memory textSignRelativePositions = new VoxelCoord[](1);
-    textSignRelativePositions[0] = VoxelCoord(0, 1, 0);
-    return textSignRelativePositions;
-  }
-
-  if (self == PlayerObjectID) {
-    VoxelCoord[] memory playerRelativePositions = new VoxelCoord[](1);
-    playerRelativePositions[0] = VoxelCoord(0, 1, 0);
-    return playerRelativePositions;
-  }
-
-  return new VoxelCoord[](0);
-}
-
-using {
-  isBlock,
-  isTool,
-  isItem,
-  isNull,
-  isAny,
-  getObjectTypes,
-  getObjectTypeSchema,
-  eq as ==,
-  neq as !=,
-  unwrap
-} for ObjectTypeId global;
+using { isBlock, isTool, isItem, isNull, isAny, getObjectTypes, eq as ==, neq as !=, unwrap } for ObjectTypeId global;

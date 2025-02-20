@@ -24,6 +24,7 @@ import { updateMachineEnergyLevel, energyToMass, transferEnergyFromPlayerToPool 
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
+import { getObjectTypeSchema } from "../utils/ObjectTypeUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_MINE_ENERGY_COST } from "../Constants.sol";
@@ -68,7 +69,7 @@ contract MineSystem is System {
       }
     }
 
-    VoxelCoord[] memory relativePositions = mineObjectTypeId.getObjectTypeSchema();
+    VoxelCoord[] memory relativePositions = getObjectTypeSchema(mineObjectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](relativePositions.length + 1);
     coords[0] = coord;
 

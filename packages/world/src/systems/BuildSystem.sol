@@ -25,6 +25,7 @@ import { transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
+import { getObjectTypeSchema } from "../utils/ObjectTypeUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { EntityId } from "../EntityId.sol";
 
@@ -58,7 +59,7 @@ contract BuildSystem is System {
     requireInPlayerInfluence(playerCoord, coord);
 
     EntityId baseEntityId = buildObjectAtCoord(objectTypeId, coord);
-    VoxelCoord[] memory relativePositions = objectTypeId.getObjectTypeSchema();
+    VoxelCoord[] memory relativePositions = getObjectTypeSchema(objectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](relativePositions.length + 1);
     coords[0] = coord;
     for (uint256 i = 0; i < relativePositions.length; i++) {
