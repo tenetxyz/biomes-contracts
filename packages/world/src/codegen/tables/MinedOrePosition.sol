@@ -16,15 +16,15 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-struct MinedOreData {
+struct MinedOrePositionData {
   int32 x;
   int32 y;
   int32 z;
 }
 
-library MinedOre {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "MinedOre", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004d696e65644f72650000000000000000);
+library MinedOrePosition {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "MinedOrePosition", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004d696e65644f7265506f736974696f6e);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x000c030004040400000000000000000000000000000000000000000000000000);
@@ -197,7 +197,7 @@ library MinedOre {
   /**
    * @notice Get the full data.
    */
-  function get(uint256 index) internal view returns (MinedOreData memory _table) {
+  function get(uint256 index) internal view returns (MinedOrePositionData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(index));
 
@@ -212,7 +212,7 @@ library MinedOre {
   /**
    * @notice Get the full data.
    */
-  function _get(uint256 index) internal view returns (MinedOreData memory _table) {
+  function _get(uint256 index) internal view returns (MinedOrePositionData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(index));
 
@@ -257,7 +257,7 @@ library MinedOre {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(uint256 index, MinedOreData memory _table) internal {
+  function set(uint256 index, MinedOrePositionData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.x, _table.y, _table.z);
 
     EncodedLengths _encodedLengths;
@@ -272,7 +272,7 @@ library MinedOre {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(uint256 index, MinedOreData memory _table) internal {
+  function _set(uint256 index, MinedOrePositionData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.x, _table.y, _table.z);
 
     EncodedLengths _encodedLengths;
@@ -305,7 +305,7 @@ library MinedOre {
     bytes memory _staticData,
     EncodedLengths,
     bytes memory
-  ) internal pure returns (MinedOreData memory _table) {
+  ) internal pure returns (MinedOrePositionData memory _table) {
     (_table.x, _table.y, _table.z) = decodeStatic(_staticData);
   }
 

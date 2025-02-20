@@ -31,6 +31,9 @@ int32 constant AREA_SIZE = 512;
 
 uint256 constant SAFE_CHIP_GAS = 1_000_000;
 
+uint256 constant COMMIT_EXPIRY_BLOCKS = 255;
+int32 constant COMMIT_HALF_WIDTH = 2;
+
 // ------------------------------------------------------------
 // Values To Tune
 // ------------------------------------------------------------
@@ -55,5 +58,9 @@ uint128 constant PLAYER_CRAFT_ENERGY_COST = 100;
 uint128 constant PLAYER_DROP_ENERGY_COST = 100;
 uint128 constant PLAYER_PICKUP_ENERGY_COST = 100;
 uint128 constant PLAYER_TRANSFER_ENERGY_COST = 100;
-uint256 constant COMMIT_EXPIRY_BLOCKS = 255;
-int32 constant COMMIT_HALF_WIDTH = 2;
+
+uint256 constant MAX_COAL = 10_000_000;
+uint256 constant MAX_SILVER = 5_000_000;
+uint256 constant MAX_GOLD = 1_000_000;
+uint256 constant MAX_DIAMOND = 500_000;
+uint256 constant MAX_NEPTUNIUM = 100_000;

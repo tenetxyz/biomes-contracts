@@ -320,13 +320,13 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
-    MinedOreCount: {
+    TotalMinedOreCount: {
       schema: {
         count: "uint256",
       },
       key: [],
     },
-    MinedOre: {
+    MinedOrePosition: {
       schema: {
         index: "uint256",
         x: "int32",
@@ -335,9 +335,7 @@ export default defineWorld({
       },
       key: ["index"],
     },
-    // TODO: merge with ObjectTypeMetadata?
-    // Should we keep track of other objects as well?
-    ObjectCount: {
+    MinedOreCount: {
       schema: {
         objectTypeId: "ObjectTypeId",
         count: "uint256",

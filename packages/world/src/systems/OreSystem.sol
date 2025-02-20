@@ -5,8 +5,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
-import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
-import { MinedOre, MinedOreData } from "../codegen/tables/MinedOre.sol";
+import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
+import { MinedOrePosition, MinedOrePositionData } from "../codegen/tables/MinedOrePosition.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { Position } from "../codegen/tables/Position.sol";
@@ -61,15 +61,17 @@ contract OreSystem is System {
     // TODO: use constant
     require(blockNumber > block.number - 10, "Can only choose past 10 blocks");
 
-    uint256 count = MinedOreCount._get();
+    uint256 count = TotalMinedOreCount._get();
+    require(count > 0, "No ores available for respawn");
+
     uint256 minedOreIdx = uint256(blockhash(blockNumber)) % count;
 
-    VoxelCoord memory oreCoord = MinedOre._get(minedOreIdx).toVoxelCoord();
+    VoxelCoord memory oreCoord = MinedOrePosition._get(minedOreIdx).toVoxelCoord();
 
     // Remove from mined ore array
-    MinedOreData memory last = MinedOre._get(count - 1);
-    MinedOre._set(minedOreIdx, last);
-    MinedOreCount._set(count - 1);
+    MinedOrePositionData memory last = MinedOrePosition._get(count - 1);
+    MinedOrePosition._set(minedOreIdx, last);
+    TotalMinedOreCount._set(count - 1);
 
     // Check existing entity
     EntityId entityId = ReversePosition._get(oreCoord.x, oreCoord.y, oreCoord.z);

@@ -7,7 +7,7 @@ import { ObjectTypeMetadata } from "./codegen/tables/ObjectTypeMetadata.sol";
 import { PositionData } from "./codegen/tables/Position.sol";
 import { LocalEnergyPool } from "./codegen/tables/LocalEnergyPool.sol";
 import { LastKnownPositionData } from "./codegen/tables/LastKnownPosition.sol";
-import { MinedOreData } from "./codegen/tables/MinedOre.sol";
+import { MinedOrePositionData } from "./codegen/tables/MinedOrePosition.sol";
 import { Position } from "./codegen/tables/Position.sol";
 import { PlayerPositionData } from "./codegen/tables/PlayerPosition.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
@@ -287,7 +287,7 @@ library VoxelCoordLib {
     return VoxelCoord(self.x, self.y, self.z);
   }
 
-  function toVoxelCoord(MinedOreData memory self) internal pure returns (VoxelCoord memory) {
+  function toVoxelCoord(MinedOrePositionData memory self) internal pure returns (VoxelCoord memory) {
     return VoxelCoord(self.x, self.y, self.z);
   }
 

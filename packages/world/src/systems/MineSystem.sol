@@ -4,10 +4,10 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
-import { MinedOre } from "../codegen/tables/MinedOre.sol";
+import { MinedOrePosition } from "../codegen/tables/MinedOrePosition.sol";
 import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
+import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
 import { OreCommitment } from "../codegen/tables/OreCommitment.sol";
-import { ObjectCount } from "../codegen/tables/ObjectCount.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
@@ -34,138 +34,161 @@ import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_MINE_ENERGY_COST } from "../Constants.sol";
 import { ChunkCoord } from "../Types.sol";
-import { COMMIT_EXPIRY_BLOCKS } from "../Constants.sol";
+import { COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
 
-function mineRandomOre(VoxelCoord memory coord) returns (ObjectTypeId) {
-  ChunkCoord memory chunkCoord = coord.toChunkCoord();
-  uint256 blockNum = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
-  require(blockNum > block.number - COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
-  uint256 rand = uint256(blockhash(blockNum));
+library MineLib {
+  function mineRandomOre(VoxelCoord memory coord) public returns (ObjectTypeId) {
+    ChunkCoord memory chunkCoord = coord.toChunkCoord();
+    uint256 blockNum = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
+    require(blockNum > block.number - COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
+    uint256 rand = uint256(blockhash(blockNum));
 
-  // TODO: can optimize by not storing these in memory and returning the type depending on for loop index
-  ObjectTypeId[5] memory ores = [
-    CoalOreObjectID,
-    SilverOreObjectID,
-    GoldOreObjectID,
-    DiamondOreObjectID,
-    NeptuniumOreObjectID
-  ];
+    // Set total mined ore and add position
+    // We do this here to avoid stack too deep issues
+    uint256 totalMinedOre = TotalMinedOreCount._get();
+    MinedOrePosition._set(totalMinedOre, coord.x, coord.y, coord.z);
+    TotalMinedOreCount._set(totalMinedOre + 1);
 
-  // Calculate remaining amounts for each ore
-  uint256[5] memory remaining;
-  uint256 totalRemaining;
-  for (uint256 i = 0; i < remaining.length; i++) {
-    remaining[i] = ObjectCount._get(ores[i]);
-    totalRemaining += remaining[i];
-  }
+    // TODO: can optimize by not storing these in memory and returning the type depending on for loop index
+    ObjectTypeId[5] memory ores = [
+      CoalOreObjectID,
+      SilverOreObjectID,
+      GoldOreObjectID,
+      DiamondOreObjectID,
+      NeptuniumOreObjectID
+    ];
 
-  // Scale random number to total remaining
-  uint256 oreIndex = 0;
-  {
-    // TODO: use muldiv from solady or OZ to prevent overflow
-    uint256 scaledRand = (rand * totalRemaining) / type(uint256).max;
+    uint256[5] memory mined = [
+      MinedOreCount._get(CoalOreObjectID),
+      MinedOreCount._get(SilverOreObjectID),
+      MinedOreCount._get(GoldOreObjectID),
+      MinedOreCount._get(DiamondOreObjectID),
+      MinedOreCount._get(NeptuniumOreObjectID)
+    ];
 
-    uint256 acc;
-    for (; oreIndex < remaining.length - 1; oreIndex++) {
-      acc += remaining[oreIndex];
-      if (scaledRand < acc) break;
+    uint256[5] memory max = [MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM];
+
+    // Calculate remaining amounts for each ore and total remaining
+    uint256[5] memory remaining;
+    uint256 totalRemaining = 0;
+    for (uint256 i = 0; i < remaining.length; i++) {
+      remaining[i] = max[i] - mined[i];
+      totalRemaining += remaining[i];
     }
+
+    uint256 oreIndex = 0;
+    {
+      // Scale random number to total remaining
+      // TODO: use muldiv from solady or OZ to prevent overflow
+      uint256 scaledRand = (rand * totalRemaining) / type(uint256).max;
+
+      uint256 acc;
+      for (; oreIndex < remaining.length - 1; oreIndex++) {
+        acc += remaining[oreIndex];
+        if (scaledRand < acc) break;
+      }
+    }
+
+    ObjectTypeId ore = ores[oreIndex];
+
+    uint256 remainingOre = remaining[oreIndex];
+    require(remainingOre > 0, "No ores available to mine");
+    MinedOreCount._set(ore, mined[oreIndex] + 1);
+
+    return ore;
   }
 
-  ObjectTypeId ore = ores[oreIndex];
-  uint256 remainingOre = remaining[oreIndex];
-
-  // NOTE: the data in ObjectCount table must match the terrain, otherwise this can fail
-  require(remainingOre > 0, "No ores available to mine");
-
-  ObjectCount._set(ore, remainingOre - 1);
-  uint256 count = MinedOreCount._get();
-  MinedOreCount._set(count + 1);
-  MinedOre._set(count, coord.x, coord.y, coord.z);
-
-  return ore;
+  function processMassReduction(EntityId playerEntityId, EntityId minedEntityId) public returns (uint128) {
+    (uint128 toolMassReduction, ) = useEquipped(playerEntityId);
+    uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassReduction;
+    uint128 massLeft = Mass._getMass(minedEntityId);
+    return massLeft <= totalMassReduction ? 0 : massLeft - totalMassReduction;
+  }
 }
 
 contract MineSystem is System {
   using VoxelCoordLib for *;
 
-  function mineObjectAtCoord(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId) {
-    require(inWorldBorder(coord), "Cannot mine outside the world border");
+  function _getSchemaCoords(
+    ObjectTypeId objectTypeId,
+    VoxelCoord memory baseCoord
+  ) internal view returns (VoxelCoord[] memory) {
+    uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(objectTypeId);
 
-    (EntityId entityId, ObjectTypeId mineObjectTypeId) = coord.getOrCreateEntity();
+    VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions);
 
-    require(mineObjectTypeId.isMineable(), "Object is not mineable");
-
-    if (mineObjectTypeId == AnyOreObjectID) {
-      mineObjectTypeId = mineRandomOre(coord);
-    } else {
-      require(entityId.getChipAddress() == address(0), "Cannot mine a chipped block");
-      EnergyData memory machineData = updateMachineEnergyLevel(entityId);
-      require(machineData.energy == 0, "Cannot mine a machine that has energy");
+    if (numRelativePositions > 0) {
+      ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(objectTypeId);
+      for (uint256 i = 0; i < numRelativePositions; i++) {
+        VoxelCoord memory absoluteCoord = VoxelCoord(
+          baseCoord.x + schemaData.relativePositionsX[i],
+          baseCoord.y + schemaData.relativePositionsY[i],
+          baseCoord.z + schemaData.relativePositionsZ[i]
+        );
+        coords[i] = absoluteCoord;
+      }
     }
 
-    return (entityId, mineObjectTypeId);
+    return coords;
+  }
+
+  // TODO: if there's a player on top of another one, they won't be updated
+  function _removeBlock(EntityId entityId, VoxelCoord memory coord) internal {
+    ObjectType._set(entityId, AirObjectID);
+
+    VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);
+    EntityId aboveEntityId = aboveCoord.getPlayer();
+    if (aboveEntityId.exists()) {
+      GravityLib.runGravity(aboveEntityId, aboveCoord);
+    }
   }
 
   function mineWithExtraData(VoxelCoord memory coord, bytes memory extraData) public payable {
+    require(inWorldBorder(coord), "Cannot mine outside the world border");
+
     (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
       _msgSender()
     );
     requireInPlayerInfluence(playerCoord, coord);
 
-    (EntityId baseEntityId, ObjectTypeId mineObjectTypeId) = mineObjectAtCoord(coord);
-    require(!BaseEntity._get(baseEntityId).exists(), "Invalid mine coord, must mine the base coord");
+    (EntityId entityId, ObjectTypeId mineObjectTypeId) = coord.getOrCreateEntity();
+    require(mineObjectTypeId.isMineable(), "Object is not mineable");
 
-    bool isFullyMined;
-    {
-      (uint128 toolMassReduction, ) = useEquipped(playerEntityId);
-      uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassReduction;
-      uint128 massLeft = Mass._getMass(baseEntityId);
-      transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_MINE_ENERGY_COST);
-      isFullyMined = massLeft <= totalMassReduction;
-      if (!isFullyMined) {
-        Mass._setMass(baseEntityId, massLeft - totalMassReduction);
-      }
+    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_MINE_ENERGY_COST);
+
+    EntityId baseEntityId = entityId.baseEntityId();
+
+    if (mineObjectTypeId == AnyOreObjectID) {
+      mineObjectTypeId = MineLib.mineRandomOre(coord);
+    } else {
+      require(baseEntityId.getChipAddress() == address(0), "Cannot mine a chipped block");
+      require(updateMachineEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
     }
 
-    uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(mineObjectTypeId);
-    VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
-    coords[0] = coord;
+    uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);
 
-    if (numRelativePositions > 0) {
-      ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(mineObjectTypeId);
-      for (uint256 i = 0; i < numRelativePositions; i++) {
-        VoxelCoord memory relativeCoord = VoxelCoord(
-          coord.x + schemaData.relativePositionsX[i],
-          coord.y + schemaData.relativePositionsY[i],
-          coord.z + schemaData.relativePositionsZ[i]
-        );
-        coords[i + 1] = relativeCoord;
-
-        if (isFullyMined) {
-          (EntityId relativeEntityId, ) = mineObjectAtCoord(relativeCoord);
-          BaseEntity._deleteRecord(relativeEntityId);
-          ObjectType._set(relativeEntityId, AirObjectID);
-        }
-      }
-    }
-
-    if (isFullyMined) {
+    if (finalMass == 0) {
       Mass._deleteRecord(baseEntityId);
+
       if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
         DisplayContent._deleteRecord(baseEntityId);
       }
-      ObjectType._set(baseEntityId, AirObjectID);
 
       addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
-      for (uint256 i = 0; i < coords.length; i++) {
-        VoxelCoord memory aboveCoord = VoxelCoord(coords[i].x, coords[i].y + 1, coords[i].z);
-        EntityId aboveEntityId = aboveCoord.getPlayer();
-        if (aboveEntityId.exists()) {
-          GravityLib.runGravity(aboveEntityId, aboveCoord);
-        }
+      _removeBlock(baseEntityId, coord);
+
+      VoxelCoord[] memory schemaCoords = _getSchemaCoords(mineObjectTypeId, coord);
+
+      for (uint256 i = 0; i < schemaCoords.length; i++) {
+        VoxelCoord memory relativeCoord = schemaCoords[i];
+        (EntityId relativeEntityId, ) = relativeCoord.getOrCreateEntity();
+        BaseEntity._deleteRecord(relativeEntityId);
+
+        _removeBlock(relativeEntityId, relativeCoord);
       }
+    } else {
+      Mass._setMass(baseEntityId, finalMass);
     }
 
     notify(
@@ -173,7 +196,7 @@ contract MineSystem is System {
       MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
     );
 
-    ForceFieldLib.requireMinesAllowed(playerEntityId, baseEntityId, mineObjectTypeId, coords, extraData);
+    ForceFieldLib.requireMineAllowed(playerEntityId, baseEntityId, mineObjectTypeId, coord, extraData);
   }
 
   function mine(VoxelCoord memory coord) public payable {

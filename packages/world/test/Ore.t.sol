@@ -15,8 +15,9 @@ import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
-import { MinedOre } from "../src/codegen/tables/MinedOre.sol";
+import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -41,9 +42,9 @@ contract OreTest is BiomesTest {
   }
 
   function addMinedOre(VoxelCoord memory coord) internal {
-    uint256 count = MinedOreCount.get();
-    MinedOreCount.set(count + 1);
-    MinedOre.set(count, coord.x, coord.y, coord.z);
+    uint256 count = TotalMinedOreCount.get();
+    TotalMinedOreCount.set(count + 1);
+    MinedOrePosition.set(count, coord.x, coord.y, coord.z);
   }
 
   function testOreChunkCommit() public {
@@ -98,7 +99,7 @@ contract OreTest is BiomesTest {
     vm.prank(alice);
     world.respawnOre(block.number - 1);
 
-    assertEq(MinedOreCount.get(), 0);
+    assertEq(TotalMinedOreCount.get(), 0);
 
     // Check that the air entity was removed
     assertTrue(ObjectType.get(entityId).isNull());

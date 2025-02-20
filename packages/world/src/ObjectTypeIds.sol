@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { ObjectCount } from "./codegen/tables/ObjectCount.sol";
+import { MinedOreCount } from "./codegen/tables/MinedOreCount.sol";
 import { ObjectTypeOres } from "./codegen/tables/ObjectTypeOres.sol";
 import { ObjectTypeOreAmount } from "./codegen/tables/ObjectTypeOreAmount.sol";
 
@@ -313,7 +313,7 @@ library ObjectTypeIdLib {
     for (uint256 i = 0; i < ores.length; i++) {
       ObjectTypeId oreType = ObjectTypeId.wrap(ores[i]);
       uint16 oreAmount = ObjectTypeOreAmount._get(self, oreType);
-      ObjectCount._set(oreType, ObjectCount._get(oreType) + oreAmount);
+      MinedOreCount._set(oreType, MinedOreCount._get(oreType) - oreAmount);
     }
   }
 }
