@@ -17,6 +17,7 @@ import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
+import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
@@ -70,7 +71,7 @@ contract OreTest is BiomesTest {
     vm.prank(alice);
     world.oreChunkCommit(chunkCoord);
 
-    vm.roll(block.number + COMMIT_EXPIRY_BLOCKS);
+    vm.roll(block.number + 1 + COMMIT_EXPIRY_BLOCKS);
 
     vm.prank(alice);
     vm.expectRevert("Existing ore commitment");
@@ -89,6 +90,9 @@ contract OreTest is BiomesTest {
 
     addMinedOre(minedOreCoord);
 
+    // Burn ore so it becomes available to respawn
+    TotalBurnedOreCount.set(1);
+
     // Set coord to air
     EntityId entityId = randomEntityId();
     ReversePosition.set(minedOreCoord.x, minedOreCoord.y, minedOreCoord.z, entityId);
@@ -100,8 +104,26 @@ contract OreTest is BiomesTest {
     world.respawnOre(block.number - 1);
 
     assertEq(TotalMinedOreCount.get(), 0);
+    assertEq(TotalBurnedOreCount.get(), 0);
 
     // Check that the air entity was removed
     assertTrue(ObjectType.get(entityId).isNull());
+  }
+
+  function testRespawnOreFailsIfNoBurnedOres() public {
+    VoxelCoord memory minedOreCoord = VoxelCoord(0, 0, 0);
+
+    addMinedOre(minedOreCoord);
+
+    // Set coord to air
+    EntityId entityId = randomEntityId();
+    ReversePosition.set(minedOreCoord.x, minedOreCoord.y, minedOreCoord.z, entityId);
+    ObjectType.set(entityId, AirObjectID);
+
+    address alice = vm.randomAddress();
+
+    vm.prank(alice);
+    vm.expectRevert("No ores available for respawn");
+    world.respawnOre(block.number - 1);
   }
 }

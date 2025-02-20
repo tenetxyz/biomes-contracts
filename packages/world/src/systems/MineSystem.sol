@@ -41,7 +41,7 @@ library MineLib {
     ChunkCoord memory chunkCoord = coord.toChunkCoord();
     uint256 commitment = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
     require(block.number >= commitment, "No ore commitment");
-    require(block.number < commitment + COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
+    require(block.number <= commitment + COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
     uint256 rand = uint256(keccak256(abi.encode(blockhash(commitment), coord)));
 
     // Set total mined ore and add position

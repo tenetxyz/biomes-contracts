@@ -25,7 +25,7 @@ import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
 import { EntityId } from "../EntityId.sol";
 import { ChunkCoord } from "../Types.sol";
-import { COMMIT_EXPIRY_BLOCKS, COMMIT_HALF_WIDTH } from "../Constants.sol";
+import { COMMIT_EXPIRY_BLOCKS, COMMIT_HALF_WIDTH, RESPAWN_ORE_BLOCK_RANGE } from "../Constants.sol";
 
 // TODO: copied from voxel coords. Figure out way to unify coordinate utils
 function inSurroundingCube(
@@ -52,15 +52,17 @@ contract OreSystem is System {
 
     // Check existing commitment
     uint256 commitment = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
-    require(block.number >= commitment + COMMIT_EXPIRY_BLOCKS, "Existing ore commitment");
+    require(block.number > commitment + COMMIT_EXPIRY_BLOCKS, "Existing ore commitment");
 
     // Commit starting from next block
     OreCommitment._set(chunkCoord.x, chunkCoord.y, chunkCoord.z, block.number + 1);
   }
 
   function respawnOre(uint256 blockNumber) public {
-    // TODO: use constant
-    require(blockNumber > block.number - 10, "Can only choose past 10 blocks");
+    require(
+      blockNumber < block.number && blockNumber >= block.number - RESPAWN_ORE_BLOCK_RANGE,
+      "Can only choose past 10 blocks"
+    );
 
     uint256 burned = TotalBurnedOreCount._get();
     require(burned > 0, "No ores available for respawn");
