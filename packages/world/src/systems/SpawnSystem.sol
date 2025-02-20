@@ -32,6 +32,7 @@ import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 import { updateMachineEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
+import { createPlayer } from "../utils/PlayerUtils.sol";
 
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
@@ -128,37 +129,13 @@ contract SpawnSystem is System {
 
   function _spawnPlayer(uint32 playerMass, VoxelCoord memory spawnCoord) internal returns (EntityId) {
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
-
     require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     address playerAddress = _msgSender();
     require(!Player._get(playerAddress).exists(), "Player already spawned");
 
-    (, ObjectTypeId terrainObjectTypeId) = spawnCoord.getEntity();
-    require(terrainObjectTypeId == AirObjectID && !spawnCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
-
-    // Create new entity
     EntityId basePlayerEntityId = getUniqueEntity();
-    ObjectType._set(basePlayerEntityId, PlayerObjectID);
-    spawnCoord.setPlayer(basePlayerEntityId);
-
-    ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
-    for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
-      VoxelCoord memory relativeCoord = VoxelCoord(
-        spawnCoord.x + schemaData.relativePositionsX[i],
-        spawnCoord.y + schemaData.relativePositionsY[i],
-        spawnCoord.z + schemaData.relativePositionsZ[i]
-      );
-      (, ObjectTypeId relativeTerrainObjectTypeId) = relativeCoord.getEntity();
-      require(
-        relativeTerrainObjectTypeId == AirObjectID && !relativeCoord.getPlayer().exists(),
-        "Cannot spawn on a non-air block"
-      );
-      EntityId relativePlayerEntityId = getUniqueEntity();
-      ObjectType._set(relativePlayerEntityId, PlayerObjectID);
-      relativeCoord.setPlayer(relativePlayerEntityId);
-      BaseEntity._set(relativePlayerEntityId, basePlayerEntityId);
-    }
+    createPlayer(basePlayerEntityId, spawnCoord);
 
     Player._set(playerAddress, basePlayerEntityId);
     ReversePlayer._set(basePlayerEntityId, playerAddress);

@@ -18,6 +18,7 @@ import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { notify, LoginNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
+import { createPlayer } from "../utils/PlayerUtils.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
 
@@ -32,18 +33,14 @@ contract LoginSystem is System {
 
     VoxelCoord memory lastKnownCoord = LastKnownPosition._get(playerEntityId).toVoxelCoord();
     require(inWorldBorder(respawnCoord), "Cannot respawn outside world border");
+    // We let the user pick a y coord, so we need to apply gravity
+    require(!gravityApplies(respawnCoord), "Cannot respawn player here as gravity applies");
     require(
       lastKnownCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, respawnCoord),
       "Respawn coord too far from logged off coord"
     );
 
-    (, ObjectTypeId respawnObjectTypeId) = respawnCoord.getOrCreateEntity();
-    require(
-      respawnObjectTypeId == AirObjectID && !respawnCoord.getPlayer().exists(),
-      "Cannot respawn on a non-air block"
-    );
-
-    respawnCoord.setPlayer(playerEntityId);
+    createPlayer(playerEntityId, respawnCoord);
 
     LastKnownPosition._deleteRecord(playerEntityId);
     PlayerStatus._set(playerEntityId, false);
@@ -51,9 +48,6 @@ contract LoginSystem is System {
     PlayerActivity._set(playerEntityId, uint128(block.timestamp));
 
     // TODO: apply cost for being logged off
-
-    // We let the user pick a y coord, so we need to apply gravity
-    require(!gravityApplies(respawnCoord), "Cannot respawn player here as gravity applies");
 
     notify(playerEntityId, LoginNotifData({ loginCoord: respawnCoord }));
   }

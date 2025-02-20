@@ -13,11 +13,13 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Commitment } from "../codegen/tables/Commitment.sol";
+import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
+import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
-import { AirObjectID } from "../ObjectTypeIds.sol";
-import { checkWorldStatus } from "../Utils.sol";
+import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -55,4 +57,50 @@ function requireInPlayerInfluence(VoxelCoord memory playerCoord, EntityId entity
   VoxelCoord memory coord = Position._get(entityId).toVoxelCoord();
   requireInPlayerInfluence(playerCoord, coord);
   return coord;
+}
+
+function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
+  (, ObjectTypeId terrainObjectTypeId) = playerCoord.getEntity();
+  require(terrainObjectTypeId == AirObjectID && !playerCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
+
+  ObjectType._set(playerEntityId, PlayerObjectID);
+  playerCoord.setPlayer(playerEntityId);
+
+  ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
+  for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+    VoxelCoord memory relativeCoord = VoxelCoord(
+      playerCoord.x + schemaData.relativePositionsX[i],
+      playerCoord.y + schemaData.relativePositionsY[i],
+      playerCoord.z + schemaData.relativePositionsZ[i]
+    );
+    (, ObjectTypeId relativeTerrainObjectTypeId) = relativeCoord.getEntity();
+    require(
+      relativeTerrainObjectTypeId == AirObjectID && !relativeCoord.getPlayer().exists(),
+      "Cannot spawn on a non-air block"
+    );
+    EntityId relativePlayerEntityId = getUniqueEntity();
+    ObjectType._set(relativePlayerEntityId, PlayerObjectID);
+    relativeCoord.setPlayer(relativePlayerEntityId);
+    BaseEntity._set(relativePlayerEntityId, playerEntityId);
+  }
+}
+
+function deletePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
+  ObjectType._deleteRecord(playerEntityId);
+  PlayerPosition._deleteRecord(playerEntityId);
+  playerCoord.removePlayer();
+
+  ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
+  for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+    VoxelCoord memory relativeCoord = VoxelCoord(
+      playerCoord.x + schemaData.relativePositionsX[i],
+      playerCoord.y + schemaData.relativePositionsY[i],
+      playerCoord.z + schemaData.relativePositionsZ[i]
+    );
+    EntityId relativePlayerEntityId = relativeCoord.getPlayer();
+    PlayerPosition._deleteRecord(relativePlayerEntityId);
+    relativeCoord.removePlayer();
+    ObjectType._deleteRecord(relativePlayerEntityId);
+    BaseEntity._deleteRecord(relativePlayerEntityId);
+  }
 }

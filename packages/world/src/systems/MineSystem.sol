@@ -23,7 +23,7 @@ import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel, energyToMass, transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
-import { GravityLib } from "./libraries/GravityLib.sol";
+import { MoveLib } from "./libraries/MoveLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
@@ -103,8 +103,8 @@ contract MineSystem is System {
       for (uint256 i = 0; i < coords.length; i++) {
         VoxelCoord memory aboveCoord = VoxelCoord(coords[i].x, coords[i].y + 1, coords[i].z);
         EntityId aboveEntityId = aboveCoord.getPlayer();
-        if (aboveEntityId.exists()) {
-          GravityLib.runGravity(aboveEntityId, aboveCoord);
+        if (aboveEntityId.exists() && aboveEntityId.isBaseEntity()) {
+          MoveLib.runGravity(aboveEntityId, aboveCoord);
         }
       }
     }

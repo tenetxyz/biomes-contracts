@@ -26,7 +26,7 @@ import { transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
-
+import { MoveLib } from "./libraries/MoveLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract BuildSystem is System {
@@ -102,17 +102,10 @@ contract BuildSystem is System {
 
   function jumpBuildWithExtraData(ObjectTypeId objectTypeId, bytes memory extraData) public payable {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
-    VoxelCoord memory jumpCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-    require(inWorldBorder(jumpCoord), "Cannot jump outside world border");
-    (EntityId newEntityId, ObjectTypeId terrainObjectTypeId) = jumpCoord.getOrCreateEntity();
-    require(ObjectTypeMetadata._getCanPassThrough(terrainObjectTypeId), "Cannot jump on a non-passable block");
 
-    playerCoord.removePlayer();
-    jumpCoord.setPlayer(playerEntityId);
-
-    // TODO: apply jump cost
     VoxelCoord[] memory moveCoords = new VoxelCoord[](1);
-    moveCoords[0] = jumpCoord;
+    moveCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    MoveLib.movePlayer(playerEntityId, playerCoord, moveCoords);
     notify(playerEntityId, MoveNotifData({ moveCoords: moveCoords }));
 
     buildWithExtraData(objectTypeId, playerCoord, extraData);

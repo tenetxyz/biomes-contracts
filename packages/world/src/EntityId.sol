@@ -7,17 +7,22 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { Chip } from "./codegen/tables/Chip.sol";
 import { BaseEntity } from "./codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "./codegen/tables/Energy.sol";
+
 type EntityId is bytes32;
 
+function isBaseEntity(EntityId self) view returns (bool) {
+  return EntityId.unwrap(BaseEntity._get(self)) == bytes32(0);
+}
+
 function baseEntityId(EntityId self) view returns (EntityId) {
-  EntityId base = BaseEntity.get(self);
+  EntityId base = BaseEntity._get(self);
   return EntityId.unwrap(base) == bytes32(0) ? self : base;
 }
 
 // TODO: Not sure if it should be included here or if it should be a standalone util
 function getChipAddress(EntityId entityId) view returns (address) {
-  ResourceId chipSystemId = Chip.getChipSystemId(entityId);
-  (address chipAddress, ) = Systems.get(chipSystemId);
+  ResourceId chipSystemId = Chip._getChipSystemId(entityId);
+  (address chipAddress, ) = Systems._get(chipSystemId);
   return chipAddress;
 }
 
@@ -39,4 +44,4 @@ function decreaseEnergy(EntityId self, EnergyData memory currentEnergyData, uint
   Energy._set(self, EnergyData({ energy: currentEnergy - amount, lastUpdatedTime: uint128(block.timestamp) }));
 }
 
-using { baseEntityId, getChipAddress, exists, eq as ==, neq as !=, decreaseEnergy } for EntityId global;
+using { isBaseEntity, baseEntityId, getChipAddress, exists, eq as ==, neq as !=, decreaseEnergy } for EntityId global;
