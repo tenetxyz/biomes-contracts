@@ -308,6 +308,40 @@ library ObjectTypeIdLib {
     return self == NullObjectTypeId;
   }
 
+  function isAny(ObjectTypeId self) internal pure returns (bool) {
+    return
+      self == AnyLogObjectID ||
+      self == AnyLumberObjectID ||
+      self == AnyGlassObjectID ||
+      self == AnyReinforcedLumberObjectID ||
+      self == AnyCottonBlockObjectID;
+  }
+
+  function getObjectTypes(ObjectTypeId self) internal pure returns (ObjectTypeId[] memory) {
+    if (self == AnyLogObjectID) {
+      return getLogObjectTypes();
+    }
+
+    if (self == AnyLumberObjectID) {
+      return getLumberObjectTypes();
+    }
+
+    if (self == AnyGlassObjectID) {
+      return getGlassObjectTypes();
+    }
+
+    if (self == AnyCottonBlockObjectID) {
+      return getCottonBlockObjectTypes();
+    }
+
+    if (self == AnyReinforcedLumberObjectID) {
+      return getReinforcedLumberObjectTypes();
+    }
+
+    // Return empty array for non-Any types
+    return new ObjectTypeId[](0);
+  }
+
   function burnOres(ObjectTypeId self) internal {
     uint16[] memory ores = ObjectTypeOres._get(self);
     for (uint256 i = 0; i < ores.length; i++) {
@@ -320,3 +354,75 @@ library ObjectTypeIdLib {
 
 using ObjectTypeIdLib for ObjectTypeId global;
 using { eq as ==, neq as != } for ObjectTypeId global;
+
+function getLogObjectTypes() pure returns (ObjectTypeId[] memory) {
+  ObjectTypeId[] memory result = new ObjectTypeId[](4);
+  result[0] = OakLogObjectID;
+  result[1] = SakuraLogObjectID;
+  result[2] = BirchLogObjectID;
+  result[3] = RubberLogObjectID;
+  return result;
+}
+
+function getReinforcedLumberObjectTypes() pure returns (ObjectTypeId[] memory) {
+  ObjectTypeId[] memory result = new ObjectTypeId[](3);
+  result[0] = ReinforcedOakLumberObjectID;
+  result[1] = ReinforcedRubberLumberObjectID;
+  result[2] = ReinforcedBirchLumberObjectID;
+  return result;
+}
+
+function getCottonBlockObjectTypes() pure returns (ObjectTypeId[] memory) {
+  ObjectTypeId[] memory result = new ObjectTypeId[](13);
+  result[0] = CottonBlockObjectID;
+  result[1] = BlueCottonBlockObjectID;
+  result[2] = BrownCottonBlockObjectID;
+  result[3] = GreenCottonBlockObjectID;
+  result[4] = MagentaCottonBlockObjectID;
+  result[5] = OrangeCottonBlockObjectID;
+  result[6] = PinkCottonBlockObjectID;
+  result[7] = PurpleCottonBlockObjectID;
+  result[8] = RedCottonBlockObjectID;
+  result[9] = TanCottonBlockObjectID;
+  result[10] = WhiteCottonBlockObjectID;
+  result[11] = YellowCottonBlockObjectID;
+  result[12] = BlackCottonBlockObjectID;
+  return result;
+}
+
+function getLumberObjectTypes() pure returns (ObjectTypeId[] memory) {
+  ObjectTypeId[] memory result = new ObjectTypeId[](17);
+  result[0] = OakLumberObjectID;
+  result[1] = SakuraLumberObjectID;
+  result[2] = RubberLumberObjectID;
+  result[3] = BirchLumberObjectID;
+  result[4] = BlueOakLumberObjectID;
+  result[5] = BrownOakLumberObjectID;
+  result[6] = GreenOakLumberObjectID;
+  result[7] = MagentaOakLumberObjectID;
+  result[8] = OrangeOakLumberObjectID;
+  result[9] = PinkOakLumberObjectID;
+  result[10] = PurpleOakLumberObjectID;
+  result[11] = RedOakLumberObjectID;
+  result[12] = TanOakLumberObjectID;
+  result[13] = WhiteOakLumberObjectID;
+  result[14] = YellowOakLumberObjectID;
+  result[15] = BlackOakLumberObjectID;
+  result[16] = SilverOakLumberObjectID;
+  return result;
+}
+
+function getGlassObjectTypes() pure returns (ObjectTypeId[] memory) {
+  ObjectTypeId[] memory result = new ObjectTypeId[](10);
+  result[0] = GlassObjectID;
+  result[1] = BlueGlassObjectID;
+  result[2] = GreenGlassObjectID;
+  result[3] = OrangeGlassObjectID;
+  result[4] = PinkGlassObjectID;
+  result[5] = PurpleGlassObjectID;
+  result[6] = RedGlassObjectID;
+  result[7] = WhiteGlassObjectID;
+  result[8] = YellowGlassObjectID;
+  result[9] = BlackGlassObjectID;
+  return result;
+}

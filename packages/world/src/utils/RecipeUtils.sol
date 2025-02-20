@@ -17,9 +17,9 @@ function _addOreToOutput(ObjectTypeId output, ObjectTypeId oreType, uint16 amoun
 }
 
 /// @dev Sets the corresponding ore amount for each input. It should only be called for single output recipes.
-function _setObjectOres(ObjectTypeId output, uint16[] memory inputs, uint16[] memory amounts) {
+function _setObjectOres(ObjectTypeId output, ObjectTypeId[] memory inputs, uint16[] memory amounts) {
   for (uint256 i = 0; i < inputs.length; i++) {
-    ObjectTypeId input = ObjectTypeId.wrap(inputs[i]);
+    ObjectTypeId input = inputs[i];
     uint16 inputAmount = amounts[i];
 
     if (input.isOre()) {
@@ -40,6 +40,31 @@ function _setObjectOres(ObjectTypeId output, uint16[] memory inputs, uint16[] me
   }
 }
 
+function createRecipe(
+  ObjectTypeId stationObjectTypeId,
+  ObjectTypeId[] memory inputTypes,
+  uint16[] memory inputAmounts,
+  ObjectTypeId[] memory outputTypes,
+  uint16[] memory outputAmounts
+) {
+  bytes32 recipeId = hashInputs(stationObjectTypeId, inputTypes, inputAmounts);
+
+  uint16[] memory _outputTypes;
+  assembly ("memory-safe") {
+    _outputTypes := outputTypes
+  }
+
+  Recipes._set(recipeId, _outputTypes, outputAmounts);
+}
+
+function hashInputs(
+  ObjectTypeId stationObjectTypeId,
+  ObjectTypeId[] memory inputTypes,
+  uint16[] memory inputAmounts
+) pure returns (bytes32) {
+  return keccak256(abi.encode(stationObjectTypeId, inputTypes, inputAmounts));
+}
+
 function createSingleInputWithStationRecipe(
   ObjectTypeId stationObjectTypeId,
   ObjectTypeId inputObjectTypeId,
@@ -47,28 +72,19 @@ function createSingleInputWithStationRecipe(
   ObjectTypeId outputObjectTypeId,
   uint16 outputObjectTypeAmount
 ) {
-  uint16[] memory inputObjectTypeIds = new uint16[](1);
-  inputObjectTypeIds[0] = inputObjectTypeId.unwrap();
-  uint16[] memory inputObjectTypeAmounts = new uint16[](1);
-  inputObjectTypeAmounts[0] = inputObjectTypeAmount;
+  ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
+  inputTypes[0] = inputObjectTypeId;
+  uint16[] memory inputAmounts = new uint16[](1);
+  inputAmounts[0] = inputObjectTypeAmount;
 
-  _setObjectOres(outputObjectTypeId, inputObjectTypeIds, inputObjectTypeAmounts);
+  _setObjectOres(outputObjectTypeId, inputTypes, inputAmounts);
 
-  // Form recipe id from input and output object type ids
-  bytes32 recipeId = keccak256(
-    abi.encodePacked(inputObjectTypeId, inputObjectTypeAmount, outputObjectTypeId, outputObjectTypeAmount)
-  );
+  ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
+  outputTypes[0] = outputObjectTypeId;
+  uint16[] memory outputAmounts = new uint16[](1);
+  outputAmounts[0] = outputObjectTypeAmount;
 
-  Recipes._set(
-    recipeId,
-    RecipesData({
-      stationObjectTypeId: stationObjectTypeId,
-      inputObjectTypeIds: inputObjectTypeIds,
-      inputObjectTypeAmounts: inputObjectTypeAmounts,
-      outputObjectTypeId: outputObjectTypeId,
-      outputObjectTypeAmount: outputObjectTypeAmount
-    })
-  );
+  createRecipe(stationObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
 }
 
 function createSingleInputRecipe(
@@ -95,49 +111,22 @@ function createDoubleInputWithStationRecipe(
   ObjectTypeId outputObjectTypeId,
   uint16 outputObjectTypeAmount
 ) {
-  uint16[] memory inputObjectTypeIds = new uint16[](2);
-  inputObjectTypeIds[0] = inputObjectTypeId1.unwrap();
-  inputObjectTypeIds[1] = inputObjectTypeId2.unwrap();
+  ObjectTypeId[] memory inputTypes = new ObjectTypeId[](2);
+  inputTypes[0] = inputObjectTypeId1;
+  inputTypes[1] = inputObjectTypeId2;
 
-  uint16[] memory inputObjectTypeAmounts = new uint16[](2);
-  inputObjectTypeAmounts[0] = inputObjectTypeAmount1;
-  inputObjectTypeAmounts[1] = inputObjectTypeAmount2;
+  uint16[] memory inputAmounts = new uint16[](2);
+  inputAmounts[0] = inputObjectTypeAmount1;
+  inputAmounts[1] = inputObjectTypeAmount2;
 
-  _setObjectOres(outputObjectTypeId, inputObjectTypeIds, inputObjectTypeAmounts);
+  _setObjectOres(outputObjectTypeId, inputTypes, inputAmounts);
 
-  // Form recipe id from input and output object type ids
-  bytes32 recipeId = inputObjectTypeId1.unwrap() < inputObjectTypeId2.unwrap()
-    ? keccak256(
-      abi.encodePacked(
-        inputObjectTypeId1,
-        inputObjectTypeAmount1,
-        inputObjectTypeId2,
-        inputObjectTypeAmount2,
-        outputObjectTypeId,
-        outputObjectTypeAmount
-      )
-    )
-    : keccak256(
-      abi.encodePacked(
-        inputObjectTypeId2,
-        inputObjectTypeAmount2,
-        inputObjectTypeId1,
-        inputObjectTypeAmount1,
-        outputObjectTypeId,
-        outputObjectTypeAmount
-      )
-    );
+  ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
+  outputTypes[0] = outputObjectTypeId;
+  uint16[] memory outputAmounts = new uint16[](1);
+  outputAmounts[0] = outputObjectTypeAmount;
 
-  Recipes._set(
-    recipeId,
-    RecipesData({
-      stationObjectTypeId: stationObjectTypeId,
-      inputObjectTypeIds: inputObjectTypeIds,
-      inputObjectTypeAmounts: inputObjectTypeAmounts,
-      outputObjectTypeId: outputObjectTypeId,
-      outputObjectTypeAmount: outputObjectTypeAmount
-    })
-  );
+  createRecipe(stationObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
 }
 
 function createDoubleInputRecipe(

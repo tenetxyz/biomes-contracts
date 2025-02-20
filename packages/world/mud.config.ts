@@ -75,11 +75,8 @@ export default defineWorld({
     Recipes: {
       schema: {
         recipeId: "bytes32",
-        stationObjectTypeId: "ObjectTypeId",
-        outputObjectTypeId: "ObjectTypeId",
-        outputObjectTypeAmount: "uint16",
-        inputObjectTypeIds: "uint16[]",
-        inputObjectTypeAmounts: "uint16[]",
+        outputTypes: "uint16[]",
+        outputAmounts: "uint16[]",
       },
       key: ["recipeId"],
     },

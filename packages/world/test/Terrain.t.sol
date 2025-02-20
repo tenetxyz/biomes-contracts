@@ -6,34 +6,35 @@ import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
 import { TerrainLib, VERSION_PADDING } from "../src/systems/libraries/TerrainLib.sol";
 import { AirObjectID } from "../src/ObjectTypeIds.sol";
-import { VoxelCoord } from "../src/VoxelCoord.sol";
+import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
 import { ChunkCoord } from "../src/Types.sol";
 import { CHUNK_SIZE } from "../src/Constants.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
 contract TerrainTest is MudTest, GasReporter {
+  using VoxelCoordLib for VoxelCoord;
   function testGetChunkCoord() public {
     VoxelCoord memory coord = VoxelCoord(1, 2, 2);
-    ChunkCoord memory chunkCoord = TerrainLib._getChunkCoord(coord);
+    ChunkCoord memory chunkCoord = coord.toChunkCoord();
     assertEq(chunkCoord.x, 0);
     assertEq(chunkCoord.y, 0);
     assertEq(chunkCoord.z, 0);
 
     coord = VoxelCoord(16, 17, 18);
-    chunkCoord = TerrainLib._getChunkCoord(coord);
+    chunkCoord = coord.toChunkCoord();
     assertEq(chunkCoord.x, 1);
     assertEq(chunkCoord.y, 1);
     assertEq(chunkCoord.z, 1);
 
     coord = VoxelCoord(-1, -2, -3);
-    chunkCoord = TerrainLib._getChunkCoord(coord);
+    chunkCoord = coord.toChunkCoord();
     assertEq(chunkCoord.x, -1);
     assertEq(chunkCoord.y, -1);
     assertEq(chunkCoord.z, -1);
 
     coord = VoxelCoord(16, -17, -18);
-    chunkCoord = TerrainLib._getChunkCoord(coord);
+    chunkCoord = coord.toChunkCoord();
     assertEq(chunkCoord.x, 1);
     assertEq(chunkCoord.y, -2);
     assertEq(chunkCoord.z, -2);

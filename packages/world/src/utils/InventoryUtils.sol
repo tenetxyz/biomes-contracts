@@ -76,6 +76,20 @@ function removeFromInventoryCount(EntityId ownerEntityId, ObjectTypeId objectTyp
   }
 }
 
+function removeAnyFromInventoryCount(EntityId playerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToRemove) {
+  uint16 remaining = numObjectsToRemove;
+  ObjectTypeId[] memory objectTypeIds = objectTypeId.getObjectTypes();
+  for (uint256 i = 0; i < objectTypeIds.length; i++) {
+    uint16 owned = InventoryCount._get(playerEntityId, objectTypeIds[i]);
+    uint16 spend = owned > remaining ? remaining : owned;
+    if (spend > 0) {
+      removeFromInventoryCount(playerEntityId, objectTypeIds[i], spend);
+      remaining -= spend;
+    }
+  }
+  require(remaining == 0, "Not enough objects");
+}
+
 function useEquipped(EntityId entityId) returns (uint128 massUsed, ObjectTypeId inventoryObjectTypeId) {
   EntityId inventoryEntityId = Equipped._get(entityId);
   if (inventoryEntityId.exists()) {
