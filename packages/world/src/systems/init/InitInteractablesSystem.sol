@@ -5,7 +5,6 @@ import { VoxelCoord } from "../../Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { ObjectTypeSchema, ObjectTypeSchemaData } from "../../codegen/tables/ObjectTypeSchema.sol";
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
 import { ObjectTypeId } from "../../ObjectTypeIds.sol";
@@ -19,8 +18,7 @@ contract InitInteractablesSystem is System {
     ObjectTypeId objectTypeId,
     uint32 mass,
     uint16 maxInventorySlots,
-    uint16 stackable,
-    VoxelCoord[] memory relativePositions
+    uint16 stackable
   ) internal {
     ObjectTypeMetadata._set(
       objectTypeId,
@@ -32,18 +30,6 @@ contract InitInteractablesSystem is System {
         canPassThrough: false
       })
     );
-
-    if (relativePositions.length > 0) {
-      int32[] memory relativePositionsX = new int32[](relativePositions.length);
-      int32[] memory relativePositionsY = new int32[](relativePositions.length);
-      int32[] memory relativePositionsZ = new int32[](relativePositions.length);
-      for (uint i = 0; i < relativePositions.length; i++) {
-        relativePositionsX[i] = relativePositions[i].x;
-        relativePositionsY[i] = relativePositions[i].y;
-        relativePositionsZ[i] = relativePositions[i].z;
-      }
-      ObjectTypeSchema._set(objectTypeId, relativePositionsX, relativePositionsY, relativePositionsZ);
-    }
   }
 
   function initInteractableObjectTypes() public {

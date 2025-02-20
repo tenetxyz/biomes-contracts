@@ -7,7 +7,6 @@ import { VoxelCoord } from "../VoxelCoord.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
 import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
@@ -59,21 +58,18 @@ contract BuildSystem is System {
     requireInPlayerInfluence(playerCoord, coord);
 
     EntityId baseEntityId = buildObjectAtCoord(objectTypeId, coord);
-    uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(objectTypeId);
-    VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
+    VoxelCoord[] memory relativePositions = objectTypeId.getObjectTypeSchema();
+    VoxelCoord[] memory coords = new VoxelCoord[](relativePositions.length + 1);
     coords[0] = coord;
-    if (numRelativePositions > 0) {
-      ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(objectTypeId);
-      for (uint256 i = 0; i < numRelativePositions; i++) {
-        VoxelCoord memory relativeCoord = VoxelCoord(
-          coord.x + schemaData.relativePositionsX[i],
-          coord.y + schemaData.relativePositionsY[i],
-          coord.z + schemaData.relativePositionsZ[i]
-        );
-        coords[i + 1] = relativeCoord;
-        EntityId entityId = buildObjectAtCoord(objectTypeId, relativeCoord);
-        BaseEntity._set(entityId, baseEntityId);
-      }
+    for (uint256 i = 0; i < relativePositions.length; i++) {
+      VoxelCoord memory relativeCoord = VoxelCoord(
+        coord.x + relativePositions[i].x,
+        coord.y + relativePositions[i].y,
+        coord.z + relativePositions[i].z
+      );
+      coords[i + 1] = relativeCoord;
+      EntityId entityId = buildObjectAtCoord(objectTypeId, relativeCoord);
+      BaseEntity._set(entityId, baseEntityId);
     }
     uint32 mass = ObjectTypeMetadata._getMass(objectTypeId);
     Mass._setMass(baseEntityId, mass);

@@ -6,7 +6,6 @@ import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
@@ -69,25 +68,22 @@ contract MineSystem is System {
       }
     }
 
-    uint256 numRelativePositions = ObjectTypeSchema._lengthRelativePositionsX(mineObjectTypeId);
-    VoxelCoord[] memory coords = new VoxelCoord[](numRelativePositions + 1);
+    VoxelCoord[] memory relativePositions = mineObjectTypeId.getObjectTypeSchema();
+    VoxelCoord[] memory coords = new VoxelCoord[](relativePositions.length + 1);
     coords[0] = coord;
 
-    if (numRelativePositions > 0) {
-      ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(mineObjectTypeId);
-      for (uint256 i = 0; i < numRelativePositions; i++) {
-        VoxelCoord memory relativeCoord = VoxelCoord(
-          coord.x + schemaData.relativePositionsX[i],
-          coord.y + schemaData.relativePositionsY[i],
-          coord.z + schemaData.relativePositionsZ[i]
-        );
-        coords[i + 1] = relativeCoord;
+    for (uint256 i = 0; i < relativePositions.length; i++) {
+      VoxelCoord memory relativeCoord = VoxelCoord(
+        coord.x + relativePositions[i].x,
+        coord.y + relativePositions[i].y,
+        coord.z + relativePositions[i].z
+      );
+      coords[i + 1] = relativeCoord;
 
-        if (isFullyMined) {
-          (EntityId relativeEntityId, ) = mineObjectAtCoord(relativeCoord);
-          BaseEntity._deleteRecord(relativeEntityId);
-          ObjectType._set(relativeEntityId, AirObjectID);
-        }
+      if (isFullyMined) {
+        (EntityId relativeEntityId, ) = mineObjectAtCoord(relativeCoord);
+        BaseEntity._deleteRecord(relativeEntityId);
+        ObjectType._set(relativeEntityId, AirObjectID);
       }
     }
 

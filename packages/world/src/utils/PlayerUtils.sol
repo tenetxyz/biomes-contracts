@@ -15,7 +15,6 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Commitment } from "../codegen/tables/Commitment.sol";
-import { ObjectTypeSchema, ObjectTypeSchemaData } from "../codegen/tables/ObjectTypeSchema.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
@@ -66,12 +65,12 @@ function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   ObjectType._set(playerEntityId, PlayerObjectID);
   playerCoord.setPlayer(playerEntityId);
 
-  ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
-  for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+  VoxelCoord[] memory relativePositions = PlayerObjectID.getObjectTypeSchema();
+  for (uint256 i = 0; i < relativePositions.length; i++) {
     VoxelCoord memory relativeCoord = VoxelCoord(
-      playerCoord.x + schemaData.relativePositionsX[i],
-      playerCoord.y + schemaData.relativePositionsY[i],
-      playerCoord.z + schemaData.relativePositionsZ[i]
+      playerCoord.x + relativePositions[i].x,
+      playerCoord.y + relativePositions[i].y,
+      playerCoord.z + relativePositions[i].z
     );
     (, ObjectTypeId relativeTerrainObjectTypeId) = relativeCoord.getEntity();
     require(
@@ -90,12 +89,12 @@ function deletePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   PlayerPosition._deleteRecord(playerEntityId);
   playerCoord.removePlayer();
 
-  ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
-  for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+  VoxelCoord[] memory relativePositions = PlayerObjectID.getObjectTypeSchema();
+  for (uint256 i = 0; i < relativePositions.length; i++) {
     VoxelCoord memory relativeCoord = VoxelCoord(
-      playerCoord.x + schemaData.relativePositionsX[i],
-      playerCoord.y + schemaData.relativePositionsY[i],
-      playerCoord.z + schemaData.relativePositionsZ[i]
+      playerCoord.x + relativePositions[i].x,
+      playerCoord.y + relativePositions[i].y,
+      playerCoord.z + relativePositions[i].z
     );
     EntityId relativePlayerEntityId = relativeCoord.getPlayer();
     PlayerPosition._deleteRecord(relativePlayerEntityId);

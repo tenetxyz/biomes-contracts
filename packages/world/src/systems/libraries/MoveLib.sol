@@ -3,7 +3,6 @@ pragma solidity >=0.8.24;
 
 import { VoxelCoord, VoxelCoordLib } from "../../VoxelCoord.sol";
 
-import { ObjectTypeSchema, ObjectTypeSchemaData } from "../../codegen/tables/ObjectTypeSchema.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { Position } from "../../codegen/tables/Position.sol";
@@ -28,15 +27,15 @@ library MoveLib {
     VoxelCoord memory playerCoord,
     VoxelCoord[] memory newCoords
   ) public returns (bool, VoxelCoord memory) {
-    ObjectTypeSchemaData memory schemaData = ObjectTypeSchema._get(PlayerObjectID);
+    VoxelCoord[] memory relativePositions = PlayerObjectID.getObjectTypeSchema();
 
-    EntityId[] memory relativeEntityIds = new EntityId[](schemaData.relativePositionsX.length);
-    VoxelCoord[] memory relativeCoords = new VoxelCoord[](schemaData.relativePositionsX.length);
-    for (uint256 i = 0; i < schemaData.relativePositionsX.length; i++) {
+    EntityId[] memory relativeEntityIds = new EntityId[](relativePositions.length);
+    VoxelCoord[] memory relativeCoords = new VoxelCoord[](relativePositions.length);
+    for (uint256 i = 0; i < relativePositions.length; i++) {
       VoxelCoord memory relativeCoord = VoxelCoord(
-        playerCoord.x + schemaData.relativePositionsX[i],
-        playerCoord.y + schemaData.relativePositionsY[i],
-        playerCoord.z + schemaData.relativePositionsZ[i]
+        playerCoord.x + relativePositions[i].x,
+        playerCoord.y + relativePositions[i].y,
+        playerCoord.z + relativePositions[i].z
       );
       relativeEntityIds[i] = relativeCoord.getPlayer();
       relativeCoords[i] = relativeCoord;
