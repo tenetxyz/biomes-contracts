@@ -8,6 +8,7 @@ import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOw
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
+import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
@@ -40,6 +41,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
     address playerAddress = vm.randomAddress();
     EntityId playerEntityId = randomEntityId();
     Player.set(playerAddress, playerEntityId);
+    ReversePlayer.set(playerEntityId, playerAddress);
     Position.set(playerEntityId, coord.x, coord.y, coord.z);
     ReversePosition.set(coord.x, coord.y, coord.z, playerEntityId);
     Energy.set(playerEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000 }));

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { console } from "forge-std/console.sol";
+
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ExploredChunk } from "../src/codegen/tables/ExploredChunk.sol";
@@ -11,6 +13,7 @@ import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
+import { Player } from "../src/codegen/tables/Player.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
@@ -42,6 +45,9 @@ contract MineTest is BiomesTest {
     bytes32[] memory merkleProof = new bytes32[](0);
 
     world.exploreChunk(chunkCoord, encodedChunk, merkleProof);
+
+    VoxelCoord memory shardCoord = coord.toLocalEnergyPoolShardCoord();
+    LocalEnergyPool.set(shardCoord.x, 0, shardCoord.z, 1e18);
   }
 
   function _getFlatChunk() internal pure returns (uint8[][][] memory chunk) {
@@ -64,27 +70,46 @@ contract MineTest is BiomesTest {
   }
 
   function testMineTerrain() public {
-    VoxelCoord memory coord = VoxelCoord(0, 0, 0);
-    setupFlatChunk(coord);
+    uint256 blockNumber = block.number - 5;
+    address alice = vm.randomAddress();
 
-    VoxelCoord memory spawnCoord = VoxelCoord(1, GRASS_LEVEL + 1, 1);
-    (EntityId aliceEntityId, address alice) = createTestPlayer(spawnCoord);
+    VoxelCoord memory chunkCoord = VoxelCoord(0, 0, 0);
+    setupFlatChunk(chunkCoord);
+
+    VoxelCoord memory spawnCoord = world.getRandomSpawnCoord(blockNumber, alice, GRASS_LEVEL + 1);
 
     ObjectTypeId terrainObjectTypeId = GrassObjectID;
 
-    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x + 1, GRASS_LEVEL, spawnCoord.z);
+    VoxelCoord memory mineCoord = VoxelCoord(
+      spawnCoord.x == CHUNK_SIZE ? spawnCoord.x - 1 : spawnCoord.x + 1,
+      GRASS_LEVEL,
+      spawnCoord.z
+    );
 
-    vm.prank(alice);
+    vm.startPrank(alice);
+    EntityId aliceEntityId = world.randomSpawn(blockNumber, spawnCoord.y);
+
+    uint128 energyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = spawnCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
 
     startGasReport("mine terrain");
     world.mine(mineCoord);
     endGasReport();
 
     EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
-    assertTrue(ObjectType.get(mineEntityId) == AirObjectID);
-    assertTrue(InventoryCount.get(aliceEntityId, terrainObjectTypeId) == 1);
-    assertTrue(InventorySlots.get(aliceEntityId) == 1);
-    assertTrue(testInventoryObjectsHasObjectType(aliceEntityId, terrainObjectTypeId));
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
+    assertTrue(InventoryCount.get(aliceEntityId, terrainObjectTypeId) == 1, "Inventory count is not 1");
+    assertTrue(InventorySlots.get(aliceEntityId) == 1, "Inventory slots is not 1");
+    assertTrue(
+      testInventoryObjectsHasObjectType(aliceEntityId, terrainObjectTypeId),
+      "Inventory objects does not have terrain object type"
+    );
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertTrue(Energy.getEnergy(aliceEntityId) == energyBefore - energyGainedInPool, "Player did not lose energy");
+
+    vm.stopPrank();
   }
 
   function testMineNonTerrain() public {}
