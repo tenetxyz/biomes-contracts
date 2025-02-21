@@ -68,7 +68,7 @@ contract BuildTest is BiomesTest {
     );
 
     vm.prank(alice);
-    startGasReport("build terrain with hand");
+    startGasReport("build terrain");
     world.build(buildObjectTypeId, buildCoord);
     endGasReport();
 
@@ -94,9 +94,113 @@ contract BuildTest is BiomesTest {
     );
   }
 
-  function testBuildNonTerrain() public {}
+  function testBuildNonTerrain() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
 
-  function testBuildMultiSize() public {}
+    VoxelCoord memory buildCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL + 1,
+      playerCoord.z
+    );
+    setObjectAtCoord(buildCoord, AirObjectID);
+    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
+    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    assertTrue(buildEntityId.exists(), "Build entity does not exist");
+    assertTrue(InventoryCount.get(aliceEntityId, buildObjectTypeId) == 1, "Inventory count is not 0");
+
+    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    VoxelCoord memory forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
+    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(
+      forceFieldShardCoord.x,
+      forceFieldShardCoord.y,
+      forceFieldShardCoord.z
+    );
+
+    vm.prank(alice);
+    startGasReport("build non-terrain");
+    world.build(buildObjectTypeId, buildCoord);
+    endGasReport();
+
+    assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
+    assertTrue(InventoryCount.get(aliceEntityId, buildObjectTypeId) == 0, "Inventory count is not 0");
+    assertTrue(InventorySlots.get(aliceEntityId) == 0, "Inventory slots is not 0");
+    assertTrue(
+      !TestUtils.inventoryObjectsHasObjectType(aliceEntityId, buildObjectTypeId),
+      "Inventory objects still has build object type"
+    );
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertTrue(Energy.getEnergy(aliceEntityId) == aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    assertTrue(
+      Mass.getMass(buildEntityId) == ObjectTypeMetadata.getMass(buildObjectTypeId),
+      "Build entity mass is not correct"
+    );
+    assertTrue(
+      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord.x, forceFieldShardCoord.y, forceFieldShardCoord.z) ==
+        localMassBefore + ObjectTypeMetadata.getMass(buildObjectTypeId),
+      "Force field mass is not correct"
+    );
+  }
+
+  function testBuildMultiSize() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+
+    VoxelCoord memory buildCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL + 1,
+      playerCoord.z
+    );
+    VoxelCoord memory topCoord = VoxelCoord(buildCoord.x, buildCoord.y + 1, buildCoord.z);
+    setObjectAtCoord(buildCoord, AirObjectID);
+    setObjectAtCoord(topCoord, AirObjectID);
+    ObjectTypeId buildObjectTypeId = TextSignObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
+    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    EntityId topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    assertTrue(buildEntityId.exists(), "Build entity does not exist");
+    assertTrue(topEntityId.exists(), "Top entity does not exist");
+    assertTrue(InventoryCount.get(aliceEntityId, buildObjectTypeId) == 1, "Inventory count is not 0");
+
+    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    VoxelCoord memory forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
+    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(
+      forceFieldShardCoord.x,
+      forceFieldShardCoord.y,
+      forceFieldShardCoord.z
+    );
+
+    vm.prank(alice);
+    startGasReport("build multi-size");
+    world.build(buildObjectTypeId, buildCoord);
+    endGasReport();
+
+    assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
+    assertTrue(ObjectType.get(topEntityId) == buildObjectTypeId, "Top entity is not build object type");
+    assertTrue(InventoryCount.get(aliceEntityId, buildObjectTypeId) == 0, "Inventory count is not 0");
+    assertTrue(InventorySlots.get(aliceEntityId) == 0, "Inventory slots is not 0");
+    assertTrue(
+      !TestUtils.inventoryObjectsHasObjectType(aliceEntityId, buildObjectTypeId),
+      "Inventory objects still has build object type"
+    );
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertTrue(Energy.getEnergy(aliceEntityId) == aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    assertTrue(
+      Mass.getMass(buildEntityId) == ObjectTypeMetadata.getMass(buildObjectTypeId),
+      "Build entity mass is not correct"
+    );
+    assertTrue(Mass.getMass(topEntityId) == 0, "Top entity mass is not correct");
+    assertTrue(
+      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord.x, forceFieldShardCoord.y, forceFieldShardCoord.z) ==
+        localMassBefore + ObjectTypeMetadata.getMass(buildObjectTypeId),
+      "Force field mass is not correct"
+    );
+  }
 
   function testJumpBuild() public {}
 
