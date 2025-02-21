@@ -78,13 +78,12 @@ contract MineTest is BiomesTest {
 
     VoxelCoord memory spawnCoord = world.getRandomSpawnCoord(blockNumber, alice, GRASS_LEVEL + 1);
 
-    ObjectTypeId terrainObjectTypeId = GrassObjectID;
-
     VoxelCoord memory mineCoord = VoxelCoord(
-      spawnCoord.x == CHUNK_SIZE ? spawnCoord.x - 1 : spawnCoord.x + 1,
+      spawnCoord.x == CHUNK_SIZE - 1 ? spawnCoord.x - 1 : spawnCoord.x + 1,
       GRASS_LEVEL,
       spawnCoord.z
     );
+    ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
 
     vm.startPrank(alice);
     EntityId aliceEntityId = world.randomSpawn(blockNumber, spawnCoord.y);
