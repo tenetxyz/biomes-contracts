@@ -32,7 +32,7 @@ import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID } from "../src/ObjectTypeIds.sol";
+import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
@@ -161,7 +161,45 @@ contract MineTest is BiomesTest {
     assertTrue(Energy.getEnergy(aliceEntityId) == aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
   }
 
-  function testMineMultiSize() public {}
+  function testMineMultiSize() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+
+    VoxelCoord memory mineCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL,
+      playerCoord.z
+    );
+    ObjectTypeId mineObjectTypeId = TextSignObjectID;
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    VoxelCoord memory topCoord = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
+    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    EntityId topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    assertTrue(mineEntityId.exists(), "Mine entity does not exist");
+    assertTrue(topEntityId.exists(), "Top entity does not exist");
+    assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 0, "Inventory count is not 0");
+
+    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+
+    vm.prank(alice);
+    startGasReport("mine multi-size with hand, entirely mined");
+    world.mine(mineCoord);
+    endGasReport();
+
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
+    assertTrue(ObjectType.get(topEntityId) == AirObjectID, "Top entity is not air");
+    assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 1, "Inventory count is not 1");
+    assertTrue(InventorySlots.get(aliceEntityId) == 1, "Inventory slots is not 1");
+    assertTrue(
+      testInventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
+      "Inventory objects does not have terrain object type"
+    );
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertTrue(Energy.getEnergy(aliceEntityId) == aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+  }
 
   function testMineFailsIfInvalidBlock() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();

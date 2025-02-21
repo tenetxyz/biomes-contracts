@@ -164,6 +164,20 @@ abstract contract BiomesTest is MudTest, GasReporter {
     Position.set(entityId, coord.x, coord.y, coord.z);
     ReversePosition.set(coord.x, coord.y, coord.z, entityId);
     Mass.set(entityId, ObjectTypeMetadata.getMass(objectTypeId));
+
+    VoxelCoord[] memory relativeCoords = getObjectTypeSchema(objectTypeId);
+    for (uint256 i = 0; i < relativeCoords.length; i++) {
+      VoxelCoord memory relativeCoord = VoxelCoord(
+        coord.x + relativeCoords[i].x,
+        coord.y + relativeCoords[i].y,
+        coord.z + relativeCoords[i].z
+      );
+      EntityId relativeEntityId = randomEntityId();
+      ObjectType.set(relativeEntityId, objectTypeId);
+      Position.set(relativeEntityId, relativeCoord.x, relativeCoord.y, relativeCoord.z);
+      ReversePosition.set(relativeCoord.x, relativeCoord.y, relativeCoord.z, relativeEntityId);
+      BaseEntity.set(relativeEntityId, entityId);
+    }
     return entityId;
   }
 
