@@ -30,7 +30,7 @@ import { MoveLib } from "./libraries/MoveLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract BuildSystem is System {
-  function _addBlock(ObjectTypeId objectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
+  function _addBlock(ObjectTypeId buildObjectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
     (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId, ) = coord.getOrCreateEntity();
     require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
@@ -38,11 +38,11 @@ contract BuildSystem is System {
       InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,
       "Cannot build where there are dropped objects"
     );
-    if (!ObjectTypeMetadata._getCanPassThrough(terrainObjectTypeId)) {
+    if (!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId)) {
       require(!coord.getPlayer().exists(), "Cannot build on a player");
     }
 
-    ObjectType._set(terrainEntityId, objectTypeId);
+    ObjectType._set(terrainEntityId, buildObjectTypeId);
 
     return terrainEntityId;
   }
