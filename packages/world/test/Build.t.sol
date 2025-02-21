@@ -21,6 +21,7 @@ import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
+import { Mass } from "../src/codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
@@ -29,7 +30,7 @@ import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
-
+import { ForceFieldMetadata } from "../src/codegen/tables/ForceFieldMetadata.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
@@ -41,7 +42,57 @@ import { TestUtils } from "./utils/TestUtils.sol";
 contract BuildTest is BiomesTest {
   using VoxelCoordLib for *;
 
-  function testBuildTerrain() public {}
+  function testBuildTerrain() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnFlatChunk();
+
+    VoxelCoord memory buildCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL + 1,
+      playerCoord.z
+    );
+    assertTrue(ObjectTypeId.wrap(TerrainLib.getBlockType(buildCoord)) == AirObjectID, "Build coord is not air");
+    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
+    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    assertTrue(!buildEntityId.exists(), "Build entity already exists");
+    assertTrue(InventoryCount.get(aliceEntityId, buildObjectTypeId) == 1, "Inventory count is not 0");
+
+    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    VoxelCoord memory forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
+    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(
+      forceFieldShardCoord.x,
+      forceFieldShardCoord.y,
+      forceFieldShardCoord.z
+    );
+
+    vm.prank(alice);
+    startGasReport("build terrain with hand");
+    world.build(buildObjectTypeId, buildCoord);
+    endGasReport();
+
+    buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
+    assertTrue(InventoryCount.get(aliceEntityId, buildObjectTypeId) == 0, "Inventory count is not 0");
+    assertTrue(InventorySlots.get(aliceEntityId) == 0, "Inventory slots is not 0");
+    assertTrue(
+      !TestUtils.inventoryObjectsHasObjectType(aliceEntityId, buildObjectTypeId),
+      "Inventory objects still has build object type"
+    );
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertTrue(Energy.getEnergy(aliceEntityId) == aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    assertTrue(
+      Mass.getMass(buildEntityId) == ObjectTypeMetadata.getMass(buildObjectTypeId),
+      "Build entity mass is not correct"
+    );
+    assertTrue(
+      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord.x, forceFieldShardCoord.y, forceFieldShardCoord.z) ==
+        localMassBefore + ObjectTypeMetadata.getMass(buildObjectTypeId),
+      "Force field mass is not correct"
+    );
+  }
 
   function testBuildNonTerrain() public {}
 
