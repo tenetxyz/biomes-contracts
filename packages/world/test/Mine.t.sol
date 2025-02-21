@@ -25,4 +25,30 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
 
-contract MineTest is BiomesTest {}
+contract MineTest is BiomesTest {
+  function testMineTerrain() public {}
+
+  function testMineNonTerrain() public {}
+
+  function testMineMultiSize() public {}
+
+  function testMineInForceField() public {}
+
+  function testMineOre() public {}
+
+  function testMineFailsIfForceField() public {}
+
+  function testMineFailsIfInvalidBlock() public {}
+
+  function testMineFailsIfInvalidCoord() public {}
+
+  function testMineFailsIfNotEnoughEnergy() public {}
+
+  function testMineFailsIfInventoryFull() public {}
+
+  function testMineFailsIfLoggedOut() public {}
+
+  function testMineFailsIfNoPlayer() public {}
+
+  function testMineFailsIfHasEnergy() public {}
+}
