@@ -202,7 +202,54 @@ contract BuildTest is BiomesTest {
     );
   }
 
-  function testJumpBuild() public {}
+  function testJumpBuild() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+
+    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
+    assertTrue(InventoryCount.get(aliceEntityId, buildObjectTypeId) == 1, "Inventory count is not 0");
+
+    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    VoxelCoord memory forceFieldShardCoord = playerCoord.toForceFieldShardCoord();
+    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(
+      forceFieldShardCoord.x,
+      forceFieldShardCoord.y,
+      forceFieldShardCoord.z
+    );
+
+    vm.prank(alice);
+    startGasReport("jump build");
+    world.jumpBuild(buildObjectTypeId);
+    endGasReport();
+
+    VoxelCoord memory playerCoordAfter = PlayerPosition.get(aliceEntityId).toVoxelCoord();
+    assertEq(playerCoordAfter.x, playerCoord.x, "Player coord x is not correct");
+    assertEq(playerCoordAfter.y, playerCoord.y + 1, "Player coord y is not correct");
+    assertEq(playerCoordAfter.z, playerCoord.z, "Player coord z is not correct");
+
+    EntityId buildEntityId = ReversePosition.get(playerCoord.x, playerCoord.y, playerCoord.z);
+    assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
+    assertTrue(InventoryCount.get(aliceEntityId, buildObjectTypeId) == 0, "Inventory count is not 0");
+    assertTrue(InventorySlots.get(aliceEntityId) == 0, "Inventory slots is not 0");
+    assertTrue(
+      !TestUtils.inventoryObjectsHasObjectType(aliceEntityId, buildObjectTypeId),
+      "Inventory objects still has build object type"
+    );
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertTrue(Energy.getEnergy(aliceEntityId) == aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    assertTrue(
+      Mass.getMass(buildEntityId) == ObjectTypeMetadata.getMass(buildObjectTypeId),
+      "Build entity mass is not correct"
+    );
+    assertTrue(
+      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord.x, forceFieldShardCoord.y, forceFieldShardCoord.z) ==
+        localMassBefore + ObjectTypeMetadata.getMass(buildObjectTypeId),
+      "Force field mass is not correct"
+    );
+  }
 
   function testBuildFailsIfNonAir() public {}
 
