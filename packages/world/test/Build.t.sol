@@ -38,14 +38,30 @@ import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from 
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
-contract ForceFieldTest is BiomesTest {
+contract BuildTest is BiomesTest {
   using VoxelCoordLib for *;
 
-  function testMineWithForceField() public {}
+  function testBuildTerrain() public {}
 
-  function testMineFailsWithForceFieldNotApproved() public {}
+  function testBuildNonTerrain() public {}
 
-  function testBuildWithForceField() public {}
+  function testBuildMultiSize() public {}
 
-  function testBuildFailsWithForceFieldNotApproved() public {}
+  function testJumpBuild() public {}
+
+  function testBuildFailsIfNonAir() public {}
+
+  function testBuildFailsInvalidBlock() public {}
+
+  function testBuildFailsIfHasDroppedObjects() public {}
+
+  function testBuildFailsIfInvalidCoord() public {}
+
+  function testBuildFailsIfNotEnoughEnergy() public {}
+
+  function testBuildFailsIfDoesntHaveBlock() public {}
+
+  function testBuildFailsIfNoPlayer() public {}
+
+  function testBuildFailsIfLoggedOut() public {}
 }
