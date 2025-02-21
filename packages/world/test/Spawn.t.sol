@@ -27,6 +27,7 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, ChipObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord } from "../src/VoxelCoord.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY } from "../src/Constants.sol";
+import { TestUtils } from "./utils/TestUtils.sol";
 
 contract TestSpawnChip is ISpawnTileChip, System {
   function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
@@ -111,7 +112,7 @@ contract SpawnTest is BiomesTest {
     (EntityId bobEntityId, address bob) = createTestPlayer(
       VoxelCoord(spawnTileCoord.x - 1, spawnTileCoord.y, spawnTileCoord.z)
     );
-    testUtils.addToInventoryCount(bobEntityId, PlayerObjectID, ChipObjectID, 1);
+    TestUtils.addToInventoryCount(bobEntityId, PlayerObjectID, ChipObjectID, 1);
     vm.prank(bob);
     world.attachChip(spawnTileEntityId, chipSystemId);
 

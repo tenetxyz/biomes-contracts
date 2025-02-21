@@ -33,12 +33,9 @@ import { getObjectTypeSchema } from "../src/utils/ObjectTypeUtils.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
-import { TestUtils } from "./utils/TestUtils.sol";
-
 abstract contract BiomesTest is MudTest, GasReporter {
   using VoxelCoordLib for *;
 
-  TestUtils immutable testUtils = new TestUtils(vm.envAddress("WORLD_ADDRESS"));
   IWorld internal world;
   int32 constant FLAT_CHUNK_GRASS_LEVEL = 4;
   uint128 playerHandMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST);

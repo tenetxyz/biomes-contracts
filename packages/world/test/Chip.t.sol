@@ -36,7 +36,7 @@ import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObje
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
-import { testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
+import { TestUtils } from "./utils/TestUtils.sol";
 
 contract ChipTest is BiomesTest {
   using VoxelCoordLib for *;

@@ -26,15 +26,14 @@ import { addToInventoryCount as _addToInventoryCount, removeFromInventoryCount a
 
 Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
-contract TestUtils {
-  address private immutable world;
-
+library TestUtils {
   /// @dev Allows calling test utils in the context of world
-  modifier testUtil() {
+  modifier asWorld() {
+    address world = WorldContextConsumerLib._world();
     if (address(this) != world) {
       // Next delegatecall will be from world
       vm.prank(world, true);
-      (bool success, bytes memory data) = address(this).delegatecall(msg.data);
+      (bool success, bytes memory data) = address(TestUtils).delegatecall(msg.data);
       /// @solidity memory-safe-assembly
       assembly {
         let dataOffset := add(data, 0x20)
@@ -52,11 +51,7 @@ contract TestUtils {
     _;
   }
 
-  constructor(address _world) {
-    world = _world;
-  }
-
-  function gravityApplies(VoxelCoord memory playerCoord) public testUtil returns (bool res) {
+  function gravityApplies(VoxelCoord memory playerCoord) public asWorld returns (bool res) {
     return _gravityApplies(playerCoord);
   }
 
@@ -65,7 +60,7 @@ contract TestUtils {
     ObjectTypeId ownerObjectTypeId,
     ObjectTypeId objectTypeId,
     uint16 numObjectsToAdd
-  ) public testUtil {
+  ) public asWorld {
     _addToInventoryCount(ownerEntityId, ownerObjectTypeId, objectTypeId, numObjectsToAdd);
   }
 
@@ -73,25 +68,25 @@ contract TestUtils {
     EntityId ownerEntityId,
     ObjectTypeId objectTypeId,
     uint16 numObjectsToRemove
-  ) public testUtil {
+  ) public asWorld {
     _removeFromInventoryCount(ownerEntityId, objectTypeId, numObjectsToRemove);
   }
 
-  function useEquipped(EntityId entityId) public testUtil {
+  function useEquipped(EntityId entityId) public asWorld {
     _useEquipped(entityId);
   }
 
   function removeEntityIdFromReverseInventoryEntity(
     EntityId ownerEntityId,
     EntityId removeInventoryEntityId
-  ) public testUtil {
+  ) public asWorld {
     _removeEntityIdFromReverseInventoryEntity(ownerEntityId, removeInventoryEntityId);
   }
 
   function removeObjectTypeIdFromInventoryObjects(
     EntityId ownerEntityId,
     ObjectTypeId removeObjectTypeId
-  ) public testUtil {
+  ) public asWorld {
     _removeObjectTypeIdFromInventoryObjects(ownerEntityId, removeObjectTypeId);
   }
 
@@ -99,7 +94,7 @@ contract TestUtils {
     EntityId fromEntityId,
     EntityId toEntityId,
     ObjectTypeId toObjectTypeId
-  ) public returns (uint256) {
+  ) public asWorld returns (uint256) {
     return _transferAllInventoryEntities(fromEntityId, toEntityId, toObjectTypeId);
   }
 
@@ -109,7 +104,7 @@ contract TestUtils {
     ObjectTypeId dstObjectTypeId,
     ObjectTypeId transferObjectTypeId,
     uint16 numObjectsToTransfer
-  ) public {
+  ) public asWorld {
     _transferInventoryNonEntity(srcEntityId, dstEntityId, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);
   }
 
@@ -118,25 +113,21 @@ contract TestUtils {
     EntityId dstEntityId,
     ObjectTypeId dstObjectTypeId,
     EntityId inventoryEntityId
-  ) public returns (ObjectTypeId) {
+  ) public asWorld returns (ObjectTypeId) {
     return _transferInventoryEntity(srcEntityId, dstEntityId, dstObjectTypeId, inventoryEntityId);
   }
-}
 
-// TODO: remove
-function testGetUniqueEntity() returns (EntityId) {
-  uint256 uniqueEntity = UniqueEntity.get() + 1;
-  UniqueEntity.set(uniqueEntity);
-
-  return EntityId.wrap(bytes32(uniqueEntity));
-}
-
-function testInventoryObjectsHasObjectType(EntityId ownerEntityId, ObjectTypeId objectTypeId) view returns (bool) {
-  uint16[] memory inventoryObjectTypes = InventoryObjects.get(ownerEntityId);
-  for (uint256 i = 0; i < inventoryObjectTypes.length; i++) {
-    if (inventoryObjectTypes[i] == ObjectTypeId.unwrap(objectTypeId)) {
-      return true;
+  // No need to use asWorld here
+  function inventoryObjectsHasObjectType(
+    EntityId ownerEntityId,
+    ObjectTypeId objectTypeId
+  ) internal view returns (bool) {
+    uint16[] memory inventoryObjectTypes = InventoryObjects.get(ownerEntityId);
+    for (uint256 i = 0; i < inventoryObjectTypes.length; i++) {
+      if (inventoryObjectTypes[i] == ObjectTypeId.unwrap(objectTypeId)) {
+        return true;
+      }
     }
+    return false;
   }
-  return false;
 }
