@@ -20,6 +20,7 @@ import { TerrainLib } from "./systems/libraries/TerrainLib.sol";
 import { getUniqueEntity } from "./Utils.sol";
 import { floorDiv, absInt32 } from "./utils/MathUtils.sol";
 import { FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM, CHUNK_SIZE } from "./Constants.sol";
+import { getObjectTypeSchema } from "./utils/ObjectTypeUtils.sol";
 import { ChunkCoord } from "./Types.sol";
 
 struct VoxelCoord {
@@ -304,9 +305,10 @@ library VoxelCoordLib {
     return (entityId, ObjectType._get(entityId));
   }
 
-  function getOrCreateEntity(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId) {
+  function getOrCreateEntity(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId, bool) {
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     ObjectTypeId objectTypeId;
+    bool isTerrain = true;
     if (!entityId.exists()) {
       // TODO: move wrapping to TerrainLib?
       objectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
@@ -315,13 +317,12 @@ library VoxelCoordLib {
       Position._set(entityId, coord.x, coord.y, coord.z);
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
       ObjectType._set(entityId, objectTypeId);
-
-      Mass._setMass(entityId, ObjectTypeMetadata._getMass(objectTypeId));
     } else {
+      isTerrain = false;
       objectTypeId = ObjectType._get(entityId);
     }
 
-    return (entityId, objectTypeId);
+    return (entityId, objectTypeId, isTerrain);
   }
 
   function getPlayer(VoxelCoord memory coord) internal view returns (EntityId) {
@@ -331,6 +332,27 @@ library VoxelCoordLib {
   function setPlayer(VoxelCoord memory coord, EntityId playerEntityId) internal {
     PlayerPosition._set(playerEntityId, coord.x, coord.y, coord.z);
     ReversePlayerPosition._set(coord.x, coord.y, coord.z, playerEntityId);
+  }
+
+  /// @dev Get relative schema coords, including base coord
+  function getRelativeCoords(
+    VoxelCoord memory baseCoord,
+    ObjectTypeId objectTypeId
+  ) internal pure returns (VoxelCoord[] memory) {
+    VoxelCoord[] memory schemaCoords = getObjectTypeSchema(objectTypeId);
+    VoxelCoord[] memory coords = new VoxelCoord[](schemaCoords.length + 1);
+
+    coords[0] = baseCoord;
+
+    for (uint256 i = 0; i < schemaCoords.length; i++) {
+      coords[i + 1] = VoxelCoord(
+        baseCoord.x + schemaCoords[i].x,
+        baseCoord.y + schemaCoords[i].y,
+        baseCoord.z + schemaCoords[i].z
+      );
+    }
+
+    return coords;
   }
 }
 

@@ -29,8 +29,9 @@ library MoveLib {
     VoxelCoord[] memory newCoords
   ) public returns (bool, VoxelCoord memory) {
     VoxelCoord[] memory relativePositions = getObjectTypeSchema(PlayerObjectID);
+    EntityId[] memory playerEntityIds = new EntityId[](relativePositions.length + 1);
+    playerEntityIds[0] = playerEntityId;
 
-    EntityId[] memory relativeEntityIds = new EntityId[](relativePositions.length);
     VoxelCoord[] memory relativeCoords = new VoxelCoord[](relativePositions.length);
     for (uint256 i = 0; i < relativePositions.length; i++) {
       VoxelCoord memory relativeCoord = VoxelCoord(
@@ -38,10 +39,10 @@ library MoveLib {
         playerCoord.y + relativePositions[i].y,
         playerCoord.z + relativePositions[i].z
       );
-      relativeEntityIds[i] = relativeCoord.getPlayer();
+      playerEntityIds[i + 1] = relativeCoord.getPlayer();
       relativeCoords[i] = relativeCoord;
       // TODO: do we need this check?
-      require(relativeEntityIds[i].baseEntityId() == playerEntityId, "Base entity mismatch");
+      require(playerEntityIds[i + 1].baseEntityId() == playerEntityId, "Base entity mismatch");
     }
 
     bool gravityAppliesForCoord = false;
@@ -52,7 +53,7 @@ library MoveLib {
       VoxelCoord memory oldCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
       for (uint256 i = 0; i < newCoords.length; i++) {
         VoxelCoord memory newCoord = newCoords[i];
-        (, gravityAppliesForCoord) = move(playerEntityId, oldCoord, newCoord);
+        (, gravityAppliesForCoord) = move(playerEntityIds, oldCoord, newCoord);
 
         for (uint256 j = 0; j < relativePositions.length; j++) {
           VoxelCoord memory oldRelativeCoord = VoxelCoord(
@@ -65,7 +66,7 @@ library MoveLib {
             newCoord.y + relativePositions[j].y,
             newCoord.z + relativePositions[j].z
           );
-          move(relativeEntityIds[j], oldRelativeCoord, newRelativeCoord);
+          move(playerEntityIds, oldRelativeCoord, newRelativeCoord);
         }
 
         if (gravityAppliesForCoord) {
@@ -101,7 +102,7 @@ library MoveLib {
           finalCoord.y + relativePositions[i].y,
           finalCoord.z + relativePositions[i].z
         );
-        newRelativeCoord.setPlayer(relativeEntityIds[i]);
+        newRelativeCoord.setPlayer(playerEntityIds[i + 1]);
       }
     }
 
@@ -116,7 +117,7 @@ library MoveLib {
   }
 
   function move(
-    EntityId playerEntityId,
+    EntityId[] memory playerEntityIds,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
   ) internal view returns (EntityId, bool) {
@@ -127,9 +128,18 @@ library MoveLib {
     require(ObjectTypeMetadata._getCanPassThrough(newObjectTypeId), "Cannot move through a non-passable block");
 
     EntityId playerEntityIdAtCoord = newCoord.getPlayer();
-    // If the entity we're moving into is this player, then it's fine as
-    // the player will be moved from the old position to the new position
-    require(!playerEntityIdAtCoord.exists() || playerEntityIdAtCoord == playerEntityId, "Cannot move through a player");
+    if (playerEntityIdAtCoord.exists()) {
+      // If the entity we're moving into is this player, then it's fine as
+      // the player will be moved from the old position to the new position
+      bool isSelf = false;
+      for (uint256 i = 0; i < playerEntityIds.length; i++) {
+        if (playerEntityIds[i] == playerEntityIdAtCoord) {
+          isSelf = true;
+          break;
+        }
+      }
+      require(isSelf, "Cannot move through a player");
+    }
 
     return (newEntityId, gravityApplies(newCoord));
   }
@@ -158,7 +168,7 @@ library MoveLib {
       return false;
     }
 
-    (, ObjectTypeId belowObjectTypeId) = belowCoord.getOrCreateEntity();
+    (, ObjectTypeId belowObjectTypeId) = belowCoord.getEntity();
     if (!ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
       return false;
     }

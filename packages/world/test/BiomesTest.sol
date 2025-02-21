@@ -59,7 +59,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
   }
 
   // Create a valid player that can perform actions
-  function createTestPlayer(VoxelCoord memory coord) internal returns (EntityId, address) {
+  function createTestPlayer(VoxelCoord memory coord) internal returns (address, EntityId) {
     address playerAddress = vm.randomAddress();
     EntityId playerEntityId = randomEntityId();
     ObjectType.set(playerEntityId, PlayerObjectID);
@@ -88,7 +88,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
 
     PlayerActivity.set(playerEntityId, uint128(block.timestamp));
 
-    return (playerEntityId, playerAddress);
+    return (playerAddress, playerEntityId);
   }
 
   function _getFlatChunk() internal pure returns (uint8[][][] memory chunk) {
@@ -122,12 +122,16 @@ abstract contract BiomesTest is MudTest, GasReporter {
     LocalEnergyPool.set(shardCoord.x, 0, shardCoord.z, 1e18);
   }
 
-  function spawnPlayerOnFlatChunk() internal returns (address, EntityId, VoxelCoord memory) {
-    uint256 blockNumber = block.number - 5;
-    address alice = vm.randomAddress();
+  function setupFlatChunkWithPlayer() internal returns (address, EntityId, VoxelCoord memory) {
     setupFlatChunk(VoxelCoord(0, 0, 0));
+    return spawnPlayerOnFlatChunk(FLAT_CHUNK_GRASS_LEVEL + 1);
+  }
 
-    VoxelCoord memory spawnCoord = world.getRandomSpawnCoord(blockNumber, alice, FLAT_CHUNK_GRASS_LEVEL + 1);
+  function spawnPlayerOnFlatChunk(int32 y) internal returns (address, EntityId, VoxelCoord memory) {
+    uint256 blockNumber = block.number - 5;
+
+    address alice = vm.randomAddress();
+    VoxelCoord memory spawnCoord = world.getRandomSpawnCoord(blockNumber, alice, y);
 
     vm.prank(alice);
     EntityId aliceEntityId = world.randomSpawn(blockNumber, spawnCoord.y);
@@ -185,15 +189,17 @@ abstract contract BiomesTest is MudTest, GasReporter {
     return entityId;
   }
 
-  function spawnPlayerOnAirChunk() internal returns (address, EntityId, VoxelCoord memory) {
+  function setupAirChunkWithPlayer() internal returns (address, EntityId, VoxelCoord memory) {
     setupAirChunk(VoxelCoord(0, 0, 0));
+    return spawnPlayerOnAirChunk(VoxelCoord(0, 1, 0));
+  }
 
-    VoxelCoord memory spawnCoord = VoxelCoord(0, 1, 0);
+  function spawnPlayerOnAirChunk(VoxelCoord memory spawnCoord) internal returns (address, EntityId, VoxelCoord memory) {
     VoxelCoord memory belowCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
     setObjectAtCoord(spawnCoord, AirObjectID);
     setObjectAtCoord(belowCoord, DirtObjectID);
 
-    (EntityId aliceEntityId, address alice) = createTestPlayer(spawnCoord);
+    (address alice, EntityId aliceEntityId) = createTestPlayer(spawnCoord);
     VoxelCoord memory playerCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
 
     return (alice, aliceEntityId, playerCoord);

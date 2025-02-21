@@ -109,7 +109,7 @@ contract SpawnTest is BiomesTest {
     world.transferOwnership(namespaceId, address(0));
 
     // Attach chip with test player
-    (EntityId bobEntityId, address bob) = createTestPlayer(
+    (address bob, EntityId bobEntityId) = createTestPlayer(
       VoxelCoord(spawnTileCoord.x - 1, spawnTileCoord.y, spawnTileCoord.z)
     );
     TestUtils.addToInventoryCount(bobEntityId, PlayerObjectID, ChipObjectID, 1);

@@ -31,7 +31,7 @@ contract InitTerrainBlocksSystem is System {
       terrainBlockObjectTypeId,
       ObjectTypeMetadataData({
         stackable: MAX_BLOCK_STACKABLE,
-        maxInventorySlots: 0,
+        maxInventorySlots: type(uint16).max,
         mass: mass,
         energy: 0,
         canPassThrough: true
