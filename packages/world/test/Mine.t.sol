@@ -36,7 +36,7 @@ import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObje
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
-import { testInventoryObjectsHasObjectType, testAddToInventoryCount } from "./utils/TestUtils.sol";
+import { TestUtils } from "./utils/TestUtils.sol";
 
 contract MineTest is BiomesTest {
   using VoxelCoordLib for *;
@@ -69,7 +69,7 @@ contract MineTest is BiomesTest {
     assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 1, "Inventory count is not 1");
     assertTrue(InventorySlots.get(aliceEntityId) == 1, "Inventory slots is not 1");
     assertTrue(
-      testInventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
+      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
       "Inventory objects does not have terrain object type"
     );
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
@@ -117,7 +117,7 @@ contract MineTest is BiomesTest {
     assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 1, "Inventory count is not 1");
     assertTrue(InventorySlots.get(aliceEntityId) == 1, "Inventory slots is not 1");
     assertTrue(
-      testInventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
+      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
       "Inventory objects does not have terrain object type"
     );
     energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
@@ -153,7 +153,7 @@ contract MineTest is BiomesTest {
     assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 1, "Inventory count is not 1");
     assertTrue(InventorySlots.get(aliceEntityId) == 1, "Inventory slots is not 1");
     assertTrue(
-      testInventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
+      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
       "Inventory objects does not have terrain object type"
     );
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
@@ -193,7 +193,7 @@ contract MineTest is BiomesTest {
     assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 1, "Inventory count is not 1");
     assertTrue(InventorySlots.get(aliceEntityId) == 1, "Inventory slots is not 1");
     assertTrue(
-      testInventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
+      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
       "Inventory objects does not have terrain object type"
     );
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
@@ -218,7 +218,7 @@ contract MineTest is BiomesTest {
     assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 1, "Inventory count is not 1");
     assertTrue(InventorySlots.get(aliceEntityId) == 1, "Inventory slots is not 1");
     assertTrue(
-      testInventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
+      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
       "Inventory objects does not have terrain object type"
     );
   }
@@ -298,7 +298,7 @@ contract MineTest is BiomesTest {
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
-    testAddToInventoryCount(
+    TestUtils.addToInventoryCount(
       aliceEntityId,
       PlayerObjectID,
       mineObjectTypeId,

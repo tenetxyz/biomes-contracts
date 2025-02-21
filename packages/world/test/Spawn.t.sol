@@ -7,7 +7,7 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { BiomesTest, console } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ExploredChunk } from "../src/codegen/tables/ExploredChunk.sol";
 import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
@@ -27,7 +27,7 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, ChipObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord } from "../src/VoxelCoord.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY } from "../src/Constants.sol";
-import { testAddToInventoryCount } from "./utils/TestUtils.sol";
+import { TestUtils } from "./utils/TestUtils.sol";
 
 contract TestSpawnChip is ISpawnTileChip, System {
   function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
@@ -47,33 +47,14 @@ contract SpawnTest is BiomesTest {
     return MAX_PLAYER_ENERGY + massToEnergy(playerMass);
   }
 
-  function exploreChunk(VoxelCoord memory coord) internal {
-    ChunkCoord memory chunkCoord = coord.toChunkCoord();
-    ExploredChunk.set(chunkCoord.x, chunkCoord.y, chunkCoord.z, address(0));
-    uint256 exploredChunkCount = ExploredChunkCount.get();
-    ExploredChunkByIndex.set(exploredChunkCount, chunkCoord.x, chunkCoord.y, chunkCoord.z);
-    ExploredChunkCount.set(exploredChunkCount + 1);
-  }
-
   function testRandomSpawn() public {
     uint256 blockNumber = block.number - 5;
     address alice = vm.randomAddress();
 
     // Explore chunk at (0, 0, 0)
-    exploreChunk(VoxelCoord(0, 0, 0));
+    setupAirChunk(VoxelCoord(0, 0, 0));
 
     VoxelCoord memory spawnCoord = world.getRandomSpawnCoord(blockNumber, alice, 0);
-
-    // Set the spawn coord to Air
-    EntityId entityId = randomEntityId();
-    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, entityId);
-    ObjectType.set(entityId, AirObjectID);
-
-    {
-      EntityId topEntityId = randomEntityId();
-      ReversePosition.set(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z, topEntityId);
-      ObjectType.set(topEntityId, AirObjectID);
-    }
 
     // Set below entity to dirt so gravity doesn't apply
     EntityId belowEntityId = randomEntityId();
@@ -107,22 +88,10 @@ contract SpawnTest is BiomesTest {
     VoxelCoord memory spawnCoord = VoxelCoord(0, 0, 0);
     VoxelCoord memory spawnTileCoord = VoxelCoord(0, spawnCoord.y - 1, 0);
 
-    // Set the spawn coord to Air
-    EntityId spawnEntityId = randomEntityId();
-    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, spawnEntityId);
-    ObjectType.set(spawnEntityId, AirObjectID);
-
-    // Set the top entity to Air
-    {
-      EntityId topEntityId = randomEntityId();
-      ReversePosition.set(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z, topEntityId);
-      ObjectType.set(topEntityId, AirObjectID);
-    }
+    setupAirChunk(spawnCoord);
 
     // Set forcefield
-    EntityId forceFieldEntityId = randomEntityId();
-    VoxelCoord memory shardCoord = spawnTileCoord.toForceFieldShardCoord();
-    ForceField.set(shardCoord.x, shardCoord.y, shardCoord.z, forceFieldEntityId);
+    EntityId forceFieldEntityId = setupForceField(spawnTileCoord);
     Energy.set(forceFieldEntityId, EnergyData({ energy: spawnEnergy(), lastUpdatedTime: uint128(block.timestamp) }));
 
     // Set below entity to spawn tile
@@ -143,7 +112,7 @@ contract SpawnTest is BiomesTest {
     (EntityId bobEntityId, address bob) = createTestPlayer(
       VoxelCoord(spawnTileCoord.x - 1, spawnTileCoord.y, spawnTileCoord.z)
     );
-    testAddToInventoryCount(bobEntityId, PlayerObjectID, ChipObjectID, 1);
+    TestUtils.addToInventoryCount(bobEntityId, PlayerObjectID, ChipObjectID, 1);
     vm.prank(bob);
     world.attachChip(spawnTileEntityId, chipSystemId);
 
@@ -170,16 +139,10 @@ contract SpawnTest is BiomesTest {
     VoxelCoord memory spawnCoord = VoxelCoord(0, 0, 0);
     VoxelCoord memory spawnTileCoord = VoxelCoord(500, 0, 0);
 
-    // Set the spawn coord to Air
-    EntityId spawnEntityId = randomEntityId();
-    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, spawnEntityId);
-    ObjectType.set(spawnEntityId, AirObjectID);
+    setupAirChunk(spawnCoord);
 
     // Set forcefield
-    EntityId forceFieldEntityId = randomEntityId();
-    VoxelCoord memory shardCoord = spawnTileCoord.toForceFieldShardCoord();
-    ForceField.set(shardCoord.x, shardCoord.y, shardCoord.z, forceFieldEntityId);
-    Energy.set(forceFieldEntityId, EnergyData({ energy: spawnEnergy(), lastUpdatedTime: uint128(block.timestamp) }));
+    setupForceField(spawnTileCoord);
 
     // Set Far away entity to spawn tile
     EntityId spawnTileEntityId = randomEntityId();
@@ -197,10 +160,7 @@ contract SpawnTest is BiomesTest {
     VoxelCoord memory spawnCoord = VoxelCoord(0, 0, 0);
     VoxelCoord memory spawnTileCoord = VoxelCoord(0, spawnCoord.y - 1, 0);
 
-    // Set the spawn coord to Air
-    EntityId spawnEntityId = randomEntityId();
-    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, spawnEntityId);
-    ObjectType.set(spawnEntityId, AirObjectID);
+    setupAirChunk(spawnCoord);
 
     // Set below entity to spawn tile (no forcefield)
     EntityId spawnTileEntityId = randomEntityId();
@@ -218,15 +178,10 @@ contract SpawnTest is BiomesTest {
     VoxelCoord memory spawnCoord = VoxelCoord(0, 0, 0);
     VoxelCoord memory spawnTileCoord = VoxelCoord(0, spawnCoord.y - 1, 0);
 
-    // Set the spawn coord to Air
-    EntityId spawnEntityId = randomEntityId();
-    ReversePosition.set(spawnCoord.x, spawnCoord.y, spawnCoord.z, spawnEntityId);
-    ObjectType.set(spawnEntityId, AirObjectID);
+    setupAirChunk(spawnCoord);
 
     // Set forcefield with no energy
-    EntityId forceFieldEntityId = randomEntityId();
-    VoxelCoord memory shardCoord = spawnTileCoord.toForceFieldShardCoord();
-    ForceField.set(shardCoord.x, shardCoord.y, shardCoord.z, forceFieldEntityId);
+    setupForceField(spawnTileCoord);
 
     // Set below entity to spawn tile
     EntityId spawnTileEntityId = randomEntityId();

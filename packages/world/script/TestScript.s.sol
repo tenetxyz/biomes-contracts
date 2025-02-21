@@ -25,7 +25,7 @@ import { Mass } from "../src/codegen/tables/Mass.sol";
 import { GrassObjectID, DirtObjectID, OakLogObjectID, StoneObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, NeptuniumPickObjectID, SandObjectID, AirObjectID, ChipObjectID, ChipBatteryObjectID, ForceFieldObjectID, ReinforcedOakLumberObjectID, ReinforcedBirchLumberObjectID, ReinforcedRubberLumberObjectID, BedrockObjectID, OakLumberObjectID, SilverBarObjectID, SilverPickObjectID, CobblestoneBrickObjectID, DyeomaticObjectID, CoalOreObjectID, PlayerObjectID, WoodenPickObjectID, ChestObjectID, SmartChestObjectID, TextSignObjectID, SmartTextSignObjectID, PipeObjectID } from "../src/ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID, BlueGlassObjectID, PowerStoneObjectID } from "../src/ObjectTypeIds.sol";
 import { addToInventoryCount } from "../src/utils/InventoryUtils.sol";
-import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount, testRemoveEntityIdFromReverseInventoryEntity } from "../test/utils/TestUtils.sol";
+// import { testGetUniqueEntity, testAddToInventoryCount, testRemoveFromInventoryCount, testRemoveEntityIdFromReverseInventoryEntity } from "../test/utils/TestUtils.sol";
 import { EntityId } from "../src/EntityId.sol";
 
 contract TestScript is Script {
@@ -42,31 +42,31 @@ contract TestScript is Script {
     EntityId playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
     require(playerEntityId.exists(), "Player entity not found");
     // testRemoveFromInventoryCount(playerEntityId, 162, 10);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockObjectID, 4);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 10);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 99);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 2);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, TextSignObjectID, 15);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartTextSignObjectID, 15);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, PipeObjectID, 99);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, PowerStoneObjectID, 1);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, OakLogObjectID, 99);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartChestObjectID, 4);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, BlueGlassObjectID, 99);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, CoalOreObjectID, 99);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverBarObjectID, 99);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, SandObjectID, 99);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, StoneObjectID, 99);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, BedrockObjectID, 4);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 10);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, ChipBatteryObjectID, 99);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, ForceFieldObjectID, 2);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, TextSignObjectID, 15);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartTextSignObjectID, 15);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, PipeObjectID, 99);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, PowerStoneObjectID, 1);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, OakLogObjectID, 99);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, ChestObjectID, 1);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, SmartChestObjectID, 4);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, BlueGlassObjectID, 99);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, CoalOreObjectID, 99);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, SilverBarObjectID, 99);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, SandObjectID, 99);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, StoneObjectID, 99);
 
-    EntityId newInventoryEntityId = testGetUniqueEntity();
-    ObjectType.set(newInventoryEntityId, NeptuniumPickObjectID);
-    InventoryEntity.set(newInventoryEntityId, playerEntityId);
-    ReverseInventoryEntity.push(playerEntityId, EntityId.unwrap(newInventoryEntityId));
-    uint128 mass = ObjectTypeMetadata.getMass(NeptuniumPickObjectID);
-    require(mass > 0, "Mass must be greater than 0");
-    Mass.setMass(newInventoryEntityId, mass);
-    testAddToInventoryCount(playerEntityId, PlayerObjectID, NeptuniumPickObjectID, 1);
+    // EntityId newInventoryEntityId = testGetUniqueEntity();
+    // ObjectType.set(newInventoryEntityId, NeptuniumPickObjectID);
+    // InventoryEntity.set(newInventoryEntityId, playerEntityId);
+    // ReverseInventoryEntity.push(playerEntityId, EntityId.unwrap(newInventoryEntityId));
+    // uint128 mass = ObjectTypeMetadata.getMass(NeptuniumPickObjectID);
+    // require(mass > 0, "Mass must be greater than 0");
+    // Mass.setMass(newInventoryEntityId, mass);
+    // testAddToInventoryCount(playerEntityId, PlayerObjectID, NeptuniumPickObjectID, 1);
 
     // Destroy equipped item
     // bytes32 inventoryEntityId = 0x000000000000000000000000000000000000000000000000000000000004bbb3;
