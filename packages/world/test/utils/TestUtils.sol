@@ -10,7 +10,8 @@ import { EntityId } from "../../src/EntityId.sol";
 
 import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";
 import { InventoryObjects } from "../../src/codegen/tables/InventoryObjects.sol";
-import { ObjectTypeId } from "../../src/ObjectTypeIds.sol";
+import { InventoryCount } from "../../src/codegen/tables/InventoryCount.sol";
+import { ObjectAmount, ObjectTypeId, getOreObjectTypes } from "../../src/ObjectTypeIds.sol";
 import { gravityApplies as _gravityApplies } from "../../src/Utils.sol";
 import { addToInventoryCount as _addToInventoryCount, removeFromInventoryCount as _removeFromInventoryCount, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
 
@@ -130,5 +131,25 @@ library TestUtils {
       }
     }
     return false;
+  }
+
+  function inventoryGetOreAmounts(EntityId owner) internal view returns (ObjectAmount[] memory) {
+    ObjectTypeId[] memory ores = getOreObjectTypes();
+
+    uint256 numOres = 0;
+    for (uint256 i = 0; i < ores.length; i++) {
+      if (InventoryCount.get(owner, ores[i]) > 0) numOres++;
+    }
+
+    ObjectAmount[] memory oreAmounts = new ObjectAmount[](numOres);
+    for (uint256 i = 0; i < ores.length; i++) {
+      uint16 count = InventoryCount.get(owner, ores[i]);
+      if (count > 0) {
+        oreAmounts[numOres - 1] = ObjectAmount(ores[i], count);
+        numOres--;
+      }
+    }
+
+    return oreAmounts;
   }
 }

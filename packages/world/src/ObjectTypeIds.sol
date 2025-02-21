@@ -272,12 +272,12 @@ function neq(ObjectTypeId self, ObjectTypeId other) pure returns (bool) {
   return ObjectTypeId.unwrap(self) != ObjectTypeId.unwrap(other);
 }
 
-library ObjectTypeIdLib {
-  struct ObjectAmount {
-    ObjectTypeId objectTypeId;
-    uint16 amount;
-  }
+struct ObjectAmount {
+  ObjectTypeId objectTypeId;
+  uint16 amount;
+}
 
+library ObjectTypeIdLib {
   function unwrap(ObjectTypeId self) internal pure returns (uint16) {
     return ObjectTypeId.unwrap(self);
   }
@@ -458,6 +458,16 @@ function getGlassObjectTypes() pure returns (ObjectTypeId[] memory) {
   result[7] = WhiteGlassObjectID;
   result[8] = YellowGlassObjectID;
   result[9] = BlackGlassObjectID;
+  return result;
+}
+
+function getOreObjectTypes() pure returns (ObjectTypeId[] memory) {
+  ObjectTypeId[] memory result = new ObjectTypeId[](5);
+  result[0] = CoalOreObjectID;
+  result[1] = SilverOreObjectID;
+  result[2] = GoldOreObjectID;
+  result[3] = DiamondOreObjectID;
+  result[4] = NeptuniumOreObjectID;
   return result;
 }
 

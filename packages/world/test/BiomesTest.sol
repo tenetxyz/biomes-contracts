@@ -23,6 +23,7 @@ import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerActivity } from "../src/codegen/tables/PlayerActivity.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
+import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ChunkCoord } from "../src/Types.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
@@ -164,6 +165,17 @@ abstract contract BiomesTest is MudTest, GasReporter {
 
     VoxelCoord memory shardCoord = coord.toLocalEnergyPoolShardCoord();
     LocalEnergyPool.set(shardCoord.x, 0, shardCoord.z, 1e18);
+  }
+
+  function setTerrainAtCoord(VoxelCoord memory coord, ObjectTypeId objectTypeId) internal {
+    address chunkPointer = TerrainLib._getChunkPointer(coord.toChunkCoord(), worldAddress);
+    uint256 blockIndex = TerrainLib._getBlockIndex(coord);
+
+    bytes memory chunk = chunkPointer.code;
+    // Add SSTORE2 offset
+    chunk[blockIndex + 1] = bytes1(uint8(objectTypeId.unwrap()));
+
+    vm.etch(chunkPointer, chunk);
   }
 
   function setObjectAtCoord(VoxelCoord memory coord, ObjectTypeId objectTypeId) internal returns (EntityId) {
