@@ -23,7 +23,8 @@ import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
-import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
+import { VoxelCoord } from "../src/VoxelCoord.sol";
+import { ChunkCoord } from "../src/Types.sol";
 import { CHUNK_SIZE, CHUNK_COMMIT_EXPIRY_BLOCKS } from "../src/Constants.sol";
 
 contract OreTest is BiomesTest {
