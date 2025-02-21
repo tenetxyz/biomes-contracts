@@ -14,6 +14,8 @@ import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
+import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
+import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
@@ -28,6 +30,7 @@ import { ChunkCoord } from "../src/Types.sol";
 import { VoxelCoord } from "../src/VoxelCoord.sol";
 import { CHUNK_SIZE } from "../src/Constants.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
+import { testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
 
 int32 constant GRASS_LEVEL = 4;
 
@@ -65,12 +68,23 @@ contract MineTest is BiomesTest {
     setupFlatChunk(coord);
 
     VoxelCoord memory spawnCoord = VoxelCoord(1, GRASS_LEVEL + 1, 1);
-    (EntityId bobEntityId, address alice) = createTestPlayer(spawnCoord);
+    (EntityId aliceEntityId, address alice) = createTestPlayer(spawnCoord);
+
+    ObjectTypeId terrainObjectTypeId = GrassObjectID;
 
     VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x + 1, GRASS_LEVEL, spawnCoord.z);
 
     vm.prank(alice);
+
+    startGasReport("mine terrain");
     world.mine(mineCoord);
+    endGasReport();
+
+    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID);
+    assertTrue(InventoryCount.get(aliceEntityId, terrainObjectTypeId) == 1);
+    assertTrue(InventorySlots.get(aliceEntityId) == 1);
+    assertTrue(testInventoryObjectsHasObjectType(aliceEntityId, terrainObjectTypeId));
   }
 
   function testMineNonTerrain() public {}
