@@ -43,7 +43,7 @@ contract MineTest is BiomesTest {
   using VoxelCoordLib for *;
 
   function testMineTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnFlatChunk();
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
@@ -79,7 +79,7 @@ contract MineTest is BiomesTest {
   }
 
   function testMineTerrainRequiresMultipleMines() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnFlatChunk();
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
@@ -127,7 +127,7 @@ contract MineTest is BiomesTest {
   }
 
   function testMineNonTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
@@ -163,7 +163,7 @@ contract MineTest is BiomesTest {
   }
 
   function testMineMultiSize() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
@@ -234,7 +234,7 @@ contract MineTest is BiomesTest {
   }
 
   function testMineFailsIfInvalidBlock() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
@@ -256,7 +256,7 @@ contract MineTest is BiomesTest {
   }
 
   function testMineFailsIfInvalidCoord() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1,
@@ -279,7 +279,7 @@ contract MineTest is BiomesTest {
   }
 
   function testMineFailsIfNotEnoughEnergy() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
@@ -297,7 +297,7 @@ contract MineTest is BiomesTest {
   }
 
   function testMineFailsIfInventoryFull() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
@@ -325,7 +325,7 @@ contract MineTest is BiomesTest {
   }
 
   function testMineFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
@@ -340,7 +340,7 @@ contract MineTest is BiomesTest {
   }
 
   function testMineFailsIfLoggedOut() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
@@ -359,7 +359,7 @@ contract MineTest is BiomesTest {
   }
 
   function testMineFailsIfHasEnergy() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
