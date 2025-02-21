@@ -33,22 +33,23 @@ contract TestUtils {
   modifier testUtil() {
     if (address(this) != world) {
       // Next delegatecall will be from world
-      vm.startPrank(world, true);
+      vm.prank(world, true);
       (bool success, bytes memory data) = address(this).delegatecall(msg.data);
-      vm.stopPrank();
-      if (success) {
-        /// @solidity memory-safe-assembly
-        assembly {
-          return(add(data, 0x20), mload(data))
-        }
-      }
       /// @solidity memory-safe-assembly
       assembly {
-        revert(add(data, 0x20), mload(data))
+        let dataOffset := add(data, 0x20)
+        let dataSize := mload(data)
+        switch success
+        case 1 {
+          return(dataOffset, dataSize)
+        }
+        default {
+          revert(dataOffset, dataSize)
+        }
       }
-    } else {
-      _;
     }
+
+    _;
   }
 
   constructor(address _world) {
