@@ -138,12 +138,12 @@ declare const abi: [
     "name": "build",
     "inputs": [
       {
-        "name": "objectTypeId",
+        "name": "buildObjectTypeId",
         "type": "uint16",
         "internalType": "ObjectTypeId"
       },
       {
-        "name": "coord",
+        "name": "baseCoord",
         "type": "tuple",
         "internalType": "struct VoxelCoord",
         "components": [
@@ -179,12 +179,12 @@ declare const abi: [
     "name": "buildWithExtraData",
     "inputs": [
       {
-        "name": "objectTypeId",
+        "name": "buildObjectTypeId",
         "type": "uint16",
         "internalType": "ObjectTypeId"
       },
       {
-        "name": "coord",
+        "name": "baseCoord",
         "type": "tuple",
         "internalType": "struct VoxelCoord",
         "components": [
@@ -2159,7 +2159,7 @@ declare const abi: [
     "name": "jumpBuild",
     "inputs": [
       {
-        "name": "objectTypeId",
+        "name": "buildObjectTypeId",
         "type": "uint16",
         "internalType": "ObjectTypeId"
       }
@@ -2172,7 +2172,7 @@ declare const abi: [
     "name": "jumpBuildWithExtraData",
     "inputs": [
       {
-        "name": "objectTypeId",
+        "name": "buildObjectTypeId",
         "type": "uint16",
         "internalType": "ObjectTypeId"
       },

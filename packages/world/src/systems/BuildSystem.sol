@@ -30,9 +30,9 @@ import { MoveLib } from "./libraries/MoveLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract BuildSystem is System {
-  function buildObjectAtCoord(ObjectTypeId objectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
+  function _addBlock(ObjectTypeId objectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
-    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = coord.getOrCreateEntity();
+    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId, ) = coord.getOrCreateEntity();
     require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
     require(
       InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,
@@ -48,33 +48,29 @@ contract BuildSystem is System {
   }
 
   function buildWithExtraData(
-    ObjectTypeId objectTypeId,
-    VoxelCoord memory coord,
+    ObjectTypeId buildObjectTypeId,
+    VoxelCoord memory baseCoord,
     bytes memory extraData
   ) public payable returns (EntityId) {
-    require(objectTypeId.isBlock(), "Cannot build non-block object");
+    require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
     (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
       _msgSender()
     );
-    requireInPlayerInfluence(playerCoord, coord);
+    requireInPlayerInfluence(playerCoord, baseCoord);
 
-    EntityId baseEntityId = buildObjectAtCoord(objectTypeId, coord);
-    VoxelCoord[] memory relativePositions = getObjectTypeSchema(objectTypeId);
-    VoxelCoord[] memory coords = new VoxelCoord[](relativePositions.length + 1);
-    coords[0] = coord;
-    for (uint256 i = 0; i < relativePositions.length; i++) {
-      VoxelCoord memory relativeCoord = VoxelCoord(
-        coord.x + relativePositions[i].x,
-        coord.y + relativePositions[i].y,
-        coord.z + relativePositions[i].z
-      );
-      coords[i + 1] = relativeCoord;
-      EntityId entityId = buildObjectAtCoord(objectTypeId, relativeCoord);
-      BaseEntity._set(entityId, baseEntityId);
-    }
-    uint32 mass = ObjectTypeMetadata._getMass(objectTypeId);
+    EntityId baseEntityId = _addBlock(buildObjectTypeId, baseCoord);
+    uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
     Mass._setMass(baseEntityId, mass);
-    VoxelCoord memory forceFieldShardCoord = coord.toForceFieldShardCoord();
+
+    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(buildObjectTypeId);
+    // Only iterate through relative schema coords
+    for (uint256 i = 1; i < coords.length; i++) {
+      VoxelCoord memory relativeCoord = coords[i];
+      EntityId relativeEntityId = _addBlock(buildObjectTypeId, relativeCoord);
+      BaseEntity._set(relativeEntityId, baseEntityId);
+    }
+
+    VoxelCoord memory forceFieldShardCoord = baseCoord.toForceFieldShardCoord();
     ForceFieldMetadata._setTotalMassInside(
       forceFieldShardCoord.x,
       forceFieldShardCoord.y,
@@ -82,22 +78,23 @@ contract BuildSystem is System {
       ForceFieldMetadata._getTotalMassInside(forceFieldShardCoord.x, forceFieldShardCoord.y, forceFieldShardCoord.z) +
         mass
     );
+
     transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_BUILD_ENERGY_COST);
 
-    removeFromInventoryCount(playerEntityId, objectTypeId, 1);
+    removeFromInventoryCount(playerEntityId, buildObjectTypeId, 1);
 
     notify(
       playerEntityId,
-      BuildNotifData({ buildEntityId: baseEntityId, buildCoord: coord, buildObjectTypeId: objectTypeId })
+      BuildNotifData({ buildEntityId: baseEntityId, buildCoord: baseCoord, buildObjectTypeId: buildObjectTypeId })
     );
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
-    ForceFieldLib.requireBuildsAllowed(playerEntityId, baseEntityId, objectTypeId, coords, extraData);
+    ForceFieldLib.requireBuildsAllowed(playerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
 
     return baseEntityId;
   }
 
-  function jumpBuildWithExtraData(ObjectTypeId objectTypeId, bytes memory extraData) public payable {
+  function jumpBuildWithExtraData(ObjectTypeId buildObjectTypeId, bytes memory extraData) public payable {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
 
     VoxelCoord[] memory moveCoords = new VoxelCoord[](1);
@@ -105,14 +102,14 @@ contract BuildSystem is System {
     MoveLib.movePlayer(playerEntityId, playerCoord, moveCoords);
     notify(playerEntityId, MoveNotifData({ moveCoords: moveCoords }));
 
-    buildWithExtraData(objectTypeId, playerCoord, extraData);
+    buildWithExtraData(buildObjectTypeId, playerCoord, extraData);
   }
 
-  function jumpBuild(ObjectTypeId objectTypeId) public payable {
-    jumpBuildWithExtraData(objectTypeId, new bytes(0));
+  function jumpBuild(ObjectTypeId buildObjectTypeId) public payable {
+    jumpBuildWithExtraData(buildObjectTypeId, new bytes(0));
   }
 
-  function build(ObjectTypeId objectTypeId, VoxelCoord memory coord) public payable returns (EntityId) {
-    return buildWithExtraData(objectTypeId, coord, new bytes(0));
+  function build(ObjectTypeId buildObjectTypeId, VoxelCoord memory baseCoord) public payable returns (EntityId) {
+    return buildWithExtraData(buildObjectTypeId, baseCoord, new bytes(0));
   }
 }

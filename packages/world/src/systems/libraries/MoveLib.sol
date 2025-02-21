@@ -158,7 +158,7 @@ library MoveLib {
       return false;
     }
 
-    (, ObjectTypeId belowObjectTypeId) = belowCoord.getOrCreateEntity();
+    (, ObjectTypeId belowObjectTypeId) = belowCoord.getEntity();
     if (!ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
       return false;
     }

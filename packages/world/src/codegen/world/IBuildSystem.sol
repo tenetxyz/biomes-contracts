@@ -14,14 +14,14 @@ import { EntityId } from "../../EntityId.sol";
  */
 interface IBuildSystem {
   function buildWithExtraData(
-    ObjectTypeId objectTypeId,
-    VoxelCoord memory coord,
+    ObjectTypeId buildObjectTypeId,
+    VoxelCoord memory baseCoord,
     bytes memory extraData
   ) external payable returns (EntityId);
 
-  function jumpBuildWithExtraData(ObjectTypeId objectTypeId, bytes memory extraData) external payable;
+  function jumpBuildWithExtraData(ObjectTypeId buildObjectTypeId, bytes memory extraData) external payable;
 
-  function jumpBuild(ObjectTypeId objectTypeId) external payable;
+  function jumpBuild(ObjectTypeId buildObjectTypeId) external payable;
 
-  function build(ObjectTypeId objectTypeId, VoxelCoord memory coord) external payable returns (EntityId);
+  function build(ObjectTypeId buildObjectTypeId, VoxelCoord memory baseCoord) external payable returns (EntityId);
 }

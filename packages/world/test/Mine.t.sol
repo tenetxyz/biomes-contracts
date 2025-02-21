@@ -21,6 +21,7 @@ import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
+import { Mass } from "../src/codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
@@ -177,6 +178,13 @@ contract MineTest is BiomesTest {
     EntityId topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
     assertTrue(mineEntityId.exists(), "Mine entity does not exist");
     assertTrue(topEntityId.exists(), "Top entity does not exist");
+    assertTrue(ObjectType.get(mineEntityId) == mineObjectTypeId, "Mine entity is not mine object type");
+    assertTrue(ObjectType.get(topEntityId) == mineObjectTypeId, "Top entity is not air");
+    assertTrue(
+      Mass.getMass(mineEntityId) == ObjectTypeMetadata.getMass(mineObjectTypeId),
+      "Mine entity mass is not correct"
+    );
+    assertTrue(Mass.getMass(topEntityId) == 0, "Top entity mass is not correct");
     assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 0, "Inventory count is not 0");
 
     uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
@@ -190,6 +198,8 @@ contract MineTest is BiomesTest {
 
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
     assertTrue(ObjectType.get(topEntityId) == AirObjectID, "Top entity is not air");
+    assertTrue(Mass.getMass(mineEntityId) == 0, "Mine entity mass is not correct");
+    assertTrue(Mass.getMass(topEntityId) == 0, "Top entity mass is not correct");
     assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 1, "Inventory count is not 1");
     assertTrue(InventorySlots.get(aliceEntityId) == 1, "Inventory slots is not 1");
     assertTrue(
