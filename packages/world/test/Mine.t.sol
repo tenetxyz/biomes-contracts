@@ -72,7 +72,7 @@ contract MineTest is BiomesTest {
     }
   }
 
-  function spawnPlayerOnFlatChunk() internal returns (address, EntityId) {
+  function spawnPlayerOnFlatChunk() internal returns (address, EntityId, VoxelCoord memory) {
     uint256 blockNumber = block.number - 5;
     address alice = vm.randomAddress();
     setupFlatChunk(VoxelCoord(0, 0, 0));
@@ -82,12 +82,13 @@ contract MineTest is BiomesTest {
     vm.prank(alice);
     EntityId aliceEntityId = world.randomSpawn(blockNumber, spawnCoord.y);
 
-    return (alice, aliceEntityId);
+    VoxelCoord memory playerCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
+
+    return (alice, aliceEntityId, playerCoord);
   }
 
   function testMineTerrain() public {
-    (address alice, EntityId aliceEntityId) = spawnPlayerOnFlatChunk();
-    VoxelCoord memory playerCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnFlatChunk();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
