@@ -46,6 +46,7 @@ contract MineTest is BiomesTest {
       playerCoord.z
     );
     ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertTrue(!mineEntityId.exists(), "Mine entity already exists");
 

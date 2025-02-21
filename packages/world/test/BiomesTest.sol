@@ -20,7 +20,8 @@ import { EntityId } from "../src/EntityId.sol";
 import { ChunkCoord } from "../src/Types.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { ObjectTypeId, PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID } from "../src/ObjectTypeIds.sol";
-import { CHUNK_SIZE } from "../src/Constants.sol";
+import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST } from "../src/Constants.sol";
+import { energyToMass } from "../src/utils/EnergyUtils.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
@@ -29,6 +30,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
 
   IWorld internal world;
   int32 constant FLAT_CHUNK_GRASS_LEVEL = 4;
+  uint128 playerHandMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST);
 
   function setUp() public virtual override {
     super.setUp();
