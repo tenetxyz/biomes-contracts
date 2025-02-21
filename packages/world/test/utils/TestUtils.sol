@@ -8,23 +8,15 @@ import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol"
 import { VoxelCoord } from "../../src/Types.sol";
 import { EntityId } from "../../src/EntityId.sol";
 
-import { UniqueEntity } from "../../src/codegen/tables/UniqueEntity.sol";
-import { ReversePosition } from "../../src/codegen/tables/ReversePosition.sol";
 import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";
-import { InventoryEntity } from "../../src/codegen/tables/InventoryEntity.sol";
-import { ReverseInventoryEntity } from "../../src/codegen/tables/ReverseInventoryEntity.sol";
-import { InventorySlots } from "../../src/codegen/tables/InventorySlots.sol";
-import { InventoryCount } from "../../src/codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../../src/codegen/tables/InventoryObjects.sol";
-import { Equipped } from "../../src/codegen/tables/Equipped.sol";
-import { Mass } from "../../src/codegen/tables/Mass.sol";
-import { ObjectTypeMetadata } from "../../src/codegen/tables/ObjectTypeMetadata.sol";
-import { TerrainLib } from "../../src/systems/libraries/TerrainLib.sol";
-import { ObjectTypeId, PlayerObjectID, ChestObjectID, SmartChestObjectID, AirObjectID, WaterObjectID } from "../../src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../src/ObjectTypeIds.sol";
 import { gravityApplies as _gravityApplies } from "../../src/Utils.sol";
 import { addToInventoryCount as _addToInventoryCount, removeFromInventoryCount as _removeFromInventoryCount, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
 
 Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+
+bytes32 constant LIB_ADDRESS_SLOT = keccak256("TestUtils.libAddress");
 
 library TestUtils {
   /// @dev Allows calling test utils in the context of world
@@ -33,7 +25,7 @@ library TestUtils {
     if (address(this) != world) {
       // Next delegatecall will be from world
       vm.prank(world, true);
-      (bool success, bytes memory data) = address(TestUtils).delegatecall(msg.data);
+      (bool success, bytes memory data) = _getLibAddress().delegatecall(msg.data);
       /// @solidity memory-safe-assembly
       assembly {
         let dataOffset := add(data, 0x20)
@@ -49,6 +41,15 @@ library TestUtils {
     }
 
     _;
+  }
+
+  // Hack to be able to access the library address until we figure out why mud doesn't allow it
+  function init(address libAddress) public {
+    vm.store(address(this), LIB_ADDRESS_SLOT, bytes32(bytes20(libAddress)));
+  }
+
+  function _getLibAddress() private view returns (address) {
+    return address(bytes20(vm.load(address(this), LIB_ADDRESS_SLOT)));
   }
 
   function gravityApplies(VoxelCoord memory playerCoord) public asWorld returns (bool res) {

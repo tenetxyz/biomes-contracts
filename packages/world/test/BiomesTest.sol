@@ -30,6 +30,7 @@ import { ObjectTypeId, PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjec
 import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST } from "../src/Constants.sol";
 import { energyToMass } from "../src/utils/EnergyUtils.sol";
 import { getObjectTypeSchema } from "../src/utils/ObjectTypeUtils.sol";
+import { TestUtils } from "./utils/TestUtils.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
@@ -50,6 +51,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
     address owner = NamespaceOwner.get(rootNamespace);
     vm.prank(owner);
     world.transferOwnership(rootNamespace, address(this));
+    TestUtils.init(address(TestUtils));
   }
 
   function randomEntityId() internal returns (EntityId) {
