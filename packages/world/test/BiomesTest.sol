@@ -158,12 +158,13 @@ abstract contract BiomesTest is MudTest, GasReporter {
     LocalEnergyPool.set(shardCoord.x, 0, shardCoord.z, 1e18);
   }
 
-  function setObjectAtCoord(VoxelCoord memory coord, ObjectTypeId objectTypeId) internal {
+  function setObjectAtCoord(VoxelCoord memory coord, ObjectTypeId objectTypeId) internal returns (EntityId) {
     EntityId entityId = randomEntityId();
     ObjectType.set(entityId, objectTypeId);
     Position.set(entityId, coord.x, coord.y, coord.z);
     ReversePosition.set(coord.x, coord.y, coord.z, entityId);
     Mass.set(entityId, ObjectTypeMetadata.getMass(objectTypeId));
+    return entityId;
   }
 
   function spawnPlayerOnAirChunk() internal returns (address, EntityId, VoxelCoord memory) {

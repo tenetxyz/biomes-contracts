@@ -2,9 +2,13 @@
 pragma solidity >=0.8.24;
 
 import { console } from "forge-std/console.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
+import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
+import { Chip } from "../src/codegen/tables/Chip.sol";
 import { ExploredChunk } from "../src/codegen/tables/ExploredChunk.sol";
 import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
 import { ExploredChunkByIndex } from "../src/codegen/tables/ExploredChunkByIndex.sol";
@@ -28,11 +32,11 @@ import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID } from "../src/ObjectTypeIds.sol";
+import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
-import { CHUNK_SIZE } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
-import { testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
+import { testInventoryObjectsHasObjectType, testAddToInventoryCount } from "./utils/TestUtils.sol";
 
 contract MineTest is BiomesTest {
   using VoxelCoordLib for *;
@@ -71,8 +75,6 @@ contract MineTest is BiomesTest {
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertTrue(Energy.getEnergy(aliceEntityId) == aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
-
-    vm.stopPrank();
   }
 
   function testMineTerrainRequiresMultipleMines() public {
@@ -121,8 +123,6 @@ contract MineTest is BiomesTest {
     energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertTrue(Energy.getEnergy(aliceEntityId) == aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
-
-    vm.stopPrank();
   }
 
   function testMineNonTerrain() public {
@@ -159,23 +159,149 @@ contract MineTest is BiomesTest {
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertTrue(Energy.getEnergy(aliceEntityId) == aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
-
-    vm.stopPrank();
   }
 
   function testMineMultiSize() public {}
 
-  function testMineFailsIfInvalidBlock() public {}
+  function testMineFailsIfInvalidBlock() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
 
-  function testMineFailsIfInvalidCoord() public {}
+    VoxelCoord memory mineCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL,
+      playerCoord.z
+    );
+    ObjectTypeId mineObjectTypeId = AirObjectID;
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
 
-  function testMineFailsIfNotEnoughEnergy() public {}
+    vm.prank(alice);
+    vm.expectRevert("Object is not mineable");
+    world.mine(mineCoord);
 
-  function testMineFailsIfInventoryFull() public {}
+    setObjectAtCoord(mineCoord, WaterObjectID);
 
-  function testMineFailsIfLoggedOut() public {}
+    vm.prank(alice);
+    vm.expectRevert("Object is not mineable");
+    world.mine(mineCoord);
+  }
 
-  function testMineFailsIfNoPlayer() public {}
+  function testMineFailsIfInvalidCoord() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
 
-  function testMineFailsIfHasEnergy() public {}
+    VoxelCoord memory mineCoord = VoxelCoord(
+      playerCoord.x + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1,
+      playerCoord.y,
+      playerCoord.z
+    );
+    ObjectTypeId mineObjectTypeId = DirtObjectID;
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
+
+    vm.prank(alice);
+    vm.expectRevert("Player is too far");
+    world.mine(mineCoord);
+
+    mineCoord = VoxelCoord(WORLD_BORDER_LOW_X - 1, playerCoord.y, playerCoord.z);
+    setObjectAtCoord(mineCoord, DirtObjectID);
+
+    vm.prank(alice);
+    vm.expectRevert("Cannot mine outside the world border");
+    world.mine(mineCoord);
+  }
+
+  function testMineFailsIfNotEnoughEnergy() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+
+    VoxelCoord memory mineCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL,
+      playerCoord.z
+    );
+    ObjectTypeId mineObjectTypeId = DirtObjectID;
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
+
+    Energy.set(aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0 }));
+
+    vm.prank(alice);
+    vm.expectRevert("Not enough energy");
+    world.mine(mineCoord);
+  }
+
+  function testMineFailsIfInventoryFull() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+
+    VoxelCoord memory mineCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL,
+      playerCoord.z
+    );
+    ObjectTypeId mineObjectTypeId = DirtObjectID;
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
+
+    testAddToInventoryCount(
+      aliceEntityId,
+      PlayerObjectID,
+      mineObjectTypeId,
+      ObjectTypeMetadata.getMaxInventorySlots(PlayerObjectID) * ObjectTypeMetadata.getStackable(mineObjectTypeId)
+    );
+    assertTrue(
+      InventorySlots.get(aliceEntityId) == ObjectTypeMetadata.getMaxInventorySlots(PlayerObjectID),
+      "Inventory slots is not max"
+    );
+
+    vm.prank(alice);
+    vm.expectRevert("Inventory is full");
+    world.mine(mineCoord);
+  }
+
+  function testMineFailsIfNoPlayer() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+
+    VoxelCoord memory mineCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL,
+      playerCoord.z
+    );
+    ObjectTypeId mineObjectTypeId = DirtObjectID;
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
+
+    vm.expectRevert("Player does not exist");
+    world.mine(mineCoord);
+  }
+
+  function testMineFailsIfLoggedOut() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+
+    VoxelCoord memory mineCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL,
+      playerCoord.z
+    );
+    ObjectTypeId mineObjectTypeId = DirtObjectID;
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
+
+    vm.prank(alice);
+    world.logoffPlayer();
+
+    vm.prank(alice);
+    vm.expectRevert("Player isn't logged in");
+    world.mine(mineCoord);
+  }
+
+  function testMineFailsIfHasEnergy() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+
+    VoxelCoord memory mineCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL,
+      playerCoord.z
+    );
+    ObjectTypeId mineObjectTypeId = ForceFieldObjectID;
+    EntityId mineEntityId = setObjectAtCoord(mineCoord, mineObjectTypeId);
+    Energy.set(mineEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000 }));
+
+    vm.prank(alice);
+    vm.expectRevert("Cannot mine a machine that has energy");
+    world.mine(mineCoord);
+  }
 }
