@@ -166,6 +166,7 @@ contract MineSystem is System {
     transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_MINE_ENERGY_COST);
 
     EntityId baseEntityId = entityId.baseEntityId();
+    VoxelCoord memory baseCoord = Position._get(baseEntityId).toVoxelCoord();
 
     if (mineObjectTypeId == AnyOreObjectID) {
       mineObjectTypeId = MineLib.mineRandomOre(coord);
@@ -177,7 +178,7 @@ contract MineSystem is System {
     uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);
 
     // First coord will be the base coord, the rest is relative schema coords
-    VoxelCoord[] memory coords = _getRelativeCoords(mineObjectTypeId, coord);
+    VoxelCoord[] memory coords = _getRelativeCoords(mineObjectTypeId, baseCoord);
 
     if (finalMass == 0) {
       Mass._deleteRecord(baseEntityId);
@@ -188,7 +189,7 @@ contract MineSystem is System {
 
       addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
-      _removeBlock(baseEntityId, coord);
+      _removeBlock(baseEntityId, baseCoord);
 
       // Only iterate through relative schema coords
       for (uint256 i = 1; i < coords.length; i++) {

@@ -199,6 +199,28 @@ contract MineTest is BiomesTest {
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertTrue(Energy.getEnergy(aliceEntityId) == aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+
+    // Mine again but with a non-base coord
+    vm.prank(alice);
+    world.build(TextSignObjectID, mineCoord);
+
+    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    assertTrue(mineEntityId.exists(), "Mine entity does not exist");
+    assertTrue(topEntityId.exists(), "Top entity does not exist");
+    assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 0, "Inventory count is not 0");
+
+    vm.prank(alice);
+    world.mine(topCoord);
+
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
+    assertTrue(ObjectType.get(topEntityId) == AirObjectID, "Top entity is not air");
+    assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 1, "Inventory count is not 1");
+    assertTrue(InventorySlots.get(aliceEntityId) == 1, "Inventory slots is not 1");
+    assertTrue(
+      testInventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
+      "Inventory objects does not have terrain object type"
+    );
   }
 
   function testMineFailsIfInvalidBlock() public {
