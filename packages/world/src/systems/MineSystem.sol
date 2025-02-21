@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { console } from "forge-std/console.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
@@ -30,17 +31,18 @@ import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { getObjectTypeSchema } from "../utils/ObjectTypeUtils.sol";
-import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_MINE_ENERGY_COST } from "../Constants.sol";
 import { ChunkCoord } from "../Types.sol";
+import { mulDiv } from "../utils/MathUtils.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
 
 library MineLib {
   function mineRandomOre(VoxelCoord memory coord) public returns (ObjectTypeId) {
     ChunkCoord memory chunkCoord = coord.toChunkCoord();
     uint256 commitment = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
-    require(block.number >= commitment, "No ore commitment");
+    // We can't get blockhash of current block
+    require(block.number > commitment, "Not within commitment blocks");
     require(block.number <= commitment + CHUNK_COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
     uint256 rand = uint256(keccak256(abi.encode(blockhash(commitment), coord)));
 
@@ -92,8 +94,7 @@ library MineLib {
     uint256 oreIndex = 0;
     {
       // Scale random number to total remaining
-      // TODO: use muldiv from solady or OZ to prevent overflow
-      uint256 scaledRand = (rand * totalRemaining) / type(uint256).max;
+      uint256 scaledRand = mulDiv(rand, totalRemaining, type(uint256).max);
 
       uint256 acc;
       for (; oreIndex < remaining.length - 1; oreIndex++) {
@@ -169,13 +170,16 @@ contract MineSystem is System {
     VoxelCoord memory baseCoord = Position._get(baseEntityId).toVoxelCoord();
 
     if (mineObjectTypeId == AnyOreObjectID) {
+      console.log("Before mine");
       mineObjectTypeId = MineLib.mineRandomOre(coord);
+      console.log("Ore mined");
     } else {
       require(baseEntityId.getChipAddress() == address(0), "Cannot mine a chipped block");
       require(updateMachineEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
     }
 
     uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);
+    console.log("After mass reduction");
 
     // First coord will be the base coord, the rest is relative schema coords
     VoxelCoord[] memory coords = _getRelativeCoords(mineObjectTypeId, baseCoord);
@@ -190,6 +194,7 @@ contract MineSystem is System {
       addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
       _removeBlock(baseEntityId, baseCoord);
+      console.log("After remov block");
 
       // Only iterate through relative schema coords
       for (uint256 i = 1; i < coords.length; i++) {
