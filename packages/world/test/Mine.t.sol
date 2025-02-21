@@ -134,8 +134,8 @@ contract MineTest is BiomesTest {
       playerCoord.z
     );
     ObjectTypeId mineObjectTypeId = GrassObjectID;
-    setObjectAtCoord(mineCoord, mineObjectTypeId);
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
     EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertTrue(mineEntityId.exists(), "Mine entity does not exist");
     assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 0, "Inventory count is not 0");
@@ -170,8 +170,8 @@ contract MineTest is BiomesTest {
       playerCoord.z
     );
     ObjectTypeId mineObjectTypeId = TextSignObjectID;
-    setObjectAtCoord(mineCoord, mineObjectTypeId);
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
     VoxelCoord memory topCoord = VoxelCoord(mineCoord.x, mineCoord.y + 1, mineCoord.z);
     EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     EntityId topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
