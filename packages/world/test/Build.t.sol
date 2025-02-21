@@ -404,13 +404,113 @@ contract BuildTest is BiomesTest {
     world.build(buildObjectTypeId, buildCoord);
   }
 
-  function testBuildFailsIfInvalidCoord() public {}
+  function testBuildFailsIfInvalidCoord() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
-  function testBuildFailsIfNotEnoughEnergy() public {}
+    VoxelCoord memory buildCoord = VoxelCoord(
+      playerCoord.x + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1,
+      playerCoord.y,
+      playerCoord.z
+    );
+    EntityId airEntityId = setObjectAtCoord(buildCoord, AirObjectID);
+    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
+    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
 
-  function testBuildFailsIfDoesntHaveBlock() public {}
+    vm.prank(alice);
+    vm.expectRevert("Player is too far");
+    world.build(buildObjectTypeId, buildCoord);
 
-  function testBuildFailsIfNoPlayer() public {}
+    (address bob, EntityId bobEntityId, ) = spawnPlayerOnAirChunk(
+      VoxelCoord(WORLD_BORDER_LOW_X, playerCoord.y, playerCoord.z)
+    );
 
-  function testBuildFailsIfLoggedOut() public {}
+    buildCoord = VoxelCoord(WORLD_BORDER_LOW_X - 1, playerCoord.y, playerCoord.z);
+    setObjectAtCoord(buildCoord, AirObjectID);
+
+    vm.prank(bob);
+    vm.expectRevert("Cannot build outside the world border");
+    world.build(buildObjectTypeId, buildCoord);
+  }
+
+  function testBuildFailsIfNotEnoughEnergy() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory buildCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL + 1,
+      playerCoord.z
+    );
+    EntityId airEntityId = setObjectAtCoord(buildCoord, AirObjectID);
+    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
+    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    assertTrue(buildEntityId.exists(), "Build entity does not exist");
+    assertTrue(InventoryCount.get(aliceEntityId, buildObjectTypeId) == 1, "Inventory count is not 0");
+
+    Energy.set(aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0 }));
+
+    vm.prank(alice);
+    vm.expectRevert("Not enough energy");
+    world.build(buildObjectTypeId, buildCoord);
+  }
+
+  function testBuildFailsIfDoesntHaveBlock() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory buildCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL + 1,
+      playerCoord.z
+    );
+    EntityId airEntityId = setObjectAtCoord(buildCoord, AirObjectID);
+    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    assertTrue(buildEntityId.exists(), "Build entity does not exist");
+    assertTrue(InventoryCount.get(aliceEntityId, buildObjectTypeId) == 0, "Inventory count is not 0");
+
+    vm.prank(alice);
+    vm.expectRevert("Not enough objects in the inventory");
+    world.build(buildObjectTypeId, buildCoord);
+  }
+
+  function testBuildFailsIfNoPlayer() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory buildCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL + 1,
+      playerCoord.z
+    );
+    EntityId airEntityId = setObjectAtCoord(buildCoord, AirObjectID);
+    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    assertTrue(buildEntityId.exists(), "Build entity does not exist");
+    assertTrue(InventoryCount.get(aliceEntityId, buildObjectTypeId) == 0, "Inventory count is not 0");
+
+    vm.expectRevert("Player does not exist");
+    world.build(buildObjectTypeId, buildCoord);
+  }
+
+  function testBuildFailsIfLoggedOut() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory buildCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL + 1,
+      playerCoord.z
+    );
+    EntityId airEntityId = setObjectAtCoord(buildCoord, AirObjectID);
+    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    assertTrue(buildEntityId.exists(), "Build entity does not exist");
+    assertTrue(InventoryCount.get(aliceEntityId, buildObjectTypeId) == 0, "Inventory count is not 0");
+
+    vm.prank(alice);
+    world.logoffPlayer();
+
+    vm.prank(alice);
+    vm.expectRevert("Player isn't logged in");
+    world.build(buildObjectTypeId, buildCoord);
+  }
 }

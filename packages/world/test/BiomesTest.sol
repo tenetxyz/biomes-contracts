@@ -59,7 +59,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
   }
 
   // Create a valid player that can perform actions
-  function createTestPlayer(VoxelCoord memory coord) internal returns (EntityId, address) {
+  function createTestPlayer(VoxelCoord memory coord) internal returns (address, EntityId) {
     address playerAddress = vm.randomAddress();
     EntityId playerEntityId = randomEntityId();
     ObjectType.set(playerEntityId, PlayerObjectID);
@@ -88,7 +88,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
 
     PlayerActivity.set(playerEntityId, uint128(block.timestamp));
 
-    return (playerEntityId, playerAddress);
+    return (playerAddress, playerEntityId);
   }
 
   function _getFlatChunk() internal pure returns (uint8[][][] memory chunk) {
@@ -199,7 +199,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
     setObjectAtCoord(spawnCoord, AirObjectID);
     setObjectAtCoord(belowCoord, DirtObjectID);
 
-    (EntityId aliceEntityId, address alice) = createTestPlayer(spawnCoord);
+    (address alice, EntityId aliceEntityId) = createTestPlayer(spawnCoord);
     VoxelCoord memory playerCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
 
     return (alice, aliceEntityId, playerCoord);

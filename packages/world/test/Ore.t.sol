@@ -54,7 +54,7 @@ contract OreTest is BiomesTest {
     ChunkCoord memory chunkCoord = coord.toChunkCoord();
     exploreChunk(coord);
 
-    (, address alice) = createTestPlayer(coord);
+    (address alice, ) = createTestPlayer(coord);
 
     vm.prank(alice);
     world.oreChunkCommit(chunkCoord);
@@ -67,7 +67,7 @@ contract OreTest is BiomesTest {
     ChunkCoord memory chunkCoord = coord.toChunkCoord();
     exploreChunk(coord);
 
-    (, address alice) = createTestPlayer(coord);
+    (address alice, ) = createTestPlayer(coord);
 
     vm.prank(alice);
     world.oreChunkCommit(chunkCoord);
