@@ -95,7 +95,10 @@ contract MineTest is BiomesTest {
       GRASS_LEVEL,
       playerCoord.z
     );
-    ObjectTypeId terrainObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertTrue(!mineEntityId.exists(), "Mine entity already exists");
+
     uint128 energyBefore = Energy.getEnergy(aliceEntityId);
     VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
     uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
@@ -105,12 +108,12 @@ contract MineTest is BiomesTest {
     world.mine(mineCoord);
     endGasReport();
 
-    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
-    assertTrue(InventoryCount.get(aliceEntityId, terrainObjectTypeId) == 1, "Inventory count is not 1");
+    assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 1, "Inventory count is not 1");
     assertTrue(InventorySlots.get(aliceEntityId) == 1, "Inventory slots is not 1");
     assertTrue(
-      testInventoryObjectsHasObjectType(aliceEntityId, terrainObjectTypeId),
+      testInventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
       "Inventory objects does not have terrain object type"
     );
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
