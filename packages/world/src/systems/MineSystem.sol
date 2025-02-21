@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { console } from "forge-std/console.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
@@ -61,14 +60,6 @@ library MineLib {
       NeptuniumOreObjectID
     ];
 
-    uint256[5] memory mined = [
-      MinedOreCount._get(CoalOreObjectID),
-      MinedOreCount._get(SilverOreObjectID),
-      MinedOreCount._get(GoldOreObjectID),
-      MinedOreCount._get(DiamondOreObjectID),
-      MinedOreCount._get(NeptuniumOreObjectID)
-    ];
-
     uint256[5] memory max = [MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM];
 
     // For y > -50: More common ores (coal, silver)
@@ -85,7 +76,7 @@ library MineLib {
     uint256 totalRemaining = 0;
     for (uint256 i = 0; i < remaining.length; i++) {
       // remaining[i] = (max[i] - mined[i]) * depthMultiplier[i];
-      remaining[i] = max[i] - mined[i];
+      remaining[i] = max[i] - MinedOreCount._get(ores[i]);
       totalRemaining += remaining[i];
     }
 
@@ -104,7 +95,7 @@ library MineLib {
     }
 
     ObjectTypeId ore = ores[oreIndex];
-    MinedOreCount._set(ore, mined[oreIndex] + 1);
+    MinedOreCount._set(ore, max[oreIndex] - remaining[oreIndex] + 1);
 
     return ore;
   }
@@ -169,22 +160,19 @@ contract MineSystem is System {
     EntityId baseEntityId = entityId.baseEntityId();
     VoxelCoord memory baseCoord = Position._get(baseEntityId).toVoxelCoord();
 
-    if (mineObjectTypeId == AnyOreObjectID) {
-      console.log("Before mine");
-      mineObjectTypeId = MineLib.mineRandomOre(coord);
-      console.log("Ore mined");
-    } else {
-      require(baseEntityId.getChipAddress() == address(0), "Cannot mine a chipped block");
-      require(updateMachineEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
-    }
+    require(baseEntityId.getChipAddress() == address(0), "Cannot mine a chipped block");
+    require(updateMachineEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
 
     uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);
-    console.log("After mass reduction");
 
     // First coord will be the base coord, the rest is relative schema coords
     VoxelCoord[] memory coords = _getRelativeCoords(mineObjectTypeId, baseCoord);
 
     if (finalMass == 0) {
+      if (mineObjectTypeId == AnyOreObjectID) {
+        mineObjectTypeId = MineLib.mineRandomOre(coord);
+      }
+
       Mass._deleteRecord(baseEntityId);
 
       if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
@@ -194,7 +182,6 @@ contract MineSystem is System {
       addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
       _removeBlock(baseEntityId, baseCoord);
-      console.log("After remov block");
 
       // Only iterate through relative schema coords
       for (uint256 i = 1; i < coords.length; i++) {

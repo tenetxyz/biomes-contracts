@@ -101,7 +101,7 @@ contract MineTest is BiomesTest {
     endGasReport();
 
     mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
-    assertTrue(ObjectType.get(mineEntityId) == mineObjectTypeId, "Mine entity is not air");
+    assertTrue(ObjectType.get(mineEntityId) == mineObjectTypeId, "Mine entity is not mined object");
     assertTrue(InventoryCount.get(aliceEntityId, mineObjectTypeId) == 0, "Inventory count is not 0");
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
@@ -171,7 +171,53 @@ contract MineTest is BiomesTest {
 
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
     assertGt(energyGainedInPool, 0, "Local energy pool did not gain energy");
-    assertTrue(Energy.getEnergy(aliceEntityId) == aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+  }
+
+  function testMineOreMultipleMines() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnAirChunk();
+
+    VoxelCoord memory mineCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL,
+      playerCoord.z
+    );
+
+    setTerrainAtCoord(mineCoord, AnyOreObjectID);
+    uint8 o = TerrainLib.getBlockType(mineCoord);
+    assertTrue(ObjectTypeId.wrap(uint16(o)) == AnyOreObjectID, "Didn't work");
+    ObjectTypeMetadata.setMass(AnyOreObjectID, uint32(playerHandMassReduction * 2));
+    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertTrue(!mineEntityId.exists(), "Mine entity already exists");
+    assertEq(InventoryCount.get(aliceEntityId, AnyOreObjectID), 0, "Inventory count is not 0");
+
+    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    ObjectAmount[] memory oreAmounts = TestUtils.inventoryGetOreAmounts(aliceEntityId);
+    assertEq(oreAmounts.length, 0, "Existing ores in inventory");
+    assertEq(TotalMinedOreCount.get(), 0, "Mined ore count is not 0");
+
+    vm.prank(alice);
+    world.oreChunkCommit(mineCoord.toChunkCoord());
+
+    vm.roll(vm.getBlockNumber() + 2);
+
+    vm.prank(alice);
+    startGasReport("mine Ore with hand, partially mined");
+    world.mine(mineCoord);
+    endGasReport();
+
+    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertTrue(ObjectType.get(mineEntityId) == AnyOreObjectID, "Mine entity is not any ore");
+    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
+    oreAmounts = TestUtils.inventoryGetOreAmounts(aliceEntityId);
+    assertEq(oreAmounts.length, 0, "Got an ore in inventory");
+    assertEq(TotalMinedOreCount.get(), 0, "Total mined ore count was increased");
+
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertGt(energyGainedInPool, 0, "Local energy pool did not gain energy");
+    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
   }
 
   function testMineNonTerrain() public {
