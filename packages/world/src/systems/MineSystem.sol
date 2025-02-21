@@ -34,14 +34,14 @@ import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_MINE_ENERGY_COST } from "../Constants.sol";
 import { ChunkCoord } from "../Types.sol";
-import { COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
+import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
 
 library MineLib {
   function mineRandomOre(VoxelCoord memory coord) public returns (ObjectTypeId) {
     ChunkCoord memory chunkCoord = coord.toChunkCoord();
     uint256 commitment = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
     require(block.number >= commitment, "No ore commitment");
-    require(block.number <= commitment + COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
+    require(block.number <= commitment + CHUNK_COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
     uint256 rand = uint256(keccak256(abi.encode(blockhash(commitment), coord)));
 
     // Set total mined ore and add position
@@ -145,6 +145,8 @@ contract MineSystem is System {
 
     VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y + 1, coord.z);
     EntityId aboveEntityId = aboveCoord.getPlayer();
+    // Note: currently it is not possible for the above player to not be the base entity,
+    // but if we add other types of movable entities we should check that it is a base entity
     if (aboveEntityId.exists()) {
       MoveLib.runGravity(aboveEntityId, aboveCoord);
     }

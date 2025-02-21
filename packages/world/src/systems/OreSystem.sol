@@ -25,7 +25,7 @@ import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
 import { EntityId } from "../EntityId.sol";
 import { ChunkCoord } from "../Types.sol";
-import { COMMIT_EXPIRY_BLOCKS, COMMIT_HALF_WIDTH, RESPAWN_ORE_BLOCK_RANGE } from "../Constants.sol";
+import { CHUNK_COMMIT_EXPIRY_BLOCKS, CHUNK_COMMIT_HALF_WIDTH, RESPAWN_ORE_BLOCK_RANGE } from "../Constants.sol";
 
 // TODO: copied from voxel coords. Figure out way to unify coordinate utils
 function inSurroundingCube(
@@ -48,11 +48,11 @@ contract OreSystem is System {
     (, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     ChunkCoord memory playerChunkCoord = playerCoord.toChunkCoord();
 
-    require(inSurroundingCube(playerChunkCoord, COMMIT_HALF_WIDTH, chunkCoord), "Not in commit range");
+    require(inSurroundingCube(playerChunkCoord, CHUNK_COMMIT_HALF_WIDTH, chunkCoord), "Not in commit range");
 
     // Check existing commitment
     uint256 commitment = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
-    require(block.number > commitment + COMMIT_EXPIRY_BLOCKS, "Existing ore commitment");
+    require(block.number > commitment + CHUNK_COMMIT_EXPIRY_BLOCKS, "Existing ore commitment");
 
     // Commit starting from next block
     OreCommitment._set(chunkCoord.x, chunkCoord.y, chunkCoord.z, block.number + 1);
@@ -79,8 +79,11 @@ contract OreSystem is System {
     require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot respawn where there are dropped objects");
 
     // Remove from mined ore array
-    MinedOrePositionData memory last = MinedOrePosition._get(mined - 1);
-    MinedOrePosition._set(minedOreIdx, last);
+    if (minedOreIdx < mined) {
+      MinedOrePositionData memory last = MinedOrePosition._get(mined - 1);
+      MinedOrePosition._set(minedOreIdx, last);
+    }
+    MinedOrePosition._deleteRecord(mined - 1);
 
     // Update total amounts
     TotalBurnedOreCount._set(burned - 1);

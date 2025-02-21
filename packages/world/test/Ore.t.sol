@@ -24,7 +24,7 @@ import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
-import { CHUNK_SIZE, MAX_PLAYER_ENERGY, COMMIT_EXPIRY_BLOCKS } from "../src/Constants.sol";
+import { CHUNK_SIZE, CHUNK_COMMIT_EXPIRY_BLOCKS } from "../src/Constants.sol";
 
 contract OreTest is BiomesTest {
   function exploreChunk(VoxelCoord memory coord) internal {
@@ -71,7 +71,7 @@ contract OreTest is BiomesTest {
     vm.prank(alice);
     world.oreChunkCommit(chunkCoord);
 
-    vm.roll(block.number + 1 + COMMIT_EXPIRY_BLOCKS);
+    vm.roll(block.number + 1 + CHUNK_COMMIT_EXPIRY_BLOCKS);
 
     vm.prank(alice);
     vm.expectRevert("Existing ore commitment");

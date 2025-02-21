@@ -24,6 +24,5 @@ import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
-import { COMMIT_EXPIRY_BLOCKS } from "../src/Constants.sol";
 
 contract MineTest is BiomesTest {}
