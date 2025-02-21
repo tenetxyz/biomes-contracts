@@ -44,4 +44,8 @@ contract ForceFieldTest is BiomesTest {
   function testMineWithForceField() public {}
 
   function testMineFailsWithForceFieldNotApproved() public {}
+
+  function testBuildWithForceField() public {}
+
+  function testBuildFailsWithForceFieldNotApproved() public {}
 }

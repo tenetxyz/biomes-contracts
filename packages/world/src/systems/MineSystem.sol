@@ -111,27 +111,6 @@ library MineLib {
 contract MineSystem is System {
   using VoxelCoordLib for *;
 
-  /// @dev Get relative schema coords, including base coord
-  function _getRelativeCoords(
-    ObjectTypeId objectTypeId,
-    VoxelCoord memory baseCoord
-  ) internal pure returns (VoxelCoord[] memory) {
-    VoxelCoord[] memory schemaCoords = getObjectTypeSchema(objectTypeId);
-    VoxelCoord[] memory coords = new VoxelCoord[](schemaCoords.length + 1);
-
-    coords[0] = baseCoord;
-
-    for (uint256 i = 0; i < schemaCoords.length; i++) {
-      coords[i + 1] = VoxelCoord(
-        baseCoord.x + schemaCoords[i].x,
-        baseCoord.y + schemaCoords[i].y,
-        baseCoord.z + schemaCoords[i].z
-      );
-    }
-
-    return coords;
-  }
-
   function _removeBlock(EntityId entityId, VoxelCoord memory coord) internal {
     ObjectType._set(entityId, AirObjectID);
 
@@ -152,47 +131,50 @@ contract MineSystem is System {
     );
     requireInPlayerInfluence(playerCoord, coord);
 
-    (EntityId entityId, ObjectTypeId mineObjectTypeId) = coord.getOrCreateEntity();
+    (EntityId entityId, ObjectTypeId mineObjectTypeId, bool isTerrain) = coord.getOrCreateEntity();
     require(mineObjectTypeId.isMineable(), "Object is not mineable");
 
     transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_MINE_ENERGY_COST);
 
     EntityId baseEntityId = entityId.baseEntityId();
     VoxelCoord memory baseCoord = Position._get(baseEntityId).toVoxelCoord();
+    if (isTerrain) {
+      Mass._setMass(baseEntityId, ObjectTypeMetadata._getMass(mineObjectTypeId));
+    }
 
     require(baseEntityId.getChipAddress() == address(0), "Cannot mine a chipped block");
     require(updateMachineEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
 
-    uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);
-
     // First coord will be the base coord, the rest is relative schema coords
-    VoxelCoord[] memory coords = _getRelativeCoords(mineObjectTypeId, baseCoord);
+    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(mineObjectTypeId);
 
-    if (finalMass == 0) {
-      if (mineObjectTypeId == AnyOreObjectID) {
-        mineObjectTypeId = MineLib.mineRandomOre(coord);
+    {
+      uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);
+      if (finalMass == 0) {
+        if (mineObjectTypeId == AnyOreObjectID) {
+          mineObjectTypeId = MineLib.mineRandomOre(coord);
+        }
+        Mass._deleteRecord(baseEntityId);
+
+        if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
+          DisplayContent._deleteRecord(baseEntityId);
+        }
+
+        addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
+
+        _removeBlock(baseEntityId, baseCoord);
+
+        // Only iterate through relative schema coords
+        for (uint256 i = 1; i < coords.length; i++) {
+          VoxelCoord memory relativeCoord = coords[i];
+          (EntityId relativeEntityId, , ) = relativeCoord.getOrCreateEntity();
+          BaseEntity._deleteRecord(relativeEntityId);
+
+          _removeBlock(relativeEntityId, relativeCoord);
+        }
+      } else {
+        Mass._setMass(baseEntityId, finalMass);
       }
-
-      Mass._deleteRecord(baseEntityId);
-
-      if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
-        DisplayContent._deleteRecord(baseEntityId);
-      }
-
-      addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
-
-      _removeBlock(baseEntityId, baseCoord);
-
-      // Only iterate through relative schema coords
-      for (uint256 i = 1; i < coords.length; i++) {
-        VoxelCoord memory relativeCoord = coords[i];
-        (EntityId relativeEntityId, ) = relativeCoord.getOrCreateEntity();
-        BaseEntity._deleteRecord(relativeEntityId);
-
-        _removeBlock(relativeEntityId, relativeCoord);
-      }
-    } else {
-      Mass._setMass(baseEntityId, finalMass);
     }
 
     notify(
