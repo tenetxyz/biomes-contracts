@@ -127,8 +127,6 @@ contract MineTest is BiomesTest {
 
   function testMineMultiSize() public {}
 
-  function testMineInForceField() public {}
-
   function testMineFailsIfForceField() public {}
 
   function testMineFailsIfInvalidBlock() public {}
