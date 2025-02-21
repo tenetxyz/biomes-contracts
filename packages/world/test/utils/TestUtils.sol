@@ -25,6 +25,16 @@ function testGetUniqueEntity() returns (EntityId) {
   return EntityId.wrap(bytes32(uniqueEntity));
 }
 
+function testInventoryObjectsHasObjectType(EntityId ownerEntityId, ObjectTypeId objectTypeId) view returns (bool) {
+  uint16[] memory inventoryObjectTypes = InventoryObjects.get(ownerEntityId);
+  for (uint256 i = 0; i < inventoryObjectTypes.length; i++) {
+    if (inventoryObjectTypes[i] == ObjectTypeId.unwrap(objectTypeId)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function testGravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
   VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
   EntityId belowEntityId = ReversePosition.get(belowCoord.x, belowCoord.y, belowCoord.z);
