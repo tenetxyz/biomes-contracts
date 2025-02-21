@@ -310,6 +310,19 @@ contract BuildTest is BiomesTest {
     );
   }
 
+  function testJumpBuildFailsIfPassThrough() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeMetadata.setCanPassThrough(buildObjectTypeId, true);
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
+    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+
+    vm.prank(alice);
+    vm.expectRevert("Cannot jump build on a pass-through block");
+    world.jumpBuild(buildObjectTypeId);
+  }
+
   function testBuildFailsIfNonAir() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 

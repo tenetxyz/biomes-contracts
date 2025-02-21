@@ -102,6 +102,8 @@ contract BuildSystem is System {
     MoveLib.movePlayer(playerEntityId, playerCoord, moveCoords);
     notify(playerEntityId, MoveNotifData({ moveCoords: moveCoords }));
 
+    require(!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId), "Cannot jump build on a pass-through block");
+
     buildWithExtraData(buildObjectTypeId, playerCoord, extraData);
   }
 
