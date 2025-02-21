@@ -30,69 +30,19 @@ import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
-import { ChunkCoord } from "../src/Types.sol";
-import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
 import { CHUNK_SIZE } from "../src/Constants.sol";
-import { encodeChunk } from "./utils/encodeChunk.sol";
+import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
 import { testInventoryObjectsHasObjectType } from "./utils/TestUtils.sol";
-
-int32 constant GRASS_LEVEL = 4;
 
 contract MineTest is BiomesTest {
   using VoxelCoordLib for *;
-
-  function setupFlatChunk(VoxelCoord memory coord) internal {
-    uint8[][][] memory chunk = _getFlatChunk();
-    bytes memory encodedChunk = encodeChunk(chunk);
-    ChunkCoord memory chunkCoord = coord.toChunkCoord();
-    bytes32[] memory merkleProof = new bytes32[](0);
-
-    world.exploreChunk(chunkCoord, encodedChunk, merkleProof);
-
-    VoxelCoord memory shardCoord = coord.toLocalEnergyPoolShardCoord();
-    LocalEnergyPool.set(shardCoord.x, 0, shardCoord.z, 1e18);
-  }
-
-  function _getFlatChunk() internal pure returns (uint8[][][] memory chunk) {
-    chunk = new uint8[][][](uint256(int256(CHUNK_SIZE)));
-    for (uint256 x = 0; x < uint256(int256(CHUNK_SIZE)); x++) {
-      chunk[x] = new uint8[][](uint256(int256(CHUNK_SIZE)));
-      for (uint256 y = 0; y < uint256(int256(CHUNK_SIZE)); y++) {
-        chunk[x][y] = new uint8[](uint256(int256(CHUNK_SIZE)));
-        for (uint256 z = 0; z < uint256(int256(CHUNK_SIZE)); z++) {
-          if (y < uint256(int256(GRASS_LEVEL))) {
-            chunk[x][y][z] = uint8(ObjectTypeId.unwrap(DirtObjectID));
-          } else if (y == uint256(int256(GRASS_LEVEL))) {
-            chunk[x][y][z] = uint8(ObjectTypeId.unwrap(GrassObjectID));
-          } else {
-            chunk[x][y][z] = uint8(ObjectTypeId.unwrap(AirObjectID));
-          }
-        }
-      }
-    }
-  }
-
-  function spawnPlayerOnFlatChunk() internal returns (address, EntityId, VoxelCoord memory) {
-    uint256 blockNumber = block.number - 5;
-    address alice = vm.randomAddress();
-    setupFlatChunk(VoxelCoord(0, 0, 0));
-
-    VoxelCoord memory spawnCoord = world.getRandomSpawnCoord(blockNumber, alice, GRASS_LEVEL + 1);
-
-    vm.prank(alice);
-    EntityId aliceEntityId = world.randomSpawn(blockNumber, spawnCoord.y);
-
-    VoxelCoord memory playerCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
-
-    return (alice, aliceEntityId, playerCoord);
-  }
 
   function testMineTerrain() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = spawnPlayerOnFlatChunk();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      GRASS_LEVEL,
+      FLAT_CHUNK_GRASS_LEVEL,
       playerCoord.z
     );
     ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
