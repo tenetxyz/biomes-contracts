@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { console } from "forge-std/console.sol";
 import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
@@ -13,6 +14,7 @@ import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
+import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
 import { ReversePlayerPosition } from "../src/codegen/tables/ReversePlayerPosition.sol";
@@ -31,9 +33,12 @@ import { getObjectTypeSchema } from "../src/utils/ObjectTypeUtils.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
+import { TestUtils } from "./utils/TestUtils.sol";
+
 abstract contract BiomesTest is MudTest, GasReporter {
   using VoxelCoordLib for *;
 
+  TestUtils immutable testUtils = new TestUtils(vm.envAddress("WORLD_ADDRESS"));
   IWorld internal world;
   int32 constant FLAT_CHUNK_GRASS_LEVEL = 4;
   uint128 playerHandMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST);
@@ -193,5 +198,13 @@ abstract contract BiomesTest is MudTest, GasReporter {
     VoxelCoord memory playerCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
 
     return (alice, aliceEntityId, playerCoord);
+  }
+
+  function setupForceField(VoxelCoord memory coord) internal returns (EntityId) {
+    // Set forcefield with no energy
+    EntityId forceFieldEntityId = randomEntityId();
+    VoxelCoord memory shardCoord = coord.toForceFieldShardCoord();
+    ForceField.set(shardCoord.x, shardCoord.y, shardCoord.z, forceFieldEntityId);
+    return forceFieldEntityId;
   }
 }
