@@ -348,7 +348,7 @@ library ObjectTypeIdLib {
 
   /// @dev Get ore amounts that should be burned when this object is burned
   /// Currently it only supports tools, and assumes that only a single type of ore is used
-  function oreAmount(ObjectTypeId self) internal pure returns (ObjectAmount memory) {
+  function getOreAmount(ObjectTypeId self) internal pure returns (ObjectAmount memory) {
     // Silver tools
     if (self == SilverPickObjectID || self == SilverAxeObjectID) {
       return ObjectAmount(SilverOreObjectID, 4); // 4 silver bars = 4 ores
@@ -377,7 +377,7 @@ library ObjectTypeIdLib {
   }
 
   function burnOres(ObjectTypeId self) internal {
-    ObjectAmount memory ores = self.oreAmount();
+    ObjectAmount memory ores = self.getOreAmount();
     ObjectTypeId objectTypeId = ores.objectTypeId;
     if (objectTypeId != NullObjectTypeId) {
       uint256 amount = ores.amount;
