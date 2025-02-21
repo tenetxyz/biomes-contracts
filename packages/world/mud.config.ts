@@ -284,25 +284,42 @@ export default defineWorld({
     // ------------------------------------------------------------
     // Ores
     // ------------------------------------------------------------
-    TerrainCommitment: {
+    OreCommitment: {
       schema: {
         x: "int32",
         y: "int32",
         z: "int32",
         blockNumber: "uint256",
-        committerEntityId: "EntityId",
       },
       key: ["x", "y", "z"],
     },
-    Commitment: {
+    TotalMinedOreCount: {
       schema: {
-        entityId: "EntityId",
-        hasCommitted: "bool",
+        count: "uint256",
+      },
+      key: [],
+    },
+    MinedOrePosition: {
+      schema: {
+        index: "uint256",
         x: "int32",
         y: "int32",
         z: "int32",
       },
-      key: ["entityId"],
+      key: ["index"],
+    },
+    MinedOreCount: {
+      schema: {
+        objectTypeId: "ObjectTypeId",
+        count: "uint256",
+      },
+      key: ["objectTypeId"],
+    },
+    TotalBurnedOreCount: {
+      schema: {
+        count: "uint256",
+      },
+      key: [],
     },
     // ------------------------------------------------------------
     // Offchain
@@ -337,20 +354,6 @@ export default defineWorld({
         baseEntityId: "EntityId",
       },
       key: ["entityId"],
-    },
-    BlockHash: {
-      schema: {
-        blockNumber: "uint256",
-        blockHash: "bytes32",
-      },
-      key: ["blockNumber"],
-    },
-    BlockPrevrandao: {
-      schema: {
-        blockNumber: "uint256",
-        blockPrevrandao: "uint256",
-      },
-      key: ["blockNumber"],
     },
   },
 });

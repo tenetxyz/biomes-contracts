@@ -16,15 +16,15 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-library BlockPrevrandao {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "BlockPrevrandao", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000426c6f636b5072657672616e64616f00);
+library TotalBurnedOreCount {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "TotalBurnedOreCo", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000546f74616c4275726e65644f7265436f);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
 
-  // Hex-encoded key schema of (uint256)
-  Schema constant _keySchema = Schema.wrap(0x002001001f000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded key schema of ()
+  Schema constant _keySchema = Schema.wrap(0x0000000000000000000000000000000000000000000000000000000000000000);
   // Hex-encoded value schema of (uint256)
   Schema constant _valueSchema = Schema.wrap(0x002001001f000000000000000000000000000000000000000000000000000000);
 
@@ -33,8 +33,7 @@ library BlockPrevrandao {
    * @return keyNames An array of strings with the names of key fields.
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
-    keyNames = new string[](1);
-    keyNames[0] = "blockNumber";
+    keyNames = new string[](0);
   }
 
   /**
@@ -43,7 +42,7 @@ library BlockPrevrandao {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "blockPrevrandao";
+    fieldNames[0] = "count";
   }
 
   /**
@@ -61,95 +60,86 @@ library BlockPrevrandao {
   }
 
   /**
-   * @notice Get blockPrevrandao.
+   * @notice Get count.
    */
-  function getBlockPrevrandao(uint256 blockNumber) internal view returns (uint256 blockPrevrandao) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
+  function getCount() internal view returns (uint256 count) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
   /**
-   * @notice Get blockPrevrandao.
+   * @notice Get count.
    */
-  function _getBlockPrevrandao(uint256 blockNumber) internal view returns (uint256 blockPrevrandao) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
+  function _getCount() internal view returns (uint256 count) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
   /**
-   * @notice Get blockPrevrandao.
+   * @notice Get count.
    */
-  function get(uint256 blockNumber) internal view returns (uint256 blockPrevrandao) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
+  function get() internal view returns (uint256 count) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
   /**
-   * @notice Get blockPrevrandao.
+   * @notice Get count.
    */
-  function _get(uint256 blockNumber) internal view returns (uint256 blockPrevrandao) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
+  function _get() internal view returns (uint256 count) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
   /**
-   * @notice Set blockPrevrandao.
+   * @notice Set count.
    */
-  function setBlockPrevrandao(uint256 blockNumber, uint256 blockPrevrandao) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
+  function setCount(uint256 count) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((blockPrevrandao)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((count)), _fieldLayout);
   }
 
   /**
-   * @notice Set blockPrevrandao.
+   * @notice Set count.
    */
-  function _setBlockPrevrandao(uint256 blockNumber, uint256 blockPrevrandao) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
+  function _setCount(uint256 count) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((blockPrevrandao)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((count)), _fieldLayout);
   }
 
   /**
-   * @notice Set blockPrevrandao.
+   * @notice Set count.
    */
-  function set(uint256 blockNumber, uint256 blockPrevrandao) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
+  function set(uint256 count) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((blockPrevrandao)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((count)), _fieldLayout);
   }
 
   /**
-   * @notice Set blockPrevrandao.
+   * @notice Set count.
    */
-  function _set(uint256 blockNumber, uint256 blockPrevrandao) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
+  function _set(uint256 count) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((blockPrevrandao)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((count)), _fieldLayout);
   }
 
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(uint256 blockNumber) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
+  function deleteRecord() internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -157,9 +147,8 @@ library BlockPrevrandao {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(uint256 blockNumber) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
+  function _deleteRecord() internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -168,8 +157,8 @@ library BlockPrevrandao {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint256 blockPrevrandao) internal pure returns (bytes memory) {
-    return abi.encodePacked(blockPrevrandao);
+  function encodeStatic(uint256 count) internal pure returns (bytes memory) {
+    return abi.encodePacked(count);
   }
 
   /**
@@ -178,8 +167,8 @@ library BlockPrevrandao {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(uint256 blockPrevrandao) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(blockPrevrandao);
+  function encode(uint256 count) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(count);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -190,9 +179,8 @@ library BlockPrevrandao {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(uint256 blockNumber) internal pure returns (bytes32[] memory) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(blockNumber));
+  function encodeKeyTuple() internal pure returns (bytes32[] memory) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     return _keyTuple;
   }

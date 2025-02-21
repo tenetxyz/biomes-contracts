@@ -4,6 +4,10 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
+import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
+import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
+import { MinedOrePosition, MinedOrePositionData } from "../codegen/tables/MinedOrePosition.sol";
+import { TotalBurnedOreCount } from "../codegen/tables/TotalBurnedOreCount.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { Position } from "../codegen/tables/Position.sol";
@@ -11,80 +15,83 @@ import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
-import { TerrainCommitment, TerrainCommitmentData } from "../codegen/tables/TerrainCommitment.sol";
-import { Commitment } from "../codegen/tables/Commitment.sol";
-import { BlockPrevrandao } from "../codegen/tables/BlockPrevrandao.sol";
+import { OreCommitment } from "../codegen/tables/OreCommitment.sol";
 
-import { AirObjectID, PlayerObjectID, AnyOreObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectTypeIds.sol";
-import { inWorldBorder, getRandomNumberBetween0And99 } from "../Utils.sol";
+import { AirObjectID, PlayerObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectTypeIds.sol";
+import { inWorldBorder } from "../Utils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, InitiateOreRevealNotifData, RevealOreNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
 import { EntityId } from "../EntityId.sol";
+import { ChunkCoord } from "../Types.sol";
+import { CHUNK_COMMIT_EXPIRY_BLOCKS, CHUNK_COMMIT_HALF_WIDTH, RESPAWN_ORE_BLOCK_RANGE } from "../Constants.sol";
+
+// TODO: copied from voxel coords. Figure out way to unify coordinate utils
+function inSurroundingCube(
+  ChunkCoord memory cubeCenter,
+  int32 halfWidth,
+  ChunkCoord memory checkCoord
+) pure returns (bool) {
+  bool isInX = checkCoord.x >= cubeCenter.x - halfWidth && checkCoord.x <= cubeCenter.x + halfWidth;
+  bool isInY = checkCoord.y >= cubeCenter.y - halfWidth && checkCoord.y <= cubeCenter.y + halfWidth;
+  bool isInZ = checkCoord.z >= cubeCenter.z - halfWidth && checkCoord.z <= cubeCenter.z + halfWidth;
+
+  return isInX && isInY && isInZ;
+}
 
 contract OreSystem is System {
   using VoxelCoordLib for *;
 
-  function initiateOreReveal(VoxelCoord memory coord) public {
-    require(inWorldBorder(coord), "Cannot reveal ore outside world border");
+  function oreChunkCommit(ChunkCoord memory chunkCoord) public {
+    require(TerrainLib._isChunkExplored(chunkCoord, _world()), "Unexplored chunk");
+    (, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
+    ChunkCoord memory playerChunkCoord = playerCoord.toChunkCoord();
 
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, coord);
-    if (TerrainCommitment._getBlockNumber(coord.x, coord.y, coord.z) != 0) {
-      revealOre(coord);
-      return;
-    }
+    require(inSurroundingCube(playerChunkCoord, CHUNK_COMMIT_HALF_WIDTH, chunkCoord), "Not in commit range");
 
-    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(!entityId.exists(), "Ore already revealed");
-    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
-    require(mineObjectTypeId == AnyOreObjectID, "Terrain is not an ore");
+    // Check existing commitment
+    uint256 commitment = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
+    require(block.number > commitment + CHUNK_COMMIT_EXPIRY_BLOCKS, "Existing ore commitment");
 
-    TerrainCommitment._set(coord.x, coord.y, coord.z, block.number, playerEntityId);
-    Commitment._set(playerEntityId, true, coord.x, coord.y, coord.z);
-    BlockPrevrandao._set(block.number, block.prevrandao);
-
-    notify(playerEntityId, InitiateOreRevealNotifData({ oreCoord: coord }));
+    // Commit starting from next block
+    OreCommitment._set(chunkCoord.x, chunkCoord.y, chunkCoord.z, block.number + 1);
   }
 
-  // Can be called by anyone
-  function revealOre(VoxelCoord memory coord) public returns (ObjectTypeId) {
-    TerrainCommitmentData memory terrainCommitmentData = TerrainCommitment._get(coord.x, coord.y, coord.z);
-    require(terrainCommitmentData.blockNumber != 0, "Terrain commitment not found");
+  function respawnOre(uint256 blockNumber) public {
+    require(
+      blockNumber < block.number && blockNumber >= block.number - RESPAWN_ORE_BLOCK_RANGE,
+      "Can only choose past 10 blocks"
+    );
 
-    uint256 randomNumber = getRandomNumberBetween0And99(terrainCommitmentData.blockNumber);
+    uint256 burned = TotalBurnedOreCount._get();
+    require(burned > 0, "No ores available for respawn");
 
-    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    require(!entityId.exists(), "Ore already revealed");
+    uint256 mined = TotalMinedOreCount._get();
+    uint256 minedOreIdx = uint256(blockhash(blockNumber)) % mined;
 
-    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
-    require(mineObjectTypeId == AnyOreObjectID, "Terrain is not an ore");
-    // TODO: Calculate ore object type based on random number
-    ObjectTypeId oreObjectTypeId = CoalOreObjectID;
+    VoxelCoord memory oreCoord = MinedOrePosition._get(minedOreIdx).toVoxelCoord();
 
-    ObjectType._set(entityId, oreObjectTypeId);
+    // Check existing entity
+    EntityId entityId = ReversePosition._get(oreCoord.x, oreCoord.y, oreCoord.z);
+    ObjectTypeId objectTypeId = ObjectType._get(entityId);
+    require(objectTypeId == AirObjectID, "Ore coordinate is not air");
+    require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot respawn where there are dropped objects");
 
-    if (oreObjectTypeId == LavaObjectID) {
-      // Apply consequences of lava
-      if (ObjectType._get(terrainCommitmentData.committerEntityId) == PlayerObjectID) {
-        VoxelCoord memory committerCoord = PlayerStatus._getIsLoggedOff(terrainCommitmentData.committerEntityId)
-          ? LastKnownPosition._get(terrainCommitmentData.committerEntityId).toVoxelCoord()
-          : Position._get(terrainCommitmentData.committerEntityId).toVoxelCoord();
-
-        // TODO: apply lava damage
-
-        notify(
-          terrainCommitmentData.committerEntityId,
-          RevealOreNotifData({ oreCoord: coord, oreObjectTypeId: oreObjectTypeId })
-        );
-      } // else: the player died, no need to do anything
+    // Remove from mined ore array
+    if (minedOreIdx < mined) {
+      MinedOrePositionData memory last = MinedOrePosition._get(mined - 1);
+      MinedOrePosition._set(minedOreIdx, last);
     }
+    MinedOrePosition._deleteRecord(mined - 1);
 
-    // Clear commitment data
-    TerrainCommitment._deleteRecord(coord.x, coord.y, coord.z);
-    Commitment._deleteRecord(terrainCommitmentData.committerEntityId);
+    // Update total amounts
+    TotalBurnedOreCount._set(burned - 1);
+    TotalMinedOreCount._set(mined - 1);
 
-    return oreObjectTypeId;
+    // This is enough to respawn the ore block, as it will be read from the original terrain next time
+    ObjectType._deleteRecord(entityId);
+    Position._deleteRecord(entityId);
+    ReversePosition._deleteRecord(oreCoord.x, oreCoord.y, oreCoord.z);
   }
 }

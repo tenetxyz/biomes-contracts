@@ -1658,33 +1658,6 @@ declare const abi: [
             "name": "lastActionTime",
             "type": "uint256",
             "internalType": "uint256"
-          },
-          {
-            "name": "commitment",
-            "type": "tuple",
-            "internalType": "struct CommitmentData",
-            "components": [
-              {
-                "name": "hasCommitted",
-                "type": "bool",
-                "internalType": "bool"
-              },
-              {
-                "name": "x",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "y",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "z",
-                "type": "int32",
-                "internalType": "int32"
-              }
-            ]
           }
         ]
       }
@@ -1809,33 +1782,6 @@ declare const abi: [
             "name": "lastActionTime",
             "type": "uint256",
             "internalType": "uint256"
-          },
-          {
-            "name": "commitment",
-            "type": "tuple",
-            "internalType": "struct CommitmentData",
-            "components": [
-              {
-                "name": "hasCommitted",
-                "type": "bool",
-                "internalType": "bool"
-              },
-              {
-                "name": "x",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "y",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "z",
-                "type": "int32",
-                "internalType": "int32"
-              }
-            ]
           }
         ]
       }
@@ -2174,36 +2120,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "initiateOreReveal",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "installModule",
     "inputs": [
       {
@@ -2422,6 +2338,36 @@ declare const abi: [
         "name": "directions",
         "type": "uint8[]",
         "internalType": "enum VoxelCoordDirection[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "oreChunkCommit",
+    "inputs": [
+      {
+        "name": "chunkCoord",
+        "type": "tuple",
+        "internalType": "struct ChunkCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
       }
     ],
     "outputs": [],
@@ -2944,38 +2890,15 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "revealOre",
+    "name": "respawnOre",
     "inputs": [
       {
-        "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "name": "blockNumber",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint16",
-        "internalType": "ObjectTypeId"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
@@ -2991,42 +2914,6 @@ declare const abi: [
         "name": "grantee",
         "type": "address",
         "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setBlockHash",
-    "inputs": [
-      {
-        "name": "blockNumber",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "blockHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setBlockPrevrandao",
-    "inputs": [
-      {
-        "name": "blockNumber",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "blockPrevrandao",
-        "type": "uint256",
-        "internalType": "uint256"
       }
     ],
     "outputs": [],

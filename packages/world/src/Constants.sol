@@ -25,13 +25,16 @@ int32 constant MAX_PLAYER_INFLUENCE_HALF_WIDTH = 10;
 int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
 
 int32 constant SPAWN_AREA_HALF_WIDTH = 5;
+uint256 constant SPAWN_BLOCK_RANGE = 10;
 
 int32 constant CHUNK_SIZE = 16;
 int32 constant AREA_SIZE = 512;
 
 uint256 constant SAFE_CHIP_GAS = 1_000_000;
 
-address constant ORACLE_ADDRESS = 0xe67AcfFCe0B542540F1520a9eaD7Aa86ff31196E;
+uint256 constant CHUNK_COMMIT_EXPIRY_BLOCKS = 256;
+int32 constant CHUNK_COMMIT_HALF_WIDTH = 2;
+uint256 constant RESPAWN_ORE_BLOCK_RANGE = 10;
 
 // ------------------------------------------------------------
 // Values To Tune
@@ -57,3 +60,9 @@ uint128 constant PLAYER_CRAFT_ENERGY_COST = 100;
 uint128 constant PLAYER_DROP_ENERGY_COST = 100;
 uint128 constant PLAYER_PICKUP_ENERGY_COST = 100;
 uint128 constant PLAYER_TRANSFER_ENERGY_COST = 100;
+
+uint256 constant MAX_COAL = 10_000_000;
+uint256 constant MAX_SILVER = 5_000_000;
+uint256 constant MAX_GOLD = 1_000_000;
+uint256 constant MAX_DIAMOND = 500_000;
+uint256 constant MAX_NEPTUNIUM = 100_000;

@@ -21,7 +21,6 @@ import { Equipped } from "../../codegen/tables/Equipped.sol";
 import { Mass } from "../../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
-import { Commitment, CommitmentData } from "../../codegen/tables/Commitment.sol";
 
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { ObjectTypeId, NullObjectTypeId } from "../../ObjectTypeIds.sol";
@@ -46,8 +45,7 @@ contract ReadTwoSystem is System {
           inventory: new InventoryObject[](0),
           mass: 0,
           energy: EnergyData({ energy: 0, lastUpdatedTime: 0 }),
-          lastActionTime: 0,
-          commitment: CommitmentData({ hasCommitted: false, x: 0, y: 0, z: 0 })
+          lastActionTime: 0
         });
     }
 
@@ -66,8 +64,7 @@ contract ReadTwoSystem is System {
         inventory: getEntityInventory(entityId),
         mass: Mass._get(entityId),
         energy: Energy._get(entityId),
-        lastActionTime: PlayerActivity._get(entityId),
-        commitment: Commitment._get(entityId)
+        lastActionTime: PlayerActivity._get(entityId)
       });
   }
 

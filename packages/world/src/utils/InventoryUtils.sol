@@ -110,7 +110,9 @@ function useEquipped(EntityId entityId) returns (uint128 massUsed, ObjectTypeId 
       removeEntityIdFromReverseInventoryEntity(entityId, inventoryEntityId);
       Equipped._deleteRecord(entityId);
 
-      // TODO: re-spawn ores
+      // Burn ores and make them available for respawn
+      inventoryObjectTypeId.burnOres();
+
       // TODO: return energy to local pool
     } else {
       Mass._setMass(inventoryEntityId, massLeft - massUsed);

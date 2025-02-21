@@ -21,7 +21,7 @@ import { ExploredChunkByIndex, ExploredChunkByIndexData } from "../codegen/table
 import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
 import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 
-import { MAX_PLAYER_ENERGY, SPAWN_AREA_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
+import { MAX_PLAYER_ENERGY, SPAWN_AREA_HALF_WIDTH, SPAWN_BLOCK_RANGE, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
@@ -78,8 +78,10 @@ contract SpawnSystem is System {
 
   function randomSpawn(uint256 blockNumber, int32 y) public returns (EntityId) {
     checkWorldStatus();
-    // TODO: use constant
-    require(blockNumber >= block.number - 10, "Can only choose past 10 blocks");
+    require(
+      blockNumber < block.number && blockNumber >= block.number - SPAWN_BLOCK_RANGE,
+      "Can only choose past 10 blocks"
+    );
 
     VoxelCoord memory spawnCoord = getRandomSpawnCoord(blockNumber, _msgSender(), y);
 
