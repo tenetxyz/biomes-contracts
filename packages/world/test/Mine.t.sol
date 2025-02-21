@@ -22,11 +22,56 @@ import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
-import { VoxelCoord, ChunkCoord } from "../src/Types.sol";
+import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID } from "../src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
+import { ChunkCoord } from "../src/Types.sol";
+import { VoxelCoord } from "../src/VoxelCoord.sol";
+import { CHUNK_SIZE } from "../src/Constants.sol";
+import { encodeChunk } from "./utils/encodeChunk.sol";
+
+int32 constant GRASS_LEVEL = 4;
 
 contract MineTest is BiomesTest {
-  function testMineTerrain() public {}
+  function setupFlatChunk(VoxelCoord memory coord) internal {
+    uint8[][][] memory chunk = _getFlatChunk();
+    bytes memory encodedChunk = encodeChunk(chunk);
+    ChunkCoord memory chunkCoord = coord.toChunkCoord();
+    bytes32[] memory merkleProof = new bytes32[](0);
+
+    world.exploreChunk(chunkCoord, encodedChunk, merkleProof);
+  }
+
+  function _getFlatChunk() internal pure returns (uint8[][][] memory chunk) {
+    chunk = new uint8[][][](uint256(int256(CHUNK_SIZE)));
+    for (uint256 x = 0; x < uint256(int256(CHUNK_SIZE)); x++) {
+      chunk[x] = new uint8[][](uint256(int256(CHUNK_SIZE)));
+      for (uint256 y = 0; y < uint256(int256(CHUNK_SIZE)); y++) {
+        chunk[x][y] = new uint8[](uint256(int256(CHUNK_SIZE)));
+        for (uint256 z = 0; z < uint256(int256(CHUNK_SIZE)); z++) {
+          if (y < uint256(int256(GRASS_LEVEL))) {
+            chunk[x][y][z] = uint8(ObjectTypeId.unwrap(DirtObjectID));
+          } else if (y == uint256(int256(GRASS_LEVEL))) {
+            chunk[x][y][z] = uint8(ObjectTypeId.unwrap(GrassObjectID));
+          } else {
+            chunk[x][y][z] = uint8(ObjectTypeId.unwrap(AirObjectID));
+          }
+        }
+      }
+    }
+  }
+
+  function testMineTerrain() public {
+    VoxelCoord memory coord = VoxelCoord(0, 0, 0);
+    setupFlatChunk(coord);
+
+    VoxelCoord memory spawnCoord = VoxelCoord(1, GRASS_LEVEL + 1, 1);
+    (EntityId bobEntityId, address alice) = createTestPlayer(spawnCoord);
+
+    VoxelCoord memory mineCoord = VoxelCoord(spawnCoord.x + 1, GRASS_LEVEL, spawnCoord.z);
+
+    vm.prank(alice);
+    world.mine(mineCoord);
+  }
 
   function testMineNonTerrain() public {}
 
