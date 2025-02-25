@@ -322,6 +322,124 @@ library ObjectTypeIdLib {
       self == AnyCottonBlockObjectID;
   }
 
+  function isPick(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return
+      objectTypeId == WoodenAxeObjectID ||
+      objectTypeId == StonePickObjectID ||
+      objectTypeId == SilverPickObjectID ||
+      objectTypeId == GoldPickObjectID ||
+      objectTypeId == NeptuniumPickObjectID ||
+      objectTypeId == DiamondPickObjectID;
+  }
+
+  function isAxe(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return
+      objectTypeId == WoodenAxeObjectID ||
+      objectTypeId == StoneAxeObjectID ||
+      objectTypeId == SilverAxeObjectID ||
+      objectTypeId == GoldAxeObjectID ||
+      objectTypeId == NeptuniumAxeObjectID ||
+      objectTypeId == DiamondAxeObjectID;
+  }
+
+  function isWhacker(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return
+      objectTypeId == WoodenWhackerObjectID ||
+      objectTypeId == StoneWhackerObjectID ||
+      objectTypeId == SilverWhackerObjectID;
+  }
+
+  function isLog(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return
+      objectTypeId == OakLogObjectID ||
+      objectTypeId == SakuraLogObjectID ||
+      objectTypeId == BirchLogObjectID ||
+      objectTypeId == RubberLogObjectID;
+  }
+
+  function isLumber(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return
+      objectTypeId == OakLumberObjectID ||
+      objectTypeId == SakuraLumberObjectID ||
+      objectTypeId == RubberLumberObjectID ||
+      objectTypeId == BirchLumberObjectID ||
+      objectTypeId == BlueOakLumberObjectID ||
+      objectTypeId == BrownOakLumberObjectID ||
+      objectTypeId == GreenOakLumberObjectID ||
+      objectTypeId == MagentaOakLumberObjectID ||
+      objectTypeId == OrangeOakLumberObjectID ||
+      objectTypeId == PinkOakLumberObjectID ||
+      objectTypeId == PurpleOakLumberObjectID ||
+      objectTypeId == RedOakLumberObjectID ||
+      objectTypeId == TanOakLumberObjectID ||
+      objectTypeId == WhiteOakLumberObjectID ||
+      objectTypeId == YellowOakLumberObjectID ||
+      objectTypeId == BlackOakLumberObjectID ||
+      objectTypeId == SilverOakLumberObjectID;
+  }
+
+  function isGlass(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return
+      objectTypeId == GlassObjectID ||
+      objectTypeId == BlueGlassObjectID ||
+      objectTypeId == GreenGlassObjectID ||
+      objectTypeId == OrangeGlassObjectID ||
+      objectTypeId == PinkGlassObjectID ||
+      objectTypeId == PurpleGlassObjectID ||
+      objectTypeId == RedGlassObjectID ||
+      objectTypeId == WhiteGlassObjectID ||
+      objectTypeId == YellowGlassObjectID ||
+      objectTypeId == BlackGlassObjectID;
+  }
+
+  function isCottonBlock(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return
+      objectTypeId == CottonBlockObjectID ||
+      objectTypeId == BlueCottonBlockObjectID ||
+      objectTypeId == BrownCottonBlockObjectID ||
+      objectTypeId == GreenCottonBlockObjectID ||
+      objectTypeId == MagentaCottonBlockObjectID ||
+      objectTypeId == OrangeCottonBlockObjectID ||
+      objectTypeId == PinkCottonBlockObjectID ||
+      objectTypeId == PurpleCottonBlockObjectID ||
+      objectTypeId == RedCottonBlockObjectID ||
+      objectTypeId == TanCottonBlockObjectID ||
+      objectTypeId == WhiteCottonBlockObjectID ||
+      objectTypeId == YellowCottonBlockObjectID ||
+      objectTypeId == BlackCottonBlockObjectID ||
+      objectTypeId == SilverCottonBlockObjectID;
+  }
+
+  function isReinforcedLumber(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return
+      objectTypeId == ReinforcedOakLumberObjectID ||
+      objectTypeId == ReinforcedRubberLumberObjectID ||
+      objectTypeId == ReinforcedBirchLumberObjectID;
+  }
+
+  function isStone(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return
+      objectTypeId == StoneObjectID ||
+      objectTypeId == CobblestoneObjectID ||
+      objectTypeId == BasaltObjectID ||
+      objectTypeId == ClayObjectID ||
+      objectTypeId == GraniteObjectID ||
+      objectTypeId == QuartziteObjectID ||
+      objectTypeId == LimestoneObjectID;
+  }
+
+  function isStorageContainer(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return objectTypeId == ChestObjectID || objectTypeId == SmartChestObjectID;
+  }
+
+  function isBasicDisplay(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return objectTypeId == TextSignObjectID;
+  }
+
+  function isSmartItem(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return objectTypeId == SmartChestObjectID || objectTypeId == SmartTextSignObjectID;
+  }
+
   function getObjectTypes(ObjectTypeId self) internal pure returns (ObjectTypeId[] memory) {
     if (self == AnyLogObjectID) {
       return getLogObjectTypes();
