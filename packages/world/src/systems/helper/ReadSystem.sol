@@ -3,7 +3,6 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
-import { OptionalSystemHooks } from "@latticexyz/world/src/codegen/tables/OptionalSystemHooks.sol";
 import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/UserDelegationControl.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 
@@ -30,14 +29,6 @@ import { InventoryObject, InventoryTool, EntityData, EntityDataWithBaseEntity } 
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {
-  function getOptionalSystemHooks(
-    address player,
-    ResourceId SystemId,
-    bytes32 callDataHash
-  ) public view returns (bytes21[] memory hooks) {
-    return OptionalSystemHooks._getHooks(player, SystemId, callDataHash);
-  }
-
   function getUserDelegation(
     address delegator,
     address delegatee

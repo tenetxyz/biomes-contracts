@@ -15,12 +15,6 @@ import { StaminaData } from "../tables/Stamina.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IReadSystem {
-  function getOptionalSystemHooks(
-    address player,
-    ResourceId SystemId,
-    bytes32 callDataHash
-  ) external view returns (bytes21[] memory hooks);
-
   function getUserDelegation(
     address delegator,
     address delegatee

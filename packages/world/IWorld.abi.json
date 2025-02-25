@@ -692,29 +692,6 @@
   },
   {
     "type": "function",
-    "name": "deleteAllUserHooks",
-    "inputs": [
-      {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "systemId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
-      },
-      {
-        "name": "callDataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "deleteRecord",
     "inputs": [
       {
@@ -2332,35 +2309,6 @@
         "name": "",
         "type": "uint8",
         "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getOptionalSystemHooks",
-    "inputs": [
-      {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "SystemId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
-      },
-      {
-        "name": "callDataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "hooks",
-        "type": "bytes21[]",
-        "internalType": "bytes21[]"
       }
     ],
     "stateMutability": "view"
@@ -4633,34 +4581,6 @@
   },
   {
     "type": "function",
-    "name": "registerOptionalSystemHook",
-    "inputs": [
-      {
-        "name": "systemId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
-      },
-      {
-        "name": "hookAddress",
-        "type": "address",
-        "internalType": "contract IOptionalSystemHook"
-      },
-      {
-        "name": "enabledHooksBitmap",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "callDataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "registerRootFunctionSelector",
     "inputs": [
       {
@@ -6068,29 +5988,6 @@
   },
   {
     "type": "function",
-    "name": "unregisterOptionalSystemHook",
-    "inputs": [
-      {
-        "name": "systemId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
-      },
-      {
-        "name": "hookAddress",
-        "type": "address",
-        "internalType": "contract IOptionalSystemHook"
-      },
-      {
-        "name": "callDataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "unregisterStoreHook",
     "inputs": [
       {
@@ -6696,11 +6593,6 @@
   },
   {
     "type": "error",
-    "name": "World_CustomUnregisterDelegationNotAllowed",
-    "inputs": []
-  },
-  {
-    "type": "error",
     "name": "World_DelegationNotFound",
     "inputs": [
       {
@@ -6814,27 +6706,6 @@
         "name": "resourceIdString",
         "type": "string",
         "internalType": "string"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "World_OptionalHookAlreadyRegistered",
-    "inputs": [
-      {
-        "name": "systemId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
-      },
-      {
-        "name": "hookAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "callDataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
       }
     ]
   },

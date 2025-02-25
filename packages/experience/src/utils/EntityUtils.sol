@@ -2,7 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
-import { OptionalSystemHooks } from "@latticexyz/world/src/codegen/tables/OptionalSystemHooks.sol";
 import { UserDelegationControl } from "@latticexyz/world/src/codegen/tables/UserDelegationControl.sol";
 import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 import { BEFORE_CALL_SYSTEM, AFTER_CALL_SYSTEM, ALL } from "@latticexyz/world/src/systemHookTypes.sol";
@@ -32,17 +31,6 @@ import { Recipes, RecipesData } from "@biomesaw/world/src/codegen/tables/Recipes
 import { MAX_CHEST_INVENTORY_SLOTS } from "@biomesaw/world/src/Constants.sol";
 import { VoxelCoord } from "@biomesaw/utils/src/Types.sol";
 import { positionDataToVoxelCoord } from "@biomesaw/world/src/Utils.sol";
-
-function hasBeforeAndAfterSystemHook(address hookAddress, address player, ResourceId systemId) view returns (bool) {
-  bytes21[] memory playerSystemHooks = OptionalSystemHooks.getHooks(player, systemId, bytes32(0));
-  for (uint i = 0; i < playerSystemHooks.length; i++) {
-    Hook hook = Hook.wrap(playerSystemHooks[i]);
-    if (hook.getAddress() == hookAddress && hook.getBitmap() == ALL) {
-      return true;
-    }
-  }
-  return false;
-}
 
 function hasDelegated(address delegator, address delegatee) view returns (bool) {
   return Delegation.isUnlimited(UserDelegationControl.getDelegationControlId(delegator, delegatee));

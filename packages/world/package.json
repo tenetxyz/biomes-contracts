@@ -22,15 +22,15 @@
   },
   "dependencies": {
     "@biomesaw/utils": "workspace:*",
-    "@latticexyz/cli": "link:../../../mud/packages/cli",
-    "@latticexyz/config": "link:../../../mud/packages/config",
-    "@latticexyz/schema-type": "link:../../../mud/packages/schema-type",
-    "@latticexyz/store": "link:../../../mud/packages/store",
-    "@latticexyz/world": "link:../../../mud/packages/world",
-    "@latticexyz/world-modules": "link:../../../mud/packages/world-modules",
-    "@latticexyz/gas-report": "link:../../../mud/packages/gas-report",
-    "solhint-config-mud": "link:../../../mud/packages/solhint-config-mud",
-    "solhint-plugin-mud": "link:../../../mud/packages/solhint-plugin-mud"
+    "@latticexyz/cli": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/config": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/schema-type": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/store": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/world": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/world-modules": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/gas-report": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "solhint-config-mud": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "solhint-plugin-mud": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d"
   },
   "devDependencies": {
     "@openzeppelin/contracts": "^4.9.6",
