@@ -10,6 +10,7 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
 import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
+import { Orientation } from "../codegen/tables/Orientation.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
@@ -60,6 +61,7 @@ contract BuildSystem is System {
     requireInPlayerInfluence(playerCoord, baseCoord);
 
     EntityId baseEntityId = _addBlock(buildObjectTypeId, baseCoord);
+    Orientation._set(baseEntityId, direction);
     uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
     Mass._setMass(baseEntityId, mass);
 
@@ -116,11 +118,19 @@ contract BuildSystem is System {
     jumpBuildWithExtraData(buildObjectTypeId, direction, new bytes(0));
   }
 
+  function jumpBuild(ObjectTypeId buildObjectTypeId) public payable {
+    jumpBuildWithExtraData(buildObjectTypeId, Direction.North, new bytes(0));
+  }
+
   function build(
     ObjectTypeId buildObjectTypeId,
     VoxelCoord memory baseCoord,
     Direction direction
   ) public payable returns (EntityId) {
     return buildWithExtraData(buildObjectTypeId, baseCoord, direction, new bytes(0));
+  }
+
+  function build(ObjectTypeId buildObjectTypeId, VoxelCoord memory baseCoord) public payable returns (EntityId) {
+    return buildWithExtraData(buildObjectTypeId, baseCoord, Direction.North, new bytes(0));
   }
 }

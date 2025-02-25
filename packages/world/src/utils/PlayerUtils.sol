@@ -30,7 +30,7 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
   checkWorldStatus();
   EntityId playerEntityId = Player._get(player);
   require(playerEntityId.exists(), "Player does not exist");
-  require(!PlayerStatus._getBedentityId().exists(), "Player is sleeping");
+  require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
   VoxelCoord memory playerCoord = PlayerPosition._get(playerEntityId).toVoxelCoord();
   EnergyData memory playerEnergyData = updatePlayerEnergyLevel(playerEntityId);
   PlayerActivity._set(playerEntityId, uint128(block.timestamp));
@@ -63,8 +63,6 @@ function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
 
   ObjectType._set(playerEntityId, PlayerObjectID);
   playerCoord.setPlayer(playerEntityId);
-
-  Energy._set(playerEntityId, PLAYER);
 
   VoxelCoord[] memory relativePositions = getObjectTypeSchema(PlayerObjectID);
   for (uint256 i = 0; i < relativePositions.length; i++) {

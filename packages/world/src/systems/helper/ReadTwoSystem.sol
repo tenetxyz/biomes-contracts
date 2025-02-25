@@ -10,7 +10,6 @@ import { Position } from "../../codegen/tables/Position.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { PlayerPosition } from "../../codegen/tables/PlayerPosition.sol";
 import { ReversePlayerPosition } from "../../codegen/tables/ReversePlayerPosition.sol";
-import { LastKnownPosition } from "../../codegen/tables/LastKnownPosition.sol";
 import { Player } from "../../codegen/tables/Player.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
@@ -40,18 +39,18 @@ contract ReadTwoSystem is System {
           playerAddress: player,
           entityId: EntityId.wrap(0),
           position: VoxelCoord(0, 0, 0),
-          isLoggedOff: false,
+          bedEntityId: EntityId.wrap(0),
           equippedEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
           mass: 0,
-          energy: EnergyData({ energy: 0, lastUpdatedTime: 0 }),
+          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0 }),
           lastActionTime: 0
         });
     }
 
-    bool isLoggedOff = PlayerStatus._getIsLoggedOff(entityId);
-    VoxelCoord memory playerPos = isLoggedOff
-      ? LastKnownPosition._get(entityId).toVoxelCoord()
+    EntityId bedEntityId = PlayerStatus._getBedEntityId(entityId);
+    VoxelCoord memory playerPos = bedEntityId.exists()
+      ? Position._get(entityId).toVoxelCoord()
       : PlayerPosition._get(entityId).toVoxelCoord();
 
     return
@@ -59,7 +58,7 @@ contract ReadTwoSystem is System {
         playerAddress: player,
         entityId: entityId,
         position: playerPos,
-        isLoggedOff: isLoggedOff,
+        bedEntityId: bedEntityId,
         equippedEntityId: Equipped._get(entityId),
         inventory: getEntityInventory(entityId),
         mass: Mass._get(entityId),

@@ -11,7 +11,6 @@ import { Position } from "../../codegen/tables/Position.sol";
 import { PlayerPosition } from "../../codegen/tables/PlayerPosition.sol";
 import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
 import { ReversePlayerPosition } from "../../codegen/tables/ReversePlayerPosition.sol";
-import { LastKnownPosition } from "../../codegen/tables/LastKnownPosition.sol";
 import { Player } from "../../codegen/tables/Player.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
@@ -91,7 +90,7 @@ contract ReadSystem is System {
 
   function getLastActivityTime(address player) public view returns (uint256) {
     EntityId playerEntityId = Player._get(player);
-    if (PlayerStatus._getIsLoggedOff(playerEntityId)) {
+    if (PlayerStatus._getBedEntityId(playerEntityId).exists()) {
       return 0;
     }
     return PlayerActivity._get(playerEntityId);
@@ -110,8 +109,9 @@ contract ReadSystem is System {
   function getCoordForEntityId(EntityId entityId) public view returns (VoxelCoord memory) {
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
     if (objectTypeId == PlayerObjectID) {
-      if (PlayerStatus._getIsLoggedOff(entityId)) {
-        return LastKnownPosition._get(entityId).toVoxelCoord();
+      EntityId bedEntityId = PlayerStatus._getBedEntityId(entityId);
+      if (bedEntityId.exists()) {
+        return Position._get(bedEntityId).toVoxelCoord();
       } else {
         return PlayerPosition._get(entityId).toVoxelCoord();
       }

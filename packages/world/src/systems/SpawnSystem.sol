@@ -21,7 +21,7 @@ import { ExploredChunkByIndex, ExploredChunkByIndexData } from "../codegen/table
 import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
 import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 
-import { MAX_PLAYER_ENERGY, SPAWN_AREA_HALF_WIDTH, SPAWN_BLOCK_RANGE, CHUNK_SIZE } from "../Constants.sol";
+import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_AREA_HALF_WIDTH, SPAWN_BLOCK_RANGE, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
@@ -145,7 +145,11 @@ contract SpawnSystem is System {
     Mass._set(basePlayerEntityId, playerMass);
     Energy._set(
       basePlayerEntityId,
-      EnergyData({ energy: MAX_PLAYER_ENERGY, lastUpdatedTime: uint128(block.timestamp) })
+      EnergyData({
+        energy: MAX_PLAYER_ENERGY,
+        lastUpdatedTime: uint128(block.timestamp),
+        drainRate: PLAYER_ENERGY_DRAIN_RATE
+      })
     );
 
     PlayerActivity._set(basePlayerEntityId, uint128(block.timestamp));

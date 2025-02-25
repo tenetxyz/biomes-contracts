@@ -244,15 +244,6 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    LastKnownPosition: {
-      schema: {
-        entityId: "EntityId",
-        x: "int32",
-        y: "int32",
-        z: "int32",
-      },
-      key: ["entityId"],
-    },
     // ------------------------------------------------------------
     // Smart Items
     // ------------------------------------------------------------

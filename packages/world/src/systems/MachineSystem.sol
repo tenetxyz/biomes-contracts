@@ -6,7 +6,6 @@ import { VoxelCoord } from "../VoxelCoord.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { MachineDrainRate } from "../codegen/tables/MachineDrainRate.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
@@ -35,13 +34,14 @@ contract MachineSystem is System {
     require(objectTypeId == ForceFieldObjectID, "Invalid object type");
     EnergyData memory machineData = updateMachineEnergyLevel(baseEntityId);
     // Set base drain rate
-    if (machineData.energy == 0) {
-      MachineDrainRate._set(entityId, MACHINE_ENERGY_DRAIN_RATE);
-    }
+    uint128 drainRate = machineData.energy == 0 ? MACHINE_ENERGY_DRAIN_RATE : machineData.drainRate;
 
     uint128 newEnergyLevel = machineData.energy + (uint128(numBattery) * 10);
 
-    Energy._set(baseEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: newEnergyLevel }));
+    Energy._set(
+      baseEntityId,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: newEnergyLevel, drainRate: drainRate })
+    );
 
     notify(
       playerEntityId,

@@ -14,7 +14,7 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { ObjectTypeId, PlayerObjectID, ChipObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, PlayerObjectID, ChipObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
@@ -26,13 +26,14 @@ import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
+import { IBedChip } from "../prototypes/IBedChip.sol";
 import { EntityId } from "../EntityId.sol";
 import { safeCallChip, callChipOrRevert } from "../utils/callChip.sol";
 
 contract ChipSystem is System {
   using WorldResourceIdInstance for ResourceId;
 
-  function _requireInterface(address chipAddress, bytes4 interfaceId) {
+  function _requireInterface(address chipAddress, bytes4 interfaceId) internal {
     require(
       ERC165Checker.supportsInterface(chipAddress, interfaceId),
       "Chip does not implement the required interface"
@@ -53,7 +54,7 @@ contract ChipSystem is System {
     if (objectTypeId == ForceFieldObjectID) {
       _requireInterface(chipAddress, type(IForceFieldChip).interfaceId);
     } else if (objectTypeId == SmartChestObjectID) {
-      _requireInterface(chipAddress, type(ISmartChestObjectID).interfaceId);
+      _requireInterface(chipAddress, type(IChestChip).interfaceId);
     } else if (objectTypeId == SmartTextSignObjectID) {
       _requireInterface(chipAddress, type(IDisplayChip).interfaceId);
     } else if (objectTypeId == SpawnTileObjectID) {

@@ -41,7 +41,14 @@ function neq(EntityId self, EntityId other) pure returns (bool) {
 function decreaseEnergy(EntityId self, EnergyData memory currentEnergyData, uint128 amount) {
   uint128 currentEnergy = currentEnergyData.energy;
   require(currentEnergy >= amount, "Not enough energy");
-  Energy._set(self, EnergyData({ energy: currentEnergy - amount, lastUpdatedTime: uint128(block.timestamp) }));
+  Energy._set(
+    self,
+    EnergyData({
+      energy: currentEnergy - amount,
+      lastUpdatedTime: uint128(block.timestamp),
+      drainRate: currentEnergyData.drainRate
+    })
+  );
 }
 
 using { isBaseEntity, baseEntityId, getChipAddress, exists, eq as ==, neq as !=, decreaseEnergy } for EntityId global;

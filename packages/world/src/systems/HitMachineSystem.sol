@@ -20,7 +20,6 @@ import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../u
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { isWhacker } from "../utils/ObjectTypeUtils.sol";
 import { safeCallChip } from "../utils/callChip.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
@@ -43,10 +42,8 @@ contract HitMachineSystem is System {
       return;
     }
 
-    ObjectTypeId objectTypeId = ObjectType._get(machineEntityId);
-
     (uint128 toolMassReduction, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId);
-    require(isWhacker(toolObjectTypeId), "You must use a whacker to hit machines");
+    require(toolObjectTypeId.isWhacker(), "You must use a whacker to hit machines");
 
     uint128 baseEnergyReduction = PLAYER_HIT_ENERGY_COST + massToEnergy(toolMassReduction);
     VoxelCoord memory forceFieldShardCoord = machineCoord.toForceFieldShardCoord();

@@ -23,7 +23,7 @@ import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
 import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { MAX_PLAYER_ENERGY, SPAWN_AREA_HALF_WIDTH, SPAWN_BLOCK_RANGE, BED_DRAIN_RATE } from "../Constants.sol";
+import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_INTERVAL, SPAWN_AREA_HALF_WIDTH, SPAWN_BLOCK_RANGE, BED_DRAIN_RATE } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
@@ -31,7 +31,7 @@ import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
-import { updateMachineEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergyLevel, massToEnergy, updatePlayerEnergyLevel } from "../utils/EnergyUtils.sol";
 import { IBedChip } from "../prototypes/IBedChip.sol";
 import { createPlayer } from "../utils/PlayerUtils.sol";
 
@@ -80,8 +80,11 @@ contract BedSystem is System {
 
     address playerAddress = _msgSender();
     EntityId playerEntityId = Player._get(playerAddress);
-    EntityId bedEntityId = PlayerStatus._getBedEntityId();
+    require(playerEntityId.exists(), "Player does not exist");
+    EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
     require(bedEntityId.exists(), "Player is not sleeping");
+
+    updatePlayerEnergyLevel(playerEntityId);
 
     VoxelCoord memory bedCoord = Position._get(bedEntityId).toVoxelCoord();
     require(bedCoord.inSurroundingCube(SPAWN_AREA_HALF_WIDTH, spawnCoord), "Bed is too far away");
@@ -89,7 +92,7 @@ contract BedSystem is System {
     EntityId forceFieldEntityId = getForceField(bedCoord);
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
     EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-    Energy._setDrainRate(machineData.drainRate - BED_DRAIN_RATE);
+    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - BED_DRAIN_RATE);
 
     if (machineData.energy > 0) {
       address chipAddress = bedEntityId.getChipAddress();

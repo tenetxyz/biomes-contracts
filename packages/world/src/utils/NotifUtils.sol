@@ -61,14 +61,6 @@ struct SpawnNotifData {
   VoxelCoord spawnCoord;
 }
 
-struct LoginNotifData {
-  VoxelCoord loginCoord;
-}
-
-struct LogoffNotifData {
-  VoxelCoord logoffCoord;
-}
-
 struct PowerMachineNotifData {
   EntityId machineEntityId;
   VoxelCoord machineCoord;
@@ -168,20 +160,6 @@ function notify(EntityId playerEntityId, SpawnNotifData memory spawnNotifData) {
   PlayerActionNotif._set(
     playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Spawn, actionData: abi.encode(spawnNotifData) })
-  );
-}
-
-function notify(EntityId playerEntityId, LoginNotifData memory loginNotifData) {
-  PlayerActionNotif._set(
-    playerEntityId,
-    PlayerActionNotifData({ actionType: ActionType.Login, actionData: abi.encode(loginNotifData) })
-  );
-}
-
-function notify(EntityId playerEntityId, LogoffNotifData memory logoffNotifData) {
-  PlayerActionNotif._set(
-    playerEntityId,
-    PlayerActionNotifData({ actionType: ActionType.Logoff, actionData: abi.encode(logoffNotifData) })
   );
 }
 

@@ -176,6 +176,52 @@
   },
   {
     "type": "function",
+    "name": "build",
+    "inputs": [
+      {
+        "name": "buildObjectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "baseCoord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      },
+      {
+        "name": "direction",
+        "type": "uint8",
+        "internalType": "enum Direction"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
     "name": "buildWithExtraData",
     "inputs": [
       {
@@ -204,6 +250,11 @@
             "internalType": "int32"
           }
         ]
+      },
+      {
+        "name": "direction",
+        "type": "uint8",
+        "internalType": "enum Direction"
       },
       {
         "name": "extraData",
@@ -1589,9 +1640,9 @@
             ]
           },
           {
-            "name": "isLoggedOff",
-            "type": "bool",
-            "internalType": "bool"
+            "name": "bedEntityId",
+            "type": "bytes32",
+            "internalType": "EntityId"
           },
           {
             "name": "equippedEntityId",
@@ -1649,6 +1700,11 @@
               },
               {
                 "name": "energy",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "drainRate",
                 "type": "uint128",
                 "internalType": "uint128"
               }
@@ -1713,9 +1769,9 @@
             ]
           },
           {
-            "name": "isLoggedOff",
-            "type": "bool",
-            "internalType": "bool"
+            "name": "bedEntityId",
+            "type": "bytes32",
+            "internalType": "EntityId"
           },
           {
             "name": "equippedEntityId",
@@ -1773,6 +1829,11 @@
               },
               {
                 "name": "energy",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "drainRate",
                 "type": "uint128",
                 "internalType": "uint128"
               }
@@ -2169,12 +2230,35 @@
   },
   {
     "type": "function",
+    "name": "jumpBuild",
+    "inputs": [
+      {
+        "name": "buildObjectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "direction",
+        "type": "uint8",
+        "internalType": "enum Direction"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
     "name": "jumpBuildWithExtraData",
     "inputs": [
       {
         "name": "buildObjectTypeId",
         "type": "uint16",
         "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "direction",
+        "type": "uint8",
+        "internalType": "enum Direction"
       },
       {
         "name": "extraData",
@@ -2184,56 +2268,6 @@
     ],
     "outputs": [],
     "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "loginPlayer",
-    "inputs": [
-      {
-        "name": "respawnCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "logoffPlayer",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "logoffStalePlayer",
-    "inputs": [
-      {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -3106,6 +3140,24 @@
   },
   {
     "type": "function",
+    "name": "sleep",
+    "inputs": [
+      {
+        "name": "bedEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "spawn",
     "inputs": [
       {
@@ -3543,6 +3595,41 @@
         "name": "hookAddress",
         "type": "address",
         "internalType": "contract ISystemHook"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "wakeup",
+    "inputs": [
+      {
+        "name": "spawnCoord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],

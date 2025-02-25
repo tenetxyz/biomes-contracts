@@ -12,13 +12,14 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { Orientation } from "../codegen/tables/Orientation.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
-import { ActionType, DisplayContentType } from "../codegen/common.sol";
+import { ActionType, DisplayContentType, Direction } from "../codegen/common.sol";
 
 import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../ObjectTypeIds.sol";
@@ -146,7 +147,7 @@ contract MineSystem is System {
     require(updateMachineEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
 
     // First coord will be the base coord, the rest is relative schema coords
-    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(mineObjectTypeId);
+    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(mineObjectTypeId, Orientation._get(baseEntityId));
 
     {
       uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);

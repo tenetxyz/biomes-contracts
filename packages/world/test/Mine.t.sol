@@ -19,6 +19,7 @@ import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
+import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
@@ -384,7 +385,7 @@ contract MineTest is BiomesTest {
     ObjectTypeId mineObjectTypeId = DirtObjectID;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
-    Energy.set(aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0 }));
+    Energy.set(aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 0 }));
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");
@@ -435,7 +436,7 @@ contract MineTest is BiomesTest {
     world.mine(mineCoord);
   }
 
-  function testMineFailsIfLoggedOut() public {
+  function testMineFailsIfSleeping() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
@@ -446,8 +447,7 @@ contract MineTest is BiomesTest {
     ObjectTypeId mineObjectTypeId = DirtObjectID;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
-    vm.prank(alice);
-    world.logoffPlayer();
+    PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 
     vm.prank(alice);
     vm.expectRevert("Player isn't logged in");
@@ -464,7 +464,7 @@ contract MineTest is BiomesTest {
     );
     ObjectTypeId mineObjectTypeId = ForceFieldObjectID;
     EntityId mineEntityId = setObjectAtCoord(mineCoord, mineObjectTypeId);
-    Energy.set(mineEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000 }));
+    Energy.set(mineEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: 0 }));
 
     vm.prank(alice);
     vm.expectRevert("Cannot mine a machine that has energy");
