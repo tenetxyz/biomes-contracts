@@ -197,6 +197,7 @@ ObjectTypeId constant TextSignObjectID = ObjectTypeId.wrap(Block | 603);
 ObjectTypeId constant SmartTextSignObjectID = ObjectTypeId.wrap(Block | 604);
 ObjectTypeId constant PipeObjectID = ObjectTypeId.wrap(Block | 605);
 ObjectTypeId constant SpawnTileObjectID = ObjectTypeId.wrap(Block | 606);
+ObjectTypeId constant BedObjectID = ObjectTypeId.wrap(Block | 607);
 
 // ------------------------------------------------------------
 // Tools

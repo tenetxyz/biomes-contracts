@@ -24,12 +24,12 @@ library PlayerStatus {
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000506c6179657253746174757300000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0001010001000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bool)
-  Schema constant _valueSchema = Schema.wrap(0x0001010060000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32)
+  Schema constant _valueSchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -46,7 +46,7 @@ library PlayerStatus {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "isLoggedOff";
+    fieldNames[0] = "bedEntityId";
   }
 
   /**
@@ -64,87 +64,87 @@ library PlayerStatus {
   }
 
   /**
-   * @notice Get isLoggedOff.
+   * @notice Get bedEntityId.
    */
-  function getIsLoggedOff(EntityId entityId) internal view returns (bool isLoggedOff) {
+  function getBedEntityId(EntityId entityId) internal view returns (EntityId bedEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get isLoggedOff.
+   * @notice Get bedEntityId.
    */
-  function _getIsLoggedOff(EntityId entityId) internal view returns (bool isLoggedOff) {
+  function _getBedEntityId(EntityId entityId) internal view returns (EntityId bedEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get isLoggedOff.
+   * @notice Get bedEntityId.
    */
-  function get(EntityId entityId) internal view returns (bool isLoggedOff) {
+  function get(EntityId entityId) internal view returns (EntityId bedEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get isLoggedOff.
+   * @notice Get bedEntityId.
    */
-  function _get(EntityId entityId) internal view returns (bool isLoggedOff) {
+  function _get(EntityId entityId) internal view returns (EntityId bedEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    return EntityId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Set isLoggedOff.
+   * @notice Set bedEntityId.
    */
-  function setIsLoggedOff(EntityId entityId, bool isLoggedOff) internal {
+  function setBedEntityId(EntityId entityId, EntityId bedEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isLoggedOff)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(bedEntityId)), _fieldLayout);
   }
 
   /**
-   * @notice Set isLoggedOff.
+   * @notice Set bedEntityId.
    */
-  function _setIsLoggedOff(EntityId entityId, bool isLoggedOff) internal {
+  function _setBedEntityId(EntityId entityId, EntityId bedEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isLoggedOff)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(bedEntityId)), _fieldLayout);
   }
 
   /**
-   * @notice Set isLoggedOff.
+   * @notice Set bedEntityId.
    */
-  function set(EntityId entityId, bool isLoggedOff) internal {
+  function set(EntityId entityId, EntityId bedEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isLoggedOff)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(bedEntityId)), _fieldLayout);
   }
 
   /**
-   * @notice Set isLoggedOff.
+   * @notice Set bedEntityId.
    */
-  function _set(EntityId entityId, bool isLoggedOff) internal {
+  function _set(EntityId entityId, EntityId bedEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((isLoggedOff)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(bedEntityId)), _fieldLayout);
   }
 
   /**
@@ -171,8 +171,8 @@ library PlayerStatus {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(bool isLoggedOff) internal pure returns (bytes memory) {
-    return abi.encodePacked(isLoggedOff);
+  function encodeStatic(EntityId bedEntityId) internal pure returns (bytes memory) {
+    return abi.encodePacked(bedEntityId);
   }
 
   /**
@@ -181,8 +181,8 @@ library PlayerStatus {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(bool isLoggedOff) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(isLoggedOff);
+  function encode(EntityId bedEntityId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(bedEntityId);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -198,17 +198,5 @@ library PlayerStatus {
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     return _keyTuple;
-  }
-}
-
-/**
- * @notice Cast a value to a bool.
- * @dev Boolean values are encoded as uint8 (1 = true, 0 = false), but Solidity doesn't allow casting between uint8 and bool.
- * @param value The uint8 value to convert.
- * @return result The boolean value.
- */
-function _toBool(uint8 value) pure returns (bool result) {
-  assembly {
-    result := value
   }
 }

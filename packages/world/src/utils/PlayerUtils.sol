@@ -30,7 +30,7 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
   checkWorldStatus();
   EntityId playerEntityId = Player._get(player);
   require(playerEntityId.exists(), "Player does not exist");
-  require(!PlayerStatus._getIsLoggedOff(playerEntityId), "Player isn't logged in");
+  require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player isn't logged in");
   VoxelCoord memory playerCoord = PlayerPosition._get(playerEntityId).toVoxelCoord();
   EnergyData memory playerEnergyData = updatePlayerEnergyLevel(playerEntityId);
   PlayerActivity._set(playerEntityId, uint128(block.timestamp));

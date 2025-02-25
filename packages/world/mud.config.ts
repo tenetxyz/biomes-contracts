@@ -111,6 +111,12 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
+    Orientation: {
+      schema: {
+        entityId: "EntityId",
+      },
+      key: ["entityId"],
+    },
     Mass: {
       schema: {
         entityId: "EntityId",
@@ -232,7 +238,7 @@ export default defineWorld({
     PlayerStatus: {
       schema: {
         entityId: "EntityId",
-        isLoggedOff: "bool",
+        bedEntityId: "EntityId",
       },
       key: ["entityId"],
     },
