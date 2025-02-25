@@ -134,7 +134,6 @@ contract SpawnSystem is System {
 
     address playerAddress = _msgSender();
     require(!Player._get(playerAddress).exists(), "Player already spawned");
-    // TODO: check that player is not a bed?
 
     EntityId basePlayerEntityId = getUniqueEntity();
     createPlayer(basePlayerEntityId, spawnCoord);

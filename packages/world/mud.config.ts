@@ -229,6 +229,13 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
+    BedPlayer: {
+      schema: {
+        bedEntityId: "EntityId",
+        playerEntityId: "EntityId",
+      },
+      key: ["bedEntityId"],
+    },
     // TODO: maybe merge this with other tables
     PlayerStatus: {
       schema: {
