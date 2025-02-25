@@ -23,104 +23,11 @@ import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { getObjectTypeSchema } from "../../utils/ObjectTypeUtils.sol";
 
 library MoveLib {
-  function movePlayer(
-    EntityId playerEntityId,
-    VoxelCoord memory playerCoord,
-    VoxelCoord[] memory newCoords
-  ) public returns (bool, VoxelCoord memory) {
-    VoxelCoord[] memory relativePositions = getObjectTypeSchema(PlayerObjectID);
-    EntityId[] memory playerEntityIds = new EntityId[](relativePositions.length + 1);
-    playerEntityIds[0] = playerEntityId;
-
-    VoxelCoord[] memory relativeCoords = new VoxelCoord[](relativePositions.length);
-    for (uint256 i = 0; i < relativePositions.length; i++) {
-      VoxelCoord memory relativeCoord = VoxelCoord(
-        playerCoord.x + relativePositions[i].x,
-        playerCoord.y + relativePositions[i].y,
-        playerCoord.z + relativePositions[i].z
-      );
-      playerEntityIds[i + 1] = relativeCoord.getPlayer();
-      relativeCoords[i] = relativeCoord;
-      // TODO: do we need this check?
-      require(playerEntityIds[i + 1].baseEntityId() == playerEntityId, "Base entity mismatch");
-    }
-
-    bool gravityAppliesForCoord = false;
-    {
-      uint256 numJumps = 0;
-      uint256 numFalls = 0;
-      uint256 numGlides = 0;
-      VoxelCoord memory oldCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
-      for (uint256 i = 0; i < newCoords.length; i++) {
-        VoxelCoord memory newCoord = newCoords[i];
-        (, gravityAppliesForCoord) = move(playerEntityIds, oldCoord, newCoord);
-
-        for (uint256 j = 0; j < relativePositions.length; j++) {
-          VoxelCoord memory oldRelativeCoord = VoxelCoord(
-            oldCoord.x + relativePositions[j].x,
-            oldCoord.y + relativePositions[j].y,
-            oldCoord.z + relativePositions[j].z
-          );
-          VoxelCoord memory newRelativeCoord = VoxelCoord(
-            newCoord.x + relativePositions[j].x,
-            newCoord.y + relativePositions[j].y,
-            newCoord.z + relativePositions[j].z
-          );
-          move(playerEntityIds, oldRelativeCoord, newRelativeCoord);
-        }
-
-        if (gravityAppliesForCoord) {
-          if (oldCoord.y < newCoord.y) {
-            numJumps++;
-            require(numJumps <= 3, "Cannot jump more than 3 blocks");
-          } else if (oldCoord.y > newCoord.y) {
-            // then we are falling, so should be fine
-            numFalls++;
-            numGlides = 0;
-          } else {
-            // we are gliding
-            numGlides++;
-            require(numGlides <= 10, "Cannot glide more than 10 blocks");
-          }
-        } else {
-          numJumps = 0;
-          numGlides = 0;
-        }
-        oldCoord = VoxelCoord(newCoord.x, newCoord.y, newCoord.z);
-      }
-    }
-
-    VoxelCoord memory finalCoord = newCoords[newCoords.length - 1];
-    if (!VoxelCoordLib.equals(finalCoord, playerCoord)) {
-      ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
-      finalCoord.setPlayer(playerEntityId);
-
-      for (uint256 i = 0; i < relativePositions.length; i++) {
-        ReversePlayerPosition._deleteRecord(relativeCoords[i].x, relativeCoords[i].y, relativeCoords[i].z);
-        VoxelCoord memory newRelativeCoord = VoxelCoord(
-          finalCoord.x + relativePositions[i].x,
-          finalCoord.y + relativePositions[i].y,
-          finalCoord.z + relativePositions[i].z
-        );
-        newRelativeCoord.setPlayer(playerEntityIds[i + 1]);
-      }
-    }
-
-    transferEnergyFromPlayerToPool(
-      playerEntityId,
-      playerCoord,
-      Energy._get(playerEntityId),
-      PLAYER_MOVE_ENERGY_COST * uint128(newCoords.length)
-    );
-
-    return (gravityAppliesForCoord, finalCoord);
-  }
-
-  function move(
+  function _requireValidMove(
     EntityId[] memory playerEntityIds,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
-  ) internal view returns (EntityId, bool) {
+  ) internal view returns (bool) {
     require(inWorldBorder(newCoord), "Cannot move outside the world border");
     require(oldCoord.inSurroundingCube(1, newCoord), "New coord is too far from old coord");
 
@@ -141,7 +48,100 @@ library MoveLib {
       require(isSelf, "Cannot move through a player");
     }
 
-    return (newEntityId, gravityApplies(newCoord));
+    return gravityApplies(newCoord);
+  }
+
+  function _requireValidPath(
+    EntityId[] memory playerEntityIds,
+    VoxelCoord[] memory playerCoords,
+    VoxelCoord[] memory newCoords
+  ) internal view returns (bool, VoxelCoord[] memory) {
+    bool gravityAppliesForMove = false;
+    VoxelCoord[] memory newPlayerCoords = new VoxelCoord[](playerCoords.length);
+
+    uint256 numJumps = 0;
+    uint256 numFalls = 0;
+    uint256 numGlides = 0;
+
+    VoxelCoord[] memory oldPlayerCoords = new VoxelCoord[](playerCoords.length);
+    for (uint256 i = 0; i < playerCoords.length; i++) {
+      oldPlayerCoords[i] = VoxelCoord(playerCoords[i].x, playerCoords[i].y, playerCoords[i].z);
+    }
+    for (uint256 i = 0; i < newCoords.length; i++) {
+      newPlayerCoords = newCoords[i].getRelativeCoords(PlayerObjectID);
+      for (uint256 j = 0; j < newPlayerCoords.length; j++) {
+        bool gravityAppliesForNewCoord = _requireValidMove(playerEntityIds, oldPlayerCoords[j], newPlayerCoords[j]);
+        // We only need to check gravity on the base coord as players are always 1 block high
+        if (j == 0) {
+          gravityAppliesForMove = gravityAppliesForNewCoord;
+        }
+      }
+
+      if (gravityAppliesForMove) {
+        if (oldPlayerCoords[0].y < newPlayerCoords[0].y) {
+          numJumps++;
+          require(numJumps <= 3, "Cannot jump more than 3 blocks");
+        } else if (oldPlayerCoords[0].y > newPlayerCoords[0].y) {
+          // then we are falling, so should be fine
+          numFalls++;
+          numGlides = 0;
+        } else {
+          // we are gliding
+          numGlides++;
+          require(numGlides <= 10, "Cannot glide more than 10 blocks");
+        }
+      } else {
+        numJumps = 0;
+        numGlides = 0;
+      }
+
+      oldPlayerCoords = newPlayerCoords;
+    }
+
+    return (gravityAppliesForMove, newPlayerCoords);
+  }
+
+  function movePlayer(
+    EntityId playerEntityId,
+    VoxelCoord memory playerCoord,
+    VoxelCoord[] memory newCoords
+  ) public returns (bool, VoxelCoord memory) {
+    VoxelCoord[] memory playerCoords = playerCoord.getRelativeCoords(PlayerObjectID);
+    EntityId[] memory playerEntityIds = new EntityId[](playerCoords.length);
+    playerEntityIds[0] = playerEntityId;
+
+    // Only iterate through relative schema coords
+    for (uint256 i = 1; i < playerCoords.length; i++) {
+      playerEntityIds[i] = playerCoords[i].getPlayer();
+      // TODO: do we need this check?
+      require(playerEntityIds[i].baseEntityId() == playerEntityId, "Base entity mismatch");
+    }
+
+    (bool gravityAppliesForMove, VoxelCoord[] memory newPlayerCoords) = _requireValidPath(
+      playerEntityIds,
+      playerCoords,
+      newCoords
+    );
+
+    VoxelCoord memory finalPlayerCoord = newPlayerCoords[0];
+    if (!VoxelCoordLib.equals(finalPlayerCoord, playerCoords[0])) {
+      for (uint256 i = 0; i < playerCoords.length; i++) {
+        ReversePlayerPosition._deleteRecord(playerCoords[i].x, playerCoords[i].y, playerCoords[i].z);
+      }
+
+      for (uint256 i = 0; i < newPlayerCoords.length; i++) {
+        newPlayerCoords[i].setPlayer(playerEntityIds[i]);
+      }
+    }
+
+    transferEnergyFromPlayerToPool(
+      playerEntityId,
+      playerCoord,
+      Energy._get(playerEntityId),
+      PLAYER_MOVE_ENERGY_COST * uint128(newCoords.length)
+    );
+
+    return (gravityAppliesForMove, finalPlayerCoord);
   }
 
   function movePlayerWithGravity(
