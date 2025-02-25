@@ -8,7 +8,6 @@ import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { Position, PositionData } from "../codegen/tables/Position.sol";
 import { PlayerPosition, PlayerPositionData } from "../codegen/tables/PlayerPosition.sol";
 import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
-import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
@@ -30,7 +29,7 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
   checkWorldStatus();
   EntityId playerEntityId = Player._get(player);
   require(playerEntityId.exists(), "Player does not exist");
-  require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player isn't logged in");
+  require(ObjectType._get(playerEntityId) == PlayerObjectID, "Wrong type for player");
   VoxelCoord memory playerCoord = PlayerPosition._get(playerEntityId).toVoxelCoord();
   EnergyData memory playerEnergyData = updatePlayerEnergyLevel(playerEntityId);
   PlayerActivity._set(playerEntityId, uint128(block.timestamp));

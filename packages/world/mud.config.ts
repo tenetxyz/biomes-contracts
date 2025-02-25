@@ -235,13 +235,6 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    PlayerStatus: {
-      schema: {
-        entityId: "EntityId",
-        bedEntityId: "EntityId",
-      },
-      key: ["entityId"],
-    },
     LastKnownPosition: {
       schema: {
         entityId: "EntityId",

@@ -5,7 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { Player } from "../codegen/tables/Player.sol";
+import { Player, PlayerData } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
@@ -53,6 +53,11 @@ contract BedSystem is System {
 
     bedEntityId = bedEntityId.baseEntityId();
 
+    EntityId forceFieldEntityId = getForceField(bedEntityId);
+    require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
+    EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+    require(machineData.energy > 0, "Forcefield has no energy");
+
     address chipAddress = bedEntityId.getChipAddress();
     require(chipAddress != address(0), "Spawn tile has no chip");
 
@@ -67,23 +72,26 @@ contract BedSystem is System {
     require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     address playerAddress = _msgSender();
-    require(!Player._get(playerAddress).exists(), "Player already spawned");
+    EntityId bedEntityId = Player._get(playerAddress);
+    require(bedEntityId.exists(), "Player does not exist");
+    require(ObjectType._get(bedEntityId) == BedObjectID, "Player is not sleeping");
 
     VoxelCoord memory bedCoord = Position._get(bedEntityId).toVoxelCoord();
     require(bedCoord.inSurroundingCube(SPAWN_AREA_HALF_WIDTH, spawnCoord), "Bed is too far away");
 
     EntityId forceFieldEntityId = getForceField(bedCoord);
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
-    uint32 playerMass = ObjectTypeMetadata._getMass(PlayerObjectID);
-    uint128 energyRequired = getEnergyCostToSpawn(playerMass);
     EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-    require(machineData.energy >= energyRequired, "Not enough energy in spawn tile forcefield");
-    forceFieldEntityId.decreaseEnergy(machineData, energyRequired);
 
-    address chipAddress = bedEntityId.getChipAddress();
-    require(chipAddress != address(0), "Spawn tile has no chip");
+    EntityId playerEntityId = getUniqueEntity();
+    createPlayer(playerEntityId, spawnCoord);
 
-    bytes memory onWakeupCall = abi.encodeCall(IBedChip.onWakeup, (playerEntityId, bedEntityId, extraData));
-    callChipOrRevert(chipAddress, onWakeupCall);
+    if (machineData.energy > 0) {
+      address chipAddress = bedEntityId.getChipAddress();
+      require(chipAddress != address(0), "Bed has no chip");
+
+      bytes memory onWakeupCall = abi.encodeCall(IBedChip.onWakeup, (playerEntityId, bedEntityId, extraData));
+      callChipOrRevert(chipAddress, onWakeupCall);
+    }
   }
 }

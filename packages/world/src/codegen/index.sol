@@ -27,7 +27,6 @@ import { Equipped } from "./tables/Equipped.sol";
 import { Player } from "./tables/Player.sol";
 import { ReversePlayer } from "./tables/ReversePlayer.sol";
 import { PlayerActivity } from "./tables/PlayerActivity.sol";
-import { PlayerStatus } from "./tables/PlayerStatus.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./tables/LastKnownPosition.sol";
 import { Chip } from "./tables/Chip.sol";
 import { ForceField } from "./tables/ForceField.sol";
