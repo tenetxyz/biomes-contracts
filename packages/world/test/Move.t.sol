@@ -9,6 +9,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
+import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
 import { ExploredChunk } from "../src/codegen/tables/ExploredChunk.sol";
 import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
@@ -74,14 +75,25 @@ contract MoveTest is BiomesTest {
     endGasReport();
 
     VoxelCoord memory finalCoord = PlayerPosition.get(playerEntityId).toVoxelCoord();
+    VoxelCoord memory aboveFinalCoord = VoxelCoord(finalCoord.x, finalCoord.y + 1, finalCoord.z);
     assertTrue(
       VoxelCoordLib.equals(finalCoord, newCoords[numBlocksToMove - 1]),
       "Player did not move to the correct coord"
+    );
+    assertTrue(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord.x, aboveFinalCoord.y, aboveFinalCoord.z)) ==
+        playerEntityId,
+      "Above coord is not the player"
     );
     assertEq(
       EntityId.unwrap(ReversePlayerPosition.get(startingCoord.x, startingCoord.y, startingCoord.z)),
       bytes32(0),
       "Player position was not deleted"
+    );
+    assertEq(
+      EntityId.unwrap(ReversePlayerPosition.get(startingCoord.x, startingCoord.y + 1, startingCoord.z)),
+      bytes32(0),
+      "Above starting coord is not the player"
     );
 
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
