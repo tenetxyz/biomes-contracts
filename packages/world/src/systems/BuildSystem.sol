@@ -13,7 +13,7 @@ import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { ActionType } from "../codegen/common.sol";
+import { ActionType, Direction } from "../codegen/common.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
@@ -50,6 +50,7 @@ contract BuildSystem is System {
   function buildWithExtraData(
     ObjectTypeId buildObjectTypeId,
     VoxelCoord memory baseCoord,
+    Direction direction,
     bytes memory extraData
   ) public payable returns (EntityId) {
     require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
@@ -62,7 +63,7 @@ contract BuildSystem is System {
     uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
     Mass._setMass(baseEntityId, mass);
 
-    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(buildObjectTypeId);
+    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(buildObjectTypeId, direction);
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < coords.length; i++) {
       VoxelCoord memory relativeCoord = coords[i];
@@ -94,7 +95,11 @@ contract BuildSystem is System {
     return baseEntityId;
   }
 
-  function jumpBuildWithExtraData(ObjectTypeId buildObjectTypeId, bytes memory extraData) public payable {
+  function jumpBuildWithExtraData(
+    ObjectTypeId buildObjectTypeId,
+    Direction direction,
+    bytes memory extraData
+  ) public payable {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
 
     VoxelCoord[] memory moveCoords = new VoxelCoord[](1);
@@ -104,14 +109,18 @@ contract BuildSystem is System {
 
     require(!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId), "Cannot jump build on a pass-through block");
 
-    buildWithExtraData(buildObjectTypeId, playerCoord, extraData);
+    buildWithExtraData(buildObjectTypeId, playerCoord, direction, extraData);
   }
 
-  function jumpBuild(ObjectTypeId buildObjectTypeId) public payable {
-    jumpBuildWithExtraData(buildObjectTypeId, new bytes(0));
+  function jumpBuild(ObjectTypeId buildObjectTypeId, Direction direction) public payable {
+    jumpBuildWithExtraData(buildObjectTypeId, direction, new bytes(0));
   }
 
-  function build(ObjectTypeId buildObjectTypeId, VoxelCoord memory baseCoord) public payable returns (EntityId) {
-    return buildWithExtraData(buildObjectTypeId, baseCoord, new bytes(0));
+  function build(
+    ObjectTypeId buildObjectTypeId,
+    VoxelCoord memory baseCoord,
+    Direction direction
+  ) public payable returns (EntityId) {
+    return buildWithExtraData(buildObjectTypeId, baseCoord, direction, new bytes(0));
   }
 }

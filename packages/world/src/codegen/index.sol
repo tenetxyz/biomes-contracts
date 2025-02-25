@@ -26,6 +26,7 @@ import { ReverseInventoryEntity } from "./tables/ReverseInventoryEntity.sol";
 import { Equipped } from "./tables/Equipped.sol";
 import { Player } from "./tables/Player.sol";
 import { ReversePlayer } from "./tables/ReversePlayer.sol";
+import { PlayerStatus } from "./tables/PlayerStatus.sol";
 import { PlayerActivity } from "./tables/PlayerActivity.sol";
 import { LastKnownPosition, LastKnownPositionData } from "./tables/LastKnownPosition.sol";
 import { Chip } from "./tables/Chip.sol";

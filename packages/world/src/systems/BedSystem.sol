@@ -5,8 +5,9 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { Player, PlayerData } from "../codegen/tables/Player.sol";
+import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
+import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
@@ -22,7 +23,7 @@ import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
 import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { MAX_PLAYER_ENERGY, SPAWN_AREA_HALF_WIDTH, SPAWN_BLOCK_RANGE, CHUNK_SIZE } from "../Constants.sol";
+import { MAX_PLAYER_ENERGY, SPAWN_AREA_HALF_WIDTH, SPAWN_BLOCK_RANGE, BED_DRAIN_RATE } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
@@ -41,7 +42,7 @@ import { EntityId } from "../EntityId.sol";
 contract BedSystem is System {
   using VoxelCoordLib for *;
 
-  function sleep(EntityId bedEntityId, bytes memory extraData) external returns (EntityId) {
+  function sleep(EntityId bedEntityId, bytes memory extraData) external {
     checkWorldStatus();
 
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
@@ -49,14 +50,20 @@ contract BedSystem is System {
     ObjectTypeId objectTypeId = ObjectType._get(bedEntityId);
     require(objectTypeId == BedObjectID, "Not a bed");
 
-    VoxelCoord memory bedCoord = requireInPlayerInfluence(playerCoord, bedEntityId);
+    requireInPlayerInfluence(playerCoord, bedEntityId);
 
+    // TODO: should we use the forcefield from the base entity? or both?
     bedEntityId = bedEntityId.baseEntityId();
+    VoxelCoord memory baseCoord = Position._get(bedEntityId).toVoxelCoord();
 
-    EntityId forceFieldEntityId = getForceField(bedEntityId);
+    EntityId forceFieldEntityId = getForceField(baseCoord);
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
     EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
     require(machineData.energy > 0, "Forcefield has no energy");
+    PlayerStatus._setBedEntityId(playerEntityId, bedEntityId);
+
+    Energy._setDrainRate(playerEntityId, PLAYER_ENERGY_DRAIN_INTERVAL - BED_DRAIN_RATE);
+    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + BED_DRAIN_RATE);
 
     address chipAddress = bedEntityId.getChipAddress();
     require(chipAddress != address(0), "Spawn tile has no chip");
@@ -72,9 +79,9 @@ contract BedSystem is System {
     require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     address playerAddress = _msgSender();
-    EntityId bedEntityId = Player._get(playerAddress);
-    require(bedEntityId.exists(), "Player does not exist");
-    require(ObjectType._get(bedEntityId) == BedObjectID, "Player is not sleeping");
+    EntityId playerEntityId = Player._get(playerAddress);
+    EntityId bedEntityId = PlayerStatus._getBedEntityId();
+    require(bedEntityId.exists(), "Player is not sleeping");
 
     VoxelCoord memory bedCoord = Position._get(bedEntityId).toVoxelCoord();
     require(bedCoord.inSurroundingCube(SPAWN_AREA_HALF_WIDTH, spawnCoord), "Bed is too far away");
@@ -82,9 +89,7 @@ contract BedSystem is System {
     EntityId forceFieldEntityId = getForceField(bedCoord);
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
     EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-
-    EntityId playerEntityId = getUniqueEntity();
-    createPlayer(playerEntityId, spawnCoord);
+    Energy._setDrainRate(machineData.drainRate - BED_DRAIN_RATE);
 
     if (machineData.energy > 0) {
       address chipAddress = bedEntityId.getChipAddress();

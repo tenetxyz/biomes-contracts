@@ -15,8 +15,6 @@ enum ActionType {
   Equip,
   Unequip,
   Spawn,
-  Login,
-  Logoff,
   PowerMachine,
   HitMachine,
   AttachChip,
@@ -29,4 +27,11 @@ enum DisplayContentType {
   None,
   Text,
   Image
+}
+
+enum Direction {
+  North,
+  East,
+  South,
+  West
 }

@@ -22,6 +22,7 @@ import { EntityId } from "../../EntityId.sol";
 struct EnergyData {
   uint128 lastUpdatedTime;
   uint128 energy;
+  uint128 drainRate;
 }
 
 library Energy {
@@ -29,12 +30,12 @@ library Energy {
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000456e6572677900000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0020020010100000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0030030010101000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint128, uint128)
-  Schema constant _valueSchema = Schema.wrap(0x002002000f0f0000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint128, uint128, uint128)
+  Schema constant _valueSchema = Schema.wrap(0x003003000f0f0f00000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -50,9 +51,10 @@ library Energy {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](2);
+    fieldNames = new string[](3);
     fieldNames[0] = "lastUpdatedTime";
     fieldNames[1] = "energy";
+    fieldNames[2] = "drainRate";
   }
 
   /**
@@ -154,6 +156,48 @@ library Energy {
   }
 
   /**
+   * @notice Get drainRate.
+   */
+  function getDrainRate(EntityId entityId) internal view returns (uint128 drainRate) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(entityId);
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint128(bytes16(_blob)));
+  }
+
+  /**
+   * @notice Get drainRate.
+   */
+  function _getDrainRate(EntityId entityId) internal view returns (uint128 drainRate) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(entityId);
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (uint128(bytes16(_blob)));
+  }
+
+  /**
+   * @notice Set drainRate.
+   */
+  function setDrainRate(EntityId entityId, uint128 drainRate) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(entityId);
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((drainRate)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set drainRate.
+   */
+  function _setDrainRate(EntityId entityId, uint128 drainRate) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(entityId);
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((drainRate)), _fieldLayout);
+  }
+
+  /**
    * @notice Get the full data.
    */
   function get(EntityId entityId) internal view returns (EnergyData memory _table) {
@@ -186,8 +230,8 @@ library Energy {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(EntityId entityId, uint128 lastUpdatedTime, uint128 energy) internal {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy);
+  function set(EntityId entityId, uint128 lastUpdatedTime, uint128 energy, uint128 drainRate) internal {
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy, drainRate);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -201,8 +245,8 @@ library Energy {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(EntityId entityId, uint128 lastUpdatedTime, uint128 energy) internal {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy);
+  function _set(EntityId entityId, uint128 lastUpdatedTime, uint128 energy, uint128 drainRate) internal {
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy, drainRate);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -217,7 +261,7 @@ library Energy {
    * @notice Set the full data using the data struct.
    */
   function set(EntityId entityId, EnergyData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.energy);
+    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.energy, _table.drainRate);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -232,7 +276,7 @@ library Energy {
    * @notice Set the full data using the data struct.
    */
   function _set(EntityId entityId, EnergyData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.energy);
+    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.energy, _table.drainRate);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -246,10 +290,14 @@ library Energy {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (uint128 lastUpdatedTime, uint128 energy) {
+  function decodeStatic(
+    bytes memory _blob
+  ) internal pure returns (uint128 lastUpdatedTime, uint128 energy, uint128 drainRate) {
     lastUpdatedTime = (uint128(Bytes.getBytes16(_blob, 0)));
 
     energy = (uint128(Bytes.getBytes16(_blob, 16)));
+
+    drainRate = (uint128(Bytes.getBytes16(_blob, 32)));
   }
 
   /**
@@ -263,7 +311,7 @@ library Energy {
     EncodedLengths,
     bytes memory
   ) internal pure returns (EnergyData memory _table) {
-    (_table.lastUpdatedTime, _table.energy) = decodeStatic(_staticData);
+    (_table.lastUpdatedTime, _table.energy, _table.drainRate) = decodeStatic(_staticData);
   }
 
   /**
@@ -290,8 +338,12 @@ library Energy {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint128 lastUpdatedTime, uint128 energy) internal pure returns (bytes memory) {
-    return abi.encodePacked(lastUpdatedTime, energy);
+  function encodeStatic(
+    uint128 lastUpdatedTime,
+    uint128 energy,
+    uint128 drainRate
+  ) internal pure returns (bytes memory) {
+    return abi.encodePacked(lastUpdatedTime, energy, drainRate);
   }
 
   /**
@@ -302,9 +354,10 @@ library Energy {
    */
   function encode(
     uint128 lastUpdatedTime,
-    uint128 energy
+    uint128 energy,
+    uint128 drainRate
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy);
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy, drainRate);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

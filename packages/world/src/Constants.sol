@@ -49,6 +49,8 @@ uint128 constant MIN_PLAYER_ENERGY_THRESHOLD_TO_DRAIN = MAX_PLAYER_ENERGY / 10;
 uint128 constant MACHINE_ENERGY_DRAIN_RATE = 100;
 uint128 constant MACHINE_ENERGY_DRAIN_INTERVAL = 1 seconds;
 uint128 constant MIN_MACHINE_ENERGY_THRESHOLD_TO_DRAIN = 0;
+// TODO: replace with correct one
+uint128 constant BED_DRAIN_RATE = 10;
 
 uint128 constant SMART_CHEST_ENERGY_COST = 100;
 

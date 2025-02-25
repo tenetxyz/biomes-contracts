@@ -21,8 +21,7 @@ function energyToMass(uint128 energy) pure returns (uint128) {
 function getLatestEnergyData(
   EntityId entityId,
   uint128 drainEnergyThreshold,
-  uint128 drainInterval,
-  uint128 drainRate
+  uint128 drainInterval
 ) view returns (EnergyData memory) {
   EnergyData memory energyData = Energy._get(entityId);
 
@@ -35,7 +34,7 @@ function getLatestEnergyData(
     if (timeSinceLastUpdate < drainInterval) {
       return energyData;
     }
-    uint128 energyDrained = (timeSinceLastUpdate * drainRate) / drainInterval;
+    uint128 energyDrained = (timeSinceLastUpdate * energyData.drainRate) / drainInterval;
     uint128 newEnergy = energyData.energy > energyDrained ? energyData.energy - energyDrained : 0;
     energyData.energy = newEnergy;
     energyData.lastUpdatedTime = uint128(block.timestamp);
@@ -45,13 +44,7 @@ function getLatestEnergyData(
 }
 
 function getPlayerEnergyLevel(EntityId entityId) view returns (EnergyData memory) {
-  return
-    getLatestEnergyData(
-      entityId,
-      MIN_PLAYER_ENERGY_THRESHOLD_TO_DRAIN,
-      PLAYER_ENERGY_DRAIN_INTERVAL,
-      PLAYER_ENERGY_DRAIN_RATE
-    );
+  return getLatestEnergyData(entityId, MIN_PLAYER_ENERGY_THRESHOLD_TO_DRAIN, PLAYER_ENERGY_DRAIN_INTERVAL);
 }
 
 function updatePlayerEnergyLevel(EntityId entityId) returns (EnergyData memory) {
@@ -61,13 +54,7 @@ function updatePlayerEnergyLevel(EntityId entityId) returns (EnergyData memory) 
 }
 
 function getMachineEnergyLevel(EntityId entityId) view returns (EnergyData memory) {
-  return
-    getLatestEnergyData(
-      entityId,
-      MIN_MACHINE_ENERGY_THRESHOLD_TO_DRAIN,
-      MACHINE_ENERGY_DRAIN_INTERVAL,
-      MACHINE_ENERGY_DRAIN_RATE
-    );
+  return getLatestEnergyData(entityId, MIN_MACHINE_ENERGY_THRESHOLD_TO_DRAIN, MACHINE_ENERGY_DRAIN_INTERVAL);
 }
 
 function updateMachineEnergyLevel(EntityId entityId) returns (EnergyData memory) {

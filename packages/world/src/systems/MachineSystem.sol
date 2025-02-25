@@ -6,6 +6,7 @@ import { VoxelCoord } from "../VoxelCoord.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { MachineDrainRate } from "../codegen/tables/MachineDrainRate.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
@@ -19,6 +20,7 @@ import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
 import { EntityId } from "../EntityId.sol";
+import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 contract MachineSystem is System {
   function powerMachine(EntityId entityId, uint16 numBattery) public {
@@ -32,6 +34,11 @@ contract MachineSystem is System {
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
     require(objectTypeId == ForceFieldObjectID, "Invalid object type");
     EnergyData memory machineData = updateMachineEnergyLevel(baseEntityId);
+    // Set base drain rate
+    if (machineData.energy == 0) {
+      MachineDrainRate._set(entityId, MACHINE_ENERGY_DRAIN_RATE);
+    }
+
     uint128 newEnergyLevel = machineData.energy + (uint128(numBattery) * 10);
 
     Energy._set(baseEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: newEnergyLevel }));

@@ -14,6 +14,7 @@ import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { ReversePlayerPosition } from "./codegen/tables/ReversePlayerPosition.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
 import { Mass } from "./codegen/tables/Mass.sol";
+import { Direction } from "./codegen/common.sol";
 
 import { ObjectTypeId } from "./ObjectTypeIds.sol";
 import { TerrainLib } from "./systems/libraries/TerrainLib.sol";
@@ -334,10 +335,35 @@ library VoxelCoordLib {
     ReversePlayerPosition._set(coord.x, coord.y, coord.z, playerEntityId);
   }
 
+  /// @dev Rotate a coordinate based on orientation
+  function rotateRelativeCoord(
+    VoxelCoord memory coord,
+    Direction orientation
+  ) internal pure returns (VoxelCoord memory) {
+    // Default orientation is North (negative Z)
+    if (orientation == Direction.North) {
+      return coord; // No rotation needed for default orientation
+    } else if (orientation == Direction.East) {
+      // 90 degree rotation clockwise around Y axis
+      return VoxelCoord(-coord.z, coord.y, coord.x);
+    } else if (orientation == Direction.South) {
+      // 180 degree rotation around Y axis
+      return VoxelCoord(-coord.x, coord.y, -coord.z);
+    } else if (orientation == Direction.West) {
+      // 260 degree rotation around Y axis
+      return VoxelCoord(coord.z, coord.y, -coord.x);
+    }
+
+    // Should never reach here
+    assert(false);
+    return coord;
+  }
+
   /// @dev Get relative schema coords, including base coord
   function getRelativeCoords(
     VoxelCoord memory baseCoord,
-    ObjectTypeId objectTypeId
+    ObjectTypeId objectTypeId,
+    Direction direction
   ) internal pure returns (VoxelCoord[] memory) {
     VoxelCoord[] memory schemaCoords = getObjectTypeSchema(objectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](schemaCoords.length + 1);
@@ -345,10 +371,11 @@ library VoxelCoordLib {
     coords[0] = baseCoord;
 
     for (uint256 i = 0; i < schemaCoords.length; i++) {
+      VoxelCoord memory rotatedCoord = rotateRelativeCoord(schemaCoords[i], direction);
       coords[i + 1] = VoxelCoord(
-        baseCoord.x + schemaCoords[i].x,
-        baseCoord.y + schemaCoords[i].y,
-        baseCoord.z + schemaCoords[i].z
+        baseCoord.x + rotatedCoord.x,
+        baseCoord.y + rotatedCoord.y,
+        baseCoord.z + rotatedCoord.z
       );
     }
 

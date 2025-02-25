@@ -17,8 +17,6 @@ export default defineWorld({
       "Equip",
       "Unequip",
       "Spawn",
-      "Login",
-      "Logoff",
       "PowerMachine",
       "HitMachine",
       "AttachChip",
@@ -27,6 +25,7 @@ export default defineWorld({
       "RevealOre",
     ],
     DisplayContentType: ["None", "Text", "Image"],
+    Direction: ["North", "East", "South", "West"],
   },
   userTypes: {
     ObjectTypeId: { filePath: "./src/ObjectTypeIds.sol", type: "uint16" },
@@ -114,6 +113,7 @@ export default defineWorld({
     Orientation: {
       schema: {
         entityId: "EntityId",
+        direction: "Direction",
       },
       key: ["entityId"],
     },
@@ -129,6 +129,7 @@ export default defineWorld({
         entityId: "EntityId",
         lastUpdatedTime: "uint128",
         energy: "uint128",
+        drainRate: "uint128",
       },
       key: ["entityId"],
     },
@@ -225,6 +226,14 @@ export default defineWorld({
       schema: {
         entityId: "EntityId",
         player: "address",
+      },
+      key: ["entityId"],
+    },
+    // TODO: maybe merge this with other tables
+    PlayerStatus: {
+      schema: {
+        entityId: "EntityId",
+        bedEntityId: "EntityId",
       },
       key: ["entityId"],
     },
