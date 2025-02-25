@@ -340,13 +340,13 @@ library VoxelCoordLib {
       return coord; // No rotation needed for default orientation
     } else if (orientation == Direction.East) {
       // 90 degree rotation clockwise around Y axis
-      return VoxelCoord(-coord.z, coord.y, coord.x);
+      return VoxelCoord(coord.z, coord.y, -coord.x);
     } else if (orientation == Direction.South) {
       // 180 degree rotation around Y axis
       return VoxelCoord(-coord.x, coord.y, -coord.z);
     } else if (orientation == Direction.West) {
       // 260 degree rotation around Y axis
-      return VoxelCoord(coord.z, coord.y, -coord.x);
+      return VoxelCoord(-coord.z, coord.y, coord.x);
     }
 
     // Should never reach here
