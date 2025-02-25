@@ -13,10 +13,10 @@
     "test": "pnpm recursive run test"
   },
   "devDependencies": {
-    "@latticexyz/cli": "link:../mud/packages/cli",
-    "@latticexyz/explorer": "link:../mud/packages/explorer",
-    "@latticexyz/store-indexer": "link:../mud/packages/store-indexer",
-    "@latticexyz/entrykit": "link:../mud/packages/entrykit",
+    "@latticexyz/cli": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/explorer": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/store-indexer": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/entrykit": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
     "@types/node": "^18",
     "@typescript-eslint/eslint-plugin": "7.1.1",
     "@typescript-eslint/parser": "7.1.1",
