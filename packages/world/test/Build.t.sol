@@ -323,6 +323,37 @@ contract BuildTest is BiomesTest {
     world.jumpBuild(buildObjectTypeId);
   }
 
+  function testJumpBuildFailsIfNonAir() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
+    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+
+    setObjectAtCoord(VoxelCoord(playerCoord.x, playerCoord.y + 2, playerCoord.z), GrassObjectID);
+
+    vm.prank(alice);
+    vm.expectRevert("Cannot move through a non-passable block");
+    world.jumpBuild(buildObjectTypeId);
+  }
+
+  function testJumpBuildFailsIfPlayer() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory aliceCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory bobCoord = VoxelCoord(aliceCoord.x, aliceCoord.y + 2, aliceCoord.z);
+    setObjectAtCoord(bobCoord, AirObjectID);
+    setObjectAtCoord(VoxelCoord(bobCoord.x, bobCoord.y + 1, bobCoord.z), AirObjectID);
+    (address bob, EntityId bobEntityId) = createTestPlayer(bobCoord);
+
+    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
+    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+
+    vm.prank(alice);
+    vm.expectRevert("Cannot move through a player");
+    world.jumpBuild(buildObjectTypeId);
+  }
+
   function testBuildFailsIfNonAir() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
