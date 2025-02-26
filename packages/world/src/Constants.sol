@@ -23,6 +23,8 @@ uint256 constant MIN_TIME_BEFORE_AUTO_LOGOFF = 15 minutes;
 
 int32 constant MAX_PLAYER_INFLUENCE_HALF_WIDTH = 10;
 int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
+uint256 constant MAX_PLAYER_JUMPS = 3;
+uint256 constant MAX_PLAYER_GLIDES = 10;
 
 uint256 constant SPAWN_BLOCK_RANGE = 10;
 

@@ -30,7 +30,6 @@ import { updateMachineEnergyLevel, energyToMass, transferEnergyFromPlayerToPool 
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
-import { getObjectTypeSchema } from "../utils/ObjectTypeUtils.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_MINE_ENERGY_COST } from "../Constants.sol";
 import { ChunkCoord } from "../Types.sol";
