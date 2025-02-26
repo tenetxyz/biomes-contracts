@@ -124,12 +124,9 @@ library MoveLib {
     VoxelCoord[] memory playerCoords = playerCoord.getRelativeCoords(PlayerObjectID);
     EntityId[] memory playerEntityIds = new EntityId[](playerCoords.length);
     playerEntityIds[0] = playerEntityId;
-
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < playerCoords.length; i++) {
       playerEntityIds[i] = playerCoords[i].getPlayer();
-      // TODO: do we need this check?
-      require(playerEntityIds[i].baseEntityId() == playerEntityId, "Base entity mismatch");
     }
 
     (bool gravityAppliesForMove, VoxelCoord[] memory newPlayerCoords) = _requireValidPath(
