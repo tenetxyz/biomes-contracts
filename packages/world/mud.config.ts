@@ -25,7 +25,7 @@ export default defineWorld({
       "RevealOre",
     ],
     DisplayContentType: ["None", "Text", "Image"],
-    Direction: ["North", "East", "South", "West"],
+    Rotation: ["PositiveX", "NegativeX", "PositiveY", "NegativeY", "PositiveZ", "NegativeZ"],
   },
   userTypes: {
     ObjectTypeId: { filePath: "./src/ObjectTypeIds.sol", type: "uint16" },
@@ -113,7 +113,7 @@ export default defineWorld({
     Orientation: {
       schema: {
         entityId: "EntityId",
-        direction: "Direction",
+        rotation: "Rotation",
       },
       key: ["entityId"],
     },

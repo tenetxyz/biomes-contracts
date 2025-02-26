@@ -18,7 +18,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
 import { EntityId } from "../../EntityId.sol";
-import { Direction } from "../common.sol";
+import { Rotation } from "../common.sol";
 
 library Orientation {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Orientation", typeId: RESOURCE_TABLE });`
@@ -47,7 +47,7 @@ library Orientation {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "direction";
+    fieldNames[0] = "rotation";
   }
 
   /**
@@ -65,87 +65,87 @@ library Orientation {
   }
 
   /**
-   * @notice Get direction.
+   * @notice Get rotation.
    */
-  function getDirection(EntityId entityId) internal view returns (Direction direction) {
+  function getRotation(EntityId entityId) internal view returns (Rotation rotation) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return Direction(uint8(bytes1(_blob)));
+    return Rotation(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get direction.
+   * @notice Get rotation.
    */
-  function _getDirection(EntityId entityId) internal view returns (Direction direction) {
+  function _getRotation(EntityId entityId) internal view returns (Rotation rotation) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return Direction(uint8(bytes1(_blob)));
+    return Rotation(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get direction.
+   * @notice Get rotation.
    */
-  function get(EntityId entityId) internal view returns (Direction direction) {
+  function get(EntityId entityId) internal view returns (Rotation rotation) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return Direction(uint8(bytes1(_blob)));
+    return Rotation(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get direction.
+   * @notice Get rotation.
    */
-  function _get(EntityId entityId) internal view returns (Direction direction) {
+  function _get(EntityId entityId) internal view returns (Rotation rotation) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return Direction(uint8(bytes1(_blob)));
+    return Rotation(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Set direction.
+   * @notice Set rotation.
    */
-  function setDirection(EntityId entityId, Direction direction) internal {
+  function setRotation(EntityId entityId, Rotation rotation) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(direction)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(rotation)), _fieldLayout);
   }
 
   /**
-   * @notice Set direction.
+   * @notice Set rotation.
    */
-  function _setDirection(EntityId entityId, Direction direction) internal {
+  function _setRotation(EntityId entityId, Rotation rotation) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(direction)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(rotation)), _fieldLayout);
   }
 
   /**
-   * @notice Set direction.
+   * @notice Set rotation.
    */
-  function set(EntityId entityId, Direction direction) internal {
+  function set(EntityId entityId, Rotation rotation) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(direction)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(rotation)), _fieldLayout);
   }
 
   /**
-   * @notice Set direction.
+   * @notice Set rotation.
    */
-  function _set(EntityId entityId, Direction direction) internal {
+  function _set(EntityId entityId, Rotation rotation) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(direction)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(rotation)), _fieldLayout);
   }
 
   /**
@@ -172,8 +172,8 @@ library Orientation {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(Direction direction) internal pure returns (bytes memory) {
-    return abi.encodePacked(direction);
+  function encodeStatic(Rotation rotation) internal pure returns (bytes memory) {
+    return abi.encodePacked(rotation);
   }
 
   /**
@@ -182,8 +182,8 @@ library Orientation {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(Direction direction) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(direction);
+  function encode(Rotation rotation) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(rotation);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

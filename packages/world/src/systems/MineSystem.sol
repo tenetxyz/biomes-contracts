@@ -143,7 +143,7 @@ contract MineSystem is System {
       Mass._setMass(baseEntityId, ObjectTypeMetadata._getMass(mineObjectTypeId));
     }
 
-    // TODO: these two lines look wrong, we can't mine objects if they have a chip, even if the forcefield is out of energy?
+    // Chip needs to be detached first
     require(baseEntityId.getChipAddress() == address(0), "Cannot mine a chipped block");
     require(updateMachineEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
 

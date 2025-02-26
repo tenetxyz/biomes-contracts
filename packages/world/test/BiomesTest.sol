@@ -232,4 +232,11 @@ abstract contract BiomesTest is MudTest, GasReporter {
     ForceField.set(shardCoord.x, shardCoord.y, shardCoord.z, forceFieldEntityId);
     return forceFieldEntityId;
   }
+
+  function setupForceField(VoxelCoord memory coord, EnergyData memory energyData) internal returns (EntityId) {
+    // Set forcefield with no energy
+    EntityId forceFieldEntityId = setupForceField(coord);
+    Energy.set(forceFieldEntityId, energyData);
+    return forceFieldEntityId;
+  }
 }

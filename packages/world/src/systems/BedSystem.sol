@@ -62,7 +62,7 @@ library BedLib {
 contract BedSystem is System {
   using VoxelCoordLib for *;
 
-  function sleep(EntityId bedEntityId, bytes memory extraData) external {
+  function sleepWithExtraData(EntityId bedEntityId, bytes memory extraData) external {
     checkWorldStatus();
 
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
@@ -71,7 +71,6 @@ contract BedSystem is System {
 
     requireInPlayerInfluence(playerCoord, bedEntityId);
 
-    // TODO: should we use the forcefield from the base entity? or both?
     bedEntityId = bedEntityId.baseEntityId();
     require(!BedPlayer._getPlayerEntityId(bedEntityId).exists(), "Bed full");
 
@@ -88,16 +87,17 @@ contract BedSystem is System {
 
     BedLib.transferInventory(playerEntityId, bedEntityId, BedObjectID);
 
+    // TODO: shouldn't delete everything
     deletePlayer(playerEntityId, playerCoord);
 
     address chipAddress = bedEntityId.getChipAddress();
-    require(chipAddress != address(0), "Spawn tile has no chip");
+    require(chipAddress != address(0), "Bed has no chip");
 
     bytes memory onSleepCall = abi.encodeCall(IBedChip.onSleep, (playerEntityId, bedEntityId, extraData));
     callChipOrRevert(chipAddress, onSleepCall);
   }
 
-  function wakeup(VoxelCoord memory spawnCoord, bytes memory extraData) external {
+  function wakeupWithExtraData(VoxelCoord memory spawnCoord, bytes memory extraData) public {
     checkWorldStatus();
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
 
@@ -120,19 +120,31 @@ contract BedSystem is System {
     // Decrease forcefield's drain rate
     Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - PLAYER_ENERGY_DRAIN_RATE);
 
+    // TODO: do this on mine system if mining a bed with a sleeping player
     PlayerStatus._deleteRecord(playerEntityId);
     BedPlayer._deleteRecord(bedEntityId);
 
+    // TODO: do not use this function
     createPlayer(playerEntityId, spawnCoord);
 
     BedLib.transferInventory(bedEntityId, playerEntityId, PlayerObjectID);
 
     if (machineData.energy > 0) {
       address chipAddress = bedEntityId.getChipAddress();
-      require(chipAddress != address(0), "Bed has no chip");
+
+      // If someone removed the chip we don't want the player to be stuck
+      if (chipAddress == address(0)) return;
 
       bytes memory onWakeupCall = abi.encodeCall(IBedChip.onWakeup, (playerEntityId, bedEntityId, extraData));
       callChipOrRevert(chipAddress, onWakeupCall);
     }
+  }
+
+  function sleep(EntityId bedEntityId) external {
+    sleepWithExtraData(bedEntityId, "");
+  }
+
+  function wakeup(VoxelCoord memory spawnCoord) external {
+    wakeupWithExtraData(spawnCoord, "");
   }
 }

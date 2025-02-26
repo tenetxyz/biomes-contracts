@@ -13,7 +13,7 @@ import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { ReversePlayerPosition } from "./codegen/tables/ReversePlayerPosition.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
 import { Mass } from "./codegen/tables/Mass.sol";
-import { Direction } from "./codegen/common.sol";
+import { Rotation } from "./codegen/common.sol";
 
 import { ObjectTypeId } from "./ObjectTypeIds.sol";
 import { TerrainLib } from "./systems/libraries/TerrainLib.sol";
@@ -331,20 +331,17 @@ library VoxelCoordLib {
   }
 
   /// @dev Rotate a coordinate based on orientation
-  function rotateRelativeCoord(
-    VoxelCoord memory coord,
-    Direction orientation
-  ) internal pure returns (VoxelCoord memory) {
-    // Default orientation is North (negative Z)
-    if (orientation == Direction.North) {
+  function rotateRelativeCoord(VoxelCoord memory coord, Rotation rotation) internal pure returns (VoxelCoord memory) {
+    // Default orientation is North (Positive Z)
+    if (orientation == Rotation.PositiveZ) {
       return coord; // No rotation needed for default orientation
-    } else if (orientation == Direction.East) {
+    } else if (orientation == Rotation.PositiveX) {
       // 90 degree rotation clockwise around Y axis
       return VoxelCoord(coord.z, coord.y, -coord.x);
-    } else if (orientation == Direction.South) {
+    } else if (orientation == Direction.NegativeZ) {
       // 180 degree rotation around Y axis
       return VoxelCoord(-coord.x, coord.y, -coord.z);
-    } else if (orientation == Direction.West) {
+    } else if (orientation == Direction.NegativeX) {
       // 260 degree rotation around Y axis
       return VoxelCoord(-coord.z, coord.y, coord.x);
     }
@@ -358,7 +355,7 @@ library VoxelCoordLib {
   function getRelativeCoords(
     VoxelCoord memory baseCoord,
     ObjectTypeId objectTypeId,
-    Direction direction
+    Rotation rotation
   ) internal pure returns (VoxelCoord[] memory) {
     VoxelCoord[] memory schemaCoords = getObjectTypeSchema(objectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](schemaCoords.length + 1);
@@ -366,7 +363,7 @@ library VoxelCoordLib {
     coords[0] = baseCoord;
 
     for (uint256 i = 0; i < schemaCoords.length; i++) {
-      VoxelCoord memory rotatedCoord = rotateRelativeCoord(schemaCoords[i], direction);
+      VoxelCoord memory rotatedCoord = rotateRelativeCoord(schemaCoords[i], rotation);
       coords[i + 1] = VoxelCoord(
         baseCoord.x + rotatedCoord.x,
         baseCoord.y + rotatedCoord.y,

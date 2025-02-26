@@ -29,9 +29,11 @@ enum DisplayContentType {
   Image
 }
 
-enum Direction {
-  North,
-  East,
-  South,
-  West
+enum Rotation {
+  PositiveX,
+  NegativeX,
+  PositiveY,
+  NegativeY,
+  PositiveZ,
+  NegativeZ
 }
