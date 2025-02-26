@@ -20,7 +20,6 @@ import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol"
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
-import { getObjectTypeSchema } from "./ObjectTypeUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 using VoxelCoordLib for PositionData;
@@ -64,13 +63,10 @@ function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   ObjectType._set(playerEntityId, PlayerObjectID);
   playerCoord.setPlayer(playerEntityId);
 
-  VoxelCoord[] memory relativePositions = getObjectTypeSchema(PlayerObjectID);
-  for (uint256 i = 0; i < relativePositions.length; i++) {
-    VoxelCoord memory relativeCoord = VoxelCoord(
-      playerCoord.x + relativePositions[i].x,
-      playerCoord.y + relativePositions[i].y,
-      playerCoord.z + relativePositions[i].z
-    );
+  VoxelCoord[] memory coords = playerCoord.getRelativeCoords(PlayerObjectID);
+  // Only iterate through relative schema coords
+  for (uint256 i = 1; i < coords.length; i++) {
+    VoxelCoord memory relativeCoord = coords[i];
     (, ObjectTypeId relativeTerrainObjectTypeId) = relativeCoord.getEntity();
     require(
       relativeTerrainObjectTypeId == AirObjectID && !relativeCoord.getPlayer().exists(),
@@ -88,13 +84,10 @@ function deletePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   PlayerPosition._deleteRecord(playerEntityId);
   ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
 
-  VoxelCoord[] memory relativePositions = getObjectTypeSchema(PlayerObjectID);
-  for (uint256 i = 0; i < relativePositions.length; i++) {
-    VoxelCoord memory relativeCoord = VoxelCoord(
-      playerCoord.x + relativePositions[i].x,
-      playerCoord.y + relativePositions[i].y,
-      playerCoord.z + relativePositions[i].z
-    );
+  VoxelCoord[] memory coords = playerCoord.getRelativeCoords(PlayerObjectID);
+  // Only iterate through relative schema coords
+  for (uint256 i = 1; i < coords.length; i++) {
+    VoxelCoord memory relativeCoord = coords[i];
     EntityId relativePlayerEntityId = relativeCoord.getPlayer();
     PlayerPosition._deleteRecord(relativePlayerEntityId);
     ReversePlayerPosition._deleteRecord(relativeCoord.x, relativeCoord.y, relativeCoord.z);

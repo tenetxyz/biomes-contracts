@@ -43,9 +43,17 @@ contract GravityTest is BiomesTest {
 
   function testMineForceField() public {}
 
-  function testMineGravityFallSingleBlock() public {}
+  function testMineFallSingleBlock() public {}
 
-  function testMineGravityFallMultipleBlocks() public {}
+  function testMineFallMultipleBlocks() public {}
 
-  function testMineGravityStackedPlayers() public {}
+  function testMineStackedPlayers() public {}
+
+  function testOneBlockMoveFallSingleBlocok() public {}
+
+  function testMultipleBlockMoveFallSingleBlock() public {}
+
+  function testOneBlockMoveFallMultipleBlocks() public {}
+
+  function testOneBlockMoveStackedPlayers() public {}
 }
