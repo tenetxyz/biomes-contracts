@@ -25,18 +25,17 @@
   "dependencies": {
     "@biomesaw/experience": "link:../experience",
     "@biomesaw/world": "link:../world",
-    "@latticexyz/common": "link:../../mud/packages/common",
-    "@latticexyz/noise": "link:../../noise",
-    "@latticexyz/store": "link:../../mud/packages/store",
-    "@latticexyz/store-sync": "link:../../mud/packages/store-sync",
-    "@latticexyz/utils": "link:../../mud/packages/utils",
-    "@latticexyz/world-modules": "link:../../mud/packages/world-modules",
+    "@latticexyz/common": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/store": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/store-sync": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/utils": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
+    "@latticexyz/world-modules": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
     "csv-parser": "^3.0.0",
     "dotenv": "^16.3.1",
     "ethers": "^5.7.2",
     "p-limit": "^6.1.0",
     "prompts": "^2.4.2",
     "tsx": "^4.7.2",
-    "viem": "2.21.19"
+    "viem": "2.23.2"
   }
 }
