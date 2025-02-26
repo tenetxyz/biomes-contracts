@@ -43,7 +43,7 @@ contract ReadTwoSystem is System {
           equippedEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
           mass: 0,
-          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0 }),
+          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0, accDepletedTime: 0 }),
           lastActionTime: 0
         });
     }

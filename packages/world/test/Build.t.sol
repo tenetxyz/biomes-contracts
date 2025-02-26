@@ -463,14 +463,17 @@ contract BuildTest is BiomesTest {
       FLAT_CHUNK_GRASS_LEVEL + 1,
       playerCoord.z
     );
-    EntityId airEntityId = setObjectAtCoord(buildCoord, AirObjectID);
+    setObjectAtCoord(buildCoord, AirObjectID);
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
 
-    Energy.set(aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 0 }));
+    Energy.set(
+      aliceEntityId,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 0, accDepletedTime: 0 })
+    );
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");
@@ -522,7 +525,7 @@ contract BuildTest is BiomesTest {
       FLAT_CHUNK_GRASS_LEVEL + 1,
       playerCoord.z
     );
-    EntityId airEntityId = setObjectAtCoord(buildCoord, AirObjectID);
+    setObjectAtCoord(buildCoord, AirObjectID);
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
@@ -531,7 +534,7 @@ contract BuildTest is BiomesTest {
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 
     vm.prank(alice);
-    vm.expectRevert("Player isn't logged in");
+    vm.expectRevert("Player is sleeping");
     world.build(buildObjectTypeId, buildCoord);
   }
 }

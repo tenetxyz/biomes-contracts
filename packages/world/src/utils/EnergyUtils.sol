@@ -28,14 +28,27 @@ function getLatestEnergyData(
   if (energyData.energy > drainEnergyThreshold) {
     // Calculate how much time has passed since last update
     uint128 timeSinceLastUpdate = uint128(block.timestamp) - energyData.lastUpdatedTime;
-    if (timeSinceLastUpdate == 0) {
-      return energyData;
-    }
     if (timeSinceLastUpdate < drainInterval) {
       return energyData;
     }
     uint128 energyDrained = (timeSinceLastUpdate * energyData.drainRate) / drainInterval;
     uint128 newEnergy = energyData.energy > energyDrained ? energyData.energy - energyDrained : 0;
+
+    // TODO: should we do this for both machines and players?
+    // Update accumulated depleted time
+    if (newEnergy == 0) {
+      if (energyData.energy > 0) {
+        // Entity just ran out of energy in this update
+        // Calculate when it ran out by determining how much time it took to drain the energy
+        uint128 timeToDeplete = (energyData.energy * drainInterval) / energyData.drainRate;
+        // Add the remaining time after depletion to the accumulated depleted time
+        energyData.accDepletedTime += (timeSinceLastUpdate - timeToDeplete);
+      } else {
+        // Entity was already out of energy, add the entire time since last update
+        energyData.accDepletedTime += timeSinceLastUpdate;
+      }
+    }
+
     energyData.energy = newEnergy;
     energyData.lastUpdatedTime = uint128(block.timestamp);
   }

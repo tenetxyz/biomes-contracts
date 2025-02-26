@@ -26,7 +26,7 @@ import { ReverseInventoryEntity } from "./tables/ReverseInventoryEntity.sol";
 import { Equipped } from "./tables/Equipped.sol";
 import { Player } from "./tables/Player.sol";
 import { ReversePlayer } from "./tables/ReversePlayer.sol";
-import { BedPlayer } from "./tables/BedPlayer.sol";
+import { BedPlayer, BedPlayerData } from "./tables/BedPlayer.sol";
 import { PlayerStatus } from "./tables/PlayerStatus.sol";
 import { PlayerActivity } from "./tables/PlayerActivity.sol";
 import { Chip } from "./tables/Chip.sol";

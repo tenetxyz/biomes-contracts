@@ -46,7 +46,8 @@ function decreaseEnergy(EntityId self, EnergyData memory currentEnergyData, uint
     EnergyData({
       energy: currentEnergy - amount,
       lastUpdatedTime: uint128(block.timestamp),
-      drainRate: currentEnergyData.drainRate
+      drainRate: currentEnergyData.drainRate,
+      accDepletedTime: currentEnergyData.accDepletedTime
     })
   );
 }

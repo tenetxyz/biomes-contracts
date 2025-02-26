@@ -330,7 +330,7 @@ contract MineTest is BiomesTest {
   }
 
   function testMineFailsIfInvalidBlock() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, , VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory mineCoord = VoxelCoord(
       playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
@@ -385,7 +385,10 @@ contract MineTest is BiomesTest {
     ObjectTypeId mineObjectTypeId = DirtObjectID;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
-    Energy.set(aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 0 }));
+    Energy.set(
+      aliceEntityId,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 0, accDepletedTime: 0 })
+    );
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");
@@ -450,7 +453,7 @@ contract MineTest is BiomesTest {
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 
     vm.prank(alice);
-    vm.expectRevert("Player isn't logged in");
+    vm.expectRevert("Player is sleeping");
     world.mine(mineCoord);
   }
 
@@ -464,7 +467,10 @@ contract MineTest is BiomesTest {
     );
     ObjectTypeId mineObjectTypeId = ForceFieldObjectID;
     EntityId mineEntityId = setObjectAtCoord(mineCoord, mineObjectTypeId);
-    Energy.set(mineEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: 0 }));
+    Energy.set(
+      mineEntityId,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: 0, accDepletedTime: 0 })
+    );
 
     vm.prank(alice);
     vm.expectRevert("Cannot mine a machine that has energy");

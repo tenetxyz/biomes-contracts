@@ -21,7 +21,7 @@ import { ExploredChunkByIndex, ExploredChunkByIndexData } from "../codegen/table
 import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
 import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 
-import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_AREA_HALF_WIDTH, SPAWN_BLOCK_RANGE, CHUNK_SIZE } from "../Constants.sol";
+import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
@@ -106,7 +106,7 @@ contract SpawnSystem is System {
     require(objectTypeId == SpawnTileObjectID, "Not a spawn tile");
 
     VoxelCoord memory spawnTileCoord = Position._get(spawnTileEntityId).toVoxelCoord();
-    require(spawnTileCoord.inSurroundingCube(SPAWN_AREA_HALF_WIDTH, spawnCoord), "Spawn tile is too far away");
+    require(spawnTileCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, spawnCoord), "Spawn tile is too far away");
 
     EntityId forceFieldEntityId = getForceField(spawnTileCoord);
     require(forceFieldEntityId.exists(), "Spawn tile is not inside a forcefield");
@@ -147,7 +147,8 @@ contract SpawnSystem is System {
       EnergyData({
         energy: MAX_PLAYER_ENERGY,
         lastUpdatedTime: uint128(block.timestamp),
-        drainRate: PLAYER_ENERGY_DRAIN_RATE
+        drainRate: PLAYER_ENERGY_DRAIN_RATE,
+        accDepletedTime: 0
       })
     );
 

@@ -24,7 +24,6 @@ uint256 constant MIN_TIME_BEFORE_AUTO_LOGOFF = 15 minutes;
 int32 constant MAX_PLAYER_INFLUENCE_HALF_WIDTH = 10;
 int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
 
-int32 constant SPAWN_AREA_HALF_WIDTH = 5;
 uint256 constant SPAWN_BLOCK_RANGE = 10;
 
 int32 constant CHUNK_SIZE = 16;
@@ -49,8 +48,6 @@ uint128 constant MIN_PLAYER_ENERGY_THRESHOLD_TO_DRAIN = MAX_PLAYER_ENERGY / 10;
 uint128 constant MACHINE_ENERGY_DRAIN_RATE = 100;
 uint128 constant MACHINE_ENERGY_DRAIN_INTERVAL = 1 seconds;
 uint128 constant MIN_MACHINE_ENERGY_THRESHOLD_TO_DRAIN = 0;
-// TODO: replace with correct one
-uint128 constant BED_DRAIN_RATE = 10;
 
 uint128 constant SMART_CHEST_ENERGY_COST = 100;
 

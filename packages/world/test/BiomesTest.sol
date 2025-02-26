@@ -87,7 +87,12 @@ abstract contract BiomesTest is MudTest, GasReporter {
     Mass.set(playerEntityId, ObjectTypeMetadata.getMass(PlayerObjectID));
     Energy.set(
       playerEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: PLAYER_ENERGY_DRAIN_RATE })
+      EnergyData({
+        lastUpdatedTime: uint128(block.timestamp),
+        energy: 10000,
+        drainRate: PLAYER_ENERGY_DRAIN_RATE,
+        accDepletedTime: 0
+      })
     );
 
     PlayerActivity.set(playerEntityId, uint128(block.timestamp));

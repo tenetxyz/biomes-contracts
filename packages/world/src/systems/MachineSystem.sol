@@ -33,14 +33,17 @@ contract MachineSystem is System {
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
     require(objectTypeId == ForceFieldObjectID, "Invalid object type");
     EnergyData memory machineData = updateMachineEnergyLevel(baseEntityId);
-    // Set base drain rate
-    uint128 drainRate = machineData.energy == 0 ? MACHINE_ENERGY_DRAIN_RATE : machineData.drainRate;
 
     uint128 newEnergyLevel = machineData.energy + (uint128(numBattery) * 10);
 
     Energy._set(
       baseEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: newEnergyLevel, drainRate: drainRate })
+      EnergyData({
+        lastUpdatedTime: uint128(block.timestamp),
+        energy: newEnergyLevel,
+        drainRate: machineData.drainRate,
+        accDepletedTime: machineData.accDepletedTime
+      })
     );
 
     notify(

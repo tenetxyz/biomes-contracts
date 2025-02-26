@@ -97,7 +97,8 @@ contract SpawnTest is BiomesTest {
       EnergyData({
         energy: spawnEnergy(),
         lastUpdatedTime: uint128(block.timestamp),
-        drainRate: MACHINE_ENERGY_DRAIN_RATE
+        drainRate: MACHINE_ENERGY_DRAIN_RATE,
+        accDepletedTime: 0
       })
     );
 

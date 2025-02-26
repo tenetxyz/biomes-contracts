@@ -21,7 +21,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 
 import { requireValidPlayer, requireInPlayerInfluence, createPlayer, deletePlayer } from "../utils/PlayerUtils.sol";
-import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_INTERVAL, SPAWN_AREA_HALF_WIDTH, SPAWN_BLOCK_RANGE, BED_DRAIN_RATE } from "../Constants.sol";
+import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
@@ -37,6 +37,28 @@ import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { EntityId } from "../EntityId.sol";
 
+// To avoid reaching bytecode size limit
+library BedLib {
+  function handleEnergyDepletion(EntityId playerEntityId, EntityId bedEntityId, EnergyData memory machineData) public {
+    uint128 timeWithoutEnergy = machineData.accDepletedTime - BedPlayer._getLastAccDepletedTime(bedEntityId);
+    if (timeWithoutEnergy > 0) {
+      uint128 totalEnergyDepleted = timeWithoutEnergy * PLAYER_ENERGY_DRAIN_RATE;
+      // No need to call updatePlayerEnergyLevel as drain rate is 0 if sleeping
+      // TODO: should we revert or should we kill the player?
+      uint128 currentEnergy = Energy._getEnergy(playerEntityId);
+      require(totalEnergyDepleted < currentEnergy, "Player energy was depleted while sleeping");
+      Energy._setEnergy(playerEntityId, currentEnergy - totalEnergyDepleted);
+    }
+
+    // Set last updated so next time updatePlayerEnergyLevel is called it will drain from here
+    Energy._setLastUpdatedTime(playerEntityId, uint128(block.timestamp));
+  }
+
+  function transferInventory(EntityId playerEntityId, EntityId bedEntityId, ObjectTypeId objectTypeId) public {
+    transferAllInventoryEntities(playerEntityId, bedEntityId, objectTypeId);
+  }
+}
+
 contract BedSystem is System {
   using VoxelCoordLib for *;
 
@@ -45,28 +67,26 @@ contract BedSystem is System {
 
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
 
-    ObjectTypeId objectTypeId = ObjectType._get(bedEntityId);
-    require(objectTypeId == BedObjectID, "Not a bed");
+    require(ObjectType._get(bedEntityId) == BedObjectID, "Not a bed");
 
     requireInPlayerInfluence(playerCoord, bedEntityId);
 
     // TODO: should we use the forcefield from the base entity? or both?
     bedEntityId = bedEntityId.baseEntityId();
-    VoxelCoord memory baseCoord = Position._get(bedEntityId).toVoxelCoord();
+    require(!BedPlayer._getPlayerEntityId(bedEntityId).exists(), "Bed full");
 
-    require(!BedPlayer._get(bedEntityId).exists(), "Bed full");
-
-    EntityId forceFieldEntityId = getForceField(baseCoord);
+    EntityId forceFieldEntityId = getForceField(Position._get(bedEntityId).toVoxelCoord());
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
     EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
     require(machineData.energy > 0, "Forcefield has no energy");
+
     PlayerStatus._setBedEntityId(playerEntityId, bedEntityId);
-    BedPlayer._set(bedEntityId, playerEntityId);
+    BedPlayer._set(bedEntityId, playerEntityId, machineData.accDepletedTime);
 
-    Energy._setDrainRate(playerEntityId, PLAYER_ENERGY_DRAIN_INTERVAL - BED_DRAIN_RATE);
-    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + BED_DRAIN_RATE);
+    // Increase forcefield's drain rate
+    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + PLAYER_ENERGY_DRAIN_RATE);
 
-    transferAllInventoryEntities(playerEntityId, bedEntityId, BedObjectID);
+    BedLib.transferInventory(playerEntityId, bedEntityId, BedObjectID);
 
     deletePlayer(playerEntityId, playerCoord);
 
@@ -83,30 +103,29 @@ contract BedSystem is System {
 
     require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
-    address playerAddress = _msgSender();
-    EntityId playerEntityId = Player._get(playerAddress);
+    EntityId playerEntityId = Player._get(_msgSender());
     require(playerEntityId.exists(), "Player does not exist");
     EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
     require(bedEntityId.exists(), "Player is not sleeping");
 
-    updatePlayerEnergyLevel(playerEntityId);
-
     VoxelCoord memory bedCoord = Position._get(bedEntityId).toVoxelCoord();
-    require(bedCoord.inSurroundingCube(SPAWN_AREA_HALF_WIDTH, spawnCoord), "Bed is too far away");
+    require(bedCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, spawnCoord), "Bed is too far away");
 
     EntityId forceFieldEntityId = getForceField(bedCoord);
-    require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
     EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
 
-    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - BED_DRAIN_RATE);
-    Energy._setDrainRate(playerEntityId, PLAYER_ENERGY_DRAIN_INTERVAL);
+    // Deplete's player energy if necessary
+    BedLib.handleEnergyDepletion(playerEntityId, bedEntityId, machineData);
+
+    // Decrease forcefield's drain rate
+    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - PLAYER_ENERGY_DRAIN_RATE);
 
     PlayerStatus._deleteRecord(playerEntityId);
     BedPlayer._deleteRecord(bedEntityId);
 
     createPlayer(playerEntityId, spawnCoord);
 
-    transferAllInventoryEntities(bedEntityId, playerEntityId, PlayerObjectID);
+    BedLib.transferInventory(bedEntityId, playerEntityId, PlayerObjectID);
 
     if (machineData.energy > 0) {
       address chipAddress = bedEntityId.getChipAddress();

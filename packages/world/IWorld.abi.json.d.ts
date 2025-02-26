@@ -1707,6 +1707,11 @@ declare const abi: [
                 "name": "drainRate",
                 "type": "uint128",
                 "internalType": "uint128"
+              },
+              {
+                "name": "accDepletedTime",
+                "type": "uint128",
+                "internalType": "uint128"
               }
             ]
           },
@@ -1834,6 +1839,11 @@ declare const abi: [
               },
               {
                 "name": "drainRate",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "accDepletedTime",
                 "type": "uint128",
                 "internalType": "uint128"
               }

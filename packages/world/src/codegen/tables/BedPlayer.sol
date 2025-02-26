@@ -19,17 +19,22 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { EntityId } from "../../EntityId.sol";
 
+struct BedPlayerData {
+  EntityId playerEntityId;
+  uint128 lastAccDepletedTime;
+}
+
 library BedPlayer {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "BedPlayer", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000426564506c6179657200000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0030020020100000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bytes32)
-  Schema constant _valueSchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32, uint128)
+  Schema constant _valueSchema = Schema.wrap(0x003002005f0f0000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -45,8 +50,9 @@ library BedPlayer {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](1);
+    fieldNames = new string[](2);
     fieldNames[0] = "playerEntityId";
+    fieldNames[1] = "lastAccDepletedTime";
   }
 
   /**
@@ -86,28 +92,6 @@ library BedPlayer {
   }
 
   /**
-   * @notice Get playerEntityId.
-   */
-  function get(EntityId bedEntityId) internal view returns (EntityId playerEntityId) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(bedEntityId);
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return EntityId.wrap(bytes32(_blob));
-  }
-
-  /**
-   * @notice Get playerEntityId.
-   */
-  function _get(EntityId bedEntityId) internal view returns (EntityId playerEntityId) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(bedEntityId);
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return EntityId.wrap(bytes32(_blob));
-  }
-
-  /**
    * @notice Set playerEntityId.
    */
   function setPlayerEntityId(EntityId bedEntityId, EntityId playerEntityId) internal {
@@ -128,23 +112,160 @@ library BedPlayer {
   }
 
   /**
-   * @notice Set playerEntityId.
+   * @notice Get lastAccDepletedTime.
    */
-  function set(EntityId bedEntityId, EntityId playerEntityId) internal {
+  function getLastAccDepletedTime(EntityId bedEntityId) internal view returns (uint128 lastAccDepletedTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(bedEntityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(playerEntityId)), _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (uint128(bytes16(_blob)));
   }
 
   /**
-   * @notice Set playerEntityId.
+   * @notice Get lastAccDepletedTime.
    */
-  function _set(EntityId bedEntityId, EntityId playerEntityId) internal {
+  function _getLastAccDepletedTime(EntityId bedEntityId) internal view returns (uint128 lastAccDepletedTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(bedEntityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(playerEntityId)), _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (uint128(bytes16(_blob)));
+  }
+
+  /**
+   * @notice Set lastAccDepletedTime.
+   */
+  function setLastAccDepletedTime(EntityId bedEntityId, uint128 lastAccDepletedTime) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(bedEntityId);
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((lastAccDepletedTime)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set lastAccDepletedTime.
+   */
+  function _setLastAccDepletedTime(EntityId bedEntityId, uint128 lastAccDepletedTime) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(bedEntityId);
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((lastAccDepletedTime)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get the full data.
+   */
+  function get(EntityId bedEntityId) internal view returns (BedPlayerData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(bedEntityId);
+
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Get the full data.
+   */
+  function _get(EntityId bedEntityId) internal view returns (BedPlayerData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(bedEntityId);
+
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Set the full data using individual values.
+   */
+  function set(EntityId bedEntityId, EntityId playerEntityId, uint128 lastAccDepletedTime) internal {
+    bytes memory _staticData = encodeStatic(playerEntityId, lastAccDepletedTime);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(bedEntityId);
+
+    StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Set the full data using individual values.
+   */
+  function _set(EntityId bedEntityId, EntityId playerEntityId, uint128 lastAccDepletedTime) internal {
+    bytes memory _staticData = encodeStatic(playerEntityId, lastAccDepletedTime);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(bedEntityId);
+
+    StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Set the full data using the data struct.
+   */
+  function set(EntityId bedEntityId, BedPlayerData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.playerEntityId, _table.lastAccDepletedTime);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(bedEntityId);
+
+    StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Set the full data using the data struct.
+   */
+  function _set(EntityId bedEntityId, BedPlayerData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.playerEntityId, _table.lastAccDepletedTime);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(bedEntityId);
+
+    StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Decode the tightly packed blob of static data using this table's field layout.
+   */
+  function decodeStatic(
+    bytes memory _blob
+  ) internal pure returns (EntityId playerEntityId, uint128 lastAccDepletedTime) {
+    playerEntityId = EntityId.wrap(Bytes.getBytes32(_blob, 0));
+
+    lastAccDepletedTime = (uint128(Bytes.getBytes16(_blob, 32)));
+  }
+
+  /**
+   * @notice Decode the tightly packed blobs using this table's field layout.
+   * @param _staticData Tightly packed static fields.
+   *
+   *
+   */
+  function decode(
+    bytes memory _staticData,
+    EncodedLengths,
+    bytes memory
+  ) internal pure returns (BedPlayerData memory _table) {
+    (_table.playerEntityId, _table.lastAccDepletedTime) = decodeStatic(_staticData);
   }
 
   /**
@@ -171,8 +292,8 @@ library BedPlayer {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(EntityId playerEntityId) internal pure returns (bytes memory) {
-    return abi.encodePacked(playerEntityId);
+  function encodeStatic(EntityId playerEntityId, uint128 lastAccDepletedTime) internal pure returns (bytes memory) {
+    return abi.encodePacked(playerEntityId, lastAccDepletedTime);
   }
 
   /**
@@ -181,8 +302,11 @@ library BedPlayer {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(EntityId playerEntityId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(playerEntityId);
+  function encode(
+    EntityId playerEntityId,
+    uint128 lastAccDepletedTime
+  ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(playerEntityId, lastAccDepletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
