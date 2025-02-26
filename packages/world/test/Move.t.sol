@@ -37,7 +37,7 @@ import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../src/Constants.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
 import { ChunkCoord } from "../src/Types.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -50,7 +50,7 @@ contract MoveTest is BiomesTest {
     VoxelCoord memory startingCoord = PlayerPosition.get(playerEntityId).toVoxelCoord();
     VoxelCoord[] memory newCoords = new VoxelCoord[](numBlocksToMove);
     for (uint8 i = 0; i < numBlocksToMove; i++) {
-      newCoords[i] = VoxelCoord(startingCoord.x, startingCoord.y, startingCoord.z + int16(int(uint(i))) + 1);
+      newCoords[i] = VoxelCoord(startingCoord.x, startingCoord.y, startingCoord.z + int32(int(uint(i))) + 1);
 
       VoxelCoord memory belowCoord = VoxelCoord(newCoords[i].x, newCoords[i].y - 1, newCoords[i].z);
       VoxelCoord memory aboveCoord = VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z);
@@ -156,9 +156,10 @@ contract MoveTest is BiomesTest {
   function testMoveJump() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-    for (uint8 i = 0; i < newCoords.length; i++) {
+    uint256 numJumps = 1;
+    VoxelCoord[] memory newCoords = new VoxelCoord[](numJumps);
+    for (uint8 i = 0; i < numJumps; i++) {
+      newCoords[i] = VoxelCoord(playerCoord.x, playerCoord.y + int32(int(uint(i))) + 1, playerCoord.z);
       setObjectAtCoord(newCoords[i], AirObjectID);
       setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
@@ -189,15 +190,18 @@ contract MoveTest is BiomesTest {
   function testMoveGlide() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](3);
-    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
-    newCoords[1] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
-    newCoords[2] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 2);
+    uint256 numGlides = 2;
+    VoxelCoord[] memory newCoords = new VoxelCoord[](numGlides + 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
+      newCoords[i] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + int32(int(uint(i))));
       setObjectAtCoord(newCoords[i], AirObjectID);
       setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
-    VoxelCoord memory expectedFinalCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+    VoxelCoord memory expectedFinalCoord = VoxelCoord(
+      playerCoord.x,
+      playerCoord.y,
+      playerCoord.z + int32(int(uint(numGlides)))
+    );
     setObjectAtCoord(VoxelCoord(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), GrassObjectID);
 
     uint128 energyBefore = Energy.getEnergy(aliceEntityId);
@@ -224,10 +228,10 @@ contract MoveTest is BiomesTest {
   function testMoveFailsIfInvalidJump() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
-    uint256 numJumps = 5;
+    uint256 numJumps = MAX_PLAYER_JUMPS + 1;
     VoxelCoord[] memory newCoords = new VoxelCoord[](numJumps);
     for (uint8 i = 0; i < numJumps; i++) {
-      newCoords[i] = VoxelCoord(playerCoord.x, playerCoord.y + int16(int(uint(i))) + 1, playerCoord.z);
+      newCoords[i] = VoxelCoord(playerCoord.x, playerCoord.y + int32(int(uint(i))) + 1, playerCoord.z);
       setObjectAtCoord(newCoords[i], AirObjectID);
       setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
@@ -237,7 +241,21 @@ contract MoveTest is BiomesTest {
     world.move(newCoords);
   }
 
-  function testMoveFailsIfInvalidGlide() public {}
+  function testMoveFailsIfInvalidGlide() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    uint256 numGlides = MAX_PLAYER_GLIDES + 1;
+    VoxelCoord[] memory newCoords = new VoxelCoord[](numGlides + 1);
+    for (uint8 i = 0; i < newCoords.length; i++) {
+      newCoords[i] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + int32(int(uint(i))));
+      setObjectAtCoord(newCoords[i], AirObjectID);
+      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+    }
+
+    vm.prank(alice);
+    vm.expectRevert("Cannot glide more than 10 blocks");
+    world.move(newCoords);
+  }
 
   function testMoveFailsIfNonPassable() public {}
 

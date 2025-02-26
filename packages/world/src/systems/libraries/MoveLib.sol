@@ -14,7 +14,7 @@ import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { inWorldBorder } from "../../Utils.sol";
-import { PLAYER_MOVE_ENERGY_COST } from "../../Constants.sol";
+import { PLAYER_MOVE_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
@@ -23,6 +23,15 @@ import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { getObjectTypeSchema } from "../../utils/ObjectTypeUtils.sol";
 
 library MoveLib {
+  function _isSelf(EntityId[] memory playerEntityIds, EntityId playerEntityId) internal view returns (bool) {
+    for (uint256 i = 0; i < playerEntityIds.length; i++) {
+      if (playerEntityIds[i] == playerEntityId) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function _requireValidMove(
     EntityId[] memory playerEntityIds,
     VoxelCoord memory oldCoord,
@@ -38,14 +47,7 @@ library MoveLib {
     if (playerEntityIdAtCoord.exists()) {
       // If the entity we're moving into is this player, then it's fine as
       // the player will be moved from the old position to the new position
-      bool isSelf = false;
-      for (uint256 i = 0; i < playerEntityIds.length; i++) {
-        if (playerEntityIds[i] == playerEntityIdAtCoord) {
-          isSelf = true;
-          break;
-        }
-      }
-      require(isSelf, "Cannot move through a player");
+      require(_isSelf(playerEntityIds, playerEntityIdAtCoord), "Cannot move through a player");
     }
 
     bool gravityAppliesForMove = true;
@@ -55,17 +57,8 @@ library MoveLib {
       gravityAppliesForMove = false;
     } else {
       EntityId belowPlayerEntityId = belowCoord.getPlayer();
-      if (belowPlayerEntityId.exists()) {
-        bool isSelf = false;
-        for (uint256 i = 0; i < playerEntityIds.length; i++) {
-          if (playerEntityIds[i] == belowPlayerEntityId) {
-            isSelf = true;
-            break;
-          }
-        }
-        if (!isSelf) {
-          gravityAppliesForMove = false;
-        }
+      if (belowPlayerEntityId.exists() && !_isSelf(playerEntityIds, belowPlayerEntityId)) {
+        gravityAppliesForMove = false;
       }
     }
 
@@ -102,7 +95,7 @@ library MoveLib {
       if (gravityAppliesForMove) {
         if (oldPlayerCoords[0].y < newPlayerCoords[0].y) {
           numJumps++;
-          require(numJumps <= 3, "Cannot jump more than 3 blocks");
+          require(numJumps <= MAX_PLAYER_JUMPS, "Cannot jump more than 3 blocks");
         } else if (oldPlayerCoords[0].y > newPlayerCoords[0].y) {
           // then we are falling, so should be fine
           numFalls++;
@@ -110,7 +103,7 @@ library MoveLib {
         } else {
           // we are gliding
           numGlides++;
-          require(numGlides <= 10, "Cannot glide more than 10 blocks");
+          require(numGlides <= MAX_PLAYER_GLIDES, "Cannot glide more than 10 blocks");
         }
       } else {
         numJumps = 0;
