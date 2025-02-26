@@ -221,7 +221,21 @@ contract MoveTest is BiomesTest {
     assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
   }
 
-  function testMoveFailsIfInvalidJump() public {}
+  function testMoveFailsIfInvalidJump() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    uint256 numJumps = 5;
+    VoxelCoord[] memory newCoords = new VoxelCoord[](numJumps);
+    for (uint8 i = 0; i < numJumps; i++) {
+      newCoords[i] = VoxelCoord(playerCoord.x, playerCoord.y + int16(int(uint(i))) + 1, playerCoord.z);
+      setObjectAtCoord(newCoords[i], AirObjectID);
+      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+    }
+
+    vm.prank(alice);
+    vm.expectRevert("Cannot jump more than 3 blocks");
+    world.move(newCoords);
+  }
 
   function testMoveFailsIfInvalidGlide() public {}
 

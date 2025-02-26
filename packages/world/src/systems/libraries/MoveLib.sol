@@ -13,7 +13,7 @@ import { ActionType } from "../../codegen/common.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
-import { gravityApplies, inWorldBorder } from "../../Utils.sol";
+import { inWorldBorder } from "../../Utils.sol";
 import { PLAYER_MOVE_ENERGY_COST } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 import { TerrainLib } from "./TerrainLib.sol";
@@ -48,7 +48,28 @@ library MoveLib {
       require(isSelf, "Cannot move through a player");
     }
 
-    return gravityApplies(newCoord);
+    bool gravityAppliesForMove = true;
+    VoxelCoord memory belowCoord = VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z);
+    (, ObjectTypeId belowObjectTypeId) = belowCoord.getEntity();
+    if (!ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
+      gravityAppliesForMove = false;
+    } else {
+      EntityId belowPlayerEntityId = belowCoord.getPlayer();
+      if (belowPlayerEntityId.exists()) {
+        bool isSelf = false;
+        for (uint256 i = 0; i < playerEntityIds.length; i++) {
+          if (playerEntityIds[i] == belowPlayerEntityId) {
+            isSelf = true;
+            break;
+          }
+        }
+        if (!isSelf) {
+          gravityAppliesForMove = false;
+        }
+      }
+    }
+
+    return gravityAppliesForMove;
   }
 
   function _requireValidPath(
@@ -68,6 +89,7 @@ library MoveLib {
       oldPlayerCoords[i] = VoxelCoord(playerCoords[i].x, playerCoords[i].y, playerCoords[i].z);
     }
     for (uint256 i = 0; i < newCoords.length; i++) {
+      gravityAppliesForMove = false;
       newPlayerCoords = newCoords[i].getRelativeCoords(PlayerObjectID);
       for (uint256 j = 0; j < newPlayerCoords.length; j++) {
         bool gravityAppliesForNewCoord = _requireValidMove(playerEntityIds, oldPlayerCoords[j], newPlayerCoords[j]);
