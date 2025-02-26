@@ -39,6 +39,7 @@ import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObje
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
+import { ChunkCoord } from "../src/Types.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract MoveTest is BiomesTest {
@@ -50,6 +51,13 @@ contract MoveTest is BiomesTest {
     VoxelCoord[] memory newCoords = new VoxelCoord[](numBlocksToMove);
     for (uint8 i = 0; i < numBlocksToMove; i++) {
       newCoords[i] = VoxelCoord(startingCoord.x, startingCoord.y, startingCoord.z + int16(int(uint(i))) + 1);
+
+      // Check if the chunk is explored
+      ChunkCoord memory chunkCoord = newCoords[i].toChunkCoord();
+      if (!TerrainLib._isChunkExplored(chunkCoord, worldAddress)) {
+        setupAirChunk(newCoords[i]);
+      }
+
       VoxelCoord memory belowCoord = VoxelCoord(newCoords[i].x, newCoords[i].y - 1, newCoords[i].z);
       VoxelCoord memory aboveCoord = VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z);
       if (overTerrain) {
@@ -133,12 +141,22 @@ contract MoveTest is BiomesTest {
 
   function testMoveFiftyBlocksTerrain() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
-    // _testMoveMultipleBlocks(alice, 50, true);
+    _testMoveMultipleBlocks(alice, 50, true);
   }
 
   function testMoveFiftyBlocksNonTerrain() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
-    // _testMoveMultipleBlocks(alice, 50, false);
+    _testMoveMultipleBlocks(alice, 50, false);
+  }
+
+  function testMoveHundredBlocksTerrain() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    _testMoveMultipleBlocks(alice, 100, true);
+  }
+
+  function testMoveHundredBlocksNonTerrain() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    _testMoveMultipleBlocks(alice, 100, false);
   }
 
   function testMoveJump() public {}
