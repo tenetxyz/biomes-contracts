@@ -13,7 +13,7 @@ import { ActionType } from "../../codegen/common.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
-import { inWorldBorder } from "../../Utils.sol";
+import { inWorldBorder, gravityApplies } from "../../Utils.sol";
 import { PLAYER_MOVE_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 import { TerrainLib } from "./TerrainLib.sol";
@@ -23,80 +23,44 @@ import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { getObjectTypeSchema } from "../../utils/ObjectTypeUtils.sol";
 
 library MoveLib {
-  function _isSelf(EntityId[] memory playerEntityIds, EntityId playerEntityId) internal view returns (bool) {
-    for (uint256 i = 0; i < playerEntityIds.length; i++) {
-      if (playerEntityIds[i] == playerEntityId) {
-        return true;
-      }
+  function _requireValidMove(VoxelCoord memory baseOldCoord, VoxelCoord memory baseNewCoord) internal view {
+    VoxelCoord[] memory oldPlayerCoords = baseOldCoord.getRelativeCoords(PlayerObjectID);
+    VoxelCoord[] memory newPlayerCoords = baseNewCoord.getRelativeCoords(PlayerObjectID);
+
+    for (uint256 i = 0; i < newPlayerCoords.length; i++) {
+      VoxelCoord memory oldCoord = oldPlayerCoords[i];
+      VoxelCoord memory newCoord = newPlayerCoords[i];
+
+      require(inWorldBorder(newCoord), "Cannot move outside the world border");
+      require(oldCoord.inSurroundingCube(1, newCoord), "New coord is too far from old coord");
+
+      (EntityId newEntityId, ObjectTypeId newObjectTypeId) = newCoord.getEntity();
+      require(ObjectTypeMetadata._getCanPassThrough(newObjectTypeId), "Cannot move through a non-passable block");
+
+      EntityId playerEntityIdAtCoord = newCoord.getPlayer();
+      require(!playerEntityIdAtCoord.exists(), "Cannot move through a player");
     }
-    return false;
-  }
-
-  function _requireValidMove(
-    EntityId[] memory playerEntityIds,
-    VoxelCoord memory oldCoord,
-    VoxelCoord memory newCoord
-  ) internal view returns (bool) {
-    require(inWorldBorder(newCoord), "Cannot move outside the world border");
-    require(oldCoord.inSurroundingCube(1, newCoord), "New coord is too far from old coord");
-
-    (EntityId newEntityId, ObjectTypeId newObjectTypeId) = newCoord.getEntity();
-    require(ObjectTypeMetadata._getCanPassThrough(newObjectTypeId), "Cannot move through a non-passable block");
-
-    EntityId playerEntityIdAtCoord = newCoord.getPlayer();
-    if (playerEntityIdAtCoord.exists()) {
-      // If the entity we're moving into is this player, then it's fine as
-      // the player will be moved from the old position to the new position
-      require(_isSelf(playerEntityIds, playerEntityIdAtCoord), "Cannot move through a player");
-    }
-
-    bool gravityAppliesForMove = true;
-    VoxelCoord memory belowCoord = VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z);
-    (, ObjectTypeId belowObjectTypeId) = belowCoord.getEntity();
-    if (!ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
-      gravityAppliesForMove = false;
-    } else {
-      EntityId belowPlayerEntityId = belowCoord.getPlayer();
-      if (belowPlayerEntityId.exists() && !_isSelf(playerEntityIds, belowPlayerEntityId)) {
-        gravityAppliesForMove = false;
-      }
-    }
-
-    return gravityAppliesForMove;
   }
 
   function _requireValidPath(
-    EntityId[] memory playerEntityIds,
     VoxelCoord[] memory playerCoords,
-    VoxelCoord[] memory newCoords
-  ) internal view returns (bool, VoxelCoord[] memory) {
+    VoxelCoord[] memory newBaseCoords
+  ) internal view returns (bool) {
     bool gravityAppliesForMove = false;
-    VoxelCoord[] memory newPlayerCoords = new VoxelCoord[](playerCoords.length);
-
     uint256 numJumps = 0;
     uint256 numFalls = 0;
     uint256 numGlides = 0;
 
-    VoxelCoord[] memory oldPlayerCoords = new VoxelCoord[](playerCoords.length);
-    for (uint256 i = 0; i < playerCoords.length; i++) {
-      oldPlayerCoords[i] = VoxelCoord(playerCoords[i].x, playerCoords[i].y, playerCoords[i].z);
-    }
-    for (uint256 i = 0; i < newCoords.length; i++) {
-      gravityAppliesForMove = false;
-      newPlayerCoords = newCoords[i].getRelativeCoords(PlayerObjectID);
-      for (uint256 j = 0; j < newPlayerCoords.length; j++) {
-        bool gravityAppliesForNewCoord = _requireValidMove(playerEntityIds, oldPlayerCoords[j], newPlayerCoords[j]);
-        // We only need to check gravity on the base coord as players are always 1 block high
-        if (j == 0) {
-          gravityAppliesForMove = gravityAppliesForNewCoord;
-        }
-      }
+    VoxelCoord memory oldBaseCoord = playerCoords[0];
+    for (uint256 i = 0; i < newBaseCoords.length; i++) {
+      _requireValidMove(oldBaseCoord, newBaseCoords[i]);
 
+      gravityAppliesForMove = gravityApplies(newBaseCoords[i]);
       if (gravityAppliesForMove) {
-        if (oldPlayerCoords[0].y < newPlayerCoords[0].y) {
+        if (oldBaseCoord.y < newBaseCoords[i].y) {
           numJumps++;
           require(numJumps <= MAX_PLAYER_JUMPS, "Cannot jump more than 3 blocks");
-        } else if (oldPlayerCoords[0].y > newPlayerCoords[0].y) {
+        } else if (oldBaseCoord.y > newBaseCoords[i].y) {
           // then we are falling, so should be fine
           numFalls++;
           numGlides = 0;
@@ -110,50 +74,54 @@ library MoveLib {
         numGlides = 0;
       }
 
-      oldPlayerCoords = newPlayerCoords;
+      oldBaseCoord = newBaseCoords[i];
     }
 
-    return (gravityAppliesForMove, newPlayerCoords);
+    return gravityAppliesForMove;
+  }
+
+  function _getPlayerEntityIds(
+    EntityId basePlayerEntityId,
+    VoxelCoord[] memory playerCoords
+  ) internal returns (EntityId[] memory) {
+    EntityId[] memory playerEntityIds = new EntityId[](playerCoords.length);
+    playerEntityIds[0] = basePlayerEntityId;
+    // Only iterate through relative schema coords
+    for (uint256 i = 1; i < playerCoords.length; i++) {
+      playerEntityIds[i] = playerCoords[i].getPlayer();
+    }
+    return playerEntityIds;
   }
 
   function movePlayer(
     EntityId playerEntityId,
     VoxelCoord memory playerCoord,
-    VoxelCoord[] memory newCoords
-  ) public returns (bool, VoxelCoord memory) {
+    VoxelCoord[] memory newBaseCoords
+  ) public returns (bool) {
     VoxelCoord[] memory playerCoords = playerCoord.getRelativeCoords(PlayerObjectID);
-    EntityId[] memory playerEntityIds = new EntityId[](playerCoords.length);
-    playerEntityIds[0] = playerEntityId;
-    // Only iterate through relative schema coords
-    for (uint256 i = 1; i < playerCoords.length; i++) {
-      playerEntityIds[i] = playerCoords[i].getPlayer();
+    EntityId[] memory playerEntityIds = _getPlayerEntityIds(playerEntityId, playerCoords);
+
+    // Remove the current player from the grid
+    for (uint256 i = 0; i < playerCoords.length; i++) {
+      ReversePlayerPosition._deleteRecord(playerCoords[i].x, playerCoords[i].y, playerCoords[i].z);
     }
 
-    (bool gravityAppliesForMove, VoxelCoord[] memory newPlayerCoords) = _requireValidPath(
-      playerEntityIds,
-      playerCoords,
-      newCoords
-    );
+    bool gravityAppliesForMove = _requireValidPath(playerCoords, newBaseCoords);
 
-    VoxelCoord memory finalPlayerCoord = newPlayerCoords[0];
-    if (!VoxelCoordLib.equals(finalPlayerCoord, playerCoords[0])) {
-      for (uint256 i = 0; i < playerCoords.length; i++) {
-        ReversePlayerPosition._deleteRecord(playerCoords[i].x, playerCoords[i].y, playerCoords[i].z);
-      }
-
-      for (uint256 i = 0; i < newPlayerCoords.length; i++) {
-        newPlayerCoords[i].setPlayer(playerEntityIds[i]);
-      }
+    VoxelCoord memory finalPlayerCoord = newBaseCoords[newBaseCoords.length - 1];
+    VoxelCoord[] memory newPlayerCoords = finalPlayerCoord.getRelativeCoords(PlayerObjectID);
+    for (uint256 i = 0; i < newPlayerCoords.length; i++) {
+      newPlayerCoords[i].setPlayer(playerEntityIds[i]);
     }
 
     transferEnergyFromPlayerToPool(
       playerEntityId,
       playerCoord,
       Energy._get(playerEntityId),
-      PLAYER_MOVE_ENERGY_COST * uint128(newCoords.length)
+      PLAYER_MOVE_ENERGY_COST * uint128(newBaseCoords.length)
     );
 
-    return (gravityAppliesForMove, finalPlayerCoord);
+    return gravityAppliesForMove;
   }
 
   function movePlayerWithGravity(
@@ -161,10 +129,9 @@ library MoveLib {
     VoxelCoord memory playerCoord,
     VoxelCoord[] memory newCoords
   ) public {
-    (bool gravityAppliesForCoord, VoxelCoord memory finalCoord) = movePlayer(playerEntityId, playerCoord, newCoords);
-
-    if (gravityAppliesForCoord) {
-      runGravity(playerEntityId, finalCoord);
+    bool gravityAppliesForMove = movePlayer(playerEntityId, playerCoord, newCoords);
+    if (gravityAppliesForMove) {
+      runGravity(playerEntityId, newCoords[newCoords.length - 1]);
     }
 
     VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
