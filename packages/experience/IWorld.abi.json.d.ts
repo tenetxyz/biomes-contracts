@@ -2252,6 +2252,34 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "registerOptionalSystemHook",
+    "inputs": [
+      {
+        "name": "systemId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
+      },
+      {
+        "name": "hookAddress",
+        "type": "address",
+        "internalType": "contract IOptionalSystemHook"
+      },
+      {
+        "name": "enabledHooksBitmap",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "callDataHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "registerRootFunctionSelector",
     "inputs": [
       {
@@ -2736,6 +2764,29 @@ declare const abi: [
         "name": "namespaceId",
         "type": "bytes32",
         "internalType": "ResourceId"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unregisterOptionalSystemHook",
+    "inputs": [
+      {
+        "name": "systemId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
+      },
+      {
+        "name": "hookAddress",
+        "type": "address",
+        "internalType": "contract IOptionalSystemHook"
+      },
+      {
+        "name": "callDataHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "outputs": [],
@@ -3348,6 +3399,11 @@ declare const abi: [
   },
   {
     "type": "error",
+    "name": "World_CustomUnregisterDelegationNotAllowed",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "World_DelegationNotFound",
     "inputs": [
       {
@@ -3461,6 +3517,27 @@ declare const abi: [
         "name": "resourceIdString",
         "type": "string",
         "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "World_OptionalHookAlreadyRegistered",
+    "inputs": [
+      {
+        "name": "systemId",
+        "type": "bytes32",
+        "internalType": "ResourceId"
+      },
+      {
+        "name": "hookAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "callDataHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ]
   },
