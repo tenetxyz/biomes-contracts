@@ -53,14 +53,15 @@ library MoveLib {
 
     VoxelCoord memory oldBaseCoord = playerCoords[0];
     for (uint256 i = 0; i < newBaseCoords.length; i++) {
-      _requireValidMove(oldBaseCoord, newBaseCoords[i]);
+      VoxelCoord memory newBaseCoord = newBaseCoords[i];
+      _requireValidMove(oldBaseCoord, newBaseCoord);
 
-      gravityAppliesForMove = gravityApplies(newBaseCoords[i]);
+      gravityAppliesForMove = gravityApplies(newBaseCoord);
       if (gravityAppliesForMove) {
-        if (oldBaseCoord.y < newBaseCoords[i].y) {
+        if (oldBaseCoord.y < newBaseCoord.y) {
           numJumps++;
           require(numJumps <= MAX_PLAYER_JUMPS, "Cannot jump more than 3 blocks");
-        } else if (oldBaseCoord.y > newBaseCoords[i].y) {
+        } else if (oldBaseCoord.y > newBaseCoord.y) {
           // then we are falling, so should be fine
           numFalls++;
           numGlides = 0;
@@ -74,7 +75,7 @@ library MoveLib {
         numGlides = 0;
       }
 
-      oldBaseCoord = newBaseCoords[i];
+      oldBaseCoord = newBaseCoord;
     }
 
     return gravityAppliesForMove;
