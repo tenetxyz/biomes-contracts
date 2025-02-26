@@ -168,7 +168,11 @@ abstract contract BiomesTest is MudTest, GasReporter {
   }
 
   function setTerrainAtCoord(VoxelCoord memory coord, ObjectTypeId objectTypeId) internal {
-    address chunkPointer = TerrainLib._getChunkPointer(coord.toChunkCoord(), worldAddress);
+    ChunkCoord memory chunkCoord = coord.toChunkCoord();
+    if (!TerrainLib._isChunkExplored(chunkCoord, worldAddress)) {
+      setupAirChunk(coord);
+    }
+    address chunkPointer = TerrainLib._getChunkPointer(chunkCoord, worldAddress);
     uint256 blockIndex = TerrainLib._getBlockIndex(coord);
 
     bytes memory chunk = chunkPointer.code;
@@ -179,6 +183,11 @@ abstract contract BiomesTest is MudTest, GasReporter {
   }
 
   function setObjectAtCoord(VoxelCoord memory coord, ObjectTypeId objectTypeId) internal returns (EntityId) {
+    ChunkCoord memory chunkCoord = coord.toChunkCoord();
+    if (!TerrainLib._isChunkExplored(chunkCoord, worldAddress)) {
+      setupAirChunk(coord);
+    }
+
     EntityId entityId = randomEntityId();
     ObjectType.set(entityId, objectTypeId);
     Position.set(entityId, coord.x, coord.y, coord.z);
