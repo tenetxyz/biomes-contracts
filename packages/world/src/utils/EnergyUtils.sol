@@ -4,12 +4,14 @@ pragma solidity >=0.8.24;
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
+import { Position, PositionData } from "../codegen/tables/Position.sol";
 
-import { VoxelCoord } from "../VoxelCoord.sol";
+import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 import { EntityId } from "../EntityId.sol";
 import { MASS_TO_ENERGY_MULTIPLIER } from "../Constants.sol";
-import { PLAYER_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_INTERVAL, MIN_PLAYER_ENERGY_THRESHOLD_TO_DRAIN } from "../Constants.sol";
-import { MACHINE_ENERGY_DRAIN_RATE, MACHINE_ENERGY_DRAIN_INTERVAL, MIN_MACHINE_ENERGY_THRESHOLD_TO_DRAIN } from "../Constants.sol";
+import { PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
+
+using VoxelCoordLib for PositionData;
 
 function massToEnergy(uint128 mass) pure returns (uint128) {
   return uint128(mass * MASS_TO_ENERGY_MULTIPLIER);
@@ -19,20 +21,18 @@ function energyToMass(uint128 energy) pure returns (uint128) {
   return uint128(energy / MASS_TO_ENERGY_MULTIPLIER);
 }
 
-function getLatestEnergyData(
-  EntityId entityId,
-  uint128 drainEnergyThreshold,
-  uint128 drainInterval
-) view returns (EnergyData memory) {
+function getLatestEnergyData(EntityId entityId) view returns (EnergyData memory, uint128) {
   EnergyData memory energyData = Energy._get(entityId);
+  uint128 energyDrained = 0;
 
-  if (energyData.energy > drainEnergyThreshold) {
+  if (energyData.energy > 0) {
     // Calculate how much time has passed since last update
     uint128 timeSinceLastUpdate = uint128(block.timestamp) - energyData.lastUpdatedTime;
-    if (timeSinceLastUpdate < drainInterval) {
-      return energyData;
+    if (timeSinceLastUpdate == 0) {
+      return (energyData, energyDrained);
     }
-    uint128 energyDrained = (timeSinceLastUpdate * energyData.drainRate) / drainInterval;
+    energyDrained = timeSinceLastUpdate * energyData.drainRate;
+    energyDrained = energyDrained > energyData.energy ? energyData.energy : energyDrained;
     uint128 newEnergy = energyData.energy > energyDrained ? energyData.energy - energyDrained : 0;
 
     // TODO: should we do this for both machines and players?
@@ -41,7 +41,7 @@ function getLatestEnergyData(
       if (energyData.energy > 0) {
         // Entity just ran out of energy in this update
         // Calculate when it ran out by determining how much time it took to drain the energy
-        uint128 timeToDeplete = (energyData.energy * drainInterval) / energyData.drainRate;
+        uint128 timeToDeplete = energyData.energy / energyData.drainRate;
         // Add the remaining time after depletion to the accumulated depleted time
         energyData.accDepletedTime += (timeSinceLastUpdate - timeToDeplete);
       } else {
@@ -54,25 +54,21 @@ function getLatestEnergyData(
     energyData.lastUpdatedTime = uint128(block.timestamp);
   }
 
-  return energyData;
+  return (energyData, energyDrained);
 }
 
-function getPlayerEnergyLevel(EntityId entityId) view returns (EnergyData memory) {
-  return getLatestEnergyData(entityId, MIN_PLAYER_ENERGY_THRESHOLD_TO_DRAIN, PLAYER_ENERGY_DRAIN_INTERVAL);
-}
-
-function updatePlayerEnergyLevel(EntityId entityId) returns (EnergyData memory) {
-  EnergyData memory energyData = getPlayerEnergyLevel(entityId);
+function updatePlayerEnergyLevel(EntityId entityId) returns (EnergyData memory, uint128) {
+  (EnergyData memory energyData, uint128 energyDrained) = getLatestEnergyData(entityId);
   Energy._set(entityId, energyData);
-  return energyData;
-}
-
-function getMachineEnergyLevel(EntityId entityId) view returns (EnergyData memory) {
-  return getLatestEnergyData(entityId, MIN_MACHINE_ENERGY_THRESHOLD_TO_DRAIN, MACHINE_ENERGY_DRAIN_INTERVAL);
+  return (energyData, energyDrained);
 }
 
 function updateMachineEnergyLevel(EntityId entityId) returns (EnergyData memory) {
-  EnergyData memory energyData = getMachineEnergyLevel(entityId);
+  (EnergyData memory energyData, uint128 energyDrained) = getLatestEnergyData(entityId);
+  if (energyDrained > 0) {
+    VoxelCoord memory machineCoord = Position._get(entityId).toVoxelCoord();
+    machineCoord.addEnergyToLocalPool(energyDrained);
+  }
   Energy._set(entityId, energyData);
   return energyData;
 }
