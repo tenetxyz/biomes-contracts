@@ -32,6 +32,7 @@ import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
+import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -453,6 +454,20 @@ contract MoveTest is BiomesTest {
   }
 
   function testMoveFailsIfSleeping() public {
-    // TODO
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](2);
+    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[1] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+    for (uint8 i = 0; i < newCoords.length; i++) {
+      setObjectAtCoord(newCoords[i], AirObjectID);
+      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+    }
+
+    PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
+
+    vm.prank(alice);
+    vm.expectRevert("Player is sleeping");
+    world.move(newCoords);
   }
 }
