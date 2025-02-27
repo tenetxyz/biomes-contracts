@@ -18,11 +18,13 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 
-import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
-import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
+import { updatePlayerEnergyLevel, updateSleepingPlayerEnergy, updateMachineEnergyLevel } from "./EnergyUtils.sol";
+import { getForceField } from "./ForceFieldUtils.sol";
 import { transferAllInventoryEntities } from "./InventoryUtils.sol";
+
 import { EntityId } from "../EntityId.sol";
+import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 using VoxelCoordLib for PositionData;
 using VoxelCoordLib for PlayerPositionData;
@@ -108,15 +110,10 @@ function removePlayerFromGrid(EntityId playerEntityId, VoxelCoord memory playerC
   }
 }
 
-function killPlayerInBed(EntityId playerEntityId, EntityId bedEntityId, EntityId) {
-  // If sleeping, we just remove them from the bed
-  removePlayerFromBed(playerEntityId, bedEntityId);
-
-  Energy._setEnergy(playerEntityId, 0);
-  Energy._setLastUpdatedTime(playerEntityId, uint128(block.timestamp));
-}
-
-function removePlayerFromBed(EntityId playerEntityId, EntityId bedEntityId) {
+function removePlayerFromBed(EntityId playerEntityId, EntityId bedEntityId, EntityId forceFieldEntityId) {
   PlayerStatus._deleteRecord(playerEntityId);
   BedPlayer._deleteRecord(bedEntityId);
+
+  // Decrease forcefield's drain rate
+  Energy._setDrainRate(forceFieldEntityId, Energy._getDrainRate(forceFieldEntityId) - PLAYER_ENERGY_DRAIN_RATE);
 }

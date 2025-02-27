@@ -52,17 +52,15 @@ contract BedSystem is System {
     EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
     require(bedEntityId.exists(), "Player is not in a bed");
 
-    EntityId forceFieldEntityId = getForceField(Position._get(bedEntityId).toVoxelCoord());
-    EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+    VoxelCoord memory bedCoord = Position._get(bedEntityId).toVoxelCoord();
 
-    // Deplete player energy if necessary
+    EntityId forceFieldEntityId = getForceField(bedCoord);
+    EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
     EnergyData memory playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, machineData);
     require(playerData.energy == 0, "Player is not dead");
 
-    // Decrease forcefield's drain rate
-    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - PLAYER_ENERGY_DRAIN_RATE);
+    removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
 
-    removePlayerFromBed(playerEntityId, bedEntityId);
     // TODO: Should we safecall the chip?
   }
 
@@ -116,15 +114,10 @@ contract BedSystem is System {
 
     EntityId forceFieldEntityId = getForceField(bedCoord);
     EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-
-    // Deplete's player energy if necessary
     EnergyData memory playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, machineData);
     require(playerData.energy > 0, "Player died while sleeping");
 
-    // Decrease forcefield's drain rate
-    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - PLAYER_ENERGY_DRAIN_RATE);
-
-    removePlayerFromBed(playerEntityId, bedEntityId);
+    removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
 
     addPlayerToGrid(playerEntityId, spawnCoord);
 

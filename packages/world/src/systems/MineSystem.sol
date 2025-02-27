@@ -112,15 +112,14 @@ library MineLib {
     return massLeft <= totalMassReduction ? 0 : massLeft - totalMassReduction;
   }
 
-  function mineBed(EntityId bedEntityId, VoxelCoord memory baseCoord) public {
+  function mineBed(EntityId bedEntityId, VoxelCoord memory bedCoord) public {
     EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(bedEntityId);
     if (sleepingPlayerId.exists()) {
-      EntityId forceFieldEntityId = getForceField(baseCoord);
+      EntityId forceFieldEntityId = getForceField(bedCoord);
       EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-      updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, machineData);
-      // TODO: transfer remaining player's energy to local pool
-      Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - PLAYER_ENERGY_DRAIN_RATE);
-      removePlayerFromBed(sleepingPlayerId, bedEntityId);
+      EnergyData memory playerData = updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, machineData);
+      // TODO: transfer remaining player energy to local pool
+      removePlayerFromBed(sleepingPlayerId, bedEntityId, forceFieldEntityId);
     }
   }
 }
