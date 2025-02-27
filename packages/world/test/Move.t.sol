@@ -225,6 +225,34 @@ contract MoveTest is BiomesTest {
     assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
   }
 
+  function testMoveThroughWater() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupWaterChunkWithPlayer();
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](3);
+    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[1] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
+    newCoords[2] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+
+    uint128 energyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+
+    vm.prank(alice);
+    world.move(newCoords);
+
+    VoxelCoord memory finalCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
+    assertTrue(VoxelCoordLib.equals(finalCoord, newCoords[newCoords.length - 1]), "Player did not move to new coords");
+    VoxelCoord memory aboveFinalCoord = VoxelCoord(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    assertTrue(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord.x, aboveFinalCoord.y, aboveFinalCoord.z)) ==
+        aliceEntityId,
+      "Above coord is not the player"
+    );
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
+  }
+
   function testMoveEndAtStart() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
