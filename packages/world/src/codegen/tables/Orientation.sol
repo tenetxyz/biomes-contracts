@@ -18,18 +18,19 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
 import { EntityId } from "../../EntityId.sol";
+import { FacingDirection } from "../common.sol";
 
-library PlayerStatus {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "PlayerStatus", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000506c6179657253746174757300000000);
+library Orientation {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Orientation", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004f7269656e746174696f6e0000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0001010001000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bytes32)
-  Schema constant _valueSchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint8)
+  Schema constant _valueSchema = Schema.wrap(0x0001010000000000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -46,7 +47,7 @@ library PlayerStatus {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "bedEntityId";
+    fieldNames[0] = "facingDirection";
   }
 
   /**
@@ -64,87 +65,87 @@ library PlayerStatus {
   }
 
   /**
-   * @notice Get bedEntityId.
+   * @notice Get facingDirection.
    */
-  function getBedEntityId(EntityId entityId) internal view returns (EntityId bedEntityId) {
+  function getFacingDirection(EntityId entityId) internal view returns (FacingDirection facingDirection) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return EntityId.wrap(bytes32(_blob));
+    return FacingDirection(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get bedEntityId.
+   * @notice Get facingDirection.
    */
-  function _getBedEntityId(EntityId entityId) internal view returns (EntityId bedEntityId) {
+  function _getFacingDirection(EntityId entityId) internal view returns (FacingDirection facingDirection) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return EntityId.wrap(bytes32(_blob));
+    return FacingDirection(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get bedEntityId.
+   * @notice Get facingDirection.
    */
-  function get(EntityId entityId) internal view returns (EntityId bedEntityId) {
+  function get(EntityId entityId) internal view returns (FacingDirection facingDirection) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return EntityId.wrap(bytes32(_blob));
+    return FacingDirection(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get bedEntityId.
+   * @notice Get facingDirection.
    */
-  function _get(EntityId entityId) internal view returns (EntityId bedEntityId) {
+  function _get(EntityId entityId) internal view returns (FacingDirection facingDirection) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return EntityId.wrap(bytes32(_blob));
+    return FacingDirection(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Set bedEntityId.
+   * @notice Set facingDirection.
    */
-  function setBedEntityId(EntityId entityId, EntityId bedEntityId) internal {
+  function setFacingDirection(EntityId entityId, FacingDirection facingDirection) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(bedEntityId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(facingDirection)), _fieldLayout);
   }
 
   /**
-   * @notice Set bedEntityId.
+   * @notice Set facingDirection.
    */
-  function _setBedEntityId(EntityId entityId, EntityId bedEntityId) internal {
+  function _setFacingDirection(EntityId entityId, FacingDirection facingDirection) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(bedEntityId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(facingDirection)), _fieldLayout);
   }
 
   /**
-   * @notice Set bedEntityId.
+   * @notice Set facingDirection.
    */
-  function set(EntityId entityId, EntityId bedEntityId) internal {
+  function set(EntityId entityId, FacingDirection facingDirection) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(bedEntityId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(facingDirection)), _fieldLayout);
   }
 
   /**
-   * @notice Set bedEntityId.
+   * @notice Set facingDirection.
    */
-  function _set(EntityId entityId, EntityId bedEntityId) internal {
+  function _set(EntityId entityId, FacingDirection facingDirection) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(bedEntityId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(facingDirection)), _fieldLayout);
   }
 
   /**
@@ -171,8 +172,8 @@ library PlayerStatus {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(EntityId bedEntityId) internal pure returns (bytes memory) {
-    return abi.encodePacked(bedEntityId);
+  function encodeStatic(FacingDirection facingDirection) internal pure returns (bytes memory) {
+    return abi.encodePacked(facingDirection);
   }
 
   /**
@@ -181,8 +182,8 @@ library PlayerStatus {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(EntityId bedEntityId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(bedEntityId);
+  function encode(FacingDirection facingDirection) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(facingDirection);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

@@ -26,7 +26,7 @@ import { ChunkCoord } from "../src/Types.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, ChipObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord } from "../src/VoxelCoord.sol";
-import { CHUNK_SIZE, MAX_PLAYER_ENERGY } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract TestSpawnChip is ISpawnTileChip, System {
@@ -92,7 +92,15 @@ contract SpawnTest is BiomesTest {
 
     // Set forcefield
     EntityId forceFieldEntityId = setupForceField(spawnTileCoord);
-    Energy.set(forceFieldEntityId, EnergyData({ energy: spawnEnergy(), lastUpdatedTime: uint128(block.timestamp) }));
+    Energy.set(
+      forceFieldEntityId,
+      EnergyData({
+        energy: spawnEnergy(),
+        lastUpdatedTime: uint128(block.timestamp),
+        drainRate: MACHINE_ENERGY_DRAIN_RATE,
+        accDepletedTime: 0
+      })
+    );
 
     // Set below entity to spawn tile
     EntityId spawnTileEntityId = randomEntityId();

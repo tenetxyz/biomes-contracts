@@ -12,7 +12,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
-import { LastKnownPosition } from "../codegen/tables/LastKnownPosition.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
 import { OreCommitment } from "../codegen/tables/OreCommitment.sol";

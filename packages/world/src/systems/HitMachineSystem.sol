@@ -20,7 +20,6 @@ import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../u
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { isWhacker } from "../utils/ObjectTypeUtils.sol";
 import { safeCallChip } from "../utils/callChip.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
@@ -43,10 +42,8 @@ contract HitMachineSystem is System {
       return;
     }
 
-    ObjectTypeId objectTypeId = ObjectType._get(machineEntityId);
-
     (uint128 toolMassReduction, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId);
-    require(isWhacker(toolObjectTypeId), "You must use a whacker to hit machines");
+    require(toolObjectTypeId.isWhacker(), "You must use a whacker to hit machines");
 
     uint128 baseEnergyReduction = PLAYER_HIT_ENERGY_COST + massToEnergy(toolMassReduction);
     VoxelCoord memory forceFieldShardCoord = machineCoord.toForceFieldShardCoord();
@@ -57,9 +54,13 @@ contract HitMachineSystem is System {
     );
     // TODO: scale protection otherwise, targetEnergyReduction will be 0
     uint128 targetEnergyReduction = baseEnergyReduction / protection;
-    targetEnergyReduction = targetEnergyReduction > machineData.energy ? machineData.energy : targetEnergyReduction;
-    machineEntityId.decreaseEnergy(machineData, targetEnergyReduction);
-    playerEntityId.decreaseEnergy(playerEnergyData, PLAYER_HIT_ENERGY_COST);
+    uint128 newMachineEnergy = targetEnergyReduction <= machineData.energy
+      ? machineData.energy - targetEnergyReduction
+      : 0;
+
+    require(playerEnergyData.energy > PLAYER_HIT_ENERGY_COST, "Not enough energy");
+    playerEntityId.setEnergy(playerEnergyData.energy - PLAYER_HIT_ENERGY_COST);
+    machineEntityId.setEnergy(newMachineEnergy);
     machineCoord.addEnergyToLocalPool(PLAYER_HIT_ENERGY_COST + targetEnergyReduction);
 
     notify(playerEntityId, HitMachineNotifData({ machineEntityId: machineEntityId, machineCoord: machineCoord }));
