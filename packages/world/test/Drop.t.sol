@@ -43,5 +43,47 @@ import { TestUtils } from "./utils/TestUtils.sol";
 contract DropTest is BiomesTest {
   using VoxelCoordLib for *;
 
+  function testDropTerrain() public {}
+
+  function testDropNonTerrain() public {}
+
+  function testDropToolTerrain() public {}
+
+  function testDropToolNonTerrain() public {}
+
+  function testPickup() public {}
+
+  function testPickupMultiple() public {}
+
+  function testPickupAll() public {}
+
+  function testPickupTool() public {}
+
   function testMineChest() public {}
+
+  function testPickupFailsIfInventoryFull() public {}
+
+  function testPickupFailsIfInvalidCoord() public {}
+
+  function testDropFailsIfInvalidCoord() public {}
+
+  function testDropFailsIfNonAirBlock() public {}
+
+  function testPickupFailsIfNonAirBlock() public {}
+
+  function testPickupFailsIfInvalidArgs() public {}
+
+  function testDropFailsIfInvalidArgs() public {}
+
+  function testPickupFailsIfNotEnoughEnergy() public {}
+
+  function testDropFailsIfNotEnoughEnergy() public {}
+
+  function testPickupFailsIfNoPlayer() public {}
+
+  function testDropFailsIfNoPlayer() public {}
+
+  function testPickupFailsIfSleeping() public {}
+
+  function testDropFailsIfSleeping() public {}
 }

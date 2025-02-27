@@ -339,6 +339,10 @@ contract TransferTest is BiomesTest {
     EntityId toolEntityId2 = addToolToInventory(aliceEntityId, WoodenAxeObjectID);
 
     vm.prank(alice);
+    vm.expectRevert("Object type is not a block or item");
+    world.transfer(chestEntityId, true, WoodenPickObjectID, 1);
+
+    vm.prank(alice);
     vm.expectRevert("Amount must be greater than 0");
     world.transfer(chestEntityId, true, transferObjectTypeId, 0);
 

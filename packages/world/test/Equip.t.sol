@@ -44,4 +44,6 @@ contract EquipTest is BiomesTest {
   function testMineWithEquipped() public {}
 
   function testMineWithEquippedZeroDurability() public {}
+
+  function testDropEquipped() public {}
 }
