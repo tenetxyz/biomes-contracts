@@ -6,16 +6,27 @@ import { TotalBurnedOreCount } from "./codegen/tables/TotalBurnedOreCount.sol";
 
 type ObjectTypeId is uint16;
 
-uint8 constant OFFSET_BITS = 11;
+// <category: 3 bytes> + <subcategory: 3 bytes> + <offset: 10 bytes>
+uint8 constant CATEGORY_OFFSET_BITS = 16 - 3;
+uint8 constant SUBCATEGORY_OFFSET_BITS = 16 - 3 - 3;
 
 // ------------------------------------------------------------
 // Object Categories
 // ------------------------------------------------------------
+
 uint16 constant Block = 0;
-uint16 constant Item = uint16(1) << OFFSET_BITS;
-uint16 constant Tool = uint16(2) << OFFSET_BITS;
+uint16 constant Terrain = 0;
+uint16 constant SmartObject = uint16(1) << SUBCATEGORY_OFFSET_BITS;
+uint16 constant Workstation = uint16(2) << SUBCATEGORY_OFFSET_BITS;
+
+uint16 constant Item = uint16(1) << CATEGORY_OFFSET_BITS;
+
+uint16 constant Dye = uint16(0) << SUBCATEGORY_OFFSET_BITS; // this is 0 but we still use the offset for completeness
+uint16 constant OreBar = uint16(1) << SUBCATEGORY_OFFSET_BITS;
+
+uint16 constant Tool = uint16(2) << CATEGORY_OFFSET_BITS;
 // TODO: placeholder
-uint16 constant Misc = uint16(3) << OFFSET_BITS;
+uint16 constant Misc = uint16(3) << CATEGORY_OFFSET_BITS;
 
 // ------------------------------------------------------------
 // Object Type Ids
@@ -190,13 +201,13 @@ ObjectTypeId constant BlackGlassObjectID = ObjectTypeId.wrap(Block | 381);
 
 // Smart objects
 // TODO: should these be their own category? for now just leaving some space between previous blocks and these
-ObjectTypeId constant ForceFieldObjectID = ObjectTypeId.wrap(Block | 600);
-ObjectTypeId constant ChestObjectID = ObjectTypeId.wrap(Block | 601);
-ObjectTypeId constant SmartChestObjectID = ObjectTypeId.wrap(Block | 602);
-ObjectTypeId constant TextSignObjectID = ObjectTypeId.wrap(Block | 603);
-ObjectTypeId constant SmartTextSignObjectID = ObjectTypeId.wrap(Block | 604);
-ObjectTypeId constant PipeObjectID = ObjectTypeId.wrap(Block | 605);
-ObjectTypeId constant SpawnTileObjectID = ObjectTypeId.wrap(Block | 606);
+ObjectTypeId constant ForceFieldObjectID = ObjectTypeId.wrap(Block | SmartObject | 0);
+ObjectTypeId constant ChestObjectID = ObjectTypeId.wrap(Block | SmartObject | 1);
+ObjectTypeId constant SmartChestObjectID = ObjectTypeId.wrap(Block | SmartObject | 2);
+ObjectTypeId constant TextSignObjectID = ObjectTypeId.wrap(Block | SmartObject | 3);
+ObjectTypeId constant SmartTextSignObjectID = ObjectTypeId.wrap(Block | SmartObject | 4);
+ObjectTypeId constant PipeObjectID = ObjectTypeId.wrap(Block | SmartObject | 5);
+ObjectTypeId constant SpawnTileObjectID = ObjectTypeId.wrap(Block | SmartObject | 6);
 
 // ------------------------------------------------------------
 // Tools
@@ -223,25 +234,25 @@ ObjectTypeId constant NeptuniumAxeObjectID = ObjectTypeId.wrap(Tool | 14);
 // ------------------------------------------------------------
 
 // Dyes
-ObjectTypeId constant BlueDyeObjectID = ObjectTypeId.wrap(Item | 0);
-ObjectTypeId constant BrownDyeObjectID = ObjectTypeId.wrap(Item | 1);
-ObjectTypeId constant GreenDyeObjectID = ObjectTypeId.wrap(Item | 2);
-ObjectTypeId constant MagentaDyeObjectID = ObjectTypeId.wrap(Item | 3);
-ObjectTypeId constant OrangeDyeObjectID = ObjectTypeId.wrap(Item | 4);
-ObjectTypeId constant PinkDyeObjectID = ObjectTypeId.wrap(Item | 5);
-ObjectTypeId constant PurpleDyeObjectID = ObjectTypeId.wrap(Item | 6);
-ObjectTypeId constant RedDyeObjectID = ObjectTypeId.wrap(Item | 7);
-ObjectTypeId constant TanDyeObjectID = ObjectTypeId.wrap(Item | 8);
-ObjectTypeId constant WhiteDyeObjectID = ObjectTypeId.wrap(Item | 9);
-ObjectTypeId constant YellowDyeObjectID = ObjectTypeId.wrap(Item | 10);
-ObjectTypeId constant BlackDyeObjectID = ObjectTypeId.wrap(Item | 11);
-ObjectTypeId constant SilverDyeObjectID = ObjectTypeId.wrap(Item | 12);
+ObjectTypeId constant BlueDyeObjectID = ObjectTypeId.wrap(Item | Dye | 0);
+ObjectTypeId constant BrownDyeObjectID = ObjectTypeId.wrap(Item | Dye | 1);
+ObjectTypeId constant GreenDyeObjectID = ObjectTypeId.wrap(Item | Dye | 2);
+ObjectTypeId constant MagentaDyeObjectID = ObjectTypeId.wrap(Item | Dye | 3);
+ObjectTypeId constant OrangeDyeObjectID = ObjectTypeId.wrap(Item | Dye | 4);
+ObjectTypeId constant PinkDyeObjectID = ObjectTypeId.wrap(Item | Dye | 5);
+ObjectTypeId constant PurpleDyeObjectID = ObjectTypeId.wrap(Item | Dye | 6);
+ObjectTypeId constant RedDyeObjectID = ObjectTypeId.wrap(Item | Dye | 7);
+ObjectTypeId constant TanDyeObjectID = ObjectTypeId.wrap(Item | Dye | 8);
+ObjectTypeId constant WhiteDyeObjectID = ObjectTypeId.wrap(Item | Dye | 9);
+ObjectTypeId constant YellowDyeObjectID = ObjectTypeId.wrap(Item | Dye | 10);
+ObjectTypeId constant BlackDyeObjectID = ObjectTypeId.wrap(Item | Dye | 11);
+ObjectTypeId constant SilverDyeObjectID = ObjectTypeId.wrap(Item | Dye | 12);
 
 // Ore bars
-ObjectTypeId constant GoldBarObjectID = ObjectTypeId.wrap(Item | 13);
-ObjectTypeId constant SilverBarObjectID = ObjectTypeId.wrap(Item | 14);
-ObjectTypeId constant DiamondObjectID = ObjectTypeId.wrap(Item | 15);
-ObjectTypeId constant NeptuniumBarObjectID = ObjectTypeId.wrap(Item | 16);
+ObjectTypeId constant GoldBarObjectID = ObjectTypeId.wrap(Item | OreBar | 13);
+ObjectTypeId constant SilverBarObjectID = ObjectTypeId.wrap(Item | OreBar | 14);
+ObjectTypeId constant DiamondObjectID = ObjectTypeId.wrap(Item | OreBar | 15);
+ObjectTypeId constant NeptuniumBarObjectID = ObjectTypeId.wrap(Item | OreBar | 16);
 
 // TODO: should chips be their own category or misc or smart object?
 ObjectTypeId constant ChipObjectID = ObjectTypeId.wrap(Item | 17);
@@ -283,7 +294,7 @@ library ObjectTypeIdLib {
   }
 
   function isBlock(ObjectTypeId id) internal pure returns (bool) {
-    return !id.isNull() && ObjectTypeId.unwrap(id) >> OFFSET_BITS == Block;
+    return !id.isNull() && ObjectTypeId.unwrap(id) >> CATEGORY_OFFSET_BITS == Block;
   }
 
   function isMineable(ObjectTypeId self) internal pure returns (bool) {
@@ -291,11 +302,11 @@ library ObjectTypeIdLib {
   }
 
   function isTool(ObjectTypeId id) internal pure returns (bool) {
-    return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Tool;
+    return ObjectTypeId.unwrap(id) >> CATEGORY_OFFSET_BITS == Tool;
   }
 
   function isItem(ObjectTypeId id) internal pure returns (bool) {
-    return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Item;
+    return ObjectTypeId.unwrap(id) >> CATEGORY_OFFSET_BITS == Item;
   }
 
   function isOre(ObjectTypeId objectTypeId) internal pure returns (bool) {
