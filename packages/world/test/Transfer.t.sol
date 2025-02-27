@@ -32,6 +32,7 @@ import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
+import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -326,11 +327,106 @@ contract TransferTest is BiomesTest {
     world.transferTool(chestEntityId, false, toolEntityId);
   }
 
-  function testTransferFailsIfNoEnergy() public {}
+  function testTransferFailsIfInvalidArgs() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
-  function testTransferFailsIfTooFar() public {}
+    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
+    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
 
-  function testTransferFailsIfNoPlayer() public {}
+    EntityId toolEntityId1 = addToolToInventory(aliceEntityId, WoodenPickObjectID);
+    EntityId toolEntityId2 = addToolToInventory(aliceEntityId, WoodenAxeObjectID);
 
-  function testTransferFailsIfLoggedOut() public {}
+    vm.prank(alice);
+    vm.expectRevert("Amount must be greater than 0");
+    world.transfer(chestEntityId, true, transferObjectTypeId, 0);
+
+    vm.prank(alice);
+    vm.expectRevert("Must transfer at least one tool");
+    world.transferTools(chestEntityId, true, new EntityId[](0));
+
+    EntityId[] memory toolEntityIds = new EntityId[](2);
+    toolEntityIds[0] = toolEntityId1;
+    toolEntityIds[1] = toolEntityId2;
+
+    vm.prank(alice);
+    vm.expectRevert("All tools must be of the same type");
+    world.transferTools(chestEntityId, true, toolEntityIds);
+  }
+
+  function testTransferFailsIfNotEnoughEnergy() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
+    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+
+    Energy.setEnergy(aliceEntityId, 1);
+
+    vm.prank(alice);
+    vm.expectRevert("Not enough energy");
+    world.transfer(chestEntityId, true, transferObjectTypeId, 1);
+  }
+
+  function testTransferFailsIfTooFar() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory chestCoord = VoxelCoord(
+      playerCoord.x + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1,
+      playerCoord.y,
+      playerCoord.z + 1
+    );
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
+    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+
+    vm.prank(alice);
+    vm.expectRevert("Destination too far");
+    world.transfer(chestEntityId, true, transferObjectTypeId, 1);
+
+    vm.prank(alice);
+    vm.expectRevert("Destination too far");
+    world.transfer(chestEntityId, false, transferObjectTypeId, 1);
+  }
+
+  function testTransferFailsIfNoPlayer() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
+    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+
+    vm.expectRevert("Player does not exist");
+    world.transfer(chestEntityId, true, transferObjectTypeId, 1);
+  }
+
+  function testTransferFailsIfSleeping() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
+    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+
+    PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
+
+    vm.prank(alice);
+    vm.expectRevert("Player is sleeping");
+    world.transfer(chestEntityId, true, transferObjectTypeId, 1);
+  }
 }

@@ -46,4 +46,6 @@ contract ChipTest is BiomesTest {
   function testTransferWithChip() public {}
 
   function testTransferFailsIfNotAllowedByChip() public {}
+
+  function testTransferFailsIfForceFieldNotEnoughEnergy() public {}
 }
