@@ -12,7 +12,7 @@ import { ReversePlayerPosition } from "../../codegen/tables/ReversePlayerPositio
 import { ActionType } from "../../codegen/common.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
-import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, PlayerObjectID, WaterObjectID } from "../../ObjectTypeIds.sol";
 import { inWorldBorder, gravityApplies } from "../../Utils.sol";
 import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
@@ -155,7 +155,7 @@ library MoveLib {
     }
 
     (, ObjectTypeId belowObjectTypeId) = belowCoord.getEntity();
-    if (!ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
+    if (belowObjectTypeId == WaterObjectID || !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
       return false;
     }
     if (belowCoord.getPlayer().exists()) {
