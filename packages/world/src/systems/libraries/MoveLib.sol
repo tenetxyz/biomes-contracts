@@ -115,23 +115,11 @@ library MoveLib {
       newPlayerCoords[i].setPlayer(playerEntityIds[i]);
     }
 
-<<<<<<< HEAD
     uint128 energyCost = (PLAYER_MOVE_ENERGY_COST * uint128(newBaseCoords.length - numFalls)) +
       (PLAYER_FALL_ENERGY_COST * numFalls);
-    EnergyData memory playerEnergyData = Energy._get(playerEntityId);
-    uint128 currentEnergy = playerEnergyData.energy;
-    uint128 newEnergy = energyCost > currentEnergy ? 0 : currentEnergy - energyCost;
-    if (newEnergy == 0) {
-      // TODO: kill player instead of setting energy to 0
-      Energy._set(playerEntityId, EnergyData({ energy: 0, lastUpdatedTime: uint128(block.timestamp) }));
-      playerCoord.addEnergyToLocalPool(currentEnergy);
-    } else {
-      transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, energyCost);
-    }
-=======
-    uint128 energyCost = PLAYER_MOVE_ENERGY_COST * uint128(newBaseCoords.length);
-    transferEnergyToPool(playerEntityId, playerCoord, energyCost);
->>>>>>> main
+    uint128 currentEnergy = Energy._getEnergy(playerEntityId);
+    transferEnergyToPool(playerEntityId, playerCoord, energyCost > currentEnergy ? currentEnergy : energyCost);
+    // TODO: drop inventory items
 
     return gravityAppliesForMove;
   }

@@ -22,7 +22,7 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePlayerFromGrid, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
-import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
+import { checkWorldStatus, getUniqueEntity, inWorldBorder } from "../Utils.sol";
 import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol";
 import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
@@ -31,6 +31,7 @@ import { callChipOrRevert } from "../utils/callChip.sol";
 import { updateMachineEnergyLevel, massToEnergy, updatePlayerEnergyLevel, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { IBedChip } from "../prototypes/IBedChip.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { MoveLib } from "./libraries/MoveLib.sol";
 
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
@@ -120,7 +121,7 @@ contract BedSystem is System {
   function wakeupWithExtraData(VoxelCoord memory spawnCoord, bytes memory extraData) public {
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
 
-    require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
+    require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     EntityId playerEntityId = Player._get(_msgSender());
     require(playerEntityId.exists(), "Player does not exist");

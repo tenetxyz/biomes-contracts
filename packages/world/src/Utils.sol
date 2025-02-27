@@ -32,22 +32,6 @@ function inWorldBorder(VoxelCoord memory coord) pure returns (bool) {
     coord.z <= WORLD_BORDER_HIGH_Z;
 }
 
-<<<<<<< HEAD
-=======
-function gravityApplies(VoxelCoord memory playerCoord) view returns (bool) {
-  VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
-  ObjectTypeId belowObjectTypeId = belowCoord.getObjectTypeId();
-  if (!ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
-    return false;
-  }
-  if (belowCoord.getPlayer().exists()) {
-    return false;
-  }
-
-  return true;
-}
-
->>>>>>> main
 function getUniqueEntity() returns (EntityId) {
   uint256 uniqueEntity = UniqueEntity._get() + 1;
   UniqueEntity._set(uniqueEntity);
