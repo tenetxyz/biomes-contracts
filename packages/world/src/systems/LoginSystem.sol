@@ -15,9 +15,10 @@ import { ActionType } from "../codegen/common.sol";
 
 import { MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
-import { checkWorldStatus, gravityApplies, inWorldBorder } from "../Utils.sol";
+import { checkWorldStatus, inWorldBorder } from "../Utils.sol";
 import { notify, LoginNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
+import { MoveLib } from "./libraries/MoveLib.sol";
 import { createPlayer } from "../utils/PlayerUtils.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
@@ -34,7 +35,7 @@ contract LoginSystem is System {
     VoxelCoord memory lastKnownCoord = LastKnownPosition._get(playerEntityId).toVoxelCoord();
     require(inWorldBorder(respawnCoord), "Cannot respawn outside world border");
     // We let the user pick a y coord, so we need to apply gravity
-    require(!gravityApplies(respawnCoord), "Cannot respawn player here as gravity applies");
+    require(!MoveLib._gravityApplies(respawnCoord), "Cannot respawn player here as gravity applies");
     require(
       lastKnownCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, respawnCoord),
       "Respawn coord too far from logged off coord"

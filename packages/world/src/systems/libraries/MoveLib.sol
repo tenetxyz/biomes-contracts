@@ -13,7 +13,7 @@ import { ActionType } from "../../codegen/common.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID, WaterObjectID } from "../../ObjectTypeIds.sol";
-import { inWorldBorder, gravityApplies } from "../../Utils.sol";
+import { inWorldBorder } from "../../Utils.sol";
 import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 import { TerrainLib } from "./TerrainLib.sol";
@@ -56,7 +56,7 @@ library MoveLib {
       VoxelCoord memory newBaseCoord = newBaseCoords[i];
       _requireValidMove(oldBaseCoord, newBaseCoord);
 
-      gravityAppliesForMove = gravityApplies(newBaseCoord);
+      gravityAppliesForMove = _gravityApplies(newBaseCoord);
       if (gravityAppliesForMove) {
         if (oldBaseCoord.y < newBaseCoord.y) {
           numJumps++;
@@ -150,13 +150,15 @@ library MoveLib {
     }
   }
 
-  function runGravity(EntityId playerEntityId, VoxelCoord memory playerCoord) public returns (bool) {
+  function _gravityApplies(VoxelCoord memory playerCoord) internal view returns (bool) {
     VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
+    // We don't want players to fall off the edge of the world
     if (!inWorldBorder(belowCoord)) {
       return false;
     }
 
     (, ObjectTypeId belowObjectTypeId) = belowCoord.getEntity();
+    // Players can swim in water so we don't want to apply gravity to them
     if (belowObjectTypeId == WaterObjectID || !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
       return false;
     }
@@ -164,12 +166,16 @@ library MoveLib {
       return false;
     }
 
-    // TODO: apply gravity cost
+    return true;
+  }
+
+  function runGravity(EntityId playerEntityId, VoxelCoord memory playerCoord) public {
+    if (!_gravityApplies(playerCoord)) {
+      return;
+    }
 
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = belowCoord;
+    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
     movePlayerWithGravity(playerEntityId, playerCoord, newCoords);
-
-    return true;
   }
 }
