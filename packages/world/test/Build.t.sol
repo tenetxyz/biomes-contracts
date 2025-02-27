@@ -483,6 +483,12 @@ contract BuildTest is BiomesTest {
     vm.prank(bob);
     vm.expectRevert("Cannot build outside the world border");
     world.build(buildObjectTypeId, buildCoord);
+
+    buildCoord = VoxelCoord(playerCoord.x - 1, playerCoord.y, playerCoord.z);
+
+    vm.prank(alice);
+    vm.expectRevert("Chunk not explored yet");
+    world.build(buildObjectTypeId, buildCoord);
   }
 
   function testBuildFailsIfNotEnoughEnergy() public {

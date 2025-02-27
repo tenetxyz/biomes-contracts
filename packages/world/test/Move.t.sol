@@ -427,6 +427,12 @@ contract MoveTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Cannot move outside the world border");
     world.move(newCoords);
+
+    newCoords[0] = VoxelCoord(playerCoord.x - 1, playerCoord.y, playerCoord.z);
+
+    vm.prank(alice);
+    vm.expectRevert("Chunk not explored yet");
+    world.move(newCoords);
   }
 
   function testMoveFailsIfNoPlayer() public {

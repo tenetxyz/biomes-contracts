@@ -389,4 +389,19 @@ contract GravityTest is BiomesTest {
   }
 
   function testMoveFallFatal() public {}
+
+  function testMoveFailsIfGravityOutsideExploredChunk() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord[] memory newCoords = new VoxelCoord[](1);
+    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    for (uint8 i = 0; i < newCoords.length; i++) {
+      setObjectAtCoord(newCoords[i], AirObjectID);
+      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+    }
+
+    vm.prank(alice);
+    vm.expectRevert("Chunk not explored yet");
+    world.move(newCoords);
+  }
 }
