@@ -401,24 +401,6 @@ contract MoveTest is BiomesTest {
     world.move(newCoords);
   }
 
-  function testMoveFailsIfNotEnoughEnergy() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
-
-    VoxelCoord[] memory newCoords = new VoxelCoord[](2);
-    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 2);
-    for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
-    }
-
-    Energy.setEnergy(aliceEntityId, 0);
-
-    vm.prank(alice);
-    vm.expectRevert("Not enough energy");
-    world.move(newCoords);
-  }
-
   function testMoveFailsIfNoPlayer() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 

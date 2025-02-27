@@ -41,8 +41,6 @@ import { TestUtils } from "./utils/TestUtils.sol";
 contract GravityTest is BiomesTest {
   using VoxelCoordLib for *;
 
-  function testMineForceField() public {}
-
   function testMineFallSingleBlock() public {}
 
   function testMineFallMultipleBlocks() public {}

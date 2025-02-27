@@ -14,7 +14,7 @@ import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { inWorldBorder, gravityApplies } from "../../Utils.sol";
-import { PLAYER_MOVE_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../../Constants.sol";
+import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
@@ -45,11 +45,11 @@ library MoveLib {
   function _requireValidPath(
     VoxelCoord[] memory playerCoords,
     VoxelCoord[] memory newBaseCoords
-  ) internal view returns (bool) {
+  ) internal view returns (bool, uint16) {
     bool gravityAppliesForMove = false;
-    uint256 numJumps = 0;
-    uint256 numFalls = 0;
-    uint256 numGlides = 0;
+    uint16 numJumps = 0;
+    uint16 numFalls = 0;
+    uint16 numGlides = 0;
 
     VoxelCoord memory oldBaseCoord = playerCoords[0];
     for (uint256 i = 0; i < newBaseCoords.length; i++) {
@@ -78,7 +78,7 @@ library MoveLib {
       oldBaseCoord = newBaseCoord;
     }
 
-    return gravityAppliesForMove;
+    return (gravityAppliesForMove, numFalls);
   }
 
   function _getPlayerEntityIds(
@@ -107,7 +107,7 @@ library MoveLib {
       ReversePlayerPosition._deleteRecord(playerCoords[i].x, playerCoords[i].y, playerCoords[i].z);
     }
 
-    bool gravityAppliesForMove = _requireValidPath(playerCoords, newBaseCoords);
+    (bool gravityAppliesForMove, uint16 numFalls) = _requireValidPath(playerCoords, newBaseCoords);
 
     VoxelCoord memory finalPlayerCoord = newBaseCoords[newBaseCoords.length - 1];
     VoxelCoord[] memory newPlayerCoords = finalPlayerCoord.getRelativeCoords(PlayerObjectID);
@@ -115,12 +115,18 @@ library MoveLib {
       newPlayerCoords[i].setPlayer(playerEntityIds[i]);
     }
 
-    transferEnergyFromPlayerToPool(
-      playerEntityId,
-      playerCoord,
-      Energy._get(playerEntityId),
-      PLAYER_MOVE_ENERGY_COST * uint128(newBaseCoords.length)
-    );
+    uint128 energyCost = (PLAYER_MOVE_ENERGY_COST * uint128(newBaseCoords.length - numFalls)) +
+      (PLAYER_FALL_ENERGY_COST * numFalls);
+    EnergyData memory playerEnergyData = Energy._get(playerEntityId);
+    uint128 currentEnergy = playerEnergyData.energy;
+    uint128 newEnergy = energyCost > currentEnergy ? 0 : currentEnergy - energyCost;
+    if (newEnergy == 0) {
+      // TODO: kill player instead of setting energy to 0
+      Energy._set(playerEntityId, EnergyData({ energy: 0, lastUpdatedTime: uint128(block.timestamp) }));
+      playerCoord.addEnergyToLocalPool(currentEnergy);
+    } else {
+      transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, energyCost);
+    }
 
     return gravityAppliesForMove;
   }
