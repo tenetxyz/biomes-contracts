@@ -93,6 +93,16 @@ struct RevealOreNotifData {
   ObjectTypeId oreObjectTypeId;
 }
 
+struct SleepNotifData {
+  EntityId bedEntityId;
+  VoxelCoord bedCoord;
+}
+
+struct WakeupNotifData {
+  EntityId bedEntityId;
+  VoxelCoord bedCoord;
+}
+
 function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {
   PlayerActionNotif._set(
     playerEntityId,
@@ -205,5 +215,19 @@ function notify(EntityId playerEntityId, RevealOreNotifData memory revealOreNoti
   PlayerActionNotif._set(
     playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.RevealOre, actionData: abi.encode(revealOreNotifData) })
+  );
+}
+
+function notify(EntityId playerEntityId, SleepNotifData memory sleepNotifData) {
+  PlayerActionNotif._set(
+    playerEntityId,
+    PlayerActionNotifData({ actionType: ActionType.Sleep, actionData: abi.encode(sleepNotifData) })
+  );
+}
+
+function notify(EntityId playerEntityId, WakeupNotifData memory wakeupNotifData) {
+  PlayerActionNotif._set(
+    playerEntityId,
+    PlayerActionNotifData({ actionType: ActionType.Wakeup, actionData: abi.encode(wakeupNotifData) })
   );
 }

@@ -17,6 +17,8 @@ export default defineWorld({
       "Equip",
       "Unequip",
       "Spawn",
+      "Sleep",
+      "Wakeup",
       "PowerMachine",
       "HitMachine",
       "AttachChip",

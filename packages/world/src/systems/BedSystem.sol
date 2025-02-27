@@ -16,7 +16,6 @@ import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
 import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 
@@ -24,7 +23,7 @@ import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePl
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
-import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
+import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol";
 import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
@@ -58,8 +57,9 @@ library BedLib {
 contract BedSystem is System {
   using VoxelCoordLib for *;
 
-  // TODO: should this accept the coordinate of an air block to transfer inventory to?
   function removeDeadPlayerFromBed(EntityId playerEntityId, VoxelCoord memory dropCoord) public {
+    checkWorldStatus();
+
     EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
     require(bedEntityId.exists(), "Player is not in a bed");
 
@@ -83,13 +83,12 @@ contract BedSystem is System {
   }
 
   function sleepWithExtraData(EntityId bedEntityId, bytes memory extraData) public {
-    checkWorldStatus();
-
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
 
     require(ObjectType._get(bedEntityId) == BedObjectID, "Not a bed");
 
-    requireInPlayerInfluence(playerCoord, bedEntityId);
+    VoxelCoord memory bedCoord = Position._get(bedEntityId).toVoxelCoord();
+    requireInPlayerInfluence(playerCoord, bedCoord);
 
     bedEntityId = bedEntityId.baseEntityId();
     require(!BedPlayer._getPlayerEntityId(bedEntityId).exists(), "Bed full");
@@ -109,6 +108,8 @@ contract BedSystem is System {
 
     removePlayerFromGrid(playerEntityId, playerCoord);
 
+    notify(playerEntityId, WakeupNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
+
     address chipAddress = bedEntityId.getChipAddress();
     require(chipAddress != address(0), "Bed has no chip");
 
@@ -117,7 +118,6 @@ contract BedSystem is System {
   }
 
   function wakeupWithExtraData(VoxelCoord memory spawnCoord, bytes memory extraData) public {
-    checkWorldStatus();
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
 
     require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
@@ -145,6 +145,8 @@ contract BedSystem is System {
     addPlayerToGrid(playerEntityId, spawnCoord);
 
     BedLib.transferInventory(bedEntityId, playerEntityId, PlayerObjectID);
+
+    notify(playerEntityId, WakeupNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
 
     if (machineData.energy > 0) {
       address chipAddress = bedEntityId.getChipAddress();

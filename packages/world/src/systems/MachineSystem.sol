@@ -36,15 +36,7 @@ contract MachineSystem is System {
 
     uint128 newEnergyLevel = machineData.energy + (uint128(numBattery) * 10);
 
-    Energy._set(
-      baseEntityId,
-      EnergyData({
-        lastUpdatedTime: uint128(block.timestamp),
-        energy: newEnergyLevel,
-        drainRate: machineData.drainRate,
-        accDepletedTime: machineData.accDepletedTime
-      })
-    );
+    baseEntityId.setEnergy(newEnergyLevel);
 
     notify(
       playerEntityId,

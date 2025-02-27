@@ -35,7 +35,7 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
   require(playerEntityId.exists(), "Player does not exist");
   VoxelCoord memory playerCoord = PlayerPosition._get(playerEntityId).toVoxelCoord();
   EnergyData memory playerEnergyData = updatePlayerEnergyLevel(playerEntityId);
-  require(playerEnergyData.energy != 0, "Player is dead");
+  require(playerEnergyData.energy > 0, "Player is dead");
   require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
   PlayerActivity._set(playerEntityId, uint128(block.timestamp));
   return (playerEntityId, playerCoord, playerEnergyData);

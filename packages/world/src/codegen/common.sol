@@ -15,6 +15,8 @@ enum ActionType {
   Equip,
   Unequip,
   Spawn,
+  Sleep,
+  Wakeup,
   PowerMachine,
   HitMachine,
   AttachChip,

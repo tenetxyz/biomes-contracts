@@ -313,6 +313,7 @@ library VoxelCoordLib {
       Position._set(entityId, coord.x, coord.y, coord.z);
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
       ObjectType._set(entityId, objectTypeId);
+      // We assume all terrain blocks are only 1 voxel (no relative entities)
       uint32 mass = ObjectTypeMetadata._getMass(objectTypeId);
       if (mass > 0) {
         Mass._setMass(entityId, mass);
