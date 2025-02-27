@@ -17,10 +17,8 @@ import { DisplayContentType } from "../codegen/common.sol";
 
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { ObjectTypeId, TextSignObjectID } from "../ObjectTypeIds.sol";
-import { isSmartItem } from "../utils/ObjectTypeUtils.sol";
 import { getMachineEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { isBasicDisplay } from "../utils/ObjectTypeUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract DisplaySystem is System {
@@ -31,7 +29,7 @@ contract DisplaySystem is System {
 
     EntityId baseEntityId = entityId.baseEntityId();
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
-    if (!isSmartItem(objectTypeId)) {
+    if (!objectTypeId.isSmartItem()) {
       return DisplayContent._get(baseEntityId);
     }
     VoxelCoord memory entityCoord = Position._get(baseEntityId).toVoxelCoord();
@@ -52,7 +50,7 @@ contract DisplaySystem is System {
 
   function setDisplayContent(EntityId entityId, DisplayContentData memory content) public {
     EntityId baseEntityId = entityId.baseEntityId();
-    require(isBasicDisplay(ObjectType._get(baseEntityId)), "You can only set the display content of a basic display");
+    require(ObjectType._get(baseEntityId).isBasicDisplay(), "You can only set the display content of a basic display");
     VoxelCoord memory entityCoord = Position._get(baseEntityId).toVoxelCoord();
     require(
       ReversePosition._get(entityCoord.x, entityCoord.y, entityCoord.z) == baseEntityId,

@@ -18,7 +18,7 @@ import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
-import { transferEnergyFromPlayerToPool } from "../../utils/EnergyUtils.sol";
+import { transferEnergyToPool } from "../../utils/EnergyUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { getObjectTypeSchema } from "../../utils/ObjectTypeUtils.sol";
 
@@ -34,7 +34,7 @@ library MoveLib {
       require(inWorldBorder(newCoord), "Cannot move outside the world border");
       require(oldCoord.inSurroundingCube(1, newCoord), "New coord is too far from old coord");
 
-      (EntityId newEntityId, ObjectTypeId newObjectTypeId) = newCoord.getEntity();
+      ObjectTypeId newObjectTypeId = newCoord.getObjectTypeId();
       require(ObjectTypeMetadata._getCanPassThrough(newObjectTypeId), "Cannot move through a non-passable block");
 
       EntityId playerEntityIdAtCoord = newCoord.getPlayer();
@@ -84,7 +84,7 @@ library MoveLib {
   function _getPlayerEntityIds(
     EntityId basePlayerEntityId,
     VoxelCoord[] memory playerCoords
-  ) internal returns (EntityId[] memory) {
+  ) internal view returns (EntityId[] memory) {
     EntityId[] memory playerEntityIds = new EntityId[](playerCoords.length);
     playerEntityIds[0] = basePlayerEntityId;
     // Only iterate through relative schema coords
@@ -115,6 +115,7 @@ library MoveLib {
       newPlayerCoords[i].setPlayer(playerEntityIds[i]);
     }
 
+<<<<<<< HEAD
     uint128 energyCost = (PLAYER_MOVE_ENERGY_COST * uint128(newBaseCoords.length - numFalls)) +
       (PLAYER_FALL_ENERGY_COST * numFalls);
     EnergyData memory playerEnergyData = Energy._get(playerEntityId);
@@ -127,6 +128,10 @@ library MoveLib {
     } else {
       transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, energyCost);
     }
+=======
+    uint128 energyCost = PLAYER_MOVE_ENERGY_COST * uint128(newBaseCoords.length);
+    transferEnergyToPool(playerEntityId, playerCoord, energyCost);
+>>>>>>> main
 
     return gravityAppliesForMove;
   }
@@ -157,7 +162,7 @@ library MoveLib {
       return false;
     }
 
-    (, ObjectTypeId belowObjectTypeId) = belowCoord.getEntity();
+    ObjectTypeId belowObjectTypeId = belowCoord.getObjectTypeId();
     // Players can swim in water so we don't want to apply gravity to them
     if (belowObjectTypeId == WaterObjectID || !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
       return false;

@@ -10,8 +10,10 @@ import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
 import { OreCommitment } from "../codegen/tables/OreCommitment.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
+import { Orientation } from "../codegen/tables/Orientation.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
@@ -20,20 +22,24 @@ import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ActionType, DisplayContentType } from "../codegen/common.sol";
 
-import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../ObjectTypeIds.sol";
+
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel, energyToMass, transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
+import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
+import { updateMachineEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+import { mulDiv } from "../utils/MathUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
+
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
+
 import { EntityId } from "../EntityId.sol";
-import { PLAYER_MINE_ENERGY_COST } from "../Constants.sol";
-import { ChunkCoord } from "../Types.sol";
-import { mulDiv } from "../utils/MathUtils.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
+import { PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
+import { ChunkCoord } from "../Types.sol";
 
 library MineLib {
   function mineRandomOre(VoxelCoord memory coord) public returns (ObjectTypeId) {
@@ -105,6 +111,19 @@ library MineLib {
     uint128 massLeft = Mass._getMass(minedEntityId);
     return massLeft <= totalMassReduction ? 0 : massLeft - totalMassReduction;
   }
+
+  function mineBed(EntityId bedEntityId, VoxelCoord memory bedCoord) public {
+    EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(bedEntityId);
+    if (sleepingPlayerId.exists()) {
+      EntityId forceFieldEntityId = getForceField(bedCoord);
+      EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+      EnergyData memory playerData = updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, machineData, bedCoord);
+      removePlayerFromBed(sleepingPlayerId, bedEntityId, forceFieldEntityId);
+
+      // This kills the player
+      transferEnergyToPool(sleepingPlayerId, bedCoord, playerData.energy);
+    }
+  }
 }
 
 contract MineSystem is System {
@@ -125,27 +144,23 @@ contract MineSystem is System {
   function mineWithExtraData(VoxelCoord memory coord, bytes memory extraData) public payable {
     require(inWorldBorder(coord), "Cannot mine outside the world border");
 
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
-      _msgSender()
-    );
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    (EntityId entityId, ObjectTypeId mineObjectTypeId, bool isTerrain) = coord.getOrCreateEntity();
+    (EntityId entityId, ObjectTypeId mineObjectTypeId) = coord.getOrCreateEntity();
     require(mineObjectTypeId.isMineable(), "Object is not mineable");
 
-    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_MINE_ENERGY_COST);
+    transferEnergyToPool(playerEntityId, playerCoord, PLAYER_MINE_ENERGY_COST);
 
     EntityId baseEntityId = entityId.baseEntityId();
     VoxelCoord memory baseCoord = Position._get(baseEntityId).toVoxelCoord();
-    if (isTerrain) {
-      Mass._setMass(baseEntityId, ObjectTypeMetadata._getMass(mineObjectTypeId));
-    }
 
+    // Chip needs to be detached first
     require(baseEntityId.getChipAddress() == address(0), "Cannot mine a chipped block");
     require(updateMachineEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
 
     // First coord will be the base coord, the rest is relative schema coords
-    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(mineObjectTypeId);
+    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(mineObjectTypeId, Orientation._get(baseEntityId));
 
     {
       uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);
@@ -159,6 +174,11 @@ contract MineSystem is System {
           DisplayContent._deleteRecord(baseEntityId);
         }
 
+        // If mining a bed with a sleeping player, kill the player
+        if (mineObjectTypeId == BedObjectID) {
+          MineLib.mineBed(baseEntityId, baseCoord);
+        }
+
         addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
         _removeBlock(baseEntityId, baseCoord);
@@ -166,7 +186,7 @@ contract MineSystem is System {
         // Only iterate through relative schema coords
         for (uint256 i = 1; i < coords.length; i++) {
           VoxelCoord memory relativeCoord = coords[i];
-          (EntityId relativeEntityId, , ) = relativeCoord.getOrCreateEntity();
+          (EntityId relativeEntityId, ) = relativeCoord.getOrCreateEntity();
           BaseEntity._deleteRecord(relativeEntityId);
 
           _removeBlock(relativeEntityId, relativeCoord);

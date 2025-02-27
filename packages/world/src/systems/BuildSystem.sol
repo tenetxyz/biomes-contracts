@@ -10,10 +10,11 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
 import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
+import { Orientation } from "../codegen/tables/Orientation.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { ActionType } from "../codegen/common.sol";
+import { ActionType, FacingDirection } from "../codegen/common.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
@@ -21,17 +22,17 @@ import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
-import { transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
+import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { EntityId } from "../EntityId.sol";
 
-contract BuildSystem is System {
-  function _addBlock(ObjectTypeId buildObjectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
+library BuildLib {
+  function _addBlock(ObjectTypeId buildObjectTypeId, VoxelCoord memory coord) public returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
-    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId, ) = coord.getOrCreateEntity();
+    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = coord.getOrCreateEntity();
     require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
     require(
       InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,
@@ -45,27 +46,29 @@ contract BuildSystem is System {
 
     return terrainEntityId;
   }
+}
 
+contract BuildSystem is System {
   function buildWithExtraData(
     ObjectTypeId buildObjectTypeId,
     VoxelCoord memory baseCoord,
+    FacingDirection facingDirection,
     bytes memory extraData
   ) public payable returns (EntityId) {
     require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
-      _msgSender()
-    );
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, baseCoord);
 
-    EntityId baseEntityId = _addBlock(buildObjectTypeId, baseCoord);
+    EntityId baseEntityId = BuildLib._addBlock(buildObjectTypeId, baseCoord);
+    Orientation._set(baseEntityId, facingDirection);
     uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
     Mass._setMass(baseEntityId, mass);
 
-    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(buildObjectTypeId);
+    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(buildObjectTypeId, facingDirection);
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < coords.length; i++) {
       VoxelCoord memory relativeCoord = coords[i];
-      EntityId relativeEntityId = _addBlock(buildObjectTypeId, relativeCoord);
+      EntityId relativeEntityId = BuildLib._addBlock(buildObjectTypeId, relativeCoord);
       BaseEntity._set(relativeEntityId, baseEntityId);
     }
 
@@ -78,7 +81,7 @@ contract BuildSystem is System {
         mass
     );
 
-    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_BUILD_ENERGY_COST);
+    transferEnergyToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
 
     removeFromInventoryCount(playerEntityId, buildObjectTypeId, 1);
 
@@ -93,7 +96,11 @@ contract BuildSystem is System {
     return baseEntityId;
   }
 
-  function jumpBuildWithExtraData(ObjectTypeId buildObjectTypeId, bytes memory extraData) public payable {
+  function jumpBuildWithExtraData(
+    ObjectTypeId buildObjectTypeId,
+    FacingDirection facingDirection,
+    bytes memory extraData
+  ) public payable {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
 
     VoxelCoord[] memory moveCoords = new VoxelCoord[](1);
@@ -103,14 +110,29 @@ contract BuildSystem is System {
 
     require(!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId), "Cannot jump build on a pass-through block");
 
-    buildWithExtraData(buildObjectTypeId, playerCoord, extraData);
+    buildWithExtraData(buildObjectTypeId, playerCoord, facingDirection, extraData);
+  }
+
+  function jumpBuildWithFacingDirection(
+    ObjectTypeId buildObjectTypeId,
+    FacingDirection facingDirection
+  ) public payable {
+    jumpBuildWithExtraData(buildObjectTypeId, facingDirection, new bytes(0));
   }
 
   function jumpBuild(ObjectTypeId buildObjectTypeId) public payable {
-    jumpBuildWithExtraData(buildObjectTypeId, new bytes(0));
+    jumpBuildWithExtraData(buildObjectTypeId, FacingDirection.PositiveZ, new bytes(0));
+  }
+
+  function buildWithFacingDirection(
+    ObjectTypeId buildObjectTypeId,
+    VoxelCoord memory baseCoord,
+    FacingDirection facingDirection
+  ) public payable returns (EntityId) {
+    return buildWithExtraData(buildObjectTypeId, baseCoord, facingDirection, new bytes(0));
   }
 
   function build(ObjectTypeId buildObjectTypeId, VoxelCoord memory baseCoord) public payable returns (EntityId) {
-    return buildWithExtraData(buildObjectTypeId, baseCoord, new bytes(0));
+    return buildWithExtraData(buildObjectTypeId, baseCoord, FacingDirection.PositiveZ, new bytes(0));
   }
 }

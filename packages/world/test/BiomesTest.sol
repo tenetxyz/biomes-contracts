@@ -28,7 +28,7 @@ import { EntityId } from "../src/EntityId.sol";
 import { ChunkCoord } from "../src/Types.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { ObjectTypeId, PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, WaterObjectID } from "../src/ObjectTypeIds.sol";
-import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST } from "../src/Constants.sol";
+import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { energyToMass } from "../src/utils/EnergyUtils.sol";
 import { getObjectTypeSchema } from "../src/utils/ObjectTypeUtils.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -85,7 +85,15 @@ abstract contract BiomesTest is MudTest, GasReporter {
     ReversePlayer.set(playerEntityId, playerAddress);
 
     Mass.set(playerEntityId, ObjectTypeMetadata.getMass(PlayerObjectID));
-    Energy.set(playerEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000 }));
+    Energy.set(
+      playerEntityId,
+      EnergyData({
+        lastUpdatedTime: uint128(block.timestamp),
+        energy: 10000,
+        drainRate: PLAYER_ENERGY_DRAIN_RATE,
+        accDepletedTime: 0
+      })
+    );
 
     PlayerActivity.set(playerEntityId, uint128(block.timestamp));
 
@@ -254,6 +262,13 @@ abstract contract BiomesTest is MudTest, GasReporter {
     EntityId forceFieldEntityId = randomEntityId();
     VoxelCoord memory shardCoord = coord.toForceFieldShardCoord();
     ForceField.set(shardCoord.x, shardCoord.y, shardCoord.z, forceFieldEntityId);
+    return forceFieldEntityId;
+  }
+
+  function setupForceField(VoxelCoord memory coord, EnergyData memory energyData) internal returns (EntityId) {
+    // Set forcefield with no energy
+    EntityId forceFieldEntityId = setupForceField(coord);
+    Energy.set(forceFieldEntityId, energyData);
     return forceFieldEntityId;
   }
 }

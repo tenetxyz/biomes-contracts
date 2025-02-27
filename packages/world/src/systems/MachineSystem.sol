@@ -19,6 +19,7 @@ import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
 import { EntityId } from "../EntityId.sol";
+import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 contract MachineSystem is System {
   function powerMachine(EntityId entityId, uint16 numBattery) public {
@@ -32,9 +33,10 @@ contract MachineSystem is System {
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
     require(objectTypeId == ForceFieldObjectID, "Invalid object type");
     EnergyData memory machineData = updateMachineEnergyLevel(baseEntityId);
+
     uint128 newEnergyLevel = machineData.energy + (uint128(numBattery) * 10);
 
-    Energy._set(baseEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: newEnergyLevel }));
+    baseEntityId.setEnergy(newEnergyLevel);
 
     notify(
       playerEntityId,

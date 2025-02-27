@@ -206,9 +206,60 @@ declare const abi: [
         ]
       },
       {
+        "name": "facingDirection",
+        "type": "uint8",
+        "internalType": "enum FacingDirection"
+      },
+      {
         "name": "extraData",
         "type": "bytes",
         "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "buildWithFacingDirection",
+    "inputs": [
+      {
+        "name": "buildObjectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "baseCoord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      },
+      {
+        "name": "facingDirection",
+        "type": "uint8",
+        "internalType": "enum FacingDirection"
       }
     ],
     "outputs": [
@@ -1589,9 +1640,9 @@ declare const abi: [
             ]
           },
           {
-            "name": "isLoggedOff",
-            "type": "bool",
-            "internalType": "bool"
+            "name": "bedEntityId",
+            "type": "bytes32",
+            "internalType": "EntityId"
           },
           {
             "name": "equippedEntityId",
@@ -1649,6 +1700,16 @@ declare const abi: [
               },
               {
                 "name": "energy",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "drainRate",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "accDepletedTime",
                 "type": "uint128",
                 "internalType": "uint128"
               }
@@ -1713,9 +1774,9 @@ declare const abi: [
             ]
           },
           {
-            "name": "isLoggedOff",
-            "type": "bool",
-            "internalType": "bool"
+            "name": "bedEntityId",
+            "type": "bytes32",
+            "internalType": "EntityId"
           },
           {
             "name": "equippedEntityId",
@@ -1773,6 +1834,16 @@ declare const abi: [
               },
               {
                 "name": "energy",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "drainRate",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "accDepletedTime",
                 "type": "uint128",
                 "internalType": "uint128"
               }
@@ -2177,6 +2248,11 @@ declare const abi: [
         "internalType": "ObjectTypeId"
       },
       {
+        "name": "facingDirection",
+        "type": "uint8",
+        "internalType": "enum FacingDirection"
+      },
+      {
         "name": "extraData",
         "type": "bytes",
         "internalType": "bytes"
@@ -2187,53 +2263,21 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "loginPlayer",
+    "name": "jumpBuildWithFacingDirection",
     "inputs": [
       {
-        "name": "respawnCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "name": "buildObjectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "facingDirection",
+        "type": "uint8",
+        "internalType": "enum FacingDirection"
       }
     ],
     "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "logoffPlayer",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "logoffStalePlayer",
-    "inputs": [
-      {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "payable"
   },
   {
     "type": "function",
@@ -2849,6 +2893,41 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "removeDeadPlayerFromBed",
+    "inputs": [
+      {
+        "name": "playerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "dropCoord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "renounceOwnership",
     "inputs": [
       {
@@ -3071,6 +3150,37 @@ declare const abi: [
         "name": "fieldLayout",
         "type": "bytes32",
         "internalType": "FieldLayout"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "sleep",
+    "inputs": [
+      {
+        "name": "bedEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "sleepWithExtraData",
+    "inputs": [
+      {
+        "name": "bedEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -3492,6 +3602,71 @@ declare const abi: [
         "name": "hookAddress",
         "type": "address",
         "internalType": "contract ISystemHook"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "wakeup",
+    "inputs": [
+      {
+        "name": "spawnCoord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "wakeupWithExtraData",
+    "inputs": [
+      {
+        "name": "spawnCoord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],

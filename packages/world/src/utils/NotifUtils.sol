@@ -61,14 +61,6 @@ struct SpawnNotifData {
   VoxelCoord spawnCoord;
 }
 
-struct LoginNotifData {
-  VoxelCoord loginCoord;
-}
-
-struct LogoffNotifData {
-  VoxelCoord logoffCoord;
-}
-
 struct PowerMachineNotifData {
   EntityId machineEntityId;
   VoxelCoord machineCoord;
@@ -99,6 +91,16 @@ struct InitiateOreRevealNotifData {
 struct RevealOreNotifData {
   VoxelCoord oreCoord;
   ObjectTypeId oreObjectTypeId;
+}
+
+struct SleepNotifData {
+  EntityId bedEntityId;
+  VoxelCoord bedCoord;
+}
+
+struct WakeupNotifData {
+  EntityId bedEntityId;
+  VoxelCoord bedCoord;
 }
 
 function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {
@@ -171,20 +173,6 @@ function notify(EntityId playerEntityId, SpawnNotifData memory spawnNotifData) {
   );
 }
 
-function notify(EntityId playerEntityId, LoginNotifData memory loginNotifData) {
-  PlayerActionNotif._set(
-    playerEntityId,
-    PlayerActionNotifData({ actionType: ActionType.Login, actionData: abi.encode(loginNotifData) })
-  );
-}
-
-function notify(EntityId playerEntityId, LogoffNotifData memory logoffNotifData) {
-  PlayerActionNotif._set(
-    playerEntityId,
-    PlayerActionNotifData({ actionType: ActionType.Logoff, actionData: abi.encode(logoffNotifData) })
-  );
-}
-
 function notify(EntityId playerEntityId, PowerMachineNotifData memory powerMachineNotifData) {
   PlayerActionNotif._set(
     playerEntityId,
@@ -227,5 +215,19 @@ function notify(EntityId playerEntityId, RevealOreNotifData memory revealOreNoti
   PlayerActionNotif._set(
     playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.RevealOre, actionData: abi.encode(revealOreNotifData) })
+  );
+}
+
+function notify(EntityId playerEntityId, SleepNotifData memory sleepNotifData) {
+  PlayerActionNotif._set(
+    playerEntityId,
+    PlayerActionNotifData({ actionType: ActionType.Sleep, actionData: abi.encode(sleepNotifData) })
+  );
+}
+
+function notify(EntityId playerEntityId, WakeupNotifData memory wakeupNotifData) {
+  PlayerActionNotif._set(
+    playerEntityId,
+    PlayerActionNotifData({ actionType: ActionType.Wakeup, actionData: abi.encode(wakeupNotifData) })
   );
 }
