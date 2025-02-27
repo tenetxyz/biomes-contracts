@@ -13,7 +13,6 @@ import { InventoryObjects } from "../../src/codegen/tables/InventoryObjects.sol"
 import { InventoryCount } from "../../src/codegen/tables/InventoryCount.sol";
 import { EnergyData } from "../../src/codegen/tables/Energy.sol";
 import { ObjectAmount, ObjectTypeId, getOreObjectTypes } from "../../src/ObjectTypeIds.sol";
-import { gravityApplies as _gravityApplies } from "../../src/Utils.sol";
 import { addToInventoryCount as _addToInventoryCount, removeFromInventoryCount as _removeFromInventoryCount, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
 import { updateMachineEnergyLevel as _updateMachineEnergyLevel } from "../../src/utils/EnergyUtils.sol";
 
@@ -53,10 +52,6 @@ library TestUtils {
 
   function _getLibAddress() private view returns (address) {
     return address(bytes20(vm.load(address(this), LIB_ADDRESS_SLOT)));
-  }
-
-  function gravityApplies(VoxelCoord memory playerCoord) public asWorld returns (bool res) {
-    return _gravityApplies(playerCoord);
   }
 
   function addToInventoryCount(
