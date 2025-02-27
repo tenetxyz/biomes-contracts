@@ -125,10 +125,10 @@ abstract contract BiomesTest is MudTest, GasReporter {
 
   function setupFlatChunkWithPlayer() internal returns (address, EntityId, VoxelCoord memory) {
     setupFlatChunk(VoxelCoord(0, 0, 0));
-    return spawnPlayerOnFlatChunk(FLAT_CHUNK_GRASS_LEVEL + 1);
+    return randomSpawnPlayer(FLAT_CHUNK_GRASS_LEVEL + 1);
   }
 
-  function spawnPlayerOnFlatChunk(int32 y) internal returns (address, EntityId, VoxelCoord memory) {
+  function randomSpawnPlayer(int32 y) internal returns (address, EntityId, VoxelCoord memory) {
     uint256 blockNumber = block.number - 5;
 
     address alice = vm.randomAddress();

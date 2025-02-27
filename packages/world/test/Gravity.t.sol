@@ -8,6 +8,7 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
+import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
 import { ExploredChunk } from "../src/codegen/tables/ExploredChunk.sol";
 import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
@@ -19,6 +20,7 @@ import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
+import { ReversePlayerPosition } from "../src/codegen/tables/ReversePlayerPosition.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
@@ -41,17 +43,177 @@ import { TestUtils } from "./utils/TestUtils.sol";
 contract GravityTest is BiomesTest {
   using VoxelCoordLib for *;
 
-  function testMineFallSingleBlock() public {}
+  function testMineFallSingleBlock() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
 
-  function testMineFallMultipleBlocks() public {}
+    VoxelCoord memory mineCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
+    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertFalse(mineEntityId.exists(), "Mine entity already exists");
+    assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 0, "Inventory count is not 0");
 
-  function testMineStackedPlayers() public {}
+    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
 
-  function testOneBlockMoveFallSingleBlocok() public {}
+    vm.prank(alice);
+    startGasReport("mine with single block fall");
+    world.mine(mineCoord);
+    endGasReport();
 
-  function testMultipleBlockMoveFallSingleBlock() public {}
+    VoxelCoord memory finalCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
+    assertTrue(VoxelCoordLib.equals(finalCoord, mineCoord), "Player did not move to new coords");
+    VoxelCoord memory aboveFinalCoord = VoxelCoord(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    assertTrue(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord.x, aboveFinalCoord.y, aboveFinalCoord.z)) ==
+        aliceEntityId,
+      "Above coord is not the player"
+    );
 
-  function testOneBlockMoveFallMultipleBlocks() public {}
+    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
+    assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 1, "Inventory count is not 1");
+    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 1");
+    assertTrue(
+      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
+      "Inventory objects does not have terrain object type"
+    );
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+  }
 
-  function testOneBlockMoveStackedPlayers() public {}
+  function testMineFallMultipleBlocks() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+
+    VoxelCoord memory mineCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
+    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertFalse(mineEntityId.exists(), "Mine entity already exists");
+    assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 0, "Inventory count is not 0");
+
+    setTerrainAtCoord(VoxelCoord(mineCoord.x, mineCoord.y - 1, mineCoord.z), AirObjectID);
+    setTerrainAtCoord(VoxelCoord(mineCoord.x, mineCoord.y - 2, mineCoord.z), AirObjectID);
+
+    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+
+    vm.prank(alice);
+    startGasReport("mine with three block fall");
+    world.mine(mineCoord);
+    endGasReport();
+
+    VoxelCoord memory finalCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
+    assertTrue(
+      VoxelCoordLib.equals(finalCoord, VoxelCoord(mineCoord.x, mineCoord.y - 2, mineCoord.z)),
+      "Player did not move to new coords"
+    );
+    VoxelCoord memory aboveFinalCoord = VoxelCoord(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    assertTrue(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord.x, aboveFinalCoord.y, aboveFinalCoord.z)) ==
+        aliceEntityId,
+      "Above coord is not the player"
+    );
+
+    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
+    assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 1, "Inventory count is not 1");
+    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 1");
+    assertTrue(
+      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
+      "Inventory objects does not have terrain object type"
+    );
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+  }
+
+  function testMineFallFatal() public {}
+
+  function testMineStackedPlayers() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory aliceCoord) = setupFlatChunkWithPlayer();
+
+    EntityId bobEntityId;
+    {
+      VoxelCoord memory bobCoord = VoxelCoord(aliceCoord.x, aliceCoord.y + 2, aliceCoord.z);
+      setObjectAtCoord(bobCoord, AirObjectID);
+      setObjectAtCoord(VoxelCoord(bobCoord.x, bobCoord.y + 1, bobCoord.z), AirObjectID);
+      (, bobEntityId) = createTestPlayer(bobCoord);
+    }
+
+    VoxelCoord memory mineCoord = VoxelCoord(aliceCoord.x, aliceCoord.y - 1, aliceCoord.z);
+    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertFalse(mineEntityId.exists(), "Mine entity already exists");
+    assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 0, "Inventory count is not 0");
+
+    setTerrainAtCoord(VoxelCoord(mineCoord.x, mineCoord.y - 1, mineCoord.z), AirObjectID);
+    setTerrainAtCoord(VoxelCoord(mineCoord.x, mineCoord.y - 2, mineCoord.z), AirObjectID);
+
+    uint128 bobEnergyBefore = Energy.getEnergy(bobEntityId);
+    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = aliceCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+
+    vm.prank(alice);
+    startGasReport("mine with three block fall with a stacked player");
+    world.mine(mineCoord);
+    endGasReport();
+
+    VoxelCoord memory finalAliceCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
+    VoxelCoord memory finalBobCoord = PlayerPosition.get(bobEntityId).toVoxelCoord();
+    assertTrue(
+      VoxelCoordLib.equals(finalAliceCoord, VoxelCoord(mineCoord.x, mineCoord.y - 2, mineCoord.z)),
+      "Player alice did not move to new coords"
+    );
+    assertTrue(
+      VoxelCoordLib.equals(finalBobCoord, VoxelCoord(mineCoord.x, mineCoord.y, mineCoord.z)),
+      "Player bob did not move to new coords"
+    );
+    {
+      VoxelCoord memory aboveFinalAliceCoord = VoxelCoord(finalAliceCoord.x, finalAliceCoord.y + 1, finalAliceCoord.z);
+      assertTrue(
+        BaseEntity.get(
+          ReversePlayerPosition.get(aboveFinalAliceCoord.x, aboveFinalAliceCoord.y, aboveFinalAliceCoord.z)
+        ) == aliceEntityId,
+        "Above coord is not the player alice"
+      );
+      VoxelCoord memory aboveFinalBobCoord = VoxelCoord(finalBobCoord.x, finalBobCoord.y + 1, finalBobCoord.z);
+      assertTrue(
+        BaseEntity.get(ReversePlayerPosition.get(aboveFinalBobCoord.x, aboveFinalBobCoord.y, aboveFinalBobCoord.z)) ==
+          bobEntityId,
+        "Above coord is not the player bob"
+      );
+    }
+
+    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
+    assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 1, "Inventory count is not 1");
+    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 1");
+    assertTrue(
+      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
+      "Inventory objects does not have terrain object type"
+    );
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    uint128 aliceEnergyAfter = Energy.getEnergy(aliceEntityId);
+    uint128 bobEnergyAfter = Energy.getEnergy(bobEntityId);
+    assertEq(
+      energyGainedInPool,
+      (aliceEnergyBefore - aliceEnergyAfter) + (bobEnergyBefore - bobEnergyAfter),
+      "Alice and Bob did not lose energy"
+    );
+  }
+
+  function testMoveFallSingleBlocok() public {}
+
+  function testMoveFallMultipleBlocks() public {}
+
+  function testMoveStackedPlayers() public {}
+
+  function testMoveFallFatal() public {}
 }

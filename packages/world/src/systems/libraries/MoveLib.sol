@@ -141,9 +141,11 @@ library MoveLib {
       runGravity(playerEntityId, newCoords[newCoords.length - 1]);
     }
 
-    VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 2, playerCoord.z);
     EntityId aboveEntityId = aboveCoord.getPlayer();
-    if (aboveEntityId.exists() && aboveEntityId.isBaseEntity()) {
+    // Note: currently it is not possible for the above player to not be the base entity,
+    // but if we add other types of movable entities we should check that it is a base entity
+    if (aboveEntityId.exists()) {
       runGravity(aboveEntityId, aboveCoord);
     }
   }
