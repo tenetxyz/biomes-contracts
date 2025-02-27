@@ -18,21 +18,19 @@ import { notify, DropNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_DROP_ENERGY_COST } from "../Constants.sol";
-import { transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
+import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
 
 // TODO: combine the tool and non-tool drop functions
 contract DropSystem is System {
   function dropCommon(VoxelCoord memory coord) internal returns (EntityId, EntityId) {
     require(inWorldBorder(coord), "Cannot drop outside the world border");
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
-      _msgSender()
-    );
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
     (EntityId entityId, ObjectTypeId objectTypeId) = coord.getOrCreateEntity();
     require(objectTypeId == AirObjectID, "Cannot drop on a non-air block");
 
-    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_DROP_ENERGY_COST);
+    transferEnergyToPool(playerEntityId, playerCoord, PLAYER_DROP_ENERGY_COST);
 
     return (playerEntityId, entityId);
   }

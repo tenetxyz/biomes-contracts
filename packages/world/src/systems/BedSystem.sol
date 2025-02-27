@@ -21,7 +21,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 
 import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePlayerFromGrid, removePlayerFromBed } from "../utils/PlayerUtils.sol";
-import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
+import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
@@ -42,25 +42,43 @@ library BedLib {
   function transferInventory(EntityId playerEntityId, EntityId bedEntityId, ObjectTypeId objectTypeId) public {
     transferAllInventoryEntities(playerEntityId, bedEntityId, objectTypeId);
   }
+
+  function updateEntities(
+    EntityId forceFieldEntityId,
+    EntityId playerEntityId,
+    EntityId bedEntityId,
+    VoxelCoord memory bedCoord
+  ) public returns (EnergyData memory machineData, EnergyData memory playerData) {
+    machineData = updateMachineEnergyLevel(forceFieldEntityId);
+    playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, machineData, bedCoord);
+    return (machineData, playerData);
+  }
 }
 
 contract BedSystem is System {
   using VoxelCoordLib for *;
 
   // TODO: should this accept the coordinate of an air block to transfer inventory to?
-  function removeDeadPlayerFromBed(EntityId playerEntityId) public {
+  function removeDeadPlayerFromBed(EntityId playerEntityId, VoxelCoord memory dropCoord) public {
     EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
     require(bedEntityId.exists(), "Player is not in a bed");
 
     VoxelCoord memory bedCoord = Position._get(bedEntityId).toVoxelCoord();
 
+    // TODO: use a different constant?
+    require(bedCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, dropCoord), "Drop location is too far from bed");
+
+    (EntityId dropEntityId, ObjectTypeId objectTypeId) = dropCoord.getOrCreateEntity();
+    require(objectTypeId == AirObjectID, "Cannot drop items on a non-air block");
+
     EntityId forceFieldEntityId = getForceField(bedCoord);
-    EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-    EnergyData memory playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, machineData);
+    (, EnergyData memory playerData) = BedLib.updateEntities(forceFieldEntityId, playerEntityId, bedEntityId, bedCoord);
+
     require(playerData.energy == 0, "Player is not dead");
 
     removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
 
+    BedLib.transferInventory(bedEntityId, dropEntityId, AirObjectID);
     // TODO: Should we safecall the chip?
   }
 
@@ -113,8 +131,13 @@ contract BedSystem is System {
     require(bedCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, spawnCoord), "Bed is too far away");
 
     EntityId forceFieldEntityId = getForceField(bedCoord);
-    EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-    EnergyData memory playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, machineData);
+    (EnergyData memory machineData, EnergyData memory playerData) = BedLib.updateEntities(
+      forceFieldEntityId,
+      playerEntityId,
+      bedEntityId,
+      bedCoord
+    );
+
     require(playerData.energy > 0, "Player died while sleeping");
 
     removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);

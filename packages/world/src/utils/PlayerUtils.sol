@@ -19,7 +19,7 @@ import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
-import { updatePlayerEnergyLevel, updateSleepingPlayerEnergy, updateMachineEnergyLevel } from "./EnergyUtils.sol";
+import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
 import { getForceField } from "./ForceFieldUtils.sol";
 import { transferAllInventoryEntities } from "./InventoryUtils.sol";
 

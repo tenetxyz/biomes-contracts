@@ -28,7 +28,7 @@ import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, Di
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel, energyToMass, transferEnergyFromPlayerToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { mulDiv } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
@@ -117,9 +117,11 @@ library MineLib {
     if (sleepingPlayerId.exists()) {
       EntityId forceFieldEntityId = getForceField(bedCoord);
       EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
-      EnergyData memory playerData = updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, machineData);
-      // TODO: transfer remaining player energy to local pool
+      EnergyData memory playerData = updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, machineData, bedCoord);
       removePlayerFromBed(sleepingPlayerId, bedEntityId, forceFieldEntityId);
+
+      // This kills the player
+      transferEnergyToPool(sleepingPlayerId, bedCoord, playerData.energy);
     }
   }
 }
@@ -142,15 +144,13 @@ contract MineSystem is System {
   function mineWithExtraData(VoxelCoord memory coord, bytes memory extraData) public payable {
     require(inWorldBorder(coord), "Cannot mine outside the world border");
 
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
-      _msgSender()
-    );
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
     (EntityId entityId, ObjectTypeId mineObjectTypeId) = coord.getOrCreateEntity();
     require(mineObjectTypeId.isMineable(), "Object is not mineable");
 
-    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_MINE_ENERGY_COST);
+    transferEnergyToPool(playerEntityId, playerCoord, PLAYER_MINE_ENERGY_COST);
 
     EntityId baseEntityId = entityId.baseEntityId();
     VoxelCoord memory baseCoord = Position._get(baseEntityId).toVoxelCoord();

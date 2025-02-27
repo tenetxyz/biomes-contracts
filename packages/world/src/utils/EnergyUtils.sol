@@ -77,37 +77,36 @@ function updateMachineEnergyLevel(EntityId entityId) returns (EnergyData memory)
   return energyData;
 }
 
-function transferEnergyFromPlayerToPool(
-  EntityId playerEntityId,
-  VoxelCoord memory playerCoord,
-  EnergyData memory playerEnergyData,
-  uint128 numToTransfer
-) {
-  playerEntityId.decreaseEnergy(playerEnergyData, numToTransfer);
-  playerCoord.addEnergyToLocalPool(numToTransfer);
+function transferEnergyToPool(EntityId from, VoxelCoord memory poolCoord, uint128 amount) {
+  uint128 current = Energy._getEnergy(from);
+  require(current >= amount, "Not enough energy");
+  from.setEnergy(current - amount);
+  poolCoord.addEnergyToLocalPool(amount);
 }
 
 function updateSleepingPlayerEnergy(
   EntityId playerEntityId,
   EntityId bedEntityId,
-  EnergyData memory machineData
+  EnergyData memory machineData,
+  VoxelCoord memory bedCoord
 ) returns (EnergyData memory) {
   uint128 timeWithoutEnergy = machineData.accDepletedTime - BedPlayer._getLastAccDepletedTime(bedEntityId);
-  EnergyData memory energyData = Energy._get(playerEntityId);
+  EnergyData memory playerEnergyData = Energy._get(playerEntityId);
   if (timeWithoutEnergy > 0) {
     uint128 totalEnergyDepleted = timeWithoutEnergy * PLAYER_ENERGY_DRAIN_RATE;
     // No need to call updatePlayerEnergyLevel as drain rate is 0 if sleeping
-    EnergyData memory currentEnergyData = Energy._get(playerEntityId);
-    energyData.energy = totalEnergyDepleted < currentEnergyData.energy
-      ? currentEnergyData.energy - totalEnergyDepleted
-      : 0;
+    uint128 transferredToPool = playerEnergyData.energy > totalEnergyDepleted
+      ? totalEnergyDepleted
+      : playerEnergyData.energy;
+    // transferEnergyToPool(playerEntityId, bedCoord, transferredToPool);
+    playerEnergyData.energy -= transferredToPool;
+
+    bedCoord.addEnergyToLocalPool(transferredToPool);
+    // TODO: transfer the rest of the energy from forcefield to the pool
   }
-
   // Set last updated so next time updatePlayerEnergyLevel is called it will drain from here
-  energyData.lastUpdatedTime = uint128(block.timestamp);
-
-  Energy._set(playerEntityId, energyData);
+  playerEnergyData.lastUpdatedTime = uint128(block.timestamp);
+  Energy._set(playerEntityId, playerEnergyData);
   BedPlayer._setLastAccDepletedTime(bedEntityId, machineData.accDepletedTime);
-
-  return energyData;
+  return playerEnergyData;
 }

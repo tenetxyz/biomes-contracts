@@ -35,18 +35,9 @@ library EntityIdLib {
     return EntityId.unwrap(self);
   }
 
-  function decreaseEnergy(EntityId self, EnergyData memory currentEnergyData, uint128 amount) internal {
-    uint128 currentEnergy = currentEnergyData.energy;
-    require(currentEnergy >= amount, "Not enough energy");
-    Energy._set(
-      self,
-      EnergyData({
-        energy: currentEnergy - amount,
-        lastUpdatedTime: uint128(block.timestamp),
-        drainRate: currentEnergyData.drainRate,
-        accDepletedTime: currentEnergyData.accDepletedTime
-      })
-    );
+  function setEnergy(EntityId self, uint128 energy) internal {
+    Energy._setLastUpdatedTime(self, uint128(block.timestamp));
+    Energy._setEnergy(self, energy);
   }
 }
 

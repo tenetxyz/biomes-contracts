@@ -2899,6 +2899,28 @@
         "name": "playerEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
+      },
+      {
+        "name": "dropCoord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
       }
     ],
     "outputs": [],

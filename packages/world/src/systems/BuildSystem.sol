@@ -22,15 +22,15 @@ import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 
 import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
-import { transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
+import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { EntityId } from "../EntityId.sol";
 
-contract BuildSystem is System {
-  function _addBlock(ObjectTypeId buildObjectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
+library BuildLib {
+  function _addBlock(ObjectTypeId buildObjectTypeId, VoxelCoord memory coord) public returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
     (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = coord.getOrCreateEntity();
     require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
@@ -46,7 +46,9 @@ contract BuildSystem is System {
 
     return terrainEntityId;
   }
+}
 
+contract BuildSystem is System {
   function buildWithExtraData(
     ObjectTypeId buildObjectTypeId,
     VoxelCoord memory baseCoord,
@@ -54,12 +56,10 @@ contract BuildSystem is System {
     bytes memory extraData
   ) public payable returns (EntityId) {
     require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
-      _msgSender()
-    );
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, baseCoord);
 
-    EntityId baseEntityId = _addBlock(buildObjectTypeId, baseCoord);
+    EntityId baseEntityId = BuildLib._addBlock(buildObjectTypeId, baseCoord);
     Orientation._set(baseEntityId, facingDirection);
     uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
     Mass._setMass(baseEntityId, mass);
@@ -68,7 +68,7 @@ contract BuildSystem is System {
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < coords.length; i++) {
       VoxelCoord memory relativeCoord = coords[i];
-      EntityId relativeEntityId = _addBlock(buildObjectTypeId, relativeCoord);
+      EntityId relativeEntityId = BuildLib._addBlock(buildObjectTypeId, relativeCoord);
       BaseEntity._set(relativeEntityId, baseEntityId);
     }
 
@@ -81,7 +81,7 @@ contract BuildSystem is System {
         mass
     );
 
-    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_BUILD_ENERGY_COST);
+    transferEnergyToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
 
     removeFromInventoryCount(playerEntityId, buildObjectTypeId, 1);
 

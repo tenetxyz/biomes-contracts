@@ -307,4 +307,51 @@ contract BedTest is BiomesTest {
       "Player energy was not drained"
     );
   }
+
+  function testRemoveDeadPlayerFromBed() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory coord) = setupFlatChunkWithPlayer();
+
+    VoxelCoord memory bedCoord = VoxelCoord(coord.x - 2, coord.y, coord.z);
+
+    uint128 initialPlayerEnergy = Energy.getEnergy(aliceEntityId);
+
+    // Set the forcefield's energy to fully deplete after 1000 seconds (with 1 sleeping player)
+    uint128 initialForcefieldEnergy = (MACHINE_ENERGY_DRAIN_RATE + PLAYER_ENERGY_DRAIN_RATE) * 1000;
+
+    // Set forcefield
+    EntityId forcefieldEntityId = setupForceField(
+      bedCoord,
+      EnergyData({
+        energy: initialForcefieldEnergy,
+        lastUpdatedTime: uint128(block.timestamp),
+        drainRate: MACHINE_ENERGY_DRAIN_RATE,
+        accDepletedTime: 0
+      })
+    );
+
+    EntityId bedEntityId = createBed(bedCoord);
+
+    attachTestChip(bedEntityId);
+
+    vm.prank(alice);
+    world.sleep(bedEntityId);
+
+    // After 1000 seconds, the forcefield should be depleted
+    // We wait more time so the player's energy is FULLY depleted in this period
+    uint128 playerDrainTime = initialPlayerEnergy / PLAYER_ENERGY_DRAIN_RATE;
+    uint128 timeDelta = 1000 seconds + playerDrainTime;
+    vm.warp(vm.getBlockTimestamp() + timeDelta);
+
+    // Remove alice and drop inventory in the original coord
+    world.removeDeadPlayerFromBed(aliceEntityId, coord);
+
+    EnergyData memory ffEnergyData = Energy.get(forcefieldEntityId);
+    assertEq(ffEnergyData.energy, 0, "Forcefield energy wasn't drained correctly");
+    assertEq(ffEnergyData.drainRate, MACHINE_ENERGY_DRAIN_RATE, "Forcefield drain rate was not restored");
+    // The forcefield had 0 energy for playerDrainTime seconds
+    assertEq(ffEnergyData.accDepletedTime, playerDrainTime, "Forcefield accDepletedTime was not computed correctly");
+
+    // Check that the player energy was drained during the playerDrainTime seconds that the forcefield was off
+    assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy was not drained");
+  }
 }

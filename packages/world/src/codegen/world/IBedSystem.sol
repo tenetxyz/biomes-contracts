@@ -12,7 +12,7 @@ import { VoxelCoord } from "../../VoxelCoord.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IBedSystem {
-  function removeDeadPlayerFromBed(EntityId playerEntityId) external;
+  function removeDeadPlayerFromBed(EntityId playerEntityId, VoxelCoord memory dropCoord) external;
 
   function sleepWithExtraData(EntityId bedEntityId, bytes memory extraData) external;
 
