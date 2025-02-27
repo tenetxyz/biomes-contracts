@@ -215,11 +215,116 @@ contract TransferTest is BiomesTest {
     assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
   }
 
-  function testTransferToChestFailsIfChestFull() public {}
+  function testTransferToChestFailsIfChestFull() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
-  function testTransferFromChestFailsIfPlayerFull() public {}
+    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
+    uint16 maxChestInventorySlots = ObjectTypeMetadata.getMaxInventorySlots(ChestObjectID);
+    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(
+      chestEntityId,
+      ChestObjectID,
+      transferObjectTypeId,
+      ObjectTypeMetadata.getStackable(transferObjectTypeId) * maxChestInventorySlots
+    );
+    assertEq(InventorySlots.get(chestEntityId), maxChestInventorySlots, "Inventory slots is not max");
 
-  function testTransferFailsIfInvalidObject() public {}
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+
+    vm.prank(alice);
+    vm.expectRevert("Inventory is full");
+    world.transfer(chestEntityId, true, transferObjectTypeId, 1);
+  }
+
+  function testTransferFromChestFailsIfPlayerFull() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
+    uint16 maxPlayerInventorySlots = ObjectTypeMetadata.getMaxInventorySlots(PlayerObjectID);
+    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(
+      aliceEntityId,
+      PlayerObjectID,
+      transferObjectTypeId,
+      ObjectTypeMetadata.getStackable(transferObjectTypeId) * maxPlayerInventorySlots
+    );
+    assertEq(InventorySlots.get(aliceEntityId), maxPlayerInventorySlots, "Inventory slots is not max");
+
+    TestUtils.addToInventoryCount(chestEntityId, ChestObjectID, transferObjectTypeId, 1);
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+
+    vm.prank(alice);
+    vm.expectRevert("Inventory is full");
+    world.transfer(chestEntityId, false, transferObjectTypeId, 1);
+  }
+
+  function testTransferFailsIfInvalidObject() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    EntityId nonChestEntityId = setObjectAtCoord(chestCoord, DirtObjectID);
+    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertEq(InventoryCount.get(nonChestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+
+    assertEq(ObjectTypeMetadata.getMaxInventorySlots(transferObjectTypeId), 0, "Max inventory slots is not 0");
+
+    vm.prank(alice);
+    vm.expectRevert("Inventory is full");
+    world.transfer(nonChestEntityId, true, transferObjectTypeId, 1);
+  }
+
+  function testTransferFailsIfDoesntHaveBlock() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
+    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+
+    vm.prank(alice);
+    vm.expectRevert("Not enough objects in the inventory");
+    world.transfer(chestEntityId, true, transferObjectTypeId, 2);
+
+    vm.prank(alice);
+    world.transfer(chestEntityId, true, transferObjectTypeId, 1);
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
+
+    vm.prank(alice);
+    vm.expectRevert("Not enough objects in the inventory");
+    world.transfer(chestEntityId, false, transferObjectTypeId, 2);
+
+    vm.prank(alice);
+    world.transfer(chestEntityId, false, transferObjectTypeId, 1);
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+
+    transferObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(chestEntityId, transferObjectTypeId);
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
+
+    vm.prank(alice);
+    vm.expectRevert("Entity does not own inventory item");
+    world.transferTool(chestEntityId, true, toolEntityId);
+
+    vm.prank(alice);
+    world.transferTool(chestEntityId, false, toolEntityId);
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+
+    vm.prank(alice);
+    vm.expectRevert("Entity does not own inventory item");
+    world.transferTool(chestEntityId, false, toolEntityId);
+  }
 
   function testTransferFailsIfNoEnergy() public {}
 
