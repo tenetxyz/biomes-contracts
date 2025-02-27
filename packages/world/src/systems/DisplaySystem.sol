@@ -39,7 +39,7 @@ contract DisplaySystem is System {
     EntityId forceFieldEntityId = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
-      EnergyData memory machineData = getMachineEnergyLevel(forceFieldEntityId);
+      (EnergyData memory machineData, ) = getMachineEnergyLevel(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
     }
     if (machineEnergyLevel > 0) {
