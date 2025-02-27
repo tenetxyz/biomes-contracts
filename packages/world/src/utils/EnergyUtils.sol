@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
+import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 
 import { VoxelCoord } from "../VoxelCoord.sol";
 import { EntityId } from "../EntityId.sol";
@@ -84,4 +85,29 @@ function transferEnergyFromPlayerToPool(
 ) {
   playerEntityId.decreaseEnergy(playerEnergyData, numToTransfer);
   playerCoord.addEnergyToLocalPool(numToTransfer);
+}
+
+function updateSleepingPlayerEnergy(
+  EntityId playerEntityId,
+  EntityId bedEntityId,
+  EnergyData memory machineData
+) returns (EnergyData memory) {
+  uint128 timeWithoutEnergy = machineData.accDepletedTime - BedPlayer._getLastAccDepletedTime(bedEntityId);
+  EnergyData memory energyData = Energy._get(playerEntityId);
+  if (timeWithoutEnergy > 0) {
+    uint128 totalEnergyDepleted = timeWithoutEnergy * PLAYER_ENERGY_DRAIN_RATE;
+    // No need to call updatePlayerEnergyLevel as drain rate is 0 if sleeping
+    EnergyData memory currentEnergyData = Energy._get(playerEntityId);
+    energyData.energy = totalEnergyDepleted < currentEnergyData.energy
+      ? currentEnergyData.energy - totalEnergyDepleted
+      : 0;
+  }
+
+  // Set last updated so next time updatePlayerEnergyLevel is called it will drain from here
+  energyData.lastUpdatedTime = uint128(block.timestamp);
+
+  Energy._set(playerEntityId, energyData);
+  BedPlayer._setLastAccDepletedTime(bedEntityId, machineData.accDepletedTime);
+
+  return energyData;
 }

@@ -31,9 +31,10 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
   checkWorldStatus();
   EntityId playerEntityId = Player._get(player);
   require(playerEntityId.exists(), "Player does not exist");
-  require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
   VoxelCoord memory playerCoord = PlayerPosition._get(playerEntityId).toVoxelCoord();
   EnergyData memory playerEnergyData = updatePlayerEnergyLevel(playerEntityId);
+  require(playerEnergyData.energy != 0, "Player is dead");
+  require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
   PlayerActivity._set(playerEntityId, uint128(block.timestamp));
   return (playerEntityId, playerCoord, playerEnergyData);
 }
@@ -107,18 +108,15 @@ function removePlayerFromGrid(EntityId playerEntityId, VoxelCoord memory playerC
   }
 }
 
-function killPlayer(EntityId playerEntityId) {
-  // If sleeping, we just remove them from the bed so they
-  EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
-  if (bedEntityId.exists()) {
-    PlayerStatus._setBedEntityId(playerEntityId, EntityId.wrap(0));
-    BedPlayer._deleteRecord(bedEntityId);
-  } else {
-    VoxelCoord memory coord = PlayerPosition._get(playerEntityId).toVoxelCoord();
-    removePlayerFromGrid(playerEntityId, coord);
+function killPlayerInBed(EntityId playerEntityId, EntityId bedEntityId, EntityId) {
+  // If sleeping, we just remove them from the bed
+  removePlayerFromBed(playerEntityId, bedEntityId);
 
-    (EntityId entityId, ObjectTypeId objectTypeId) = coord.getOrCreateEntity();
-    // TODO: we assume the object type has enough storage slots
-    transferAllInventoryEntities(playerEntityId, entityId, objectTypeId);
-  }
+  Energy._setEnergy(playerEntityId, 0);
+  Energy._setLastUpdatedTime(playerEntityId, uint128(block.timestamp));
+}
+
+function removePlayerFromBed(EntityId playerEntityId, EntityId bedEntityId) {
+  PlayerStatus._deleteRecord(playerEntityId);
+  BedPlayer._deleteRecord(bedEntityId);
 }

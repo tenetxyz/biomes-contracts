@@ -387,7 +387,7 @@ contract MineTest is BiomesTest {
 
     Energy.set(
       aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 0, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1, drainRate: 0, accDepletedTime: 0 })
     );
 
     vm.prank(alice);

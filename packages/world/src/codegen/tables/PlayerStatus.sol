@@ -19,22 +19,17 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { EntityId } from "../../EntityId.sol";
 
-struct PlayerStatusData {
-  EntityId bedEntityId;
-  bool isDead;
-}
-
 library PlayerStatus {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "PlayerStatus", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000506c6179657253746174757300000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0021020020010000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bytes32, bool)
-  Schema constant _valueSchema = Schema.wrap(0x002102005f600000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32)
+  Schema constant _valueSchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -50,9 +45,8 @@ library PlayerStatus {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](2);
+    fieldNames = new string[](1);
     fieldNames[0] = "bedEntityId";
-    fieldNames[1] = "isDead";
   }
 
   /**
@@ -92,6 +86,28 @@ library PlayerStatus {
   }
 
   /**
+   * @notice Get bedEntityId.
+   */
+  function get(EntityId entityId) internal view returns (EntityId bedEntityId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(entityId);
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return EntityId.wrap(bytes32(_blob));
+  }
+
+  /**
+   * @notice Get bedEntityId.
+   */
+  function _get(EntityId entityId) internal view returns (EntityId bedEntityId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(entityId);
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return EntityId.wrap(bytes32(_blob));
+  }
+
+  /**
    * @notice Set bedEntityId.
    */
   function setBedEntityId(EntityId entityId, EntityId bedEntityId) internal {
@@ -112,158 +128,23 @@ library PlayerStatus {
   }
 
   /**
-   * @notice Get isDead.
+   * @notice Set bedEntityId.
    */
-  function getIsDead(EntityId entityId) internal view returns (bool isDead) {
+  function set(EntityId entityId, EntityId bedEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(bedEntityId)), _fieldLayout);
   }
 
   /**
-   * @notice Get isDead.
+   * @notice Set bedEntityId.
    */
-  function _getIsDead(EntityId entityId) internal view returns (bool isDead) {
+  function _set(EntityId entityId, EntityId bedEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (_toBool(uint8(bytes1(_blob))));
-  }
-
-  /**
-   * @notice Set isDead.
-   */
-  function setIsDead(EntityId entityId, bool isDead) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((isDead)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set isDead.
-   */
-  function _setIsDead(EntityId entityId, bool isDead) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((isDead)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get the full data.
-   */
-  function get(EntityId entityId) internal view returns (PlayerStatusData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
-      _tableId,
-      _keyTuple,
-      _fieldLayout
-    );
-    return decode(_staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
-   * @notice Get the full data.
-   */
-  function _get(EntityId entityId) internal view returns (PlayerStatusData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
-      _tableId,
-      _keyTuple,
-      _fieldLayout
-    );
-    return decode(_staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
-   * @notice Set the full data using individual values.
-   */
-  function set(EntityId entityId, EntityId bedEntityId, bool isDead) internal {
-    bytes memory _staticData = encodeStatic(bedEntityId, isDead);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
-   * @notice Set the full data using individual values.
-   */
-  function _set(EntityId entityId, EntityId bedEntityId, bool isDead) internal {
-    bytes memory _staticData = encodeStatic(bedEntityId, isDead);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
-  }
-
-  /**
-   * @notice Set the full data using the data struct.
-   */
-  function set(EntityId entityId, PlayerStatusData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.bedEntityId, _table.isDead);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
-  }
-
-  /**
-   * @notice Set the full data using the data struct.
-   */
-  function _set(EntityId entityId, PlayerStatusData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.bedEntityId, _table.isDead);
-
-    EncodedLengths _encodedLengths;
-    bytes memory _dynamicData;
-
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
-  }
-
-  /**
-   * @notice Decode the tightly packed blob of static data using this table's field layout.
-   */
-  function decodeStatic(bytes memory _blob) internal pure returns (EntityId bedEntityId, bool isDead) {
-    bedEntityId = EntityId.wrap(Bytes.getBytes32(_blob, 0));
-
-    isDead = (_toBool(uint8(Bytes.getBytes1(_blob, 32))));
-  }
-
-  /**
-   * @notice Decode the tightly packed blobs using this table's field layout.
-   * @param _staticData Tightly packed static fields.
-   *
-   *
-   */
-  function decode(
-    bytes memory _staticData,
-    EncodedLengths,
-    bytes memory
-  ) internal pure returns (PlayerStatusData memory _table) {
-    (_table.bedEntityId, _table.isDead) = decodeStatic(_staticData);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(bedEntityId)), _fieldLayout);
   }
 
   /**
@@ -290,8 +171,8 @@ library PlayerStatus {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(EntityId bedEntityId, bool isDead) internal pure returns (bytes memory) {
-    return abi.encodePacked(bedEntityId, isDead);
+  function encodeStatic(EntityId bedEntityId) internal pure returns (bytes memory) {
+    return abi.encodePacked(bedEntityId);
   }
 
   /**
@@ -300,11 +181,8 @@ library PlayerStatus {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(
-    EntityId bedEntityId,
-    bool isDead
-  ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(bedEntityId, isDead);
+  function encode(EntityId bedEntityId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(bedEntityId);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -320,17 +198,5 @@ library PlayerStatus {
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     return _keyTuple;
-  }
-}
-
-/**
- * @notice Cast a value to a bool.
- * @dev Boolean values are encoded as uint8 (1 = true, 0 = false), but Solidity doesn't allow casting between uint8 and bool.
- * @param value The uint8 value to convert.
- * @return result The boolean value.
- */
-function _toBool(uint8 value) pure returns (bool result) {
-  assembly {
-    result := value
   }
 }

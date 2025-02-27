@@ -10,6 +10,7 @@ import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
 import { OreCommitment } from "../codegen/tables/OreCommitment.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Orientation } from "../codegen/tables/Orientation.sol";
@@ -21,20 +22,24 @@ import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ActionType, DisplayContentType } from "../codegen/common.sol";
 
-import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../ObjectTypeIds.sol";
+
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel, energyToMass, transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
+import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
+import { updateMachineEnergyLevel, energyToMass, transferEnergyFromPlayerToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+import { mulDiv } from "../utils/MathUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
+
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
+
 import { EntityId } from "../EntityId.sol";
-import { PLAYER_MINE_ENERGY_COST } from "../Constants.sol";
-import { ChunkCoord } from "../Types.sol";
-import { mulDiv } from "../utils/MathUtils.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
+import { PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
+import { ChunkCoord } from "../Types.sol";
 
 library MineLib {
   function mineRandomOre(VoxelCoord memory coord) public returns (ObjectTypeId) {
@@ -106,6 +111,18 @@ library MineLib {
     uint128 massLeft = Mass._getMass(minedEntityId);
     return massLeft <= totalMassReduction ? 0 : massLeft - totalMassReduction;
   }
+
+  function mineBed(EntityId bedEntityId, VoxelCoord memory baseCoord) public {
+    EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(bedEntityId);
+    if (sleepingPlayerId.exists()) {
+      EntityId forceFieldEntityId = getForceField(baseCoord);
+      EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+      updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, machineData);
+      // TODO: transfer remaining player's energy to local pool
+      Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - PLAYER_ENERGY_DRAIN_RATE);
+      removePlayerFromBed(sleepingPlayerId, bedEntityId);
+    }
+  }
 }
 
 contract MineSystem is System {
@@ -158,12 +175,9 @@ contract MineSystem is System {
           DisplayContent._deleteRecord(baseEntityId);
         }
 
-        // If detaching from a bed with a sleeping player, kill the player
+        // If mining a bed with a sleeping player, kill the player
         if (mineObjectTypeId == BedObjectID) {
-          EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(baseEntityId);
-          if (sleepingPlayerId.exists()) {
-            killPlayer(sleepingPlayerId);
-          }
+          MineLib.mineBed(baseEntityId, baseCoord);
         }
 
         addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);

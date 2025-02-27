@@ -412,7 +412,7 @@ contract MoveTest is BiomesTest {
       setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
 
-    Energy.setEnergy(aliceEntityId, 0);
+    Energy.setEnergy(aliceEntityId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");

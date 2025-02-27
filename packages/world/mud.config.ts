@@ -238,12 +238,11 @@ export default defineWorld({
       },
       key: ["bedEntityId"],
     },
-    // TODO: maybe merge this with other tables
     PlayerStatus: {
       schema: {
         entityId: "EntityId",
+        // TODO: maybe move this to another table?
         bedEntityId: "EntityId",
-        isDead: "bool",
       },
       key: ["entityId"],
     },

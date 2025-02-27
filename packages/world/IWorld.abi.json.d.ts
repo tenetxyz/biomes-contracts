@@ -176,52 +176,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "build",
-    "inputs": [
-      {
-        "name": "buildObjectTypeId",
-        "type": "uint16",
-        "internalType": "ObjectTypeId"
-      },
-      {
-        "name": "baseCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
-      },
-      {
-        "name": "direction",
-        "type": "uint8",
-        "internalType": "enum Direction"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      }
-    ],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
     "name": "buildWithExtraData",
     "inputs": [
       {
@@ -252,14 +206,60 @@ declare const abi: [
         ]
       },
       {
-        "name": "direction",
+        "name": "facingDirection",
         "type": "uint8",
-        "internalType": "enum Direction"
+        "internalType": "enum FacingDirection"
       },
       {
         "name": "extraData",
         "type": "bytes",
         "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "buildWithFacingDirection",
+    "inputs": [
+      {
+        "name": "buildObjectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "baseCoord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      },
+      {
+        "name": "facingDirection",
+        "type": "uint8",
+        "internalType": "enum FacingDirection"
       }
     ],
     "outputs": [
@@ -2240,24 +2240,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "jumpBuild",
-    "inputs": [
-      {
-        "name": "buildObjectTypeId",
-        "type": "uint16",
-        "internalType": "ObjectTypeId"
-      },
-      {
-        "name": "direction",
-        "type": "uint8",
-        "internalType": "enum Direction"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
     "name": "jumpBuildWithExtraData",
     "inputs": [
       {
@@ -2266,14 +2248,32 @@ declare const abi: [
         "internalType": "ObjectTypeId"
       },
       {
-        "name": "direction",
+        "name": "facingDirection",
         "type": "uint8",
-        "internalType": "enum Direction"
+        "internalType": "enum FacingDirection"
       },
       {
         "name": "extraData",
         "type": "bytes",
         "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "jumpBuildWithFacingDirection",
+    "inputs": [
+      {
+        "name": "buildObjectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "facingDirection",
+        "type": "uint8",
+        "internalType": "enum FacingDirection"
       }
     ],
     "outputs": [],
@@ -2757,34 +2757,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "registerOptionalSystemHook",
-    "inputs": [
-      {
-        "name": "systemId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
-      },
-      {
-        "name": "hookAddress",
-        "type": "address",
-        "internalType": "contract IOptionalSystemHook"
-      },
-      {
-        "name": "enabledHooksBitmap",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "callDataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "registerRootFunctionSelector",
     "inputs": [
       {
@@ -2914,6 +2886,19 @@ declare const abi: [
         "name": "fieldNames",
         "type": "string[]",
         "internalType": "string[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "removeDeadPlayerFromBed",
+    "inputs": [
+      {
+        "name": "playerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -3151,6 +3136,19 @@ declare const abi: [
   {
     "type": "function",
     "name": "sleep",
+    "inputs": [
+      {
+        "name": "bedEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "sleepWithExtraData",
     "inputs": [
       {
         "name": "bedEntityId",
@@ -3553,29 +3551,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "unregisterOptionalSystemHook",
-    "inputs": [
-      {
-        "name": "systemId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
-      },
-      {
-        "name": "hookAddress",
-        "type": "address",
-        "internalType": "contract IOptionalSystemHook"
-      },
-      {
-        "name": "callDataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "unregisterStoreHook",
     "inputs": [
       {
@@ -3613,6 +3588,36 @@ declare const abi: [
   {
     "type": "function",
     "name": "wakeup",
+    "inputs": [
+      {
+        "name": "spawnCoord",
+        "type": "tuple",
+        "internalType": "struct VoxelCoord",
+        "components": [
+          {
+            "name": "x",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "internalType": "int32"
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "internalType": "int32"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "wakeupWithExtraData",
     "inputs": [
       {
         "name": "spawnCoord",
@@ -4216,11 +4221,6 @@ declare const abi: [
   },
   {
     "type": "error",
-    "name": "World_CustomUnregisterDelegationNotAllowed",
-    "inputs": []
-  },
-  {
-    "type": "error",
     "name": "World_DelegationNotFound",
     "inputs": [
       {
@@ -4334,27 +4334,6 @@ declare const abi: [
         "name": "resourceIdString",
         "type": "string",
         "internalType": "string"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "World_OptionalHookAlreadyRegistered",
-    "inputs": [
-      {
-        "name": "systemId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
-      },
-      {
-        "name": "hookAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "callDataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
       }
     ]
   },

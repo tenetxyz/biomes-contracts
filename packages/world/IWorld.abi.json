@@ -2893,6 +2893,19 @@
   },
   {
     "type": "function",
+    "name": "removeDeadPlayerFromBed",
+    "inputs": [
+      {
+        "name": "playerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "renounceOwnership",
     "inputs": [
       {

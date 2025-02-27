@@ -20,7 +20,7 @@ import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/Play
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 
-import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePlayerFromGrid } from "../utils/PlayerUtils.sol";
+import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePlayerFromGrid, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
@@ -29,7 +29,7 @@ import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
-import { updateMachineEnergyLevel, massToEnergy, updatePlayerEnergyLevel } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergyLevel, massToEnergy, updatePlayerEnergyLevel, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { IBedChip } from "../prototypes/IBedChip.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 
@@ -39,21 +39,6 @@ import { EntityId } from "../EntityId.sol";
 
 // To avoid reaching bytecode size limit
 library BedLib {
-  function handleEnergyDepletion(EntityId playerEntityId, EntityId bedEntityId, EnergyData memory machineData) public {
-    uint128 timeWithoutEnergy = machineData.accDepletedTime - BedPlayer._getLastAccDepletedTime(bedEntityId);
-    if (timeWithoutEnergy > 0) {
-      uint128 totalEnergyDepleted = timeWithoutEnergy * PLAYER_ENERGY_DRAIN_RATE;
-      // No need to call updatePlayerEnergyLevel as drain rate is 0 if sleeping
-      // TODO: should we revert or should we kill the player?
-      uint128 currentEnergy = Energy._getEnergy(playerEntityId);
-      require(totalEnergyDepleted < currentEnergy, "Player energy was depleted while sleeping");
-      Energy._setEnergy(playerEntityId, currentEnergy - totalEnergyDepleted);
-    }
-
-    // Set last updated so next time updatePlayerEnergyLevel is called it will drain from here
-    Energy._setLastUpdatedTime(playerEntityId, uint128(block.timestamp));
-  }
-
   function transferInventory(EntityId playerEntityId, EntityId bedEntityId, ObjectTypeId objectTypeId) public {
     transferAllInventoryEntities(playerEntityId, bedEntityId, objectTypeId);
   }
@@ -61,6 +46,25 @@ library BedLib {
 
 contract BedSystem is System {
   using VoxelCoordLib for *;
+
+  // TODO: should this accept the coordinate of an air block to transfer inventory to?
+  function removeDeadPlayerFromBed(EntityId playerEntityId) public {
+    EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
+    require(bedEntityId.exists(), "Player is not in a bed");
+
+    EntityId forceFieldEntityId = getForceField(Position._get(bedEntityId).toVoxelCoord());
+    EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+
+    // Deplete player energy if necessary
+    EnergyData memory playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, machineData);
+    require(playerData.energy == 0, "Player is not dead");
+
+    // Decrease forcefield's drain rate
+    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - PLAYER_ENERGY_DRAIN_RATE);
+
+    removePlayerFromBed(playerEntityId, bedEntityId);
+    // TODO: Should we safecall the chip?
+  }
 
   function sleepWithExtraData(EntityId bedEntityId, bytes memory extraData) public {
     checkWorldStatus();
@@ -114,13 +118,13 @@ contract BedSystem is System {
     EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
 
     // Deplete's player energy if necessary
-    BedLib.handleEnergyDepletion(playerEntityId, bedEntityId, machineData);
+    EnergyData memory playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, machineData);
+    require(playerData.energy > 0, "Player died while sleeping");
 
     // Decrease forcefield's drain rate
     Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - PLAYER_ENERGY_DRAIN_RATE);
 
-    PlayerStatus._setBedEntityId(playerEntityId, EntityId.wrap(0));
-    BedPlayer._deleteRecord(bedEntityId);
+    removePlayerFromBed(playerEntityId, bedEntityId);
 
     addPlayerToGrid(playerEntityId, spawnCoord);
 

@@ -121,7 +121,7 @@ library TestUtils {
     return _transferInventoryEntity(srcEntityId, dstEntityId, dstObjectTypeId, inventoryEntityId);
   }
 
-  function updateMachineEnergyLevel(EntityId entityId) internal asWorld returns (EnergyData memory) {
+  function updateMachineEnergyLevel(EntityId entityId) public asWorld returns (EnergyData memory) {
     return _updateMachineEnergyLevel(entityId);
   }
 
