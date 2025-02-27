@@ -290,12 +290,16 @@ library ObjectTypeIdLib {
     return self.isBlock() && self != AirObjectID && self != WaterObjectID;
   }
 
+  function getCategory(ObjectTypeId self) internal pure returns (uint16) {
+    return (ObjectTypeId.unwrap(self) >> OFFSET_BITS) << OFFSET_BITS;
+  }
+
   function isTool(ObjectTypeId id) internal pure returns (bool) {
-    return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Tool;
+    return id.getCategory() == Tool;
   }
 
   function isItem(ObjectTypeId id) internal pure returns (bool) {
-    return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Item;
+    return id.getCategory() == Item;
   }
 
   function isOre(ObjectTypeId objectTypeId) internal pure returns (bool) {
