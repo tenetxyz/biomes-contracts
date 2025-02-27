@@ -27,6 +27,7 @@ import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
@@ -34,7 +35,7 @@ import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
+import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID, WoodenPickObjectID, WoodenAxeObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
@@ -43,7 +44,86 @@ import { TestUtils } from "./utils/TestUtils.sol";
 contract TransferTest is BiomesTest {
   using VoxelCoordLib for *;
 
-  function testTransferToChest() public {}
+  function testTransferToChest() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, SmartChestObjectID);
+    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    uint16 numPlayerObject = 10;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, numPlayerObject);
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), numPlayerObject, "Inventory count is not 1");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+
+    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+
+    vm.prank(alice);
+    startGasReport("transfer to chest");
+    world.transfer(chestEntityId, true, transferObjectTypeId, numPlayerObject);
+    endGasReport();
+
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), numPlayerObject, "Inventory count is not 0");
+    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
+    assertEq(InventorySlots.get(chestEntityId), 1, "Inventory slots is not 0");
+    assertFalse(
+      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
+      "Inventory objects still has build object type"
+    );
+    assertTrue(
+      TestUtils.inventoryObjectsHasObjectType(chestEntityId, transferObjectTypeId),
+      "Inventory objects still has build object type"
+    );
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+  }
+
+  function testTransferToolToChest() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, SmartChestObjectID);
+
+    ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+
+    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+
+    vm.prank(alice);
+    startGasReport("transfer tool to chest");
+    world.transferTool(chestEntityId, true, toolEntityId);
+    endGasReport();
+
+    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
+    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
+    assertEq(InventorySlots.get(chestEntityId), 1, "Inventory slots is not 0");
+    assertFalse(
+      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
+      "Inventory objects still has build object type"
+    );
+    assertTrue(
+      TestUtils.inventoryObjectsHasObjectType(chestEntityId, transferObjectTypeId),
+      "Inventory objects still has build object type"
+    );
+    assertTrue(InventoryEntity.get(toolEntityId) == chestEntityId, "Inventory entity is not chest");
+    assertFalse(
+      TestUtils.reverseInventoryEntityHasEntity(aliceEntityId, toolEntityId),
+      "Inventory entity is not chest"
+    );
+    assertTrue(TestUtils.reverseInventoryEntityHasEntity(chestEntityId, toolEntityId), "Inventory entity is not chest");
+
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+  }
 
   function testTransferFromChest() public {}
 

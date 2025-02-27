@@ -23,6 +23,9 @@ import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerActivity } from "../src/codegen/tables/PlayerActivity.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
+import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
+import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
+import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ChunkCoord } from "../src/Types.sol";
@@ -205,6 +208,18 @@ abstract contract BiomesTest is MudTest, GasReporter {
       BaseEntity.set(relativeEntityId, entityId);
     }
     return entityId;
+  }
+
+  function addToolToInventory(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId) internal returns (EntityId) {
+    require(toolObjectTypeId.isTool(), "Object type is not a tool");
+    EntityId toolEntityId = randomEntityId();
+    ObjectType.set(toolEntityId, toolObjectTypeId);
+    InventoryEntity.set(toolEntityId, ownerEntityId);
+    ReverseInventoryEntity.push(ownerEntityId, EntityId.unwrap(toolEntityId));
+    Mass.set(toolEntityId, ObjectTypeMetadata.getMass(toolObjectTypeId));
+
+    TestUtils.addToInventoryCount(ownerEntityId, ObjectType.get(ownerEntityId), toolObjectTypeId, 1);
+    return toolEntityId;
   }
 
   function setupAirChunkWithPlayer() internal returns (address, EntityId, VoxelCoord memory) {
