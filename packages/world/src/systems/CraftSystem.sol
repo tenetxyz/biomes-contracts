@@ -19,7 +19,7 @@ import { getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, removeAnyFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, CraftNotifData } from "../utils/NotifUtils.sol";
-import { energyToMass, transferEnergyFromPlayerToPool } from "../utils/EnergyUtils.sol";
+import { energyToMass, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { hashInputs } from "../utils/RecipeUtils.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_CRAFT_ENERGY_COST } from "../Constants.sol";
@@ -28,9 +28,7 @@ contract CraftSystem is System {
   function craft(EntityId stationEntityId, ObjectTypeId[] memory inputTypes, uint16[] memory inputAmounts) public {
     require(inputTypes.length > 0, "Recipe not found");
 
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
-      _msgSender()
-    );
+    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
 
     requireInPlayerInfluence(playerCoord, stationEntityId);
 
@@ -79,7 +77,7 @@ contract CraftSystem is System {
 
     // TODO: handle dyes
 
-    transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_CRAFT_ENERGY_COST);
+    transferEnergyToPool(playerEntityId, playerCoord, PLAYER_CRAFT_ENERGY_COST);
 
     notify(playerEntityId, CraftNotifData({ recipeId: recipeId, stationEntityId: stationEntityId }));
   }

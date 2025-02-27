@@ -26,7 +26,6 @@ int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
 uint256 constant MAX_PLAYER_JUMPS = 3;
 uint256 constant MAX_PLAYER_GLIDES = 10;
 
-int32 constant SPAWN_AREA_HALF_WIDTH = 5;
 uint256 constant SPAWN_BLOCK_RANGE = 10;
 
 int32 constant CHUNK_SIZE = 16;

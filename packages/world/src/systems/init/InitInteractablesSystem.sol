@@ -8,8 +8,8 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables
 import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
 import { ObjectTypeId } from "../../ObjectTypeIds.sol";
-import { ChestObjectID, SmartChestObjectID, ThermoblasterObjectID, PowerStoneObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID, TextSignObjectID, SmartTextSignObjectID, PipeObjectID, SpawnTileObjectID } from "../../ObjectTypeIds.sol";
-import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID, MoonstoneObjectID, SilverBarObjectID, NeptuniumOreObjectID } from "../../ObjectTypeIds.sol";
+import { ChestObjectID, SmartChestObjectID, ThermoblasterObjectID, PowerStoneObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID, TextSignObjectID, SmartTextSignObjectID, PipeObjectID, SpawnTileObjectID, BedObjectID } from "../../ObjectTypeIds.sol";
+import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID, MoonstoneObjectID, SilverBarObjectID, NeptuniumOreObjectID, AnyCottonBlockObjectID } from "../../ObjectTypeIds.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
@@ -44,6 +44,7 @@ contract InitInteractablesSystem is System {
     createInteractableBlock(ForceFieldObjectID, 80, 0, 99);
     createInteractableBlock(PipeObjectID, 80, 0, 99);
     createInteractableBlock(SpawnTileObjectID, 80, 0, 99);
+    createInteractableBlock(BedObjectID, 80, 36, 1);
   }
 
   function initInteractablesRecipes() public {
@@ -88,6 +89,16 @@ contract InitInteractablesSystem is System {
       NeptuniumOreObjectID,
       4,
       SpawnTileObjectID,
+      1
+    );
+
+    createDoubleInputWithStationRecipe(
+      WorkbenchObjectID,
+      AnyLumberObjectID,
+      8,
+      AnyCottonBlockObjectID,
+      8,
+      BedObjectID,
       1
     );
   }

@@ -5,22 +5,26 @@ import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
+import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { Position, PositionData } from "../codegen/tables/Position.sol";
 import { PlayerPosition, PlayerPositionData } from "../codegen/tables/PlayerPosition.sol";
 import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
-import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 
-import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../Constants.sol";
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
+import { getForceField } from "./ForceFieldUtils.sol";
+import { transferAllInventoryEntities } from "./InventoryUtils.sol";
+
 import { EntityId } from "../EntityId.sol";
+import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 using VoxelCoordLib for PositionData;
 using VoxelCoordLib for PlayerPositionData;
@@ -29,9 +33,10 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
   checkWorldStatus();
   EntityId playerEntityId = Player._get(player);
   require(playerEntityId.exists(), "Player does not exist");
-  require(!PlayerStatus._getIsLoggedOff(playerEntityId), "Player isn't logged in");
   VoxelCoord memory playerCoord = PlayerPosition._get(playerEntityId).toVoxelCoord();
   EnergyData memory playerEnergyData = updatePlayerEnergyLevel(playerEntityId);
+  require(playerEnergyData.energy > 0, "Player is dead");
+  require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
   PlayerActivity._set(playerEntityId, uint128(block.timestamp));
   return (playerEntityId, playerCoord, playerEnergyData);
 }
@@ -57,17 +62,27 @@ function requireInPlayerInfluence(VoxelCoord memory playerCoord, EntityId entity
 }
 
 function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
-  (, ObjectTypeId terrainObjectTypeId) = playerCoord.getEntity();
+  // Set the player object type first
+  ObjectType._set(playerEntityId, PlayerObjectID);
+
+  // Position the player at the given coordinates
+  addPlayerToGrid(playerEntityId, playerCoord);
+}
+
+function addPlayerToGrid(EntityId playerEntityId, VoxelCoord memory playerCoord) {
+  // Check if the spawn location is valid
+  ObjectTypeId terrainObjectTypeId = playerCoord.getObjectTypeId();
   require(terrainObjectTypeId == AirObjectID && !playerCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
 
-  ObjectType._set(playerEntityId, PlayerObjectID);
+  // Set the player at the base coordinate
   playerCoord.setPlayer(playerEntityId);
 
+  // Handle the player's body parts
   VoxelCoord[] memory coords = playerCoord.getRelativeCoords(PlayerObjectID);
   // Only iterate through relative schema coords
   for (uint256 i = 1; i < coords.length; i++) {
     VoxelCoord memory relativeCoord = coords[i];
-    (, ObjectTypeId relativeTerrainObjectTypeId) = relativeCoord.getEntity();
+    ObjectTypeId relativeTerrainObjectTypeId = relativeCoord.getObjectTypeId();
     require(
       relativeTerrainObjectTypeId == AirObjectID && !relativeCoord.getPlayer().exists(),
       "Cannot spawn on a non-air block"
@@ -79,8 +94,7 @@ function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   }
 }
 
-function deletePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
-  ObjectType._deleteRecord(playerEntityId);
+function removePlayerFromGrid(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   PlayerPosition._deleteRecord(playerEntityId);
   ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
 
@@ -94,4 +108,12 @@ function deletePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
     ObjectType._deleteRecord(relativePlayerEntityId);
     BaseEntity._deleteRecord(relativePlayerEntityId);
   }
+}
+
+function removePlayerFromBed(EntityId playerEntityId, EntityId bedEntityId, EntityId forceFieldEntityId) {
+  PlayerStatus._deleteRecord(playerEntityId);
+  BedPlayer._deleteRecord(bedEntityId);
+
+  // Decrease forcefield's drain rate
+  Energy._setDrainRate(forceFieldEntityId, Energy._getDrainRate(forceFieldEntityId) - PLAYER_ENERGY_DRAIN_RATE);
 }

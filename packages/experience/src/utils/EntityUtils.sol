@@ -52,8 +52,8 @@ function getEquipped(EntityId playerEntityId) view returns (EntityId) {
   return Equipped.get(playerEntityId);
 }
 
-function getIsLoggedOff(EntityId playerEntityId) view returns (bool) {
-  return PlayerStatus.getIsLoggedOff(playerEntityId);
+function getIsSleeping(EntityId playerEntityId) view returns (bool) {
+  return PlayerStatus.getBedEntityId(playerEntityId).exists();
 }
 
 function getInventoryEntityIds(EntityId playerEntityId) view returns (bytes32[] memory) {

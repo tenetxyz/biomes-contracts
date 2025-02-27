@@ -36,16 +36,19 @@ library TransferLib {
 
     uint128 energyCost = PLAYER_TRANSFER_ENERGY_COST;
 
+    // TODO: what if it is not a smart chest?
     EntityId forceFieldEntityId = getForceField(chestCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
       energyCost += SMART_CHEST_ENERGY_COST;
       EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
-      forceFieldEntityId.decreaseEnergy(machineData, SMART_CHEST_ENERGY_COST);
+      require(machineData.energy >= SMART_CHEST_ENERGY_COST, "Not enough energy");
+      forceFieldEntityId.setEnergy(machineData.energy - SMART_CHEST_ENERGY_COST);
     }
 
-    playerEntityId.decreaseEnergy(playerEnergyData, PLAYER_TRANSFER_ENERGY_COST);
+    require(playerEnergyData.energy > PLAYER_TRANSFER_ENERGY_COST, "Not enough energy");
+    playerEntityId.setEnergy(playerEnergyData.energy - PLAYER_TRANSFER_ENERGY_COST);
     chestCoord.addEnergyToLocalPool(energyCost);
 
     return

@@ -15,8 +15,8 @@ enum ActionType {
   Equip,
   Unequip,
   Spawn,
-  Login,
-  Logoff,
+  Sleep,
+  Wakeup,
   PowerMachine,
   HitMachine,
   AttachChip,
@@ -29,4 +29,13 @@ enum DisplayContentType {
   None,
   Text,
   Image
+}
+
+enum FacingDirection {
+  PositiveX,
+  NegativeX,
+  PositiveY,
+  NegativeY,
+  PositiveZ,
+  NegativeZ
 }

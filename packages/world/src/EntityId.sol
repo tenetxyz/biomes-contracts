@@ -10,24 +10,35 @@ import { Energy, EnergyData } from "./codegen/tables/Energy.sol";
 
 type EntityId is bytes32;
 
-function isBaseEntity(EntityId self) view returns (bool) {
-  return EntityId.unwrap(BaseEntity._get(self)) == bytes32(0);
-}
+library EntityIdLib {
+  function isBaseEntity(EntityId self) internal view returns (bool) {
+    return EntityId.unwrap(BaseEntity._get(self)) == bytes32(0);
+  }
 
-function baseEntityId(EntityId self) view returns (EntityId) {
-  EntityId base = BaseEntity._get(self);
-  return EntityId.unwrap(base) == bytes32(0) ? self : base;
-}
+  function baseEntityId(EntityId self) internal view returns (EntityId) {
+    EntityId base = BaseEntity._get(self);
+    return EntityId.unwrap(base) == bytes32(0) ? self : base;
+  }
 
-// TODO: Not sure if it should be included here or if it should be a standalone util
-function getChipAddress(EntityId entityId) view returns (address) {
-  ResourceId chipSystemId = Chip._getChipSystemId(entityId);
-  (address chipAddress, ) = Systems._get(chipSystemId);
-  return chipAddress;
-}
+  // TODO: Not sure if it should be included here or if it should be a standalone util
+  function getChipAddress(EntityId entityId) internal view returns (address) {
+    ResourceId chipSystemId = Chip._getChipSystemId(entityId);
+    (address chipAddress, ) = Systems._get(chipSystemId);
+    return chipAddress;
+  }
 
-function exists(EntityId self) pure returns (bool) {
-  return EntityId.unwrap(self) != bytes32(0);
+  function exists(EntityId self) internal pure returns (bool) {
+    return EntityId.unwrap(self) != bytes32(0);
+  }
+
+  function unwrap(EntityId self) internal pure returns (bytes32) {
+    return EntityId.unwrap(self);
+  }
+
+  function setEnergy(EntityId self, uint128 energy) internal {
+    Energy._setLastUpdatedTime(self, uint128(block.timestamp));
+    Energy._setEnergy(self, energy);
+  }
 }
 
 function eq(EntityId self, EntityId other) pure returns (bool) {
@@ -38,10 +49,5 @@ function neq(EntityId self, EntityId other) pure returns (bool) {
   return EntityId.unwrap(self) != EntityId.unwrap(other);
 }
 
-function decreaseEnergy(EntityId self, EnergyData memory currentEnergyData, uint128 amount) {
-  uint128 currentEnergy = currentEnergyData.energy;
-  require(currentEnergy >= amount, "Not enough energy");
-  Energy._set(self, EnergyData({ energy: currentEnergy - amount, lastUpdatedTime: uint128(block.timestamp) }));
-}
-
-using { isBaseEntity, baseEntityId, getChipAddress, exists, eq as ==, neq as !=, decreaseEnergy } for EntityId global;
+using EntityIdLib for EntityId global;
+using { eq as ==, neq as != } for EntityId global;

@@ -17,8 +17,8 @@ export default defineWorld({
       "Equip",
       "Unequip",
       "Spawn",
-      "Login",
-      "Logoff",
+      "Sleep",
+      "Wakeup",
       "PowerMachine",
       "HitMachine",
       "AttachChip",
@@ -27,6 +27,7 @@ export default defineWorld({
       "RevealOre",
     ],
     DisplayContentType: ["None", "Text", "Image"],
+    FacingDirection: ["PositiveX", "NegativeX", "PositiveY", "NegativeY", "PositiveZ", "NegativeZ"],
   },
   userTypes: {
     ObjectTypeId: { filePath: "./src/ObjectTypeIds.sol", type: "uint16" },
@@ -111,6 +112,13 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
+    Orientation: {
+      schema: {
+        entityId: "EntityId",
+        facingDirection: "FacingDirection",
+      },
+      key: ["entityId"],
+    },
     Mass: {
       schema: {
         entityId: "EntityId",
@@ -123,6 +131,8 @@ export default defineWorld({
         entityId: "EntityId",
         lastUpdatedTime: "uint128",
         energy: "uint128",
+        drainRate: "uint128",
+        accDepletedTime: "uint128",
       },
       key: ["entityId"],
     },
@@ -222,26 +232,26 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    PlayerActivity: {
+    BedPlayer: {
       schema: {
-        entityId: "EntityId",
-        lastActionTime: "uint128",
+        bedEntityId: "EntityId",
+        playerEntityId: "EntityId",
+        lastAccDepletedTime: "uint128",
       },
-      key: ["entityId"],
+      key: ["bedEntityId"],
     },
     PlayerStatus: {
       schema: {
         entityId: "EntityId",
-        isLoggedOff: "bool",
+        // TODO: maybe move this to another table?
+        bedEntityId: "EntityId",
       },
       key: ["entityId"],
     },
-    LastKnownPosition: {
+    PlayerActivity: {
       schema: {
         entityId: "EntityId",
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        lastActionTime: "uint128",
       },
       key: ["entityId"],
     },

@@ -27,7 +27,7 @@ struct PlayerEntityData {
   address playerAddress;
   EntityId entityId;
   VoxelCoord position;
-  bool isLoggedOff;
+  EntityId bedEntityId;
   EntityId equippedEntityId;
   InventoryObject[] inventory;
   uint256 mass;

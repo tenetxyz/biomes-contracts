@@ -14,7 +14,7 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { ObjectTypeId, PlayerObjectID, ChipObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, PlayerObjectID, ChipObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
@@ -26,11 +26,19 @@ import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
+import { IBedChip } from "../prototypes/IBedChip.sol";
 import { EntityId } from "../EntityId.sol";
 import { safeCallChip, callChipOrRevert } from "../utils/callChip.sol";
 
 contract ChipSystem is System {
   using WorldResourceIdInstance for ResourceId;
+
+  function _requireInterface(address chipAddress, bytes4 interfaceId) internal view {
+    require(
+      ERC165Checker.supportsInterface(chipAddress, interfaceId),
+      "Chip does not implement the required interface"
+    );
+  }
 
   function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) public payable {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
@@ -44,25 +52,15 @@ contract ChipSystem is System {
     require(!publicAccess, "Chip system must be private");
 
     if (objectTypeId == ForceFieldObjectID) {
-      require(
-        ERC165Checker.supportsInterface(chipAddress, type(IForceFieldChip).interfaceId),
-        "Chip does not implement the required interface"
-      );
+      _requireInterface(chipAddress, type(IForceFieldChip).interfaceId);
     } else if (objectTypeId == SmartChestObjectID) {
-      require(
-        ERC165Checker.supportsInterface(chipAddress, type(IChestChip).interfaceId),
-        "Chip does not implement the required interface"
-      );
+      _requireInterface(chipAddress, type(IChestChip).interfaceId);
     } else if (objectTypeId == SmartTextSignObjectID) {
-      require(
-        ERC165Checker.supportsInterface(chipAddress, type(IDisplayChip).interfaceId),
-        "Chip does not implement the required interface"
-      );
+      _requireInterface(chipAddress, type(IDisplayChip).interfaceId);
     } else if (objectTypeId == SpawnTileObjectID) {
-      require(
-        ERC165Checker.supportsInterface(chipAddress, type(ISpawnTileChip).interfaceId),
-        "Chip does not implement the required interface"
-      );
+      _requireInterface(chipAddress, type(ISpawnTileChip).interfaceId);
+    } else if (objectTypeId == BedObjectID) {
+      _requireInterface(chipAddress, type(IBedChip).interfaceId);
     } else {
       revert("Cannot attach a chip to this object");
     }
@@ -94,6 +92,7 @@ contract ChipSystem is System {
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
     address chipAddress = baseEntityId.getChipAddress();
+    require(chipAddress != address(0), "No chip attached");
 
     Chip._deleteRecord(baseEntityId);
 
