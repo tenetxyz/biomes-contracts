@@ -34,7 +34,7 @@ library MoveLib {
       require(inWorldBorder(newCoord), "Cannot move outside the world border");
       require(oldCoord.inSurroundingCube(1, newCoord), "New coord is too far from old coord");
 
-      (EntityId newEntityId, ObjectTypeId newObjectTypeId) = newCoord.getEntity();
+      ObjectTypeId newObjectTypeId = newCoord.getObjectTypeId();
       require(ObjectTypeMetadata._getCanPassThrough(newObjectTypeId), "Cannot move through a non-passable block");
 
       EntityId playerEntityIdAtCoord = newCoord.getPlayer();
@@ -148,7 +148,7 @@ library MoveLib {
       return false;
     }
 
-    (, ObjectTypeId belowObjectTypeId) = belowCoord.getEntity();
+    ObjectTypeId belowObjectTypeId = belowCoord.getObjectTypeId();
     if (!ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
       return false;
     }

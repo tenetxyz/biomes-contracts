@@ -20,7 +20,7 @@ import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/Play
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 
-import { requireValidPlayer, requireInPlayerInfluence, createPlayer, deletePlayer } from "../utils/PlayerUtils.sol";
+import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePlayerFromGrid } from "../utils/PlayerUtils.sol";
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
@@ -62,7 +62,7 @@ library BedLib {
 contract BedSystem is System {
   using VoxelCoordLib for *;
 
-  function sleepWithExtraData(EntityId bedEntityId, bytes memory extraData) external {
+  function sleepWithExtraData(EntityId bedEntityId, bytes memory extraData) public {
     checkWorldStatus();
 
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
@@ -87,8 +87,7 @@ contract BedSystem is System {
 
     BedLib.transferInventory(playerEntityId, bedEntityId, BedObjectID);
 
-    // TODO: shouldn't delete everything
-    deletePlayer(playerEntityId, playerCoord);
+    removePlayerFromGrid(playerEntityId, playerCoord);
 
     address chipAddress = bedEntityId.getChipAddress();
     require(chipAddress != address(0), "Bed has no chip");
@@ -120,12 +119,10 @@ contract BedSystem is System {
     // Decrease forcefield's drain rate
     Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - PLAYER_ENERGY_DRAIN_RATE);
 
-    // TODO: do this on mine system if mining a bed with a sleeping player
-    PlayerStatus._deleteRecord(playerEntityId);
+    PlayerStatus._setBedEntityId(playerEntityId, EntityId.wrap(0));
     BedPlayer._deleteRecord(bedEntityId);
 
-    // TODO: do not use this function
-    createPlayer(playerEntityId, spawnCoord);
+    addPlayerToGrid(playerEntityId, spawnCoord);
 
     BedLib.transferInventory(bedEntityId, playerEntityId, PlayerObjectID);
 

@@ -16,7 +16,7 @@ function getObjectTypeSchema(ObjectTypeId objectTypeId) pure returns (VoxelCoord
 
   if (objectTypeId == BedObjectID) {
     VoxelCoord[] memory bedRelativePositions = new VoxelCoord[](1);
-    bedRelativePositions[0] = VoxelCoord(1, 0, 0);
+    bedRelativePositions[0] = VoxelCoord(0, 0, 1);
     return bedRelativePositions;
   }
 

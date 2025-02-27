@@ -33,7 +33,7 @@ import { safeCallChip, callChipOrRevert } from "../utils/callChip.sol";
 contract ChipSystem is System {
   using WorldResourceIdInstance for ResourceId;
 
-  function _requireInterface(address chipAddress, bytes4 interfaceId) internal {
+  function _requireInterface(address chipAddress, bytes4 interfaceId) internal view {
     require(
       ERC165Checker.supportsInterface(chipAddress, interfaceId),
       "Chip does not implement the required interface"
@@ -92,6 +92,7 @@ contract ChipSystem is System {
     addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
     address chipAddress = baseEntityId.getChipAddress();
+    require(chipAddress != address(0), "No chip attached");
 
     Chip._deleteRecord(baseEntityId);
 

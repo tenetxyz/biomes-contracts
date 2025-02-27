@@ -5,7 +5,7 @@ pragma solidity >=0.8.24;
 
 import { ObjectTypeId } from "../../ObjectTypeIds.sol";
 import { VoxelCoord } from "../../VoxelCoord.sol";
-import { Direction } from "../common.sol";
+import { FacingDirection } from "../common.sol";
 import { EntityId } from "../../EntityId.sol";
 
 /**
@@ -17,24 +17,27 @@ interface IBuildSystem {
   function buildWithExtraData(
     ObjectTypeId buildObjectTypeId,
     VoxelCoord memory baseCoord,
-    Direction direction,
+    FacingDirection facingDirection,
     bytes memory extraData
   ) external payable returns (EntityId);
 
   function jumpBuildWithExtraData(
     ObjectTypeId buildObjectTypeId,
-    Direction direction,
+    FacingDirection facingDirection,
     bytes memory extraData
   ) external payable;
 
-  function jumpBuild(ObjectTypeId buildObjectTypeId, Direction direction) external payable;
+  function jumpBuildWithFacingDirection(
+    ObjectTypeId buildObjectTypeId,
+    FacingDirection facingDirection
+  ) external payable;
 
   function jumpBuild(ObjectTypeId buildObjectTypeId) external payable;
 
-  function build(
+  function buildWithFacingDirection(
     ObjectTypeId buildObjectTypeId,
     VoxelCoord memory baseCoord,
-    Direction direction
+    FacingDirection facingDirection
   ) external payable returns (EntityId);
 
   function build(ObjectTypeId buildObjectTypeId, VoxelCoord memory baseCoord) external payable returns (EntityId);

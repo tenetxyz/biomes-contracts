@@ -18,7 +18,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
 import { EntityId } from "../../EntityId.sol";
-import { Rotation } from "../common.sol";
+import { FacingDirection } from "../common.sol";
 
 library Orientation {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Orientation", typeId: RESOURCE_TABLE });`
@@ -47,7 +47,7 @@ library Orientation {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "rotation";
+    fieldNames[0] = "facingDirection";
   }
 
   /**
@@ -65,87 +65,87 @@ library Orientation {
   }
 
   /**
-   * @notice Get rotation.
+   * @notice Get facingDirection.
    */
-  function getRotation(EntityId entityId) internal view returns (Rotation rotation) {
+  function getFacingDirection(EntityId entityId) internal view returns (FacingDirection facingDirection) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return Rotation(uint8(bytes1(_blob)));
+    return FacingDirection(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get rotation.
+   * @notice Get facingDirection.
    */
-  function _getRotation(EntityId entityId) internal view returns (Rotation rotation) {
+  function _getFacingDirection(EntityId entityId) internal view returns (FacingDirection facingDirection) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return Rotation(uint8(bytes1(_blob)));
+    return FacingDirection(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get rotation.
+   * @notice Get facingDirection.
    */
-  function get(EntityId entityId) internal view returns (Rotation rotation) {
+  function get(EntityId entityId) internal view returns (FacingDirection facingDirection) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return Rotation(uint8(bytes1(_blob)));
+    return FacingDirection(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get rotation.
+   * @notice Get facingDirection.
    */
-  function _get(EntityId entityId) internal view returns (Rotation rotation) {
+  function _get(EntityId entityId) internal view returns (FacingDirection facingDirection) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return Rotation(uint8(bytes1(_blob)));
+    return FacingDirection(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Set rotation.
+   * @notice Set facingDirection.
    */
-  function setRotation(EntityId entityId, Rotation rotation) internal {
+  function setFacingDirection(EntityId entityId, FacingDirection facingDirection) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(rotation)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(facingDirection)), _fieldLayout);
   }
 
   /**
-   * @notice Set rotation.
+   * @notice Set facingDirection.
    */
-  function _setRotation(EntityId entityId, Rotation rotation) internal {
+  function _setFacingDirection(EntityId entityId, FacingDirection facingDirection) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(rotation)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(facingDirection)), _fieldLayout);
   }
 
   /**
-   * @notice Set rotation.
+   * @notice Set facingDirection.
    */
-  function set(EntityId entityId, Rotation rotation) internal {
+  function set(EntityId entityId, FacingDirection facingDirection) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(rotation)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(facingDirection)), _fieldLayout);
   }
 
   /**
-   * @notice Set rotation.
+   * @notice Set facingDirection.
    */
-  function _set(EntityId entityId, Rotation rotation) internal {
+  function _set(EntityId entityId, FacingDirection facingDirection) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(rotation)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(facingDirection)), _fieldLayout);
   }
 
   /**
@@ -172,8 +172,8 @@ library Orientation {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(Rotation rotation) internal pure returns (bytes memory) {
-    return abi.encodePacked(rotation);
+  function encodeStatic(FacingDirection facingDirection) internal pure returns (bytes memory) {
+    return abi.encodePacked(facingDirection);
   }
 
   /**
@@ -182,8 +182,8 @@ library Orientation {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(Rotation rotation) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(rotation);
+  function encode(FacingDirection facingDirection) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(facingDirection);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

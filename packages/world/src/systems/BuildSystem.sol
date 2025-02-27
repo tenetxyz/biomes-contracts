@@ -14,7 +14,7 @@ import { Orientation } from "../codegen/tables/Orientation.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { ActionType, Direction } from "../codegen/common.sol";
+import { ActionType, FacingDirection } from "../codegen/common.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
@@ -32,7 +32,7 @@ import { EntityId } from "../EntityId.sol";
 contract BuildSystem is System {
   function _addBlock(ObjectTypeId buildObjectTypeId, VoxelCoord memory coord) internal returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
-    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId, ) = coord.getOrCreateEntity();
+    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = coord.getOrCreateEntity();
     require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
     require(
       InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,
@@ -50,7 +50,7 @@ contract BuildSystem is System {
   function buildWithExtraData(
     ObjectTypeId buildObjectTypeId,
     VoxelCoord memory baseCoord,
-    Direction direction,
+    FacingDirection facingDirection,
     bytes memory extraData
   ) public payable returns (EntityId) {
     require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
@@ -60,11 +60,11 @@ contract BuildSystem is System {
     requireInPlayerInfluence(playerCoord, baseCoord);
 
     EntityId baseEntityId = _addBlock(buildObjectTypeId, baseCoord);
-    Orientation._set(baseEntityId, direction);
+    Orientation._set(baseEntityId, facingDirection);
     uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
     Mass._setMass(baseEntityId, mass);
 
-    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(buildObjectTypeId, direction);
+    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(buildObjectTypeId, facingDirection);
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < coords.length; i++) {
       VoxelCoord memory relativeCoord = coords[i];
@@ -98,7 +98,7 @@ contract BuildSystem is System {
 
   function jumpBuildWithExtraData(
     ObjectTypeId buildObjectTypeId,
-    Direction direction,
+    FacingDirection facingDirection,
     bytes memory extraData
   ) public payable {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
@@ -110,26 +110,29 @@ contract BuildSystem is System {
 
     require(!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId), "Cannot jump build on a pass-through block");
 
-    buildWithExtraData(buildObjectTypeId, playerCoord, direction, extraData);
+    buildWithExtraData(buildObjectTypeId, playerCoord, facingDirection, extraData);
   }
 
-  function jumpBuild(ObjectTypeId buildObjectTypeId, Direction direction) public payable {
-    jumpBuildWithExtraData(buildObjectTypeId, direction, new bytes(0));
+  function jumpBuildWithFacingDirection(
+    ObjectTypeId buildObjectTypeId,
+    FacingDirection facingDirection
+  ) public payable {
+    jumpBuildWithExtraData(buildObjectTypeId, facingDirection, new bytes(0));
   }
 
   function jumpBuild(ObjectTypeId buildObjectTypeId) public payable {
-    jumpBuildWithExtraData(buildObjectTypeId, Direction.North, new bytes(0));
+    jumpBuildWithExtraData(buildObjectTypeId, FacingDirection.PositiveZ, new bytes(0));
   }
 
-  function build(
+  function buildWithFacingDirection(
     ObjectTypeId buildObjectTypeId,
     VoxelCoord memory baseCoord,
-    Direction direction
+    FacingDirection facingDirection
   ) public payable returns (EntityId) {
-    return buildWithExtraData(buildObjectTypeId, baseCoord, direction, new bytes(0));
+    return buildWithExtraData(buildObjectTypeId, baseCoord, facingDirection, new bytes(0));
   }
 
   function build(ObjectTypeId buildObjectTypeId, VoxelCoord memory baseCoord) public payable returns (EntityId) {
-    return buildWithExtraData(buildObjectTypeId, baseCoord, Direction.North, new bytes(0));
+    return buildWithExtraData(buildObjectTypeId, baseCoord, FacingDirection.PositiveZ, new bytes(0));
   }
 }

@@ -29,7 +29,7 @@ enum DisplayContentType {
   Image
 }
 
-enum Rotation {
+enum FacingDirection {
   PositiveX,
   NegativeX,
   PositiveY,

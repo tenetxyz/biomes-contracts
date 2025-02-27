@@ -12,8 +12,9 @@ import { PlayerPosition, PlayerPositionData } from "./codegen/tables/PlayerPosit
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { ReversePlayerPosition } from "./codegen/tables/ReversePlayerPosition.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
+import { Orientation } from "./codegen/tables/Orientation.sol";
 import { Mass } from "./codegen/tables/Mass.sol";
-import { Rotation } from "./codegen/common.sol";
+import { FacingDirection } from "./codegen/common.sol";
 
 import { ObjectTypeId } from "./ObjectTypeIds.sol";
 import { TerrainLib } from "./systems/libraries/TerrainLib.sol";
@@ -293,18 +294,17 @@ library VoxelCoordLib {
     return VoxelCoord(self.x, self.y, self.z);
   }
 
-  function getEntity(VoxelCoord memory coord) internal view returns (EntityId, ObjectTypeId) {
+  function getObjectTypeId(VoxelCoord memory coord) internal view returns (ObjectTypeId) {
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (!entityId.exists()) {
-      return (entityId, ObjectTypeId.wrap(TerrainLib._getBlockType(coord)));
+      return ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
     }
-    return (entityId, ObjectType._get(entityId));
+    return ObjectType._get(entityId);
   }
 
-  function getOrCreateEntity(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId, bool) {
+  function getOrCreateEntity(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId) {
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     ObjectTypeId objectTypeId;
-    bool isTerrain = true;
     if (!entityId.exists()) {
       // TODO: move wrapping to TerrainLib?
       objectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
@@ -313,12 +313,15 @@ library VoxelCoordLib {
       Position._set(entityId, coord.x, coord.y, coord.z);
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
       ObjectType._set(entityId, objectTypeId);
+      uint32 mass = ObjectTypeMetadata._getMass(objectTypeId);
+      if (mass > 0) {
+        Mass._setMass(entityId, mass);
+      }
     } else {
-      isTerrain = false;
       objectTypeId = ObjectType._get(entityId);
     }
 
-    return (entityId, objectTypeId, isTerrain);
+    return (entityId, objectTypeId);
   }
 
   function getPlayer(VoxelCoord memory coord) internal view returns (EntityId) {
@@ -330,32 +333,33 @@ library VoxelCoordLib {
     ReversePlayerPosition._set(coord.x, coord.y, coord.z, playerEntityId);
   }
 
-  /// @dev Rotate a coordinate based on orientation
-  function rotateRelativeCoord(VoxelCoord memory coord, Rotation rotation) internal pure returns (VoxelCoord memory) {
-    // Default orientation is North (Positive Z)
-    if (orientation == Rotation.PositiveZ) {
-      return coord; // No rotation needed for default orientation
-    } else if (orientation == Rotation.PositiveX) {
+  /// @dev Rotate a coordinate based on facing direction
+  function rotateRelativeCoord(
+    VoxelCoord memory coord,
+    FacingDirection facingDirection
+  ) internal pure returns (VoxelCoord memory) {
+    // Default facing direction is North (Positive Z)
+    if (facingDirection == FacingDirection.PositiveZ) {
+      return coord; // No rotation needed for default facing direction
+    } else if (facingDirection == FacingDirection.PositiveX) {
       // 90 degree rotation clockwise around Y axis
       return VoxelCoord(coord.z, coord.y, -coord.x);
-    } else if (orientation == Direction.NegativeZ) {
+    } else if (facingDirection == FacingDirection.NegativeZ) {
       // 180 degree rotation around Y axis
       return VoxelCoord(-coord.x, coord.y, -coord.z);
-    } else if (orientation == Direction.NegativeX) {
+    } else if (facingDirection == FacingDirection.NegativeX) {
       // 260 degree rotation around Y axis
       return VoxelCoord(-coord.z, coord.y, coord.x);
     }
 
-    // Should never reach here
-    assert(false);
-    return coord;
+    revert("Facing direction not supported");
   }
 
   /// @dev Get relative schema coords, including base coord
   function getRelativeCoords(
     VoxelCoord memory baseCoord,
     ObjectTypeId objectTypeId,
-    Rotation rotation
+    FacingDirection facingDirection
   ) internal pure returns (VoxelCoord[] memory) {
     VoxelCoord[] memory schemaCoords = getObjectTypeSchema(objectTypeId);
     VoxelCoord[] memory coords = new VoxelCoord[](schemaCoords.length + 1);
@@ -363,7 +367,7 @@ library VoxelCoordLib {
     coords[0] = baseCoord;
 
     for (uint256 i = 0; i < schemaCoords.length; i++) {
-      VoxelCoord memory rotatedCoord = rotateRelativeCoord(schemaCoords[i], rotation);
+      VoxelCoord memory rotatedCoord = rotateRelativeCoord(schemaCoords[i], facingDirection);
       coords[i + 1] = VoxelCoord(
         baseCoord.x + rotatedCoord.x,
         baseCoord.y + rotatedCoord.y,
@@ -372,6 +376,13 @@ library VoxelCoordLib {
     }
 
     return coords;
+  }
+
+  function getRelativeCoords(
+    VoxelCoord memory baseCoord,
+    ObjectTypeId objectTypeId
+  ) internal pure returns (VoxelCoord[] memory) {
+    return getRelativeCoords(baseCoord, objectTypeId, FacingDirection.PositiveZ);
   }
 }
 

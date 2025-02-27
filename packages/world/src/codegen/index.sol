@@ -27,7 +27,7 @@ import { Equipped } from "./tables/Equipped.sol";
 import { Player } from "./tables/Player.sol";
 import { ReversePlayer } from "./tables/ReversePlayer.sol";
 import { BedPlayer, BedPlayerData } from "./tables/BedPlayer.sol";
-import { PlayerStatus } from "./tables/PlayerStatus.sol";
+import { PlayerStatus, PlayerStatusData } from "./tables/PlayerStatus.sol";
 import { PlayerActivity } from "./tables/PlayerActivity.sol";
 import { Chip } from "./tables/Chip.sol";
 import { ForceField } from "./tables/ForceField.sol";

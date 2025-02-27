@@ -12,7 +12,11 @@ import { VoxelCoord } from "../../VoxelCoord.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IBedSystem {
-  function sleep(EntityId bedEntityId, bytes memory extraData) external;
+  function sleepWithExtraData(EntityId bedEntityId, bytes memory extraData) external;
 
-  function wakeup(VoxelCoord memory spawnCoord, bytes memory extraData) external;
+  function wakeupWithExtraData(VoxelCoord memory spawnCoord, bytes memory extraData) external;
+
+  function sleep(EntityId bedEntityId) external;
+
+  function wakeup(VoxelCoord memory spawnCoord) external;
 }

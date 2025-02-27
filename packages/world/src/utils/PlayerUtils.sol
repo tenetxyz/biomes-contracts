@@ -15,11 +15,13 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
+import { transferAllInventoryEntities } from "./InventoryUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 using VoxelCoordLib for PositionData;
@@ -57,17 +59,27 @@ function requireInPlayerInfluence(VoxelCoord memory playerCoord, EntityId entity
 }
 
 function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
-  (, ObjectTypeId terrainObjectTypeId) = playerCoord.getEntity();
+  // Set the player object type first
+  ObjectType._set(playerEntityId, PlayerObjectID);
+
+  // Position the player at the given coordinates
+  addPlayerToGrid(playerEntityId, playerCoord);
+}
+
+function addPlayerToGrid(EntityId playerEntityId, VoxelCoord memory playerCoord) {
+  // Check if the spawn location is valid
+  ObjectTypeId terrainObjectTypeId = playerCoord.getObjectTypeId();
   require(terrainObjectTypeId == AirObjectID && !playerCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
 
-  ObjectType._set(playerEntityId, PlayerObjectID);
+  // Set the player at the base coordinate
   playerCoord.setPlayer(playerEntityId);
 
+  // Handle the player's body parts
   VoxelCoord[] memory coords = playerCoord.getRelativeCoords(PlayerObjectID);
   // Only iterate through relative schema coords
   for (uint256 i = 1; i < coords.length; i++) {
     VoxelCoord memory relativeCoord = coords[i];
-    (, ObjectTypeId relativeTerrainObjectTypeId) = relativeCoord.getEntity();
+    ObjectTypeId relativeTerrainObjectTypeId = relativeCoord.getObjectTypeId();
     require(
       relativeTerrainObjectTypeId == AirObjectID && !relativeCoord.getPlayer().exists(),
       "Cannot spawn on a non-air block"
@@ -79,8 +91,7 @@ function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   }
 }
 
-function deletePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
-  ObjectType._deleteRecord(playerEntityId);
+function removePlayerFromGrid(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   PlayerPosition._deleteRecord(playerEntityId);
   ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
 
@@ -93,5 +104,21 @@ function deletePlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
     ReversePlayerPosition._deleteRecord(relativeCoord.x, relativeCoord.y, relativeCoord.z);
     ObjectType._deleteRecord(relativePlayerEntityId);
     BaseEntity._deleteRecord(relativePlayerEntityId);
+  }
+}
+
+function killPlayer(EntityId playerEntityId) {
+  // If sleeping, we just remove them from the bed so they
+  EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
+  if (bedEntityId.exists()) {
+    PlayerStatus._setBedEntityId(playerEntityId, EntityId.wrap(0));
+    BedPlayer._deleteRecord(bedEntityId);
+  } else {
+    VoxelCoord memory coord = PlayerPosition._get(playerEntityId).toVoxelCoord();
+    removePlayerFromGrid(playerEntityId, coord);
+
+    (EntityId entityId, ObjectTypeId objectTypeId) = coord.getOrCreateEntity();
+    // TODO: we assume the object type has enough storage slots
+    transferAllInventoryEntities(playerEntityId, entityId, objectTypeId);
   }
 }

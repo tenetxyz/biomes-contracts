@@ -19,7 +19,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
-import { ActionType, DisplayContentType, Direction } from "../codegen/common.sol";
+import { ActionType, DisplayContentType } from "../codegen/common.sol";
 
 import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../ObjectTypeIds.sol";
@@ -131,16 +131,13 @@ contract MineSystem is System {
     );
     requireInPlayerInfluence(playerCoord, coord);
 
-    (EntityId entityId, ObjectTypeId mineObjectTypeId, bool isTerrain) = coord.getOrCreateEntity();
+    (EntityId entityId, ObjectTypeId mineObjectTypeId) = coord.getOrCreateEntity();
     require(mineObjectTypeId.isMineable(), "Object is not mineable");
 
     transferEnergyFromPlayerToPool(playerEntityId, playerCoord, playerEnergyData, PLAYER_MINE_ENERGY_COST);
 
     EntityId baseEntityId = entityId.baseEntityId();
     VoxelCoord memory baseCoord = Position._get(baseEntityId).toVoxelCoord();
-    if (isTerrain) {
-      Mass._setMass(baseEntityId, ObjectTypeMetadata._getMass(mineObjectTypeId));
-    }
 
     // Chip needs to be detached first
     require(baseEntityId.getChipAddress() == address(0), "Cannot mine a chipped block");
@@ -161,6 +158,14 @@ contract MineSystem is System {
           DisplayContent._deleteRecord(baseEntityId);
         }
 
+        // If detaching from a bed with a sleeping player, kill the player
+        if (mineObjectTypeId == BedObjectID) {
+          EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(baseEntityId);
+          if (sleepingPlayerId.exists()) {
+            killPlayer(sleepingPlayerId);
+          }
+        }
+
         addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
 
         _removeBlock(baseEntityId, baseCoord);
@@ -168,7 +173,7 @@ contract MineSystem is System {
         // Only iterate through relative schema coords
         for (uint256 i = 1; i < coords.length; i++) {
           VoxelCoord memory relativeCoord = coords[i];
-          (EntityId relativeEntityId, , ) = relativeCoord.getOrCreateEntity();
+          (EntityId relativeEntityId, ) = relativeCoord.getOrCreateEntity();
           BaseEntity._deleteRecord(relativeEntityId);
 
           _removeBlock(relativeEntityId, relativeCoord);
