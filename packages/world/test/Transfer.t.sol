@@ -8,6 +8,7 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
+import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
 import { ExploredChunk } from "../src/codegen/tables/ExploredChunk.sol";
 import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
@@ -19,6 +20,7 @@ import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
+import { ReversePlayerPosition } from "../src/codegen/tables/ReversePlayerPosition.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
@@ -38,12 +40,24 @@ import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from 
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
-contract ChipTest is BiomesTest {
+contract TransferTest is BiomesTest {
   using VoxelCoordLib for *;
 
-  function testMineFailsIfChipAttached() public {}
+  function testTransferToChest() public {}
 
-  function testTransferWithChip() public {}
+  function testTransferFromChest() public {}
 
-  function testTransferFailsIfNotAllowedByChip() public {}
+  function testTransferToChestFailsIfChestFull() public {}
+
+  function testTransferFromChestFailsIfPlayerFull() public {}
+
+  function testTransferFailsIfInvalidObject() public {}
+
+  function testTransferFailsIfNoEnergy() public {}
+
+  function testTransferFailsIfTooFar() public {}
+
+  function testTransferFailsIfNoPlayer() public {}
+
+  function testTransferFailsIfLoggedOut() public {}
 }
