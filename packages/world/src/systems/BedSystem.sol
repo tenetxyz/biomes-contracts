@@ -108,7 +108,7 @@ contract BedSystem is System {
 
     removePlayerFromGrid(playerEntityId, playerCoord);
 
-    notify(playerEntityId, WakeupNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
+    notify(playerEntityId, SleepNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
 
     address chipAddress = bedEntityId.getChipAddress();
     require(chipAddress != address(0), "Bed has no chip");
