@@ -329,14 +329,9 @@
     "name": "craft",
     "inputs": [
       {
-        "name": "inputTypes",
-        "type": "uint16[]",
-        "internalType": "ObjectTypeId[]"
-      },
-      {
-        "name": "inputAmounts",
-        "type": "uint16[]",
-        "internalType": "uint16[]"
+        "name": "recipeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "outputs": [],
@@ -347,19 +342,14 @@
     "name": "craftWithStation",
     "inputs": [
       {
+        "name": "recipeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
         "name": "stationEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
-      },
-      {
-        "name": "inputTypes",
-        "type": "uint16[]",
-        "internalType": "ObjectTypeId[]"
-      },
-      {
-        "name": "inputAmounts",
-        "type": "uint16[]",
-        "internalType": "uint16[]"
       }
     ],
     "outputs": [],
