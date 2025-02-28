@@ -53,15 +53,13 @@ contract BuildTest is BiomesTest {
       playerCoord.z
     );
     assertTrue(ObjectTypeId.wrap(TerrainLib.getBlockType(buildCoord)) == AirObjectID, "Build coord is not air");
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertFalse(buildEntityId.exists(), "Build entity already exists");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     VoxelCoord memory forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
     uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(
       forceFieldShardCoord.x,
@@ -76,15 +74,10 @@ contract BuildTest is BiomesTest {
 
     buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, buildObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     assertEq(
       Mass.getMass(buildEntityId),
       ObjectTypeMetadata.getMass(buildObjectTypeId),
@@ -110,11 +103,9 @@ contract BuildTest is BiomesTest {
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     VoxelCoord memory forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
     uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(
       forceFieldShardCoord.x,
@@ -128,15 +119,9 @@ contract BuildTest is BiomesTest {
     endGasReport();
 
     assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, buildObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     assertEq(
       Mass.getMass(buildEntityId),
       ObjectTypeMetadata.getMass(buildObjectTypeId),
@@ -166,11 +151,9 @@ contract BuildTest is BiomesTest {
     EntityId topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertTrue(topEntityId.exists(), "Top entity does not exist");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     VoxelCoord memory forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
     uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(
       forceFieldShardCoord.x,
@@ -185,15 +168,9 @@ contract BuildTest is BiomesTest {
 
     assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
     assertTrue(ObjectType.get(topEntityId) == buildObjectTypeId, "Top entity is not build object type");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, buildObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     assertEq(
       Mass.getMass(buildEntityId),
       ObjectTypeMetadata.getMass(buildObjectTypeId),
@@ -212,11 +189,9 @@ contract BuildTest is BiomesTest {
 
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     VoxelCoord memory forceFieldShardCoord = playerCoord.toForceFieldShardCoord();
     uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(
       forceFieldShardCoord.x,
@@ -236,15 +211,9 @@ contract BuildTest is BiomesTest {
 
     EntityId buildEntityId = ReversePosition.get(playerCoord.x, playerCoord.y, playerCoord.z);
     assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, buildObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     assertEq(
       Mass.getMass(buildEntityId),
       ObjectTypeMetadata.getMass(buildObjectTypeId),
@@ -267,7 +236,7 @@ contract BuildTest is BiomesTest {
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     ObjectTypeMetadata.setCanPassThrough(buildObjectTypeId, true);
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 4);
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 4, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 4);
 
     vm.prank(alice);
     world.build(buildObjectTypeId, bobCoord);
@@ -317,7 +286,7 @@ contract BuildTest is BiomesTest {
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     ObjectTypeMetadata.setCanPassThrough(buildObjectTypeId, true);
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Cannot jump build on a pass-through block");
@@ -329,7 +298,7 @@ contract BuildTest is BiomesTest {
 
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     setObjectAtCoord(VoxelCoord(playerCoord.x, playerCoord.y + 2, playerCoord.z), GrassObjectID);
 
@@ -348,7 +317,7 @@ contract BuildTest is BiomesTest {
 
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a player");
@@ -368,7 +337,7 @@ contract BuildTest is BiomesTest {
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Cannot build on a non-air block");
@@ -396,7 +365,7 @@ contract BuildTest is BiomesTest {
 
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Cannot build on a player");
@@ -428,7 +397,7 @@ contract BuildTest is BiomesTest {
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Cannot build non-block object");
@@ -448,7 +417,7 @@ contract BuildTest is BiomesTest {
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, buildObjectTypeId, 1);
 
@@ -505,7 +474,7 @@ contract BuildTest is BiomesTest {
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     Energy.set(
       aliceEntityId,
@@ -529,7 +498,7 @@ contract BuildTest is BiomesTest {
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
@@ -548,7 +517,7 @@ contract BuildTest is BiomesTest {
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
 
     vm.expectRevert("Player does not exist");
     world.build(buildObjectTypeId, buildCoord);
@@ -566,7 +535,7 @@ contract BuildTest is BiomesTest {
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
-    assertEq(InventoryCount.get(aliceEntityId, buildObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 

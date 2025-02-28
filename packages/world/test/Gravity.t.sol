@@ -51,11 +51,9 @@ contract GravityTest is BiomesTest {
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
-    assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("mine with single block fall");
@@ -73,15 +71,9 @@ contract GravityTest is BiomesTest {
 
     mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
-    assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 1");
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
-      "Inventory objects does not have terrain object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testMineFallMultipleBlocks() public {
@@ -92,14 +84,12 @@ contract GravityTest is BiomesTest {
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
-    assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
 
     setTerrainAtCoord(VoxelCoord(mineCoord.x, mineCoord.y - 1, mineCoord.z), AirObjectID);
     setTerrainAtCoord(VoxelCoord(mineCoord.x, mineCoord.y - 2, mineCoord.z), AirObjectID);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("mine with three block fall");
@@ -120,15 +110,9 @@ contract GravityTest is BiomesTest {
 
     mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
-    assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 1");
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
-      "Inventory objects does not have terrain object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testMineFallFatal() public {}
@@ -149,7 +133,7 @@ contract GravityTest is BiomesTest {
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
-    assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
 
     setTerrainAtCoord(VoxelCoord(mineCoord.x, mineCoord.y - 1, mineCoord.z), AirObjectID);
     setTerrainAtCoord(VoxelCoord(mineCoord.x, mineCoord.y - 2, mineCoord.z), AirObjectID);
@@ -192,12 +176,7 @@ contract GravityTest is BiomesTest {
 
     mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
-    assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 1");
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
-      "Inventory objects does not have terrain object type"
-    );
+    assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     uint128 aliceEnergyAfter = Energy.getEnergy(aliceEntityId);
@@ -226,9 +205,7 @@ contract GravityTest is BiomesTest {
     setObjectAtCoord(newCoords[newCoords.length - 1], AirObjectID);
     setObjectAtCoord(VoxelCoord(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), DirtObjectID);
 
-    uint128 energyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("move with single block fall");
@@ -243,9 +220,8 @@ contract GravityTest is BiomesTest {
         aliceEntityId,
       "Above coord is not the player"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testMoveFallMultipleBlocks() public {
@@ -281,9 +257,7 @@ contract GravityTest is BiomesTest {
     setObjectAtCoord(newCoords[newCoords.length - 1], AirObjectID);
     setObjectAtCoord(VoxelCoord(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), DirtObjectID);
 
-    uint128 energyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("move with three block fall");
@@ -298,9 +272,8 @@ contract GravityTest is BiomesTest {
         aliceEntityId,
       "Above coord is not the player"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testMoveStackedPlayers() public {
