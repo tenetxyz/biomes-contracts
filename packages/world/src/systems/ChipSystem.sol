@@ -17,7 +17,7 @@ import { ActionType } from "../codegen/common.sol";
 import { ObjectTypeId, PlayerObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
+import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, AttachChipNotifData, DetachChipNotifData } from "../utils/NotifUtils.sol";
 
@@ -84,7 +84,7 @@ contract ChipSystem is System {
     EntityId forceFieldEntityId = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
-      machineEnergyLevel = updateMachineEnergyLevel(forceFieldEntityId).energy;
+      machineEnergyLevel = updateEnergyLevel(forceFieldEntityId).energy;
     }
 
     address chipAddress = baseEntityId.getChipAddress();

@@ -15,7 +15,7 @@ import { ReverseInventoryEntity } from "../../src/codegen/tables/ReverseInventor
 import { EnergyData } from "../../src/codegen/tables/Energy.sol";
 import { ObjectAmount, ObjectTypeId, getOreObjectTypes } from "../../src/ObjectTypeIds.sol";
 import { addToInventoryCount as _addToInventoryCount, removeFromInventoryCount as _removeFromInventoryCount, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
-import { updateMachineEnergyLevel as _updateMachineEnergyLevel } from "../../src/utils/EnergyUtils.sol";
+import { updateEnergyLevel as _updateEnergyLevel } from "../../src/utils/EnergyUtils.sol";
 
 Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
@@ -117,8 +117,8 @@ library TestUtils {
     return _transferInventoryEntity(srcEntityId, dstEntityId, dstObjectTypeId, inventoryEntityId);
   }
 
-  function updateMachineEnergyLevel(EntityId entityId) public asWorld returns (EnergyData memory) {
-    return _updateMachineEnergyLevel(entityId);
+  function updateEnergyLevel(EntityId entityId) public asWorld returns (EnergyData memory) {
+    return _updateEnergyLevel(entityId);
   }
 
   // No need to use asWorld here

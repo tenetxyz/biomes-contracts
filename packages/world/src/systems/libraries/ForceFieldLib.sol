@@ -12,7 +12,7 @@ import { Chip } from "../../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
 import { ObjectTypeId, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
-import { updateMachineEnergyLevel } from "../../utils/EnergyUtils.sol";
+import { updateEnergyLevel } from "../../utils/EnergyUtils.sol";
 import { getForceField, setupForceField, destroyForceField } from "../../utils/ForceFieldUtils.sol";
 
 import { IForceFieldChip } from "../../prototypes/IForceFieldChip.sol";
@@ -37,7 +37,7 @@ library ForceFieldLib {
       }
 
       if (forceFieldEntityId.exists()) {
-        EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onBuildCall = abi.encodeCall(
             IForceFieldChip.onBuild,
@@ -61,7 +61,7 @@ library ForceFieldLib {
       VoxelCoord memory coord = coords[i];
       EntityId forceFieldEntityId = getForceField(coord);
       if (forceFieldEntityId.exists()) {
-        EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onMineCall = abi.encodeCall(
             IForceFieldChip.onMine,

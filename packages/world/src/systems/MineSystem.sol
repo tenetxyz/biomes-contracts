@@ -28,7 +28,7 @@ import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, Di
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+import { updateEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { mulDiv } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
@@ -116,7 +116,7 @@ library MineLib {
     EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(bedEntityId);
     if (sleepingPlayerId.exists()) {
       EntityId forceFieldEntityId = getForceField(bedCoord);
-      EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+      EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
       EnergyData memory playerData = updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, machineData, bedCoord);
       removePlayerFromBed(sleepingPlayerId, bedEntityId, forceFieldEntityId);
 
@@ -157,7 +157,7 @@ contract MineSystem is System {
 
     // Chip needs to be detached first
     require(baseEntityId.getChipAddress() == address(0), "Cannot mine a chipped block");
-    require(updateMachineEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
+    require(updateEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
 
     // First coord will be the base coord, the rest is relative schema coords
     VoxelCoord[] memory coords = baseCoord.getRelativeCoords(mineObjectTypeId, Orientation._get(baseEntityId));

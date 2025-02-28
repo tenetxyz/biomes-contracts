@@ -84,7 +84,7 @@ contract BedTest is BiomesTest {
       bedCoord,
       EnergyData({
         energy: 1000,
-        lastUpdatedTime: uint128(block.timestamp),
+        lastUpdatedTime: uint128(vm.getBlockTimestamp()),
         drainRate: MACHINE_ENERGY_DRAIN_RATE,
         accDepletedTime: 0
       })
@@ -165,7 +165,7 @@ contract BedTest is BiomesTest {
       bedCoord,
       EnergyData({
         energy: initialForcefieldEnergy,
-        lastUpdatedTime: uint128(block.timestamp),
+        lastUpdatedTime: uint128(vm.getBlockTimestamp()),
         drainRate: MACHINE_ENERGY_DRAIN_RATE,
         accDepletedTime: 0
       })
@@ -212,7 +212,7 @@ contract BedTest is BiomesTest {
       bedCoord,
       EnergyData({
         energy: initialForcefieldEnergy,
-        lastUpdatedTime: uint128(block.timestamp),
+        lastUpdatedTime: uint128(vm.getBlockTimestamp()),
         drainRate: MACHINE_ENERGY_DRAIN_RATE,
         accDepletedTime: 0
       })
@@ -263,7 +263,7 @@ contract BedTest is BiomesTest {
       bedCoord,
       EnergyData({
         energy: initialForcefieldEnergy,
-        lastUpdatedTime: uint128(block.timestamp),
+        lastUpdatedTime: uint128(vm.getBlockTimestamp()),
         drainRate: MACHINE_ENERGY_DRAIN_RATE,
         accDepletedTime: 0
       })
@@ -278,15 +278,14 @@ contract BedTest is BiomesTest {
 
     // After 1000 seconds, the forcefield should be depleted
     // We wait for 500 more seconds so the player's energy is also depleted in this period
-    uint128 timeDelta = 1000 seconds + 500 seconds;
-    vm.warp(vm.getBlockTimestamp() + timeDelta);
+    vm.warp(vm.getBlockTimestamp() + 1000 seconds + 500 seconds);
 
     // Then we charge it again with the initial charge
-    TestUtils.updateMachineEnergyLevel(forcefieldEntityId);
-    Energy._setEnergy(forcefieldEntityId, initialForcefieldEnergy);
+    TestUtils.updateEnergyLevel(forcefieldEntityId);
+    Energy.setEnergy(forcefieldEntityId, initialForcefieldEnergy);
 
-    // Then we wait for another 1000 seconds so it is fully depleted again
-    vm.warp(vm.getBlockTimestamp() + timeDelta);
+    // Then we wait for another 1000 seconds so the forcefield is fully depleted again
+    vm.warp(vm.getBlockTimestamp() + 1000 seconds);
 
     // Wakeup in the original coord
     vm.prank(alice);
@@ -307,6 +306,57 @@ contract BedTest is BiomesTest {
     );
   }
 
+  function testWakeupFailsIfPlayerDied() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory coord) = setupFlatChunkWithPlayer();
+
+    VoxelCoord memory bedCoord = VoxelCoord(coord.x - 2, coord.y, coord.z);
+
+    uint128 initialPlayerEnergy = Energy.getEnergy(aliceEntityId);
+
+    // Set the forcefield's energy to fully deplete after 1000 seconds (with 1 sleeping player)
+    uint128 initialForcefieldEnergy = (MACHINE_ENERGY_DRAIN_RATE + PLAYER_ENERGY_DRAIN_RATE) * 1000;
+
+    // Set forcefield
+    EntityId forcefieldEntityId = setupForceField(
+      bedCoord,
+      EnergyData({
+        energy: initialForcefieldEnergy,
+        lastUpdatedTime: uint128(vm.getBlockTimestamp()),
+        drainRate: MACHINE_ENERGY_DRAIN_RATE,
+        accDepletedTime: 0
+      })
+    );
+
+    EntityId bedEntityId = createBed(bedCoord);
+
+    attachTestChip(bedEntityId);
+
+    vm.prank(alice);
+    world.sleep(bedEntityId);
+
+    // After 1000 seconds, the forcefield should be depleted
+    // We wait for the player to also get fully depleted
+    uint128 playerDrainTime = initialPlayerEnergy * PLAYER_ENERGY_DRAIN_RATE;
+    vm.warp(vm.getBlockTimestamp() + 1000 seconds + playerDrainTime);
+
+    // Wakeup in the original coord
+    vm.prank(alice);
+    vm.expectRevert("Player died while sleeping");
+    world.wakeup(coord);
+
+    TestUtils.updateEnergyLevel(forcefieldEntityId);
+
+    EnergyData memory ffEnergyData = Energy.get(forcefieldEntityId);
+    assertEq(ffEnergyData.energy, 0, "Forcefield energy wasn't drained correctly");
+    assertEq(
+      ffEnergyData.drainRate,
+      MACHINE_ENERGY_DRAIN_RATE + PLAYER_ENERGY_DRAIN_RATE,
+      "Forcefield drain rate does not include player"
+    );
+    // The forcefield had 0 energy for 500 seconds
+    assertEq(ffEnergyData.accDepletedTime, playerDrainTime, "Forcefield accDepletedTime was not computed correctly");
+  }
+
   function testRemoveDeadPlayerFromBed() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory coord) = setupFlatChunkWithPlayer();
 
@@ -322,7 +372,7 @@ contract BedTest is BiomesTest {
       bedCoord,
       EnergyData({
         energy: initialForcefieldEnergy,
-        lastUpdatedTime: uint128(block.timestamp),
+        lastUpdatedTime: uint128(vm.getBlockTimestamp()),
         drainRate: MACHINE_ENERGY_DRAIN_RATE,
         accDepletedTime: 0
       })
