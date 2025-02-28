@@ -11,6 +11,7 @@ import { EntityId } from "../../src/EntityId.sol";
 import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";
 import { InventoryObjects } from "../../src/codegen/tables/InventoryObjects.sol";
 import { InventoryCount } from "../../src/codegen/tables/InventoryCount.sol";
+import { ReverseInventoryEntity } from "../../src/codegen/tables/ReverseInventoryEntity.sol";
 import { EnergyData } from "../../src/codegen/tables/Energy.sol";
 import { ObjectAmount, ObjectTypeId, getOreObjectTypes } from "../../src/ObjectTypeIds.sol";
 import { addToInventoryCount as _addToInventoryCount, removeFromInventoryCount as _removeFromInventoryCount, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
@@ -128,6 +129,19 @@ library TestUtils {
     uint16[] memory inventoryObjectTypes = InventoryObjects.get(ownerEntityId);
     for (uint256 i = 0; i < inventoryObjectTypes.length; i++) {
       if (inventoryObjectTypes[i] == ObjectTypeId.unwrap(objectTypeId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function reverseInventoryEntityHasEntity(
+    EntityId ownerEntityId,
+    EntityId inventoryEntityId
+  ) internal view returns (bool) {
+    bytes32[] memory inventoryEntityIds = ReverseInventoryEntity.get(ownerEntityId);
+    for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
+      if (inventoryEntityIds[i] == EntityId.unwrap(inventoryEntityId)) {
         return true;
       }
     }
