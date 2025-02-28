@@ -23,6 +23,9 @@ library EntityIdLib {
   // TODO: Not sure if it should be included here or if it should be a standalone util
   function getChipAddress(EntityId entityId) internal view returns (address) {
     ResourceId chipSystemId = Chip._getChipSystemId(entityId);
+    if (chipSystemId.unwrap() == bytes32(0)) {
+      chipSystemId = Chip._getChipSystemId(entityId.baseEntityId());
+    }
     (address chipAddress, ) = Systems._get(chipSystemId);
     return chipAddress;
   }

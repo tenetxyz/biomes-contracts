@@ -200,6 +200,8 @@ ObjectTypeId constant SmartTextSignObjectID = ObjectTypeId.wrap(Block | 604);
 ObjectTypeId constant PipeObjectID = ObjectTypeId.wrap(Block | 605);
 ObjectTypeId constant SpawnTileObjectID = ObjectTypeId.wrap(Block | 606);
 ObjectTypeId constant BedObjectID = ObjectTypeId.wrap(Block | 607);
+// TODO: shards are not buildable, should we use a different category?
+ObjectTypeId constant ForceFieldShardID = ObjectTypeId.wrap(Block | 608);
 
 // ------------------------------------------------------------
 // Tools

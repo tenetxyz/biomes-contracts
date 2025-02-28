@@ -9,7 +9,9 @@ import { EntityId } from "../EntityId.sol";
 
 function getForceField(VoxelCoord memory coord) view returns (EntityId) {
   VoxelCoord memory shardCoord = coord.toForceFieldShardCoord();
-  return ForceField._get(shardCoord.x, shardCoord.y, shardCoord.z);
+  EntityId entityId = ForceField._get(shardCoord.x, shardCoord.y, shardCoord.z);
+
+  return entityId.baseEntityId();
 }
 
 function setupForceField(EntityId forceFieldEntityId, VoxelCoord memory coord) {
