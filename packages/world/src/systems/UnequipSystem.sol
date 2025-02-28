@@ -12,7 +12,7 @@ import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { notify, UnequipNotifData } from "../utils/NotifUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
-import { ObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectType } from "../ObjectType.sol";
 
 contract UnequipSystem is System {
   function unequip() public {
@@ -21,7 +21,7 @@ contract UnequipSystem is System {
     if (!equippedEntityId.exists()) {
       return;
     }
-    ObjectTypeId equippedObjectId = ObjectType._get(equippedEntityId);
+    ObjectType equippedObjectId = ObjectType._get(equippedEntityId);
     Equipped._deleteRecord(playerEntityId);
 
     notify(playerEntityId, UnequipNotifData({ inventoryEntityId: equippedEntityId }));

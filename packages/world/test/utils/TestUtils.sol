@@ -8,12 +8,11 @@ import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol"
 import { VoxelCoord } from "../../src/Types.sol";
 import { EntityId } from "../../src/EntityId.sol";
 
-import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";
+import { ObjectType, getOreObjectTypes, ObjectAmount } from "../../src/codegen/tables/ObjectType.sol";
 import { InventoryObjects } from "../../src/codegen/tables/InventoryObjects.sol";
 import { InventoryCount } from "../../src/codegen/tables/InventoryCount.sol";
 import { ReverseInventoryEntity } from "../../src/codegen/tables/ReverseInventoryEntity.sol";
 import { EnergyData } from "../../src/codegen/tables/Energy.sol";
-import { ObjectAmount, ObjectTypeId, getOreObjectTypes } from "../../src/ObjectTypeIds.sol";
 import { addToInventoryCount as _addToInventoryCount, removeFromInventoryCount as _removeFromInventoryCount, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
 import { updateMachineEnergyLevel as _updateMachineEnergyLevel } from "../../src/utils/EnergyUtils.sol";
 

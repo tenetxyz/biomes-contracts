@@ -8,7 +8,7 @@ import { Position } from "../../codegen/tables/Position.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../../codegen/tables/LocalEnergyPool.sol";
 
-import { ObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectType, PlayerObjectID } from "../../ObjectType.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_TRANSFER_ENERGY_COST, SMART_CHEST_ENERGY_COST } from "../../Constants.sol";
 import { updateMachineEnergyLevel } from "../../utils/EnergyUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
@@ -31,8 +31,8 @@ library TransferLib {
 
     VoxelCoord memory chestCoord = Position._get(chestEntityId).toVoxelCoord();
     require(playerCoord.inSurroundingCube(MAX_PLAYER_INFLUENCE_HALF_WIDTH, chestCoord), "Destination too far");
-    ObjectTypeId chestObjectTypeId = ObjectType._get(chestEntityId);
-    ObjectTypeId dstObjectTypeId = isDeposit ? chestObjectTypeId : PlayerObjectID;
+    ObjectType chestObjectType = ObjectType._get(chestEntityId);
+    ObjectType dstObjectType = isDeposit ? chestObjectType : PlayerObjectID;
 
     uint128 energyCost = PLAYER_TRANSFER_ENERGY_COST;
 
@@ -56,10 +56,10 @@ library TransferLib {
         playerEntityId: playerEntityId,
         chestEntityId: chestEntityId,
         chestCoord: chestCoord,
-        dstObjectTypeId: dstObjectTypeId,
+        dstObjectType: dstObjectType,
         machineEnergyLevel: machineEnergyLevel,
         isDeposit: isDeposit,
-        chestObjectTypeId: chestObjectTypeId
+        chestObjectType: chestObjectType
       });
   }
 }

@@ -22,7 +22,7 @@ import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
 import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
-import { ObjectTypeId, AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
+import { ObjectType, AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectType.sol";
 import { checkWorldStatus, getUniqueEntity, inWorldBorder } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { mod } from "../utils/MathUtils.sol";
@@ -102,8 +102,8 @@ contract SpawnSystem is System {
     bytes memory extraData
   ) public returns (EntityId) {
     checkWorldStatus();
-    ObjectTypeId objectTypeId = ObjectType._get(spawnTileEntityId);
-    require(objectTypeId == SpawnTileObjectID, "Not a spawn tile");
+    ObjectType objectType = ObjectType._get(spawnTileEntityId);
+    require(objectType == SpawnTileObjectID, "Not a spawn tile");
 
     VoxelCoord memory spawnTileCoord = Position._get(spawnTileEntityId).toVoxelCoord();
     require(spawnTileCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, spawnCoord), "Spawn tile is too far away");

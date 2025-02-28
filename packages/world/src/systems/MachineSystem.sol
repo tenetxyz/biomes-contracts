@@ -9,7 +9,7 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
-import { ObjectTypeId, PlayerObjectID, ChipBatteryObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
+import { ObjectType, ObjectTypes } from "../ObjectType.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
@@ -28,10 +28,10 @@ contract MachineSystem is System {
 
     EntityId baseEntityId = entityId.baseEntityId();
 
-    removeFromInventoryCount(playerEntityId, ChipBatteryObjectID, numBattery);
+    removeFromInventoryCount(playerEntityId, ObjectTypes.Chip, numBattery);
 
-    ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
-    require(objectTypeId == ForceFieldObjectID, "Invalid object type");
+    ObjectType objectType = ObjectType._get(baseEntityId);
+    require(objectType == ForceFieldObjectID, "Invalid object type");
     EnergyData memory machineData = updateMachineEnergyLevel(baseEntityId);
 
     uint128 newEnergyLevel = machineData.energy + (uint128(numBattery) * 10);

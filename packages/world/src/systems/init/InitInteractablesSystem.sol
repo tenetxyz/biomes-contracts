@@ -5,23 +5,23 @@ import { VoxelCoord } from "../../Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
+import { WorkbenchObjectID } from "../../ObjectType.sol";
 
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
-import { ChestObjectID, SmartChestObjectID, ThermoblasterObjectID, PowerStoneObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID, TextSignObjectID, SmartTextSignObjectID, PipeObjectID, SpawnTileObjectID, BedObjectID } from "../../ObjectTypeIds.sol";
-import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID, MoonstoneObjectID, SilverBarObjectID, NeptuniumOreObjectID, AnyCottonBlockObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectType } from "../../ObjectType.sol";
+import { ChestObjectID, SmartChestObjectID, ThermoblasterObjectID, PowerStoneObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID, TextSignObjectID, SmartTextSignObjectID, PipeObjectID, SpawnTileObjectID, BedObjectID } from "../../ObjectType.sol";
+import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID, MoonstoneObjectID, SilverBarObjectID, NeptuniumOreObjectID, AnyCottonBlockObjectID } from "../../ObjectType.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitInteractablesSystem is System {
   function createInteractableBlock(
-    ObjectTypeId objectTypeId,
+    ObjectType objectType,
     uint32 mass,
     uint16 maxInventorySlots,
     uint16 stackable
   ) internal {
     ObjectTypeMetadata._set(
-      objectTypeId,
+      objectType,
       ObjectTypeMetadataData({
         stackable: stackable,
         maxInventorySlots: maxInventorySlots,

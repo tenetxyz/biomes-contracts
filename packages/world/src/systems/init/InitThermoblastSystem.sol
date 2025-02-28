@@ -6,27 +6,27 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
 import { MAX_BLOCK_STACKABLE, MAX_ITEM_STACKABLE } from "../../Constants.sol";
-import { CobblestoneObjectID, CobblestoneBrickObjectID, CobblestoneCarvedObjectID, CobblestonePolishedObjectID, CobblestoneShinglesObjectID } from "../../ObjectTypeIds.sol";
-import { StoneObjectID, StoneBrickObjectID, StoneCarvedObjectID, StonePolishedObjectID, StoneShinglesObjectID } from "../../ObjectTypeIds.sol";
-import { BasaltObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID } from "../../ObjectTypeIds.sol";
-import { ClayObjectID, ClayBrickObjectID, ClayCarvedObjectID, ClayPolishedObjectID, ClayShinglesObjectID } from "../../ObjectTypeIds.sol";
-import { GraniteObjectID, GraniteBrickObjectID, GraniteCarvedObjectID, GraniteShinglesObjectID, GranitePolishedObjectID } from "../../ObjectTypeIds.sol";
-import { QuartziteObjectID, QuartziteBrickObjectID, QuartziteCarvedObjectID, QuartzitePolishedObjectID, QuartziteShinglesObjectID } from "../../ObjectTypeIds.sol";
-import { LimestoneObjectID, LimestoneBrickObjectID, LimestoneCarvedObjectID, LimestonePolishedObjectID, LimestoneShinglesObjectID } from "../../ObjectTypeIds.sol";
-import { EmberstoneObjectID, SunstoneObjectID, MoonstoneObjectID, GlassObjectID, SandObjectID, DirtObjectID, CoalOreObjectID, MushroomLeatherBlockObjectID, RedMushroomObjectID } from "../../ObjectTypeIds.sol";
-import { GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID } from "../../ObjectTypeIds.sol";
-import { SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../../ObjectTypeIds.sol";
-import { GoldCubeObjectID, SilverCubeObjectID, DiamondCubeObjectID, NeptuniumCubeObjectID } from "../../ObjectTypeIds.sol";
-import { ChipObjectID, ChipBatteryObjectID } from "../../ObjectTypeIds.sol";
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { CobblestoneObjectID, CobblestoneBrickObjectID, CobblestoneCarvedObjectID, CobblestonePolishedObjectID, CobblestoneShinglesObjectID } from "../../ObjectType.sol";
+import { StoneObjectID, StoneBrickObjectID, StoneCarvedObjectID, StonePolishedObjectID, StoneShinglesObjectID } from "../../ObjectType.sol";
+import { BasaltObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID } from "../../ObjectType.sol";
+import { ClayObjectID, ClayBrickObjectID, ClayCarvedObjectID, ClayPolishedObjectID, ClayShinglesObjectID } from "../../ObjectType.sol";
+import { GraniteObjectID, GraniteBrickObjectID, GraniteCarvedObjectID, GraniteShinglesObjectID, GranitePolishedObjectID } from "../../ObjectType.sol";
+import { QuartziteObjectID, QuartziteBrickObjectID, QuartziteCarvedObjectID, QuartzitePolishedObjectID, QuartziteShinglesObjectID } from "../../ObjectType.sol";
+import { LimestoneObjectID, LimestoneBrickObjectID, LimestoneCarvedObjectID, LimestonePolishedObjectID, LimestoneShinglesObjectID } from "../../ObjectType.sol";
+import { EmberstoneObjectID, SunstoneObjectID, MoonstoneObjectID, GlassObjectID, SandObjectID, DirtObjectID, CoalOreObjectID, MushroomLeatherBlockObjectID, RedMushroomObjectID } from "../../ObjectType.sol";
+import { GoldBarObjectID, SilverBarObjectID, DiamondObjectID, NeptuniumBarObjectID } from "../../ObjectType.sol";
+import { SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../../ObjectType.sol";
+import { GoldCubeObjectID, SilverCubeObjectID, DiamondCubeObjectID, NeptuniumCubeObjectID } from "../../ObjectType.sol";
+import { ChipObjectID, ChipBatteryObjectID } from "../../ObjectType.sol";
+import { ObjectType } from "../../ObjectType.sol";
 
-import { ThermoblasterObjectID } from "../../ObjectTypeIds.sol";
+import { ThermoblasterObjectID } from "../../ObjectType.sol";
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitThermoblastSystem is System {
-  function createBlock(ObjectTypeId terrainBlockObjectTypeId, uint32 mass) internal {
+  function createBlock(ObjectType terrainBlockObjectType, uint32 mass) internal {
     ObjectTypeMetadata._set(
-      terrainBlockObjectTypeId,
+      terrainBlockObjectType,
       ObjectTypeMetadataData({
         stackable: MAX_BLOCK_STACKABLE,
         maxInventorySlots: 0,
@@ -37,9 +37,9 @@ contract InitThermoblastSystem is System {
     );
   }
 
-  function createItem(ObjectTypeId itemObjectTypeId) internal {
+  function createItem(ObjectType itemObjectType) internal {
     ObjectTypeMetadata._set(
-      itemObjectTypeId,
+      itemObjectType,
       ObjectTypeMetadataData({
         stackable: MAX_ITEM_STACKABLE,
         maxInventorySlots: 0,

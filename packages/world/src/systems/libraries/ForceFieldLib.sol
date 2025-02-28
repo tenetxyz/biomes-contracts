@@ -11,7 +11,7 @@ import { VoxelCoord } from "../../Types.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
-import { ObjectTypeId, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectType, ForceFieldObjectID } from "../../ObjectType.sol";
 import { updateMachineEnergyLevel } from "../../utils/EnergyUtils.sol";
 import { getForceField, setupForceField, destroyForceField } from "../../utils/ForceFieldUtils.sol";
 
@@ -24,14 +24,14 @@ library ForceFieldLib {
   function requireBuildsAllowed(
     EntityId playerEntityId,
     EntityId baseEntityId,
-    ObjectTypeId objectTypeId,
+    ObjectType objectType,
     VoxelCoord[] memory coords,
     bytes memory extraData
   ) public {
     for (uint256 i = 0; i < coords.length; i++) {
       VoxelCoord memory coord = coords[i];
       EntityId forceFieldEntityId = getForceField(coord);
-      if (objectTypeId == ForceFieldObjectID) {
+      if (objectType == ForceFieldObjectID) {
         require(!forceFieldEntityId.exists(), "Force field overlaps with another force field");
         setupForceField(baseEntityId, coord);
       }
@@ -41,7 +41,7 @@ library ForceFieldLib {
         if (machineData.energy > 0) {
           bytes memory onBuildCall = abi.encodeCall(
             IForceFieldChip.onBuild,
-            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
+            (forceFieldEntityId, playerEntityId, objectType, coord, extraData)
           );
 
           callChipOrRevert(forceFieldEntityId.getChipAddress(), onBuildCall);
@@ -53,7 +53,7 @@ library ForceFieldLib {
   function requireMinesAllowed(
     EntityId playerEntityId,
     EntityId baseEntityId,
-    ObjectTypeId objectTypeId,
+    ObjectType objectType,
     VoxelCoord[] memory coords,
     bytes memory extraData
   ) public {
@@ -65,14 +65,14 @@ library ForceFieldLib {
         if (machineData.energy > 0) {
           bytes memory onMineCall = abi.encodeCall(
             IForceFieldChip.onMine,
-            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
+            (forceFieldEntityId, playerEntityId, objectType, coord, extraData)
           );
 
           callChipOrRevert(forceFieldEntityId.getChipAddress(), onMineCall);
         }
       }
 
-      if (objectTypeId == ForceFieldObjectID) {
+      if (objectType == ForceFieldObjectID) {
         destroyForceField(baseEntityId, coord);
       }
     }

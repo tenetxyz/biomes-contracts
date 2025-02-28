@@ -5,14 +5,14 @@ import { VoxelCoord } from "../Types.sol";
 import { IChip } from "./IChip.sol";
 
 import { EntityId } from "../EntityId.sol";
-import { ObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectType } from "../ObjectType.sol";
 
 // Interface for a force field chip
 interface IForceFieldChip is IChip {
   function onBuild(
     EntityId targetEntityId,
     EntityId callerEntityId,
-    ObjectTypeId objectTypeId,
+    ObjectType objectType,
     VoxelCoord memory coord,
     bytes memory extraData
   ) external payable;
@@ -20,7 +20,7 @@ interface IForceFieldChip is IChip {
   function onMine(
     EntityId targetEntityId,
     EntityId callerEntityId,
-    ObjectTypeId objectTypeId,
+    ObjectType objectType,
     VoxelCoord memory coord,
     bytes memory extraData
   ) external payable;

@@ -18,7 +18,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
 import { EntityId } from "../../EntityId.sol";
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { ObjectType } from "../../ObjectType.sol";
 
 library ObjectType {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ObjectType", typeId: RESOURCE_TABLE });`
@@ -47,7 +47,7 @@ library ObjectType {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "objectTypeId";
+    fieldNames[0] = "objectType";
   }
 
   /**
@@ -65,99 +65,87 @@ library ObjectType {
   }
 
   /**
-   * @notice Get objectTypeId.
+   * @notice Get objectType.
    */
-  function getObjectTypeId(EntityId entityId) internal view returns (ObjectTypeId objectTypeId) {
+  function getObjectType(EntityId entityId) internal view returns (ObjectType objectType) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ObjectTypeId.wrap(uint16(bytes2(_blob)));
+    return ObjectType.wrap(uint16(bytes2(_blob)));
   }
 
   /**
-   * @notice Get objectTypeId.
+   * @notice Get objectType.
    */
-  function _getObjectTypeId(EntityId entityId) internal view returns (ObjectTypeId objectTypeId) {
+  function _getObjectType(EntityId entityId) internal view returns (ObjectType objectType) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ObjectTypeId.wrap(uint16(bytes2(_blob)));
+    return ObjectType.wrap(uint16(bytes2(_blob)));
   }
 
   /**
-   * @notice Get objectTypeId.
+   * @notice Get objectType.
    */
-  function get(EntityId entityId) internal view returns (ObjectTypeId objectTypeId) {
+  function get(EntityId entityId) internal view returns (ObjectType objectType) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ObjectTypeId.wrap(uint16(bytes2(_blob)));
+    return ObjectType.wrap(uint16(bytes2(_blob)));
   }
 
   /**
-   * @notice Get objectTypeId.
+   * @notice Get objectType.
    */
-  function _get(EntityId entityId) internal view returns (ObjectTypeId objectTypeId) {
+  function _get(EntityId entityId) internal view returns (ObjectType objectType) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ObjectTypeId.wrap(uint16(bytes2(_blob)));
+    return ObjectType.wrap(uint16(bytes2(_blob)));
   }
 
   /**
-   * @notice Set objectTypeId.
+   * @notice Set objectType.
    */
-  function setObjectTypeId(EntityId entityId, ObjectTypeId objectTypeId) internal {
+  function setObjectType(EntityId entityId, ObjectType objectType) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(
-      _tableId,
-      _keyTuple,
-      0,
-      abi.encodePacked(ObjectTypeId.unwrap(objectTypeId)),
-      _fieldLayout
-    );
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ObjectType.unwrap(objectType)), _fieldLayout);
   }
 
   /**
-   * @notice Set objectTypeId.
+   * @notice Set objectType.
    */
-  function _setObjectTypeId(EntityId entityId, ObjectTypeId objectTypeId) internal {
+  function _setObjectType(EntityId entityId, ObjectType objectType) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ObjectTypeId.unwrap(objectTypeId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ObjectType.unwrap(objectType)), _fieldLayout);
   }
 
   /**
-   * @notice Set objectTypeId.
+   * @notice Set objectType.
    */
-  function set(EntityId entityId, ObjectTypeId objectTypeId) internal {
+  function set(EntityId entityId, ObjectType objectType) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(
-      _tableId,
-      _keyTuple,
-      0,
-      abi.encodePacked(ObjectTypeId.unwrap(objectTypeId)),
-      _fieldLayout
-    );
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ObjectType.unwrap(objectType)), _fieldLayout);
   }
 
   /**
-   * @notice Set objectTypeId.
+   * @notice Set objectType.
    */
-  function _set(EntityId entityId, ObjectTypeId objectTypeId) internal {
+  function _set(EntityId entityId, ObjectType objectType) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ObjectTypeId.unwrap(objectTypeId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ObjectType.unwrap(objectType)), _fieldLayout);
   }
 
   /**
@@ -184,8 +172,8 @@ library ObjectType {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(ObjectTypeId objectTypeId) internal pure returns (bytes memory) {
-    return abi.encodePacked(objectTypeId);
+  function encodeStatic(ObjectType objectType) internal pure returns (bytes memory) {
+    return abi.encodePacked(objectType);
   }
 
   /**
@@ -194,8 +182,8 @@ library ObjectType {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(ObjectTypeId objectTypeId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(objectTypeId);
+  function encode(ObjectType objectType) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(objectType);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

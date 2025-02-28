@@ -7,19 +7,19 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
-import { OakLumberObjectID, BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "../../ObjectTypeIds.sol";
-import { CottonBlockObjectID, BlueCottonBlockObjectID, BrownCottonBlockObjectID, GreenCottonBlockObjectID, MagentaCottonBlockObjectID, OrangeCottonBlockObjectID, PinkCottonBlockObjectID, PurpleCottonBlockObjectID, RedCottonBlockObjectID, TanCottonBlockObjectID, WhiteCottonBlockObjectID, YellowCottonBlockObjectID, BlackCottonBlockObjectID, SilverCottonBlockObjectID } from "../../ObjectTypeIds.sol";
-import { GlassObjectID, BlueGlassObjectID, GreenGlassObjectID, OrangeGlassObjectID, PinkGlassObjectID, PurpleGlassObjectID, RedGlassObjectID, WhiteGlassObjectID, YellowGlassObjectID, BlackGlassObjectID } from "../../ObjectTypeIds.sol";
-import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectType } from "../../ObjectType.sol";
+import { OakLumberObjectID, BlueOakLumberObjectID, BrownOakLumberObjectID, GreenOakLumberObjectID, MagentaOakLumberObjectID, OrangeOakLumberObjectID, PinkOakLumberObjectID, PurpleOakLumberObjectID, RedOakLumberObjectID, TanOakLumberObjectID, WhiteOakLumberObjectID, YellowOakLumberObjectID, BlackOakLumberObjectID, SilverOakLumberObjectID } from "../../ObjectType.sol";
+import { CottonBlockObjectID, BlueCottonBlockObjectID, BrownCottonBlockObjectID, GreenCottonBlockObjectID, MagentaCottonBlockObjectID, OrangeCottonBlockObjectID, PinkCottonBlockObjectID, PurpleCottonBlockObjectID, RedCottonBlockObjectID, TanCottonBlockObjectID, WhiteCottonBlockObjectID, YellowCottonBlockObjectID, BlackCottonBlockObjectID, SilverCottonBlockObjectID } from "../../ObjectType.sol";
+import { GlassObjectID, BlueGlassObjectID, GreenGlassObjectID, OrangeGlassObjectID, PinkGlassObjectID, PurpleGlassObjectID, RedGlassObjectID, WhiteGlassObjectID, YellowGlassObjectID, BlackGlassObjectID } from "../../ObjectType.sol";
+import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectType.sol";
 
-import { DyeomaticObjectID } from "../../ObjectTypeIds.sol";
+import { DyeomaticObjectID } from "../../ObjectType.sol";
 import { createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitDyedBlocksSystem is System {
-  function createDyedBlock(ObjectTypeId terrainBlockObjectTypeId, uint32 mass) internal {
+  function createDyedBlock(ObjectType terrainBlockObjectType, uint32 mass) internal {
     ObjectTypeMetadata._set(
-      terrainBlockObjectTypeId,
+      terrainBlockObjectType,
       ObjectTypeMetadataData({
         stackable: MAX_BLOCK_STACKABLE,
         maxInventorySlots: 0,

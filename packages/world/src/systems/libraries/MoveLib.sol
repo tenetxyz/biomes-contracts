@@ -12,7 +12,7 @@ import { ReversePlayerPosition } from "../../codegen/tables/ReversePlayerPositio
 import { ActionType } from "../../codegen/common.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
-import { ObjectTypeId, AirObjectID, PlayerObjectID, WaterObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectType, AirObjectID, PlayerObjectID, WaterObjectID } from "../../ObjectType.sol";
 import { inWorldBorder } from "../../Utils.sol";
 import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
@@ -34,8 +34,8 @@ library MoveLib {
       require(inWorldBorder(newCoord), "Cannot move outside the world border");
       require(oldCoord.inSurroundingCube(1, newCoord), "New coord is too far from old coord");
 
-      ObjectTypeId newObjectTypeId = newCoord.getObjectTypeId();
-      require(ObjectTypeMetadata._getCanPassThrough(newObjectTypeId), "Cannot move through a non-passable block");
+      ObjectType newObjectType = newCoord.getObjectType();
+      require(ObjectTypeMetadata._getCanPassThrough(newObjectType), "Cannot move through a non-passable block");
 
       EntityId playerEntityIdAtCoord = newCoord.getPlayer();
       require(!playerEntityIdAtCoord.exists(), "Cannot move through a player");
@@ -150,9 +150,9 @@ library MoveLib {
       return false;
     }
 
-    ObjectTypeId belowObjectTypeId = belowCoord.getObjectTypeId();
+    ObjectType belowObjectType = belowCoord.getObjectType();
     // Players can swim in water so we don't want to apply gravity to them
-    if (belowObjectTypeId == WaterObjectID || !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
+    if (belowObjectType == WaterObjectID || !ObjectTypeMetadata._getCanPassThrough(belowObjectType)) {
       return false;
     }
     if (belowCoord.getPlayer().exists()) {

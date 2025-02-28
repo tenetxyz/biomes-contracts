@@ -17,7 +17,7 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { ObjectType } from "../../ObjectType.sol";
 
 struct ObjectTypeMetadataData {
   bool canPassThrough;
@@ -45,7 +45,7 @@ library ObjectTypeMetadata {
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
     keyNames = new string[](1);
-    keyNames[0] = "objectTypeId";
+    keyNames[0] = "objectType";
   }
 
   /**
@@ -78,9 +78,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Get canPassThrough.
    */
-  function getCanPassThrough(ObjectTypeId objectTypeId) internal view returns (bool canPassThrough) {
+  function getCanPassThrough(ObjectType objectType) internal view returns (bool canPassThrough) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -89,9 +89,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Get canPassThrough.
    */
-  function _getCanPassThrough(ObjectTypeId objectTypeId) internal view returns (bool canPassThrough) {
+  function _getCanPassThrough(ObjectType objectType) internal view returns (bool canPassThrough) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
@@ -100,9 +100,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Set canPassThrough.
    */
-  function setCanPassThrough(ObjectTypeId objectTypeId, bool canPassThrough) internal {
+  function setCanPassThrough(ObjectType objectType, bool canPassThrough) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((canPassThrough)), _fieldLayout);
   }
@@ -110,9 +110,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Set canPassThrough.
    */
-  function _setCanPassThrough(ObjectTypeId objectTypeId, bool canPassThrough) internal {
+  function _setCanPassThrough(ObjectType objectType, bool canPassThrough) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((canPassThrough)), _fieldLayout);
   }
@@ -120,9 +120,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Get stackable.
    */
-  function getStackable(ObjectTypeId objectTypeId) internal view returns (uint16 stackable) {
+  function getStackable(ObjectType objectType) internal view returns (uint16 stackable) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (uint16(bytes2(_blob)));
@@ -131,9 +131,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Get stackable.
    */
-  function _getStackable(ObjectTypeId objectTypeId) internal view returns (uint16 stackable) {
+  function _getStackable(ObjectType objectType) internal view returns (uint16 stackable) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return (uint16(bytes2(_blob)));
@@ -142,9 +142,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Set stackable.
    */
-  function setStackable(ObjectTypeId objectTypeId, uint16 stackable) internal {
+  function setStackable(ObjectType objectType, uint16 stackable) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((stackable)), _fieldLayout);
   }
@@ -152,9 +152,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Set stackable.
    */
-  function _setStackable(ObjectTypeId objectTypeId, uint16 stackable) internal {
+  function _setStackable(ObjectType objectType, uint16 stackable) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((stackable)), _fieldLayout);
   }
@@ -162,9 +162,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Get maxInventorySlots.
    */
-  function getMaxInventorySlots(ObjectTypeId objectTypeId) internal view returns (uint16 maxInventorySlots) {
+  function getMaxInventorySlots(ObjectType objectType) internal view returns (uint16 maxInventorySlots) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (uint16(bytes2(_blob)));
@@ -173,9 +173,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Get maxInventorySlots.
    */
-  function _getMaxInventorySlots(ObjectTypeId objectTypeId) internal view returns (uint16 maxInventorySlots) {
+  function _getMaxInventorySlots(ObjectType objectType) internal view returns (uint16 maxInventorySlots) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (uint16(bytes2(_blob)));
@@ -184,9 +184,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Set maxInventorySlots.
    */
-  function setMaxInventorySlots(ObjectTypeId objectTypeId, uint16 maxInventorySlots) internal {
+  function setMaxInventorySlots(ObjectType objectType, uint16 maxInventorySlots) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((maxInventorySlots)), _fieldLayout);
   }
@@ -194,9 +194,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Set maxInventorySlots.
    */
-  function _setMaxInventorySlots(ObjectTypeId objectTypeId, uint16 maxInventorySlots) internal {
+  function _setMaxInventorySlots(ObjectType objectType, uint16 maxInventorySlots) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((maxInventorySlots)), _fieldLayout);
   }
@@ -204,9 +204,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Get mass.
    */
-  function getMass(ObjectTypeId objectTypeId) internal view returns (uint32 mass) {
+  function getMass(ObjectType objectType) internal view returns (uint32 mass) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (uint32(bytes4(_blob)));
@@ -215,9 +215,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Get mass.
    */
-  function _getMass(ObjectTypeId objectTypeId) internal view returns (uint32 mass) {
+  function _getMass(ObjectType objectType) internal view returns (uint32 mass) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (uint32(bytes4(_blob)));
@@ -226,9 +226,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Set mass.
    */
-  function setMass(ObjectTypeId objectTypeId, uint32 mass) internal {
+  function setMass(ObjectType objectType, uint32 mass) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((mass)), _fieldLayout);
   }
@@ -236,9 +236,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Set mass.
    */
-  function _setMass(ObjectTypeId objectTypeId, uint32 mass) internal {
+  function _setMass(ObjectType objectType, uint32 mass) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((mass)), _fieldLayout);
   }
@@ -246,9 +246,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Get energy.
    */
-  function getEnergy(ObjectTypeId objectTypeId) internal view returns (uint32 energy) {
+  function getEnergy(ObjectType objectType) internal view returns (uint32 energy) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
     return (uint32(bytes4(_blob)));
@@ -257,9 +257,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Get energy.
    */
-  function _getEnergy(ObjectTypeId objectTypeId) internal view returns (uint32 energy) {
+  function _getEnergy(ObjectType objectType) internal view returns (uint32 energy) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
     return (uint32(bytes4(_blob)));
@@ -268,9 +268,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Set energy.
    */
-  function setEnergy(ObjectTypeId objectTypeId, uint32 energy) internal {
+  function setEnergy(ObjectType objectType, uint32 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((energy)), _fieldLayout);
   }
@@ -278,9 +278,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Set energy.
    */
-  function _setEnergy(ObjectTypeId objectTypeId, uint32 energy) internal {
+  function _setEnergy(ObjectType objectType, uint32 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 4, abi.encodePacked((energy)), _fieldLayout);
   }
@@ -288,9 +288,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Get the full data.
    */
-  function get(ObjectTypeId objectTypeId) internal view returns (ObjectTypeMetadataData memory _table) {
+  function get(ObjectType objectType) internal view returns (ObjectTypeMetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
       _tableId,
@@ -303,9 +303,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Get the full data.
    */
-  function _get(ObjectTypeId objectTypeId) internal view returns (ObjectTypeMetadataData memory _table) {
+  function _get(ObjectType objectType) internal view returns (ObjectTypeMetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
       _tableId,
@@ -319,7 +319,7 @@ library ObjectTypeMetadata {
    * @notice Set the full data using individual values.
    */
   function set(
-    ObjectTypeId objectTypeId,
+    ObjectType objectType,
     bool canPassThrough,
     uint16 stackable,
     uint16 maxInventorySlots,
@@ -332,7 +332,7 @@ library ObjectTypeMetadata {
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -341,7 +341,7 @@ library ObjectTypeMetadata {
    * @notice Set the full data using individual values.
    */
   function _set(
-    ObjectTypeId objectTypeId,
+    ObjectType objectType,
     bool canPassThrough,
     uint16 stackable,
     uint16 maxInventorySlots,
@@ -354,7 +354,7 @@ library ObjectTypeMetadata {
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -362,7 +362,7 @@ library ObjectTypeMetadata {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(ObjectTypeId objectTypeId, ObjectTypeMetadataData memory _table) internal {
+  function set(ObjectType objectType, ObjectTypeMetadataData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.canPassThrough,
       _table.stackable,
@@ -375,7 +375,7 @@ library ObjectTypeMetadata {
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
   }
@@ -383,7 +383,7 @@ library ObjectTypeMetadata {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(ObjectTypeId objectTypeId, ObjectTypeMetadataData memory _table) internal {
+  function _set(ObjectType objectType, ObjectTypeMetadataData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.canPassThrough,
       _table.stackable,
@@ -396,7 +396,7 @@ library ObjectTypeMetadata {
     bytes memory _dynamicData;
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
   }
@@ -441,9 +441,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(ObjectTypeId objectTypeId) internal {
+  function deleteRecord(ObjectType objectType) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -451,9 +451,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(ObjectTypeId objectTypeId) internal {
+  function _deleteRecord(ObjectType objectType) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -496,9 +496,9 @@ library ObjectTypeMetadata {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(ObjectTypeId objectTypeId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(ObjectType objectType) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
+    _keyTuple[0] = bytes32(uint256(ObjectType.unwrap(objectType)));
 
     return _keyTuple;
   }

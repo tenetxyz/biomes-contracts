@@ -16,7 +16,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { DisplayContentType } from "../codegen/common.sol";
 
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
-import { ObjectTypeId, TextSignObjectID } from "../ObjectTypeIds.sol";
+import { ObjectType, TextSignObjectID } from "../ObjectType.sol";
 import { getMachineEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { EntityId } from "../EntityId.sol";
@@ -28,8 +28,8 @@ contract DisplaySystem is System {
     require(entityId.exists(), "Entity does not exist");
 
     EntityId baseEntityId = entityId.baseEntityId();
-    ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
-    if (!objectTypeId.isSmartItem()) {
+    ObjectType objectType = ObjectType._get(baseEntityId);
+    if (!objectType.isSmartItem()) {
       return DisplayContent._get(baseEntityId);
     }
     VoxelCoord memory entityCoord = Position._get(baseEntityId).toVoxelCoord();

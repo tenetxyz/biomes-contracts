@@ -30,7 +30,7 @@ export default defineWorld({
     FacingDirection: ["PositiveX", "NegativeX", "PositiveY", "NegativeY", "PositiveZ", "NegativeZ"],
   },
   userTypes: {
-    ObjectTypeId: { filePath: "./src/ObjectTypeIds.sol", type: "uint16" },
+    ObjectType: { filePath: "./src/ObjectType.sol", type: "uint16" },
     EntityId: { filePath: "./src/EntityId.sol", type: "bytes32" },
     ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", type: "bytes32" },
   },
@@ -40,14 +40,14 @@ export default defineWorld({
     // ------------------------------------------------------------
     ObjectTypeMetadata: {
       schema: {
-        objectTypeId: "ObjectTypeId",
+        objectType: "ObjectType",
         canPassThrough: "bool",
         stackable: "uint16",
         maxInventorySlots: "uint16",
         mass: "uint32",
         energy: "uint32",
       },
-      key: ["objectTypeId"],
+      key: ["objectType"],
     },
     Recipes: {
       schema: {
@@ -72,7 +72,7 @@ export default defineWorld({
     ObjectType: {
       schema: {
         entityId: "EntityId",
-        objectTypeId: "ObjectTypeId",
+        objectType: "ObjectType",
       },
       key: ["entityId"],
     },
@@ -189,10 +189,10 @@ export default defineWorld({
     InventoryCount: {
       schema: {
         ownerEntityId: "EntityId",
-        objectTypeId: "ObjectTypeId",
+        objectType: "ObjectType",
         count: "uint16",
       },
-      key: ["ownerEntityId", "objectTypeId"],
+      key: ["ownerEntityId", "objectType"],
     },
     InventoryEntity: {
       schema: {
@@ -320,10 +320,10 @@ export default defineWorld({
     },
     MinedOreCount: {
       schema: {
-        objectTypeId: "ObjectTypeId",
+        objectType: "ObjectType",
         count: "uint256",
       },
-      key: ["objectTypeId"],
+      key: ["objectType"],
     },
     TotalBurnedOreCount: {
       schema: {

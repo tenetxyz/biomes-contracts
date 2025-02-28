@@ -6,18 +6,18 @@ import { ActionType } from "../codegen/common.sol";
 
 import { VoxelCoord } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
-import { ObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectType } from "../ObjectType.sol";
 
 struct BuildNotifData {
   EntityId buildEntityId;
   VoxelCoord buildCoord;
-  ObjectTypeId buildObjectTypeId;
+  ObjectType buildObjectType;
 }
 
 struct MineNotifData {
   EntityId mineEntityId;
   VoxelCoord mineCoord;
-  ObjectTypeId mineObjectTypeId;
+  ObjectType mineObjectType;
 }
 
 struct MoveNotifData {
@@ -31,20 +31,20 @@ struct CraftNotifData {
 
 struct DropNotifData {
   VoxelCoord dropCoord;
-  ObjectTypeId dropObjectTypeId;
+  ObjectType dropObjectType;
   uint16 dropAmount;
 }
 
 struct PickupNotifData {
   VoxelCoord pickupCoord;
-  ObjectTypeId pickupObjectTypeId;
+  ObjectType pickupObjectType;
   uint16 pickupAmount;
 }
 
 struct TransferNotifData {
   EntityId transferEntityId;
   VoxelCoord transferCoord;
-  ObjectTypeId transferObjectTypeId;
+  ObjectType transferObjectType;
   uint16 transferAmount;
 }
 
@@ -90,7 +90,7 @@ struct InitiateOreRevealNotifData {
 
 struct RevealOreNotifData {
   VoxelCoord oreCoord;
-  ObjectTypeId oreObjectTypeId;
+  ObjectType oreObjectType;
 }
 
 struct SleepNotifData {

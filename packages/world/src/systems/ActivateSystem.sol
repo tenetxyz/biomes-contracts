@@ -8,7 +8,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 
-import { ObjectTypeId, PlayerObjectID, NullObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectType, PlayerObjectID, NullObjectType } from "../ObjectType.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
 import { checkWorldStatus } from "../Utils.sol";
@@ -21,10 +21,10 @@ contract ActivateSystem is System {
 
     require(entityId.exists(), "Entity does not exist");
     EntityId baseEntityId = entityId.baseEntityId();
-    ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
-    require(!objectTypeId.isNull(), "Entity has no object type");
+    ObjectType objectType = ObjectType._get(baseEntityId);
+    require(!objectType.isNull(), "Entity has no object type");
 
-    if (objectTypeId == PlayerObjectID) {
+    if (objectType == PlayerObjectID) {
       requireValidPlayer(ReversePlayer._get(baseEntityId));
     } else {
       // if there's no chip, it'll just do nothing

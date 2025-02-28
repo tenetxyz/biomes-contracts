@@ -12,7 +12,7 @@ import { ChipOnTransferData, TransferData, TransferCommonContext } from "../Type
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
 import { TransferLib } from "./libraries/TransferLib.sol";
 import { EntityId } from "../EntityId.sol";
-import { ObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectType } from "../ObjectType.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 
 contract TransferSystem is System {
@@ -47,7 +47,7 @@ contract TransferSystem is System {
   function transferWithExtraData(
     EntityId chestEntityId,
     bool isDeposit,
-    ObjectTypeId transferObjectTypeId,
+    ObjectType transferObjectType,
     uint16 numToTransfer,
     bytes memory extraData
   ) public payable {
@@ -55,8 +55,8 @@ contract TransferSystem is System {
     transferInventoryNonEntity(
       ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
       ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
-      ctx.dstObjectTypeId,
-      transferObjectTypeId,
+      ctx.dstObjectType,
+      transferObjectType,
       numToTransfer
     );
 
@@ -65,7 +65,7 @@ contract TransferSystem is System {
       TransferNotifData({
         transferEntityId: ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
         transferCoord: ctx.chestCoord,
-        transferObjectTypeId: transferObjectTypeId,
+        transferObjectType: transferObjectType,
         transferAmount: numToTransfer
       })
     );
@@ -77,7 +77,7 @@ contract TransferSystem is System {
       ctx.playerEntityId,
       ctx.chestEntityId,
       TransferData({
-        objectTypeId: transferObjectTypeId,
+        objectType: transferObjectType,
         numToTransfer: numToTransfer,
         toolEntityIds: new EntityId[](0)
       }),
@@ -104,18 +104,18 @@ contract TransferSystem is System {
   ) public payable {
     require(toolEntityIds.length > 0, "Must transfer at least one tool");
     TransferCommonContext memory ctx = TransferLib.transferCommon(_msgSender(), chestEntityId, isDeposit);
-    ObjectTypeId toolObjectTypeId;
+    ObjectType toolObjectType;
     for (uint i = 0; i < toolEntityIds.length; i++) {
-      ObjectTypeId currentToolObjectTypeId = transferInventoryEntity(
+      ObjectType currentToolObjectType = transferInventoryEntity(
         ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
         ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
-        ctx.dstObjectTypeId,
+        ctx.dstObjectType,
         toolEntityIds[i]
       );
       if (i > 0) {
-        require(toolObjectTypeId == currentToolObjectTypeId, "All tools must be of the same type");
+        require(toolObjectType == currentToolObjectType, "All tools must be of the same type");
       } else {
-        toolObjectTypeId = currentToolObjectTypeId;
+        toolObjectType = currentToolObjectType;
       }
     }
 
@@ -124,7 +124,7 @@ contract TransferSystem is System {
       TransferNotifData({
         transferEntityId: ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
         transferCoord: ctx.chestCoord,
-        transferObjectTypeId: toolObjectTypeId,
+        transferObjectType: toolObjectType,
         transferAmount: uint16(toolEntityIds.length)
       })
     );
@@ -136,7 +136,7 @@ contract TransferSystem is System {
       ctx.playerEntityId,
       ctx.chestEntityId,
       TransferData({
-        objectTypeId: toolObjectTypeId,
+        objectType: toolObjectType,
         numToTransfer: uint16(toolEntityIds.length),
         toolEntityIds: toolEntityIds
       }),
@@ -147,10 +147,10 @@ contract TransferSystem is System {
   function transfer(
     EntityId chestEntityId,
     bool isDeposit,
-    ObjectTypeId transferObjectTypeId,
+    ObjectType transferObjectType,
     uint16 numToTransfer
   ) public payable {
-    transferWithExtraData(chestEntityId, isDeposit, transferObjectTypeId, numToTransfer, new bytes(0));
+    transferWithExtraData(chestEntityId, isDeposit, transferObjectType, numToTransfer, new bytes(0));
   }
 
   function transferTool(EntityId chestEntityId, bool isDeposit, EntityId toolEntityId) public payable {

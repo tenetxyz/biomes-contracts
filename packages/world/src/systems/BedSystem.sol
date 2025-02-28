@@ -21,7 +21,7 @@ import { Mass } from "../codegen/tables/Mass.sol";
 
 import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePlayerFromGrid, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
-import { ObjectTypeId, AirObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
+import { ObjectType, AirObjectID, PlayerObjectID, BedObjectID } from "../ObjectType.sol";
 import { checkWorldStatus, getUniqueEntity, inWorldBorder } from "../Utils.sol";
 import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol";
 import { mod } from "../utils/MathUtils.sol";
@@ -39,8 +39,8 @@ import { EntityId } from "../EntityId.sol";
 
 // To avoid reaching bytecode size limit
 library BedLib {
-  function transferInventory(EntityId playerEntityId, EntityId bedEntityId, ObjectTypeId objectTypeId) public {
-    transferAllInventoryEntities(playerEntityId, bedEntityId, objectTypeId);
+  function transferInventory(EntityId playerEntityId, EntityId bedEntityId, ObjectType objectType) public {
+    transferAllInventoryEntities(playerEntityId, bedEntityId, objectType);
   }
 
   function updateEntities(
@@ -69,8 +69,8 @@ contract BedSystem is System {
     // TODO: use a different constant?
     require(bedCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, dropCoord), "Drop location is too far from bed");
 
-    (EntityId dropEntityId, ObjectTypeId objectTypeId) = dropCoord.getOrCreateEntity();
-    require(objectTypeId == AirObjectID, "Cannot drop items on a non-air block");
+    (EntityId dropEntityId, ObjectType objectType) = dropCoord.getOrCreateEntity();
+    require(objectType == AirObjectID, "Cannot drop items on a non-air block");
 
     EntityId forceFieldEntityId = getForceField(bedCoord);
     (, EnergyData memory playerData) = BedLib.updateEntities(forceFieldEntityId, playerEntityId, bedEntityId, bedCoord);

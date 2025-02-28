@@ -5,21 +5,21 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
-import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectTypeIds.sol";
-import { ClayObjectID, StoneObjectID, CobblestoneObjectID, CottonBlockObjectID } from "../../ObjectTypeIds.sol";
-import { AnyLogObjectID, WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "../../ObjectTypeIds.sol";
-import { OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
-import { BellflowerObjectID, SakuraLumberObjectID, CactusObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "../../ObjectTypeIds.sol";
-import { DirtObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "../../ObjectTypeIds.sol";
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { BlueDyeObjectID, BrownDyeObjectID, GreenDyeObjectID, MagentaDyeObjectID, OrangeDyeObjectID, PinkDyeObjectID, PurpleDyeObjectID, RedDyeObjectID, TanDyeObjectID, WhiteDyeObjectID, YellowDyeObjectID, BlackDyeObjectID, SilverDyeObjectID } from "../../ObjectType.sol";
+import { ClayObjectID, StoneObjectID, CobblestoneObjectID, CottonBlockObjectID } from "../../ObjectType.sol";
+import { AnyLogObjectID, WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID } from "../../ObjectType.sol";
+import { OakLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectType.sol";
+import { BellflowerObjectID, SakuraLumberObjectID, CactusObjectID, LilacObjectID, AzaleaObjectID, DaylilyObjectID, AzaleaObjectID, LilacObjectID, RoseObjectID, SandObjectID, CottonBushObjectID, DandelionObjectID, NeptuniumOreObjectID, SilverOreObjectID } from "../../ObjectType.sol";
+import { DirtObjectID, OakLogObjectID, SakuraLogObjectID, BirchLogObjectID, RubberLogObjectID } from "../../ObjectType.sol";
+import { ObjectType } from "../../ObjectType.sol";
 
 import { MAX_BLOCK_STACKABLE, MAX_TOOL_STACKABLE, MAX_ITEM_STACKABLE } from "../../Constants.sol";
 import { createSingleInputRecipe, createDoubleInputRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitHandBlocksSystem is System {
-  function createHandcraftedBlock(ObjectTypeId terrainBlockObjectTypeId, uint32 mass) internal {
+  function createHandcraftedBlock(ObjectType terrainBlockObjectType, uint32 mass) internal {
     ObjectTypeMetadata._set(
-      terrainBlockObjectTypeId,
+      terrainBlockObjectType,
       ObjectTypeMetadataData({
         stackable: MAX_BLOCK_STACKABLE,
         maxInventorySlots: 0,
@@ -30,9 +30,9 @@ contract InitHandBlocksSystem is System {
     );
   }
 
-  function createHandcraftedTool(ObjectTypeId toolObjectTypeId, uint32 mass) internal {
+  function createHandcraftedTool(ObjectType toolObjectType, uint32 mass) internal {
     ObjectTypeMetadata._set(
-      toolObjectTypeId,
+      toolObjectType,
       ObjectTypeMetadataData({
         stackable: MAX_TOOL_STACKABLE,
         maxInventorySlots: 0,
@@ -43,9 +43,9 @@ contract InitHandBlocksSystem is System {
     );
   }
 
-  function createHandcraftedItem(ObjectTypeId itemObjectTypeId) internal {
+  function createHandcraftedItem(ObjectType itemObjectType) internal {
     ObjectTypeMetadata._set(
-      itemObjectTypeId,
+      itemObjectType,
       ObjectTypeMetadataData({
         stackable: MAX_ITEM_STACKABLE,
         maxInventorySlots: 0,

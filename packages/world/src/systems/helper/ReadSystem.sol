@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordLib } from "../../VoxelCoord.sol";
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { ObjectType } from "../../ObjectType.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
@@ -19,7 +19,7 @@ import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
 
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
-import { NullObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { NullObjectType, PlayerObjectID } from "../../ObjectType.sol";
 import { InventoryObject, EntityData } from "../../Types.sol";
 import { EntityId } from "../../EntityId.sol";
 
@@ -35,7 +35,7 @@ contract ReadSystem is System {
     if (!entityId.exists()) {
       return
         EntityData({
-          objectTypeId: NullObjectTypeId,
+          objectType: NullObjectType,
           entityId: EntityId.wrap(0),
           baseEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
@@ -47,7 +47,7 @@ contract ReadSystem is System {
 
     return
       EntityData({
-        objectTypeId: ObjectType._get(entityId),
+        objectType: ObjectType._get(entityId),
         entityId: entityId,
         baseEntityId: baseEntityId,
         inventory: getInventory(baseEntityId),
@@ -60,7 +60,7 @@ contract ReadSystem is System {
     if (!entityId.exists()) {
       return
         EntityData({
-          objectTypeId: NullObjectTypeId,
+          objectType: NullObjectType,
           entityId: EntityId.wrap(0),
           baseEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
@@ -72,7 +72,7 @@ contract ReadSystem is System {
 
     return
       EntityData({
-        objectTypeId: ObjectType._get(entityId),
+        objectType: ObjectType._get(entityId),
         entityId: entityId,
         baseEntityId: baseEntityId,
         inventory: getInventory(baseEntityId),
@@ -107,8 +107,8 @@ contract ReadSystem is System {
   }
 
   function getCoordForEntityId(EntityId entityId) public view returns (VoxelCoord memory) {
-    ObjectTypeId objectTypeId = ObjectType._get(entityId);
-    if (objectTypeId == PlayerObjectID) {
+    ObjectType objectType = ObjectType._get(entityId);
+    if (objectType == PlayerObjectID) {
       EntityId bedEntityId = PlayerStatus._getBedEntityId(entityId);
       if (bedEntityId.exists()) {
         return Position._get(bedEntityId).toVoxelCoord();

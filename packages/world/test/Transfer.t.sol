@@ -36,8 +36,7 @@ import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID, WoodenPickObjectID, WoodenAxeObjectID } from "../src/ObjectTypeIds.sol";
-import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
+import { ObjectType, ObjectTypes } from "../src/ObjectType.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -49,10 +48,10 @@ contract TransferTest is BiomesTest {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
-    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectType.Chest);
+    ObjectTypeId transferObjectTypeId = ObjectType.Grass;
     uint16 numToTransfer = 10;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, numToTransfer);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectType.Player, transferObjectTypeId, numToTransfer);
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), numToTransfer, "Inventory count is not 1");
     assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
 
@@ -86,9 +85,9 @@ contract TransferTest is BiomesTest {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectType.Chest);
 
-    ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
+    ObjectTypeId transferObjectTypeId = ObjectType.WoodenPick;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
     assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
@@ -130,10 +129,10 @@ contract TransferTest is BiomesTest {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
-    ObjectTypeId transferObjectTypeId = ChestObjectID;
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectType.Chest);
+    ObjectTypeId transferObjectTypeId = ObjectType.Chest;
     uint16 numToTransfer = 10;
-    TestUtils.addToInventoryCount(chestEntityId, ChestObjectID, transferObjectTypeId, numToTransfer);
+    TestUtils.addToInventoryCount(chestEntityId, ObjectType.Chest, transferObjectTypeId, numToTransfer);
     assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), numToTransfer, "Inventory count is not 1");
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
 
@@ -167,9 +166,9 @@ contract TransferTest is BiomesTest {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectType.Chest);
 
-    ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
+    ObjectTypeId transferObjectTypeId = ObjectType.WoodenPick;
     EntityId toolEntityId1 = addToolToInventory(chestEntityId, transferObjectTypeId);
     EntityId toolEntityId2 = addToolToInventory(chestEntityId, transferObjectTypeId);
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
@@ -220,18 +219,18 @@ contract TransferTest is BiomesTest {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
-    uint16 maxChestInventorySlots = ObjectTypeMetadata.getMaxInventorySlots(ChestObjectID);
-    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectType.Chest);
+    uint16 maxChestInventorySlots = ObjectTypeMetadata.getMaxInventorySlots(ObjectType.Chest);
+    ObjectTypeId transferObjectTypeId = ObjectType.Grass;
     TestUtils.addToInventoryCount(
       chestEntityId,
-      ChestObjectID,
+      ObjectType.Chest,
       transferObjectTypeId,
       ObjectTypeMetadata.getStackable(transferObjectTypeId) * maxChestInventorySlots
     );
     assertEq(InventorySlots.get(chestEntityId), maxChestInventorySlots, "Inventory slots is not max");
 
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectType.Player, transferObjectTypeId, 1);
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
 
     vm.prank(alice);
@@ -243,18 +242,18 @@ contract TransferTest is BiomesTest {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
-    uint16 maxPlayerInventorySlots = ObjectTypeMetadata.getMaxInventorySlots(PlayerObjectID);
-    ObjectTypeId transferObjectTypeId = GrassObjectID;
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectType.Chest);
+    uint16 maxPlayerInventorySlots = ObjectTypeMetadata.getMaxInventorySlots(ObjectType.Player);
+    ObjectTypeId transferObjectTypeId = ObjectType.Grass;
     TestUtils.addToInventoryCount(
       aliceEntityId,
-      PlayerObjectID,
+      ObjectType.Player,
       transferObjectTypeId,
       ObjectTypeMetadata.getStackable(transferObjectTypeId) * maxPlayerInventorySlots
     );
     assertEq(InventorySlots.get(aliceEntityId), maxPlayerInventorySlots, "Inventory slots is not max");
 
-    TestUtils.addToInventoryCount(chestEntityId, ChestObjectID, transferObjectTypeId, 1);
+    TestUtils.addToInventoryCount(chestEntityId, ObjectType.Chest, transferObjectTypeId, 1);
     assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
 
     vm.prank(alice);
@@ -266,9 +265,9 @@ contract TransferTest is BiomesTest {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    EntityId nonChestEntityId = setObjectAtCoord(chestCoord, DirtObjectID);
-    ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    EntityId nonChestEntityId = setObjectAtCoord(chestCoord, ObjectType.Dirt);
+    ObjectTypeId transferObjectTypeId = ObjectType.Grass;
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectType.Player, transferObjectTypeId, 1);
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
     assertEq(InventoryCount.get(nonChestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
 
@@ -283,9 +282,9 @@ contract TransferTest is BiomesTest {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
-    ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectType.Chest);
+    ObjectTypeId transferObjectTypeId = ObjectType.Grass;
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectType.Player, transferObjectTypeId, 1);
 
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
     assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
@@ -308,7 +307,7 @@ contract TransferTest is BiomesTest {
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
     assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
 
-    transferObjectTypeId = WoodenPickObjectID;
+    transferObjectTypeId = ObjectType.WoodenPick;
     EntityId toolEntityId = addToolToInventory(chestEntityId, transferObjectTypeId);
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
     assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
@@ -331,16 +330,16 @@ contract TransferTest is BiomesTest {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
-    ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectType.Chest);
+    ObjectTypeId transferObjectTypeId = ObjectType.Grass;
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectType.Player, transferObjectTypeId, 1);
 
-    EntityId toolEntityId1 = addToolToInventory(aliceEntityId, WoodenPickObjectID);
-    EntityId toolEntityId2 = addToolToInventory(aliceEntityId, WoodenAxeObjectID);
+    EntityId toolEntityId1 = addToolToInventory(aliceEntityId, ObjectType.WoodenPick);
+    EntityId toolEntityId2 = addToolToInventory(aliceEntityId, ObjectType.WoodenAxe);
 
     vm.prank(alice);
     vm.expectRevert("Object type is not a block or item");
-    world.transfer(chestEntityId, true, WoodenPickObjectID, 1);
+    world.transfer(chestEntityId, true, ObjectType.WoodenPick, 1);
 
     vm.prank(alice);
     vm.expectRevert("Amount must be greater than 0");
@@ -363,9 +362,9 @@ contract TransferTest is BiomesTest {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
-    ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectType.Chest);
+    ObjectTypeId transferObjectTypeId = ObjectType.Grass;
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectType.Player, transferObjectTypeId, 1);
 
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
     assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
@@ -385,9 +384,9 @@ contract TransferTest is BiomesTest {
       playerCoord.y,
       playerCoord.z + 1
     );
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
-    ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectType.Chest);
+    ObjectTypeId transferObjectTypeId = ObjectType.Grass;
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectType.Player, transferObjectTypeId, 1);
 
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
     assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
@@ -405,9 +404,9 @@ contract TransferTest is BiomesTest {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
-    ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectType.Chest);
+    ObjectTypeId transferObjectTypeId = ObjectType.Grass;
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectType.Player, transferObjectTypeId, 1);
 
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
     assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
@@ -420,9 +419,9 @@ contract TransferTest is BiomesTest {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
     VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
-    ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectType.Chest);
+    ObjectTypeId transferObjectTypeId = ObjectType.Grass;
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectType.Player, transferObjectTypeId, 1);
 
     assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
     assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");

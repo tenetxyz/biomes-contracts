@@ -16,7 +16,7 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
-import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectType, AirObjectID, PlayerObjectID } from "../ObjectType.sol";
 
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
@@ -71,8 +71,8 @@ function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
 
 function addPlayerToGrid(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   // Check if the spawn location is valid
-  ObjectTypeId terrainObjectTypeId = playerCoord.getObjectTypeId();
-  require(terrainObjectTypeId == AirObjectID && !playerCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
+  ObjectType terrainObjectType = playerCoord.getObjectType();
+  require(terrainObjectType == AirObjectID && !playerCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
 
   // Set the player at the base coordinate
   playerCoord.setPlayer(playerEntityId);
@@ -82,9 +82,9 @@ function addPlayerToGrid(EntityId playerEntityId, VoxelCoord memory playerCoord)
   // Only iterate through relative schema coords
   for (uint256 i = 1; i < coords.length; i++) {
     VoxelCoord memory relativeCoord = coords[i];
-    ObjectTypeId relativeTerrainObjectTypeId = relativeCoord.getObjectTypeId();
+    ObjectType relativeTerrainObjectType = relativeCoord.getObjectType();
     require(
-      relativeTerrainObjectTypeId == AirObjectID && !relativeCoord.getPlayer().exists(),
+      relativeTerrainObjectType == AirObjectID && !relativeCoord.getPlayer().exists(),
       "Cannot spawn on a non-air block"
     );
     EntityId relativePlayerEntityId = getUniqueEntity();

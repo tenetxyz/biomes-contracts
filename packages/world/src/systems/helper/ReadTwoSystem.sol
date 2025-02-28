@@ -22,7 +22,7 @@ import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
 
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
-import { ObjectTypeId, NullObjectTypeId } from "../../ObjectTypeIds.sol";
+import { ObjectType, NullObjectType } from "../../ObjectType.sol";
 import { InventoryObject, PlayerEntityData, BlockEntityData } from "../../Types.sol";
 
 import { EntityId } from "../../EntityId.sol";
@@ -81,7 +81,7 @@ contract ReadTwoSystem is System {
         BlockEntityData({
           entityId: EntityId.wrap(0),
           baseEntityId: EntityId.wrap(0),
-          objectTypeId: NullObjectTypeId,
+          objectType: NullObjectType,
           position: VoxelCoord(0, 0, 0),
           inventory: new InventoryObject[](0),
           chipAddress: address(0)
@@ -93,7 +93,7 @@ contract ReadTwoSystem is System {
       BlockEntityData({
         entityId: entityId,
         baseEntityId: baseEntityId,
-        objectTypeId: ObjectType._get(entityId),
+        objectType: ObjectType._get(entityId),
         position: Position._get(entityId).toVoxelCoord(),
         inventory: getEntityInventory(baseEntityId),
         chipAddress: baseEntityId.getChipAddress()

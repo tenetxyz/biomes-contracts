@@ -3,16 +3,16 @@ pragma solidity >=0.8.24;
 
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
-import { ObjectTypeId, NullObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectType, NullObjectType } from "../ObjectType.sol";
 
 function createRecipe(
-  ObjectTypeId stationObjectTypeId,
-  ObjectTypeId[] memory inputTypes,
+  ObjectType stationObjectType,
+  ObjectType[] memory inputTypes,
   uint16[] memory inputAmounts,
-  ObjectTypeId[] memory outputTypes,
+  ObjectType[] memory outputTypes,
   uint16[] memory outputAmounts
 ) {
-  bytes32 recipeId = hashInputs(stationObjectTypeId, inputTypes, inputAmounts);
+  bytes32 recipeId = hashInputs(stationObjectType, inputTypes, inputAmounts);
 
   uint16[] memory _outputTypes;
   assembly ("memory-safe") {
@@ -23,88 +23,88 @@ function createRecipe(
 }
 
 function hashInputs(
-  ObjectTypeId stationObjectTypeId,
-  ObjectTypeId[] memory inputTypes,
+  ObjectType stationObjectType,
+  ObjectType[] memory inputTypes,
   uint16[] memory inputAmounts
 ) pure returns (bytes32) {
-  return keccak256(abi.encode(stationObjectTypeId, inputTypes, inputAmounts));
+  return keccak256(abi.encode(stationObjectType, inputTypes, inputAmounts));
 }
 
 function createSingleInputWithStationRecipe(
-  ObjectTypeId stationObjectTypeId,
-  ObjectTypeId inputObjectTypeId,
+  ObjectType stationObjectType,
+  ObjectType inputObjectType,
   uint16 inputObjectTypeAmount,
-  ObjectTypeId outputObjectTypeId,
+  ObjectType outputObjectType,
   uint16 outputObjectTypeAmount
 ) {
-  ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-  inputTypes[0] = inputObjectTypeId;
+  ObjectType[] memory inputTypes = new ObjectType[](1);
+  inputTypes[0] = inputObjectType;
   uint16[] memory inputAmounts = new uint16[](1);
   inputAmounts[0] = inputObjectTypeAmount;
 
-  ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-  outputTypes[0] = outputObjectTypeId;
+  ObjectType[] memory outputTypes = new ObjectType[](1);
+  outputTypes[0] = outputObjectType;
   uint16[] memory outputAmounts = new uint16[](1);
   outputAmounts[0] = outputObjectTypeAmount;
 
-  createRecipe(stationObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+  createRecipe(stationObjectType, inputTypes, inputAmounts, outputTypes, outputAmounts);
 }
 
 function createSingleInputRecipe(
-  ObjectTypeId inputObjectTypeId,
+  ObjectType inputObjectType,
   uint16 inputObjectTypeAmount,
-  ObjectTypeId outputObjectTypeId,
+  ObjectType outputObjectType,
   uint16 outputObjectTypeAmount
 ) {
   createSingleInputWithStationRecipe(
-    NullObjectTypeId,
-    inputObjectTypeId,
+    NullObjectType,
+    inputObjectType,
     inputObjectTypeAmount,
-    outputObjectTypeId,
+    outputObjectType,
     outputObjectTypeAmount
   );
 }
 
 function createDoubleInputWithStationRecipe(
-  ObjectTypeId stationObjectTypeId,
-  ObjectTypeId inputObjectTypeId1,
+  ObjectType stationObjectType,
+  ObjectType inputObjectType1,
   uint16 inputObjectTypeAmount1,
-  ObjectTypeId inputObjectTypeId2,
+  ObjectType inputObjectType2,
   uint16 inputObjectTypeAmount2,
-  ObjectTypeId outputObjectTypeId,
+  ObjectType outputObjectType,
   uint16 outputObjectTypeAmount
 ) {
-  ObjectTypeId[] memory inputTypes = new ObjectTypeId[](2);
-  inputTypes[0] = inputObjectTypeId1;
-  inputTypes[1] = inputObjectTypeId2;
+  ObjectType[] memory inputTypes = new ObjectType[](2);
+  inputTypes[0] = inputObjectType1;
+  inputTypes[1] = inputObjectType2;
 
   uint16[] memory inputAmounts = new uint16[](2);
   inputAmounts[0] = inputObjectTypeAmount1;
   inputAmounts[1] = inputObjectTypeAmount2;
 
-  ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-  outputTypes[0] = outputObjectTypeId;
+  ObjectType[] memory outputTypes = new ObjectType[](1);
+  outputTypes[0] = outputObjectType;
   uint16[] memory outputAmounts = new uint16[](1);
   outputAmounts[0] = outputObjectTypeAmount;
 
-  createRecipe(stationObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+  createRecipe(stationObjectType, inputTypes, inputAmounts, outputTypes, outputAmounts);
 }
 
 function createDoubleInputRecipe(
-  ObjectTypeId inputObjectTypeId1,
+  ObjectType inputObjectType1,
   uint16 inputObjectTypeAmount1,
-  ObjectTypeId inputObjectTypeId2,
+  ObjectType inputObjectType2,
   uint16 inputObjectTypeAmount2,
-  ObjectTypeId outputObjectTypeId,
+  ObjectType outputObjectType,
   uint16 outputObjectTypeAmount
 ) {
   createDoubleInputWithStationRecipe(
-    NullObjectTypeId,
-    inputObjectTypeId1,
+    NullObjectType,
+    inputObjectType1,
     inputObjectTypeAmount1,
-    inputObjectTypeId2,
+    inputObjectType2,
     inputObjectTypeAmount2,
-    outputObjectTypeId,
+    outputObjectType,
     outputObjectTypeAmount
   );
 }

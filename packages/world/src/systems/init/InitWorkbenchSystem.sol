@@ -6,19 +6,19 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
 import { MAX_TOOL_STACKABLE, MAX_BLOCK_STACKABLE } from "../../Constants.sol";
-import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectTypeIds.sol";
-import { AnyLogObjectID, OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID, SilverBarObjectID, GoldBarObjectID, DiamondObjectID, NeptuniumBarObjectID, StoneObjectID } from "../../ObjectTypeIds.sol";
+import { SilverOreObjectID, StonePickObjectID, StoneAxeObjectID, StoneWhackerObjectID, SilverPickObjectID, SilverAxeObjectID, SilverWhackerObjectID, GoldPickObjectID, GoldAxeObjectID, NeptuniumPickObjectID, NeptuniumAxeObjectID, DiamondPickObjectID, DiamondAxeObjectID } from "../../ObjectType.sol";
+import { AnyLogObjectID, OakLogObjectID, SakuraLogObjectID, RubberLogObjectID, BirchLogObjectID, SilverBarObjectID, GoldBarObjectID, DiamondObjectID, NeptuniumBarObjectID, StoneObjectID } from "../../ObjectType.sol";
 
-import { ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID, OakLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectTypeIds.sol";
-import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { ReinforcedOakLumberObjectID, ReinforcedRubberLumberObjectID, ReinforcedBirchLumberObjectID, OakLumberObjectID, RubberLumberObjectID, BirchLumberObjectID } from "../../ObjectType.sol";
+import { WorkbenchObjectID } from "../../ObjectType.sol";
+import { ObjectType } from "../../ObjectType.sol";
 
 import { createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
 contract InitWorkbenchSystem is System {
-  function createTool(ObjectTypeId toolObjectTypeId, uint32 mass) internal {
+  function createTool(ObjectType toolObjectType, uint32 mass) internal {
     ObjectTypeMetadata._set(
-      toolObjectTypeId,
+      toolObjectType,
       ObjectTypeMetadataData({
         stackable: MAX_TOOL_STACKABLE,
         maxInventorySlots: 0,
@@ -29,9 +29,9 @@ contract InitWorkbenchSystem is System {
     );
   }
 
-  function createBlock(ObjectTypeId terrainBlockObjectTypeId, uint32 mass) internal {
+  function createBlock(ObjectType terrainBlockObjectType, uint32 mass) internal {
     ObjectTypeMetadata._set(
-      terrainBlockObjectTypeId,
+      terrainBlockObjectType,
       ObjectTypeMetadataData({
         stackable: MAX_BLOCK_STACKABLE,
         maxInventorySlots: 0,

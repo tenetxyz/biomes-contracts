@@ -16,7 +16,7 @@ import { Orientation } from "./codegen/tables/Orientation.sol";
 import { Mass } from "./codegen/tables/Mass.sol";
 import { FacingDirection } from "./codegen/common.sol";
 
-import { ObjectTypeId } from "./ObjectTypeIds.sol";
+import { ObjectType } from "./ObjectType.sol";
 import { TerrainLib } from "./systems/libraries/TerrainLib.sol";
 import { getUniqueEntity } from "./Utils.sol";
 import { floorDiv, absInt32 } from "./utils/MathUtils.sol";
@@ -294,35 +294,35 @@ library VoxelCoordLib {
     return VoxelCoord(self.x, self.y, self.z);
   }
 
-  function getObjectTypeId(VoxelCoord memory coord) internal view returns (ObjectTypeId) {
+  function getObjectType(VoxelCoord memory coord) internal view returns (ObjectType) {
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (!entityId.exists()) {
-      return ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
+      return ObjectType.wrap(TerrainLib._getBlockType(coord));
     }
     return ObjectType._get(entityId);
   }
 
-  function getOrCreateEntity(VoxelCoord memory coord) internal returns (EntityId, ObjectTypeId) {
+  function getOrCreateEntity(VoxelCoord memory coord) internal returns (EntityId, ObjectType) {
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
-    ObjectTypeId objectTypeId;
+    ObjectType objectType;
     if (!entityId.exists()) {
       // TODO: move wrapping to TerrainLib?
-      objectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
+      objectType = ObjectType.wrap(TerrainLib._getBlockType(coord));
 
       entityId = getUniqueEntity();
       Position._set(entityId, coord.x, coord.y, coord.z);
       ReversePosition._set(coord.x, coord.y, coord.z, entityId);
-      ObjectType._set(entityId, objectTypeId);
+      ObjectType._set(entityId, objectType);
       // We assume all terrain blocks are only 1 voxel (no relative entities)
-      uint32 mass = ObjectTypeMetadata._getMass(objectTypeId);
+      uint32 mass = ObjectTypeMetadata._getMass(objectType);
       if (mass > 0) {
         Mass._setMass(entityId, mass);
       }
     } else {
-      objectTypeId = ObjectType._get(entityId);
+      objectType = ObjectType._get(entityId);
     }
 
-    return (entityId, objectTypeId);
+    return (entityId, objectType);
   }
 
   function getPlayer(VoxelCoord memory coord) internal view returns (EntityId) {
@@ -359,10 +359,10 @@ library VoxelCoordLib {
   /// @dev Get relative schema coords, including base coord
   function getRelativeCoords(
     VoxelCoord memory baseCoord,
-    ObjectTypeId objectTypeId,
+    ObjectType objectType,
     FacingDirection facingDirection
   ) internal pure returns (VoxelCoord[] memory) {
-    VoxelCoord[] memory schemaCoords = getObjectTypeSchema(objectTypeId);
+    VoxelCoord[] memory schemaCoords = getObjectTypeSchema(objectType);
     VoxelCoord[] memory coords = new VoxelCoord[](schemaCoords.length + 1);
 
     coords[0] = baseCoord;
@@ -381,9 +381,9 @@ library VoxelCoordLib {
 
   function getRelativeCoords(
     VoxelCoord memory baseCoord,
-    ObjectTypeId objectTypeId
+    ObjectType objectType
   ) internal pure returns (VoxelCoord[] memory) {
-    return getRelativeCoords(baseCoord, objectTypeId, FacingDirection.PositiveZ);
+    return getRelativeCoords(baseCoord, objectType, FacingDirection.PositiveZ);
   }
 }
 

@@ -25,7 +25,7 @@ import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 import { PLAYER_HIT_ENERGY_COST } from "../Constants.sol";
 
-import { ObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectType } from "../ObjectType.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract HitMachineSystem is System {
@@ -42,8 +42,8 @@ contract HitMachineSystem is System {
       return;
     }
 
-    (uint128 toolMassReduction, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId);
-    require(toolObjectTypeId.isWhacker(), "You must use a whacker to hit machines");
+    (uint128 toolMassReduction, ObjectType toolObjectType) = useEquipped(playerEntityId);
+    require(toolObjectType.isWhacker(), "You must use a whacker to hit machines");
 
     uint128 baseEnergyReduction = PLAYER_HIT_ENERGY_COST + massToEnergy(toolMassReduction);
     VoxelCoord memory forceFieldShardCoord = machineCoord.toForceFieldShardCoord();

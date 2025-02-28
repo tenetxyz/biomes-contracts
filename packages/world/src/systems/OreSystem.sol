@@ -16,12 +16,12 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
 import { OreCommitment } from "../codegen/tables/OreCommitment.sol";
 
-import { AirObjectID, PlayerObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectTypeIds.sol";
+import { AirObjectID, PlayerObjectID, LavaObjectID, CoalOreObjectID } from "../ObjectType.sol";
 import { inWorldBorder } from "../Utils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, InitiateOreRevealNotifData, RevealOreNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
-import { ObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectType } from "../ObjectType.sol";
 import { EntityId } from "../EntityId.sol";
 import { ChunkCoord } from "../Types.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, CHUNK_COMMIT_HALF_WIDTH, RESPAWN_ORE_BLOCK_RANGE } from "../Constants.sol";
@@ -73,9 +73,9 @@ contract OreSystem is System {
 
     // Check existing entity
     EntityId entityId = ReversePosition._get(oreCoord.x, oreCoord.y, oreCoord.z);
-    ObjectTypeId objectTypeId = ObjectType._get(entityId);
-    require(objectTypeId == AirObjectID, "Ore coordinate is not air");
-    require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot respawn where there are dropped objects");
+    ObjectType objectType = ObjectType._get(entityId);
+    require(objectType == AirObjectID, "Ore coordinate is not air");
+    require(InventoryObjects._lengthObjectTypes(entityId) == 0, "Cannot respawn where there are dropped objects");
 
     // Remove from mined ore array
     if (minedOreIdx < mined) {

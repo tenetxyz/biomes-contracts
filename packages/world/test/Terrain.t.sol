@@ -5,7 +5,6 @@ import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
 import { TerrainLib, VERSION_PADDING } from "../src/systems/libraries/TerrainLib.sol";
-import { AirObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
 import { ChunkCoord } from "../src/Types.sol";
 import { CHUNK_SIZE } from "../src/Constants.sol";
@@ -14,6 +13,7 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 
 contract TerrainTest is MudTest, GasReporter {
   using VoxelCoordLib for VoxelCoord;
+
   function testGetChunkCoord() public {
     VoxelCoord memory coord = VoxelCoord(1, 2, 2);
     ChunkCoord memory chunkCoord = coord.toChunkCoord();

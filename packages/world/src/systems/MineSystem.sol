@@ -22,8 +22,8 @@ import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ActionType, DisplayContentType } from "../codegen/common.sol";
 
-import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
-import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../ObjectTypeIds.sol";
+import { ObjectType, AirObjectID, WaterObjectID, PlayerObjectID, BedObjectID } from "../ObjectType.sol";
+import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../ObjectType.sol";
 
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
@@ -42,7 +42,7 @@ import { PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.
 import { ChunkCoord } from "../Types.sol";
 
 library MineLib {
-  function mineRandomOre(VoxelCoord memory coord) public returns (ObjectTypeId) {
+  function mineRandomOre(VoxelCoord memory coord) public returns (ObjectType) {
     ChunkCoord memory chunkCoord = coord.toChunkCoord();
     uint256 commitment = OreCommitment._get(chunkCoord.x, chunkCoord.y, chunkCoord.z);
     // We can't get blockhash of current block
@@ -57,7 +57,7 @@ library MineLib {
     TotalMinedOreCount._set(totalMinedOre + 1);
 
     // TODO: can optimize by not storing these in memory and returning the type depending on for loop index
-    ObjectTypeId[5] memory ores = [
+    ObjectType[5] memory ores = [
       CoalOreObjectID,
       SilverOreObjectID,
       GoldOreObjectID,
@@ -99,7 +99,7 @@ library MineLib {
       }
     }
 
-    ObjectTypeId ore = ores[oreIndex];
+    ObjectType ore = ores[oreIndex];
     MinedOreCount._set(ore, max[oreIndex] - remaining[oreIndex] + 1);
 
     return ore;
@@ -147,8 +147,8 @@ contract MineSystem is System {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    (EntityId entityId, ObjectTypeId mineObjectTypeId) = coord.getOrCreateEntity();
-    require(mineObjectTypeId.isMineable(), "Object is not mineable");
+    (EntityId entityId, ObjectType mineObjectType) = coord.getOrCreateEntity();
+    require(mineObjectType.isMineable(), "Object is not mineable");
 
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_MINE_ENERGY_COST);
 
@@ -160,13 +160,13 @@ contract MineSystem is System {
     require(updateMachineEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
 
     // First coord will be the base coord, the rest is relative schema coords
-    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(mineObjectTypeId, Orientation._get(baseEntityId));
+    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(mineObjectType, Orientation._get(baseEntityId));
 
     {
       uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);
       if (finalMass == 0) {
-        if (mineObjectTypeId == AnyOreObjectID) {
-          mineObjectTypeId = MineLib.mineRandomOre(coord);
+        if (mineObjectType == AnyOreObjectID) {
+          mineObjectType = MineLib.mineRandomOre(coord);
         }
         Mass._deleteRecord(baseEntityId);
 
@@ -175,11 +175,11 @@ contract MineSystem is System {
         }
 
         // If mining a bed with a sleeping player, kill the player
-        if (mineObjectTypeId == BedObjectID) {
+        if (mineObjectType == BedObjectID) {
           MineLib.mineBed(baseEntityId, baseCoord);
         }
 
-        addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
+        addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectType, 1);
 
         _removeBlock(baseEntityId, baseCoord);
 
@@ -198,10 +198,10 @@ contract MineSystem is System {
 
     notify(
       playerEntityId,
-      MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
+      MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectType: mineObjectType })
     );
 
-    ForceFieldLib.requireMinesAllowed(playerEntityId, baseEntityId, mineObjectTypeId, coords, extraData);
+    ForceFieldLib.requireMinesAllowed(playerEntityId, baseEntityId, mineObjectType, coords, extraData);
   }
 
   function mine(VoxelCoord memory coord) public payable {

@@ -5,7 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { MAX_PLAYER_ENERGY } from "../../Constants.sol";
-import { PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { PlayerObjectID } from "../../ObjectType.sol";
 
 contract InitPlayersSystem is System {
   function initPlayerObjectTypes() public {

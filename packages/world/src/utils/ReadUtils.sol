@@ -10,20 +10,20 @@ import { Mass } from "../codegen/tables/Mass.sol";
 
 import { InventoryObject, InventoryEntity } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
-import { ObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectType } from "../ObjectType.sol";
 
 function getEntityInventory(EntityId entityId) view returns (InventoryObject[] memory) {
-  uint16[] memory objectTypeIds = InventoryObjects._get(entityId);
-  InventoryObject[] memory inventoryObjects = new InventoryObject[](objectTypeIds.length);
+  uint16[] memory objectTypes = InventoryObjects._get(entityId);
+  InventoryObject[] memory inventoryObjects = new InventoryObject[](objectTypes.length);
   bytes32[] memory allInventoryEntityIds = ReverseInventoryEntity._get(entityId);
-  for (uint256 i = 0; i < objectTypeIds.length; i++) {
-    ObjectTypeId objectTypeId = ObjectTypeId.wrap(objectTypeIds[i]);
-    uint16 count = InventoryCount._get(entityId, objectTypeId);
-    bool isTool = objectTypeId.isTool();
+  for (uint256 i = 0; i < objectTypes.length; i++) {
+    ObjectType objectType = ObjectType.wrap(objectTypes[i]);
+    uint16 count = InventoryCount._get(entityId, objectType);
+    bool isTool = objectType.isTool();
     uint256 numEntities = 0;
     if (isTool) {
       for (uint256 j = 0; j < allInventoryEntityIds.length; j++) {
-        if (ObjectType._get(EntityId.wrap(allInventoryEntityIds[j])) == objectTypeId) {
+        if (ObjectType._get(EntityId.wrap(allInventoryEntityIds[j])) == objectType) {
           numEntities++;
         }
       }
@@ -33,14 +33,14 @@ function getEntityInventory(EntityId entityId) view returns (InventoryObject[] m
       uint256 k = 0;
       for (uint256 j = 0; j < allInventoryEntityIds.length; j++) {
         EntityId toolEntityId = EntityId.wrap(allInventoryEntityIds[j]);
-        if (ObjectType._get(toolEntityId) == objectTypeId) {
+        if (ObjectType._get(toolEntityId) == objectType) {
           inventoryEntities[k] = InventoryEntity({ entityId: toolEntityId, mass: Mass._getMass(toolEntityId) });
           k++;
         }
       }
     }
     inventoryObjects[i] = InventoryObject({
-      objectTypeId: objectTypeId,
+      objectType: objectType,
       numObjects: count,
       inventoryEntities: inventoryEntities
     });

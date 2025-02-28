@@ -16,7 +16,7 @@ import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ActionType, FacingDirection } from "../codegen/common.sol";
 
-import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectType, AirObjectID, PlayerObjectID } from "../ObjectType.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -30,19 +30,19 @@ import { MoveLib } from "./libraries/MoveLib.sol";
 import { EntityId } from "../EntityId.sol";
 
 library BuildLib {
-  function _addBlock(ObjectTypeId buildObjectTypeId, VoxelCoord memory coord) public returns (EntityId) {
+  function _addBlock(ObjectType buildObjectType, VoxelCoord memory coord) public returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
-    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = coord.getOrCreateEntity();
-    require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
+    (EntityId terrainEntityId, ObjectType terrainObjectType) = coord.getOrCreateEntity();
+    require(terrainObjectType == AirObjectID, "Cannot build on a non-air block");
     require(
-      InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,
+      InventoryObjects._lengthObjectTypes(terrainEntityId) == 0,
       "Cannot build where there are dropped objects"
     );
-    if (!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId)) {
+    if (!ObjectTypeMetadata._getCanPassThrough(buildObjectType)) {
       require(!coord.getPlayer().exists(), "Cannot build on a player");
     }
 
-    ObjectType._set(terrainEntityId, buildObjectTypeId);
+    ObjectType._set(terrainEntityId, buildObjectType);
 
     return terrainEntityId;
   }
@@ -50,25 +50,25 @@ library BuildLib {
 
 contract BuildSystem is System {
   function buildWithExtraData(
-    ObjectTypeId buildObjectTypeId,
+    ObjectType buildObjectType,
     VoxelCoord memory baseCoord,
     FacingDirection facingDirection,
     bytes memory extraData
   ) public payable returns (EntityId) {
-    require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
+    require(buildObjectType.isBlock(), "Cannot build non-block object");
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, baseCoord);
 
-    EntityId baseEntityId = BuildLib._addBlock(buildObjectTypeId, baseCoord);
+    EntityId baseEntityId = BuildLib._addBlock(buildObjectType, baseCoord);
     Orientation._set(baseEntityId, facingDirection);
-    uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
+    uint32 mass = ObjectTypeMetadata._getMass(buildObjectType);
     Mass._setMass(baseEntityId, mass);
 
-    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(buildObjectTypeId, facingDirection);
+    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(buildObjectType, facingDirection);
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < coords.length; i++) {
       VoxelCoord memory relativeCoord = coords[i];
-      EntityId relativeEntityId = BuildLib._addBlock(buildObjectTypeId, relativeCoord);
+      EntityId relativeEntityId = BuildLib._addBlock(buildObjectType, relativeCoord);
       BaseEntity._set(relativeEntityId, baseEntityId);
     }
 
@@ -83,21 +83,21 @@ contract BuildSystem is System {
 
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
 
-    removeFromInventoryCount(playerEntityId, buildObjectTypeId, 1);
+    removeFromInventoryCount(playerEntityId, buildObjectType, 1);
 
     notify(
       playerEntityId,
-      BuildNotifData({ buildEntityId: baseEntityId, buildCoord: baseCoord, buildObjectTypeId: buildObjectTypeId })
+      BuildNotifData({ buildEntityId: baseEntityId, buildCoord: baseCoord, buildObjectType: buildObjectType })
     );
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
-    ForceFieldLib.requireBuildsAllowed(playerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
+    ForceFieldLib.requireBuildsAllowed(playerEntityId, baseEntityId, buildObjectType, coords, extraData);
 
     return baseEntityId;
   }
 
   function jumpBuildWithExtraData(
-    ObjectTypeId buildObjectTypeId,
+    ObjectType buildObjectType,
     FacingDirection facingDirection,
     bytes memory extraData
   ) public payable {
@@ -108,31 +108,31 @@ contract BuildSystem is System {
     MoveLib.movePlayer(playerEntityId, playerCoord, moveCoords);
     notify(playerEntityId, MoveNotifData({ moveCoords: moveCoords }));
 
-    require(!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId), "Cannot jump build on a pass-through block");
+    require(!ObjectTypeMetadata._getCanPassThrough(buildObjectType), "Cannot jump build on a pass-through block");
 
-    buildWithExtraData(buildObjectTypeId, playerCoord, facingDirection, extraData);
+    buildWithExtraData(buildObjectType, playerCoord, facingDirection, extraData);
   }
 
   function jumpBuildWithFacingDirection(
-    ObjectTypeId buildObjectTypeId,
+    ObjectType buildObjectType,
     FacingDirection facingDirection
   ) public payable {
-    jumpBuildWithExtraData(buildObjectTypeId, facingDirection, new bytes(0));
+    jumpBuildWithExtraData(buildObjectType, facingDirection, new bytes(0));
   }
 
-  function jumpBuild(ObjectTypeId buildObjectTypeId) public payable {
-    jumpBuildWithExtraData(buildObjectTypeId, FacingDirection.PositiveZ, new bytes(0));
+  function jumpBuild(ObjectType buildObjectType) public payable {
+    jumpBuildWithExtraData(buildObjectType, FacingDirection.PositiveZ, new bytes(0));
   }
 
   function buildWithFacingDirection(
-    ObjectTypeId buildObjectTypeId,
+    ObjectType buildObjectType,
     VoxelCoord memory baseCoord,
     FacingDirection facingDirection
   ) public payable returns (EntityId) {
-    return buildWithExtraData(buildObjectTypeId, baseCoord, facingDirection, new bytes(0));
+    return buildWithExtraData(buildObjectType, baseCoord, facingDirection, new bytes(0));
   }
 
-  function build(ObjectTypeId buildObjectTypeId, VoxelCoord memory baseCoord) public payable returns (EntityId) {
-    return buildWithExtraData(buildObjectTypeId, baseCoord, FacingDirection.PositiveZ, new bytes(0));
+  function build(ObjectType buildObjectType, VoxelCoord memory baseCoord) public payable returns (EntityId) {
+    return buildWithExtraData(buildObjectType, baseCoord, FacingDirection.PositiveZ, new bytes(0));
   }
 }

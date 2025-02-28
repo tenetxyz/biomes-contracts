@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { EnergyData } from "./codegen/tables/Energy.sol";
 import { VoxelCoord, VoxelCoordDirectionVonNeumann } from "./VoxelCoord.sol";
 import { EntityId } from "./EntityId.sol";
-import { ObjectTypeId } from "./ObjectTypeIds.sol";
+import { ObjectType } from "./ObjectType.sol";
 
 struct ChunkCoord {
   int32 x;
@@ -18,7 +18,7 @@ struct InventoryEntity {
 }
 
 struct InventoryObject {
-  ObjectTypeId objectTypeId;
+  ObjectType objectType;
   uint16 numObjects;
   InventoryEntity[] inventoryEntities;
 }
@@ -38,14 +38,14 @@ struct PlayerEntityData {
 struct BlockEntityData {
   EntityId entityId;
   EntityId baseEntityId;
-  ObjectTypeId objectTypeId;
+  ObjectType objectType;
   VoxelCoord position;
   InventoryObject[] inventory;
   address chipAddress;
 }
 
 struct EntityData {
-  ObjectTypeId objectTypeId;
+  ObjectType objectType;
   EntityId entityId;
   EntityId baseEntityId;
   InventoryObject[] inventory;
@@ -53,12 +53,12 @@ struct EntityData {
 }
 
 struct PickupData {
-  ObjectTypeId objectTypeId;
+  ObjectType objectType;
   uint16 numToPickup;
 }
 
 struct TransferData {
-  ObjectTypeId objectTypeId;
+  ObjectType objectType;
   uint16 numToTransfer;
   EntityId[] toolEntityIds;
 }
@@ -75,8 +75,8 @@ struct TransferCommonContext {
   EntityId playerEntityId;
   EntityId chestEntityId;
   VoxelCoord chestCoord;
-  ObjectTypeId chestObjectTypeId;
-  ObjectTypeId dstObjectTypeId;
+  ObjectType chestObjectType;
+  ObjectType dstObjectType;
   uint256 machineEnergyLevel;
   bool isDeposit;
 }
