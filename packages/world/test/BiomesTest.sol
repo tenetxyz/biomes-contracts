@@ -35,10 +35,11 @@ import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_D
 import { energyToMass } from "../src/utils/EnergyUtils.sol";
 import { getObjectTypeSchema } from "../src/utils/ObjectTypeUtils.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
+import { BiomesAssertions } from "./BiomesAssertions.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
-abstract contract BiomesTest is MudTest, GasReporter {
+abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
   using VoxelCoordLib for *;
 
   IWorld internal world;

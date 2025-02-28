@@ -329,19 +329,27 @@
     "name": "craft",
     "inputs": [
       {
+        "name": "recipeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "craftWithStation",
+    "inputs": [
+      {
+        "name": "recipeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
         "name": "stationEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
-      },
-      {
-        "name": "inputTypes",
-        "type": "uint16[]",
-        "internalType": "ObjectTypeId[]"
-      },
-      {
-        "name": "inputAmounts",
-        "type": "uint16[]",
-        "internalType": "uint16[]"
       }
     ],
     "outputs": [],

@@ -53,33 +53,22 @@ contract TransferTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     uint16 numToTransfer = 10;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, numToTransfer);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), numToTransfer, "Inventory count is not 1");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("transfer to chest");
     world.transfer(chestEntityId, true, transferObjectTypeId, numToTransfer);
     endGasReport();
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), numToTransfer, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(chestEntityId), 1, "Inventory slots is not 0");
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(chestEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testTransferToolToChest() public {
@@ -90,40 +79,23 @@ contract TransferTest is BiomesTest {
 
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("transfer tool to chest");
     world.transferTool(chestEntityId, true, toolEntityId);
     endGasReport();
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
-    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
+    assertInventoryHasTool(chestEntityId, toolEntityId, 1);
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
     assertEq(InventorySlots.get(chestEntityId), 1, "Inventory slots is not 0");
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(chestEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(InventoryEntity.get(toolEntityId) == chestEntityId, "Inventory entity is not chest");
-    assertFalse(
-      TestUtils.reverseInventoryEntityHasEntity(aliceEntityId, toolEntityId),
-      "Inventory entity is not chest"
-    );
-    assertTrue(TestUtils.reverseInventoryEntityHasEntity(chestEntityId, toolEntityId), "Inventory entity is not chest");
+    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
 
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testTransferFromChest() public {
@@ -134,33 +106,22 @@ contract TransferTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = ChestObjectID;
     uint16 numToTransfer = 10;
     TestUtils.addToInventoryCount(chestEntityId, ChestObjectID, transferObjectTypeId, numToTransfer);
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), numToTransfer, "Inventory count is not 1");
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("transfer from chest");
     world.transfer(chestEntityId, false, transferObjectTypeId, numToTransfer);
     endGasReport();
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), numToTransfer, "Inventory count is not 0");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
     assertEq(InventorySlots.get(aliceEntityId), numToTransfer, "Inventory slots is not 0");
     assertEq(InventorySlots.get(chestEntityId), 0, "Inventory slots is not 0");
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(chestEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testTransferToolFromChest() public {
@@ -172,12 +133,10 @@ contract TransferTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId1 = addToolToInventory(chestEntityId, transferObjectTypeId);
     EntityId toolEntityId2 = addToolToInventory(chestEntityId, transferObjectTypeId);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 2, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 2);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("transfer tools from chest");
@@ -187,33 +146,15 @@ contract TransferTest is BiomesTest {
     world.transferTools(chestEntityId, false, toolEntityIds);
     endGasReport();
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 2, "Inventory count is not 0");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasTool(aliceEntityId, toolEntityId1, 2);
+    assertInventoryHasTool(aliceEntityId, toolEntityId2, 2);
+    assertInventoryHasTool(chestEntityId, toolEntityId1, 0);
+    assertInventoryHasTool(chestEntityId, toolEntityId2, 0);
     assertEq(InventorySlots.get(aliceEntityId), 2, "Inventory slots is not 0");
     assertEq(InventorySlots.get(chestEntityId), 0, "Inventory slots is not 0");
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(chestEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    for (uint256 i = 0; i < toolEntityIds.length; i++) {
-      assertTrue(InventoryEntity.get(toolEntityIds[i]) == aliceEntityId, "Inventory entity is not chest");
-      assertTrue(
-        TestUtils.reverseInventoryEntityHasEntity(aliceEntityId, toolEntityIds[i]),
-        "Inventory entity is not chest"
-      );
-      assertFalse(
-        TestUtils.reverseInventoryEntityHasEntity(chestEntityId, toolEntityIds[i]),
-        "Inventory entity is not chest"
-      );
-    }
 
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testTransferToChestFailsIfChestFull() public {
@@ -232,7 +173,7 @@ contract TransferTest is BiomesTest {
     assertEq(InventorySlots.get(chestEntityId), maxChestInventorySlots, "Inventory slots is not max");
 
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Inventory is full");
@@ -255,7 +196,7 @@ contract TransferTest is BiomesTest {
     assertEq(InventorySlots.get(aliceEntityId), maxPlayerInventorySlots, "Inventory slots is not max");
 
     TestUtils.addToInventoryCount(chestEntityId, ChestObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Inventory is full");
@@ -269,8 +210,8 @@ contract TransferTest is BiomesTest {
     EntityId nonChestEntityId = setObjectAtCoord(chestCoord, DirtObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(nonChestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(nonChestEntityId, transferObjectTypeId, 0);
 
     assertEq(ObjectTypeMetadata.getMaxInventorySlots(transferObjectTypeId), 0, "Max inventory slots is not 0");
 
@@ -287,8 +228,8 @@ contract TransferTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
@@ -296,8 +237,8 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     world.transfer(chestEntityId, true, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
@@ -305,13 +246,13 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     world.transfer(chestEntityId, false, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(chestEntityId, transferObjectTypeId);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Entity does not own inventory item");
@@ -319,8 +260,8 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     world.transferTool(chestEntityId, false, toolEntityId);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
     vm.expectRevert("Entity does not own inventory item");
@@ -367,8 +308,8 @@ contract TransferTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     Energy.setEnergy(aliceEntityId, 1);
 
@@ -389,8 +330,8 @@ contract TransferTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
     vm.expectRevert("Destination too far");
@@ -409,8 +350,8 @@ contract TransferTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     vm.expectRevert("Player does not exist");
     world.transfer(chestEntityId, true, transferObjectTypeId, 1);
@@ -424,8 +365,8 @@ contract TransferTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 

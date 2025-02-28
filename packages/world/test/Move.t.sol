@@ -66,9 +66,7 @@ contract MoveTest is BiomesTest {
       }
     }
 
-    uint128 energyBefore = Energy.getEnergy(playerEntityId);
-    VoxelCoord memory shardCoord = startingCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(playerEntityId, startingCoord);
 
     vm.prank(player);
     startGasReport(
@@ -99,9 +97,8 @@ contract MoveTest is BiomesTest {
       "Above starting coord is not the player"
     );
 
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(playerEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(playerEntityId, startingCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testMoveOneBlockTerrain() public {
@@ -165,9 +162,7 @@ contract MoveTest is BiomesTest {
       setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
 
-    uint128 energyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("move single jump");
@@ -183,9 +178,8 @@ contract MoveTest is BiomesTest {
         aliceEntityId,
       "Above coord is not the player"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testMoveGlide() public {
@@ -205,9 +199,7 @@ contract MoveTest is BiomesTest {
     );
     setObjectAtCoord(VoxelCoord(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), GrassObjectID);
 
-    uint128 energyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     world.move(newCoords);
@@ -221,9 +213,8 @@ contract MoveTest is BiomesTest {
         aliceEntityId,
       "Above coord is not the player"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testMoveThroughWater() public {
@@ -234,9 +225,7 @@ contract MoveTest is BiomesTest {
     newCoords[1] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
     newCoords[2] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 2);
 
-    uint128 energyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     world.move(newCoords);
@@ -249,9 +238,8 @@ contract MoveTest is BiomesTest {
         aliceEntityId,
       "Above coord is not the player"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testMoveEndAtStart() public {
@@ -267,9 +255,7 @@ contract MoveTest is BiomesTest {
       setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
 
-    uint128 energyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     world.move(newCoords);
@@ -282,9 +268,8 @@ contract MoveTest is BiomesTest {
         aliceEntityId,
       "Above coord is not the player"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testMoveOverlapStartingCoord() public {
@@ -308,9 +293,7 @@ contract MoveTest is BiomesTest {
     );
     setObjectAtCoord(VoxelCoord(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), GrassObjectID);
 
-    uint128 energyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     world.move(newCoords);
@@ -323,9 +306,8 @@ contract MoveTest is BiomesTest {
         aliceEntityId,
       "Above coord is not the player"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testMoveFailsIfInvalidJump() public {

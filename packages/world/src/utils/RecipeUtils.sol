@@ -12,22 +12,29 @@ function createRecipe(
   ObjectTypeId[] memory outputTypes,
   uint16[] memory outputAmounts
 ) {
-  bytes32 recipeId = hashInputs(stationObjectTypeId, inputTypes, inputAmounts);
+  bytes32 recipeId = hashRecipe(stationObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+
+  uint16[] memory _inputTypes;
+  assembly ("memory-safe") {
+    _inputTypes := inputTypes
+  }
 
   uint16[] memory _outputTypes;
   assembly ("memory-safe") {
     _outputTypes := outputTypes
   }
 
-  Recipes._set(recipeId, _outputTypes, outputAmounts);
+  Recipes._set(recipeId, stationObjectTypeId, _inputTypes, inputAmounts, _outputTypes, outputAmounts);
 }
 
-function hashInputs(
+function hashRecipe(
   ObjectTypeId stationObjectTypeId,
   ObjectTypeId[] memory inputTypes,
-  uint16[] memory inputAmounts
+  uint16[] memory inputAmounts,
+  ObjectTypeId[] memory outputTypes,
+  uint16[] memory outputAmounts
 ) pure returns (bytes32) {
-  return keccak256(abi.encode(stationObjectTypeId, inputTypes, inputAmounts));
+  return keccak256(abi.encode(stationObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts));
 }
 
 function createSingleInputWithStationRecipe(

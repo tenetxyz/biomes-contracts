@@ -20,38 +20,33 @@ import { addToInventoryCount, removeFromInventoryCount, removeAnyFromInventoryCo
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, CraftNotifData } from "../utils/NotifUtils.sol";
 import { energyToMass, transferEnergyToPool } from "../utils/EnergyUtils.sol";
-import { hashInputs } from "../utils/RecipeUtils.sol";
 import { EntityId } from "../EntityId.sol";
 import { PLAYER_CRAFT_ENERGY_COST } from "../Constants.sol";
 
 contract CraftSystem is System {
-  function craft(EntityId stationEntityId, ObjectTypeId[] memory inputTypes, uint16[] memory inputAmounts) public {
-    require(inputTypes.length > 0, "Recipe not found");
+  function craftWithStation(bytes32 recipeId, EntityId stationEntityId) public {
+    RecipesData memory recipeData = Recipes._get(recipeId);
+    require(recipeData.inputTypes.length > 0, "Recipe not found");
 
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
-
-    requireInPlayerInfluence(playerCoord, stationEntityId);
-
-    EntityId baseStationEntityId = stationEntityId.baseEntityId();
-
-    ObjectTypeId stationObjectTypeId = ObjectType._get(baseStationEntityId);
-
-    bytes32 recipeId = hashInputs(stationObjectTypeId, inputTypes, inputAmounts);
-
-    RecipesData memory recipeData = Recipes._get(recipeId);
+    if (!recipeData.stationTypeId.isNull()) {
+      require(stationEntityId.exists(), "This recipe requires a station");
+      require(ObjectType._get(stationEntityId) == recipeData.stationTypeId, "Invalid station");
+      requireInPlayerInfluence(playerCoord, stationEntityId);
+    }
 
     // Require that the player has all the ingredients in its inventory
     // And delete the ingredients from the inventory as they are used
     // uint128 totalInputObjectMass = 0;
     // uint128 totalInputObjectEnergy = 0;
-    for (uint256 i = 0; i < inputTypes.length; i++) {
-      ObjectTypeId inputObjectTypeId = inputTypes[i];
+    for (uint256 i = 0; i < recipeData.inputTypes.length; i++) {
+      ObjectTypeId inputObjectTypeId = ObjectTypeId.wrap(recipeData.inputTypes[i]);
       // totalInputObjectMass += ObjectTypeMetadata._getMass(inputObjectTypeId);
       // totalInputObjectEnergy += ObjectTypeMetadata._getEnergy(inputObjectTypeId);
       if (inputObjectTypeId.isAny()) {
-        removeAnyFromInventoryCount(playerEntityId, inputObjectTypeId, inputAmounts[i]);
+        removeAnyFromInventoryCount(playerEntityId, inputObjectTypeId, recipeData.inputAmounts[i]);
       } else {
-        removeFromInventoryCount(playerEntityId, inputObjectTypeId, inputAmounts[i]);
+        removeFromInventoryCount(playerEntityId, inputObjectTypeId, recipeData.inputAmounts[i]);
       }
     }
 
@@ -80,5 +75,9 @@ contract CraftSystem is System {
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_CRAFT_ENERGY_COST);
 
     notify(playerEntityId, CraftNotifData({ recipeId: recipeId, stationEntityId: stationEntityId }));
+  }
+
+  function craft(bytes32 recipeId) public {
+    craftWithStation(recipeId, EntityId.wrap(bytes32(0)));
   }
 }
