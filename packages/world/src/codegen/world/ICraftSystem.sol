@@ -12,5 +12,11 @@ import { ObjectTypeId } from "../../ObjectTypeIds.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface ICraftSystem {
-  function craft(EntityId stationEntityId, ObjectTypeId[] memory inputTypes, uint16[] memory inputAmounts) external;
+  function craftWithStation(
+    EntityId stationEntityId,
+    ObjectTypeId[] memory inputTypes,
+    uint16[] memory inputAmounts
+  ) external;
+
+  function craft(ObjectTypeId[] memory inputTypes, uint16[] memory inputAmounts) external;
 }

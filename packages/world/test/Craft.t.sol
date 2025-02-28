@@ -32,7 +32,7 @@ import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
+import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID, OakLogObjectID, OakLumberObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
@@ -41,7 +41,48 @@ import { TestUtils } from "./utils/TestUtils.sol";
 contract CraftTest is BiomesTest {
   using VoxelCoordLib for *;
 
-  function testHandcraftSingleInput() public {}
+  function testHandcraftSingleInput() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    ObjectTypeId inputObjectTypeId = OakLogObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId, 1);
+    assertEq(InventoryCount.get(aliceEntityId, inputObjectTypeId), 1, "Inventory count is not 1");
+
+    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
+    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+
+    ObjectTypeId expectedOutputObjectTypeId = OakLumberObjectID;
+    uint16 expectedOutputAmount = 4;
+
+    vm.prank(alice);
+    startGasReport("handcraft single input");
+    ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
+    inputTypes[0] = inputObjectTypeId;
+    uint16[] memory inputAmounts = new uint16[](1);
+    inputAmounts[0] = 1;
+    world.craft(inputTypes, inputAmounts);
+    endGasReport();
+
+    assertEq(InventoryCount.get(aliceEntityId, inputObjectTypeId), 0, "Inventory count is not 0");
+    assertEq(
+      InventoryCount.get(aliceEntityId, expectedOutputObjectTypeId),
+      expectedOutputAmount,
+      "Inventory count is not 0"
+    );
+    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 0");
+    assertFalse(
+      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, inputObjectTypeId),
+      "Inventory objects still has build object type"
+    );
+    assertTrue(
+      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, expectedOutputObjectTypeId),
+      "Inventory objects still has build object type"
+    );
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+  }
 
   function testHandcraftMultipleInputs() public {}
 

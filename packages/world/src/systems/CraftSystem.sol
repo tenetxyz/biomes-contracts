@@ -25,7 +25,11 @@ import { EntityId } from "../EntityId.sol";
 import { PLAYER_CRAFT_ENERGY_COST } from "../Constants.sol";
 
 contract CraftSystem is System {
-  function craft(EntityId stationEntityId, ObjectTypeId[] memory inputTypes, uint16[] memory inputAmounts) public {
+  function craftWithStation(
+    EntityId stationEntityId,
+    ObjectTypeId[] memory inputTypes,
+    uint16[] memory inputAmounts
+  ) public {
     require(inputTypes.length > 0, "Recipe not found");
 
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
@@ -80,5 +84,9 @@ contract CraftSystem is System {
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_CRAFT_ENERGY_COST);
 
     notify(playerEntityId, CraftNotifData({ recipeId: recipeId, stationEntityId: stationEntityId }));
+  }
+
+  function craft(ObjectTypeId[] memory inputTypes, uint16[] memory inputAmounts) public {
+    craftWithStation(EntityId.wrap(bytes32(0)), inputTypes, inputAmounts);
   }
 }

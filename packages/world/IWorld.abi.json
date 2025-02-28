@@ -329,6 +329,24 @@
     "name": "craft",
     "inputs": [
       {
+        "name": "inputTypes",
+        "type": "uint16[]",
+        "internalType": "ObjectTypeId[]"
+      },
+      {
+        "name": "inputAmounts",
+        "type": "uint16[]",
+        "internalType": "uint16[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "craftWithStation",
+    "inputs": [
+      {
         "name": "stationEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
