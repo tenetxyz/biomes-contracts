@@ -246,9 +246,7 @@ ObjectTypeId constant SilverBarObjectID = ObjectTypeId.wrap(Item | 14);
 ObjectTypeId constant DiamondObjectID = ObjectTypeId.wrap(Item | 15);
 ObjectTypeId constant NeptuniumBarObjectID = ObjectTypeId.wrap(Item | 16);
 
-// TODO: should chips be their own category or misc or smart object?
-ObjectTypeId constant ChipObjectID = ObjectTypeId.wrap(Item | 17);
-ObjectTypeId constant ChipBatteryObjectID = ObjectTypeId.wrap(Item | 18);
+ObjectTypeId constant ChipBatteryObjectID = ObjectTypeId.wrap(Item | 17);
 
 // ------------------------------------------------------------
 // Special Object IDs
