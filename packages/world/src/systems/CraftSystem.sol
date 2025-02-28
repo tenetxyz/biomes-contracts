@@ -37,6 +37,8 @@ contract CraftSystem is System {
 
     // Require that the player has all the ingredients in its inventory
     // And delete the ingredients from the inventory as they are used
+    // uint128 totalInputObjectMass = 0;
+    // uint128 totalInputObjectEnergy = 0;
     for (uint256 i = 0; i < recipeData.inputTypes.length; i++) {
       ObjectTypeId inputObjectTypeId = ObjectTypeId.wrap(recipeData.inputTypes[i]);
       // totalInputObjectMass += ObjectTypeMetadata._getMass(inputObjectTypeId);
