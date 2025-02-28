@@ -28,7 +28,7 @@ import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
-import { updateMachineEnergyLevel, massToEnergy, updatePlayerEnergyLevel, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+import { massToEnergy, updateEnergyLevel, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { IBedChip } from "../prototypes/IBedChip.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -49,7 +49,7 @@ library BedLib {
     EntityId bedEntityId,
     VoxelCoord memory bedCoord
   ) public returns (EnergyData memory machineData, EnergyData memory playerData) {
-    machineData = updateMachineEnergyLevel(forceFieldEntityId);
+    machineData = updateEnergyLevel(forceFieldEntityId);
     playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, machineData, bedCoord);
     return (machineData, playerData);
   }
@@ -96,7 +96,7 @@ contract BedSystem is System {
 
     EntityId forceFieldEntityId = getForceField(Position._get(bedEntityId).toVoxelCoord());
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
-    EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+    EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
     require(machineData.energy > 0, "Forcefield has no energy");
 
     PlayerStatus._setBedEntityId(playerEntityId, bedEntityId);

@@ -19,7 +19,7 @@ import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
-import { updatePlayerEnergyLevel } from "./EnergyUtils.sol";
+import { updateEnergyLevel } from "./EnergyUtils.sol";
 import { getForceField } from "./ForceFieldUtils.sol";
 import { transferAllInventoryEntities } from "./InventoryUtils.sol";
 
@@ -36,11 +36,8 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
   require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
   VoxelCoord memory playerCoord = PlayerPosition._get(playerEntityId).toVoxelCoord();
 
-  (EnergyData memory playerEnergyData, uint128 energyDrained) = updatePlayerEnergyLevel(playerEntityId);
+  EnergyData memory playerEnergyData = updateEnergyLevel(playerEntityId);
   require(playerEnergyData.energy > 0, "Player is dead");
-  if (energyDrained > 0) {
-    playerCoord.addEnergyToLocalPool(energyDrained);
-  }
 
   PlayerActivity._set(playerEntityId, uint128(block.timestamp));
   return (playerEntityId, playerCoord, playerEnergyData);

@@ -10,7 +10,7 @@ import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 
 import { ObjectTypeId, PlayerObjectID, NullObjectTypeId } from "../ObjectTypeIds.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
+import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { checkWorldStatus } from "../Utils.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -28,7 +28,7 @@ contract ActivateSystem is System {
       requireValidPlayer(ReversePlayer._get(baseEntityId));
     } else {
       // if there's no chip, it'll just do nothing
-      updateMachineEnergyLevel(baseEntityId);
+      updateEnergyLevel(baseEntityId);
     }
   }
 
