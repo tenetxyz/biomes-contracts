@@ -283,16 +283,16 @@ library ObjectTypeIdLib {
     return ObjectTypeId.unwrap(self);
   }
 
+  function getCategory(ObjectTypeId self) internal pure returns (uint16) {
+    return (ObjectTypeId.unwrap(self) >> OFFSET_BITS) << OFFSET_BITS;
+  }
+
   function isBlock(ObjectTypeId id) internal pure returns (bool) {
-    return !id.isNull() && ObjectTypeId.unwrap(id) >> OFFSET_BITS == Block;
+    return !id.isNull() && id.getCategory() == Block;
   }
 
   function isMineable(ObjectTypeId self) internal pure returns (bool) {
     return self.isBlock() && self != AirObjectID && self != WaterObjectID;
-  }
-
-  function getCategory(ObjectTypeId self) internal pure returns (uint16) {
-    return (ObjectTypeId.unwrap(self) >> OFFSET_BITS) << OFFSET_BITS;
   }
 
   function isTool(ObjectTypeId id) internal pure returns (bool) {
