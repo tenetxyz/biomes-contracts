@@ -31,6 +31,7 @@ import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.s
 import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
+import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -338,8 +339,6 @@ contract CraftTest is BiomesTest {
     VoxelCoord memory stationCoord = VoxelCoord(playerCoord.x + 1, playerCoord.y, playerCoord.z);
     EntityId stationEntityId = setObjectAtCoord(stationCoord, WorkbenchObjectID);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
     world.craftWithStation(recipeId, stationEntityId);
@@ -384,8 +383,6 @@ contract CraftTest is BiomesTest {
     VoxelCoord memory stationCoord = VoxelCoord(playerCoord.x + 1, playerCoord.y, playerCoord.z);
     EntityId stationEntityId = setObjectAtCoord(stationCoord, WorkbenchObjectID);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     vm.expectRevert("This recipe requires a station");
     world.craft(recipeId);
@@ -402,11 +399,105 @@ contract CraftTest is BiomesTest {
     world.craftWithStation(recipeId, stationEntityId);
   }
 
-  function testCraftFailsIfFullInventory() public {}
+  function testCraftFailsIfFullInventory() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
-  function testCraftFailsIfNotEnoughEnergy() public {}
+    ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
+    inputTypes[0] = OakLogObjectID;
+    uint16[] memory inputAmounts = new uint16[](1);
+    inputAmounts[0] = 1;
+    ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
+    outputTypes[0] = OakLumberObjectID;
+    uint16[] memory outputAmounts = new uint16[](1);
+    outputAmounts[0] = 4;
+    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
-  function testCraftFailsIfNoPlayer() public {}
+    TestUtils.addToInventoryCount(
+      aliceEntityId,
+      PlayerObjectID,
+      OakLogObjectID,
+      ObjectTypeMetadata.getMaxInventorySlots(PlayerObjectID) * ObjectTypeMetadata.getStackable(OakLogObjectID)
+    );
+    assertEq(
+      InventorySlots.get(aliceEntityId),
+      ObjectTypeMetadata.getMaxInventorySlots(PlayerObjectID),
+      "Inventory slots is not max"
+    );
 
-  function testCraftFailsIfSleeping() public {}
+    vm.prank(alice);
+    vm.expectRevert("Inventory is full");
+    world.craft(recipeId);
+  }
+
+  function testCraftFailsIfNotEnoughEnergy() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
+    inputTypes[0] = OakLogObjectID;
+    uint16[] memory inputAmounts = new uint16[](1);
+    inputAmounts[0] = 1;
+    ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
+    outputTypes[0] = OakLumberObjectID;
+    uint16[] memory outputAmounts = new uint16[](1);
+    outputAmounts[0] = 4;
+    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+
+    for (uint256 i = 0; i < inputTypes.length; i++) {
+      TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputTypes[i], inputAmounts[i]);
+      assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
+    }
+
+    Energy.setEnergy(aliceEntityId, 1);
+
+    vm.prank(alice);
+    vm.expectRevert("Not enough energy");
+    world.craft(recipeId);
+  }
+
+  function testCraftFailsIfNoPlayer() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
+    inputTypes[0] = OakLogObjectID;
+    uint16[] memory inputAmounts = new uint16[](1);
+    inputAmounts[0] = 1;
+    ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
+    outputTypes[0] = OakLumberObjectID;
+    uint16[] memory outputAmounts = new uint16[](1);
+    outputAmounts[0] = 4;
+    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+
+    for (uint256 i = 0; i < inputTypes.length; i++) {
+      TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputTypes[i], inputAmounts[i]);
+      assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
+    }
+
+    vm.expectRevert("Player does not exist");
+    world.craft(recipeId);
+  }
+
+  function testCraftFailsIfSleeping() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
+    inputTypes[0] = OakLogObjectID;
+    uint16[] memory inputAmounts = new uint16[](1);
+    inputAmounts[0] = 1;
+    ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
+    outputTypes[0] = OakLumberObjectID;
+    uint16[] memory outputAmounts = new uint16[](1);
+    outputAmounts[0] = 4;
+    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+
+    for (uint256 i = 0; i < inputTypes.length; i++) {
+      TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputTypes[i], inputAmounts[i]);
+      assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
+    }
+
+    PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
+
+    vm.prank(alice);
+    vm.expectRevert("Player is sleeping");
+    world.craft(recipeId);
+  }
 }
