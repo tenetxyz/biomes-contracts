@@ -31,7 +31,7 @@ contract CraftSystem is System {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     if (!recipeData.stationTypeId.isNull()) {
       require(stationEntityId.exists(), "This recipe requires a station");
-      require(ObjectType._get(stationEntityId.baseEntityId()) == recipeData.stationTypeId, "Invalid station");
+      require(ObjectType._get(stationEntityId) == recipeData.stationTypeId, "Invalid station");
       requireInPlayerInfluence(playerCoord, stationEntityId);
     }
 
