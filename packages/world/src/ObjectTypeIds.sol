@@ -7,6 +7,8 @@ import { TotalBurnedOreCount } from "./codegen/tables/TotalBurnedOreCount.sol";
 type ObjectTypeId is uint16;
 
 uint8 constant OFFSET_BITS = 11;
+// First 5 bits set to 11111
+uint16 constant CATEGORY_MASK = 0xF800;
 
 // ------------------------------------------------------------
 // Object Categories
@@ -284,7 +286,7 @@ library ObjectTypeIdLib {
   }
 
   function getCategory(ObjectTypeId self) internal pure returns (uint16) {
-    return (ObjectTypeId.unwrap(self) >> OFFSET_BITS) << OFFSET_BITS;
+    return ObjectTypeId.unwrap(self) & CATEGORY_MASK;
   }
 
   function isBlock(ObjectTypeId id) internal pure returns (bool) {
