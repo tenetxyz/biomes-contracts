@@ -24,7 +24,7 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ISpawnTileChip } from "../src/prototypes/ISpawnTileChip.sol";
 import { ChunkCoord } from "../src/Types.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, ChipObjectID } from "../src/ObjectTypeIds.sol";
+import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord } from "../src/VoxelCoord.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -117,10 +117,7 @@ contract SpawnTest is BiomesTest {
     world.transferOwnership(namespaceId, address(0));
 
     // Attach chip with test player
-    (address bob, EntityId bobEntityId) = createTestPlayer(
-      VoxelCoord(spawnTileCoord.x - 1, spawnTileCoord.y, spawnTileCoord.z)
-    );
-    TestUtils.addToInventoryCount(bobEntityId, PlayerObjectID, ChipObjectID, 1);
+    (address bob, ) = createTestPlayer(VoxelCoord(spawnTileCoord.x - 1, spawnTileCoord.y, spawnTileCoord.z));
     vm.prank(bob);
     world.attachChip(spawnTileEntityId, chipSystemId);
 
