@@ -39,6 +39,12 @@ import { TestUtils } from "./utils/TestUtils.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
 abstract contract BiomesTest is MudTest, GasReporter {
+  struct EnergyDataSnapshot {
+    uint128 playerEnergy;
+    uint128 localPoolEnergy;
+    uint128 forceFieldEnergy;
+  }
+
   using VoxelCoordLib for *;
 
   IWorld internal world;
@@ -285,5 +291,62 @@ abstract contract BiomesTest is MudTest, GasReporter {
     EntityId forceFieldEntityId = setupForceField(coord);
     Energy.set(forceFieldEntityId, energyData);
     return forceFieldEntityId;
+  }
+
+  function assertInventoryHasObject(EntityId entityId, ObjectTypeId objectTypeId, uint16 amount) internal view {
+    assertEq(InventoryCount.get(entityId, objectTypeId), amount, "Inventory count is not correct");
+    if (amount > 0) {
+      assertTrue(
+        TestUtils.inventoryObjectsHasObjectType(entityId, objectTypeId),
+        "Inventory objects does not have object type"
+      );
+    } else {
+      assertFalse(TestUtils.inventoryObjectsHasObjectType(entityId, objectTypeId), "Inventory objects has object type");
+    }
+  }
+
+  function assertInventoryHasTool(EntityId entityId, EntityId toolEntityId, uint16 amount) internal view {
+    assertInventoryHasObject(entityId, ObjectType.get(toolEntityId), amount);
+    if (amount > 0) {
+      assertTrue(InventoryEntity.get(toolEntityId) == entityId, "Inventory entity is not owned by entity");
+      assertTrue(
+        TestUtils.reverseInventoryEntityHasEntity(entityId, toolEntityId),
+        "Inventory entity is not in reverse inventory entity"
+      );
+    } else {
+      assertFalse(InventoryEntity.get(toolEntityId) == entityId, "Inventory entity is not owned by entity");
+      assertFalse(
+        TestUtils.reverseInventoryEntityHasEntity(entityId, toolEntityId),
+        "Inventory entity is in reverse inventory entity"
+      );
+    }
+  }
+
+  function getEnergyDataSnapshot(
+    EntityId playerEntityId,
+    VoxelCoord memory snapshotCoord
+  ) internal view returns (EnergyDataSnapshot memory) {
+    EnergyDataSnapshot memory snapshot;
+    snapshot.playerEnergy = Energy.getEnergy(playerEntityId);
+    VoxelCoord memory shardCoord = snapshotCoord.toLocalEnergyPoolShardCoord();
+    snapshot.localPoolEnergy = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    VoxelCoord memory forceFieldShardCoord = snapshotCoord.toForceFieldShardCoord();
+    EntityId forceFieldEntityId = ForceField.get(
+      forceFieldShardCoord.x,
+      forceFieldShardCoord.y,
+      forceFieldShardCoord.z
+    );
+    snapshot.forceFieldEnergy = forceFieldEntityId.exists() ? Energy.getEnergy(forceFieldEntityId) : 0;
+    return snapshot;
+  }
+
+  function assertEnergyFlowedFromPlayerToLocalPool(
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot,
+    EnergyDataSnapshot memory afterEnergyDataSnapshot
+  ) internal pure {
+    uint128 playerEnergyLost = beforeEnergyDataSnapshot.playerEnergy - afterEnergyDataSnapshot.playerEnergy;
+    assertTrue(playerEnergyLost > 0, "Player energy did not decrease");
+    uint128 localPoolEnergyGained = afterEnergyDataSnapshot.localPoolEnergy - beforeEnergyDataSnapshot.localPoolEnergy;
+    assertEq(localPoolEnergyGained, playerEnergyLost, "Local pool energy did not gain energy");
   }
 }

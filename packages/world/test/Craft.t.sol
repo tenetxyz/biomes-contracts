@@ -46,12 +46,9 @@ contract CraftTest is BiomesTest {
 
     ObjectTypeId inputObjectTypeId = OakLogObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, inputObjectTypeId), 1, "Inventory count is not 1");
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 1);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
-
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     ObjectTypeId expectedOutputObjectTypeId = OakLumberObjectID;
     uint16 expectedOutputAmount = 4;
 
@@ -64,24 +61,11 @@ contract CraftTest is BiomesTest {
     world.craft(inputTypes, inputAmounts);
     endGasReport();
 
-    assertEq(InventoryCount.get(aliceEntityId, inputObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(
-      InventoryCount.get(aliceEntityId, expectedOutputObjectTypeId),
-      expectedOutputAmount,
-      "Inventory count is not 0"
-    );
-    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 0");
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, inputObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, expectedOutputObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 0);
+    assertInventoryHasObject(aliceEntityId, expectedOutputObjectTypeId, expectedOutputAmount);
+
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testHandcraftMultipleInputs() public {}
