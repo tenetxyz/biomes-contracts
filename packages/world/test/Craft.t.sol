@@ -29,10 +29,12 @@ import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
+import { Mass } from "../src/codegen/tables/Mass.sol";
+import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID, OakLogObjectID, OakLumberObjectID } from "../src/ObjectTypeIds.sol";
+import { PlayerObjectID, AnyLogObjectID, AnyLumberObjectID, WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLumberObjectID, BirchLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID, CobblestoneBrickObjectID, CobblestoneShinglesObjectID, ThermoblasterObjectID, WorkbenchObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
@@ -68,13 +70,145 @@ contract CraftTest is BiomesTest {
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
-  function testHandcraftMultipleInputs() public {}
+  function testHandcraftMultipleInputs() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
 
-  function testHandcraftAnyInput() public {}
+    ObjectTypeId inputObjectTypeId1 = LilacObjectID;
+    ObjectTypeId inputObjectTypeId2 = AzaleaObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId1, 5);
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId2, 5);
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 5);
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId2, 5);
 
-  function testCraftWithStation() public {}
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    ObjectTypeId expectedOutputObjectTypeId = MagentaDyeObjectID;
+    uint16 expectedOutputAmount = 10;
 
-  function testCraftTool() public {}
+    vm.prank(alice);
+    startGasReport("handcraft multiple inputs");
+    ObjectTypeId[] memory inputTypes = new ObjectTypeId[](2);
+    inputTypes[0] = inputObjectTypeId1;
+    inputTypes[1] = inputObjectTypeId2;
+    uint16[] memory inputAmounts = new uint16[](2);
+    inputAmounts[0] = 5;
+    inputAmounts[1] = 5;
+    world.craft(inputTypes, inputAmounts);
+    endGasReport();
+
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 0);
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId2, 0);
+    assertInventoryHasObject(aliceEntityId, expectedOutputObjectTypeId, expectedOutputAmount);
+
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+  }
+
+  function testCraftWithStation() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    ObjectTypeId inputObjectTypeId = CobblestoneBrickObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId, 4);
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 4);
+    VoxelCoord memory stationCoord = VoxelCoord(playerCoord.x + 1, playerCoord.y, playerCoord.z);
+    EntityId stationEntityId = setObjectAtCoord(stationCoord, ThermoblasterObjectID);
+
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    ObjectTypeId expectedOutputObjectTypeId = CobblestoneShinglesObjectID;
+    uint16 expectedOutputAmount = 4;
+
+    vm.prank(alice);
+    startGasReport("craft with station");
+    ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
+    inputTypes[0] = inputObjectTypeId;
+    uint16[] memory inputAmounts = new uint16[](1);
+    inputAmounts[0] = 4;
+    world.craftWithStation(stationEntityId, inputTypes, inputAmounts);
+    endGasReport();
+
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 0);
+    assertInventoryHasObject(aliceEntityId, expectedOutputObjectTypeId, expectedOutputAmount);
+
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+  }
+
+  function testCraftAnyInput() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    ObjectTypeId inputObjectTypeId1 = OakLumberObjectID;
+    ObjectTypeId inputObjectTypeId2 = BirchLumberObjectID;
+    ObjectTypeId inputObjectTypeId3 = RubberLumberObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId1, 2);
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId2, 3);
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId3, 3);
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 2);
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId2, 3);
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId3, 3);
+    VoxelCoord memory stationCoord = VoxelCoord(playerCoord.x + 1, playerCoord.y, playerCoord.z);
+    EntityId stationEntityId = setObjectAtCoord(stationCoord, WorkbenchObjectID);
+
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    ObjectTypeId expectedOutputObjectTypeId = ChestObjectID;
+    uint16 expectedOutputAmount = 1;
+
+    vm.prank(alice);
+    startGasReport("craft with any input");
+    ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
+    inputTypes[0] = AnyLumberObjectID;
+    uint16[] memory inputAmounts = new uint16[](1);
+    inputAmounts[0] = 8;
+    world.craftWithStation(stationEntityId, inputTypes, inputAmounts);
+    endGasReport();
+
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 0);
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId2, 0);
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId3, 0);
+    assertInventoryHasObject(aliceEntityId, expectedOutputObjectTypeId, expectedOutputAmount);
+
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+  }
+
+  function testCraftTool() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    ObjectTypeId inputObjectTypeId = SakuraLogObjectID;
+    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId, 4);
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 4);
+
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    ObjectTypeId expectedOutputObjectTypeId = WoodenAxeObjectID;
+    uint16 expectedOutputAmount = 1;
+
+    vm.prank(alice);
+    startGasReport("craft tool");
+    ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
+    inputTypes[0] = AnyLogObjectID;
+    uint16[] memory inputAmounts = new uint16[](1);
+    inputAmounts[0] = 4;
+    world.craft(inputTypes, inputAmounts);
+    endGasReport();
+
+    assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 0);
+    bytes32[] memory toolEntityIds = ReverseInventoryEntity.get(aliceEntityId);
+    assertEq(toolEntityIds.length, 1, "should have 1 tool");
+    EntityId toolEntityId = EntityId.wrap(toolEntityIds[0]);
+    assertTrue(toolEntityId.exists(), "tool entity id should exist");
+    ObjectTypeId toolObjectTypeId = ObjectType.get(toolEntityId);
+    assertTrue(
+      toolObjectTypeId == expectedOutputObjectTypeId,
+      "tool object type should be equal to expected output object type"
+    );
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+    assertEq(
+      Mass.get(toolEntityId),
+      ObjectTypeMetadata.getMass(expectedOutputObjectTypeId),
+      "mass should be equal to tool mass"
+    );
+
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+  }
 
   function testCraftFailsIfNotEnoughInputs() public {}
 
