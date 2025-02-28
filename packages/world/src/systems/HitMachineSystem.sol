@@ -18,7 +18,7 @@ import { ActionType } from "../codegen/common.sol";
 
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
+import { updateEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { safeCallChip } from "../utils/callChip.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
@@ -37,7 +37,7 @@ contract HitMachineSystem is System {
     EntityId machineEntityId,
     VoxelCoord memory machineCoord
   ) internal {
-    EnergyData memory machineData = updateMachineEnergyLevel(machineEntityId);
+    EnergyData memory machineData = updateEnergyLevel(machineEntityId);
     if (machineData.energy == 0) {
       return;
     }

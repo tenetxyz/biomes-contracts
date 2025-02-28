@@ -29,7 +29,7 @@ import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
-import { updateMachineEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
+import { updateEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { createPlayer } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -112,7 +112,7 @@ contract SpawnSystem is System {
     require(forceFieldEntityId.exists(), "Spawn tile is not inside a forcefield");
     uint32 playerMass = ObjectTypeMetadata._getMass(PlayerObjectID);
     uint128 energyRequired = getEnergyCostToSpawn(playerMass);
-    EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+    EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
     require(machineData.energy >= energyRequired, "Not enough energy in spawn tile forcefield");
     forceFieldEntityId.setEnergy(machineData.energy - energyRequired);
 
