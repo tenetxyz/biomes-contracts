@@ -12,9 +12,9 @@ import { ReversePlayerPosition } from "../../codegen/tables/ReversePlayerPositio
 import { ActionType } from "../../codegen/common.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
-import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../../ObjectTypeIds.sol";
-import { inWorldBorder, gravityApplies } from "../../Utils.sol";
-import { PLAYER_MOVE_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../../Constants.sol";
+import { ObjectTypeId, AirObjectID, PlayerObjectID, WaterObjectID } from "../../ObjectTypeIds.sol";
+import { inWorldBorder } from "../../Utils.sol";
+import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
@@ -45,18 +45,18 @@ library MoveLib {
   function _requireValidPath(
     VoxelCoord[] memory playerCoords,
     VoxelCoord[] memory newBaseCoords
-  ) internal view returns (bool) {
+  ) internal view returns (bool, uint16) {
     bool gravityAppliesForMove = false;
-    uint256 numJumps = 0;
-    uint256 numFalls = 0;
-    uint256 numGlides = 0;
+    uint16 numJumps = 0;
+    uint16 numFalls = 0;
+    uint16 numGlides = 0;
 
     VoxelCoord memory oldBaseCoord = playerCoords[0];
     for (uint256 i = 0; i < newBaseCoords.length; i++) {
       VoxelCoord memory newBaseCoord = newBaseCoords[i];
       _requireValidMove(oldBaseCoord, newBaseCoord);
 
-      gravityAppliesForMove = gravityApplies(newBaseCoord);
+      gravityAppliesForMove = _gravityApplies(newBaseCoord);
       if (gravityAppliesForMove) {
         if (oldBaseCoord.y < newBaseCoord.y) {
           numJumps++;
@@ -78,7 +78,7 @@ library MoveLib {
       oldBaseCoord = newBaseCoord;
     }
 
-    return gravityAppliesForMove;
+    return (gravityAppliesForMove, numFalls);
   }
 
   function _getPlayerEntityIds(
@@ -107,7 +107,7 @@ library MoveLib {
       ReversePlayerPosition._deleteRecord(playerCoords[i].x, playerCoords[i].y, playerCoords[i].z);
     }
 
-    bool gravityAppliesForMove = _requireValidPath(playerCoords, newBaseCoords);
+    (bool gravityAppliesForMove, uint16 numFalls) = _requireValidPath(playerCoords, newBaseCoords);
 
     VoxelCoord memory finalPlayerCoord = newBaseCoords[newBaseCoords.length - 1];
     VoxelCoord[] memory newPlayerCoords = finalPlayerCoord.getRelativeCoords(PlayerObjectID);
@@ -115,8 +115,11 @@ library MoveLib {
       newPlayerCoords[i].setPlayer(playerEntityIds[i]);
     }
 
-    uint128 energyCost = PLAYER_MOVE_ENERGY_COST * uint128(newBaseCoords.length);
-    transferEnergyToPool(playerEntityId, playerCoord, energyCost);
+    uint128 energyCost = (PLAYER_MOVE_ENERGY_COST * uint128(newBaseCoords.length - numFalls)) +
+      (PLAYER_FALL_ENERGY_COST * numFalls);
+    uint128 currentEnergy = Energy._getEnergy(playerEntityId);
+    transferEnergyToPool(playerEntityId, playerCoord, energyCost > currentEnergy ? currentEnergy : energyCost);
+    // TODO: drop inventory items
 
     return gravityAppliesForMove;
   }
@@ -131,33 +134,41 @@ library MoveLib {
       runGravity(playerEntityId, newCoords[newCoords.length - 1]);
     }
 
-    VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    VoxelCoord memory aboveCoord = VoxelCoord(playerCoord.x, playerCoord.y + 2, playerCoord.z);
     EntityId aboveEntityId = aboveCoord.getPlayer();
-    if (aboveEntityId.exists() && aboveEntityId.isBaseEntity()) {
+    // Note: currently it is not possible for the above player to not be the base entity,
+    // but if we add other types of movable entities we should check that it is a base entity
+    if (aboveEntityId.exists()) {
       runGravity(aboveEntityId, aboveCoord);
     }
   }
 
-  function runGravity(EntityId playerEntityId, VoxelCoord memory playerCoord) public returns (bool) {
+  function _gravityApplies(VoxelCoord memory playerCoord) internal view returns (bool) {
     VoxelCoord memory belowCoord = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
+    // We don't want players to fall off the edge of the world
     if (!inWorldBorder(belowCoord)) {
       return false;
     }
 
     ObjectTypeId belowObjectTypeId = belowCoord.getObjectTypeId();
-    if (!ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
+    // Players can swim in water so we don't want to apply gravity to them
+    if (belowObjectTypeId == WaterObjectID || !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
       return false;
     }
     if (belowCoord.getPlayer().exists()) {
       return false;
     }
 
-    // TODO: apply gravity cost
+    return true;
+  }
+
+  function runGravity(EntityId playerEntityId, VoxelCoord memory playerCoord) public {
+    if (!_gravityApplies(playerCoord)) {
+      return;
+    }
 
     VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-    newCoords[0] = belowCoord;
+    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y - 1, playerCoord.z);
     movePlayerWithGravity(playerEntityId, playerCoord, newCoords);
-
-    return true;
   }
 }

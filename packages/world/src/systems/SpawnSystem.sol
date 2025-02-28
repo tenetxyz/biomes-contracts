@@ -23,7 +23,7 @@ import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
-import { checkWorldStatus, getUniqueEntity, gravityApplies, inWorldBorder } from "../Utils.sol";
+import { checkWorldStatus, getUniqueEntity, inWorldBorder } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
@@ -32,7 +32,7 @@ import { callChipOrRevert } from "../utils/callChip.sol";
 import { updateMachineEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { createPlayer } from "../utils/PlayerUtils.sol";
-
+import { MoveLib } from "./libraries/MoveLib.sol";
 import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -130,7 +130,7 @@ contract SpawnSystem is System {
 
   function _spawnPlayer(uint32 playerMass, VoxelCoord memory spawnCoord) internal returns (EntityId) {
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
-    require(!gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
+    require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     address playerAddress = _msgSender();
     require(!Player._get(playerAddress).exists(), "Player already spawned");
