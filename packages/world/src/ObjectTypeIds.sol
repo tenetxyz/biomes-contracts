@@ -7,6 +7,8 @@ import { TotalBurnedOreCount } from "./codegen/tables/TotalBurnedOreCount.sol";
 type ObjectTypeId is uint16;
 
 uint8 constant OFFSET_BITS = 11;
+// First 5 bits set to 11111
+uint16 constant CATEGORY_MASK = 0xF800;
 
 // ------------------------------------------------------------
 // Object Categories
@@ -283,8 +285,12 @@ library ObjectTypeIdLib {
     return ObjectTypeId.unwrap(self);
   }
 
+  function getCategory(ObjectTypeId self) internal pure returns (uint16) {
+    return ObjectTypeId.unwrap(self) & CATEGORY_MASK;
+  }
+
   function isBlock(ObjectTypeId id) internal pure returns (bool) {
-    return !id.isNull() && ObjectTypeId.unwrap(id) >> OFFSET_BITS == Block;
+    return !id.isNull() && id.getCategory() == Block;
   }
 
   function isMineable(ObjectTypeId self) internal pure returns (bool) {
@@ -292,11 +298,11 @@ library ObjectTypeIdLib {
   }
 
   function isTool(ObjectTypeId id) internal pure returns (bool) {
-    return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Tool;
+    return id.getCategory() == Tool;
   }
 
   function isItem(ObjectTypeId id) internal pure returns (bool) {
-    return ObjectTypeId.unwrap(id) >> OFFSET_BITS == Item;
+    return id.getCategory() == Item;
   }
 
   function isOre(ObjectTypeId objectTypeId) internal pure returns (bool) {

@@ -42,4 +42,10 @@ contract ChipTest is BiomesTest {
   using VoxelCoordLib for *;
 
   function testMineFailsIfChipAttached() public {}
+
+  function testTransferWithChip() public {}
+
+  function testTransferFailsIfNotAllowedByChip() public {}
+
+  function testTransferFailsIfForceFieldNotEnoughEnergy() public {}
 }
