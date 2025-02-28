@@ -24,6 +24,7 @@ import { notify, AttachChipNotifData, DetachChipNotifData } from "../utils/Notif
 import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+import { IForceFieldShardChip } from "../prototypes/IForceFieldShardChip.sol";
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { IBedChip } from "../prototypes/IBedChip.sol";
@@ -44,6 +45,7 @@ contract ChipSystem is System {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
     VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
+    // TODO: we are doing an unnecessary read here (getting both the chip id and the chip address)
     require(baseEntityId.getChipAddress() == address(0), "Chip already attached");
 
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
@@ -52,7 +54,12 @@ contract ChipSystem is System {
     require(!publicAccess, "Chip system must be private");
 
     if (objectTypeId == ForceFieldObjectID) {
-      _requireInterface(chipAddress, type(IForceFieldChip).interfaceId);
+      // If base entity is a forcefield, check if entity is a shard
+      if (entityId == baseEntityId) {
+        _requireInterface(chipAddress, type(IForceFieldChip).interfaceId);
+      } else {
+        _requireInterface(chipAddress, type(IForceFieldShardChip).interfaceId);
+      }
     } else if (objectTypeId == SmartChestObjectID) {
       _requireInterface(chipAddress, type(IChestChip).interfaceId);
     } else if (objectTypeId == SmartTextSignObjectID) {
@@ -72,8 +79,9 @@ contract ChipSystem is System {
       AttachChipNotifData({ attachEntityId: baseEntityId, attachCoord: entityCoord, chipAddress: chipAddress })
     );
 
+    // TODO: should we also call the parent forcefield to see if attaching is allowed?
     bytes memory onAttachedCall = abi.encodeCall(IChip.onAttached, (playerEntityId, baseEntityId, extraData));
-    callChipOrRevert(baseEntityId.getChipAddress(), onAttachedCall);
+    callChipOrRevert(chipAddress, onAttachedCall);
   }
 
   function detachChipWithExtraData(EntityId entityId, bytes memory extraData) public payable {

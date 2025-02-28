@@ -16,16 +16,19 @@ import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ActionType, FacingDirection } from "../codegen/common.sol";
 
-import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+
+import { ObjectTypeId, AirObjectID, PlayerObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 
 import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
-import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
+import { transferEnergyToPool, updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
-import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
+import { callChipOrRevert } from "../utils/callChip.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { EntityId } from "../EntityId.sol";
 
@@ -45,6 +48,35 @@ library BuildLib {
     ObjectType._set(terrainEntityId, buildObjectTypeId);
 
     return terrainEntityId;
+  }
+
+  function requireBuildsAllowed(
+    EntityId playerEntityId,
+    EntityId baseEntityId,
+    ObjectTypeId objectTypeId,
+    VoxelCoord[] memory coords,
+    bytes memory extraData
+  ) public {
+    for (uint256 i = 0; i < coords.length; i++) {
+      VoxelCoord memory coord = coords[i];
+      EntityId forceFieldEntityId = getForceField(coord);
+      if (objectTypeId == ForceFieldObjectID) {
+        require(!forceFieldEntityId.exists(), "Force field overlaps with another force field");
+        setupForceField(baseEntityId, coord);
+      }
+
+      if (forceFieldEntityId.exists()) {
+        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+        if (machineData.energy > 0) {
+          bytes memory onBuildCall = abi.encodeCall(
+            IForceFieldChip.onBuild,
+            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
+          );
+
+          callChipOrRevert(forceFieldEntityId.getChipAddress(), onBuildCall);
+        }
+      }
+    }
   }
 }
 
@@ -91,7 +123,7 @@ contract BuildSystem is System {
     );
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
-    ForceFieldLib.requireBuildsAllowed(playerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
+    BuildLib.requireBuildsAllowed(playerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
 
     return baseEntityId;
   }

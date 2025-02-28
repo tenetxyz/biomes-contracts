@@ -22,7 +22,9 @@ import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ActionType, DisplayContentType } from "../codegen/common.sol";
 
-import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
+import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+
+import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID, BedObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../ObjectTypeIds.sol";
 
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
@@ -30,11 +32,11 @@ import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { mulDiv } from "../utils/MathUtils.sol";
-import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { getForceField, setupForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
+import { callChipOrRevert } from "../utils/callChip.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
-import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
@@ -124,6 +126,34 @@ library MineLib {
       transferEnergyToPool(sleepingPlayerId, bedCoord, playerData.energy);
     }
   }
+
+  function requireMinesAllowed(
+    EntityId playerEntityId,
+    EntityId baseEntityId,
+    ObjectTypeId objectTypeId,
+    VoxelCoord[] memory coords,
+    bytes memory extraData
+  ) public {
+    for (uint256 i = 0; i < coords.length; i++) {
+      VoxelCoord memory coord = coords[i];
+      EntityId forceFieldEntityId = getForceField(coord);
+      if (forceFieldEntityId.exists()) {
+        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+        if (machineData.energy > 0) {
+          bytes memory onMineCall = abi.encodeCall(
+            IForceFieldChip.onMine,
+            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
+          );
+
+          callChipOrRevert(forceFieldEntityId.getChipAddress(), onMineCall);
+        }
+      }
+
+      if (objectTypeId == ForceFieldObjectID) {
+        destroyForceField(baseEntityId, coord);
+      }
+    }
+  }
 }
 
 contract MineSystem is System {
@@ -201,7 +231,7 @@ contract MineSystem is System {
       MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
     );
 
-    ForceFieldLib.requireMinesAllowed(playerEntityId, baseEntityId, mineObjectTypeId, coords, extraData);
+    MineLib.requireMinesAllowed(playerEntityId, baseEntityId, mineObjectTypeId, coords, extraData);
   }
 
   function mine(VoxelCoord memory coord) public payable {

@@ -10,13 +10,13 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
-import { ObjectTypeId, PlayerObjectID, ChipBatteryObjectID, ForceFieldObjectID, ForceFieldShardID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, PlayerObjectID, ChipBatteryObjectID, ForceFieldObjectID } from "../ObjectTypeIds.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
+import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
-import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
+import { notify, ExpandForceFieldNotifData } from "../utils/NotifUtils.sol";
 
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
@@ -31,21 +31,23 @@ contract ForceFieldSystem is System {
 
     ObjectTypeId objectTypeId = ObjectType._get(forceFieldEntityId);
     require(objectTypeId == ForceFieldObjectID, "Invalid object type");
-    EnergyData memory machineData = updateMachineEnergyLevel(forceFieldEntityId);
+    EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
 
-    EntityId shardEntity = getUniqueEntity();
-    ObjectType._set(shardEntity, ForceFieldShardID);
-    ForceField._set(shardCoord.x, shardCoord.y, shardCoord.z, shardEntity);
-    BaseEntity._set();
+    // Increase drain rate per new shard
+    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + MACHINE_ENERGY_DRAIN_RATE);
+
+    EntityId shardEntityId = getUniqueEntity();
+    ForceField._set(shardCoord.x, shardCoord.y, shardCoord.z, shardEntityId);
+    BaseEntity._set(shardEntityId, forceFieldEntityId);
 
     notify(
       playerEntityId,
-      PowerMachineNotifData({ machineEntityId: forceFieldEntityId, machineCoord: entityCoord, numBattery: numBattery })
+      ExpandForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId, shardEntityId: shardEntityId })
     );
 
     callChipOrRevert(
       forceFieldEntityId.getChipAddress(),
-      // abi.encodeCall(IForceFieldChip.onPowered, (playerEntityId, baseEntityId, numBattery))
+      abi.encodeCall(IForceFieldChip.onExpand, (playerEntityId, forceFieldEntityId, shardEntityId))
     );
   }
 }

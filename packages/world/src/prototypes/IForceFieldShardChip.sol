@@ -8,7 +8,7 @@ import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
 
 // Interface for a force field chip
-interface IForceFieldChip is IChip {
+interface IForceFieldShardChip is IChip {
   function onBuild(
     EntityId targetEntityId,
     EntityId callerEntityId,
@@ -24,10 +24,4 @@ interface IForceFieldChip is IChip {
     VoxelCoord memory coord,
     bytes memory extraData
   ) external payable;
-
-  function onPowered(EntityId callerEntityId, EntityId targetEntityId, uint16 numBattery) external;
-
-  function onExpand(EntityId callerEntityId, EntityId targetEntityId, EntityId shardEntityId) external;
-
-  function onForceFieldHit(EntityId callerEntityId, EntityId targetEntityId) external;
 }
