@@ -14,7 +14,7 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { ObjectTypeId, PlayerObjectID, ChipObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID, BedObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId, PlayerObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergyLevel } from "../utils/EnergyUtils.sol";
@@ -65,8 +65,6 @@ contract ChipSystem is System {
       revert("Cannot attach a chip to this object");
     }
 
-    removeFromInventoryCount(playerEntityId, ChipObjectID, 1);
-
     Chip._setChipSystemId(baseEntityId, chipSystemId);
 
     notify(
@@ -88,8 +86,6 @@ contract ChipSystem is System {
     if (forceFieldEntityId.exists()) {
       machineEnergyLevel = updateMachineEnergyLevel(forceFieldEntityId).energy;
     }
-
-    addToInventoryCount(playerEntityId, PlayerObjectID, ChipObjectID, 1);
 
     address chipAddress = baseEntityId.getChipAddress();
     require(chipAddress != address(0), "No chip attached");

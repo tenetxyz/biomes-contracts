@@ -26,7 +26,7 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { IBedChip } from "../src/prototypes/IBedChip.sol";
 import { ChunkCoord } from "../src/Types.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, DirtObjectID, BedObjectID, ChipObjectID } from "../src/ObjectTypeIds.sol";
+import { PlayerObjectID, AirObjectID, DirtObjectID, BedObjectID } from "../src/ObjectTypeIds.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -69,8 +69,7 @@ contract BedTest is BiomesTest {
     VoxelCoord memory bedCoord = Position.get(bedEntityId).toVoxelCoord();
 
     // Attach chip with test player
-    (address bob, EntityId bobEntityId) = createTestPlayer(VoxelCoord(bedCoord.x - 1, bedCoord.y, bedCoord.z));
-    TestUtils.addToInventoryCount(bobEntityId, PlayerObjectID, ChipObjectID, 1);
+    (address bob, ) = createTestPlayer(VoxelCoord(bedCoord.x - 1, bedCoord.y, bedCoord.z));
     vm.prank(bob);
     world.attachChip(bedEntityId, chipSystemId);
   }
