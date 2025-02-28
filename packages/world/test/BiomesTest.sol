@@ -27,7 +27,7 @@ import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ChunkCoord } from "../src/Types.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
-import { ObjectTypeId, PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID } from "../src/ObjectTypeIds.sol";
+import { ObjectTypeId, PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, WaterObjectID } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { energyToMass } from "../src/utils/EnergyUtils.sol";
 import { getObjectTypeSchema } from "../src/utils/ObjectTypeUtils.sol";
@@ -133,10 +133,10 @@ abstract contract BiomesTest is MudTest, GasReporter {
 
   function setupFlatChunkWithPlayer() internal returns (address, EntityId, VoxelCoord memory) {
     setupFlatChunk(VoxelCoord(0, 0, 0));
-    return spawnPlayerOnFlatChunk(FLAT_CHUNK_GRASS_LEVEL + 1);
+    return randomSpawnPlayer(FLAT_CHUNK_GRASS_LEVEL + 1);
   }
 
-  function spawnPlayerOnFlatChunk(int32 y) internal returns (address, EntityId, VoxelCoord memory) {
+  function randomSpawnPlayer(int32 y) internal returns (address, EntityId, VoxelCoord memory) {
     uint256 blockNumber = block.number - 5;
 
     address alice = vm.randomAddress();
@@ -150,21 +150,41 @@ abstract contract BiomesTest is MudTest, GasReporter {
     return (alice, aliceEntityId, playerCoord);
   }
 
-  function _getAirChunk() internal pure returns (uint8[][][] memory chunk) {
+  function _getChunk(ObjectTypeId objectTypeId) internal pure returns (uint8[][][] memory chunk) {
     chunk = new uint8[][][](uint256(int256(CHUNK_SIZE)));
     for (uint256 x = 0; x < uint256(int256(CHUNK_SIZE)); x++) {
       chunk[x] = new uint8[][](uint256(int256(CHUNK_SIZE)));
       for (uint256 y = 0; y < uint256(int256(CHUNK_SIZE)); y++) {
         chunk[x][y] = new uint8[](uint256(int256(CHUNK_SIZE)));
         for (uint256 z = 0; z < uint256(int256(CHUNK_SIZE)); z++) {
-          chunk[x][y][z] = uint8(ObjectTypeId.unwrap(AirObjectID));
+          chunk[x][y][z] = uint8(ObjectTypeId.unwrap(objectTypeId));
         }
       }
     }
   }
 
+  function _getAirChunk() internal pure returns (uint8[][][] memory chunk) {
+    chunk = _getChunk(AirObjectID);
+  }
+
   function setupAirChunk(VoxelCoord memory coord) internal {
     uint8[][][] memory chunk = _getAirChunk();
+    bytes memory encodedChunk = encodeChunk(chunk);
+    ChunkCoord memory chunkCoord = coord.toChunkCoord();
+    bytes32[] memory merkleProof = new bytes32[](0);
+
+    world.exploreChunk(chunkCoord, encodedChunk, merkleProof);
+
+    VoxelCoord memory shardCoord = coord.toLocalEnergyPoolShardCoord();
+    LocalEnergyPool.set(shardCoord.x, 0, shardCoord.z, 1e18);
+  }
+
+  function _getWaterChunk() internal pure returns (uint8[][][] memory chunk) {
+    chunk = _getChunk(WaterObjectID);
+  }
+
+  function setupWaterChunk(VoxelCoord memory coord) internal {
+    uint8[][][] memory chunk = _getWaterChunk();
     bytes memory encodedChunk = encodeChunk(chunk);
     ChunkCoord memory chunkCoord = coord.toChunkCoord();
     bytes32[] memory merkleProof = new bytes32[](0);
@@ -220,10 +240,16 @@ abstract contract BiomesTest is MudTest, GasReporter {
     return spawnPlayerOnAirChunk(VoxelCoord(0, 1, 0));
   }
 
+  function setupWaterChunkWithPlayer() internal returns (address, EntityId, VoxelCoord memory) {
+    setupWaterChunk(VoxelCoord(0, 0, 0));
+    return spawnPlayerOnAirChunk(VoxelCoord(0, 1, 0));
+  }
+
   function spawnPlayerOnAirChunk(VoxelCoord memory spawnCoord) internal returns (address, EntityId, VoxelCoord memory) {
     VoxelCoord memory belowCoord = VoxelCoord(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z);
-    setObjectAtCoord(spawnCoord, AirObjectID);
-    setObjectAtCoord(belowCoord, DirtObjectID);
+    setTerrainAtCoord(spawnCoord, AirObjectID);
+    setTerrainAtCoord(VoxelCoord(spawnCoord.x, spawnCoord.y + 1, spawnCoord.z), AirObjectID);
+    setTerrainAtCoord(belowCoord, DirtObjectID);
 
     (address alice, EntityId aliceEntityId) = createTestPlayer(spawnCoord);
     VoxelCoord memory playerCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();

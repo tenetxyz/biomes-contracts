@@ -372,6 +372,12 @@ contract MineTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Cannot mine outside the world border");
     world.mine(mineCoord);
+
+    mineCoord = VoxelCoord(playerCoord.x - 1, playerCoord.y, playerCoord.z);
+
+    vm.prank(alice);
+    vm.expectRevert("Chunk not explored yet");
+    world.mine(mineCoord);
   }
 
   function testMineFailsIfNotEnoughEnergy() public {
