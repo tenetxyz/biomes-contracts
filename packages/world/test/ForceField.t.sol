@@ -41,11 +41,19 @@ import { TestUtils } from "./utils/TestUtils.sol";
 contract ForceFieldTest is BiomesTest {
   using VoxelCoordLib for *;
 
-  function testMineWithForceField() public {}
+  function testMineWithForceField() public {
+    // TODO: implement
+  }
 
-  function testMineFailsIfNotAllowedByForceField() public {}
+  function testMineFailsIfNotAllowedByForceField() public {
+    // TODO: implement
+  }
 
-  function testBuildWithForceField() public {}
+  function testBuildWithForceField() public {
+    // TODO: implement
+  }
 
-  function testBuildFailsIfNotAllowedByForceField() public {}
+  function testBuildFailsIfNotAllowedByForceField() public {
+    // TODO: implement
+  }
 }
