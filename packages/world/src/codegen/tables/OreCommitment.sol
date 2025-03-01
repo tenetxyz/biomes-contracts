@@ -16,6 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+// Import user types
+import { Vec3 } from "../../Vec3.sol";
+
 library OreCommitment {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "OreCommitment", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004f7265436f6d6d69746d656e74000000);
@@ -23,8 +26,8 @@ library OreCommitment {
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
 
-  // Hex-encoded key schema of (int32, int32, int32)
-  Schema constant _keySchema = Schema.wrap(0x000c030023232300000000000000000000000000000000000000000000000000);
+  // Hex-encoded key schema of (uint96)
+  Schema constant _keySchema = Schema.wrap(0x000c01000b000000000000000000000000000000000000000000000000000000);
   // Hex-encoded value schema of (uint256)
   Schema constant _valueSchema = Schema.wrap(0x002001001f000000000000000000000000000000000000000000000000000000);
 
@@ -33,10 +36,8 @@ library OreCommitment {
    * @return keyNames An array of strings with the names of key fields.
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
-    keyNames = new string[](3);
-    keyNames[0] = "x";
-    keyNames[1] = "y";
-    keyNames[2] = "z";
+    keyNames = new string[](1);
+    keyNames[0] = "position";
   }
 
   /**
@@ -65,11 +66,9 @@ library OreCommitment {
   /**
    * @notice Get blockNumber.
    */
-  function getBlockNumber(int32 x, int32 y, int32 z) internal view returns (uint256 blockNumber) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function getBlockNumber(Vec3 position) internal view returns (uint256 blockNumber) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
@@ -78,11 +77,9 @@ library OreCommitment {
   /**
    * @notice Get blockNumber.
    */
-  function _getBlockNumber(int32 x, int32 y, int32 z) internal view returns (uint256 blockNumber) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function _getBlockNumber(Vec3 position) internal view returns (uint256 blockNumber) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
@@ -91,11 +88,9 @@ library OreCommitment {
   /**
    * @notice Get blockNumber.
    */
-  function get(int32 x, int32 y, int32 z) internal view returns (uint256 blockNumber) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function get(Vec3 position) internal view returns (uint256 blockNumber) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
@@ -104,11 +99,9 @@ library OreCommitment {
   /**
    * @notice Get blockNumber.
    */
-  function _get(int32 x, int32 y, int32 z) internal view returns (uint256 blockNumber) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function _get(Vec3 position) internal view returns (uint256 blockNumber) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
@@ -117,11 +110,9 @@ library OreCommitment {
   /**
    * @notice Set blockNumber.
    */
-  function setBlockNumber(int32 x, int32 y, int32 z, uint256 blockNumber) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function setBlockNumber(Vec3 position, uint256 blockNumber) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((blockNumber)), _fieldLayout);
   }
@@ -129,11 +120,9 @@ library OreCommitment {
   /**
    * @notice Set blockNumber.
    */
-  function _setBlockNumber(int32 x, int32 y, int32 z, uint256 blockNumber) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function _setBlockNumber(Vec3 position, uint256 blockNumber) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((blockNumber)), _fieldLayout);
   }
@@ -141,11 +130,9 @@ library OreCommitment {
   /**
    * @notice Set blockNumber.
    */
-  function set(int32 x, int32 y, int32 z, uint256 blockNumber) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function set(Vec3 position, uint256 blockNumber) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((blockNumber)), _fieldLayout);
   }
@@ -153,11 +140,9 @@ library OreCommitment {
   /**
    * @notice Set blockNumber.
    */
-  function _set(int32 x, int32 y, int32 z, uint256 blockNumber) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function _set(Vec3 position, uint256 blockNumber) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((blockNumber)), _fieldLayout);
   }
@@ -165,11 +150,9 @@ library OreCommitment {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(int32 x, int32 y, int32 z) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function deleteRecord(Vec3 position) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -177,11 +160,9 @@ library OreCommitment {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(int32 x, int32 y, int32 z) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function _deleteRecord(Vec3 position) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -212,11 +193,9 @@ library OreCommitment {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(int32 x, int32 y, int32 z) internal pure returns (bytes32[] memory) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function encodeKeyTuple(Vec3 position) internal pure returns (bytes32[] memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     return _keyTuple;
   }

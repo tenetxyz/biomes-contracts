@@ -17,6 +17,7 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
+import { Vec3 } from "../../Vec3.sol";
 import { EntityId } from "../../EntityId.sol";
 
 library ReversePosition {
@@ -26,8 +27,8 @@ library ReversePosition {
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
 
-  // Hex-encoded key schema of (int32, int32, int32)
-  Schema constant _keySchema = Schema.wrap(0x000c030023232300000000000000000000000000000000000000000000000000);
+  // Hex-encoded key schema of (uint96)
+  Schema constant _keySchema = Schema.wrap(0x000c01000b000000000000000000000000000000000000000000000000000000);
   // Hex-encoded value schema of (bytes32)
   Schema constant _valueSchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
 
@@ -36,10 +37,8 @@ library ReversePosition {
    * @return keyNames An array of strings with the names of key fields.
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
-    keyNames = new string[](3);
-    keyNames[0] = "x";
-    keyNames[1] = "y";
-    keyNames[2] = "z";
+    keyNames = new string[](1);
+    keyNames[0] = "position";
   }
 
   /**
@@ -68,11 +67,9 @@ library ReversePosition {
   /**
    * @notice Get entityId.
    */
-  function getEntityId(int32 x, int32 y, int32 z) internal view returns (EntityId entityId) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function getEntityId(Vec3 position) internal view returns (EntityId entityId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return EntityId.wrap(bytes32(_blob));
@@ -81,11 +78,9 @@ library ReversePosition {
   /**
    * @notice Get entityId.
    */
-  function _getEntityId(int32 x, int32 y, int32 z) internal view returns (EntityId entityId) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function _getEntityId(Vec3 position) internal view returns (EntityId entityId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return EntityId.wrap(bytes32(_blob));
@@ -94,11 +89,9 @@ library ReversePosition {
   /**
    * @notice Get entityId.
    */
-  function get(int32 x, int32 y, int32 z) internal view returns (EntityId entityId) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function get(Vec3 position) internal view returns (EntityId entityId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return EntityId.wrap(bytes32(_blob));
@@ -107,11 +100,9 @@ library ReversePosition {
   /**
    * @notice Get entityId.
    */
-  function _get(int32 x, int32 y, int32 z) internal view returns (EntityId entityId) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function _get(Vec3 position) internal view returns (EntityId entityId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return EntityId.wrap(bytes32(_blob));
@@ -120,11 +111,9 @@ library ReversePosition {
   /**
    * @notice Set entityId.
    */
-  function setEntityId(int32 x, int32 y, int32 z, EntityId entityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function setEntityId(Vec3 position, EntityId entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
@@ -132,11 +121,9 @@ library ReversePosition {
   /**
    * @notice Set entityId.
    */
-  function _setEntityId(int32 x, int32 y, int32 z, EntityId entityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function _setEntityId(Vec3 position, EntityId entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
@@ -144,11 +131,9 @@ library ReversePosition {
   /**
    * @notice Set entityId.
    */
-  function set(int32 x, int32 y, int32 z, EntityId entityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function set(Vec3 position, EntityId entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
@@ -156,11 +141,9 @@ library ReversePosition {
   /**
    * @notice Set entityId.
    */
-  function _set(int32 x, int32 y, int32 z, EntityId entityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function _set(Vec3 position, EntityId entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
@@ -168,11 +151,9 @@ library ReversePosition {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(int32 x, int32 y, int32 z) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function deleteRecord(Vec3 position) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -180,11 +161,9 @@ library ReversePosition {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(int32 x, int32 y, int32 z) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function _deleteRecord(Vec3 position) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -215,11 +194,9 @@ library ReversePosition {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(int32 x, int32 y, int32 z) internal pure returns (bytes32[] memory) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
+  function encodeKeyTuple(Vec3 position) internal pure returns (bytes32[] memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
 
     return _keyTuple;
   }

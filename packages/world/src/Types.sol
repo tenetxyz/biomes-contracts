@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { EnergyData } from "./codegen/tables/Energy.sol";
-import { VoxelCoord, VoxelCoordDirectionVonNeumann } from "./VoxelCoord.sol";
+import { Vec3 } from "./Vec3.sol";
 import { EntityId } from "./EntityId.sol";
 import { ObjectTypeId } from "./ObjectTypeIds.sol";
 
@@ -26,7 +26,7 @@ struct InventoryObject {
 struct PlayerEntityData {
   address playerAddress;
   EntityId entityId;
-  VoxelCoord position;
+  Vec3 position;
   EntityId bedEntityId;
   EntityId equippedEntityId;
   InventoryObject[] inventory;
@@ -39,7 +39,7 @@ struct BlockEntityData {
   EntityId entityId;
   EntityId baseEntityId;
   ObjectTypeId objectTypeId;
-  VoxelCoord position;
+  Vec3 position;
   InventoryObject[] inventory;
   address chipAddress;
 }
@@ -49,7 +49,7 @@ struct EntityData {
   EntityId entityId;
   EntityId baseEntityId;
   InventoryObject[] inventory;
-  VoxelCoord position;
+  Vec3 position;
 }
 
 struct PickupData {
@@ -74,7 +74,7 @@ struct ChipOnTransferData {
 struct TransferCommonContext {
   EntityId playerEntityId;
   EntityId chestEntityId;
-  VoxelCoord chestCoord;
+  Vec3 chestCoord;
   ObjectTypeId chestObjectTypeId;
   ObjectTypeId dstObjectTypeId;
   uint256 machineEnergyLevel;

@@ -3,7 +3,6 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { VoxelCoord } from "../VoxelCoord.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
@@ -28,9 +27,10 @@ import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { EntityId } from "../EntityId.sol";
+import { Vec3, vec3 } from "../Vec3.sol";
 
 library BuildLib {
-  function _addBlock(ObjectTypeId buildObjectTypeId, VoxelCoord memory coord) public returns (EntityId) {
+  function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) public returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
     (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = coord.getOrCreateEntity();
     require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
@@ -51,12 +51,12 @@ library BuildLib {
 contract BuildSystem is System {
   function buildWithExtraData(
     ObjectTypeId buildObjectTypeId,
-    VoxelCoord memory baseCoord,
+    Vec3 baseCoord,
     FacingDirection facingDirection,
     bytes memory extraData
   ) public payable returns (EntityId) {
     require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, baseCoord);
 
     EntityId baseEntityId = BuildLib._addBlock(buildObjectTypeId, baseCoord);
@@ -64,15 +64,15 @@ contract BuildSystem is System {
     uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
     Mass._setMass(baseEntityId, mass);
 
-    VoxelCoord[] memory coords = baseCoord.getRelativeCoords(buildObjectTypeId, facingDirection);
+    Vec3[] memory coords = baseCoord.getRelativeCoords(buildObjectTypeId, facingDirection);
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < coords.length; i++) {
-      VoxelCoord memory relativeCoord = coords[i];
+      Vec3 relativeCoord = coords[i];
       EntityId relativeEntityId = BuildLib._addBlock(buildObjectTypeId, relativeCoord);
       BaseEntity._set(relativeEntityId, baseEntityId);
     }
 
-    VoxelCoord memory forceFieldShardCoord = baseCoord.toForceFieldShardCoord();
+    Vec3 forceFieldShardCoord = baseCoord.toForceFieldShardCoord();
     ForceFieldMetadata._setTotalMassInside(
       forceFieldShardCoord.x,
       forceFieldShardCoord.y,
@@ -101,10 +101,10 @@ contract BuildSystem is System {
     FacingDirection facingDirection,
     bytes memory extraData
   ) public payable {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
 
-    VoxelCoord[] memory moveCoords = new VoxelCoord[](1);
-    moveCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    Vec3[] memory moveCoords = new Vec3[](1);
+    moveCoords[0] = playerCoord + vec3(0, 1, 0);
     MoveLib.movePlayer(playerEntityId, playerCoord, moveCoords);
     notify(playerEntityId, MoveNotifData({ moveCoords: moveCoords }));
 
@@ -126,13 +126,13 @@ contract BuildSystem is System {
 
   function buildWithFacingDirection(
     ObjectTypeId buildObjectTypeId,
-    VoxelCoord memory baseCoord,
+    Vec3 baseCoord,
     FacingDirection facingDirection
   ) public payable returns (EntityId) {
     return buildWithExtraData(buildObjectTypeId, baseCoord, facingDirection, new bytes(0));
   }
 
-  function build(ObjectTypeId buildObjectTypeId, VoxelCoord memory baseCoord) public payable returns (EntityId) {
+  function build(ObjectTypeId buildObjectTypeId, Vec3 baseCoord) public payable returns (EntityId) {
     return buildWithExtraData(buildObjectTypeId, baseCoord, FacingDirection.PositiveZ, new bytes(0));
   }
 }

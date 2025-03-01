@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelCoordDirection, VoxelCoordLib } from "../VoxelCoord.sol";
+import { Vec3 } from "../Vec3.sol";
 
 import { EnergyData } from "../codegen/tables/Energy.sol";
 
@@ -14,7 +15,7 @@ import { notify, MoveNotifData } from "../utils/NotifUtils.sol";
 contract MoveSystem is System {
   using VoxelCoordLib for *;
 
-  function move(VoxelCoord[] memory newCoords) public {
+  function move(Vec3[] memory newCoords) public {
     (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
 
     MoveLib.movePlayerWithGravity(playerEntityId, playerCoord, newCoords);

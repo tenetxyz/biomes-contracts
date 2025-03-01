@@ -33,6 +33,7 @@ export default defineWorld({
     ObjectTypeId: { filePath: "./src/ObjectTypeIds.sol", type: "uint16" },
     EntityId: { filePath: "./src/EntityId.sol", type: "bytes32" },
     ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", type: "bytes32" },
+    Vec3: { filePath: "./src/Vec3.sol", type: "uint96" },
   },
   tables: {
     // ------------------------------------------------------------
@@ -59,12 +60,10 @@ export default defineWorld({
     },
     InitialEnergyPool: {
       schema: {
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        position: "Vec3",
         energy: "uint128",
       },
-      key: ["x", "y", "z"],
+      key: ["position"],
     },
     // ------------------------------------------------------------
     // Grid
@@ -79,38 +78,30 @@ export default defineWorld({
     Position: {
       schema: {
         entityId: "EntityId",
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        position: "Vec3",
       },
       key: ["entityId"],
     },
     ReversePosition: {
       schema: {
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        position: "Vec3",
         entityId: "EntityId",
       },
-      key: ["x", "y", "z"],
+      key: ["position"],
     },
     PlayerPosition: {
       schema: {
         playerEntityId: "EntityId",
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        position: "Vec3",
       },
       key: ["playerEntityId"],
     },
     ReversePlayerPosition: {
       schema: {
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        position: "Vec3",
         playerEntityId: "EntityId",
       },
-      key: ["x", "y", "z"],
+      key: ["position"],
     },
     Orientation: {
       schema: {
@@ -138,28 +129,22 @@ export default defineWorld({
     },
     LocalEnergyPool: {
       schema: {
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        position: "Vec3",
         energy: "uint128",
       },
-      key: ["x", "y", "z"],
+      key: ["position"],
     },
     ExploredChunk: {
       schema: {
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        position: "Vec3",
         explorer: "address",
       },
-      key: ["x", "y", "z"],
+      key: ["position"],
     },
     ExploredChunkByIndex: {
       schema: {
         index: "uint256",
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        position: "Vec3",
       },
       key: ["index"],
     },
@@ -267,21 +252,17 @@ export default defineWorld({
     },
     ForceField: {
       schema: {
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        position: "Vec3",
         forceFieldEntityId: "EntityId",
       },
-      key: ["x", "y", "z"],
+      key: ["position"],
     },
     ForceFieldMetadata: {
       schema: {
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        position: "Vec3",
         totalMassInside: "uint128",
       },
-      key: ["x", "y", "z"],
+      key: ["position"],
     },
     DisplayContent: {
       schema: {
@@ -296,12 +277,10 @@ export default defineWorld({
     // ------------------------------------------------------------
     OreCommitment: {
       schema: {
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        position: "Vec3",
         blockNumber: "uint256",
       },
-      key: ["x", "y", "z"],
+      key: ["position"],
     },
     TotalMinedOreCount: {
       schema: {
@@ -312,9 +291,7 @@ export default defineWorld({
     MinedOrePosition: {
       schema: {
         index: "uint256",
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        position: "Vec3",
       },
       key: ["index"],
     },

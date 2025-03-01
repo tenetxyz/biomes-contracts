@@ -2,7 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
@@ -40,11 +39,9 @@ function inSurroundingCube(
 }
 
 contract OreSystem is System {
-  using VoxelCoordLib for *;
-
   function oreChunkCommit(ChunkCoord memory chunkCoord) public {
     require(TerrainLib._isChunkExplored(chunkCoord, _world()), "Unexplored chunk");
-    (, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
+    (, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     ChunkCoord memory playerChunkCoord = playerCoord.toChunkCoord();
 
     require(inSurroundingCube(playerChunkCoord, CHUNK_COMMIT_HALF_WIDTH, chunkCoord), "Not in commit range");
@@ -69,10 +66,10 @@ contract OreSystem is System {
     uint256 mined = TotalMinedOreCount._get();
     uint256 minedOreIdx = uint256(blockhash(blockNumber)) % mined;
 
-    VoxelCoord memory oreCoord = MinedOrePosition._get(minedOreIdx).toVoxelCoord();
+    Vec3 oreCoord = MinedOrePosition._get(minedOreIdx);
 
     // Check existing entity
-    EntityId entityId = ReversePosition._get(oreCoord.x, oreCoord.y, oreCoord.z);
+    EntityId entityId = ReversePosition._get(oreCoord);
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
     require(objectTypeId == AirObjectID, "Ore coordinate is not air");
     require(InventoryObjects._lengthObjectTypeIds(entityId) == 0, "Cannot respawn where there are dropped objects");
