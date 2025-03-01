@@ -115,7 +115,9 @@ contract GravityTest is BiomesTest {
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
-  function testMineFallFatal() public {}
+  function testMineFallFatal() public {
+    // TODO: implement
+  }
 
   function testMineStackedPlayers() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory aliceCoord) = setupFlatChunkWithPlayer();
@@ -361,7 +363,9 @@ contract GravityTest is BiomesTest {
     );
   }
 
-  function testMoveFallFatal() public {}
+  function testMoveFallFatal() public {
+    // TODO: implement
+  }
 
   function testMoveFailsIfGravityOutsideExploredChunk() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();

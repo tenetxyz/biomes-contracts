@@ -418,7 +418,9 @@ contract MoveTest is BiomesTest {
     world.move(newCoords);
   }
 
-  function testMoveFatal() public {}
+  function testMoveFatal() public {
+    // TODO: implement
+  }
 
   function testMoveFailsIfNoPlayer() public {
     (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();

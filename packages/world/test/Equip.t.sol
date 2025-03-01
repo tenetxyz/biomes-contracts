@@ -29,10 +29,14 @@ import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
+import { Equipped } from "../src/codegen/tables/Equipped.sol";
+import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
+import { Mass } from "../src/codegen/tables/Mass.sol";
+import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
+import { PlayerObjectID, AirObjectID, WoodenPickObjectID, WoodenAxeObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
@@ -41,9 +45,301 @@ import { TestUtils } from "./utils/TestUtils.sol";
 contract EquipTest is BiomesTest {
   using VoxelCoordLib for *;
 
-  function testMineWithEquipped() public {}
+  function testEquip() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
 
-  function testMineWithEquippedZeroDurability() public {}
+    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
-  function testDropEquipped() public {}
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+
+    vm.prank(alice);
+    startGasReport("equip tool");
+    world.equip(toolEntityId);
+    endGasReport();
+
+    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+  }
+
+  function testUnequip() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+
+    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+
+    vm.prank(alice);
+    world.equip(toolEntityId);
+
+    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+
+    vm.prank(alice);
+    startGasReport("unequip tool");
+    world.unequip();
+    endGasReport();
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+  }
+
+  function testEquipAlreadyEquipped() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+
+    ObjectTypeId toolObjectTypeId1 = WoodenPickObjectID;
+    EntityId toolEntityId1 = addToolToInventory(aliceEntityId, toolObjectTypeId1);
+    assertInventoryHasTool(aliceEntityId, toolEntityId1, 1);
+
+    ObjectTypeId toolObjectTypeId2 = WoodenAxeObjectID;
+    EntityId toolEntityId2 = addToolToInventory(aliceEntityId, toolObjectTypeId2);
+    assertInventoryHasTool(aliceEntityId, toolEntityId2, 1);
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+
+    vm.prank(alice);
+    world.equip(toolEntityId1);
+
+    assertTrue(Equipped.get(aliceEntityId) == toolEntityId1, "Equipped entity is not tool entity id");
+    assertInventoryHasTool(aliceEntityId, toolEntityId1, 1);
+    assertInventoryHasTool(aliceEntityId, toolEntityId2, 1);
+
+    vm.prank(alice);
+    world.equip(toolEntityId2);
+
+    assertTrue(Equipped.get(aliceEntityId) == toolEntityId2, "Equipped entity is not tool entity id");
+    assertInventoryHasTool(aliceEntityId, toolEntityId1, 1);
+    assertInventoryHasTool(aliceEntityId, toolEntityId2, 1);
+  }
+
+  function testUnequipNothingEquipped() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+
+    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+
+    vm.prank(alice);
+    world.unequip();
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+  }
+
+  function testDropEquipped() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    setObjectAtCoord(dropCoord, AirObjectID);
+    ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
+    EntityId airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    assertTrue(airEntityId.exists(), "Drop entity already exists");
+
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+
+    vm.prank(alice);
+    world.equip(toolEntityId);
+
+    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+
+    vm.prank(alice);
+    world.dropTool(toolEntityId, dropCoord);
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
+    assertInventoryHasTool(airEntityId, toolEntityId, 1);
+    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
+    assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
+    assertTrue(InventoryEntity.get(toolEntityId) == airEntityId, "Inventory entity is not air");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+  }
+
+  function testTransferEquippedToChest() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+
+    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
+
+    ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
+
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+
+    vm.prank(alice);
+    world.equip(toolEntityId);
+
+    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+
+    vm.prank(alice);
+    world.transferTool(chestEntityId, true, toolEntityId);
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+
+    assertInventoryHasTool(chestEntityId, toolEntityId, 1);
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
+    assertEq(InventorySlots.get(chestEntityId), 1, "Inventory slots is not 0");
+    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
+
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+  }
+
+  function testMineWithEquipped() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+
+    VoxelCoord memory mineCoord = VoxelCoord(
+      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
+      FLAT_CHUNK_GRASS_LEVEL,
+      playerCoord.z
+    );
+    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertFalse(mineEntityId.exists(), "Mine entity already exists");
+    assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
+
+    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+
+    vm.prank(alice);
+    world.equip(toolEntityId);
+    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    uint128 toolMassBefore = Mass.getMass(toolEntityId);
+
+    vm.prank(alice);
+    startGasReport("mine terrain with tool, entirely mined");
+    world.mine(mineCoord);
+    endGasReport();
+
+    uint128 toolMassAfter = Mass.getMass(toolEntityId);
+    assertLt(toolMassAfter, toolMassBefore, "Tool mass is not less");
+
+    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
+    assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+  }
+
+  function testMineWithEquippedZeroDurability() public {
+    // TODO: implement
+  }
+
+  function testHitWithEquipped() public {
+    // TODO: implement
+  }
+
+  function testHitWithEquippedZeroDurability() public {
+    // TODO: implement
+  }
+
+  function testEquipFailsIfNotOwned() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory aliceCoord) = setupAirChunkWithPlayer();
+
+    (address bob, EntityId bobEntityId, VoxelCoord memory bobCoord) = spawnPlayerOnAirChunk(
+      VoxelCoord(aliceCoord.x, aliceCoord.y, aliceCoord.z + 1)
+    );
+
+    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+
+    vm.prank(bob);
+    vm.expectRevert("Player does not own inventory item");
+    world.equip(toolEntityId);
+  }
+
+  function testEquipFailsIfInvalidTool() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory aliceCoord) = setupAirChunkWithPlayer();
+
+    vm.prank(alice);
+    vm.expectRevert("Player does not own inventory item");
+    world.equip(randomEntityId());
+  }
+
+  function testEquipFailsIfNoPlayer() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+
+    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+
+    vm.expectRevert("Player does not exist");
+    world.equip(toolEntityId);
+  }
+
+  function testEquipFailsIfSleeping() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+
+    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+
+    PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
+
+    vm.prank(alice);
+    vm.expectRevert("Player is sleeping");
+    world.equip(toolEntityId);
+  }
+
+  function testUnequipFailsIfNoPlayer() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+
+    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+
+    vm.prank(alice);
+    world.equip(toolEntityId);
+
+    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+
+    vm.expectRevert("Player does not exist");
+    world.unequip();
+  }
+
+  function testUnequipFailsIfSleeping() public {
+    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+
+    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+
+    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+
+    vm.prank(alice);
+    world.equip(toolEntityId);
+
+    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+
+    PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
+
+    vm.prank(alice);
+    vm.expectRevert("Player is sleeping");
+    world.unequip();
+  }
 }
