@@ -1,12 +1,12 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["mud.config.ts", "types/ethers-contracts"],
+  entry: ["mud.config.ts"],
   target: "esnext",
   format: ["esm", "cjs"],
-  dts: false,
+  dts: true,
   sourcemap: true,
-  clean: false,
-  minify: false,
-  external: ["@latticexyz/world"],
+  clean: true,
+  minify: true,
+  noExternal: ["@latticexyz/world", "@latticexyz/store/internal", "@latticexyz/schema-type/internal"],
 });
