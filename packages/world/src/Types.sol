@@ -6,12 +6,6 @@ import { Vec3 } from "./Vec3.sol";
 import { EntityId } from "./EntityId.sol";
 import { ObjectTypeId } from "./ObjectTypeIds.sol";
 
-struct ChunkCoord {
-  int32 x;
-  int32 y;
-  int32 z;
-}
-
 struct InventoryEntity {
   EntityId entityId;
   uint128 mass;

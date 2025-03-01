@@ -33,7 +33,7 @@ import { IBedChip } from "../prototypes/IBedChip.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 
-import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
+import { Vec3 } from "../Vec3.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -47,7 +47,7 @@ library BedLib {
     EntityId forceFieldEntityId,
     EntityId playerEntityId,
     EntityId bedEntityId,
-    VoxelCoord memory bedCoord
+    Vec3 bedCoord
   ) public returns (EnergyData memory machineData, EnergyData memory playerData) {
     machineData = updateEnergyLevel(forceFieldEntityId);
     playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, machineData, bedCoord);
@@ -56,15 +56,13 @@ library BedLib {
 }
 
 contract BedSystem is System {
-  using VoxelCoordLib for *;
-
-  function removeDeadPlayerFromBed(EntityId playerEntityId, VoxelCoord memory dropCoord) public {
+  function removeDeadPlayerFromBed(EntityId playerEntityId, Vec3 dropCoord) public {
     checkWorldStatus();
 
     EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
     require(bedEntityId.exists(), "Player is not in a bed");
 
-    VoxelCoord memory bedCoord = Position._get(bedEntityId).toVoxelCoord();
+    Vec3 bedCoord = Position._get(bedEntityId);
 
     // TODO: use a different constant?
     require(bedCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, dropCoord), "Drop location is too far from bed");
@@ -84,17 +82,17 @@ contract BedSystem is System {
   }
 
   function sleepWithExtraData(EntityId bedEntityId, bytes memory extraData) public {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
 
     require(ObjectType._get(bedEntityId) == BedObjectID, "Not a bed");
 
-    VoxelCoord memory bedCoord = Position._get(bedEntityId).toVoxelCoord();
+    Vec3 bedCoord = Position._get(bedEntityId);
     requireInPlayerInfluence(playerCoord, bedCoord);
 
     bedEntityId = bedEntityId.baseEntityId();
     require(!BedPlayer._getPlayerEntityId(bedEntityId).exists(), "Bed full");
 
-    EntityId forceFieldEntityId = getForceField(Position._get(bedEntityId).toVoxelCoord());
+    EntityId forceFieldEntityId = getForceField(Position._get(bedEntityId));
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
     EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
     require(machineData.energy > 0, "Forcefield has no energy");
@@ -118,7 +116,7 @@ contract BedSystem is System {
     callChipOrRevert(chipAddress, onSleepCall);
   }
 
-  function wakeupWithExtraData(VoxelCoord memory spawnCoord, bytes memory extraData) public {
+  function wakeupWithExtraData(Vec3 spawnCoord, bytes memory extraData) public {
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
 
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
@@ -128,7 +126,7 @@ contract BedSystem is System {
     EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
     require(bedEntityId.exists(), "Player is not sleeping");
 
-    VoxelCoord memory bedCoord = Position._get(bedEntityId).toVoxelCoord();
+    Vec3 bedCoord = Position._get(bedEntityId);
     require(bedCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, spawnCoord), "Bed is too far away");
 
     EntityId forceFieldEntityId = getForceField(bedCoord);
@@ -164,7 +162,7 @@ contract BedSystem is System {
     sleepWithExtraData(bedEntityId, "");
   }
 
-  function wakeup(VoxelCoord memory spawnCoord) external {
+  function wakeup(Vec3 spawnCoord) external {
     wakeupWithExtraData(spawnCoord, "");
   }
 }

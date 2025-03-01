@@ -39,22 +39,20 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../src/Constants.sol";
-import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
+import { Vec3 } from "../src/Vec3.sol";
 import { ChunkCoord } from "../src/Types.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract MoveTest is BiomesTest {
-  using VoxelCoordLib for *;
-
   function _testMoveMultipleBlocks(address player, uint8 numBlocksToMove, bool overTerrain) internal {
     EntityId playerEntityId = Player.get(player);
-    VoxelCoord memory startingCoord = PlayerPosition.get(playerEntityId).toVoxelCoord();
-    VoxelCoord[] memory newCoords = new VoxelCoord[](numBlocksToMove);
+    Vec3 startingCoord = PlayerPosition.get(playerEntityId);
+    Vec3[] memory newCoords = new Vec3[](numBlocksToMove);
     for (uint8 i = 0; i < numBlocksToMove; i++) {
-      newCoords[i] = VoxelCoord(startingCoord.x, startingCoord.y, startingCoord.z + int32(int(uint(i))) + 1);
+      newCoords[i] = vec3(startingCoord.x, startingCoord.y, startingCoord.z + int32(int(uint(i))) + 1);
 
-      VoxelCoord memory belowCoord = VoxelCoord(newCoords[i].x, newCoords[i].y - 1, newCoords[i].z);
-      VoxelCoord memory aboveCoord = VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z);
+      Vec3 belowCoord = vec3(newCoords[i].x, newCoords[i].y - 1, newCoords[i].z);
+      Vec3 aboveCoord = vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z);
       if (overTerrain) {
         setTerrainAtCoord(newCoords[i], AirObjectID);
         setTerrainAtCoord(aboveCoord, AirObjectID);
@@ -67,8 +65,8 @@ contract MoveTest is BiomesTest {
     }
 
     uint128 energyBefore = Energy.getEnergy(playerEntityId);
-    VoxelCoord memory shardCoord = startingCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    Vec3 shardCoord = startingCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     vm.prank(player);
     startGasReport(
@@ -77,97 +75,92 @@ contract MoveTest is BiomesTest {
     world.move(newCoords);
     endGasReport();
 
-    VoxelCoord memory finalCoord = PlayerPosition.get(playerEntityId).toVoxelCoord();
-    VoxelCoord memory aboveFinalCoord = VoxelCoord(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    Vec3 finalCoord = PlayerPosition.get(playerEntityId);
+    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
     assertTrue(
       VoxelCoordLib.equals(finalCoord, newCoords[numBlocksToMove - 1]),
       "Player did not move to the correct coord"
     );
     assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord.x, aboveFinalCoord.y, aboveFinalCoord.z)) ==
-        playerEntityId,
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == playerEntityId,
       "Above coord is not the player"
     );
+    assertEq(EntityId.unwrap(ReversePlayerPosition.get(startingCoord)), bytes32(0), "Player position was not deleted");
     assertEq(
-      EntityId.unwrap(ReversePlayerPosition.get(startingCoord.x, startingCoord.y, startingCoord.z)),
-      bytes32(0),
-      "Player position was not deleted"
-    );
-    assertEq(
-      EntityId.unwrap(ReversePlayerPosition.get(startingCoord.x, startingCoord.y + 1, startingCoord.z)),
+      EntityId.unwrap(ReversePlayerPosition.get(startingCoord)),
       bytes32(0),
       "Above starting coord is not the player"
     );
 
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertEq(Energy.getEnergy(playerEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
   }
 
   function testMoveOneBlockTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
     _testMoveMultipleBlocks(alice, 1, true);
   }
 
   function testMoveOneBlockNonTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
     _testMoveMultipleBlocks(alice, 1, false);
   }
 
   function testMoveFiveBlocksTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
     _testMoveMultipleBlocks(alice, 5, true);
   }
 
   function testMoveFiveBlocksNonTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
     _testMoveMultipleBlocks(alice, 5, false);
   }
 
   function testMoveTenBlocksTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
     _testMoveMultipleBlocks(alice, 10, true);
   }
 
   function testMoveTenBlocksNonTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
     _testMoveMultipleBlocks(alice, 10, false);
   }
 
   function testMoveFiftyBlocksTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
     _testMoveMultipleBlocks(alice, 50, true);
   }
 
   function testMoveFiftyBlocksNonTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
     _testMoveMultipleBlocks(alice, 50, false);
   }
 
   function testMoveHundredBlocksTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
     _testMoveMultipleBlocks(alice, 100, true);
   }
 
   function testMoveHundredBlocksNonTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
     _testMoveMultipleBlocks(alice, 100, false);
   }
 
   function testMoveJump() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     uint256 numJumps = 1;
-    VoxelCoord[] memory newCoords = new VoxelCoord[](numJumps);
-    for (uint8 i = 0; i < numJumps; i++) {
-      newCoords[i] = VoxelCoord(playerCoord.x, playerCoord.y + int32(int(uint(i))) + 1, playerCoord.z);
+    Vec3[] memory newCoords = new Vec3[](numJumps);
+    for (int32 i = 0; i < numJumps; i++) {
+      newCoords[i] = vec3(playerCoord.x, playerCoord.y + i + 1, playerCoord.z);
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
 
     uint128 energyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     vm.prank(alice);
     startGasReport("move single jump");
@@ -175,168 +168,159 @@ contract MoveTest is BiomesTest {
     endGasReport();
 
     // Expect the player to fall down back to the original coord
-    VoxelCoord memory finalCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
+    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
     assertTrue(VoxelCoordLib.equals(finalCoord, playerCoord), "Player did not fall back to the original coord");
-    VoxelCoord memory aboveFinalCoord = VoxelCoord(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
     assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord.x, aboveFinalCoord.y, aboveFinalCoord.z)) ==
-        aliceEntityId,
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
   }
 
   function testMoveGlide() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     uint256 numGlides = 2;
-    VoxelCoord[] memory newCoords = new VoxelCoord[](numGlides + 1);
+    Vec3[] memory newCoords = new Vec3[](numGlides + 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      newCoords[i] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + int32(int(uint(i))));
+      newCoords[i] = vec3(playerCoord.x, playerCoord.y + 1, playerCoord.z + int32(int(uint(i))));
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
-    VoxelCoord memory expectedFinalCoord = VoxelCoord(
-      playerCoord.x,
-      playerCoord.y,
-      playerCoord.z + int32(int(uint(numGlides)))
-    );
-    setObjectAtCoord(VoxelCoord(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), GrassObjectID);
+    Vec3 expectedFinalCoord = vec3(playerCoord.x, playerCoord.y, playerCoord.z + int32(int(uint(numGlides))));
+    setObjectAtCoord(vec3(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), GrassObjectID);
 
     uint128 energyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     vm.prank(alice);
     world.move(newCoords);
 
     // Expect the player to fall down back after the last block
-    VoxelCoord memory finalCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
+    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
     assertTrue(VoxelCoordLib.equals(finalCoord, expectedFinalCoord), "Player did not move to new coords");
-    VoxelCoord memory aboveFinalCoord = VoxelCoord(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
     assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord.x, aboveFinalCoord.y, aboveFinalCoord.z)) ==
-        aliceEntityId,
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
   }
 
   function testMoveThroughWater() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupWaterChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupWaterChunkWithPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](3);
-    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
-    newCoords[2] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+    Vec3[] memory newCoords = new Vec3[](3);
+    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[1] = vec3(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
+    newCoords[2] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 2);
 
     uint128 energyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     vm.prank(alice);
     world.move(newCoords);
 
-    VoxelCoord memory finalCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
+    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
     assertTrue(VoxelCoordLib.equals(finalCoord, newCoords[newCoords.length - 1]), "Player did not move to new coords");
-    VoxelCoord memory aboveFinalCoord = VoxelCoord(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
     assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord.x, aboveFinalCoord.y, aboveFinalCoord.z)) ==
-        aliceEntityId,
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
   }
 
   function testMoveEndAtStart() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](4);
-    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 2);
-    newCoords[2] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[3] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
+    Vec3[] memory newCoords = new Vec3[](4);
+    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[1] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+    newCoords[2] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[3] = vec3(playerCoord.x, playerCoord.y, playerCoord.z);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
 
     uint128 energyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     vm.prank(alice);
     world.move(newCoords);
 
-    VoxelCoord memory finalCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
+    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
     assertTrue(VoxelCoordLib.equals(finalCoord, playerCoord), "Player did not move to new coords");
-    VoxelCoord memory aboveFinalCoord = VoxelCoord(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
     assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord.x, aboveFinalCoord.y, aboveFinalCoord.z)) ==
-        aliceEntityId,
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
   }
 
   function testMoveOverlapStartingCoord() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](6);
-    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 2);
-    newCoords[2] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[3] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z);
-    newCoords[4] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z - 1);
-    newCoords[5] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z - 2);
+    Vec3[] memory newCoords = new Vec3[](6);
+    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[1] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+    newCoords[2] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[3] = vec3(playerCoord.x, playerCoord.y, playerCoord.z);
+    newCoords[4] = vec3(playerCoord.x, playerCoord.y, playerCoord.z - 1);
+    newCoords[5] = vec3(playerCoord.x, playerCoord.y, playerCoord.z - 2);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
-    VoxelCoord memory expectedFinalCoord = VoxelCoord(
+    Vec3 expectedFinalCoord = vec3(
       newCoords[newCoords.length - 1].x,
       newCoords[newCoords.length - 1].y,
       newCoords[newCoords.length - 1].z
     );
-    setObjectAtCoord(VoxelCoord(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), GrassObjectID);
+    setObjectAtCoord(vec3(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), GrassObjectID);
 
     uint128 energyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     vm.prank(alice);
     world.move(newCoords);
 
-    VoxelCoord memory finalCoord = PlayerPosition.get(aliceEntityId).toVoxelCoord();
+    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
     assertTrue(VoxelCoordLib.equals(finalCoord, expectedFinalCoord), "Player did not move to new coords");
-    VoxelCoord memory aboveFinalCoord = VoxelCoord(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
     assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord.x, aboveFinalCoord.y, aboveFinalCoord.z)) ==
-        aliceEntityId,
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertEq(Energy.getEnergy(aliceEntityId), energyBefore - energyGainedInPool, "Player did not lose energy");
   }
 
   function testMoveFailsIfInvalidJump() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     uint256 numJumps = MAX_PLAYER_JUMPS + 1;
-    VoxelCoord[] memory newCoords = new VoxelCoord[](numJumps);
+    Vec3[] memory newCoords = new Vec3[](numJumps);
     for (uint8 i = 0; i < numJumps; i++) {
-      newCoords[i] = VoxelCoord(playerCoord.x, playerCoord.y + int32(int(uint(i))) + 1, playerCoord.z);
+      newCoords[i] = vec3(playerCoord.x, playerCoord.y + int32(int(uint(i))) + 1, playerCoord.z);
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
 
     vm.prank(alice);
@@ -345,14 +329,14 @@ contract MoveTest is BiomesTest {
   }
 
   function testMoveFailsIfInvalidGlide() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     uint256 numGlides = MAX_PLAYER_GLIDES + 1;
-    VoxelCoord[] memory newCoords = new VoxelCoord[](numGlides + 1);
+    Vec3[] memory newCoords = new Vec3[](numGlides + 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      newCoords[i] = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + int32(int(uint(i))));
+      newCoords[i] = vec3(playerCoord.x, playerCoord.y + 1, playerCoord.z + int32(int(uint(i))));
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
 
     vm.prank(alice);
@@ -361,23 +345,23 @@ contract MoveTest is BiomesTest {
   }
 
   function testMoveFailsIfNonPassable() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](2);
-    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+    Vec3[] memory newCoords = new Vec3[](2);
+    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[1] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 2);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
 
-    setObjectAtCoord(VoxelCoord(newCoords[1].x, newCoords[1].y, newCoords[1].z), DirtObjectID);
+    setObjectAtCoord(vec3(newCoords[1].x, newCoords[1].y, newCoords[1].z), DirtObjectID);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a non-passable block");
     world.move(newCoords);
 
-    setObjectAtCoord(VoxelCoord(newCoords[0].x, newCoords[0].y + 1, newCoords[0].z), DirtObjectID);
+    setObjectAtCoord(vec3(newCoords[0].x, newCoords[0].y + 1, newCoords[0].z), DirtObjectID);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a non-passable block");
@@ -385,23 +369,23 @@ contract MoveTest is BiomesTest {
   }
 
   function testMoveFailsIfPlayer() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory aliceCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 aliceCoord) = setupAirChunkWithPlayer();
 
-    (address bob, EntityId bobEntityId, VoxelCoord memory bobCoord) = spawnPlayerOnAirChunk(
-      VoxelCoord(aliceCoord.x, aliceCoord.y, aliceCoord.z + 2)
+    (address bob, EntityId bobEntityId, Vec3 bobCoord) = spawnPlayerOnAirChunk(
+      vec3(aliceCoord.x, aliceCoord.y, aliceCoord.z + 2)
     );
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](2);
-    newCoords[0] = VoxelCoord(aliceCoord.x, aliceCoord.y, aliceCoord.z + 1);
+    Vec3[] memory newCoords = new Vec3[](2);
+    newCoords[0] = vec3(aliceCoord.x, aliceCoord.y, aliceCoord.z + 1);
     newCoords[1] = bobCoord;
     setObjectAtCoord(newCoords[0], AirObjectID);
-    setObjectAtCoord(VoxelCoord(newCoords[0].x, newCoords[0].y + 1, newCoords[0].z), AirObjectID);
+    setObjectAtCoord(vec3(newCoords[0].x, newCoords[0].y + 1, newCoords[0].z), AirObjectID);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a player");
     world.move(newCoords);
 
-    newCoords[1] = VoxelCoord(bobCoord.x, bobCoord.y + 1, bobCoord.z);
+    newCoords[1] = vec3(bobCoord.x, bobCoord.y + 1, bobCoord.z);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a player");
@@ -409,27 +393,27 @@ contract MoveTest is BiomesTest {
   }
 
   function testMoveFailsIfInvalidCoord() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](2);
-    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 3);
+    Vec3[] memory newCoords = new Vec3[](2);
+    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[1] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 3);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
 
     vm.prank(alice);
     vm.expectRevert("New coord is too far from old coord");
     world.move(newCoords);
 
-    newCoords[1] = VoxelCoord(WORLD_BORDER_LOW_X - 1, playerCoord.y, playerCoord.z + 2);
+    newCoords[1] = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y, playerCoord.z + 2);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move outside the world border");
     world.move(newCoords);
 
-    newCoords[0] = VoxelCoord(playerCoord.x - 1, playerCoord.y, playerCoord.z);
+    newCoords[0] = vec3(playerCoord.x - 1, playerCoord.y, playerCoord.z);
 
     vm.prank(alice);
     vm.expectRevert("Chunk not explored yet");
@@ -439,14 +423,14 @@ contract MoveTest is BiomesTest {
   function testMoveFatal() public {}
 
   function testMoveFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](2);
-    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+    Vec3[] memory newCoords = new Vec3[](2);
+    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[1] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 2);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
 
     vm.expectRevert("Player does not exist");
@@ -454,14 +438,14 @@ contract MoveTest is BiomesTest {
   }
 
   function testMoveFailsIfSleeping() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord[] memory newCoords = new VoxelCoord[](2);
-    newCoords[0] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+    Vec3[] memory newCoords = new Vec3[](2);
+    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[1] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 2);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(VoxelCoord(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());

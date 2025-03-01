@@ -33,23 +33,17 @@ import { updateEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { createPlayer } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
-import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
+import { Vec3 } from "../Vec3.sol";
 
 import { EntityId } from "../EntityId.sol";
 
 contract SpawnSystem is System {
-  using VoxelCoordLib for *;
-
   function getEnergyCostToSpawn(uint32 playerMass) internal pure returns (uint128) {
     uint128 energyRequired = MAX_PLAYER_ENERGY + massToEnergy(playerMass);
     return energyRequired;
   }
 
-  function getRandomSpawnCoord(
-    uint256 blockNumber,
-    address sender,
-    int32 y
-  ) public view returns (VoxelCoord memory spawnCoord) {
+  function getRandomSpawnCoord(uint256 blockNumber, address sender, int32 y) public view returns (Vec3 spawnCoord) {
     spawnCoord.y = y;
 
     uint256 exploredChunkCount = ExploredChunkCount._get();
@@ -83,7 +77,7 @@ contract SpawnSystem is System {
       "Can only choose past 10 blocks"
     );
 
-    VoxelCoord memory spawnCoord = getRandomSpawnCoord(blockNumber, _msgSender(), y);
+    Vec3 spawnCoord = getRandomSpawnCoord(blockNumber, _msgSender(), y);
 
     EntityId forceFieldEntityId = getForceField(spawnCoord);
     require(!forceFieldEntityId.exists(), "Cannot spawn in force field");
@@ -96,16 +90,12 @@ contract SpawnSystem is System {
     return _spawnPlayer(playerMass, spawnCoord);
   }
 
-  function spawn(
-    EntityId spawnTileEntityId,
-    VoxelCoord memory spawnCoord,
-    bytes memory extraData
-  ) public returns (EntityId) {
+  function spawn(EntityId spawnTileEntityId, Vec3 spawnCoord, bytes memory extraData) public returns (EntityId) {
     checkWorldStatus();
     ObjectTypeId objectTypeId = ObjectType._get(spawnTileEntityId);
     require(objectTypeId == SpawnTileObjectID, "Not a spawn tile");
 
-    VoxelCoord memory spawnTileCoord = Position._get(spawnTileEntityId).toVoxelCoord();
+    Vec3 spawnTileCoord = Position._get(spawnTileEntityId);
     require(spawnTileCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, spawnCoord), "Spawn tile is too far away");
 
     EntityId forceFieldEntityId = getForceField(spawnTileCoord);
@@ -128,7 +118,7 @@ contract SpawnSystem is System {
     return playerEntityId;
   }
 
-  function _spawnPlayer(uint32 playerMass, VoxelCoord memory spawnCoord) internal returns (EntityId) {
+  function _spawnPlayer(uint32 playerMass, Vec3 spawnCoord) internal returns (EntityId) {
     require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 

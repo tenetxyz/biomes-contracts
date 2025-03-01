@@ -23,13 +23,13 @@ import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
-import { VoxelCoord } from "../src/VoxelCoord.sol";
+import { Vec3 } from "../src/Vec3.sol";
 import { ChunkCoord } from "../src/Types.sol";
 import { CHUNK_SIZE, CHUNK_COMMIT_EXPIRY_BLOCKS } from "../src/Constants.sol";
 
 contract OreTest is BiomesTest {
-  function exploreChunk(VoxelCoord memory coord) internal {
-    ChunkCoord memory chunkCoord = coord.toChunkCoord();
+  function exploreChunk(Vec3 coord) internal {
+    Vec3 chunkCoord = coord.toChunk();
 
     address chunkPtr = TerrainLib._getChunkPointer(chunkCoord, worldAddress);
 
@@ -37,21 +37,21 @@ contract OreTest is BiomesTest {
     bytes memory chunkData = hex"00";
     vm.etch(chunkPtr, chunkData);
 
-    ExploredChunk.set(chunkCoord.x, chunkCoord.y, chunkCoord.z, address(0));
+    ExploredChunk.set(chunkCoord, address(0));
     uint256 exploredChunkCount = ExploredChunkCount.get();
-    ExploredChunkByIndex.set(exploredChunkCount, chunkCoord.x, chunkCoord.y, chunkCoord.z);
+    ExploredChunkByIndex.set(exploredChunkCount, chunkCoord);
     ExploredChunkCount.set(exploredChunkCount + 1);
   }
 
   function addMinedOre(VoxelCoord memory coord) internal {
     uint256 count = TotalMinedOreCount.get();
     TotalMinedOreCount.set(count + 1);
-    MinedOrePosition.set(count, coord.x, coord.y, coord.z);
+    MinedOrePosition.set(count, coord);
   }
 
   function testOreChunkCommit() public {
-    VoxelCoord memory coord = VoxelCoord(0, 0, 0);
-    ChunkCoord memory chunkCoord = coord.toChunkCoord();
+    Vec3 coord = vec3(0, 0, 0);
+    Vec3 chunkCoord = coord.toChunk();
     exploreChunk(coord);
 
     (address alice, ) = createTestPlayer(coord);
@@ -59,12 +59,12 @@ contract OreTest is BiomesTest {
     vm.prank(alice);
     world.oreChunkCommit(chunkCoord);
 
-    assertEq(OreCommitment.get(chunkCoord.x, chunkCoord.y, chunkCoord.z), block.number + 1);
+    assertEq(OreCommitment.get(chunkCoord), block.number + 1);
   }
 
   function testOreChunkCommitCannotCommitIfExisting() public {
-    VoxelCoord memory coord = VoxelCoord(0, 0, 0);
-    ChunkCoord memory chunkCoord = coord.toChunkCoord();
+    Vec3 coord = vec3(0, 0, 0);
+    Vec3 chunkCoord = coord.toChunk();
     exploreChunk(coord);
 
     (address alice, ) = createTestPlayer(coord);
@@ -83,11 +83,11 @@ contract OreTest is BiomesTest {
     vm.prank(alice);
     world.oreChunkCommit(chunkCoord);
 
-    assertEq(OreCommitment.get(chunkCoord.x, chunkCoord.y, chunkCoord.z), block.number + 1);
+    assertEq(OreCommitment.get(chunkCoord), block.number + 1);
   }
 
   function testRespawnOre() public {
-    VoxelCoord memory minedOreCoord = VoxelCoord(0, 0, 0);
+    Vec3 minedOreCoord = vec3(0, 0, 0);
 
     addMinedOre(minedOreCoord);
 
@@ -96,7 +96,7 @@ contract OreTest is BiomesTest {
 
     // Set coord to air
     EntityId entityId = randomEntityId();
-    ReversePosition.set(minedOreCoord.x, minedOreCoord.y, minedOreCoord.z, entityId);
+    ReversePosition.set(minedOreCoord, entityId);
     ObjectType.set(entityId, AirObjectID);
 
     address alice = vm.randomAddress();
@@ -112,13 +112,13 @@ contract OreTest is BiomesTest {
   }
 
   function testRespawnOreFailsIfNoBurnedOres() public {
-    VoxelCoord memory minedOreCoord = VoxelCoord(0, 0, 0);
+    Vec3 minedOreCoord = vec3(0, 0, 0);
 
     addMinedOre(minedOreCoord);
 
     // Set coord to air
     EntityId entityId = randomEntityId();
-    ReversePosition.set(minedOreCoord.x, minedOreCoord.y, minedOreCoord.z, entityId);
+    ReversePosition.set(minedOreCoord, entityId);
     ObjectType.set(entityId, AirObjectID);
 
     address alice = vm.randomAddress();

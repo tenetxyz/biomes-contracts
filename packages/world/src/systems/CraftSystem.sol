@@ -2,7 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "../VoxelCoord.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
@@ -22,13 +21,14 @@ import { notify, CraftNotifData } from "../utils/NotifUtils.sol";
 import { energyToMass, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { hashInputs } from "../utils/RecipeUtils.sol";
 import { EntityId } from "../EntityId.sol";
+import { Vec3 } from "../Vec3.sol";
 import { PLAYER_CRAFT_ENERGY_COST } from "../Constants.sol";
 
 contract CraftSystem is System {
   function craft(EntityId stationEntityId, ObjectTypeId[] memory inputTypes, uint16[] memory inputAmounts) public {
     require(inputTypes.length > 0, "Recipe not found");
 
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
 
     requireInPlayerInfluence(playerCoord, stationEntityId);
 

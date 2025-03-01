@@ -4,14 +4,13 @@ pragma solidity >=0.8.24;
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
-import { Position, PositionData } from "../codegen/tables/Position.sol";
+import { Position } from "../codegen/tables/Position.sol";
 
-import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 import { EntityId } from "../EntityId.sol";
 import { MASS_TO_ENERGY_MULTIPLIER } from "../Constants.sol";
 import { PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
-using VoxelCoordLib for PositionData;
+import { Vec3 } from "../Vec3.sol";
 
 function massToEnergy(uint128 mass) pure returns (uint128) {
   return uint128(mass * MASS_TO_ENERGY_MULTIPLIER);
@@ -59,14 +58,14 @@ function getLatestEnergyData(EntityId entityId) view returns (EnergyData memory,
 function updateEnergyLevel(EntityId entityId) returns (EnergyData memory) {
   (EnergyData memory energyData, uint128 energyDrained) = getLatestEnergyData(entityId);
   if (energyDrained > 0) {
-    VoxelCoord memory coord = Position._get(entityId).toVoxelCoord();
+    Vec3 coord = Position._get(entityId);
     coord.addEnergyToLocalPool(energyDrained);
   }
   Energy._set(entityId, energyData);
   return energyData;
 }
 
-function transferEnergyToPool(EntityId from, VoxelCoord memory poolCoord, uint128 amount) {
+function transferEnergyToPool(EntityId from, Vec3 poolCoord, uint128 amount) {
   uint128 current = Energy._getEnergy(from);
   require(current >= amount, "Not enough energy");
   from.setEnergy(current - amount);
@@ -77,7 +76,7 @@ function updateSleepingPlayerEnergy(
   EntityId playerEntityId,
   EntityId bedEntityId,
   EnergyData memory machineData,
-  VoxelCoord memory bedCoord
+  Vec3 bedCoord
 ) returns (EnergyData memory) {
   uint128 timeWithoutEnergy = machineData.accDepletedTime - BedPlayer._getLastAccDepletedTime(bedEntityId);
   EnergyData memory playerEnergyData = Energy._get(playerEntityId);

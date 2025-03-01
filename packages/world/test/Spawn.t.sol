@@ -25,7 +25,7 @@ import { ISpawnTileChip } from "../src/prototypes/ISpawnTileChip.sol";
 import { ChunkCoord } from "../src/Types.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
-import { VoxelCoord } from "../src/VoxelCoord.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
@@ -52,21 +52,22 @@ contract SpawnTest is BiomesTest {
     address alice = vm.randomAddress();
 
     // Explore chunk at (0, 0, 0)
-    setupAirChunk(VoxelCoord(0, 0, 0));
+    setupAirChunk(vec3(0, 0, 0));
 
-    VoxelCoord memory spawnCoord = world.getRandomSpawnCoord(blockNumber, alice, 0);
+    Vec3 spawnCoord = world.getRandomSpawnCoord(blockNumber, alice, 0);
 
     // Set below entity to dirt so gravity doesn't apply
     EntityId belowEntityId = randomEntityId();
-    ReversePosition.set(spawnCoord.x, spawnCoord.y - 1, spawnCoord.z, belowEntityId);
+    Vec3 belowCoord = spawnCoord - vec3(0, 1, 0);
+    ReversePosition.set(belowCoord, belowEntityId);
     ObjectType.set(belowEntityId, DirtObjectID);
 
     // Give energy for local shard
-    VoxelCoord memory shardCoord = spawnCoord.toLocalEnergyPoolShardCoord();
-    LocalEnergyPool.set(shardCoord.x, 0, shardCoord.z, spawnEnergy());
+    Vec3 shardCoord = spawnCoord.toLocalEnergyPoolShard();
+    LocalEnergyPool.set(shardCoord, spawnEnergy());
 
     vm.prank(alice);
-    EntityId playerEntityId = world.randomSpawn(blockNumber, spawnCoord.y);
+    EntityId playerEntityId = world.randomSpawn(blockNumber, spawnCoord.y());
     assertTrue(playerEntityId.exists());
   }
 
@@ -85,8 +86,8 @@ contract SpawnTest is BiomesTest {
 
   function testSpawn() public {
     address alice = vm.randomAddress();
-    VoxelCoord memory spawnCoord = VoxelCoord(0, 0, 0);
-    VoxelCoord memory spawnTileCoord = VoxelCoord(0, spawnCoord.y - 1, 0);
+    Vec3 spawnCoord = vec3(0, 0, 0);
+    Vec3 spawnTileCoord = spawnCoord - vec3(0, 1, 0);
 
     setupAirChunk(spawnCoord);
 
@@ -104,8 +105,8 @@ contract SpawnTest is BiomesTest {
 
     // Set below entity to spawn tile
     EntityId spawnTileEntityId = randomEntityId();
-    Position.set(spawnTileEntityId, spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z);
-    ReversePosition.set(spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z, spawnTileEntityId);
+    Position.set(spawnTileEntityId, spawnTileCoord);
+    ReversePosition.set(spawnTileCoord, spawnTileEntityId);
     ObjectType.set(spawnTileEntityId, SpawnTileObjectID);
 
     TestSpawnChip chip = new TestSpawnChip();
@@ -117,7 +118,7 @@ contract SpawnTest is BiomesTest {
     world.transferOwnership(namespaceId, address(0));
 
     // Attach chip with test player
-    (address bob, ) = createTestPlayer(VoxelCoord(spawnTileCoord.x - 1, spawnTileCoord.y, spawnTileCoord.z));
+    (address bob, ) = createTestPlayer(spawnTileCoord - vec3(1, 0, 0));
     vm.prank(bob);
     world.attachChip(spawnTileEntityId, chipSystemId);
 
@@ -129,7 +130,7 @@ contract SpawnTest is BiomesTest {
 
   function testSpawnFailsIfNoSpawnTile() public {
     address alice = vm.randomAddress();
-    VoxelCoord memory spawnCoord = VoxelCoord(0, 0, 0);
+    Vec3 spawnCoord = vec3(0, 0, 0);
 
     // Use a random entity for (non) spawn tile
     EntityId spawnTileEntityId = randomEntityId();
@@ -141,8 +142,8 @@ contract SpawnTest is BiomesTest {
 
   function testSpawnFailsIfNotInSpawnArea() public {
     address alice = vm.randomAddress();
-    VoxelCoord memory spawnCoord = VoxelCoord(0, 0, 0);
-    VoxelCoord memory spawnTileCoord = VoxelCoord(500, 0, 0);
+    Vec3 spawnCoord = vec3(0, 0, 0);
+    Vec3 spawnTileCoord = vec3(500, 0, 0);
 
     setupAirChunk(spawnCoord);
 
@@ -151,8 +152,8 @@ contract SpawnTest is BiomesTest {
 
     // Set Far away entity to spawn tile
     EntityId spawnTileEntityId = randomEntityId();
-    Position.set(spawnTileEntityId, spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z);
-    ReversePosition.set(spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z, spawnTileEntityId);
+    Position.set(spawnTileEntityId, spawnTileCoord);
+    ReversePosition.set(spawnTileCoord, spawnTileEntityId);
     ObjectType.set(spawnTileEntityId, SpawnTileObjectID);
 
     vm.prank(alice);
@@ -162,15 +163,15 @@ contract SpawnTest is BiomesTest {
 
   function testSpawnFailsIfNoForceField() public {
     address alice = vm.randomAddress();
-    VoxelCoord memory spawnCoord = VoxelCoord(0, 0, 0);
-    VoxelCoord memory spawnTileCoord = VoxelCoord(0, spawnCoord.y - 1, 0);
+    Vec3 spawnCoord = vec3(0, 0, 0);
+    Vec3 spawnTileCoord = spawnCoord - vec3(0, 1, 0);
 
     setupAirChunk(spawnCoord);
 
     // Set below entity to spawn tile (no forcefield)
     EntityId spawnTileEntityId = randomEntityId();
-    Position.set(spawnTileEntityId, spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z);
-    ReversePosition.set(spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z, spawnTileEntityId);
+    Position.set(spawnTileEntityId, spawnTileCoord);
+    ReversePosition.set(spawnTileCoord, spawnTileEntityId);
     ObjectType.set(spawnTileEntityId, SpawnTileObjectID);
 
     vm.prank(alice);
@@ -180,8 +181,8 @@ contract SpawnTest is BiomesTest {
 
   function testSpawnFailsIfNotEnoughForceFieldEnergy() public {
     address alice = vm.randomAddress();
-    VoxelCoord memory spawnCoord = VoxelCoord(0, 0, 0);
-    VoxelCoord memory spawnTileCoord = VoxelCoord(0, spawnCoord.y - 1, 0);
+    Vec3 spawnCoord = vec3(0, 0, 0);
+    Vec3 spawnTileCoord = spawnCoord - vec3(0, 1, 0);
 
     setupAirChunk(spawnCoord);
 
@@ -190,8 +191,8 @@ contract SpawnTest is BiomesTest {
 
     // Set below entity to spawn tile
     EntityId spawnTileEntityId = randomEntityId();
-    Position.set(spawnTileEntityId, spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z);
-    ReversePosition.set(spawnTileCoord.x, spawnTileCoord.y, spawnTileCoord.z, spawnTileEntityId);
+    Position.set(spawnTileEntityId, spawnTileCoord);
+    ReversePosition.set(spawnTileCoord, spawnTileEntityId);
     ObjectType.set(spawnTileEntityId, SpawnTileObjectID);
 
     vm.prank(alice);

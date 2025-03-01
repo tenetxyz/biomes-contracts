@@ -7,7 +7,6 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
 import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
-import { VoxelCoord } from "../Types.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
@@ -41,8 +40,8 @@ contract ChipSystem is System {
   }
 
   function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) public payable {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
-    VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
+    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    Vec3 entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
     require(baseEntityId.getChipAddress() == address(0), "Chip already attached");
 
@@ -77,8 +76,8 @@ contract ChipSystem is System {
   }
 
   function detachChipWithExtraData(EntityId entityId, bytes memory extraData) public payable {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
-    VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
+    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    Vec3 entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
 
     EntityId forceFieldEntityId = getForceField(entityCoord);

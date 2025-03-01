@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { FacingDirection } from "./codegen/common.sol";
+import { CHUNK_SIZE, FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM } from "./Constants.sol";
+
 // Vec3 stores 3 packed int32 values (x, y, z)
 type Vec3 is uint96;
 
@@ -110,6 +113,51 @@ library Vec3Lib {
     }
 
     return result;
+  }
+
+  function rotate(Vec3 coord, FacingDirection facingDirection) internal pure returns (Vec3) {
+    // Default facing direction is North (Positive Z)
+    if (facingDirection == FacingDirection.PositiveZ) {
+      return coord; // No rotation needed for default facing direction
+    } else if (facingDirection == FacingDirection.PositiveX) {
+      // 90 degree rotation clockwise around Y axis
+      return vec3(coord.z(), coord.y(), -coord.x());
+    } else if (facingDirection == FacingDirection.NegativeZ) {
+      // 180 degree rotation around Y axis
+      return vec3(-coord.x(), coord.y(), -coord.z());
+    } else if (facingDirection == FacingDirection.NegativeX) {
+      // 260 degree rotation around Y axis
+      return vec3(-coord.z(), coord.y(), coord.x());
+    }
+
+    revert("Facing direction not supported");
+  }
+
+  function inSurroundingCube(Vec3 self, Vec3 other, int32 radius) internal pure returns (bool) {
+    return chebyshevDistance(self, other) <= radius;
+  }
+
+  function toChunk(Vec3 a) internal pure returns (Vec3) {
+    return a.floorDiv(CHUNK_SIZE);
+  }
+
+  function toShard(Vec3 self, int32 shardDim, bool ignoreY) internal pure returns (Vec3) {
+    return
+      vec3({
+        x: floorDiv(self.x(), shardDim),
+        y: ignoreY ? int32(0) : floorDiv(self.y(), shardDim),
+        z: floorDiv(self.z(), shardDim)
+      });
+  }
+
+  function toForceFieldShard(Vec3 coord) internal pure returns (Vec3) {
+    return toShard(coord, FORCE_FIELD_SHARD_DIM, false);
+  }
+
+  // Note: Local Energy Pool shards are 2D for now, but the table supports 3D
+  // Thats why the Y is ignored, and 0 in the util functions
+  function toLocalEnergyPoolShard(Vec3 coord) internal pure returns (Vec3) {
+    return toShard(coord, LOCAL_ENERGY_POOL_SHARD_DIM, true);
   }
 
   function toString(Vec3 a) internal pure returns (string memory) {
