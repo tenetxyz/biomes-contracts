@@ -87,7 +87,7 @@ contract TerrainTest is BiomesTest {
     assertEq(salt, bytes32(abi.encodePacked(bytes20(0), chunkCoord.x, chunkCoord.y, chunkCoord.z)));
     assertEq(salt, bytes32(uint256(uint96(bytes12(abi.encodePacked(chunkCoord.x, chunkCoord.y, chunkCoord.z))))));
 
-    chunkCoord = ChunkCoord(-1, -2, -3);
+    chunkCoord = vec3(-1, -2, -3);
     salt = TerrainLib._getChunkSalt(chunkCoord);
     assertEq(salt, bytes32(abi.encodePacked(bytes20(0), chunkCoord.x, chunkCoord.y, chunkCoord.z)));
     assertEq(salt, bytes32(uint256(uint96(bytes12(abi.encodePacked(chunkCoord.x, chunkCoord.y, chunkCoord.z))))));
@@ -116,13 +116,13 @@ contract TerrainTest is BiomesTest {
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, merkleProof);
     endGasReport();
 
-    Vec3 voxelCoord = vec3(1, 2, 3);
+    Vec3 coord = vec3(1, 2, 3);
     startGasReport("TerrainLib.getBlockType (non-root)");
-    uint8 blockType = TerrainLib.getBlockType(voxelCoord);
+    uint8 blockType = TerrainLib.getBlockType(coord);
     endGasReport();
 
     startGasReport("TerrainLib.getBlockType (root)");
-    blockType = TerrainLib.getBlockType(voxelCoord, worldAddress);
+    blockType = TerrainLib.getBlockType(coord, worldAddress);
     endGasReport();
 
     assertEq(blockType, chunk[1][2][3]);
@@ -130,8 +130,8 @@ contract TerrainTest is BiomesTest {
     for (int32 x = 0; x < CHUNK_SIZE; x++) {
       for (int32 y = 0; y < CHUNK_SIZE; y++) {
         for (int32 z = 0; z < CHUNK_SIZE; z++) {
-          voxelCoord = vec3(x, y, z);
-          blockType = TerrainLib.getBlockType(voxelCoord);
+          coord = vec3(x, y, z);
+          blockType = TerrainLib.getBlockType(coord);
           assertEq(blockType, chunk[uint256(int256(x))][uint256(int256(y))][uint256(int256(z))]);
         }
       }
@@ -155,28 +155,28 @@ contract TerrainTest is BiomesTest {
     // Test we can get the block type for a voxel in the chunk
     Vec3 chunkCoord = vec3(0, 0, 0);
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
-    VoxelCoord memory voxelCoord = VoxelCoord(1, 2, 3);
-    uint8 blockType = TerrainLib.getBlockType(voxelCoord);
+    Vec3 coord = vec3(1, 2, 3);
+    uint8 blockType = TerrainLib.getBlockType(coord);
     assertEq(blockType, chunk[1][2][3]);
 
     // Test for chunks that are not at the origin
     chunkCoord = vec3(1, 2, 3);
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
-    voxelCoord = VoxelCoord(16 + 1, 16 * 2 + 2, 16 * 3 + 3);
-    blockType = TerrainLib.getBlockType(voxelCoord);
+    coord = vec3(16 + 1, 16 * 2 + 2, 16 * 3 + 3);
+    blockType = TerrainLib.getBlockType(coord);
     assertEq(blockType, chunk[1][2][3]);
 
     // Test for negative coordinates
     chunkCoord = vec3(-1, -2, -3);
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
-    voxelCoord = VoxelCoord(-16 + 1, -16 * 2 + 2, -16 * 3 + 3);
-    blockType = TerrainLib.getBlockType(voxelCoord);
+    coord = vec3(-16 + 1, -16 * 2 + 2, -16 * 3 + 3);
+    blockType = TerrainLib.getBlockType(coord);
     assertEq(blockType, chunk[1][2][3]);
   }
 
   /// forge-config: default.allow_internal_expect_revert = true
   function testGetBlockType_Fail_ChunkNotExplored() public {
     vm.expectRevert("Chunk not explored yet");
-    TerrainLib.getBlockType(VoxelCoord(0, 0, 0));
+    TerrainLib.getBlockType(vec3(0, 0, 0));
   }
 }

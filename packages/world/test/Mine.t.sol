@@ -41,8 +41,6 @@ import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract MineTest is BiomesTest {
-  using VoxelCoordLib for *;
-
   function testMineTerrain() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
@@ -59,14 +57,14 @@ contract MineTest is BiomesTest {
 
     uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
     Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     vm.prank(alice);
     startGasReport("mine terrain with hand, entirely mined");
     world.mine(mineCoord);
     endGasReport();
 
-    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
     assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 1, "Inventory count is not 1");
     assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 1");
@@ -74,7 +72,7 @@ contract MineTest is BiomesTest {
       TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
       "Inventory objects does not have terrain object type"
     );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
   }
@@ -89,27 +87,27 @@ contract MineTest is BiomesTest {
     );
     ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction * 2));
-    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 0, "Inventory count is not 0");
 
     uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
     Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     vm.prank(alice);
     startGasReport("mine terrain with hand, partially mined");
     world.mine(mineCoord);
     endGasReport();
 
-    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(ObjectType.get(mineEntityId) == mineObjectTypeId, "Mine entity is not mined object");
     assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 0, "Inventory count is not 0");
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
 
-    localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
     aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
 
     vm.prank(alice);
@@ -122,7 +120,7 @@ contract MineTest is BiomesTest {
       TestUtils.inventoryObjectsHasObjectType(aliceEntityId, mineObjectTypeId),
       "Inventory objects does not have terrain object type"
     );
-    energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
   }
@@ -140,13 +138,13 @@ contract MineTest is BiomesTest {
     uint8 o = TerrainLib.getBlockType(mineCoord);
     assertTrue(ObjectTypeId.wrap(uint16(o)) == AnyOreObjectID, "Didn't work");
     ObjectTypeMetadata.setMass(AnyOreObjectID, uint32(playerHandMassReduction - 1));
-    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(!mineEntityId.exists(), "Mine entity already exists");
     assertEq(InventoryCount.get(aliceEntityId, AnyOreObjectID), 0, "Inventory count is not 0");
 
     uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
     Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
     ObjectAmount[] memory oreAmounts = TestUtils.inventoryGetOreAmounts(aliceEntityId);
     assertEq(oreAmounts.length, 0, "Existing ores in inventory");
     assertEq(TotalMinedOreCount.get(), 0, "Mined ore count is not 0");
@@ -161,7 +159,7 @@ contract MineTest is BiomesTest {
     world.mine(mineCoord);
     endGasReport();
 
-    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
     assertEq(InventoryCount.get(aliceEntityId, AnyOreObjectID), 0, "Did not get a specific ore");
     assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 1");
@@ -171,7 +169,7 @@ contract MineTest is BiomesTest {
     assertEq(MinedOreCount.get(oreAmounts[0].objectTypeId), 1, "Mined ore count was not updated");
     assertEq(TotalMinedOreCount.get(), 1, "Total mined ore count was not updated");
 
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertGt(energyGainedInPool, 0, "Local energy pool did not gain energy");
     assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
   }
@@ -189,7 +187,7 @@ contract MineTest is BiomesTest {
     uint8 o = TerrainLib.getBlockType(mineCoord);
     assertTrue(ObjectTypeId.wrap(uint16(o)) == AnyOreObjectID, "Didn't work");
     ObjectTypeMetadata.setMass(AnyOreObjectID, uint32(playerHandMassReduction * 2));
-    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(!mineEntityId.exists(), "Mine entity already exists");
     assertEq(InventoryCount.get(aliceEntityId, AnyOreObjectID), 0, "Inventory count is not 0");
 
@@ -210,7 +208,7 @@ contract MineTest is BiomesTest {
     world.mine(mineCoord);
     endGasReport();
 
-    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(ObjectType.get(mineEntityId) == AnyOreObjectID, "Mine entity is not any ore");
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     oreAmounts = TestUtils.inventoryGetOreAmounts(aliceEntityId);
@@ -233,7 +231,7 @@ contract MineTest is BiomesTest {
     ObjectTypeId mineObjectTypeId = GrassObjectID;
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
-    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(mineEntityId.exists(), "Mine entity does not exist");
     assertEq(InventoryCount.get(aliceEntityId, mineObjectTypeId), 0, "Inventory count is not 0");
 
@@ -269,9 +267,9 @@ contract MineTest is BiomesTest {
     ObjectTypeId mineObjectTypeId = TextSignObjectID;
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
-    Vec3 topCoord = vec3(mineCoord.x, mineCoord.y + 1, mineCoord.z);
-    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
-    EntityId topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    Vec3 topCoord = vec3(mineCoord);
+    EntityId mineEntityId = ReversePosition.get(mineCoord);
+    EntityId topEntityId = ReversePosition.get(topCoord);
     assertTrue(mineEntityId.exists(), "Mine entity does not exist");
     assertTrue(topEntityId.exists(), "Top entity does not exist");
     assertTrue(ObjectType.get(mineEntityId) == mineObjectTypeId, "Mine entity is not mine object type");
@@ -310,7 +308,7 @@ contract MineTest is BiomesTest {
     vm.prank(alice);
     world.build(TextSignObjectID, mineCoord);
 
-    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    mineEntityId = ReversePosition.get(mineCoord);
     topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
     assertTrue(mineEntityId.exists(), "Mine entity does not exist");
     assertTrue(topEntityId.exists(), "Top entity does not exist");

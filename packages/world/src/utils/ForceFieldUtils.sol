@@ -9,15 +9,15 @@ import { EntityId } from "../EntityId.sol";
 
 function getForceField(Vec3 coord) view returns (EntityId) {
   Vec3 shardCoord = coord.toForceFieldShardCoord();
-  return ForceField._get(shardCoord.x, shardCoord.y, shardCoord.z);
+  return ForceField._get(shardCoord);
 }
 
 function setupForceField(EntityId forceFieldEntityId, Vec3 coord) {
   Vec3 shardCoord = coord.toForceFieldShardCoord();
-  ForceField._set(shardCoord.x, shardCoord.y, shardCoord.z, forceFieldEntityId);
+  ForceField._set(shardCoord, forceFieldEntityId);
 }
 
 function destroyForceField(EntityId forceFieldEntityId, Vec3 coord) {
   Vec3 shardCoord = coord.toForceFieldShardCoord();
-  ForceField._deleteRecord(shardCoord.x, shardCoord.y, shardCoord.z);
+  ForceField._deleteRecord(shardCoord);
 }

@@ -27,7 +27,7 @@ import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEn
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ChunkCoord } from "../src/Types.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { ObjectTypeId, PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, WaterObjectID, ForceFieldObjectID } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
@@ -66,7 +66,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
     PlayerPosition.set(playerEntityId, coord);
     ReversePlayerPosition.set(coord, playerEntityId);
 
-    Vec3[] memory relativePositions = getObjectTypeSchema(PlayerObjectID);
+    Vec3[] memory relativePositions = PlayerObjectID.getObjectTypeSchema();
     for (uint256 i = 0; i < relativePositions.length; i++) {
       Vec3 relativeCoord = coord + relativePositions[i];
       EntityId relativePlayerEntityId = randomEntityId();
@@ -117,12 +117,12 @@ abstract contract BiomesTest is MudTest, GasReporter {
   function setupFlatChunk(Vec3 coord) internal {
     uint8[][][] memory chunk = _getFlatChunk();
     bytes memory encodedChunk = encodeChunk(chunk);
-    Vec3 chunkCoord = coord.toChunk();
+    Vec3 chunkCoord = coord.toChunkCoord();
     bytes32[] memory merkleProof = new bytes32[](0);
 
     world.exploreChunk(chunkCoord, encodedChunk, merkleProof);
 
-    Vec3 shardCoord = coord.toLocalEnergyPoolShard();
+    Vec3 shardCoord = coord.toLocalEnergyPoolShardCoord();
     LocalEnergyPool.set(shardCoord, 1e18);
   }
 
@@ -138,7 +138,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
     Vec3 spawnCoord = world.getRandomSpawnCoord(blockNumber, alice, y);
 
     vm.prank(alice);
-    EntityId aliceEntityId = world.randomSpawn(blockNumber, spawnCoord.y);
+    EntityId aliceEntityId = world.randomSpawn(blockNumber, spawnCoord.y());
 
     Vec3 playerCoord = PlayerPosition.get(aliceEntityId);
 
@@ -165,12 +165,12 @@ abstract contract BiomesTest is MudTest, GasReporter {
   function setupAirChunk(Vec3 coord) internal {
     uint8[][][] memory chunk = _getAirChunk();
     bytes memory encodedChunk = encodeChunk(chunk);
-    Vec3 chunkCoord = coord.toChunk();
+    Vec3 chunkCoord = coord.toChunkCoord();
     bytes32[] memory merkleProof = new bytes32[](0);
 
     world.exploreChunk(chunkCoord, encodedChunk, merkleProof);
 
-    Vec3 shardCoord = coord.toLocalEnergyPoolShard();
+    Vec3 shardCoord = coord.toLocalEnergyPoolShardCoord();
     LocalEnergyPool.set(shardCoord, 1e18);
   }
 
@@ -181,7 +181,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
   function setupWaterChunk(Vec3 coord) internal {
     uint8[][][] memory chunk = _getWaterChunk();
     bytes memory encodedChunk = encodeChunk(chunk);
-    Vec3 chunkCoord = coord.toChunk();
+    Vec3 chunkCoord = coord.toChunkCoord();
     bytes32[] memory merkleProof = new bytes32[](0);
 
     world.exploreChunk(chunkCoord, encodedChunk, merkleProof);
@@ -191,7 +191,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
   }
 
   function setTerrainAtCoord(Vec3 coord, ObjectTypeId objectTypeId) internal {
-    Vec3 chunkCoord = coord.toChunk();
+    Vec3 chunkCoord = coord.toChunkCoord();
     if (!TerrainLib._isChunkExplored(chunkCoord, worldAddress)) {
       setupAirChunk(coord);
     }
@@ -206,7 +206,7 @@ abstract contract BiomesTest is MudTest, GasReporter {
   }
 
   function setObjectAtCoord(Vec3 coord, ObjectTypeId objectTypeId) internal returns (EntityId) {
-    Vec3 chunkCoord = coord.toChunk();
+    Vec3 chunkCoord = coord.toChunkCoord();
     if (!TerrainLib._isChunkExplored(chunkCoord, worldAddress)) {
       setupAirChunk(coord);
     }

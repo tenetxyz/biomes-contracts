@@ -17,10 +17,10 @@ import { InventorySlots } from "@biomesaw/world/src/codegen/tables/InventorySlot
 import { InventoryCount } from "@biomesaw/world/src/codegen/tables/InventoryCount.sol";
 
 import { ObjectTypeId, ChestObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
-import { VoxelCoord, VoxelCoordLib } from "@biomesaw/world/src/VoxelCoord.sol";
+import { Vec3 } from "@biomesaw/world/src/Vec3.sol";
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 
-function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (ObjectTypeId) {
+function getObjectTypeAtCoord(Vec3 coord) view returns (ObjectTypeId) {
   EntityId entityId = getEntityAtCoord(coord);
 
   ObjectTypeId objectTypeId = getObjectType(entityId);
@@ -28,8 +28,8 @@ function getObjectTypeAtCoord(VoxelCoord memory coord) view returns (ObjectTypeI
   return objectTypeId;
 }
 
-function getPosition(EntityId entityId) view returns (VoxelCoord memory) {
-  return VoxelCoordLib.toVoxelCoord(Position.get(entityId));
+function getPosition(EntityId entityId) view returns (Vec3) {
+  return Position.get(entityId);
 }
 
 function getObjectType(EntityId entityId) view returns (ObjectTypeId) {
@@ -76,8 +76,8 @@ function getNumSlotsUsed(EntityId entityId) view returns (uint16) {
   return InventorySlots.getNumSlotsUsed(entityId);
 }
 
-function getEntityAtCoord(VoxelCoord memory coord) view returns (EntityId) {
-  return ReversePosition.getEntityId(coord.x, coord.y, coord.z);
+function getEntityAtCoord(Vec3 coord) view returns (EntityId) {
+  return ReversePosition.getEntityId(coord);
 }
 
 function numMaxInChest(ObjectTypeId objectTypeId) view returns (uint16) {

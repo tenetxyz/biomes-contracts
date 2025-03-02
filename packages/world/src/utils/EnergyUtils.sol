@@ -59,17 +59,33 @@ function updateEnergyLevel(EntityId entityId) returns (EnergyData memory) {
   (EnergyData memory energyData, uint128 energyDrained) = getLatestEnergyData(entityId);
   if (energyDrained > 0) {
     Vec3 coord = Position._get(entityId);
-    coord.addEnergyToLocalPool(energyDrained);
+    addEnergyToLocalPool(coord, energyDrained);
   }
   Energy._set(entityId, energyData);
   return energyData;
+}
+
+function addEnergyToLocalPool(Vec3 coord, uint128 numToAdd) returns (uint128) {
+  Vec3 shardCoord = coord.toLocalEnergyPoolShardCoord();
+  uint128 newLocalEnergy = LocalEnergyPool._get(shardCoord) + numToAdd;
+  LocalEnergyPool._set(shardCoord, newLocalEnergy);
+  return newLocalEnergy;
+}
+
+function removeEnergyFromLocalPool(Vec3 coord, uint128 numToRemove) returns (uint128) {
+  Vec3 shardCoord = coord.toLocalEnergyPoolShardCoord();
+  uint128 localEnergy = LocalEnergyPool._get(shardCoord);
+  require(localEnergy >= numToRemove, "Not enough energy in local pool");
+  uint128 newLocalEnergy = localEnergy - numToRemove;
+  LocalEnergyPool._set(shardCoord, newLocalEnergy);
+  return newLocalEnergy;
 }
 
 function transferEnergyToPool(EntityId from, Vec3 poolCoord, uint128 amount) {
   uint128 current = Energy._getEnergy(from);
   require(current >= amount, "Not enough energy");
   from.setEnergy(current - amount);
-  poolCoord.addEnergyToLocalPool(amount);
+  addEnergyToLocalPool(poolCoord, amount);
 }
 
 function updateSleepingPlayerEnergy(
@@ -89,7 +105,7 @@ function updateSleepingPlayerEnergy(
       : playerEnergyData.energy;
 
     playerEnergyData.energy -= transferredToPool;
-    bedCoord.addEnergyToLocalPool(transferredToPool);
+    addEnergyToLocalPool(bedCoord, transferredToPool);
   }
 
   // Set last updated so next time updatePlayerEnergyLevel is called it will drain from here

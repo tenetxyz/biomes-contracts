@@ -2,8 +2,8 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Vec3 } from "../Vec3.sol";
 
+import { Direction } from "../codegen/common.sol";
 import { EnergyData } from "../codegen/tables/Energy.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -21,7 +21,7 @@ contract MoveSystem is System {
     notify(playerEntityId, MoveNotifData({ moveCoords: newCoords }));
   }
 
-  function moveDirections(VoxelCoordDirection[] memory directions) public {
+  function moveDirections(Direction[] memory directions) public {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
 
     Vec3[] memory newCoords = new Vec3[](directions.length);

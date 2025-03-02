@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelCoordLib } from "../../VoxelCoord.sol";
+import { Vec3, vec3 } from "../../Vec3.sol";
 import { ObjectTypeId } from "../../ObjectTypeIds.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
@@ -25,10 +25,8 @@ import { EntityId } from "../../EntityId.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {
-  using VoxelCoordLib for *;
-
-  function getEntityIdAtCoord(VoxelCoord memory coord) public view returns (EntityId) {
-    return ReversePosition._get(coord.x, coord.y, coord.z);
+  function getEntityIdAtCoord(Vec3 coord) public view returns (EntityId) {
+    return ReversePosition._get(coord);
   }
 
   function getEntityData(EntityId entityId) public view returns (EntityData memory) {
@@ -39,7 +37,7 @@ contract ReadSystem is System {
           entityId: EntityId.wrap(0),
           baseEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
-          position: VoxelCoord(0, 0, 0)
+          position: vec3(0, 0, 0)
         });
     }
 
@@ -55,7 +53,7 @@ contract ReadSystem is System {
       });
   }
 
-  function getEntityDataAtCoord(VoxelCoord memory coord) public view returns (EntityData memory) {
+  function getEntityDataAtCoord(Vec3 coord) public view returns (EntityData memory) {
     EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
     if (!entityId.exists()) {
       return
@@ -80,7 +78,7 @@ contract ReadSystem is System {
       });
   }
 
-  function getMultipleEntityDataAtCoord(VoxelCoord[] memory coord) public view returns (EntityData[] memory) {
+  function getMultipleEntityDataAtCoord(Vec3[] memory coord) public view returns (EntityData[] memory) {
     EntityData[] memory entityData = new EntityData[](coord.length);
     for (uint256 i = 0; i < coord.length; i++) {
       entityData[i] = getEntityDataAtCoord(coord[i]);
@@ -106,21 +104,21 @@ contract ReadSystem is System {
     return getEntityInventory(entityId);
   }
 
-  function getCoordForEntityId(EntityId entityId) public view returns (VoxelCoord memory) {
+  function getCoordForEntityId(EntityId entityId) public view returns (Vec3) {
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
     if (objectTypeId == PlayerObjectID) {
       EntityId bedEntityId = PlayerStatus._getBedEntityId(entityId);
       if (bedEntityId.exists()) {
-        return Position._get(bedEntityId).toVoxelCoord();
+        return Position._get(bedEntityId);
       } else {
-        return PlayerPosition._get(entityId).toVoxelCoord();
+        return PlayerPosition._get(entityId);
       }
     } else {
-      return Position._get(entityId).toVoxelCoord();
+      return Position._get(entityId);
     }
   }
 
-  function getPlayerCoord(address player) public view returns (VoxelCoord memory) {
+  function getPlayerCoord(address player) public view returns (Vec3) {
     EntityId playerEntityId = Player._get(player);
     require(playerEntityId.exists(), "Player not found");
     return getCoordForEntityId(playerEntityId);

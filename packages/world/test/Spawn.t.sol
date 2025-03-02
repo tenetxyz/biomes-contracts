@@ -22,7 +22,6 @@ import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 
 import { ISpawnTileChip } from "../src/prototypes/ISpawnTileChip.sol";
-import { ChunkCoord } from "../src/Types.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";

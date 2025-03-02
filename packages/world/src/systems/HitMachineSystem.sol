@@ -16,7 +16,7 @@ import { ActionType } from "../codegen/common.sol";
 
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
+import { updateEnergyLevel, massToEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { safeCallChip } from "../utils/callChip.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
@@ -44,11 +44,7 @@ contract HitMachineSystem is System {
 
     uint128 baseEnergyReduction = PLAYER_HIT_ENERGY_COST + massToEnergy(toolMassReduction);
     Vec3 forceFieldShardCoord = machineCoord.toForceFieldShardCoord();
-    uint128 protection = ForceFieldMetadata._getTotalMassInside(
-      forceFieldShardCoord.x,
-      forceFieldShardCoord.y,
-      forceFieldShardCoord.z
-    );
+    uint128 protection = ForceFieldMetadata._getTotalMassInside(forceFieldShardCoord);
     // TODO: scale protection otherwise, targetEnergyReduction will be 0
     uint128 targetEnergyReduction = baseEnergyReduction / protection;
     uint128 newMachineEnergy = targetEnergyReduction <= machineData.energy
@@ -58,7 +54,7 @@ contract HitMachineSystem is System {
     require(playerEnergyData.energy > PLAYER_HIT_ENERGY_COST, "Not enough energy");
     playerEntityId.setEnergy(playerEnergyData.energy - PLAYER_HIT_ENERGY_COST);
     machineEntityId.setEnergy(newMachineEnergy);
-    machineCoord.addEnergyToLocalPool(PLAYER_HIT_ENERGY_COST + targetEnergyReduction);
+    addEnergyToLocalPool(machineCoord, PLAYER_HIT_ENERGY_COST + targetEnergyReduction);
 
     notify(playerEntityId, HitMachineNotifData({ machineEntityId: machineEntityId, machineCoord: machineCoord }));
 

@@ -5,7 +5,6 @@ import { Vm } from "forge-std/Vm.sol";
 import { console } from "forge-std/console.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
-import { VoxelCoord } from "../../src/Types.sol";
 import { EntityId } from "../../src/EntityId.sol";
 
 import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";

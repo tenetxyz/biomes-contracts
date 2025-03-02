@@ -27,7 +27,37 @@ export default defineWorld({
       "RevealOre",
     ],
     DisplayContentType: ["None", "Text", "Image"],
-    FacingDirection: ["PositiveX", "NegativeX", "PositiveY", "NegativeY", "PositiveZ", "NegativeZ"],
+    Direction: [
+      // Cardinal directions (6)
+      "PositiveX",
+      "NegativeX",
+      "PositiveY",
+      "NegativeY",
+      "PositiveZ",
+      "NegativeZ",
+      // Edge directions (12)
+      "PositiveXPositiveY",
+      "PositiveXNegativeY",
+      "NegativeXPositiveY",
+      "NegativeXNegativeY",
+      "PositiveXPositiveZ",
+      "PositiveXNegativeZ",
+      "NegativeXPositiveZ",
+      "NegativeXNegativeZ",
+      "PositiveYPositiveZ",
+      "PositiveYNegativeZ",
+      "NegativeYPositiveZ",
+      "NegativeYNegativeZ",
+      // Corner directions (8)
+      "PositiveXPositiveYPositiveZ",
+      "PositiveXPositiveYNegativeZ",
+      "PositiveXNegativeYPositiveZ",
+      "PositiveXNegativeYNegativeZ",
+      "NegativeXPositiveYPositiveZ",
+      "NegativeXPositiveYNegativeZ",
+      "NegativeXNegativeYPositiveZ",
+      "NegativeXNegativeYNegativeZ",
+    ],
   },
   userTypes: {
     ObjectTypeId: { filePath: "./src/ObjectTypeIds.sol", type: "uint16" },
@@ -106,7 +136,7 @@ export default defineWorld({
     Orientation: {
       schema: {
         entityId: "EntityId",
-        facingDirection: "FacingDirection",
+        direction: "Direction",
       },
       key: ["entityId"],
     },

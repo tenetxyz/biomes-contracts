@@ -17,7 +17,7 @@ import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
-import { ExploredChunkByIndex, ExploredChunkByIndexData } from "../codegen/tables/ExploredChunkByIndex.sol";
+import { ExploredChunkByIndex } from "../codegen/tables/ExploredChunkByIndex.sol";
 import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
 import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 
@@ -29,11 +29,11 @@ import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
-import { updateEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
+import { removeEnergyFromLocalPool, updateEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { createPlayer } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
-import { Vec3 } from "../Vec3.sol";
+import { Vec3, vec3 } from "../Vec3.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -43,20 +43,19 @@ contract SpawnSystem is System {
     return energyRequired;
   }
 
+  // TODO: do we want to use something like solady's prng?
   function getRandomSpawnCoord(uint256 blockNumber, address sender, int32 y) public view returns (Vec3 spawnCoord) {
-    spawnCoord.y = y;
-
     uint256 exploredChunkCount = ExploredChunkCount._get();
     require(exploredChunkCount > 0, "No explored chunks available");
 
     // Randomness used for the chunk index and relative coordinates
     uint256 rand = uint256(keccak256(abi.encodePacked(blockhash(blockNumber), sender)));
     uint256 chunkIndex = rand % exploredChunkCount;
-    ExploredChunkByIndexData memory chunk = ExploredChunkByIndex._get(chunkIndex);
+    Vec3 chunk = ExploredChunkByIndex._get(chunkIndex);
 
     // Convert chunk coordinates to world coordinates and add random offset
-    int32 chunkWorldX = chunk.x * CHUNK_SIZE;
-    int32 chunkWorldZ = chunk.z * CHUNK_SIZE;
+    int32 chunkWorldX = chunk.x() * CHUNK_SIZE;
+    int32 chunkWorldZ = chunk.z() * CHUNK_SIZE;
 
     // Convert CHUNK_SIZE from int32 to uint256
     uint256 chunkSize = uint256(int256(CHUNK_SIZE));
@@ -66,8 +65,7 @@ contract SpawnSystem is System {
     int32 relativeX = int32(int256(posRand % chunkSize));
     int32 relativeZ = int32(int256((posRand / chunkSize) % chunkSize));
 
-    spawnCoord.x = chunkWorldX + relativeX;
-    spawnCoord.z = chunkWorldZ + relativeZ;
+    return vec3(chunkWorldX + relativeX, y, chunkWorldZ + relativeZ);
   }
 
   function randomSpawn(uint256 blockNumber, int32 y) public returns (EntityId) {
@@ -85,7 +83,7 @@ contract SpawnSystem is System {
     // Extract energy from local pool
     uint32 playerMass = ObjectTypeMetadata._getMass(PlayerObjectID);
     uint128 energyRequired = getEnergyCostToSpawn(playerMass);
-    spawnCoord.removeEnergyFromLocalPool(energyRequired);
+    removeEnergyFromLocalPool(spawnCoord, energyRequired);
 
     return _spawnPlayer(playerMass, spawnCoord);
   }

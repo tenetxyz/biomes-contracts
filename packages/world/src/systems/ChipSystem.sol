@@ -27,6 +27,7 @@ import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { IBedChip } from "../prototypes/IBedChip.sol";
 import { EntityId } from "../EntityId.sol";
+import { Vec3 } from "../Vec3.sol";
 import { safeCallChip, callChipOrRevert } from "../utils/callChip.sol";
 
 contract ChipSystem is System {

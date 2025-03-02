@@ -11,15 +11,11 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Orientation } from "../codegen/tables/Orientation.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { Chip } from "../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
-import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
-import { ActionType, DisplayContentType } from "../codegen/common.sol";
+import { DisplayContentType } from "../codegen/common.sol";
 
 import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../ObjectTypeIds.sol";
@@ -31,6 +27,7 @@ import { updateEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPl
 import { mulDiv } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
+import { getOrCreateEntityAt, getPlayer } from "../utils/EntityUtils.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
@@ -38,11 +35,11 @@ import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
 import { PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
-import { Vec3 } from "../Vec3.sol";
+import { Vec3, vec3 } from "../Vec3.sol";
 
 library MineLib {
   function mineRandomOre(Vec3 coord) public returns (ObjectTypeId) {
-    Vec3 chunkCoord = coord.toChunk();
+    Vec3 chunkCoord = coord.toChunkCoord();
     uint256 commitment = OreCommitment._get(chunkCoord);
     // We can't get blockhash of current block
     require(block.number > commitment, "Not within commitment blocks");
@@ -52,7 +49,7 @@ library MineLib {
     // Set total mined ore and add position
     // We do this here to avoid stack too deep issues
     uint256 totalMinedOre = TotalMinedOreCount._get();
-    MinedOrePosition._set(totalMinedOre, coord.x, coord.y, coord.z);
+    MinedOrePosition._set(totalMinedOre, coord);
     TotalMinedOreCount._set(totalMinedOre + 1);
 
     // TODO: can optimize by not storing these in memory and returning the type depending on for loop index
@@ -130,7 +127,7 @@ contract MineSystem is System {
     ObjectType._set(entityId, AirObjectID);
 
     Vec3 aboveCoord = coord + vec3(0, 1, 0);
-    EntityId aboveEntityId = aboveCoord.getPlayer();
+    EntityId aboveEntityId = getPlayer(aboveCoord);
     // Note: currently it is not possible for the above player to not be the base entity,
     // but if we add other types of movable entities we should check that it is a base entity
     if (aboveEntityId.exists()) {
@@ -144,7 +141,7 @@ contract MineSystem is System {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    (EntityId entityId, ObjectTypeId mineObjectTypeId) = coord.getOrCreateEntity();
+    (EntityId entityId, ObjectTypeId mineObjectTypeId) = getOrCreateEntityAt(coord);
     require(mineObjectTypeId.isMineable(), "Object is not mineable");
 
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_MINE_ENERGY_COST);
@@ -157,7 +154,7 @@ contract MineSystem is System {
     require(updateEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
 
     // First coord will be the base coord, the rest is relative schema coords
-    Vec3[] memory coords = baseCoord.getRelativeCoords(mineObjectTypeId, Orientation._get(baseEntityId));
+    Vec3[] memory coords = mineObjectTypeId.getRelativeCoords(baseCoord, Orientation._get(baseEntityId));
 
     {
       uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);
@@ -183,7 +180,7 @@ contract MineSystem is System {
         // Only iterate through relative schema coords
         for (uint256 i = 1; i < coords.length; i++) {
           Vec3 relativeCoord = coords[i];
-          (EntityId relativeEntityId, ) = relativeCoord.getOrCreateEntity();
+          (EntityId relativeEntityId, ) = getOrCreateEntityAt(relativeCoord);
           BaseEntity._deleteRecord(relativeEntityId);
 
           _removeBlock(relativeEntityId, relativeCoord);

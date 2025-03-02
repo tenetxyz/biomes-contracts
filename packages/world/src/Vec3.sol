@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { FacingDirection } from "./codegen/common.sol";
+import { Position } from "./codegen/tables/Position.sol";
+import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
+import { Direction } from "./codegen/common.sol";
 import { CHUNK_SIZE, FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM } from "./Constants.sol";
 
 // Vec3 stores 3 packed int32 values (x, y, z)
@@ -26,6 +28,41 @@ function add(Vec3 a, Vec3 b) pure returns (Vec3) {
 
 function sub(Vec3 a, Vec3 b) pure returns (Vec3) {
   return vec3(a.x() - b.x(), a.y() - b.y(), a.z() - b.z());
+}
+
+function getDirectionVector(Direction direction) pure returns (Vec3) {
+  if (direction == Direction.PositiveX) return vec3(1, 0, 0);
+  if (direction == Direction.NegativeX) return vec3(-1, 0, 0);
+  if (direction == Direction.PositiveY) return vec3(0, 1, 0);
+  if (direction == Direction.NegativeY) return vec3(0, -1, 0);
+  if (direction == Direction.PositiveZ) return vec3(0, 0, 1);
+  if (direction == Direction.NegativeZ) return vec3(0, 0, -1);
+
+  if (direction == Direction.PositiveXPositiveY) return vec3(1, 1, 0);
+  if (direction == Direction.PositiveXNegativeY) return vec3(1, -1, 0);
+  if (direction == Direction.NegativeXPositiveY) return vec3(-1, 1, 0);
+  if (direction == Direction.NegativeXNegativeY) return vec3(-1, -1, 0);
+
+  if (direction == Direction.PositiveXPositiveZ) return vec3(1, 0, 1);
+  if (direction == Direction.PositiveXNegativeZ) return vec3(1, 0, -1);
+  if (direction == Direction.NegativeXPositiveZ) return vec3(-1, 0, 1);
+  if (direction == Direction.NegativeXNegativeZ) return vec3(-1, 0, -1);
+
+  if (direction == Direction.PositiveYPositiveZ) return vec3(0, 1, 1);
+  if (direction == Direction.PositiveYNegativeZ) return vec3(0, 1, -1);
+  if (direction == Direction.NegativeYPositiveZ) return vec3(0, -1, 1);
+  if (direction == Direction.NegativeYNegativeZ) return vec3(0, -1, -1);
+
+  if (direction == Direction.PositiveXPositiveYPositiveZ) return vec3(1, 1, 1);
+  if (direction == Direction.PositiveXPositiveYNegativeZ) return vec3(1, 1, -1);
+  if (direction == Direction.PositiveXNegativeYPositiveZ) return vec3(1, -1, 1);
+  if (direction == Direction.PositiveXNegativeYNegativeZ) return vec3(1, -1, -1);
+  if (direction == Direction.NegativeXPositiveYPositiveZ) return vec3(-1, 1, 1);
+  if (direction == Direction.NegativeXPositiveYNegativeZ) return vec3(-1, 1, -1);
+  if (direction == Direction.NegativeXNegativeYPositiveZ) return vec3(-1, -1, 1);
+  if (direction == Direction.NegativeXNegativeYNegativeZ) return vec3(-1, -1, -1);
+
+  revert("Invalid direction");
 }
 
 library Vec3Lib {
@@ -63,13 +100,6 @@ library Vec3Lib {
     return vec3(-x(a), -y(a), -z(a));
   }
 
-  function squaredMagnitude(Vec3 a) internal pure returns (int64) {
-    int64 _x = int64(x(a));
-    int64 _y = int64(y(a));
-    int64 _z = int64(z(a));
-    return _x * _x + _y * _y + _z * _z;
-  }
-
   function manhattanDistance(Vec3 a, Vec3 b) internal pure returns (int64) {
     return int64(abs(x(a) - x(b)) + abs(y(a) - y(b)) + abs(z(a) - z(b)));
   }
@@ -82,82 +112,84 @@ library Vec3Lib {
     return max3(dx, dy, dz);
   }
 
+  function getNeighbor(Vec3 self, Direction direction) internal pure returns (Vec3) {
+    return self + getDirectionVector(direction);
+  }
+
   function neighbors6(Vec3 a) internal pure returns (Vec3[6] memory) {
     Vec3[6] memory result;
 
     // Positive and negative directions along each axis
-    result[0] = add(a, vec3(1, 0, 0)); // +x
-    result[1] = add(a, vec3(-1, 0, 0)); // -x
-    result[2] = add(a, vec3(0, 1, 0)); // +y
-    result[3] = add(a, vec3(0, -1, 0)); // -y
-    result[4] = add(a, vec3(0, 0, 1)); // +z
-    result[5] = add(a, vec3(0, 0, -1)); // -z
+    for (uint8 i = 0; i < 6; i++) {
+      result[i] = a.getNeighbor(Direction(i)); // +x
+    }
 
     return result;
   }
 
   function neighbors26(Vec3 a) internal pure returns (Vec3[26] memory) {
     Vec3[26] memory result;
-    uint8 idx = 0;
 
     // Generate all neighbors in a 3x3x3 cube, excluding the center
-    for (int32 dx = -1; dx <= 1; dx++) {
-      for (int32 dy = -1; dy <= 1; dy++) {
-        for (int32 dz = -1; dz <= 1; dz++) {
-          if (dx != 0 || dy != 0 || dz != 0) {
-            result[idx] = add(a, vec3(dx, dy, dz));
-            idx++;
-          }
-        }
-      }
+    for (uint8 i = 0; i <= 26; i++) {
+      result[i] = a.getNeighbor(Direction(i));
     }
 
     return result;
   }
 
-  function rotate(Vec3 coord, FacingDirection facingDirection) internal pure returns (Vec3) {
+  function rotate(Vec3 self, Direction direction) internal pure returns (Vec3) {
     // Default facing direction is North (Positive Z)
-    if (facingDirection == FacingDirection.PositiveZ) {
-      return coord; // No rotation needed for default facing direction
-    } else if (facingDirection == FacingDirection.PositiveX) {
+    if (direction == Direction.PositiveZ) {
+      return self; // No rotation needed for default facing direction
+    } else if (direction == Direction.PositiveX) {
       // 90 degree rotation clockwise around Y axis
-      return vec3(coord.z(), coord.y(), -coord.x());
-    } else if (facingDirection == FacingDirection.NegativeZ) {
+      return vec3(self.z(), self.y(), -self.x());
+    } else if (direction == Direction.NegativeZ) {
       // 180 degree rotation around Y axis
-      return vec3(-coord.x(), coord.y(), -coord.z());
-    } else if (facingDirection == FacingDirection.NegativeX) {
+      return vec3(-self.x(), self.y(), -self.z());
+    } else if (direction == Direction.NegativeX) {
       // 260 degree rotation around Y axis
-      return vec3(-coord.z(), coord.y(), coord.x());
+      return vec3(-self.z(), self.y(), self.x());
     }
 
-    revert("Facing direction not supported");
+    revert("Direction not supported for rotation");
   }
 
   function inSurroundingCube(Vec3 self, Vec3 other, int32 radius) internal pure returns (bool) {
     return chebyshevDistance(self, other) <= radius;
   }
 
-  function toChunk(Vec3 a) internal pure returns (Vec3) {
+  // Function to get the new Vec3 based on the direction
+  function transform(Vec3 self, Direction direction) internal pure returns (Vec3) {
+    return self + getDirectionVector(direction);
+  }
+
+  function inVonNeumannNeighborhood(Vec3 center, Vec3 checkCoord) internal pure returns (bool) {
+    return center.manhattanDistance(checkCoord) == 1;
+  }
+
+  function toChunkCoord(Vec3 a) internal pure returns (Vec3) {
     return a.floorDiv(CHUNK_SIZE);
   }
 
-  function toShard(Vec3 self, int32 shardDim, bool ignoreY) internal pure returns (Vec3) {
+  function toShardCoord(Vec3 self, int32 shardDim, bool ignoreY) internal pure returns (Vec3) {
     return
-      vec3({
-        x: floorDiv(self.x(), shardDim),
-        y: ignoreY ? int32(0) : floorDiv(self.y(), shardDim),
-        z: floorDiv(self.z(), shardDim)
-      });
+      vec3(
+        _floorDiv(self.x(), shardDim),
+        ignoreY ? int32(0) : _floorDiv(self.y(), shardDim),
+        _floorDiv(self.z(), shardDim)
+      );
   }
 
-  function toForceFieldShard(Vec3 coord) internal pure returns (Vec3) {
-    return toShard(coord, FORCE_FIELD_SHARD_DIM, false);
+  function toForceFieldShardCoord(Vec3 coord) internal pure returns (Vec3) {
+    return toShardCoord(coord, FORCE_FIELD_SHARD_DIM, false);
   }
 
   // Note: Local Energy Pool shards are 2D for now, but the table supports 3D
   // Thats why the Y is ignored, and 0 in the util functions
-  function toLocalEnergyPoolShard(Vec3 coord) internal pure returns (Vec3) {
-    return toShard(coord, LOCAL_ENERGY_POOL_SHARD_DIM, true);
+  function toLocalEnergyPoolShardCoord(Vec3 coord) internal pure returns (Vec3) {
+    return toShardCoord(coord, LOCAL_ENERGY_POOL_SHARD_DIM, true);
   }
 
   function toString(Vec3 a) internal pure returns (string memory) {

@@ -3,21 +3,12 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Player } from "../codegen/tables/Player.sol";
-import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
-import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
-import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { Mass } from "../codegen/tables/Mass.sol";
 
 import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePlayerFromGrid, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
@@ -32,6 +23,7 @@ import { massToEnergy, updateEnergyLevel, updateSleepingPlayerEnergy } from "../
 import { IBedChip } from "../prototypes/IBedChip.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
+import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 
 import { Vec3 } from "../Vec3.sol";
 
@@ -65,9 +57,9 @@ contract BedSystem is System {
     Vec3 bedCoord = Position._get(bedEntityId);
 
     // TODO: use a different constant?
-    require(bedCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, dropCoord), "Drop location is too far from bed");
+    require(bedCoord.inSurroundingCube(dropCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH), "Drop location is too far from bed");
 
-    (EntityId dropEntityId, ObjectTypeId objectTypeId) = dropCoord.getOrCreateEntity();
+    (EntityId dropEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(dropCoord);
     require(objectTypeId == AirObjectID, "Cannot drop items on a non-air block");
 
     EntityId forceFieldEntityId = getForceField(bedCoord);
@@ -127,7 +119,7 @@ contract BedSystem is System {
     require(bedEntityId.exists(), "Player is not sleeping");
 
     Vec3 bedCoord = Position._get(bedEntityId);
-    require(bedCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, spawnCoord), "Bed is too far away");
+    require(bedCoord.inSurroundingCube(spawnCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH), "Bed is too far away");
 
     EntityId forceFieldEntityId = getForceField(bedCoord);
     (EnergyData memory machineData, EnergyData memory playerData) = BedLib.updateEntities(

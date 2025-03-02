@@ -19,6 +19,7 @@ import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 import { PLAYER_DROP_ENERGY_COST } from "../Constants.sol";
 import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
+import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 
 // TODO: combine the tool and non-tool drop functions
 contract DropSystem is System {
@@ -27,7 +28,7 @@ contract DropSystem is System {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    (EntityId entityId, ObjectTypeId objectTypeId) = coord.getOrCreateEntity();
+    (EntityId entityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(objectTypeId == AirObjectID, "Cannot drop on a non-air block");
 
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_DROP_ENERGY_COST);

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord } from "../Types.sol";
+import { Vec3 } from "../Vec3.sol";
 import { IChip } from "./IChip.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -13,7 +13,7 @@ interface IForceFieldChip is IChip {
     EntityId targetEntityId,
     EntityId callerEntityId,
     ObjectTypeId objectTypeId,
-    VoxelCoord memory coord,
+    Vec3 coord,
     bytes memory extraData
   ) external payable;
 
@@ -21,7 +21,7 @@ interface IForceFieldChip is IChip {
     EntityId targetEntityId,
     EntityId callerEntityId,
     ObjectTypeId objectTypeId,
-    VoxelCoord memory coord,
+    Vec3 coord,
     bytes memory extraData
   ) external payable;
 

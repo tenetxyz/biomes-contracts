@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelCoordLib } from "../../VoxelCoord.sol";
+import { Vec3, vec3 } from "../../Vec3.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
@@ -29,8 +29,6 @@ import { EntityId } from "../../EntityId.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadTwoSystem is System {
-  using VoxelCoordLib for *;
-
   function getPlayerEntityData(address player) public view returns (PlayerEntityData memory) {
     EntityId entityId = Player._get(player);
     if (!entityId.exists()) {
@@ -38,7 +36,7 @@ contract ReadTwoSystem is System {
         PlayerEntityData({
           playerAddress: player,
           entityId: EntityId.wrap(0),
-          position: VoxelCoord(0, 0, 0),
+          position: vec3(0, 0, 0),
           bedEntityId: EntityId.wrap(0),
           equippedEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
@@ -49,9 +47,7 @@ contract ReadTwoSystem is System {
     }
 
     EntityId bedEntityId = PlayerStatus._getBedEntityId(entityId);
-    VoxelCoord memory playerPos = bedEntityId.exists()
-      ? Position._get(entityId).toVoxelCoord()
-      : PlayerPosition._get(entityId).toVoxelCoord();
+    Vec3 playerPos = bedEntityId.exists() ? Position._get(entityId) : PlayerPosition._get(entityId);
 
     return
       PlayerEntityData({
@@ -82,7 +78,7 @@ contract ReadTwoSystem is System {
           entityId: EntityId.wrap(0),
           baseEntityId: EntityId.wrap(0),
           objectTypeId: NullObjectTypeId,
-          position: VoxelCoord(0, 0, 0),
+          position: vec3(0, 0, 0),
           inventory: new InventoryObject[](0),
           chipAddress: address(0)
         });
@@ -94,7 +90,7 @@ contract ReadTwoSystem is System {
         entityId: entityId,
         baseEntityId: baseEntityId,
         objectTypeId: ObjectType._get(entityId),
-        position: Position._get(entityId).toVoxelCoord(),
+        position: Position._get(entityId),
         inventory: getEntityInventory(baseEntityId),
         chipAddress: baseEntityId.getChipAddress()
       });

@@ -39,8 +39,7 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../src/Constants.sol";
-import { Vec3 } from "../src/Vec3.sol";
-import { ChunkCoord } from "../src/Types.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract MoveTest is BiomesTest {
@@ -48,11 +47,11 @@ contract MoveTest is BiomesTest {
     EntityId playerEntityId = Player.get(player);
     Vec3 startingCoord = PlayerPosition.get(playerEntityId);
     Vec3[] memory newCoords = new Vec3[](numBlocksToMove);
-    for (uint8 i = 0; i < numBlocksToMove; i++) {
-      newCoords[i] = vec3(startingCoord.x, startingCoord.y, startingCoord.z + int32(int(uint(i))) + 1);
+    for (int32 i = 0; i < numBlocksToMove; i++) {
+      newCoords[i] = startingCoord + vec3(0, 0, i + 1);
 
-      Vec3 belowCoord = vec3(newCoords[i].x, newCoords[i].y - 1, newCoords[i].z);
-      Vec3 aboveCoord = vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z);
+      Vec3 belowCoord = newCoords[i] - vec3(0, 1, 0);
+      Vec3 aboveCoord = newCoords[i] + vec3(0, 1, 0);
       if (overTerrain) {
         setTerrainAtCoord(newCoords[i], AirObjectID);
         setTerrainAtCoord(aboveCoord, AirObjectID);
@@ -76,11 +75,8 @@ contract MoveTest is BiomesTest {
     endGasReport();
 
     Vec3 finalCoord = PlayerPosition.get(playerEntityId);
-    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
-    assertTrue(
-      VoxelCoordLib.equals(finalCoord, newCoords[numBlocksToMove - 1]),
-      "Player did not move to the correct coord"
-    );
+    Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
+    assertTrue(finalCoord == newCoords[numBlocksToMove - 1], "Player did not move to the correct coord");
     assertTrue(
       BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == playerEntityId,
       "Above coord is not the player"
@@ -153,9 +149,9 @@ contract MoveTest is BiomesTest {
     uint256 numJumps = 1;
     Vec3[] memory newCoords = new Vec3[](numJumps);
     for (int32 i = 0; i < numJumps; i++) {
-      newCoords[i] = vec3(playerCoord.x, playerCoord.y + i + 1, playerCoord.z);
+      newCoords[i] = playerCoord + vec3(0, i + 1, 0);
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
     }
 
     uint128 energyBefore = Energy.getEnergy(aliceEntityId);
@@ -169,8 +165,8 @@ contract MoveTest is BiomesTest {
 
     // Expect the player to fall down back to the original coord
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(VoxelCoordLib.equals(finalCoord, playerCoord), "Player did not fall back to the original coord");
-    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    assertTrue(finalCoord == playerCoord, "Player did not fall back to the original coord");
+    Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertTrue(
       BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
@@ -185,13 +181,13 @@ contract MoveTest is BiomesTest {
 
     uint256 numGlides = 2;
     Vec3[] memory newCoords = new Vec3[](numGlides + 1);
-    for (uint8 i = 0; i < newCoords.length; i++) {
-      newCoords[i] = vec3(playerCoord.x, playerCoord.y + 1, playerCoord.z + int32(int(uint(i))));
+    for (int32 i = 0; i < newCoords.length; i++) {
+      newCoords[i] = playerCoord + vec3(0, 1, 0);
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
     }
-    Vec3 expectedFinalCoord = vec3(playerCoord.x, playerCoord.y, playerCoord.z + int32(int(uint(numGlides))));
-    setObjectAtCoord(vec3(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), GrassObjectID);
+    Vec3 expectedFinalCoord = playerCoord + vec3(0, 0, int32(int256(numGlides)));
+    setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), GrassObjectID);
 
     uint128 energyBefore = Energy.getEnergy(aliceEntityId);
     Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
@@ -202,8 +198,8 @@ contract MoveTest is BiomesTest {
 
     // Expect the player to fall down back after the last block
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(VoxelCoordLib.equals(finalCoord, expectedFinalCoord), "Player did not move to new coords");
-    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    assertTrue(finalCoord == expectedFinalCoord, "Player did not move to new coords");
+    Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertTrue(
       BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
@@ -217,9 +213,9 @@ contract MoveTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupWaterChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](3);
-    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = vec3(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
-    newCoords[2] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+    newCoords[0] = playerCoord + vec3(0, 0, 1);
+    newCoords[1] = playerCoord + vec3(0, 1, 1);
+    newCoords[2] = playerCoord + vec3(0, 0, 2);
 
     uint128 energyBefore = Energy.getEnergy(aliceEntityId);
     Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
@@ -229,8 +225,8 @@ contract MoveTest is BiomesTest {
     world.move(newCoords);
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(VoxelCoordLib.equals(finalCoord, newCoords[newCoords.length - 1]), "Player did not move to new coords");
-    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    assertTrue(finalCoord == newCoords[newCoords.length - 1], "Player did not move to new coords");
+    Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertTrue(
       BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
@@ -244,8 +240,8 @@ contract MoveTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](4);
-    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+    newCoords[0] = playerCoord + vec3(0, 0, 1);
+    newCoords[1] = playerCoord + vec3(0, 0, 2);
     newCoords[2] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
     newCoords[3] = vec3(playerCoord.x, playerCoord.y, playerCoord.z);
     for (uint8 i = 0; i < newCoords.length; i++) {
@@ -261,8 +257,8 @@ contract MoveTest is BiomesTest {
     world.move(newCoords);
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(VoxelCoordLib.equals(finalCoord, playerCoord), "Player did not move to new coords");
-    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    assertTrue(finalCoord == playerCoord, "Player did not move to new coords");
+    Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertTrue(
       BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
@@ -276,22 +272,18 @@ contract MoveTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](6);
-    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 2);
-    newCoords[2] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[3] = vec3(playerCoord.x, playerCoord.y, playerCoord.z);
-    newCoords[4] = vec3(playerCoord.x, playerCoord.y, playerCoord.z - 1);
-    newCoords[5] = vec3(playerCoord.x, playerCoord.y, playerCoord.z - 2);
+    newCoords[0] = playerCoord + vec3(0, 0, 1);
+    newCoords[1] = playerCoord + vec3(0, 0, 2);
+    newCoords[2] = playerCoord + vec3(0, 0, 1);
+    newCoords[3] = playerCoord;
+    newCoords[4] = playerCoord + vec3(0, 0, -1);
+    newCoords[5] = playerCoord + vec3(0, 0, -2);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
       setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
-    Vec3 expectedFinalCoord = vec3(
-      newCoords[newCoords.length - 1].x,
-      newCoords[newCoords.length - 1].y,
-      newCoords[newCoords.length - 1].z
-    );
-    setObjectAtCoord(vec3(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), GrassObjectID);
+    Vec3 expectedFinalCoord = newCoords[newCoords.length - 1];
+    setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), GrassObjectID);
 
     uint128 energyBefore = Energy.getEnergy(aliceEntityId);
     Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
@@ -301,7 +293,7 @@ contract MoveTest is BiomesTest {
     world.move(newCoords);
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(VoxelCoordLib.equals(finalCoord, expectedFinalCoord), "Player did not move to new coords");
+    assertTrue(finalCoord == expectedFinalCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
     assertTrue(
       BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
@@ -318,9 +310,9 @@ contract MoveTest is BiomesTest {
     uint256 numJumps = MAX_PLAYER_JUMPS + 1;
     Vec3[] memory newCoords = new Vec3[](numJumps);
     for (uint8 i = 0; i < numJumps; i++) {
-      newCoords[i] = vec3(playerCoord.x, playerCoord.y + int32(int(uint(i))) + 1, playerCoord.z);
+      newCoords[i] = playerCoord + vec3(0, int32(int(uint(i))) + 1, 0);
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
     }
 
     vm.prank(alice);
@@ -334,9 +326,9 @@ contract MoveTest is BiomesTest {
     uint256 numGlides = MAX_PLAYER_GLIDES + 1;
     Vec3[] memory newCoords = new Vec3[](numGlides + 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      newCoords[i] = vec3(playerCoord.x, playerCoord.y + 1, playerCoord.z + int32(int(uint(i))));
+      newCoords[i] = playerCoord + vec3(0, 1, int32(int(uint(i))));
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
     }
 
     vm.prank(alice);
@@ -355,13 +347,13 @@ contract MoveTest is BiomesTest {
       setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
     }
 
-    setObjectAtCoord(vec3(newCoords[1].x, newCoords[1].y, newCoords[1].z), DirtObjectID);
+    setObjectAtCoord(newCoords[1], DirtObjectID);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a non-passable block");
     world.move(newCoords);
 
-    setObjectAtCoord(vec3(newCoords[0].x, newCoords[0].y + 1, newCoords[0].z), DirtObjectID);
+    setObjectAtCoord(newCoords[0] + vec3(0, 1, 0), DirtObjectID);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a non-passable block");
@@ -376,16 +368,16 @@ contract MoveTest is BiomesTest {
     );
 
     Vec3[] memory newCoords = new Vec3[](2);
-    newCoords[0] = vec3(aliceCoord.x, aliceCoord.y, aliceCoord.z + 1);
+    newCoords[0] = aliceCoord + vec3(0, 0, 1);
     newCoords[1] = bobCoord;
     setObjectAtCoord(newCoords[0], AirObjectID);
-    setObjectAtCoord(vec3(newCoords[0].x, newCoords[0].y + 1, newCoords[0].z), AirObjectID);
+    setObjectAtCoord(newCoords[0] + vec3(0, 1, 0), AirObjectID);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a player");
     world.move(newCoords);
 
-    newCoords[1] = vec3(bobCoord.x, bobCoord.y + 1, bobCoord.z);
+    newCoords[1] = bobCoord + vec3(0, 1, 0);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a player");
@@ -396,8 +388,8 @@ contract MoveTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](2);
-    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 3);
+    newCoords[0] = playerCoord + vec3(0, 0, 1);
+    newCoords[1] = playerCoord + vec3(0, 0, 3);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
       setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
@@ -407,13 +399,13 @@ contract MoveTest is BiomesTest {
     vm.expectRevert("New coord is too far from old coord");
     world.move(newCoords);
 
-    newCoords[1] = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y, playerCoord.z + 2);
+    newCoords[1] = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y, playerCoord.z + 2); // Can't use vector addition here due to WORLD_BORDER_LOW_X
 
     vm.prank(alice);
     vm.expectRevert("Cannot move outside the world border");
     world.move(newCoords);
 
-    newCoords[0] = vec3(playerCoord.x - 1, playerCoord.y, playerCoord.z);
+    newCoords[0] = playerCoord - vec3(1, 0, 0);
 
     vm.prank(alice);
     vm.expectRevert("Chunk not explored yet");
@@ -426,11 +418,11 @@ contract MoveTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](2);
-    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+    newCoords[0] = playerCoord + vec3(0, 0, 1);
+    newCoords[1] = playerCoord + vec3(0, 0, 2);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
     }
 
     vm.expectRevert("Player does not exist");
@@ -441,11 +433,11 @@ contract MoveTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](2);
-    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
-    newCoords[1] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 2);
+    newCoords[0] = playerCoord + vec3(0, 0, 1);
+    newCoords[1] = playerCoord + vec3(0, 0, 2);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
     }
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());

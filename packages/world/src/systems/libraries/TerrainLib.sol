@@ -27,7 +27,7 @@ library TerrainLib {
 
   /// @notice Get the terrain block type of a voxel coordinate.
   function getBlockType(Vec3 coord, address world) internal view returns (uint8) {
-    Vec3 chunkCoord = coord.toChunk();
+    Vec3 chunkCoord = coord.toChunkCoord();
     require(_isChunkExplored(chunkCoord, world), "Chunk not explored yet");
 
     address chunkPointer = _getChunkPointer(chunkCoord, world);
@@ -63,8 +63,7 @@ library TerrainLib {
   /// @dev Get the salt for a chunk coordinate
   function _getChunkSalt(Vec3 coord) internal pure returns (bytes32) {
     // TODO: check if this is correct, we seem to be getting revert for collisions
-    return
-      bytes32((uint256(uint32(coord.x())) << 64) | (uint256(uint32(coord.y())) << 32) | uint256(uint32(coord.z())));
+    return bytes32(uint256(Vec3.unwrap(coord)));
   }
 
   /// @dev Get the address of the chunk pointer based on its deterministic CREATE3 address

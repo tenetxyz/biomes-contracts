@@ -13,33 +13,35 @@ import { Orientation } from "../codegen/tables/Orientation.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { ActionType, FacingDirection } from "../codegen/common.sol";
+import { ActionType, Direction } from "../codegen/common.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 
 import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
-import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
-import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
+import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
+import { getPlayer } from "../utils/EntityUtils.sol";
+import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 
 library BuildLib {
   function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) public returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
-    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = coord.getOrCreateEntity();
+    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = getOrCreateEntityAt(coord);
     require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
     require(
       InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,
       "Cannot build where there are dropped objects"
     );
     if (!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId)) {
-      require(!coord.getPlayer().exists(), "Cannot build on a player");
+      require(!getPlayer(coord).exists(), "Cannot build on a player");
     }
 
     ObjectType._set(terrainEntityId, buildObjectTypeId);
@@ -52,7 +54,7 @@ contract BuildSystem is System {
   function buildWithExtraData(
     ObjectTypeId buildObjectTypeId,
     Vec3 baseCoord,
-    FacingDirection facingDirection,
+    Direction direction,
     bytes memory extraData
   ) public payable returns (EntityId) {
     require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
@@ -60,11 +62,11 @@ contract BuildSystem is System {
     requireInPlayerInfluence(playerCoord, baseCoord);
 
     EntityId baseEntityId = BuildLib._addBlock(buildObjectTypeId, baseCoord);
-    Orientation._set(baseEntityId, facingDirection);
+    Orientation._set(baseEntityId, direction);
     uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
     Mass._setMass(baseEntityId, mass);
 
-    Vec3[] memory coords = baseCoord.getRelativeCoords(buildObjectTypeId, facingDirection);
+    Vec3[] memory coords = buildObjectTypeId.getRelativeCoords(baseCoord, direction);
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < coords.length; i++) {
       Vec3 relativeCoord = coords[i];
@@ -74,11 +76,8 @@ contract BuildSystem is System {
 
     Vec3 forceFieldShardCoord = baseCoord.toForceFieldShardCoord();
     ForceFieldMetadata._setTotalMassInside(
-      forceFieldShardCoord.x,
-      forceFieldShardCoord.y,
-      forceFieldShardCoord.z,
-      ForceFieldMetadata._getTotalMassInside(forceFieldShardCoord.x, forceFieldShardCoord.y, forceFieldShardCoord.z) +
-        mass
+      forceFieldShardCoord,
+      ForceFieldMetadata._getTotalMassInside(forceFieldShardCoord) + mass
     );
 
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
@@ -98,7 +97,7 @@ contract BuildSystem is System {
 
   function jumpBuildWithExtraData(
     ObjectTypeId buildObjectTypeId,
-    FacingDirection facingDirection,
+    Direction direction,
     bytes memory extraData
   ) public payable {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
@@ -110,29 +109,26 @@ contract BuildSystem is System {
 
     require(!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId), "Cannot jump build on a pass-through block");
 
-    buildWithExtraData(buildObjectTypeId, playerCoord, facingDirection, extraData);
+    buildWithExtraData(buildObjectTypeId, playerCoord, direction, extraData);
   }
 
-  function jumpBuildWithFacingDirection(
-    ObjectTypeId buildObjectTypeId,
-    FacingDirection facingDirection
-  ) public payable {
-    jumpBuildWithExtraData(buildObjectTypeId, facingDirection, new bytes(0));
+  function jumpBuildWithDirection(ObjectTypeId buildObjectTypeId, Direction direction) public payable {
+    jumpBuildWithExtraData(buildObjectTypeId, direction, new bytes(0));
   }
 
   function jumpBuild(ObjectTypeId buildObjectTypeId) public payable {
-    jumpBuildWithExtraData(buildObjectTypeId, FacingDirection.PositiveZ, new bytes(0));
+    jumpBuildWithExtraData(buildObjectTypeId, Direction.PositiveZ, new bytes(0));
   }
 
-  function buildWithFacingDirection(
+  function buildWithDirection(
     ObjectTypeId buildObjectTypeId,
     Vec3 baseCoord,
-    FacingDirection facingDirection
+    Direction direction
   ) public payable returns (EntityId) {
-    return buildWithExtraData(buildObjectTypeId, baseCoord, facingDirection, new bytes(0));
+    return buildWithExtraData(buildObjectTypeId, baseCoord, direction, new bytes(0));
   }
 
   function build(ObjectTypeId buildObjectTypeId, Vec3 baseCoord) public payable returns (EntityId) {
-    return buildWithExtraData(buildObjectTypeId, baseCoord, FacingDirection.PositiveZ, new bytes(0));
+    return buildWithExtraData(buildObjectTypeId, baseCoord, Direction.PositiveZ, new bytes(0));
   }
 }

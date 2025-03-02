@@ -29,7 +29,7 @@ contract OreSystem is System {
   function oreChunkCommit(Vec3 chunkCoord) public {
     require(TerrainLib._isChunkExplored(chunkCoord, _world()), "Unexplored chunk");
     (, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    Vec3 playerChunkCoord = playerCoord.toChunk();
+    Vec3 playerChunkCoord = playerCoord.toChunkCoord();
 
     require(playerChunkCoord.inSurroundingCube(chunkCoord, CHUNK_COMMIT_HALF_WIDTH), "Not in commit range");
 

@@ -23,8 +23,7 @@ import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
-import { Vec3 } from "../src/Vec3.sol";
-import { ChunkCoord } from "../src/Types.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, CHUNK_COMMIT_EXPIRY_BLOCKS } from "../src/Constants.sol";
 
 contract OreTest is BiomesTest {
@@ -43,7 +42,7 @@ contract OreTest is BiomesTest {
     ExploredChunkCount.set(exploredChunkCount + 1);
   }
 
-  function addMinedOre(VoxelCoord memory coord) internal {
+  function addMinedOre(Vec3 coord) internal {
     uint256 count = TotalMinedOreCount.get();
     TotalMinedOreCount.set(count + 1);
     MinedOrePosition.set(count, coord);

@@ -34,18 +34,16 @@ import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X, MACHINE_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
-import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract EnergyTest is BiomesTest {
-  using VoxelCoordLib for *;
-
   function testPlayerLosesEnergyWhenIdle() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
     uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
 
     // pass some time
@@ -58,9 +56,9 @@ contract EnergyTest is BiomesTest {
   }
 
   function testMachineLosesEnergyWhenIdle() public {
-    (, , VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (, , Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory forceFieldCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 forceFieldCoord = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
       EnergyData({
@@ -72,14 +70,14 @@ contract EnergyTest is BiomesTest {
     );
 
     uint128 forceFieldEnergyBefore = Energy.getEnergy(forceFieldEntityId);
-    VoxelCoord memory shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     // pass some time
     vm.warp(block.timestamp + 2);
     world.activate(forceFieldEntityId);
 
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertEq(
       Energy.getEnergy(forceFieldEntityId),

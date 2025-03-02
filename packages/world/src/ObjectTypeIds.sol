@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { MinedOreCount } from "./codegen/tables/MinedOreCount.sol";
+import { Direction } from "./codegen/common.sol";
 import { TotalBurnedOreCount } from "./codegen/tables/TotalBurnedOreCount.sol";
 import { Vec3, vec3 } from "./Vec3.sol";
 
@@ -310,7 +311,7 @@ library ObjectTypeIdLib {
   function getRelativeCoords(
     ObjectTypeId self,
     Vec3 baseCoord,
-    FacingDirection facingDirection
+    Direction direction
   ) internal pure returns (Vec3[] memory) {
     Vec3[] memory schemaCoords = getObjectTypeSchema(self);
     Vec3[] memory coords = new Vec3[](schemaCoords.length + 1);
@@ -318,17 +319,14 @@ library ObjectTypeIdLib {
     coords[0] = baseCoord;
 
     for (uint256 i = 0; i < schemaCoords.length; i++) {
-      coords[i + 1] = baseCoord + schemaCoords[i].rotate(facingDirection);
+      coords[i + 1] = baseCoord + schemaCoords[i].rotate(direction);
     }
 
     return coords;
   }
 
-  function getRelativeCoords(
-    VoxelCoord memory baseCoord,
-    ObjectTypeId objectTypeId
-  ) internal pure returns (VoxelCoord[] memory) {
-    return getRelativeCoords(baseCoord, objectTypeId, FacingDirection.PositiveZ);
+  function getRelativeCoords(ObjectTypeId objectTypeId, Vec3 baseCoord) internal pure returns (Vec3[] memory) {
+    return getRelativeCoords(objectTypeId, baseCoord, Direction.PositiveZ);
   }
 
   function getCategory(ObjectTypeId self) internal pure returns (uint16) {

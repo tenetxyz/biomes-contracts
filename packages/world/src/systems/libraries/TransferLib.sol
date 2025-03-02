@@ -8,7 +8,7 @@ import { LocalEnergyPool } from "../../codegen/tables/LocalEnergyPool.sol";
 
 import { ObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_TRANSFER_ENERGY_COST, SMART_CHEST_ENERGY_COST } from "../../Constants.sol";
-import { updateEnergyLevel } from "../../utils/EnergyUtils.sol";
+import { updateEnergyLevel, addEnergyToLocalPool } from "../../utils/EnergyUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { TransferCommonContext } from "../../Types.sol";
@@ -25,7 +25,7 @@ library TransferLib {
     (EntityId playerEntityId, Vec3 playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(msgSender);
 
     Vec3 chestCoord = Position._get(chestEntityId);
-    require(playerCoord.inSurroundingCube(MAX_PLAYER_INFLUENCE_HALF_WIDTH, chestCoord), "Destination too far");
+    require(playerCoord.inSurroundingCube(chestCoord, MAX_PLAYER_INFLUENCE_HALF_WIDTH), "Destination too far");
     ObjectTypeId chestObjectTypeId = ObjectType._get(chestEntityId);
     ObjectTypeId dstObjectTypeId = isDeposit ? chestObjectTypeId : PlayerObjectID;
 
@@ -44,7 +44,7 @@ library TransferLib {
 
     require(playerEnergyData.energy > PLAYER_TRANSFER_ENERGY_COST, "Not enough energy");
     playerEntityId.setEnergy(playerEnergyData.energy - PLAYER_TRANSFER_ENERGY_COST);
-    chestCoord.addEnergyToLocalPool(energyCost);
+    addEnergyToLocalPool(chestCoord, energyCost);
 
     return
       TransferCommonContext({
