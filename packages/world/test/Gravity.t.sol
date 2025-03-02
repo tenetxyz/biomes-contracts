@@ -44,7 +44,7 @@ contract GravityTest is BiomesTest {
   function testMineFallSingleBlock() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(playerCoord.x, playerCoord.y - 1, playerCoord.z);
+    Vec3 mineCoord = playerCoord - vec3(0, 1, 0);
     ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
@@ -60,13 +60,13 @@ contract GravityTest is BiomesTest {
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
     assertTrue(finalCoord == mineCoord, "Player did not move to new coords");
-    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertTrue(
       BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
     );
 
-    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -76,15 +76,15 @@ contract GravityTest is BiomesTest {
   function testMineFallMultipleBlocks() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(playerCoord.x, playerCoord.y - 1, playerCoord.z);
+    Vec3 mineCoord = playerCoord - vec3(0, 1, 0);
     ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
-    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
 
-    setTerrainAtCoord(vec3(mineCoord.x, mineCoord.y - 1, mineCoord.z), AirObjectID);
-    setTerrainAtCoord(vec3(mineCoord.x, mineCoord.y - 2, mineCoord.z), AirObjectID);
+    setTerrainAtCoord(mineCoord - vec3(0, 1, 0), AirObjectID);
+    setTerrainAtCoord(mineCoord - vec3(0, 2, 0), AirObjectID);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
@@ -94,15 +94,14 @@ contract GravityTest is BiomesTest {
     endGasReport();
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(finalCoord == vec3(mineCoord.x, mineCoord.y - 2, mineCoord.z), "Player did not move to new coords");
-    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    assertTrue(finalCoord == mineCoord - vec3(0, 2, 0), "Player did not move to new coords");
+    Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord.x, aboveFinalCoord.y, aboveFinalCoord.z)) ==
-        aliceEntityId,
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
     );
 
-    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -116,26 +115,26 @@ contract GravityTest is BiomesTest {
 
     EntityId bobEntityId;
     {
-      Vec3 bobCoord = vec3(aliceCoord.x, aliceCoord.y + 2, aliceCoord.z);
+      Vec3 bobCoord = aliceCoord + vec3(0, 2, 0);
       setObjectAtCoord(bobCoord, AirObjectID);
-      setObjectAtCoord(vec3(bobCoord.x, bobCoord.y + 1, bobCoord.z), AirObjectID);
+      setObjectAtCoord(bobCoord + vec3(0, 1, 0), AirObjectID);
       (, bobEntityId) = createTestPlayer(bobCoord);
     }
 
-    Vec3 mineCoord = vec3(aliceCoord.x, aliceCoord.y - 1, aliceCoord.z);
+    Vec3 mineCoord = aliceCoord - vec3(0, 1, 0);
     ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
-    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
 
-    setTerrainAtCoord(vec3(mineCoord.x, mineCoord.y - 1, mineCoord.z), AirObjectID);
-    setTerrainAtCoord(vec3(mineCoord.x, mineCoord.y - 2, mineCoord.z), AirObjectID);
+    setTerrainAtCoord(mineCoord - vec3(0, 1, 0), AirObjectID);
+    setTerrainAtCoord(mineCoord - vec3(0, 2, 0), AirObjectID);
 
     uint128 bobEnergyBefore = Energy.getEnergy(bobEntityId);
     uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
     Vec3 shardCoord = aliceCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     vm.prank(alice);
     startGasReport("mine with three block fall with a stacked player");
@@ -144,31 +143,25 @@ contract GravityTest is BiomesTest {
 
     Vec3 finalAliceCoord = PlayerPosition.get(aliceEntityId);
     Vec3 finalBobCoord = PlayerPosition.get(bobEntityId);
-    assertTrue(
-      finalAliceCoord == vec3(mineCoord.x, mineCoord.y - 2, mineCoord.z),
-      "Player alice did not move to new coords"
-    );
-    assertTrue(finalBobCoord == vec3(mineCoord.x, mineCoord.y, mineCoord.z), "Player bob did not move to new coords");
+    assertTrue(finalAliceCoord == mineCoord - vec3(0, 2, 0), "Player alice did not move to new coords");
+    assertTrue(finalBobCoord == mineCoord, "Player bob did not move to new coords");
     {
-      Vec3 aboveFinalAliceCoord = vec3(finalAliceCoord.x, finalAliceCoord.y + 1, finalAliceCoord.z);
+      Vec3 aboveFinalAliceCoord = finalAliceCoord + vec3(0, 1, 0);
       assertTrue(
-        BaseEntity.get(
-          ReversePlayerPosition.get(aboveFinalAliceCoord.x, aboveFinalAliceCoord.y, aboveFinalAliceCoord.z)
-        ) == aliceEntityId,
+        BaseEntity.get(ReversePlayerPosition.get(aboveFinalAliceCoord)) == aliceEntityId,
         "Above coord is not the player alice"
       );
-      Vec3 aboveFinalBobCoord = vec3(finalBobCoord.x, finalBobCoord.y + 1, finalBobCoord.z);
+      Vec3 aboveFinalBobCoord = finalBobCoord + vec3(0, 1, 0);
       assertTrue(
-        BaseEntity.get(ReversePlayerPosition.get(aboveFinalBobCoord.x, aboveFinalBobCoord.y, aboveFinalBobCoord.z)) ==
-          bobEntityId,
+        BaseEntity.get(ReversePlayerPosition.get(aboveFinalBobCoord)) == bobEntityId,
         "Above coord is not the player bob"
       );
     }
 
-    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     uint128 aliceEnergyAfter = Energy.getEnergy(aliceEntityId);
     uint128 bobEnergyAfter = Energy.getEnergy(bobEntityId);
@@ -183,18 +176,14 @@ contract GravityTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](1);
-    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[0] = playerCoord + vec3(0, 0, 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
     }
-    Vec3 expectedFinalCoord = vec3(
-      newCoords[newCoords.length - 1].x,
-      newCoords[newCoords.length - 1].y - 1,
-      newCoords[newCoords.length - 1].z
-    );
+    Vec3 expectedFinalCoord = newCoords[newCoords.length - 1] - vec3(0, 1, 0);
     setObjectAtCoord(newCoords[newCoords.length - 1], AirObjectID);
-    setObjectAtCoord(vec3(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), DirtObjectID);
+    setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), DirtObjectID);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
@@ -205,7 +194,7 @@ contract GravityTest is BiomesTest {
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
     assertTrue(finalCoord == expectedFinalCoord, "Player did not fall back to the original coord");
-    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertTrue(
       BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
@@ -218,26 +207,16 @@ contract GravityTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](1);
-    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[0] = playerCoord + vec3(0, 0, 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
     }
-    setObjectAtCoord(
-      vec3(newCoords[newCoords.length - 1].x, newCoords[newCoords.length - 1].y - 1, newCoords[newCoords.length - 1].z),
-      AirObjectID
-    );
-    setObjectAtCoord(
-      vec3(newCoords[newCoords.length - 1].x, newCoords[newCoords.length - 1].y - 2, newCoords[newCoords.length - 1].z),
-      AirObjectID
-    );
-    Vec3 expectedFinalCoord = vec3(
-      newCoords[newCoords.length - 1].x,
-      newCoords[newCoords.length - 1].y - 3,
-      newCoords[newCoords.length - 1].z
-    );
+    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 1, 0), AirObjectID);
+    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 2, 0), AirObjectID);
+    Vec3 expectedFinalCoord = newCoords[newCoords.length - 1] - vec3(0, 3, 0);
     setObjectAtCoord(newCoords[newCoords.length - 1], AirObjectID);
-    setObjectAtCoord(vec3(expectedFinalCoord.x, expectedFinalCoord.y - 1, expectedFinalCoord.z), DirtObjectID);
+    setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), DirtObjectID);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
@@ -248,10 +227,9 @@ contract GravityTest is BiomesTest {
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
     assertTrue(finalCoord == expectedFinalCoord, "Player did not fall back to the original coord");
-    Vec3 aboveFinalCoord = vec3(finalCoord.x, finalCoord.y + 1, finalCoord.z);
+    Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord.x, aboveFinalCoord.y, aboveFinalCoord.z)) ==
-        aliceEntityId,
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
       "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -263,41 +241,28 @@ contract GravityTest is BiomesTest {
 
     EntityId bobEntityId;
     {
-      Vec3 bobCoord = vec3(aliceCoord.x, aliceCoord.y + 2, aliceCoord.z);
+      Vec3 bobCoord = aliceCoord + vec3(0, 2, 0);
       setObjectAtCoord(bobCoord, AirObjectID);
-      setObjectAtCoord(vec3(bobCoord.x, bobCoord.y + 1, bobCoord.z), AirObjectID);
+      setObjectAtCoord(bobCoord + vec3(0, 1, 0), AirObjectID);
       (, bobEntityId) = createTestPlayer(bobCoord);
     }
 
     Vec3[] memory newCoords = new Vec3[](1);
-    newCoords[0] = vec3(aliceCoord.x, aliceCoord.y, aliceCoord.z + 1);
+    newCoords[0] = aliceCoord + vec3(0, 0, 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
     }
-    setObjectAtCoord(
-      vec3(newCoords[newCoords.length - 1].x, newCoords[newCoords.length - 1].y - 1, newCoords[newCoords.length - 1].z),
-      AirObjectID
-    );
-    setObjectAtCoord(
-      vec3(newCoords[newCoords.length - 1].x, newCoords[newCoords.length - 1].y - 2, newCoords[newCoords.length - 1].z),
-      AirObjectID
-    );
-    Vec3 expectedFinalAliceCoord = vec3(
-      newCoords[newCoords.length - 1].x,
-      newCoords[newCoords.length - 1].y - 3,
-      newCoords[newCoords.length - 1].z
-    );
+    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 1, 0), AirObjectID);
+    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 2, 0), AirObjectID);
+    Vec3 expectedFinalAliceCoord = newCoords[newCoords.length - 1] - vec3(0, 3, 0);
     setObjectAtCoord(newCoords[newCoords.length - 1], AirObjectID);
-    setObjectAtCoord(
-      vec3(expectedFinalAliceCoord.x, expectedFinalAliceCoord.y - 1, expectedFinalAliceCoord.z),
-      DirtObjectID
-    );
+    setObjectAtCoord(expectedFinalAliceCoord - vec3(0, 1, 0), DirtObjectID);
 
     uint128 bobEnergyBefore = Energy.getEnergy(bobEntityId);
     uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
     Vec3 shardCoord = aliceCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     vm.prank(alice);
     startGasReport("move with three block fall with a stacked player");
@@ -308,12 +273,12 @@ contract GravityTest is BiomesTest {
     Vec3 finalBobCoord = PlayerPosition.get(bobEntityId);
     assertTrue(finalAliceCoord == expectedFinalAliceCoord, "Player alice did not move to new coords");
     assertTrue(finalBobCoord == aliceCoord, "Player bob did not move to new coords");
-    Vec3 aboveFinalAliceCoord = vec3(finalAliceCoord.x, finalAliceCoord.y + 1, finalAliceCoord.z);
+    Vec3 aboveFinalAliceCoord = finalAliceCoord + vec3(0, 1, 0);
     assertTrue(
       BaseEntity.get(ReversePlayerPosition.get(aboveFinalAliceCoord)) == aliceEntityId,
       "Above coord is not the player alice"
     );
-    Vec3 aboveFinalBobCoord = vec3(finalBobCoord.x, finalBobCoord.y + 1, finalBobCoord.z);
+    Vec3 aboveFinalBobCoord = finalBobCoord + vec3(0, 1, 0);
     assertTrue(
       BaseEntity.get(ReversePlayerPosition.get(aboveFinalBobCoord)) == bobEntityId,
       "Above coord is not the player bob"
@@ -335,10 +300,10 @@ contract GravityTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](1);
-    newCoords[0] = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    newCoords[0] = playerCoord + vec3(0, 0, 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
       setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(vec3(newCoords[i].x, newCoords[i].y + 1, newCoords[i].z), AirObjectID);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
     }
 
     vm.prank(alice);

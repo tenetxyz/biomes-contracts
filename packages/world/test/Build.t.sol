@@ -87,17 +87,13 @@ contract BuildTest is BiomesTest {
     setObjectAtCoord(buildCoord, AirObjectID);
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
-    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     Vec3 forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
-    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(
-      forceFieldShardCoord.x,
-      forceFieldShardCoord.y,
-      forceFieldShardCoord.z
-    );
+    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord);
 
     vm.prank(alice);
     startGasReport("build non-terrain");
@@ -114,7 +110,7 @@ contract BuildTest is BiomesTest {
       "Build entity mass is not correct"
     );
     assertEq(
-      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord.x, forceFieldShardCoord.y, forceFieldShardCoord.z),
+      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord),
       localMassBefore + ObjectTypeMetadata.getMass(buildObjectTypeId),
       "Force field mass is not correct"
     );
@@ -129,19 +125,15 @@ contract BuildTest is BiomesTest {
     setObjectAtCoord(topCoord, AirObjectID);
     ObjectTypeId buildObjectTypeId = TextSignObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
-    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
-    EntityId topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    EntityId buildEntityId = ReversePosition.get(buildCoord);
+    EntityId topEntityId = ReversePosition.get(topCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertTrue(topEntityId.exists(), "Top entity does not exist");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     Vec3 forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
-    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(
-      forceFieldShardCoord.x,
-      forceFieldShardCoord.y,
-      forceFieldShardCoord.z
-    );
+    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord);
 
     vm.prank(alice);
     startGasReport("build multi-size");
@@ -160,7 +152,7 @@ contract BuildTest is BiomesTest {
     );
     assertEq(Mass.getMass(topEntityId), 0, "Top entity mass is not correct");
     assertEq(
-      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord.x, forceFieldShardCoord.y, forceFieldShardCoord.z),
+      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord),
       localMassBefore + ObjectTypeMetadata.getMass(buildObjectTypeId),
       "Force field mass is not correct"
     );
@@ -175,11 +167,7 @@ contract BuildTest is BiomesTest {
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     Vec3 forceFieldShardCoord = playerCoord.toForceFieldShardCoord();
-    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(
-      forceFieldShardCoord.x,
-      forceFieldShardCoord.y,
-      forceFieldShardCoord.z
-    );
+    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord);
 
     vm.prank(alice);
     startGasReport("jump build");
@@ -187,9 +175,9 @@ contract BuildTest is BiomesTest {
     endGasReport();
 
     Vec3 playerCoordAfter = PlayerPosition.get(aliceEntityId);
-    assertEq(playerCoordAfter, playerCoord + vec(0, 1, 0), "Player coord is not correct");
+    assertEq(playerCoordAfter, playerCoord + vec3(0, 1, 0), "Player coord is not correct");
 
-    EntityId buildEntityId = ReversePosition.get(playerCoord.x, playerCoord.y, playerCoord.z);
+    EntityId buildEntityId = ReversePosition.get(playerCoord);
     assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -200,7 +188,7 @@ contract BuildTest is BiomesTest {
       "Build entity mass is not correct"
     );
     assertEq(
-      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord.x, forceFieldShardCoord.y, forceFieldShardCoord.z),
+      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord),
       localMassBefore + ObjectTypeMetadata.getMass(buildObjectTypeId),
       "Force field mass is not correct"
     );
@@ -307,11 +295,7 @@ contract BuildTest is BiomesTest {
   function testBuildFailsIfNonAir() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 buildCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL + 1,
-      playerCoord.z
-    );
+    Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     setObjectAtCoord(buildCoord, GrassObjectID);
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
@@ -361,11 +345,7 @@ contract BuildTest is BiomesTest {
   function testBuildFailsInvalidBlock() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 buildCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL + 1,
-      playerCoord.z
-    );
+    Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     setObjectAtCoord(buildCoord, AirObjectID);
     ObjectTypeId buildObjectTypeId = GoldBarObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
@@ -381,11 +361,7 @@ contract BuildTest is BiomesTest {
   function testBuildFailsIfHasDroppedObjects() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 buildCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL + 1,
-      playerCoord.z
-    );
+    Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     EntityId airEntityId = setObjectAtCoord(buildCoord, AirObjectID);
     ObjectTypeId buildObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, buildObjectTypeId, 1);
@@ -458,7 +434,7 @@ contract BuildTest is BiomesTest {
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     EntityId airEntityId = setObjectAtCoord(buildCoord, AirObjectID);
     ObjectTypeId buildObjectTypeId = GrassObjectID;
-    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
 
@@ -470,14 +446,10 @@ contract BuildTest is BiomesTest {
   function testBuildFailsIfNoPlayer() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 buildCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL + 1,
-      playerCoord.z
-    );
+    Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     EntityId airEntityId = setObjectAtCoord(buildCoord, AirObjectID);
     ObjectTypeId buildObjectTypeId = GrassObjectID;
-    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
 
@@ -488,14 +460,10 @@ contract BuildTest is BiomesTest {
   function testBuildFailsIfSleeping() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 buildCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL + 1,
-      playerCoord.z
-    );
+    Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     setObjectAtCoord(buildCoord, AirObjectID);
     ObjectTypeId buildObjectTypeId = GrassObjectID;
-    EntityId buildEntityId = ReversePosition.get(buildCoord.x, buildCoord.y, buildCoord.z);
+    EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
 

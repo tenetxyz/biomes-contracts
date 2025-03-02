@@ -54,7 +54,7 @@ contract ReadSystem is System {
   }
 
   function getEntityDataAtCoord(Vec3 coord) public view returns (EntityData memory) {
-    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    EntityId entityId = ReversePosition._get(coord);
     if (!entityId.exists()) {
       return
         EntityData({

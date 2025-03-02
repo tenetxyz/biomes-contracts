@@ -44,13 +44,13 @@ contract EnergyTest is BiomesTest {
 
     uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
     Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     // pass some time
     vm.warp(block.timestamp + 2);
     world.activatePlayer(alice);
 
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
+    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
     assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
   }
@@ -58,7 +58,7 @@ contract EnergyTest is BiomesTest {
   function testMachineLosesEnergyWhenIdle() public {
     (, , Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 forceFieldCoord = vec3(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 forceFieldCoord = playerCoord + vec3(0, 0, 1);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
       EnergyData({

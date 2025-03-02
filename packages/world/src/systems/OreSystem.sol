@@ -75,6 +75,6 @@ contract OreSystem is System {
     // This is enough to respawn the ore block, as it will be read from the original terrain next time
     ObjectType._deleteRecord(entityId);
     Position._deleteRecord(entityId);
-    ReversePosition._deleteRecord(oreCoord.x, oreCoord.y, oreCoord.z);
+    ReversePosition._deleteRecord(oreCoord);
   }
 }

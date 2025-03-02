@@ -26,7 +26,7 @@ contract PickupSystem is System {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
-    EntityId entityId = ReversePosition._get(coord.x, coord.y, coord.z);
+    EntityId entityId = ReversePosition._get(coord);
     require(entityId.exists(), "No entity at pickup location");
 
     ObjectTypeId objectTypeId = ObjectType._get(entityId);

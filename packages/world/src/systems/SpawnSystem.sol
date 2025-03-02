@@ -94,7 +94,7 @@ contract SpawnSystem is System {
     require(objectTypeId == SpawnTileObjectID, "Not a spawn tile");
 
     Vec3 spawnTileCoord = Position._get(spawnTileEntityId);
-    require(spawnTileCoord.inSurroundingCube(MAX_PLAYER_RESPAWN_HALF_WIDTH, spawnCoord), "Spawn tile is too far away");
+    require(spawnTileCoord.inSurroundingCube(spawnCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH), "Spawn tile is too far away");
 
     EntityId forceFieldEntityId = getForceField(spawnTileCoord);
     require(forceFieldEntityId.exists(), "Spawn tile is not inside a forcefield");

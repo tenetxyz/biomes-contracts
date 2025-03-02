@@ -48,8 +48,8 @@ contract BedTest is BiomesTest {
   function createBed(Vec3 bedCoord) internal returns (EntityId) {
     // Set entity to bed
     EntityId bedEntityId = randomEntityId();
-    Position.set(bedEntityId, bedCoord.x, bedCoord.y, bedCoord.z);
-    ReversePosition.set(bedCoord.x, bedCoord.y, bedCoord.z, bedEntityId);
+    Position.set(bedEntityId, bedCoord);
+    ReversePosition.set(bedCoord, bedEntityId);
     ObjectType.set(bedEntityId, BedObjectID);
     return bedEntityId;
   }

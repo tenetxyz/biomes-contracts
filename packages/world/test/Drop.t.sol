@@ -83,7 +83,7 @@ contract DropTest is BiomesTest {
     uint16 numToTransfer = 10;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
-    EntityId airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    EntityId airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity doesn't exist");
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -109,7 +109,7 @@ contract DropTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
-    EntityId airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    EntityId airEntityId = ReversePosition.get(dropCoord);
     assertFalse(airEntityId.exists(), "Drop entity already exists");
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -119,7 +119,7 @@ contract DropTest is BiomesTest {
     world.dropTool(toolEntityId, dropCoord);
     endGasReport();
 
-    airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity does not exist");
     assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
     assertInventoryHasTool(airEntityId, toolEntityId, 1);
@@ -138,7 +138,7 @@ contract DropTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
-    EntityId airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    EntityId airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity already exists");
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -294,7 +294,7 @@ contract DropTest is BiomesTest {
     vm.prank(alice);
     world.mine(chestCoord);
 
-    EntityId airEntityId = ReversePosition.get(chestCoord.x, chestCoord.y, chestCoord.z);
+    EntityId airEntityId = ReversePosition.get(chestCoord);
     assertTrue(airEntityId.exists(), "Drop entity does not exist");
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Drop entity is not air");
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToPickup);
@@ -441,7 +441,7 @@ contract DropTest is BiomesTest {
 
     Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     setTerrainAtCoord(pickupCoord, AirObjectID);
-    EntityId airEntityId = ReversePosition.get(pickupCoord.x, pickupCoord.y, pickupCoord.z);
+    EntityId airEntityId = ReversePosition.get(pickupCoord);
     assertFalse(airEntityId.exists(), "Drop entity doesn't exists");
 
     vm.prank(alice);

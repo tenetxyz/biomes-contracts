@@ -38,15 +38,13 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, NullObjectTypeId, AnyLogObjectID, AnyLumberObjectID, WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLumberObjectID, BirchLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID, CobblestoneBrickObjectID, CobblestoneShinglesObjectID, ThermoblasterObjectID, WorkbenchObjectID, DiamondObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
-import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 import { hashRecipe } from "../src/utils/RecipeUtils.sol";
 
 contract CraftTest is BiomesTest {
-  using VoxelCoordLib for *;
-
   function testCraftSingleInputSingleOutput() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = OakLogObjectID;
@@ -82,7 +80,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftMultipleInputsSingleOutput() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](2);
     inputTypes[0] = LilacObjectID;
@@ -120,7 +118,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftWithStation() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = CobblestoneBrickObjectID;
@@ -137,7 +135,7 @@ contract CraftTest is BiomesTest {
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
-    VoxelCoord memory stationCoord = VoxelCoord(playerCoord.x + 1, playerCoord.y, playerCoord.z);
+    Vec3 stationCoord = playerCoord + vec3(1, 0, 0);
     EntityId stationEntityId = setObjectAtCoord(stationCoord, ThermoblasterObjectID);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -159,7 +157,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftAnyInput() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = AnyLumberObjectID;
@@ -180,7 +178,7 @@ contract CraftTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 2);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId2, 3);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId3, 3);
-    VoxelCoord memory stationCoord = VoxelCoord(playerCoord.x + 1, playerCoord.y, playerCoord.z);
+    Vec3 stationCoord = playerCoord + vec3(1, 0, 0);
     EntityId stationEntityId = setObjectAtCoord(stationCoord, WorkbenchObjectID);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -202,7 +200,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftTool() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = AnyLogObjectID;
@@ -240,7 +238,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftSameInputsMultipleOutputs() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = AnyLogObjectID;
@@ -301,7 +299,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftFailsIfNotEnoughInputs() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = OakLogObjectID;
@@ -336,7 +334,7 @@ contract CraftTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 1);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId2, 1);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId3, 1);
-    VoxelCoord memory stationCoord = VoxelCoord(playerCoord.x + 1, playerCoord.y, playerCoord.z);
+    Vec3 stationCoord = playerCoord + vec3(1, 0, 0);
     EntityId stationEntityId = setObjectAtCoord(stationCoord, WorkbenchObjectID);
 
     vm.prank(alice);
@@ -345,7 +343,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftFailsIfInvalidRecipe() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, , ) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = OakLogObjectID;
@@ -363,7 +361,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftFailsIfInvalidStation() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = CobblestoneBrickObjectID;
@@ -380,7 +378,7 @@ contract CraftTest is BiomesTest {
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
-    VoxelCoord memory stationCoord = VoxelCoord(playerCoord.x + 1, playerCoord.y, playerCoord.z);
+    Vec3 stationCoord = playerCoord + vec3(1, 0, 0);
     EntityId stationEntityId = setObjectAtCoord(stationCoord, WorkbenchObjectID);
 
     vm.prank(alice);
@@ -391,7 +389,7 @@ contract CraftTest is BiomesTest {
     vm.expectRevert("Invalid station");
     world.craftWithStation(recipeId, stationEntityId);
 
-    stationCoord = VoxelCoord(playerCoord.x + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, playerCoord.y, playerCoord.z);
+    stationCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
     stationEntityId = setObjectAtCoord(stationCoord, ThermoblasterObjectID);
 
     vm.prank(alice);
@@ -400,7 +398,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftFailsIfFullInventory() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = OakLogObjectID;
@@ -430,7 +428,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftFailsIfNotEnoughEnergy() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = OakLogObjectID;
@@ -455,7 +453,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = OakLogObjectID;
@@ -477,7 +475,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftFailsIfSleeping() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = OakLogObjectID;

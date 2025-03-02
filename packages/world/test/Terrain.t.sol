@@ -13,54 +13,38 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 contract TerrainTest is BiomesTest {
   function testGetChunkCoord() public {
     Vec3 coord = vec3(1, 2, 2);
-    Vec3 chunkCoord = coord.toChunk();
-    assertEq(chunkCoord.x, 0);
-    assertEq(chunkCoord.y, 0);
-    assertEq(chunkCoord.z, 0);
+    Vec3 chunkCoord = coord.toChunkCoord();
+    assertEq(chunkCoord, vec3(0, 0, 0));
 
     coord = vec3(16, 17, 18);
-    chunkCoord = coord.toChunk();
-    assertEq(chunkCoord.x, 1);
-    assertEq(chunkCoord.y, 1);
-    assertEq(chunkCoord.z, 1);
+    chunkCoord = coord.toChunkCoord();
+    assertEq(chunkCoord, vec3(1, 1, 1));
 
     coord = vec3(-1, -2, -3);
-    chunkCoord = coord.toChunk();
-    assertEq(chunkCoord.x, -1);
-    assertEq(chunkCoord.y, -1);
-    assertEq(chunkCoord.z, -1);
+    chunkCoord = coord.toChunkCoord();
+    assertEq(chunkCoord, vec3(-1, -1, -1));
 
     coord = vec3(16, -17, -18);
-    chunkCoord = coord.toChunk();
-    assertEq(chunkCoord.x, 1);
-    assertEq(chunkCoord.y, -2);
-    assertEq(chunkCoord.z, -2);
+    chunkCoord = coord.toChunkCoord();
+    assertEq(chunkCoord, vec3(1, -2, -2));
   }
 
   function testGetRelativeCoord() public {
     Vec3 coord = vec3(1, 2, 2);
     Vec3 relativeCoord = TerrainLib._getRelativeCoord(coord);
-    assertEq(relativeCoord.x, 1);
-    assertEq(relativeCoord.y, 2);
-    assertEq(relativeCoord.z, 2);
+    assertEq(relativeCoord, vec3(1, 2, 2));
 
     coord = vec3(16, 17, 18);
     relativeCoord = TerrainLib._getRelativeCoord(coord);
-    assertEq(relativeCoord.x, 0);
-    assertEq(relativeCoord.y, 1);
-    assertEq(relativeCoord.z, 2);
+    assertEq(relativeCoord, vec3(0, 1, 2));
 
     coord = vec3(-1, -2, -3);
     relativeCoord = TerrainLib._getRelativeCoord(coord);
-    assertEq(relativeCoord.x, 15);
-    assertEq(relativeCoord.y, 14);
-    assertEq(relativeCoord.z, 13);
+    assertEq(relativeCoord, vec3(15, 14, 13));
 
     coord = vec3(16, -17, -18);
     relativeCoord = TerrainLib._getRelativeCoord(coord);
-    assertEq(relativeCoord.x, 0);
-    assertEq(relativeCoord.y, 15);
-    assertEq(relativeCoord.z, 14);
+    assertEq(relativeCoord, vec3(0, 15, 14));
   }
 
   function testGetBlockIndex() public {
@@ -84,13 +68,13 @@ contract TerrainTest is BiomesTest {
   function testGetChunkSalt() public {
     Vec3 chunkCoord = vec3(1, 2, 3);
     bytes32 salt = TerrainLib._getChunkSalt(chunkCoord);
-    assertEq(salt, bytes32(abi.encodePacked(bytes20(0), chunkCoord.x, chunkCoord.y, chunkCoord.z)));
-    assertEq(salt, bytes32(uint256(uint96(bytes12(abi.encodePacked(chunkCoord.x, chunkCoord.y, chunkCoord.z))))));
+    assertEq(salt, bytes32(abi.encodePacked(bytes20(0), chunkCoord)));
+    assertEq(salt, bytes32(uint256(uint96(bytes12(abi.encodePacked(chunkCoord))))));
 
     chunkCoord = vec3(-1, -2, -3);
     salt = TerrainLib._getChunkSalt(chunkCoord);
-    assertEq(salt, bytes32(abi.encodePacked(bytes20(0), chunkCoord.x, chunkCoord.y, chunkCoord.z)));
-    assertEq(salt, bytes32(uint256(uint96(bytes12(abi.encodePacked(chunkCoord.x, chunkCoord.y, chunkCoord.z))))));
+    assertEq(salt, bytes32(abi.encodePacked(bytes20(0), chunkCoord)));
+    assertEq(salt, bytes32(uint256(uint96(bytes12(abi.encodePacked(chunkCoord))))));
   }
 
   function _getTestChunk() internal pure returns (uint8[][][] memory chunk) {

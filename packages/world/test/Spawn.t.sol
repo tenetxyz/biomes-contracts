@@ -62,7 +62,7 @@ contract SpawnTest is BiomesTest {
     ObjectType.set(belowEntityId, DirtObjectID);
 
     // Give energy for local shard
-    Vec3 shardCoord = spawnCoord.toLocalEnergyPoolShard();
+    Vec3 shardCoord = spawnCoord.toLocalEnergyPoolShardCoord();
     LocalEnergyPool.set(shardCoord, spawnEnergy());
 
     vm.prank(alice);

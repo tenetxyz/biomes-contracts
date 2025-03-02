@@ -28,7 +28,7 @@ import { CHUNK_SIZE, CHUNK_COMMIT_EXPIRY_BLOCKS } from "../src/Constants.sol";
 
 contract OreTest is BiomesTest {
   function exploreChunk(Vec3 coord) internal {
-    Vec3 chunkCoord = coord.toChunk();
+    Vec3 chunkCoord = coord.toChunkCoord();
 
     address chunkPtr = TerrainLib._getChunkPointer(chunkCoord, worldAddress);
 
@@ -50,7 +50,7 @@ contract OreTest is BiomesTest {
 
   function testOreChunkCommit() public {
     Vec3 coord = vec3(0, 0, 0);
-    Vec3 chunkCoord = coord.toChunk();
+    Vec3 chunkCoord = coord.toChunkCoord();
     exploreChunk(coord);
 
     (address alice, ) = createTestPlayer(coord);
@@ -63,7 +63,7 @@ contract OreTest is BiomesTest {
 
   function testOreChunkCommitCannotCommitIfExisting() public {
     Vec3 coord = vec3(0, 0, 0);
-    Vec3 chunkCoord = coord.toChunk();
+    Vec3 chunkCoord = coord.toChunkCoord();
     exploreChunk(coord);
 
     (address alice, ) = createTestPlayer(coord);

@@ -144,25 +144,37 @@
       },
       {
         "name": "baseCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "buildWithDirection",
+    "inputs": [
+      {
+        "name": "buildObjectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "baseCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "direction",
+        "type": "uint8",
+        "internalType": "enum Direction"
       }
     ],
     "outputs": [
@@ -185,81 +197,18 @@
       },
       {
         "name": "baseCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       },
       {
-        "name": "facingDirection",
+        "name": "direction",
         "type": "uint8",
-        "internalType": "enum FacingDirection"
+        "internalType": "enum Direction"
       },
       {
         "name": "extraData",
         "type": "bytes",
         "internalType": "bytes"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      }
-    ],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "buildWithFacingDirection",
-    "inputs": [
-      {
-        "name": "buildObjectTypeId",
-        "type": "uint16",
-        "internalType": "ObjectTypeId"
-      },
-      {
-        "name": "baseCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
-      },
-      {
-        "name": "facingDirection",
-        "type": "uint8",
-        "internalType": "enum FacingDirection"
       }
     ],
     "outputs": [
@@ -433,25 +382,8 @@
       },
       {
         "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -468,25 +400,8 @@
       },
       {
         "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -503,25 +418,8 @@
       },
       {
         "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -546,25 +444,8 @@
     "inputs": [
       {
         "name": "chunkCoord",
-        "type": "tuple",
-        "internalType": "struct ChunkCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       },
       {
         "name": "chunkData",
@@ -613,25 +494,8 @@
           },
           {
             "name": "position",
-            "type": "tuple",
-            "internalType": "struct VoxelCoord",
-            "components": [
-              {
-                "name": "x",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "y",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "z",
-                "type": "int32",
-                "internalType": "int32"
-              }
-            ]
+            "type": "uint96",
+            "internalType": "Vec3"
           },
           {
             "name": "inventory",
@@ -710,25 +574,8 @@
           },
           {
             "name": "position",
-            "type": "tuple",
-            "internalType": "struct VoxelCoord",
-            "components": [
-              {
-                "name": "x",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "y",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "z",
-                "type": "int32",
-                "internalType": "int32"
-              }
-            ]
+            "type": "uint96",
+            "internalType": "Vec3"
           },
           {
             "name": "inventory",
@@ -787,25 +634,8 @@
     "outputs": [
       {
         "name": "",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "stateMutability": "view"
@@ -1005,25 +835,8 @@
           },
           {
             "name": "position",
-            "type": "tuple",
-            "internalType": "struct VoxelCoord",
-            "components": [
-              {
-                "name": "x",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "y",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "z",
-                "type": "int32",
-                "internalType": "int32"
-              }
-            ]
+            "type": "uint96",
+            "internalType": "Vec3"
           }
         ]
       }
@@ -1036,25 +849,8 @@
     "inputs": [
       {
         "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [
@@ -1114,25 +910,8 @@
           },
           {
             "name": "position",
-            "type": "tuple",
-            "internalType": "struct VoxelCoord",
-            "components": [
-              {
-                "name": "x",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "y",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "z",
-                "type": "int32",
-                "internalType": "int32"
-              }
-            ]
+            "type": "uint96",
+            "internalType": "Vec3"
           }
         ]
       }
@@ -1145,25 +924,8 @@
     "inputs": [
       {
         "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [
@@ -1460,25 +1222,8 @@
     "inputs": [
       {
         "name": "coord",
-        "type": "tuple[]",
-        "internalType": "struct VoxelCoord[]",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96[]",
+        "internalType": "Vec3[]"
       }
     ],
     "outputs": [
@@ -1538,25 +1283,8 @@
           },
           {
             "name": "position",
-            "type": "tuple",
-            "internalType": "struct VoxelCoord",
-            "components": [
-              {
-                "name": "x",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "y",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "z",
-                "type": "int32",
-                "internalType": "int32"
-              }
-            ]
+            "type": "uint96",
+            "internalType": "Vec3"
           }
         ]
       }
@@ -1576,25 +1304,8 @@
     "outputs": [
       {
         "name": "",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "stateMutability": "view"
@@ -1627,25 +1338,8 @@
           },
           {
             "name": "position",
-            "type": "tuple",
-            "internalType": "struct VoxelCoord",
-            "components": [
-              {
-                "name": "x",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "y",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "z",
-                "type": "int32",
-                "internalType": "int32"
-              }
-            ]
+            "type": "uint96",
+            "internalType": "Vec3"
           },
           {
             "name": "bedEntityId",
@@ -1761,25 +1455,8 @@
           },
           {
             "name": "position",
-            "type": "tuple",
-            "internalType": "struct VoxelCoord",
-            "components": [
-              {
-                "name": "x",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "y",
-                "type": "int32",
-                "internalType": "int32"
-              },
-              {
-                "name": "z",
-                "type": "int32",
-                "internalType": "int32"
-              }
-            ]
+            "type": "uint96",
+            "internalType": "Vec3"
           },
           {
             "name": "bedEntityId",
@@ -1890,25 +1567,8 @@
     "outputs": [
       {
         "name": "spawnCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "stateMutability": "view"
@@ -2063,25 +1723,8 @@
     "inputs": [
       {
         "name": "entityCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -2248,6 +1891,24 @@
   },
   {
     "type": "function",
+    "name": "jumpBuildWithDirection",
+    "inputs": [
+      {
+        "name": "buildObjectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "direction",
+        "type": "uint8",
+        "internalType": "enum Direction"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
     "name": "jumpBuildWithExtraData",
     "inputs": [
       {
@@ -2256,9 +1917,9 @@
         "internalType": "ObjectTypeId"
       },
       {
-        "name": "facingDirection",
+        "name": "direction",
         "type": "uint8",
-        "internalType": "enum FacingDirection"
+        "internalType": "enum Direction"
       },
       {
         "name": "extraData",
@@ -2271,47 +1932,12 @@
   },
   {
     "type": "function",
-    "name": "jumpBuildWithFacingDirection",
-    "inputs": [
-      {
-        "name": "buildObjectTypeId",
-        "type": "uint16",
-        "internalType": "ObjectTypeId"
-      },
-      {
-        "name": "facingDirection",
-        "type": "uint8",
-        "internalType": "enum FacingDirection"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
     "name": "mine",
     "inputs": [
       {
         "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -2323,25 +1949,8 @@
     "inputs": [
       {
         "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       },
       {
         "name": "extraData",
@@ -2358,25 +1967,8 @@
     "inputs": [
       {
         "name": "newCoords",
-        "type": "tuple[]",
-        "internalType": "struct VoxelCoord[]",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96[]",
+        "internalType": "Vec3[]"
       }
     ],
     "outputs": [],
@@ -2389,7 +1981,7 @@
       {
         "name": "directions",
         "type": "uint8[]",
-        "internalType": "enum VoxelCoordDirection[]"
+        "internalType": "enum Direction[]"
       }
     ],
     "outputs": [],
@@ -2401,25 +1993,8 @@
     "inputs": [
       {
         "name": "chunkCoord",
-        "type": "tuple",
-        "internalType": "struct ChunkCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -2441,25 +2016,8 @@
       },
       {
         "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -2471,25 +2029,8 @@
     "inputs": [
       {
         "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -2523,25 +2064,8 @@
       },
       {
         "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -2558,25 +2082,8 @@
       },
       {
         "name": "coord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -2910,25 +2417,8 @@
       },
       {
         "name": "dropCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -3205,25 +2695,8 @@
       },
       {
         "name": "spawnCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       },
       {
         "name": "extraData",
@@ -3621,25 +3094,8 @@
     "inputs": [
       {
         "name": "spawnCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -3651,25 +3107,8 @@
     "inputs": [
       {
         "name": "spawnCoord",
-        "type": "tuple",
-        "internalType": "struct VoxelCoord",
-        "components": [
-          {
-            "name": "x",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "y",
-            "type": "int32",
-            "internalType": "int32"
-          },
-          {
-            "name": "z",
-            "type": "int32",
-            "internalType": "int32"
-          }
-        ]
+        "type": "uint96",
+        "internalType": "Vec3"
       },
       {
         "name": "extraData",

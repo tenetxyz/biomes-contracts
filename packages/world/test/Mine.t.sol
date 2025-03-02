@@ -44,11 +44,7 @@ contract MineTest is BiomesTest {
   function testMineTerrain() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
     ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
@@ -72,11 +68,7 @@ contract MineTest is BiomesTest {
   function testMineTerrainRequiresMultipleMines() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
     ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction * 2));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
@@ -110,11 +102,7 @@ contract MineTest is BiomesTest {
   function testMineOre() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
 
     setTerrainAtCoord(mineCoord, AnyOreObjectID);
     uint8 o = TerrainLib.getBlockType(mineCoord);
@@ -130,7 +118,7 @@ contract MineTest is BiomesTest {
     assertEq(TotalMinedOreCount.get(), 0, "Mined ore count is not 0");
 
     vm.prank(alice);
-    world.oreChunkCommit(mineCoord.toChunk());
+    world.oreChunkCommit(mineCoord.toChunkCoord());
 
     vm.roll(vm.getBlockNumber() + 2);
 
@@ -156,11 +144,7 @@ contract MineTest is BiomesTest {
   function testMineOreMultipleMines() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
 
     setTerrainAtCoord(mineCoord, AnyOreObjectID);
     uint8 o = TerrainLib.getBlockType(mineCoord);
@@ -176,7 +160,7 @@ contract MineTest is BiomesTest {
     assertEq(TotalMinedOreCount.get(), 0, "Mined ore count is not 0");
 
     vm.prank(alice);
-    world.oreChunkCommit(mineCoord.toChunk());
+    world.oreChunkCommit(mineCoord.toChunkCoord());
 
     vm.roll(vm.getBlockNumber() + 2);
 
@@ -199,11 +183,7 @@ contract MineTest is BiomesTest {
   function testMineNonTerrain() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
     ObjectTypeId mineObjectTypeId = GrassObjectID;
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
@@ -227,15 +207,11 @@ contract MineTest is BiomesTest {
   function testMineMultiSize() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
     ObjectTypeId mineObjectTypeId = TextSignObjectID;
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
-    Vec3 topCoord = vec3(mineCoord);
+    Vec3 topCoord = mineCoord + vec3(0, 1, 0);
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     EntityId topEntityId = ReversePosition.get(topCoord);
     assertTrue(mineEntityId.exists(), "Mine entity does not exist");
@@ -269,7 +245,7 @@ contract MineTest is BiomesTest {
     world.build(TextSignObjectID, mineCoord);
 
     mineEntityId = ReversePosition.get(mineCoord);
-    topEntityId = ReversePosition.get(topCoord.x, topCoord.y, topCoord.z);
+    topEntityId = ReversePosition.get(topCoord);
     assertTrue(mineEntityId.exists(), "Mine entity does not exist");
     assertTrue(topEntityId.exists(), "Top entity does not exist");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
@@ -285,11 +261,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfInvalidBlock() public {
     (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
     ObjectTypeId mineObjectTypeId = AirObjectID;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
@@ -307,7 +279,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfInvalidCoord() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(playerCoord.x + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, playerCoord.y, playerCoord.z);
+    Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
     ObjectTypeId mineObjectTypeId = DirtObjectID;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
@@ -315,14 +287,14 @@ contract MineTest is BiomesTest {
     vm.expectRevert("Player is too far");
     world.mine(mineCoord);
 
-    mineCoord = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y, playerCoord.z);
+    mineCoord = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y(), playerCoord.z());
     setObjectAtCoord(mineCoord, DirtObjectID);
 
     vm.prank(alice);
     vm.expectRevert("Cannot mine outside the world border");
     world.mine(mineCoord);
 
-    mineCoord = vec3(playerCoord.x - 1, playerCoord.y, playerCoord.z);
+    mineCoord = playerCoord - vec3(1, 0, 0);
 
     vm.prank(alice);
     vm.expectRevert("Chunk not explored yet");
@@ -332,11 +304,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfNotEnoughEnergy() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
     ObjectTypeId mineObjectTypeId = DirtObjectID;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
@@ -353,11 +321,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfInventoryFull() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
     ObjectTypeId mineObjectTypeId = DirtObjectID;
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
@@ -382,11 +346,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfNoPlayer() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
     ObjectTypeId mineObjectTypeId = DirtObjectID;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
@@ -397,11 +357,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfSleeping() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
     ObjectTypeId mineObjectTypeId = DirtObjectID;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
@@ -415,11 +371,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfHasEnergy() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = vec3(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
     ObjectTypeId mineObjectTypeId = ForceFieldObjectID;
     EntityId mineEntityId = setObjectAtCoord(mineCoord, mineObjectTypeId);
     Energy.set(
