@@ -131,7 +131,7 @@ library Vec3Lib {
     Vec3[26] memory result;
 
     // Generate all neighbors in a 3x3x3 cube, excluding the center
-    for (uint8 i = 0; i <= 26; i++) {
+    for (uint8 i = 0; i < 26; i++) {
       result[i] = a.getNeighbor(Direction(i));
     }
 
