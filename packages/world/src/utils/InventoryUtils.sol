@@ -87,7 +87,7 @@ function removeAnyFromInventoryCount(EntityId playerEntityId, ObjectTypeId objec
       remaining -= spend;
     }
   }
-  require(remaining == 0, "Not enough objects");
+  require(remaining == 0, "Not enough objects in the inventory");
 }
 
 function useEquipped(EntityId entityId) returns (uint128 massUsed, ObjectTypeId inventoryObjectTypeId) {

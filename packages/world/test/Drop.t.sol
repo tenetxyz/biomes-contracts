@@ -53,13 +53,11 @@ contract DropTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     uint16 numToTransfer = 10;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, numToTransfer);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), numToTransfer, "Inventory count is not 1");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     EntityId airEntityId = ReversePosition.get(dropCoord);
     assertFalse(airEntityId.exists(), "Drop entity already exists");
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("drop terrain");
@@ -68,21 +66,12 @@ contract DropTest is BiomesTest {
 
     airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity does not exist");
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), numToTransfer, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, numToTransfer);
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(airEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testDropNonTerrain() public {
@@ -93,34 +82,23 @@ contract DropTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     uint16 numToTransfer = 10;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, numToTransfer);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), numToTransfer, "Inventory count is not 1");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     EntityId airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
     assertTrue(airEntityId.exists(), "Drop entity doesn't exist");
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("drop non-terrain");
     world.drop(transferObjectTypeId, numToTransfer, dropCoord);
     endGasReport();
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), numToTransfer, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, numToTransfer);
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(airEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testDropToolTerrain() public {
@@ -130,13 +108,11 @@ contract DropTest is BiomesTest {
     setTerrainAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     EntityId airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
     assertFalse(airEntityId.exists(), "Drop entity already exists");
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("drop tool terrain");
@@ -145,27 +121,13 @@ contract DropTest is BiomesTest {
 
     airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
     assertTrue(airEntityId.exists(), "Drop entity does not exist");
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
+    assertInventoryHasTool(airEntityId, toolEntityId, 1);
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
     assertTrue(InventoryEntity.get(toolEntityId) == airEntityId, "Inventory entity is not air");
-    assertFalse(
-      TestUtils.reverseInventoryEntityHasEntity(aliceEntityId, toolEntityId),
-      "Inventory entity is not chest"
-    );
-    assertTrue(TestUtils.reverseInventoryEntityHasEntity(airEntityId, toolEntityId), "Inventory entity is not air");
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(airEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testDropToolNonTerrain() public {
@@ -175,40 +137,24 @@ contract DropTest is BiomesTest {
     setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     EntityId airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
     assertTrue(airEntityId.exists(), "Drop entity already exists");
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("drop tool non-terrain");
     world.dropTool(toolEntityId, dropCoord);
     endGasReport();
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
+    assertInventoryHasTool(airEntityId, toolEntityId, 1);
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
     assertTrue(InventoryEntity.get(toolEntityId) == airEntityId, "Inventory entity is not air");
-    assertFalse(
-      TestUtils.reverseInventoryEntityHasEntity(aliceEntityId, toolEntityId),
-      "Inventory entity is not chest"
-    );
-    assertTrue(TestUtils.reverseInventoryEntityHasEntity(airEntityId, toolEntityId), "Inventory entity is not air");
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(airEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testPickup() public {
@@ -219,33 +165,22 @@ contract DropTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     uint16 numToPickup = 10;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, numToPickup);
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), numToPickup, "Inventory count is not 1");
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, numToPickup);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("pickup");
     world.pickup(transferObjectTypeId, numToPickup, pickupCoord);
     endGasReport();
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), numToPickup, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToPickup);
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, 0);
     assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(airEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testPickupTool() public {
@@ -255,37 +190,22 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(airEntityId, transferObjectTypeId);
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("pickup tool");
     world.pickupTool(toolEntityId, pickupCoord);
     endGasReport();
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
+    assertInventoryHasTool(airEntityId, toolEntityId, 0);
     assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(airEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(InventoryEntity.get(toolEntityId) == aliceEntityId, "Inventory entity is not air");
-    assertTrue(TestUtils.reverseInventoryEntityHasEntity(aliceEntityId, toolEntityId), "Inventory entity is not chest");
-    assertFalse(TestUtils.reverseInventoryEntityHasEntity(airEntityId, toolEntityId), "Inventory entity is not air");
-
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testPickupMultiple() public {
@@ -298,13 +218,11 @@ contract DropTest is BiomesTest {
     ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, objectObjectTypeId, numToPickup);
     EntityId toolEntityId = addToolToInventory(airEntityId, toolObjectTypeId);
-    assertEq(InventoryCount.get(airEntityId, toolObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(aliceEntityId, toolObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, objectObjectTypeId), numToPickup, "Inventory count is not 0");
+    assertInventoryHasTool(airEntityId, toolEntityId, 1);
+    assertInventoryHasObject(aliceEntityId, toolObjectTypeId, 0);
+    assertInventoryHasObject(airEntityId, objectObjectTypeId, numToPickup);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("pickup multiple");
@@ -315,35 +233,14 @@ contract DropTest is BiomesTest {
     world.pickupMultiple(pickupObjects, pickupTools, pickupCoord);
     endGasReport();
 
-    assertEq(InventoryCount.get(aliceEntityId, objectObjectTypeId), numToPickup, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, objectObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(aliceEntityId, toolObjectTypeId), 1, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, toolObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, objectObjectTypeId, numToPickup);
+    assertInventoryHasObject(airEntityId, objectObjectTypeId, 0);
+    assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
     assertEq(InventorySlots.get(aliceEntityId), 2, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, objectObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(airEntityId, objectObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, toolObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(airEntityId, toolObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(InventoryEntity.get(toolEntityId) == aliceEntityId, "Inventory entity is not air");
-    assertTrue(TestUtils.reverseInventoryEntityHasEntity(aliceEntityId, toolEntityId), "Inventory entity is not chest");
-    assertFalse(TestUtils.reverseInventoryEntityHasEntity(airEntityId, toolEntityId), "Inventory entity is not air");
 
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testPickupAll() public {
@@ -358,67 +255,28 @@ contract DropTest is BiomesTest {
     EntityId toolEntityId1 = addToolToInventory(airEntityId, toolObjectTypeId1);
     ObjectTypeId toolObjectTypeId2 = WoodenAxeObjectID;
     EntityId toolEntityId2 = addToolToInventory(airEntityId, toolObjectTypeId2);
-    assertEq(InventoryCount.get(airEntityId, toolObjectTypeId1), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(airEntityId, toolObjectTypeId2), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(airEntityId, objectObjectTypeId), numToPickup, "Inventory count is not 0");
+    assertInventoryHasTool(airEntityId, toolEntityId1, 1);
+    assertInventoryHasTool(airEntityId, toolEntityId2, 1);
+    assertInventoryHasObject(airEntityId, objectObjectTypeId, numToPickup);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("pickup all");
     world.pickupAll(pickupCoord);
     endGasReport();
 
-    assertEq(InventoryCount.get(aliceEntityId, objectObjectTypeId), numToPickup, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, objectObjectTypeId), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(aliceEntityId, toolObjectTypeId1), 1, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, toolObjectTypeId1), 0, "Inventory count is not 0");
-    assertEq(InventoryCount.get(aliceEntityId, toolObjectTypeId2), 1, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, toolObjectTypeId2), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, objectObjectTypeId, numToPickup);
+    assertInventoryHasObject(airEntityId, objectObjectTypeId, 0);
+    assertInventoryHasTool(aliceEntityId, toolEntityId1, 1);
+    assertInventoryHasTool(airEntityId, toolEntityId1, 0);
+    assertInventoryHasTool(aliceEntityId, toolEntityId2, 1);
+    assertInventoryHasTool(airEntityId, toolEntityId2, 0);
     assertEq(InventorySlots.get(aliceEntityId), 3, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, objectObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(airEntityId, objectObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, toolObjectTypeId1),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, toolObjectTypeId2),
-      "Inventory objects still has build object type"
-    );
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(airEntityId, toolObjectTypeId1),
-      "Inventory objects still has build object type"
-    );
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(airEntityId, toolObjectTypeId2),
-      "Inventory objects still has build object type"
-    );
-    assertTrue(InventoryEntity.get(toolEntityId1) == aliceEntityId, "Inventory entity is not air");
-    assertTrue(InventoryEntity.get(toolEntityId2) == aliceEntityId, "Inventory entity is not air");
-    assertTrue(
-      TestUtils.reverseInventoryEntityHasEntity(aliceEntityId, toolEntityId1),
-      "Inventory entity is not chest"
-    );
-    assertFalse(TestUtils.reverseInventoryEntityHasEntity(airEntityId, toolEntityId1), "Inventory entity is not air");
-    assertTrue(
-      TestUtils.reverseInventoryEntityHasEntity(aliceEntityId, toolEntityId2),
-      "Inventory entity is not chest"
-    );
-    assertFalse(TestUtils.reverseInventoryEntityHasEntity(airEntityId, toolEntityId2), "Inventory entity is not air");
 
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testPickupMinedChestDrops() public {
@@ -430,8 +288,8 @@ contract DropTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     uint16 numToPickup = 10;
     TestUtils.addToInventoryCount(chestEntityId, ChestObjectID, transferObjectTypeId, numToPickup);
-    assertEq(InventoryCount.get(chestEntityId, transferObjectTypeId), numToPickup, "Inventory count is not 1");
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToPickup);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
     world.mine(chestCoord);
@@ -439,30 +297,19 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = ReversePosition.get(chestCoord.x, chestCoord.y, chestCoord.z);
     assertTrue(airEntityId.exists(), "Drop entity does not exist");
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Drop entity is not air");
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), numToPickup, "Inventory count is not 0");
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, numToPickup);
 
-    uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    Vec3 shardCoord = playerCoord.toLocalEnergyPoolShardCoord();
-    uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     world.pickupAll(chestCoord);
 
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), numToPickup, "Inventory count is not 0");
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToPickup);
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, 0);
     assertEq(InventorySlots.get(aliceEntityId), 2, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
-    assertTrue(
-      TestUtils.inventoryObjectsHasObjectType(aliceEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    assertFalse(
-      TestUtils.inventoryObjectsHasObjectType(chestEntityId, transferObjectTypeId),
-      "Inventory objects still has build object type"
-    );
-    uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord.x, 0, shardCoord.z) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
-    assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testPickupFailsIfInventoryFull() public {
@@ -472,8 +319,8 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     TestUtils.addToInventoryCount(
       aliceEntityId,
@@ -535,8 +382,8 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
     vm.expectRevert("Player is too far");
@@ -556,7 +403,7 @@ contract DropTest is BiomesTest {
     setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Player is too far");
@@ -582,7 +429,7 @@ contract DropTest is BiomesTest {
     setObjectAtCoord(dropCoord, DirtObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Cannot drop on a non-air block");
@@ -616,8 +463,8 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
     vm.expectRevert("Object type is not a block or item");
@@ -635,7 +482,7 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, AirObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     EntityId toolEntityId1 = addToolToInventory(aliceEntityId, WoodenPickObjectID);
     EntityId toolEntityId2 = addToolToInventory(aliceEntityId, WoodenAxeObjectID);
 
@@ -666,8 +513,8 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     Energy.setEnergy(aliceEntityId, 1);
 
@@ -683,7 +530,7 @@ contract DropTest is BiomesTest {
     setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     Energy.setEnergy(aliceEntityId, 1);
 
@@ -699,8 +546,8 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     vm.expectRevert("Player does not exist");
     world.pickup(transferObjectTypeId, 1, pickupCoord);
@@ -713,7 +560,7 @@ contract DropTest is BiomesTest {
     setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     vm.expectRevert("Player does not exist");
     world.drop(transferObjectTypeId, 1, dropCoord);
@@ -726,8 +573,8 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(airEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 0, "Inventory count is not 0");
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 
@@ -743,7 +590,7 @@ contract DropTest is BiomesTest {
     setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
-    assertEq(InventoryCount.get(aliceEntityId, transferObjectTypeId), 1, "Inventory count is not 1");
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 
