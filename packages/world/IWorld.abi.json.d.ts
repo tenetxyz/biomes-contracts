@@ -144,7 +144,7 @@ declare const abi: [
       },
       {
         "name": "baseCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -168,7 +168,7 @@ declare const abi: [
       },
       {
         "name": "baseCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       },
       {
@@ -197,7 +197,7 @@ declare const abi: [
       },
       {
         "name": "baseCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       },
       {
@@ -382,7 +382,7 @@ declare const abi: [
       },
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -400,7 +400,7 @@ declare const abi: [
       },
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -418,7 +418,7 @@ declare const abi: [
       },
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -444,7 +444,7 @@ declare const abi: [
     "inputs": [
       {
         "name": "chunkCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       },
       {
@@ -494,7 +494,7 @@ declare const abi: [
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           },
           {
@@ -574,7 +574,7 @@ declare const abi: [
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           },
           {
@@ -634,7 +634,7 @@ declare const abi: [
     "outputs": [
       {
         "name": "",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -835,7 +835,7 @@ declare const abi: [
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           }
         ]
@@ -849,7 +849,7 @@ declare const abi: [
     "inputs": [
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -910,7 +910,7 @@ declare const abi: [
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           }
         ]
@@ -924,7 +924,7 @@ declare const abi: [
     "inputs": [
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -1222,7 +1222,7 @@ declare const abi: [
     "inputs": [
       {
         "name": "coord",
-        "type": "int96[]",
+        "type": "uint96[]",
         "internalType": "Vec3[]"
       }
     ],
@@ -1283,7 +1283,7 @@ declare const abi: [
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           }
         ]
@@ -1304,7 +1304,7 @@ declare const abi: [
     "outputs": [
       {
         "name": "",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -1338,7 +1338,7 @@ declare const abi: [
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           },
           {
@@ -1455,7 +1455,7 @@ declare const abi: [
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           },
           {
@@ -1567,7 +1567,7 @@ declare const abi: [
     "outputs": [
       {
         "name": "spawnCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -1723,7 +1723,7 @@ declare const abi: [
     "inputs": [
       {
         "name": "entityCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -1936,7 +1936,7 @@ declare const abi: [
     "inputs": [
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -1949,7 +1949,7 @@ declare const abi: [
     "inputs": [
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       },
       {
@@ -1967,7 +1967,7 @@ declare const abi: [
     "inputs": [
       {
         "name": "newCoords",
-        "type": "int96[]",
+        "type": "uint96[]",
         "internalType": "Vec3[]"
       }
     ],
@@ -1993,7 +1993,7 @@ declare const abi: [
     "inputs": [
       {
         "name": "chunkCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -2016,7 +2016,7 @@ declare const abi: [
       },
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -2029,7 +2029,7 @@ declare const abi: [
     "inputs": [
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -2064,7 +2064,7 @@ declare const abi: [
       },
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -2082,7 +2082,7 @@ declare const abi: [
       },
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -2417,7 +2417,7 @@ declare const abi: [
       },
       {
         "name": "dropCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -2695,7 +2695,7 @@ declare const abi: [
       },
       {
         "name": "spawnCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       },
       {
@@ -3094,7 +3094,7 @@ declare const abi: [
     "inputs": [
       {
         "name": "spawnCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -3107,7 +3107,7 @@ declare const abi: [
     "inputs": [
       {
         "name": "spawnCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       },
       {

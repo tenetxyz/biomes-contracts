@@ -297,7 +297,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfNotEnoughEnergy() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
+    Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
     ObjectTypeId mineObjectTypeId = DirtObjectID;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
@@ -314,7 +314,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfInventoryFull() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
+    Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
     ObjectTypeId mineObjectTypeId = DirtObjectID;
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
@@ -339,7 +339,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfNoPlayer() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
+    Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
     ObjectTypeId mineObjectTypeId = DirtObjectID;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
@@ -350,7 +350,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfSleeping() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
+    Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
     ObjectTypeId mineObjectTypeId = DirtObjectID;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
@@ -364,7 +364,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfHasEnergy() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
+    Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
     ObjectTypeId mineObjectTypeId = ForceFieldObjectID;
     EntityId mineEntityId = setObjectAtCoord(mineCoord, mineObjectTypeId);
     Energy.set(

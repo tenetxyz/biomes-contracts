@@ -144,7 +144,7 @@
       },
       {
         "name": "baseCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -168,7 +168,7 @@
       },
       {
         "name": "baseCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       },
       {
@@ -197,7 +197,7 @@
       },
       {
         "name": "baseCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       },
       {
@@ -382,7 +382,7 @@
       },
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -400,7 +400,7 @@
       },
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -418,7 +418,7 @@
       },
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -444,7 +444,7 @@
     "inputs": [
       {
         "name": "chunkCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       },
       {
@@ -494,7 +494,7 @@
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           },
           {
@@ -574,7 +574,7 @@
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           },
           {
@@ -634,7 +634,7 @@
     "outputs": [
       {
         "name": "",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -835,7 +835,7 @@
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           }
         ]
@@ -849,7 +849,7 @@
     "inputs": [
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -910,7 +910,7 @@
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           }
         ]
@@ -924,7 +924,7 @@
     "inputs": [
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -1222,7 +1222,7 @@
     "inputs": [
       {
         "name": "coord",
-        "type": "int96[]",
+        "type": "uint96[]",
         "internalType": "Vec3[]"
       }
     ],
@@ -1283,7 +1283,7 @@
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           }
         ]
@@ -1304,7 +1304,7 @@
     "outputs": [
       {
         "name": "",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -1338,7 +1338,7 @@
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           },
           {
@@ -1455,7 +1455,7 @@
           },
           {
             "name": "position",
-            "type": "int96",
+            "type": "uint96",
             "internalType": "Vec3"
           },
           {
@@ -1567,7 +1567,7 @@
     "outputs": [
       {
         "name": "spawnCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -1723,7 +1723,7 @@
     "inputs": [
       {
         "name": "entityCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -1936,7 +1936,7 @@
     "inputs": [
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -1949,7 +1949,7 @@
     "inputs": [
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       },
       {
@@ -1967,7 +1967,7 @@
     "inputs": [
       {
         "name": "newCoords",
-        "type": "int96[]",
+        "type": "uint96[]",
         "internalType": "Vec3[]"
       }
     ],
@@ -1993,7 +1993,7 @@
     "inputs": [
       {
         "name": "chunkCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -2016,7 +2016,7 @@
       },
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -2029,7 +2029,7 @@
     "inputs": [
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -2064,7 +2064,7 @@
       },
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -2082,7 +2082,7 @@
       },
       {
         "name": "coord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -2417,7 +2417,7 @@
       },
       {
         "name": "dropCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -2695,7 +2695,7 @@
       },
       {
         "name": "spawnCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       },
       {
@@ -3094,7 +3094,7 @@
     "inputs": [
       {
         "name": "spawnCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       }
     ],
@@ -3107,7 +3107,7 @@
     "inputs": [
       {
         "name": "spawnCoord",
-        "type": "int96",
+        "type": "uint96",
         "internalType": "Vec3"
       },
       {

@@ -63,7 +63,7 @@ library TerrainLib {
   /// @dev Get the salt for a chunk coordinate
   function _getChunkSalt(Vec3 coord) internal pure returns (bytes32) {
     // TODO: check if this is correct, we seem to be getting revert for collisions
-    return bytes32(uint256(int256(Vec3.unwrap(coord))));
+    return bytes32(uint256(Vec3.unwrap(coord)));
   }
 
   /// @dev Get the address of the chunk pointer based on its deterministic CREATE3 address

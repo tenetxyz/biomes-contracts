@@ -168,7 +168,7 @@ contract MoveTest is BiomesTest {
     uint256 numGlides = 2;
     Vec3[] memory newCoords = new Vec3[](numGlides + 1);
     for (uint32 i = 0; i < newCoords.length; i++) {
-      newCoords[i] = playerCoord + vec3(0, 1, 0);
+      newCoords[i] = playerCoord + vec3(0, 1, int32(int256(uint256(i))));
       setObjectAtCoord(newCoords[i], AirObjectID);
       setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
     }
