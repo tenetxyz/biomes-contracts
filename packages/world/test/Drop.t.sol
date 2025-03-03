@@ -6,23 +6,13 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
-import { EntityId } from "../src/EntityId.sol";
+import { Direction } from "../src/codegen/common.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
-import { ExploredChunk } from "../src/codegen/tables/ExploredChunk.sol";
 import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
-import { ExploredChunkByIndex } from "../src/codegen/tables/ExploredChunkByIndex.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { ForceField } from "../src/codegen/tables/ForceField.sol";
-import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
-import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
-import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
-import { ReversePlayerPosition } from "../src/codegen/tables/ReversePlayerPosition.sol";
-import { Position } from "../src/codegen/tables/Position.sol";
-import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
@@ -30,32 +20,33 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
-import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
+import { MinedOrePosition, ExploredChunk, ExploredChunkByIndex, ForceField, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+
+import { BiomesTest } from "./BiomesTest.sol";
+import { EntityId } from "../src/EntityId.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID, WoodenPickObjectID, WoodenAxeObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
-import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 import { PickupData } from "../src/Types.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract DropTest is BiomesTest {
-  using VoxelCoordLib for *;
-
   function testDropTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    Vec3 dropCoord = playerCoord.getNeighbor(Direction.PositiveY);
     setTerrainAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     uint16 numToTransfer = 10;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
-    EntityId airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    EntityId airEntityId = ReversePosition.get(dropCoord);
     assertFalse(airEntityId.exists(), "Drop entity already exists");
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -65,7 +56,7 @@ contract DropTest is BiomesTest {
     world.drop(transferObjectTypeId, numToTransfer, dropCoord);
     endGasReport();
 
-    airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity does not exist");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToTransfer);
@@ -76,15 +67,15 @@ contract DropTest is BiomesTest {
   }
 
   function testDropNonTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    Vec3 dropCoord = playerCoord + vec3(0, 1, 0);
     setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     uint16 numToTransfer = 10;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
-    EntityId airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    EntityId airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity doesn't exist");
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -103,14 +94,14 @@ contract DropTest is BiomesTest {
   }
 
   function testDropToolTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    Vec3 dropCoord = playerCoord + vec3(0, 1, 0);
     setTerrainAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
-    EntityId airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    EntityId airEntityId = ReversePosition.get(dropCoord);
     assertFalse(airEntityId.exists(), "Drop entity already exists");
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -120,7 +111,7 @@ contract DropTest is BiomesTest {
     world.dropTool(toolEntityId, dropCoord);
     endGasReport();
 
-    airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity does not exist");
     assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
     assertInventoryHasTool(airEntityId, toolEntityId, 1);
@@ -132,14 +123,14 @@ contract DropTest is BiomesTest {
   }
 
   function testDropToolNonTerrain() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    Vec3 dropCoord = playerCoord + vec3(0, 1, 0);
     setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
-    EntityId airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    EntityId airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity already exists");
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -159,9 +150,9 @@ contract DropTest is BiomesTest {
   }
 
   function testPickup() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory pickupCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    Vec3 pickupCoord = playerCoord + vec3(0, 1, 0);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     uint16 numToPickup = 10;
@@ -185,9 +176,9 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupTool() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory pickupCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    Vec3 pickupCoord = playerCoord + vec3(0, 1, 0);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(airEntityId, transferObjectTypeId);
@@ -210,9 +201,9 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupMultiple() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory pickupCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    Vec3 pickupCoord = playerCoord + vec3(0, 1, 0);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId objectObjectTypeId = GrassObjectID;
     uint16 numToPickup = 10;
@@ -245,9 +236,9 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupAll() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory pickupCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    Vec3 pickupCoord = playerCoord + vec3(0, 1, 0);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId objectObjectTypeId = GrassObjectID;
     uint16 numToPickup = 10;
@@ -281,9 +272,9 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupMinedChestDrops() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     ObjectTypeMetadata.setMass(ChestObjectID, uint32(playerHandMassReduction - 1));
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
@@ -295,7 +286,7 @@ contract DropTest is BiomesTest {
     vm.prank(alice);
     world.mine(chestCoord);
 
-    EntityId airEntityId = ReversePosition.get(chestCoord.x, chestCoord.y, chestCoord.z);
+    EntityId airEntityId = ReversePosition.get(chestCoord);
     assertTrue(airEntityId.exists(), "Drop entity does not exist");
     assertTrue(ObjectType.get(airEntityId) == AirObjectID, "Drop entity is not air");
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToPickup);
@@ -314,9 +305,9 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfInventoryFull() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory pickupCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    Vec3 pickupCoord = playerCoord + vec3(0, 1, 0);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, 1);
@@ -341,9 +332,9 @@ contract DropTest is BiomesTest {
   }
 
   function testDropFailsIfDoesntHaveBlock() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 dropCoord = playerCoord + vec3(0, 0, 1);
     EntityId airEntityId = setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
 
@@ -359,9 +350,9 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfDoesntHaveBlock() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 dropCoord = playerCoord + vec3(0, 0, 1);
     EntityId airEntityId = setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
 
@@ -377,13 +368,9 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfInvalidCoord() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory pickupCoord = VoxelCoord(
-      playerCoord.x + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1,
-      playerCoord.y + 1,
-      playerCoord.z
-    );
+    Vec3 pickupCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 1, 0);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, 1);
@@ -394,7 +381,7 @@ contract DropTest is BiomesTest {
     vm.expectRevert("Player is too far");
     world.pickup(transferObjectTypeId, 1, pickupCoord);
 
-    pickupCoord = VoxelCoord(WORLD_BORDER_LOW_X - 1, playerCoord.y + 1, playerCoord.z);
+    pickupCoord = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y() + 1, playerCoord.z());
 
     vm.prank(alice);
     vm.expectRevert("Cannot pickup outside the world border");
@@ -402,13 +389,9 @@ contract DropTest is BiomesTest {
   }
 
   function testDropFailsIfInvalidCoord() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(
-      playerCoord.x + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1,
-      playerCoord.y + 1,
-      playerCoord.z
-    );
+    Vec3 dropCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 1, 0);
     setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
@@ -418,13 +401,13 @@ contract DropTest is BiomesTest {
     vm.expectRevert("Player is too far");
     world.drop(transferObjectTypeId, 1, dropCoord);
 
-    dropCoord = VoxelCoord(WORLD_BORDER_LOW_X - 1, playerCoord.y + 1, playerCoord.z);
+    dropCoord = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y() + 1, playerCoord.z());
 
     vm.prank(alice);
     vm.expectRevert("Cannot drop outside the world border");
     world.drop(transferObjectTypeId, 1, dropCoord);
 
-    dropCoord = VoxelCoord(playerCoord.x - 1, playerCoord.y + 1, playerCoord.z);
+    dropCoord = playerCoord + vec3(-1, 1, 0);
 
     vm.prank(alice);
     vm.expectRevert("Chunk not explored yet");
@@ -432,9 +415,9 @@ contract DropTest is BiomesTest {
   }
 
   function testDropFailsIfNonAirBlock() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
+    Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
     setObjectAtCoord(dropCoord, DirtObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
@@ -446,11 +429,11 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfNonAirBlock() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory pickupCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
+    Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     setTerrainAtCoord(pickupCoord, AirObjectID);
-    EntityId airEntityId = ReversePosition.get(pickupCoord.x, pickupCoord.y, pickupCoord.z);
+    EntityId airEntityId = ReversePosition.get(pickupCoord);
     assertFalse(airEntityId.exists(), "Drop entity doesn't exists");
 
     vm.prank(alice);
@@ -466,9 +449,9 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfInvalidArgs() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory pickupCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
+    Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, 1);
@@ -485,9 +468,9 @@ contract DropTest is BiomesTest {
   }
 
   function testDropFailsIfInvalidArgs() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
+    Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
     EntityId airEntityId = setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, AirObjectID, transferObjectTypeId, 1);
@@ -516,9 +499,9 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfNotEnoughEnergy() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory pickupCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
+    Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, 1);
@@ -533,9 +516,9 @@ contract DropTest is BiomesTest {
   }
 
   function testDropFailsIfNotEnoughEnergy() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
+    Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
     setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
@@ -549,9 +532,9 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory pickupCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
+    Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, 1);
@@ -563,9 +546,9 @@ contract DropTest is BiomesTest {
   }
 
   function testDropFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
+    Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
     setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
@@ -576,9 +559,9 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfSleeping() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory pickupCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
+    Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(airEntityId, AirObjectID, transferObjectTypeId, 1);
@@ -593,9 +576,9 @@ contract DropTest is BiomesTest {
   }
 
   function testDropFailsIfSleeping() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z + 1);
+    Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
     setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);

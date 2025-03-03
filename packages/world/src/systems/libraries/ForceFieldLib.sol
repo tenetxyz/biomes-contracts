@@ -6,7 +6,7 @@ import { SystemCall } from "@latticexyz/world/src/SystemCall.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../../codegen/world/IWorld.sol";
-import { VoxelCoord } from "../../Types.sol";
+import { Vec3 } from "../../Vec3.sol";
 
 import { Chip } from "../../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
@@ -25,11 +25,11 @@ library ForceFieldLib {
     EntityId playerEntityId,
     EntityId baseEntityId,
     ObjectTypeId objectTypeId,
-    VoxelCoord[] memory coords,
+    Vec3[] memory coords,
     bytes memory extraData
   ) public {
     for (uint256 i = 0; i < coords.length; i++) {
-      VoxelCoord memory coord = coords[i];
+      Vec3 coord = coords[i];
       EntityId forceFieldEntityId = getForceField(coord);
       if (objectTypeId == ForceFieldObjectID) {
         require(!forceFieldEntityId.exists(), "Force field overlaps with another force field");
@@ -54,11 +54,11 @@ library ForceFieldLib {
     EntityId playerEntityId,
     EntityId baseEntityId,
     ObjectTypeId objectTypeId,
-    VoxelCoord[] memory coords,
+    Vec3[] memory coords,
     bytes memory extraData
   ) public {
     for (uint256 i = 0; i < coords.length; i++) {
-      VoxelCoord memory coord = coords[i];
+      Vec3 coord = coords[i];
       EntityId forceFieldEntityId = getForceField(coord);
       if (forceFieldEntityId.exists()) {
         EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);

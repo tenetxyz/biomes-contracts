@@ -4,26 +4,24 @@ pragma solidity >=0.8.24;
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
 
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { DisplayContentType } from "../codegen/common.sol";
+
+import { Position, ReversePosition } from "../utils/Vec3Storage.sol";
 
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { ObjectTypeId, TextSignObjectID } from "../ObjectTypeIds.sol";
 import { getLatestEnergyData } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { EntityId } from "../EntityId.sol";
+import { Vec3 } from "../Vec3.sol";
 
 contract DisplaySystem is System {
-  using VoxelCoordLib for *;
-
   function getDisplayContent(EntityId entityId) public view returns (DisplayContentData memory) {
     require(entityId.exists(), "Entity does not exist");
 
@@ -32,7 +30,7 @@ contract DisplaySystem is System {
     if (!objectTypeId.isSmartItem()) {
       return DisplayContent._get(baseEntityId);
     }
-    VoxelCoord memory entityCoord = Position._get(baseEntityId).toVoxelCoord();
+    Vec3 entityCoord = Position._get(baseEntityId);
 
     EntityId forceFieldEntityId = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
@@ -51,11 +49,8 @@ contract DisplaySystem is System {
   function setDisplayContent(EntityId entityId, DisplayContentData memory content) public {
     EntityId baseEntityId = entityId.baseEntityId();
     require(ObjectType._get(baseEntityId).isBasicDisplay(), "You can only set the display content of a basic display");
-    VoxelCoord memory entityCoord = Position._get(baseEntityId).toVoxelCoord();
-    require(
-      ReversePosition._get(entityCoord.x, entityCoord.y, entityCoord.z) == baseEntityId,
-      "Entity is not at the specified position"
-    );
+    Vec3 entityCoord = Position._get(baseEntityId);
+    require(ReversePosition._get(entityCoord) == baseEntityId, "Entity is not at the specified position");
 
     DisplayContent._set(baseEntityId, content);
   }

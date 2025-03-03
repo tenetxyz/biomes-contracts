@@ -1,36 +1,32 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord, VoxelCoordLib } from "../../VoxelCoord.sol";
-
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
-import { Position } from "../../codegen/tables/Position.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../../codegen/tables/LocalEnergyPool.sol";
 
+import { Position } from "../../utils/Vec3Storage.sol";
+
 import { ObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_TRANSFER_ENERGY_COST, SMART_CHEST_ENERGY_COST } from "../../Constants.sol";
-import { updateEnergyLevel } from "../../utils/EnergyUtils.sol";
+import { updateEnergyLevel, addEnergyToLocalPool } from "../../utils/EnergyUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { TransferCommonContext } from "../../Types.sol";
 
 import { EntityId } from "../../EntityId.sol";
+import { Vec3 } from "../../Vec3.sol";
 
 library TransferLib {
-  using VoxelCoordLib for *;
-
   function transferCommon(
     address msgSender,
     EntityId chestEntityId,
     bool isDeposit
   ) public returns (TransferCommonContext memory) {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(
-      msgSender
-    );
+    (EntityId playerEntityId, Vec3 playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(msgSender);
 
-    VoxelCoord memory chestCoord = Position._get(chestEntityId).toVoxelCoord();
-    require(playerCoord.inSurroundingCube(MAX_PLAYER_INFLUENCE_HALF_WIDTH, chestCoord), "Destination too far");
+    Vec3 chestCoord = Position._get(chestEntityId);
+    require(playerCoord.inSurroundingCube(chestCoord, MAX_PLAYER_INFLUENCE_HALF_WIDTH), "Destination too far");
     ObjectTypeId chestObjectTypeId = ObjectType._get(chestEntityId);
     ObjectTypeId dstObjectTypeId = isDeposit ? chestObjectTypeId : PlayerObjectID;
 
@@ -49,7 +45,7 @@ library TransferLib {
 
     require(playerEnergyData.energy > PLAYER_TRANSFER_ENERGY_COST, "Not enough energy");
     playerEntityId.setEnergy(playerEnergyData.energy - PLAYER_TRANSFER_ENERGY_COST);
-    chestCoord.addEnergyToLocalPool(energyCost);
+    addEnergyToLocalPool(chestCoord, energyCost);
 
     return
       TransferCommonContext({

@@ -9,25 +9,21 @@ import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
 import { BiomesTest, console } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ExploredChunk } from "../src/codegen/tables/ExploredChunk.sol";
 import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
-import { ExploredChunkByIndex } from "../src/codegen/tables/ExploredChunkByIndex.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { ForceField } from "../src/codegen/tables/ForceField.sol";
-import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
-import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
-import { Position } from "../src/codegen/tables/Position.sol";
+
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { BedPlayer, BedPlayerData } from "../src/codegen/tables/BedPlayer.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 
+import { ExploredChunk, ExploredChunkByIndex, ForceField, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
+
 import { IBedChip } from "../src/prototypes/IBedChip.sol";
-import { ChunkCoord } from "../src/Types.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, DirtObjectID, BedObjectID } from "../src/ObjectTypeIds.sol";
-import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
@@ -46,13 +42,11 @@ contract TestBedChip is IBedChip, System {
 }
 
 contract BedTest is BiomesTest {
-  using VoxelCoordLib for *;
-
-  function createBed(VoxelCoord memory bedCoord) internal returns (EntityId) {
+  function createBed(Vec3 bedCoord) internal returns (EntityId) {
     // Set entity to bed
     EntityId bedEntityId = randomEntityId();
-    Position.set(bedEntityId, bedCoord.x, bedCoord.y, bedCoord.z);
-    ReversePosition.set(bedCoord.x, bedCoord.y, bedCoord.z, bedEntityId);
+    Position.set(bedEntityId, bedCoord);
+    ReversePosition.set(bedCoord, bedEntityId);
     ObjectType.set(bedEntityId, BedObjectID);
     return bedEntityId;
   }
@@ -66,18 +60,18 @@ contract BedTest is BiomesTest {
     world.registerSystem(chipSystemId, chip, false);
     world.transferOwnership(namespaceId, address(0));
 
-    VoxelCoord memory bedCoord = Position.get(bedEntityId).toVoxelCoord();
+    Vec3 bedCoord = Position.get(bedEntityId);
 
     // Attach chip with test player
-    (address bob, ) = createTestPlayer(VoxelCoord(bedCoord.x - 1, bedCoord.y, bedCoord.z));
+    (address bob, ) = createTestPlayer(bedCoord - vec3(1, 0, 0));
     vm.prank(bob);
     world.attachChip(bedEntityId, chipSystemId);
   }
 
   function testSleep() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory coord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 coord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory bedCoord = VoxelCoord(coord.x - 2, coord.y, coord.z);
+    Vec3 bedCoord = coord - vec3(2, 0, 0);
 
     // Set forcefield
     setupForceField(
@@ -120,9 +114,9 @@ contract BedTest is BiomesTest {
   }
 
   function testSleepFailsIfNotInPlayerInfluence() public {
-    (address alice, , VoxelCoord memory coord) = setupAirChunkWithPlayer();
+    (address alice, , Vec3 coord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory bedCoord = VoxelCoord(coord.x - 500, coord.y, coord.z);
+    Vec3 bedCoord = coord + vec3(500, 0, 0);
 
     // Set forcefield
     setupForceField(bedCoord);
@@ -136,9 +130,9 @@ contract BedTest is BiomesTest {
   }
 
   function testSleepFailsIfNoForceField() public {
-    (address alice, , VoxelCoord memory coord) = setupAirChunkWithPlayer();
+    (address alice, , Vec3 coord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory bedCoord = VoxelCoord(coord.x - 2, coord.y, coord.z);
+    Vec3 bedCoord = coord - vec3(2, 0, 0);
 
     // Set entity to bed
     EntityId bedEntityId = createBed(bedCoord);
@@ -153,9 +147,9 @@ contract BedTest is BiomesTest {
   }
 
   function testWakeup() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory coord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 coord) = setupFlatChunkWithPlayer();
 
-    VoxelCoord memory bedCoord = VoxelCoord(coord.x - 2, coord.y, coord.z);
+    Vec3 bedCoord = coord - vec3(2, 0, 0);
 
     uint128 initialPlayerEnergy = Energy.getEnergy(aliceEntityId);
 
@@ -198,9 +192,9 @@ contract BedTest is BiomesTest {
   }
 
   function testWakeupWithDepletedForcefield() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory coord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 coord) = setupFlatChunkWithPlayer();
 
-    VoxelCoord memory bedCoord = VoxelCoord(coord.x - 2, coord.y, coord.z);
+    Vec3 bedCoord = coord - vec3(2, 0, 0);
 
     uint128 initialPlayerEnergy = Energy.getEnergy(aliceEntityId);
 
@@ -249,9 +243,9 @@ contract BedTest is BiomesTest {
   }
 
   function testWakeupWithDepletedAndRechargedForcefield() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory coord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 coord) = setupFlatChunkWithPlayer();
 
-    VoxelCoord memory bedCoord = VoxelCoord(coord.x - 2, coord.y, coord.z);
+    Vec3 bedCoord = coord - vec3(2, 0, 0);
 
     uint128 initialPlayerEnergy = Energy.getEnergy(aliceEntityId);
 
@@ -307,9 +301,9 @@ contract BedTest is BiomesTest {
   }
 
   function testWakeupFailsIfPlayerDied() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory coord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 coord) = setupFlatChunkWithPlayer();
 
-    VoxelCoord memory bedCoord = VoxelCoord(coord.x - 2, coord.y, coord.z);
+    Vec3 bedCoord = coord - vec3(2, 0, 0);
 
     uint128 initialPlayerEnergy = Energy.getEnergy(aliceEntityId);
 
@@ -358,9 +352,9 @@ contract BedTest is BiomesTest {
   }
 
   function testRemoveDeadPlayerFromBed() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory coord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 coord) = setupFlatChunkWithPlayer();
 
-    VoxelCoord memory bedCoord = VoxelCoord(coord.x - 2, coord.y, coord.z);
+    Vec3 bedCoord = coord - vec3(2, 0, 0);
 
     uint128 initialPlayerEnergy = Energy.getEnergy(aliceEntityId);
 

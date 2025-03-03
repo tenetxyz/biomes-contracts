@@ -2,16 +2,15 @@
 pragma solidity >=0.8.24;
 
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
-import { Position, PositionData } from "../codegen/tables/Position.sol";
 
-import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
+import { LocalEnergyPool, Position } from "../utils/Vec3Storage.sol";
+
 import { EntityId } from "../EntityId.sol";
 import { MASS_TO_ENERGY_MULTIPLIER } from "../Constants.sol";
 import { PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
-using VoxelCoordLib for PositionData;
+import { Vec3 } from "../Vec3.sol";
 
 function massToEnergy(uint128 mass) pure returns (uint128) {
   return uint128(mass * MASS_TO_ENERGY_MULTIPLIER);
@@ -59,25 +58,41 @@ function getLatestEnergyData(EntityId entityId) view returns (EnergyData memory,
 function updateEnergyLevel(EntityId entityId) returns (EnergyData memory) {
   (EnergyData memory energyData, uint128 energyDrained) = getLatestEnergyData(entityId);
   if (energyDrained > 0) {
-    VoxelCoord memory coord = Position._get(entityId).toVoxelCoord();
-    coord.addEnergyToLocalPool(energyDrained);
+    Vec3 coord = Position._get(entityId);
+    addEnergyToLocalPool(coord, energyDrained);
   }
   Energy._set(entityId, energyData);
   return energyData;
 }
 
-function transferEnergyToPool(EntityId from, VoxelCoord memory poolCoord, uint128 amount) {
+function addEnergyToLocalPool(Vec3 coord, uint128 numToAdd) returns (uint128) {
+  Vec3 shardCoord = coord.toLocalEnergyPoolShardCoord();
+  uint128 newLocalEnergy = LocalEnergyPool._get(shardCoord) + numToAdd;
+  LocalEnergyPool._set(shardCoord, newLocalEnergy);
+  return newLocalEnergy;
+}
+
+function removeEnergyFromLocalPool(Vec3 coord, uint128 numToRemove) returns (uint128) {
+  Vec3 shardCoord = coord.toLocalEnergyPoolShardCoord();
+  uint128 localEnergy = LocalEnergyPool._get(shardCoord);
+  require(localEnergy >= numToRemove, "Not enough energy in local pool");
+  uint128 newLocalEnergy = localEnergy - numToRemove;
+  LocalEnergyPool._set(shardCoord, newLocalEnergy);
+  return newLocalEnergy;
+}
+
+function transferEnergyToPool(EntityId from, Vec3 poolCoord, uint128 amount) {
   uint128 current = Energy._getEnergy(from);
   require(current >= amount, "Not enough energy");
   from.setEnergy(current - amount);
-  poolCoord.addEnergyToLocalPool(amount);
+  addEnergyToLocalPool(poolCoord, amount);
 }
 
 function updateSleepingPlayerEnergy(
   EntityId playerEntityId,
   EntityId bedEntityId,
   EnergyData memory machineData,
-  VoxelCoord memory bedCoord
+  Vec3 bedCoord
 ) returns (EnergyData memory) {
   uint128 timeWithoutEnergy = machineData.accDepletedTime - BedPlayer._getLastAccDepletedTime(bedEntityId);
   EnergyData memory playerEnergyData = Energy._get(playerEntityId);
@@ -90,7 +105,7 @@ function updateSleepingPlayerEnergy(
       : playerEnergyData.energy;
 
     playerEnergyData.energy -= transferredToPool;
-    bedCoord.addEnergyToLocalPool(transferredToPool);
+    addEnergyToLocalPool(bedCoord, transferredToPool);
   }
 
   // Set last updated so next time updatePlayerEnergyLevel is called it will drain from here

@@ -27,12 +27,43 @@ export default defineWorld({
       "RevealOre",
     ],
     DisplayContentType: ["None", "Text", "Image"],
-    FacingDirection: ["PositiveX", "NegativeX", "PositiveY", "NegativeY", "PositiveZ", "NegativeZ"],
+    Direction: [
+      // Cardinal directions (6)
+      "PositiveX",
+      "NegativeX",
+      "PositiveY",
+      "NegativeY",
+      "PositiveZ",
+      "NegativeZ",
+      // Edge directions (12)
+      "PositiveXPositiveY",
+      "PositiveXNegativeY",
+      "NegativeXPositiveY",
+      "NegativeXNegativeY",
+      "PositiveXPositiveZ",
+      "PositiveXNegativeZ",
+      "NegativeXPositiveZ",
+      "NegativeXNegativeZ",
+      "PositiveYPositiveZ",
+      "PositiveYNegativeZ",
+      "NegativeYPositiveZ",
+      "NegativeYNegativeZ",
+      // Corner directions (8)
+      "PositiveXPositiveYPositiveZ",
+      "PositiveXPositiveYNegativeZ",
+      "PositiveXNegativeYPositiveZ",
+      "PositiveXNegativeYNegativeZ",
+      "NegativeXPositiveYPositiveZ",
+      "NegativeXPositiveYNegativeZ",
+      "NegativeXNegativeYPositiveZ",
+      "NegativeXNegativeYNegativeZ",
+    ],
   },
   userTypes: {
     ObjectTypeId: { filePath: "./src/ObjectTypeIds.sol", type: "uint16" },
     EntityId: { filePath: "./src/EntityId.sol", type: "bytes32" },
     ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", type: "bytes32" },
+    Vec3: { filePath: "./src/Vec3.sol", type: "uint96" },
   },
   tables: {
     // ------------------------------------------------------------
@@ -118,7 +149,7 @@ export default defineWorld({
     Orientation: {
       schema: {
         entityId: "EntityId",
-        facingDirection: "FacingDirection",
+        direction: "Direction",
       },
       key: ["entityId"],
     },

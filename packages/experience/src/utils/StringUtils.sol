@@ -3,10 +3,7 @@ pragma solidity >=0.8.24;
 
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { VoxelCoord } from "@biomesaw/world/src/Types.sol";
 import { AirObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
-
-import { getObjectTypeAtCoord } from "./EntityUtils.sol";
 
 function weiToString(uint256 valueInWei) pure returns (string memory) {
   return string.concat(Strings.toString(valueInWei / 1 ether), ".", decimalString(valueInWei % 1 ether, 18));

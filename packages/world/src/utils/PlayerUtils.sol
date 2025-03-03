@@ -1,14 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { VoxelCoord, VoxelCoordLib } from "../VoxelCoord.sol";
-
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
-import { Position, PositionData } from "../codegen/tables/Position.sol";
-import { PlayerPosition, PlayerPositionData } from "../codegen/tables/PlayerPosition.sol";
-import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
@@ -18,23 +13,24 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 
+import { Position, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
+
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { updateEnergyLevel } from "./EnergyUtils.sol";
 import { getForceField } from "./ForceFieldUtils.sol";
 import { transferAllInventoryEntities } from "./InventoryUtils.sol";
+import { getObjectTypeIdAt, getPlayer, setPlayer } from "./EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
+import { Vec3 } from "../Vec3.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
-using VoxelCoordLib for PositionData;
-using VoxelCoordLib for PlayerPositionData;
-
-function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory, EnergyData memory) {
+function requireValidPlayer(address player) returns (EntityId, Vec3, EnergyData memory) {
   checkWorldStatus();
   EntityId playerEntityId = Player._get(player);
   require(playerEntityId.exists(), "Player does not exist");
   require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
-  VoxelCoord memory playerCoord = PlayerPosition._get(playerEntityId).toVoxelCoord();
+  Vec3 playerCoord = PlayerPosition._get(playerEntityId);
 
   EnergyData memory playerEnergyData = updateEnergyLevel(playerEntityId);
   require(playerEnergyData.energy > 0, "Player is dead");
@@ -43,27 +39,27 @@ function requireValidPlayer(address player) returns (EntityId, VoxelCoord memory
   return (playerEntityId, playerCoord, playerEnergyData);
 }
 
-function requireBesidePlayer(VoxelCoord memory playerCoord, VoxelCoord memory coord) pure {
-  require(playerCoord.inSurroundingCube(1, coord), "Player is too far");
+function requireBesidePlayer(Vec3 playerCoord, Vec3 coord) pure {
+  require(playerCoord.inSurroundingCube(coord, 1), "Player is too far");
 }
 
-function requireBesidePlayer(VoxelCoord memory playerCoord, EntityId entityId) view returns (VoxelCoord memory) {
-  VoxelCoord memory coord = Position._get(entityId).toVoxelCoord();
+function requireBesidePlayer(Vec3 playerCoord, EntityId entityId) view returns (Vec3) {
+  Vec3 coord = Position._get(entityId);
   requireBesidePlayer(playerCoord, coord);
   return coord;
 }
 
-function requireInPlayerInfluence(VoxelCoord memory playerCoord, VoxelCoord memory coord) pure {
-  require(playerCoord.inSurroundingCube(MAX_PLAYER_INFLUENCE_HALF_WIDTH, coord), "Player is too far");
+function requireInPlayerInfluence(Vec3 playerCoord, Vec3 coord) pure {
+  require(playerCoord.inSurroundingCube(coord, MAX_PLAYER_INFLUENCE_HALF_WIDTH), "Player is too far");
 }
 
-function requireInPlayerInfluence(VoxelCoord memory playerCoord, EntityId entityId) view returns (VoxelCoord memory) {
-  VoxelCoord memory coord = Position._get(entityId).toVoxelCoord();
+function requireInPlayerInfluence(Vec3 playerCoord, EntityId entityId) view returns (Vec3) {
+  Vec3 coord = Position._get(entityId);
   requireInPlayerInfluence(playerCoord, coord);
   return coord;
 }
 
-function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
+function createPlayer(EntityId playerEntityId, Vec3 playerCoord) {
   // Set the player object type first
   ObjectType._set(playerEntityId, PlayerObjectID);
 
@@ -71,42 +67,42 @@ function createPlayer(EntityId playerEntityId, VoxelCoord memory playerCoord) {
   addPlayerToGrid(playerEntityId, playerCoord);
 }
 
-function addPlayerToGrid(EntityId playerEntityId, VoxelCoord memory playerCoord) {
+function addPlayerToGrid(EntityId playerEntityId, Vec3 playerCoord) {
   // Check if the spawn location is valid
-  ObjectTypeId terrainObjectTypeId = playerCoord.getObjectTypeId();
-  require(terrainObjectTypeId == AirObjectID && !playerCoord.getPlayer().exists(), "Cannot spawn on a non-air block");
+  ObjectTypeId terrainObjectTypeId = getObjectTypeIdAt(playerCoord);
+  require(terrainObjectTypeId == AirObjectID && !getPlayer(playerCoord).exists(), "Cannot spawn on a non-air block");
 
   // Set the player at the base coordinate
-  playerCoord.setPlayer(playerEntityId);
+  setPlayer(playerCoord, playerEntityId);
 
   // Handle the player's body parts
-  VoxelCoord[] memory coords = playerCoord.getRelativeCoords(PlayerObjectID);
+  Vec3[] memory coords = PlayerObjectID.getRelativeCoords(playerCoord);
   // Only iterate through relative schema coords
   for (uint256 i = 1; i < coords.length; i++) {
-    VoxelCoord memory relativeCoord = coords[i];
-    ObjectTypeId relativeTerrainObjectTypeId = relativeCoord.getObjectTypeId();
+    Vec3 relativeCoord = coords[i];
+    ObjectTypeId relativeTerrainObjectTypeId = getObjectTypeIdAt(relativeCoord);
     require(
-      relativeTerrainObjectTypeId == AirObjectID && !relativeCoord.getPlayer().exists(),
+      relativeTerrainObjectTypeId == AirObjectID && !getPlayer(relativeCoord).exists(),
       "Cannot spawn on a non-air block"
     );
     EntityId relativePlayerEntityId = getUniqueEntity();
     ObjectType._set(relativePlayerEntityId, PlayerObjectID);
-    relativeCoord.setPlayer(relativePlayerEntityId);
+    setPlayer(relativeCoord, relativePlayerEntityId);
     BaseEntity._set(relativePlayerEntityId, playerEntityId);
   }
 }
 
-function removePlayerFromGrid(EntityId playerEntityId, VoxelCoord memory playerCoord) {
+function removePlayerFromGrid(EntityId playerEntityId, Vec3 playerCoord) {
   PlayerPosition._deleteRecord(playerEntityId);
-  ReversePlayerPosition._deleteRecord(playerCoord.x, playerCoord.y, playerCoord.z);
+  ReversePlayerPosition._deleteRecord(playerCoord);
 
-  VoxelCoord[] memory coords = playerCoord.getRelativeCoords(PlayerObjectID);
+  Vec3[] memory coords = PlayerObjectID.getRelativeCoords(playerCoord);
   // Only iterate through relative schema coords
   for (uint256 i = 1; i < coords.length; i++) {
-    VoxelCoord memory relativeCoord = coords[i];
-    EntityId relativePlayerEntityId = relativeCoord.getPlayer();
+    Vec3 relativeCoord = coords[i];
+    EntityId relativePlayerEntityId = getPlayer(relativeCoord);
     PlayerPosition._deleteRecord(relativePlayerEntityId);
-    ReversePlayerPosition._deleteRecord(relativeCoord.x, relativeCoord.y, relativeCoord.z);
+    ReversePlayerPosition._deleteRecord(relativeCoord);
     ObjectType._deleteRecord(relativePlayerEntityId);
     BaseEntity._deleteRecord(relativePlayerEntityId);
   }

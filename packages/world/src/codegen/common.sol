@@ -31,11 +31,31 @@ enum DisplayContentType {
   Image
 }
 
-enum FacingDirection {
+enum Direction {
   PositiveX,
   NegativeX,
   PositiveY,
   NegativeY,
   PositiveZ,
-  NegativeZ
+  NegativeZ,
+  PositiveXPositiveY,
+  PositiveXNegativeY,
+  NegativeXPositiveY,
+  NegativeXNegativeY,
+  PositiveXPositiveZ,
+  PositiveXNegativeZ,
+  NegativeXPositiveZ,
+  NegativeXNegativeZ,
+  PositiveYPositiveZ,
+  PositiveYNegativeZ,
+  NegativeYPositiveZ,
+  NegativeYNegativeZ,
+  PositiveXPositiveYPositiveZ,
+  PositiveXPositiveYNegativeZ,
+  PositiveXNegativeYPositiveZ,
+  PositiveXNegativeYNegativeZ,
+  NegativeXPositiveYPositiveZ,
+  NegativeXPositiveYNegativeZ,
+  NegativeXNegativeYPositiveZ,
+  NegativeXNegativeYNegativeZ
 }

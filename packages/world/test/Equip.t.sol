@@ -9,18 +9,12 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
-import { ExploredChunk } from "../src/codegen/tables/ExploredChunk.sol";
 import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
-import { ExploredChunkByIndex } from "../src/codegen/tables/ExploredChunkByIndex.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
-import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
-import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
-import { Position } from "../src/codegen/tables/Position.sol";
-import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
@@ -28,25 +22,24 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
-import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
 import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
+import { ExploredChunk, ExploredChunkByIndex, MinedOrePosition, PlayerPosition, Position, ReversePosition, OreCommitment } from "../src/utils/Vec3Storage.sol";
+
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, WoodenPickObjectID, WoodenAxeObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
-import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract EquipTest is BiomesTest {
-  using VoxelCoordLib for *;
-
   function testEquip() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
@@ -64,7 +57,7 @@ contract EquipTest is BiomesTest {
   }
 
   function testUnequip() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
@@ -88,7 +81,7 @@ contract EquipTest is BiomesTest {
   }
 
   function testEquipAlreadyEquipped() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     ObjectTypeId toolObjectTypeId1 = WoodenPickObjectID;
     EntityId toolEntityId1 = addToolToInventory(aliceEntityId, toolObjectTypeId1);
@@ -116,7 +109,7 @@ contract EquipTest is BiomesTest {
   }
 
   function testUnequipNothingEquipped() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
@@ -132,14 +125,14 @@ contract EquipTest is BiomesTest {
   }
 
   function testDropEquipped() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory dropCoord = VoxelCoord(playerCoord.x, playerCoord.y + 1, playerCoord.z);
+    Vec3 dropCoord = playerCoord + vec3(0, 1, 0);
     setObjectAtCoord(dropCoord, AirObjectID);
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
-    EntityId airEntityId = ReversePosition.get(dropCoord.x, dropCoord.y, dropCoord.z);
+    EntityId airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity already exists");
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -166,9 +159,9 @@ contract EquipTest is BiomesTest {
   }
 
   function testTransferEquippedToChest() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
 
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
@@ -200,16 +193,13 @@ contract EquipTest is BiomesTest {
   }
 
   function testMineWithEquipped() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    VoxelCoord memory mineCoord = VoxelCoord(
-      playerCoord.x == CHUNK_SIZE - 1 ? playerCoord.x - 1 : playerCoord.x + 1,
-      FLAT_CHUNK_GRASS_LEVEL,
-      playerCoord.z
-    );
+    Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
+
     ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
-    EntityId mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
 
@@ -232,7 +222,7 @@ contract EquipTest is BiomesTest {
     uint128 toolMassAfter = Mass.getMass(toolEntityId);
     assertLt(toolMassAfter, toolMassBefore, "Tool mass is not less");
 
-    mineEntityId = ReversePosition.get(mineCoord.x, mineCoord.y, mineCoord.z);
+    mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -252,11 +242,9 @@ contract EquipTest is BiomesTest {
   }
 
   function testEquipFailsIfNotOwned() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory aliceCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 aliceCoord) = setupAirChunkWithPlayer();
 
-    (address bob, EntityId bobEntityId, VoxelCoord memory bobCoord) = spawnPlayerOnAirChunk(
-      VoxelCoord(aliceCoord.x, aliceCoord.y, aliceCoord.z + 1)
-    );
+    (address bob, EntityId bobEntityId, Vec3 bobCoord) = spawnPlayerOnAirChunk(aliceCoord + vec3(0, 0, 1));
 
     ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
@@ -268,7 +256,7 @@ contract EquipTest is BiomesTest {
   }
 
   function testEquipFailsIfInvalidTool() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory aliceCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 aliceCoord) = setupAirChunkWithPlayer();
 
     vm.prank(alice);
     vm.expectRevert("Player does not own inventory item");
@@ -276,7 +264,7 @@ contract EquipTest is BiomesTest {
   }
 
   function testEquipFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
@@ -289,7 +277,7 @@ contract EquipTest is BiomesTest {
   }
 
   function testEquipFailsIfSleeping() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
@@ -305,7 +293,7 @@ contract EquipTest is BiomesTest {
   }
 
   function testUnequipFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
@@ -323,7 +311,7 @@ contract EquipTest is BiomesTest {
   }
 
   function testUnequipFailsIfSleeping() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);

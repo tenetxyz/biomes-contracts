@@ -2,7 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "../VoxelCoord.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
@@ -19,12 +18,13 @@ import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
 import { EntityId } from "../EntityId.sol";
+import { Vec3 } from "../Vec3.sol";
 import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 contract MachineSystem is System {
   function powerMachine(EntityId entityId, uint16 numBattery) public {
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
-    VoxelCoord memory entityCoord = requireInPlayerInfluence(playerCoord, entityId);
+    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    Vec3 entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
     EntityId baseEntityId = entityId.baseEntityId();
 

@@ -39,16 +39,14 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID, WoodenPickObjectID, WoodenAxeObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
-import { VoxelCoord, VoxelCoordLib } from "../src/VoxelCoord.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract TransferTest is BiomesTest {
-  using VoxelCoordLib for *;
-
   function testTransferToChest() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     uint16 numToTransfer = 10;
@@ -72,9 +70,9 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferToolToChest() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
 
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
@@ -99,9 +97,9 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferFromChest() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = ChestObjectID;
     uint16 numToTransfer = 10;
@@ -125,9 +123,9 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferToolFromChest() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
 
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
@@ -158,9 +156,9 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferToChestFailsIfChestFull() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     uint16 maxChestInventorySlots = ObjectTypeMetadata.getMaxInventorySlots(ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
@@ -181,9 +179,9 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferFromChestFailsIfPlayerFull() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     uint16 maxPlayerInventorySlots = ObjectTypeMetadata.getMaxInventorySlots(PlayerObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
@@ -204,9 +202,9 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferFailsIfInvalidObject() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId nonChestEntityId = setObjectAtCoord(chestCoord, DirtObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
@@ -221,9 +219,9 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferFailsIfDoesntHaveBlock() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
@@ -269,9 +267,9 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferFailsIfInvalidArgs() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
@@ -301,9 +299,9 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferFailsIfNotEnoughEnergy() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
@@ -319,13 +317,9 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferFailsIfTooFar() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(
-      playerCoord.x + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1,
-      playerCoord.y,
-      playerCoord.z + 1
-    );
+    Vec3 chestCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
@@ -343,9 +337,9 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
@@ -358,9 +352,9 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferFailsIfSleeping() public {
-    (address alice, EntityId aliceEntityId, VoxelCoord memory playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    VoxelCoord memory chestCoord = VoxelCoord(playerCoord.x, playerCoord.y, playerCoord.z + 1);
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);

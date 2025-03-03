@@ -18,7 +18,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
 import { EntityId } from "../../EntityId.sol";
-import { FacingDirection } from "../common.sol";
+import { Direction } from "../common.sol";
 
 library Orientation {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Orientation", typeId: RESOURCE_TABLE });`
@@ -47,7 +47,7 @@ library Orientation {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "facingDirection";
+    fieldNames[0] = "direction";
   }
 
   /**
@@ -65,87 +65,87 @@ library Orientation {
   }
 
   /**
-   * @notice Get facingDirection.
+   * @notice Get direction.
    */
-  function getFacingDirection(EntityId entityId) internal view returns (FacingDirection facingDirection) {
+  function getDirection(EntityId entityId) internal view returns (Direction direction) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return FacingDirection(uint8(bytes1(_blob)));
+    return Direction(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get facingDirection.
+   * @notice Get direction.
    */
-  function _getFacingDirection(EntityId entityId) internal view returns (FacingDirection facingDirection) {
+  function _getDirection(EntityId entityId) internal view returns (Direction direction) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return FacingDirection(uint8(bytes1(_blob)));
+    return Direction(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get facingDirection.
+   * @notice Get direction.
    */
-  function get(EntityId entityId) internal view returns (FacingDirection facingDirection) {
+  function get(EntityId entityId) internal view returns (Direction direction) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return FacingDirection(uint8(bytes1(_blob)));
+    return Direction(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Get facingDirection.
+   * @notice Get direction.
    */
-  function _get(EntityId entityId) internal view returns (FacingDirection facingDirection) {
+  function _get(EntityId entityId) internal view returns (Direction direction) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return FacingDirection(uint8(bytes1(_blob)));
+    return Direction(uint8(bytes1(_blob)));
   }
 
   /**
-   * @notice Set facingDirection.
+   * @notice Set direction.
    */
-  function setFacingDirection(EntityId entityId, FacingDirection facingDirection) internal {
+  function setDirection(EntityId entityId, Direction direction) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(facingDirection)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(direction)), _fieldLayout);
   }
 
   /**
-   * @notice Set facingDirection.
+   * @notice Set direction.
    */
-  function _setFacingDirection(EntityId entityId, FacingDirection facingDirection) internal {
+  function _setDirection(EntityId entityId, Direction direction) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(facingDirection)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(direction)), _fieldLayout);
   }
 
   /**
-   * @notice Set facingDirection.
+   * @notice Set direction.
    */
-  function set(EntityId entityId, FacingDirection facingDirection) internal {
+  function set(EntityId entityId, Direction direction) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(facingDirection)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(direction)), _fieldLayout);
   }
 
   /**
-   * @notice Set facingDirection.
+   * @notice Set direction.
    */
-  function _set(EntityId entityId, FacingDirection facingDirection) internal {
+  function _set(EntityId entityId, Direction direction) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(facingDirection)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(uint8(direction)), _fieldLayout);
   }
 
   /**
@@ -172,8 +172,8 @@ library Orientation {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(FacingDirection facingDirection) internal pure returns (bytes memory) {
-    return abi.encodePacked(facingDirection);
+  function encodeStatic(Direction direction) internal pure returns (bytes memory) {
+    return abi.encodePacked(direction);
   }
 
   /**
@@ -182,8 +182,8 @@ library Orientation {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(FacingDirection facingDirection) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(facingDirection);
+  function encode(Direction direction) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(direction);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

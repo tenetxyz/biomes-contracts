@@ -2,7 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "../VoxelCoord.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
@@ -21,6 +20,7 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { notify, CraftNotifData } from "../utils/NotifUtils.sol";
 import { energyToMass, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { EntityId } from "../EntityId.sol";
+import { Vec3 } from "../Vec3.sol";
 import { PLAYER_CRAFT_ENERGY_COST } from "../Constants.sol";
 
 contract CraftSystem is System {
@@ -28,7 +28,7 @@ contract CraftSystem is System {
     RecipesData memory recipeData = Recipes._get(recipeId);
     require(recipeData.inputTypes.length > 0, "Recipe not found");
 
-    (EntityId playerEntityId, VoxelCoord memory playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     if (!recipeData.stationTypeId.isNull()) {
       require(stationEntityId.exists(), "This recipe requires a station");
       require(ObjectType._get(stationEntityId) == recipeData.stationTypeId, "Invalid station");

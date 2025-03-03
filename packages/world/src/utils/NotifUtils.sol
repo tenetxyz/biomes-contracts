@@ -4,24 +4,24 @@ pragma solidity >=0.8.24;
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { VoxelCoord } from "../Types.sol";
+import { Vec3 } from "../Vec3.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeIds.sol";
 
 struct BuildNotifData {
   EntityId buildEntityId;
-  VoxelCoord buildCoord;
+  Vec3 buildCoord;
   ObjectTypeId buildObjectTypeId;
 }
 
 struct MineNotifData {
   EntityId mineEntityId;
-  VoxelCoord mineCoord;
+  Vec3 mineCoord;
   ObjectTypeId mineObjectTypeId;
 }
 
 struct MoveNotifData {
-  VoxelCoord[] moveCoords;
+  Vec3[] moveCoords;
 }
 
 struct CraftNotifData {
@@ -30,20 +30,20 @@ struct CraftNotifData {
 }
 
 struct DropNotifData {
-  VoxelCoord dropCoord;
+  Vec3 dropCoord;
   ObjectTypeId dropObjectTypeId;
   uint16 dropAmount;
 }
 
 struct PickupNotifData {
-  VoxelCoord pickupCoord;
+  Vec3 pickupCoord;
   ObjectTypeId pickupObjectTypeId;
   uint16 pickupAmount;
 }
 
 struct TransferNotifData {
   EntityId transferEntityId;
-  VoxelCoord transferCoord;
+  Vec3 transferCoord;
   ObjectTypeId transferObjectTypeId;
   uint16 transferAmount;
 }
@@ -58,49 +58,49 @@ struct UnequipNotifData {
 
 struct SpawnNotifData {
   address playerAddress;
-  VoxelCoord spawnCoord;
+  Vec3 spawnCoord;
 }
 
 struct PowerMachineNotifData {
   EntityId machineEntityId;
-  VoxelCoord machineCoord;
+  Vec3 machineCoord;
   uint16 numBattery;
 }
 
 struct HitMachineNotifData {
   EntityId machineEntityId;
-  VoxelCoord machineCoord;
+  Vec3 machineCoord;
 }
 
 struct AttachChipNotifData {
   EntityId attachEntityId;
-  VoxelCoord attachCoord;
+  Vec3 attachCoord;
   address chipAddress;
 }
 
 struct DetachChipNotifData {
   EntityId detachEntityId;
-  VoxelCoord detachCoord;
+  Vec3 detachCoord;
   address chipAddress;
 }
 
 struct InitiateOreRevealNotifData {
-  VoxelCoord oreCoord;
+  Vec3 oreCoord;
 }
 
 struct RevealOreNotifData {
-  VoxelCoord oreCoord;
+  Vec3 oreCoord;
   ObjectTypeId oreObjectTypeId;
 }
 
 struct SleepNotifData {
   EntityId bedEntityId;
-  VoxelCoord bedCoord;
+  Vec3 bedCoord;
 }
 
 struct WakeupNotifData {
   EntityId bedEntityId;
-  VoxelCoord bedCoord;
+  Vec3 bedCoord;
 }
 
 function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {
