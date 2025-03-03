@@ -7,11 +7,11 @@ import { Direction } from "./codegen/common.sol";
 import { CHUNK_SIZE, FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM } from "./Constants.sol";
 
 // Vec3 stores 3 packed int32 values (x, y, z)
-type Vec3 is uint96;
+type Vec3 is int96;
 
 function vec3(int32 _x, int32 _y, int32 _z) pure returns (Vec3) {
   // Pack 3 int32 values into a single uint96
-  return Vec3.wrap((uint96(uint32(_z)) << 64) | (uint96(uint32(_y)) << 32) | uint96(uint32(_x)));
+  return Vec3.wrap((int96(_x) << 64) | (int96(_y) << 32) | int96(_z));
 }
 
 function eq(Vec3 a, Vec3 b) pure returns (bool) {
@@ -67,18 +67,18 @@ function getDirectionVector(Direction direction) pure returns (Vec3) {
 
 library Vec3Lib {
   function x(Vec3 a) internal pure returns (int32) {
-    // Extract x component (rightmost 32 bits)
-    return int32(uint32(Vec3.unwrap(a) & 0xFFFFFFFF));
+    // Extract z component (leftmost 32 bits)
+    return int32((Vec3.unwrap(a) >> 64) & 0xFFFFFFFF);
   }
 
   function y(Vec3 a) internal pure returns (int32) {
     // Extract y component (middle 32 bits)
-    return int32(uint32((Vec3.unwrap(a) >> 32) & 0xFFFFFFFF));
+    return int32((Vec3.unwrap(a) >> 32) & 0xFFFFFFFF);
   }
 
   function z(Vec3 a) internal pure returns (int32) {
-    // Extract z component (leftmost 32 bits)
-    return int32(uint32((Vec3.unwrap(a) >> 64) & 0xFFFFFFFF));
+    // Extract x component (rightmost 32 bits)
+    return int32(Vec3.unwrap(a) & 0xFFFFFFFF);
   }
 
   function mul(Vec3 a, int32 scalar) internal pure returns (Vec3) {

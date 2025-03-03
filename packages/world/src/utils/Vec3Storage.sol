@@ -29,7 +29,7 @@ library Vec3Storage {
     (bytes memory _staticData, , ) = StoreSwitch.getRecord(tableId, _encodeKeyTuple(key), fieldLayout);
 
     assembly {
-      output := mload(add(_staticData, 0x20))
+      output := mload(add(_staticData, 0xc))
     }
   }
 
@@ -37,7 +37,7 @@ library Vec3Storage {
     (bytes memory _staticData, , ) = StoreCore.getRecord(tableId, _encodeKeyTuple(key), fieldLayout);
 
     assembly {
-      output := mload(add(_staticData, 0x20))
+      output := mload(add(_staticData, 0xc))
     }
   }
 
@@ -216,11 +216,11 @@ library ReversePlayerPosition {
 
 library InitialEnergyPool {
   function get(Vec3 position) internal view returns (uint128 value) {
-    return uint128(uint256(Vec3Storage.get(_InitialEnergyPool._tableId, _InitialEnergyPool._fieldLayout, position)));
+    return uint128(bytes16(Vec3Storage.get(_InitialEnergyPool._tableId, _InitialEnergyPool._fieldLayout, position)));
   }
 
   function _get(Vec3 position) internal view returns (uint128 value) {
-    return uint128(uint256(Vec3Storage._get(_InitialEnergyPool._tableId, _InitialEnergyPool._fieldLayout, position)));
+    return uint128(bytes16(Vec3Storage._get(_InitialEnergyPool._tableId, _InitialEnergyPool._fieldLayout, position)));
   }
 
   function set(Vec3 position, uint128 value) internal {
@@ -242,11 +242,11 @@ library InitialEnergyPool {
 
 library LocalEnergyPool {
   function get(Vec3 position) internal view returns (uint128 value) {
-    return uint128(uint256(Vec3Storage.get(_LocalEnergyPool._tableId, _LocalEnergyPool._fieldLayout, position)));
+    return uint128(bytes16(Vec3Storage.get(_LocalEnergyPool._tableId, _LocalEnergyPool._fieldLayout, position)));
   }
 
   function _get(Vec3 position) internal view returns (uint128 value) {
-    return uint128(uint256(Vec3Storage._get(_LocalEnergyPool._tableId, _LocalEnergyPool._fieldLayout, position)));
+    return uint128(bytes16(Vec3Storage._get(_LocalEnergyPool._tableId, _LocalEnergyPool._fieldLayout, position)));
   }
 
   function set(Vec3 position, uint128 value) internal {
@@ -268,11 +268,11 @@ library LocalEnergyPool {
 
 library ExploredChunk {
   function get(Vec3 position) internal view returns (address value) {
-    return address(uint160(uint256(Vec3Storage.get(_ExploredChunk._tableId, _ExploredChunk._fieldLayout, position))));
+    return address(bytes20(Vec3Storage.get(_ExploredChunk._tableId, _ExploredChunk._fieldLayout, position)));
   }
 
   function _get(Vec3 position) internal view returns (address value) {
-    return address(uint160(uint256(Vec3Storage._get(_ExploredChunk._tableId, _ExploredChunk._fieldLayout, position))));
+    return address(bytes20(Vec3Storage._get(_ExploredChunk._tableId, _ExploredChunk._fieldLayout, position)));
   }
 
   function set(Vec3 position, address value) internal {
@@ -346,11 +346,11 @@ library ForceField {
 
 library ForceFieldMetadata {
   function get(Vec3 position) internal view returns (uint128 value) {
-    return uint128(uint256(Vec3Storage.get(_ForceFieldMetadata._tableId, _ForceFieldMetadata._fieldLayout, position)));
+    return uint128(bytes16(Vec3Storage.get(_ForceFieldMetadata._tableId, _ForceFieldMetadata._fieldLayout, position)));
   }
 
   function _get(Vec3 position) internal view returns (uint128 value) {
-    return uint128(uint256(Vec3Storage._get(_ForceFieldMetadata._tableId, _ForceFieldMetadata._fieldLayout, position)));
+    return uint128(bytes16(Vec3Storage._get(_ForceFieldMetadata._tableId, _ForceFieldMetadata._fieldLayout, position)));
   }
 
   function getTotalMassInside(Vec3 position) internal view returns (uint128 value) {

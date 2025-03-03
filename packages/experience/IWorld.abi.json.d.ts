@@ -483,7 +483,7 @@ declare const abi: [
               },
               {
                 "name": "position",
-                "type": "uint96",
+                "type": "int96",
                 "internalType": "Vec3"
               },
               {
@@ -702,7 +702,7 @@ declare const abi: [
               },
               {
                 "name": "position",
-                "type": "uint96",
+                "type": "int96",
                 "internalType": "Vec3"
               },
               {
