@@ -39,11 +39,19 @@ import { Vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract ChipTest is BiomesTest {
-  function testMineFailsIfChipAttached() public {}
+  function testMineFailsIfChipAttached() public {
+    // TODO: implement
+  }
 
-  function testTransferWithChip() public {}
+  function testTransferWithChip() public {
+    // TODO: implement
+  }
 
-  function testTransferFailsIfNotAllowedByChip() public {}
+  function testTransferFailsIfNotAllowedByChip() public {
+    // TODO: implement
+  }
 
-  function testTransferFailsIfForceFieldNotEnoughEnergy() public {}
+  function testTransferFailsIfForceFieldNotEnoughEnergy() public {
+    // TODO: implement
+  }
 }
