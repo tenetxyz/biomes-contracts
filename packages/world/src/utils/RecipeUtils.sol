@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
-import { ObjectTypeId, NullObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
 
 function createRecipe(
   ObjectTypeId stationObjectTypeId,

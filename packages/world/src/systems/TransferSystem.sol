@@ -12,7 +12,7 @@ import { ChipOnTransferData, TransferData, TransferCommonContext } from "../Type
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
 import { TransferLib } from "./libraries/TransferLib.sol";
 import { EntityId } from "../EntityId.sol";
-import { ObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 
 contract TransferSystem is System {

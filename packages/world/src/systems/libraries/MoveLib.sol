@@ -8,7 +8,8 @@ import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
 import { Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../../utils/Vec3Storage.sol";
 
-import { ObjectTypeId, AirObjectID, PlayerObjectID, WaterObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { ObjectTypes } from "../../ObjectTypes.sol";
 import { inWorldBorder } from "../../Utils.sol";
 import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
@@ -21,8 +22,8 @@ import { getObjectTypeIdAt, getPlayer, setPlayer } from "../../utils/EntityUtils
 
 library MoveLib {
   function _requireValidMove(Vec3 baseOldCoord, Vec3 baseNewCoord) internal view {
-    Vec3[] memory oldPlayerCoords = PlayerObjectID.getRelativeCoords(baseOldCoord);
-    Vec3[] memory newPlayerCoords = PlayerObjectID.getRelativeCoords(baseNewCoord);
+    Vec3[] memory oldPlayerCoords = ObjectTypes.Player.getRelativeCoords(baseOldCoord);
+    Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(baseNewCoord);
 
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
       Vec3 oldCoord = oldPlayerCoords[i];
@@ -92,7 +93,7 @@ library MoveLib {
   }
 
   function movePlayer(EntityId playerEntityId, Vec3 playerCoord, Vec3[] memory newBaseCoords) public returns (bool) {
-    Vec3[] memory playerCoords = PlayerObjectID.getRelativeCoords(playerCoord);
+    Vec3[] memory playerCoords = ObjectTypes.Player.getRelativeCoords(playerCoord);
     EntityId[] memory playerEntityIds = _getPlayerEntityIds(playerEntityId, playerCoords);
 
     // Remove the current player from the grid
@@ -103,7 +104,7 @@ library MoveLib {
     (bool gravityAppliesForMove, uint16 numFalls) = _requireValidPath(playerCoords, newBaseCoords);
 
     Vec3 finalPlayerCoord = newBaseCoords[newBaseCoords.length - 1];
-    Vec3[] memory newPlayerCoords = PlayerObjectID.getRelativeCoords(finalPlayerCoord);
+    Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(finalPlayerCoord);
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
       setPlayer(newPlayerCoords[i], playerEntityIds[i]);
     }
@@ -141,7 +142,7 @@ library MoveLib {
 
     ObjectTypeId belowObjectTypeId = getObjectTypeIdAt(belowCoord);
     // Players can swim in water so we don't want to apply gravity to them
-    if (belowObjectTypeId == WaterObjectID || !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
+    if (belowObjectTypeId == ObjectTypes.Water || !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
       return false;
     }
     if (getPlayer(belowCoord).exists()) {

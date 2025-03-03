@@ -36,7 +36,7 @@ import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID, WoodenPickObjectID, WoodenAxeObjectID } from "../src/ObjectTypeIds.sol";
+import { ObjectTypes.Player, ObjectTypes.Air, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID, WoodenPickObjectID, WoodenAxeObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
@@ -50,7 +50,7 @@ contract TransferTest is BiomesTest {
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     uint16 numToTransfer = 10;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, numToTransfer);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
@@ -170,7 +170,7 @@ contract TransferTest is BiomesTest {
     );
     assertEq(InventorySlots.get(chestEntityId), maxChestInventorySlots, "Inventory slots is not max");
 
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
@@ -183,11 +183,11 @@ contract TransferTest is BiomesTest {
 
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
-    uint16 maxPlayerInventorySlots = ObjectTypeMetadata.getMaxInventorySlots(PlayerObjectID);
+    uint16 maxPlayerInventorySlots = ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
     TestUtils.addToInventoryCount(
       aliceEntityId,
-      PlayerObjectID,
+      ObjectTypes.Player,
       transferObjectTypeId,
       ObjectTypeMetadata.getStackable(transferObjectTypeId) * maxPlayerInventorySlots
     );
@@ -207,7 +207,7 @@ contract TransferTest is BiomesTest {
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId nonChestEntityId = setObjectAtCoord(chestCoord, DirtObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(nonChestEntityId, transferObjectTypeId, 0);
 
@@ -224,7 +224,7 @@ contract TransferTest is BiomesTest {
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
@@ -272,7 +272,7 @@ contract TransferTest is BiomesTest {
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
 
     EntityId toolEntityId1 = addToolToInventory(aliceEntityId, WoodenPickObjectID);
     EntityId toolEntityId2 = addToolToInventory(aliceEntityId, WoodenAxeObjectID);
@@ -304,7 +304,7 @@ contract TransferTest is BiomesTest {
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
@@ -322,7 +322,7 @@ contract TransferTest is BiomesTest {
     Vec3 chestCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
@@ -342,7 +342,7 @@ contract TransferTest is BiomesTest {
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
@@ -357,7 +357,7 @@ contract TransferTest is BiomesTest {
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
     ObjectTypeId transferObjectTypeId = GrassObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, transferObjectTypeId, 1);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);

@@ -60,7 +60,7 @@ export default defineWorld({
     ],
   },
   userTypes: {
-    ObjectTypeId: { filePath: "./src/ObjectTypeIds.sol", type: "uint16" },
+    ObjectTypeId: { filePath: "./src/ObjectTypeId.sol", type: "uint16" },
     EntityId: { filePath: "./src/EntityId.sol", type: "bytes32" },
     ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", type: "bytes32" },
     Vec3: { filePath: "./src/Vec3.sol", type: "uint96" },

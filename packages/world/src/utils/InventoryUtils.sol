@@ -11,7 +11,7 @@ import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
-import { ObjectTypeId, PlayerObjectID, ChestObjectID, SmartChestObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
 
 import { EntityId } from "../EntityId.sol";
 

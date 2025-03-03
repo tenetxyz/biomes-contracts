@@ -31,7 +31,7 @@ import { ExploredChunk, ExploredChunkByIndex, MinedOrePosition, PlayerPosition, 
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, WoodenPickObjectID, WoodenAxeObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
+import { ObjectTypes.Player, ObjectTypes.Air, WoodenPickObjectID, WoodenAxeObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
@@ -128,7 +128,7 @@ contract EquipTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 dropCoord = playerCoord + vec3(0, 1, 0);
-    setObjectAtCoord(dropCoord, AirObjectID);
+    setObjectAtCoord(dropCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
@@ -223,7 +223,7 @@ contract EquipTest is BiomesTest {
     assertLt(toolMassAfter, toolMassBefore, "Tool mass is not less");
 
     mineEntityId = ReversePosition.get(mineCoord);
-    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
+    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);

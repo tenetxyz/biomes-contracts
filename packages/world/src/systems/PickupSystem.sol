@@ -9,7 +9,8 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { ReversePosition } from "../utils/Vec3Storage.sol";
 
-import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { inWorldBorder } from "../Utils.sol";
 import { transferInventoryNonEntity, transferInventoryEntity, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -31,7 +32,7 @@ contract PickupSystem is System {
     require(entityId.exists(), "No entity at pickup location");
 
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
-    require(objectTypeId == AirObjectID, "Cannot pickup from a non-air block");
+    require(objectTypeId == ObjectTypes.Air, "Cannot pickup from a non-air block");
 
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_PICKUP_ENERGY_COST);
 
@@ -40,17 +41,17 @@ contract PickupSystem is System {
 
   function pickupAll(Vec3 coord) public {
     (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
-    uint256 numTransferred = transferAllInventoryEntities(entityId, playerEntityId, PlayerObjectID);
+    uint256 numTransferred = transferAllInventoryEntities(entityId, playerEntityId, ObjectTypes.Player);
 
     notify(
       playerEntityId,
-      PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: AirObjectID, pickupAmount: uint16(numTransferred) })
+      PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: ObjectTypes.Air, pickupAmount: uint16(numTransferred) })
     );
   }
 
   function pickup(ObjectTypeId pickupObjectTypeId, uint16 numToPickup, Vec3 coord) public {
     (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
-    transferInventoryNonEntity(entityId, playerEntityId, PlayerObjectID, pickupObjectTypeId, numToPickup);
+    transferInventoryNonEntity(entityId, playerEntityId, ObjectTypes.Player, pickupObjectTypeId, numToPickup);
 
     notify(
       playerEntityId,
@@ -60,7 +61,7 @@ contract PickupSystem is System {
 
   function pickupTool(EntityId toolEntityId, Vec3 coord) public {
     (EntityId playerEntityId, EntityId entityId) = pickupCommon(coord);
-    ObjectTypeId toolObjectTypeId = transferInventoryEntity(entityId, playerEntityId, PlayerObjectID, toolEntityId);
+    ObjectTypeId toolObjectTypeId = transferInventoryEntity(entityId, playerEntityId, ObjectTypes.Player, toolEntityId);
 
     notify(
       playerEntityId,
@@ -76,7 +77,7 @@ contract PickupSystem is System {
       transferInventoryNonEntity(
         entityId,
         playerEntityId,
-        PlayerObjectID,
+        ObjectTypes.Player,
         pickupObject.objectTypeId,
         pickupObject.numToPickup
       );
@@ -92,7 +93,12 @@ contract PickupSystem is System {
     }
 
     for (uint256 i = 0; i < pickupTools.length; i++) {
-      ObjectTypeId toolObjectTypeId = transferInventoryEntity(entityId, playerEntityId, PlayerObjectID, pickupTools[i]);
+      ObjectTypeId toolObjectTypeId = transferInventoryEntity(
+        entityId,
+        playerEntityId,
+        ObjectTypes.Player,
+        pickupTools[i]
+      );
 
       notify(
         playerEntityId,

@@ -23,7 +23,7 @@ import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 import { PLAYER_HIT_ENERGY_COST } from "../Constants.sol";
 
-import { ObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 

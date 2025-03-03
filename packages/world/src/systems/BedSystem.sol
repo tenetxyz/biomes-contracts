@@ -13,7 +13,8 @@ import { Position } from "../utils/Vec3Storage.sol";
 
 import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePlayerFromGrid, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
-import { ObjectTypeId, AirObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { checkWorldStatus, getUniqueEntity, inWorldBorder } from "../Utils.sol";
 import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol";
 import { mod } from "../utils/MathUtils.sol";
@@ -61,7 +62,7 @@ contract BedSystem is System {
     require(bedCoord.inSurroundingCube(dropCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH), "Drop location is too far from bed");
 
     (EntityId dropEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(dropCoord);
-    require(objectTypeId == AirObjectID, "Cannot drop items on a non-air block");
+    require(objectTypeId == ObjectTypes.Air, "Cannot drop items on a non-air block");
 
     EntityId forceFieldEntityId = getForceField(bedCoord);
     (, EnergyData memory playerData) = BedLib.updateEntities(forceFieldEntityId, playerEntityId, bedEntityId, bedCoord);
@@ -70,14 +71,14 @@ contract BedSystem is System {
 
     removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
 
-    BedLib.transferInventory(bedEntityId, dropEntityId, AirObjectID);
+    BedLib.transferInventory(bedEntityId, dropEntityId, ObjectTypes.Air);
     // TODO: Should we safecall the chip?
   }
 
   function sleepWithExtraData(EntityId bedEntityId, bytes memory extraData) public {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
 
-    require(ObjectType._get(bedEntityId) == BedObjectID, "Not a bed");
+    require(ObjectType._get(bedEntityId) == ObjectTypes.Bed, "Not a bed");
 
     Vec3 bedCoord = Position._get(bedEntityId);
     requireInPlayerInfluence(playerCoord, bedCoord);
@@ -96,7 +97,7 @@ contract BedSystem is System {
     // Increase forcefield's drain rate
     Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + PLAYER_ENERGY_DRAIN_RATE);
 
-    BedLib.transferInventory(playerEntityId, bedEntityId, BedObjectID);
+    BedLib.transferInventory(playerEntityId, bedEntityId, ObjectTypes.Bed);
 
     removePlayerFromGrid(playerEntityId, playerCoord);
 
@@ -136,7 +137,7 @@ contract BedSystem is System {
 
     addPlayerToGrid(playerEntityId, spawnCoord);
 
-    BedLib.transferInventory(bedEntityId, playerEntityId, PlayerObjectID);
+    BedLib.transferInventory(bedEntityId, playerEntityId, ObjectTypes.Player);
 
     notify(playerEntityId, WakeupNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
 

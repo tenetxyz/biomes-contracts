@@ -22,7 +22,7 @@ import { ExploredChunk, ExploredChunkByIndex, ForceField, LocalEnergyPool, Rever
 
 import { IBedChip } from "../src/prototypes/IBedChip.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, DirtObjectID, BedObjectID } from "../src/ObjectTypeIds.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -47,7 +47,7 @@ contract BedTest is BiomesTest {
     EntityId bedEntityId = randomEntityId();
     Position.set(bedEntityId, bedCoord);
     ReversePosition.set(bedCoord, bedEntityId);
-    ObjectType.set(bedEntityId, BedObjectID);
+    ObjectType.set(bedEntityId, ObjectTypes.Bed);
     return bedEntityId;
   }
 

@@ -5,7 +5,7 @@ import { Vec3 } from "../Vec3.sol";
 import { IChip } from "./IChip.sol";
 
 import { EntityId } from "../EntityId.sol";
-import { ObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
 
 // Interface for a force field chip
 interface IForceFieldChip is IChip {

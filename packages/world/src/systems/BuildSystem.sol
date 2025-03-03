@@ -14,7 +14,8 @@ import { ActionType, Direction } from "../codegen/common.sol";
 
 import { ForceFieldMetadata, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
-import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -34,7 +35,7 @@ library BuildLib {
   function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) public returns (EntityId) {
     require(inWorldBorder(coord), "Cannot build outside the world border");
     (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = getOrCreateEntityAt(coord);
-    require(terrainObjectTypeId == AirObjectID, "Cannot build on a non-air block");
+    require(terrainObjectTypeId == ObjectTypes.Air, "Cannot build on a non-air block");
     require(
       InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,
       "Cannot build where there are dropped objects"

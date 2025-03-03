@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
-import { AirObjectID, WaterObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, SandObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, GrassObjectID, DirtObjectID, MossBlockObjectID, LavaObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypes.Air, WaterObjectID, SnowObjectID, BasaltObjectID, ClayBrickObjectID, SandObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, GrassObjectID, DirtObjectID, MossBlockObjectID, LavaObjectID } from "../../ObjectTypeIds.sol";
 import { CoalOreObjectID, GoldOreObjectID, SilverOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID, CottonBlockObjectID } from "../../ObjectTypeIds.sol";
 import { OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "../../ObjectTypeIds.sol";
 import { CactusObjectID, LilacObjectID, DandelionObjectID, RedMushroomObjectID, BellflowerObjectID, CottonBushObjectID, SwitchGrassObjectID, DaylilyObjectID, AzaleaObjectID, RoseObjectID } from "../../ObjectTypeIds.sol";
@@ -40,7 +40,7 @@ contract InitTerrainBlocksSystem is System {
   }
 
   function initTerrainBlockObjectTypes() public {
-    createPassableTerrainBlock(AirObjectID, 0);
+    createPassableTerrainBlock(ObjectTypes.Air, 0);
     createPassableTerrainBlock(WaterObjectID, 0);
     createTerrainBlock(LavaObjectID, 115);
     createTerrainBlock(GrassObjectID, 12);

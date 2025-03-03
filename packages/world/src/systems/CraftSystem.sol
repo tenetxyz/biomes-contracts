@@ -13,7 +13,8 @@ import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { ObjectTypeId, NullObjectTypeId, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, removeAnyFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -67,7 +68,7 @@ contract CraftSystem is System {
         }
       }
 
-      addToInventoryCount(playerEntityId, PlayerObjectID, outputType, outputAmount);
+      addToInventoryCount(playerEntityId, ObjectTypes.Player, outputType, outputAmount);
     }
 
     // TODO: handle dyes

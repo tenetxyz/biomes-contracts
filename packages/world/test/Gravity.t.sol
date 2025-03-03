@@ -26,7 +26,7 @@ import { MinedOrePosition, ExploredChunk, ExploredChunkByIndex, ForceField, Loca
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
+import { ObjectTypes.Player, ObjectTypes.Air, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
 import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
@@ -59,7 +59,7 @@ contract GravityTest is BiomesTest {
     );
 
     mineEntityId = ReversePosition.get(mineCoord);
-    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
+    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -75,8 +75,8 @@ contract GravityTest is BiomesTest {
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
 
-    setTerrainAtCoord(mineCoord - vec3(0, 1, 0), AirObjectID);
-    setTerrainAtCoord(mineCoord - vec3(0, 2, 0), AirObjectID);
+    setTerrainAtCoord(mineCoord - vec3(0, 1, 0), ObjectTypes.Air);
+    setTerrainAtCoord(mineCoord - vec3(0, 2, 0), ObjectTypes.Air);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
@@ -94,7 +94,7 @@ contract GravityTest is BiomesTest {
     );
 
     mineEntityId = ReversePosition.get(mineCoord);
-    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
+    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -110,8 +110,8 @@ contract GravityTest is BiomesTest {
     EntityId bobEntityId;
     {
       Vec3 bobCoord = aliceCoord + vec3(0, 2, 0);
-      setObjectAtCoord(bobCoord, AirObjectID);
-      setObjectAtCoord(bobCoord + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(bobCoord, ObjectTypes.Air);
+      setObjectAtCoord(bobCoord + vec3(0, 1, 0), ObjectTypes.Air);
       (, bobEntityId) = createTestPlayer(bobCoord);
     }
 
@@ -122,8 +122,8 @@ contract GravityTest is BiomesTest {
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
 
-    setTerrainAtCoord(mineCoord - vec3(0, 1, 0), AirObjectID);
-    setTerrainAtCoord(mineCoord - vec3(0, 2, 0), AirObjectID);
+    setTerrainAtCoord(mineCoord - vec3(0, 1, 0), ObjectTypes.Air);
+    setTerrainAtCoord(mineCoord - vec3(0, 2, 0), ObjectTypes.Air);
 
     uint128 bobEnergyBefore = Energy.getEnergy(bobEntityId);
     uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
@@ -153,7 +153,7 @@ contract GravityTest is BiomesTest {
     }
 
     mineEntityId = ReversePosition.get(mineCoord);
-    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
+    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
@@ -172,11 +172,11 @@ contract GravityTest is BiomesTest {
     Vec3[] memory newCoords = new Vec3[](1);
     newCoords[0] = playerCoord + vec3(0, 0, 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
     Vec3 expectedFinalCoord = newCoords[newCoords.length - 1] - vec3(0, 1, 0);
-    setObjectAtCoord(newCoords[newCoords.length - 1], AirObjectID);
+    setObjectAtCoord(newCoords[newCoords.length - 1], ObjectTypes.Air);
     setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), DirtObjectID);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -203,13 +203,13 @@ contract GravityTest is BiomesTest {
     Vec3[] memory newCoords = new Vec3[](1);
     newCoords[0] = playerCoord + vec3(0, 0, 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
-    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 1, 0), AirObjectID);
-    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 2, 0), AirObjectID);
+    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 1, 0), ObjectTypes.Air);
+    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 2, 0), ObjectTypes.Air);
     Vec3 expectedFinalCoord = newCoords[newCoords.length - 1] - vec3(0, 3, 0);
-    setObjectAtCoord(newCoords[newCoords.length - 1], AirObjectID);
+    setObjectAtCoord(newCoords[newCoords.length - 1], ObjectTypes.Air);
     setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), DirtObjectID);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -236,21 +236,21 @@ contract GravityTest is BiomesTest {
     EntityId bobEntityId;
     {
       Vec3 bobCoord = aliceCoord + vec3(0, 2, 0);
-      setObjectAtCoord(bobCoord, AirObjectID);
-      setObjectAtCoord(bobCoord + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(bobCoord, ObjectTypes.Air);
+      setObjectAtCoord(bobCoord + vec3(0, 1, 0), ObjectTypes.Air);
       (, bobEntityId) = createTestPlayer(bobCoord);
     }
 
     Vec3[] memory newCoords = new Vec3[](1);
     newCoords[0] = aliceCoord + vec3(0, 0, 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
-    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 1, 0), AirObjectID);
-    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 2, 0), AirObjectID);
+    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 1, 0), ObjectTypes.Air);
+    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 2, 0), ObjectTypes.Air);
     Vec3 expectedFinalAliceCoord = newCoords[newCoords.length - 1] - vec3(0, 3, 0);
-    setObjectAtCoord(newCoords[newCoords.length - 1], AirObjectID);
+    setObjectAtCoord(newCoords[newCoords.length - 1], ObjectTypes.Air);
     setObjectAtCoord(expectedFinalAliceCoord - vec3(0, 1, 0), DirtObjectID);
 
     uint128 bobEnergyBefore = Energy.getEnergy(bobEntityId);
@@ -298,8 +298,8 @@ contract GravityTest is BiomesTest {
     Vec3[] memory newCoords = new Vec3[](1);
     newCoords[0] = playerCoord + vec3(0, 0, 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
 
     vm.prank(alice);

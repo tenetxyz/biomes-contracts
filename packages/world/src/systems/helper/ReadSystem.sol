@@ -17,7 +17,7 @@ import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
 import { Position, PlayerPosition, ReversePosition, ReversePlayerPosition } from "../../utils/Vec3Storage.sol";
 
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
-import { NullObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypes } from "../../ObjectTypes.sol";
 import { InventoryObject, EntityData } from "../../Types.sol";
 import { EntityId } from "../../EntityId.sol";
 
@@ -104,7 +104,7 @@ contract ReadSystem is System {
 
   function getCoordForEntityId(EntityId entityId) public view returns (Vec3) {
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
-    if (objectTypeId == PlayerObjectID) {
+    if (objectTypeId == ObjectTypes.Player) {
       EntityId bedEntityId = PlayerStatus._getBedEntityId(entityId);
       if (bedEntityId.exists()) {
         return Position._get(bedEntityId);

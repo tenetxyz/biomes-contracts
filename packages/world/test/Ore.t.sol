@@ -16,7 +16,7 @@ import { OreCommitment, MinedOrePosition, ExploredChunk, ExploredChunkByIndex, F
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
+import { ObjectTypes.Player, ObjectTypes.Air, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, CHUNK_COMMIT_EXPIRY_BLOCKS } from "../src/Constants.sol";
 
@@ -90,7 +90,7 @@ contract OreTest is BiomesTest {
     // Set coord to air
     EntityId entityId = randomEntityId();
     ReversePosition.set(minedOreCoord, entityId);
-    ObjectType.set(entityId, AirObjectID);
+    ObjectType.set(entityId, ObjectTypes.Air);
 
     address alice = vm.randomAddress();
 
@@ -112,7 +112,7 @@ contract OreTest is BiomesTest {
     // Set coord to air
     EntityId entityId = randomEntityId();
     ReversePosition.set(minedOreCoord, entityId);
-    ObjectType.set(entityId, AirObjectID);
+    ObjectType.set(entityId, ObjectTypes.Air);
 
     address alice = vm.randomAddress();
 
