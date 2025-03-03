@@ -3,9 +3,8 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { Vec3 } from "../Vec3.sol";
-import { ExploredChunkByIndex } from "../codegen/tables/ExploredChunkByIndex.sol";
 import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
-import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
+import { ExploredChunkByIndex, ExploredChunk } from "../utils/Vec3Storage.sol";
 import { SSTORE2 } from "../utils/SSTORE2.sol";
 
 import { TerrainLib } from "./libraries/TerrainLib.sol";

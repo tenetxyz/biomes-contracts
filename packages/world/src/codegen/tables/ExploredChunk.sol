@@ -16,9 +16,6 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-// Import user types
-import { Vec3 } from "../../Vec3.sol";
-
 library ExploredChunk {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ExploredChunk", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004578706c6f7265644368756e6b000000);
@@ -26,8 +23,8 @@ library ExploredChunk {
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0014010014000000000000000000000000000000000000000000000000000000);
 
-  // Hex-encoded key schema of (uint96)
-  Schema constant _keySchema = Schema.wrap(0x000c01000b000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded key schema of (int32, int32, int32)
+  Schema constant _keySchema = Schema.wrap(0x000c030023232300000000000000000000000000000000000000000000000000);
   // Hex-encoded value schema of (address)
   Schema constant _valueSchema = Schema.wrap(0x0014010061000000000000000000000000000000000000000000000000000000);
 
@@ -36,8 +33,10 @@ library ExploredChunk {
    * @return keyNames An array of strings with the names of key fields.
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
-    keyNames = new string[](1);
-    keyNames[0] = "position";
+    keyNames = new string[](3);
+    keyNames[0] = "x";
+    keyNames[1] = "y";
+    keyNames[2] = "z";
   }
 
   /**
@@ -66,9 +65,11 @@ library ExploredChunk {
   /**
    * @notice Get explorer.
    */
-  function getExplorer(Vec3 position) internal view returns (address explorer) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
+  function getExplorer(int32 x, int32 y, int32 z) internal view returns (address explorer) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -77,9 +78,11 @@ library ExploredChunk {
   /**
    * @notice Get explorer.
    */
-  function _getExplorer(Vec3 position) internal view returns (address explorer) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
+  function _getExplorer(int32 x, int32 y, int32 z) internal view returns (address explorer) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -88,9 +91,11 @@ library ExploredChunk {
   /**
    * @notice Get explorer.
    */
-  function get(Vec3 position) internal view returns (address explorer) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
+  function get(int32 x, int32 y, int32 z) internal view returns (address explorer) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -99,9 +104,11 @@ library ExploredChunk {
   /**
    * @notice Get explorer.
    */
-  function _get(Vec3 position) internal view returns (address explorer) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
+  function _get(int32 x, int32 y, int32 z) internal view returns (address explorer) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (address(bytes20(_blob)));
@@ -110,9 +117,11 @@ library ExploredChunk {
   /**
    * @notice Set explorer.
    */
-  function setExplorer(Vec3 position, address explorer) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
+  function setExplorer(int32 x, int32 y, int32 z, address explorer) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((explorer)), _fieldLayout);
   }
@@ -120,9 +129,11 @@ library ExploredChunk {
   /**
    * @notice Set explorer.
    */
-  function _setExplorer(Vec3 position, address explorer) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
+  function _setExplorer(int32 x, int32 y, int32 z, address explorer) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((explorer)), _fieldLayout);
   }
@@ -130,9 +141,11 @@ library ExploredChunk {
   /**
    * @notice Set explorer.
    */
-  function set(Vec3 position, address explorer) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
+  function set(int32 x, int32 y, int32 z, address explorer) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((explorer)), _fieldLayout);
   }
@@ -140,9 +153,11 @@ library ExploredChunk {
   /**
    * @notice Set explorer.
    */
-  function _set(Vec3 position, address explorer) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
+  function _set(int32 x, int32 y, int32 z, address explorer) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((explorer)), _fieldLayout);
   }
@@ -150,9 +165,11 @@ library ExploredChunk {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(Vec3 position) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
+  function deleteRecord(int32 x, int32 y, int32 z) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -160,9 +177,11 @@ library ExploredChunk {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(Vec3 position) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
+  function _deleteRecord(int32 x, int32 y, int32 z) internal {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -193,9 +212,11 @@ library ExploredChunk {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(Vec3 position) internal pure returns (bytes32[] memory) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(Vec3.unwrap(position)));
+  function encodeKeyTuple(int32 x, int32 y, int32 z) internal pure returns (bytes32[] memory) {
+    bytes32[] memory _keyTuple = new bytes32[](3);
+    _keyTuple[0] = bytes32(uint256(int256(x)));
+    _keyTuple[1] = bytes32(uint256(int256(y)));
+    _keyTuple[2] = bytes32(uint256(int256(z)));
 
     return _keyTuple;
   }

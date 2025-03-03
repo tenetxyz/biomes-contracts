@@ -4,9 +4,10 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+
+import { ReversePosition } from "../utils/Vec3Storage.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder } from "../Utils.sol";

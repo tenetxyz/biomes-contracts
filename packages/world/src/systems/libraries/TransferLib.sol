@@ -2,9 +2,10 @@
 pragma solidity >=0.8.24;
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
-import { Position } from "../../codegen/tables/Position.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../../codegen/tables/LocalEnergyPool.sol";
+
+import { Position } from "../../utils/Vec3Storage.sol";
 
 import { ObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_TRANSFER_ENERGY_COST, SMART_CHEST_ENERGY_COST } from "../../Constants.sol";

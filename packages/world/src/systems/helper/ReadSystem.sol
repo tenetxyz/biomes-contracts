@@ -7,16 +7,14 @@ import { ObjectTypeId } from "../../ObjectTypeIds.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
-import { Position } from "../../codegen/tables/Position.sol";
-import { PlayerPosition } from "../../codegen/tables/PlayerPosition.sol";
-import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
-import { ReversePlayerPosition } from "../../codegen/tables/ReversePlayerPosition.sol";
 import { Player } from "../../codegen/tables/Player.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
+
+import { Position, PlayerPosition, ReversePosition, ReversePlayerPosition } from "../../utils/Vec3Storage.sol";
 
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { NullObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";

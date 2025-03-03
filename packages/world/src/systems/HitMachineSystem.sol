@@ -5,14 +5,14 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { Position } from "../codegen/tables/Position.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
-import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { ActionType } from "../codegen/common.sol";
+
+import { Position, ForceFieldMetadata } from "../utils/Vec3Storage.sol";
 
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";

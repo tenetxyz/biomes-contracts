@@ -2,9 +2,9 @@
 pragma solidity >=0.8.24;
 
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
-import { Position } from "../codegen/tables/Position.sol";
+
+import { LocalEnergyPool, Position } from "../utils/Vec3Storage.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { MASS_TO_ENERGY_MULTIPLIER } from "../Constants.sol";

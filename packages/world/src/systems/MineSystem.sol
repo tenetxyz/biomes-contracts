@@ -3,19 +3,20 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { MinedOrePosition } from "../codegen/tables/MinedOrePosition.sol";
 import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
 import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
-import { OreCommitment } from "../codegen/tables/OreCommitment.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
-import { Position } from "../codegen/tables/Position.sol";
 import { Orientation } from "../codegen/tables/Orientation.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { DisplayContentType } from "../codegen/common.sol";
+
+import { Position } from "../utils/Vec3Storage.sol";
+import { MinedOrePosition } from "../utils/Vec3Storage.sol";
+import { OreCommitment } from "../utils/Vec3Storage.sol";
 
 import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
 import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../ObjectTypeIds.sol";

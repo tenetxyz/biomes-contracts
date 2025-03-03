@@ -6,10 +6,6 @@ import { Vec3, vec3 } from "../../Vec3.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
-import { Position } from "../../codegen/tables/Position.sol";
-import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
-import { PlayerPosition } from "../../codegen/tables/PlayerPosition.sol";
-import { ReversePlayerPosition } from "../../codegen/tables/ReversePlayerPosition.sol";
 import { Player } from "../../codegen/tables/Player.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
@@ -20,6 +16,8 @@ import { Equipped } from "../../codegen/tables/Equipped.sol";
 import { Mass } from "../../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
+
+import { Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../../utils/Vec3Storage.sol";
 
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { ObjectTypeId, NullObjectTypeId } from "../../ObjectTypeIds.sol";

@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
-import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
+import { Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Mass } from "../codegen/tables/Mass.sol";

@@ -4,9 +4,6 @@ pragma solidity >=0.8.24;
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
-import { Position } from "../codegen/tables/Position.sol";
-import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
-import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
@@ -15,6 +12,8 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+
+import { Position, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { updateEnergyLevel } from "./EnergyUtils.sol";

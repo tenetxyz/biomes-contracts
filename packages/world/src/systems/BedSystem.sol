@@ -7,8 +7,9 @@ import { Player } from "../codegen/tables/Player.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Position } from "../codegen/tables/Position.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+
+import { Position } from "../utils/Vec3Storage.sol";
 
 import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePlayerFromGrid, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";

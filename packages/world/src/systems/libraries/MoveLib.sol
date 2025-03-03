@@ -3,12 +3,10 @@ pragma solidity >=0.8.24;
 
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
-import { Position } from "../../codegen/tables/Position.sol";
-import { ReversePosition } from "../../codegen/tables/ReversePosition.sol";
-import { PlayerPosition } from "../../codegen/tables/PlayerPosition.sol";
-import { ReversePlayerPosition } from "../../codegen/tables/ReversePlayerPosition.sol";
 import { ActionType } from "../../codegen/common.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
+
+import { Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../../utils/Vec3Storage.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID, WaterObjectID } from "../../ObjectTypeIds.sol";
 import { inWorldBorder } from "../../Utils.sol";

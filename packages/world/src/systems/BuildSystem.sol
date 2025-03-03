@@ -6,14 +6,13 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
-import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { Orientation } from "../codegen/tables/Orientation.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ActionType, Direction } from "../codegen/common.sol";
+
+import { ForceFieldMetadata, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
 import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";

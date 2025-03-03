@@ -9,10 +9,10 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { DisplayContentType } from "../codegen/common.sol";
+
+import { Position, ReversePosition } from "../utils/Vec3Storage.sol";
 
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { ObjectTypeId, TextSignObjectID } from "../ObjectTypeIds.sol";

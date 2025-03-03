@@ -7,14 +7,14 @@ import { Player } from "@biomesaw/world/src/codegen/tables/Player.sol";
 import { ReversePlayer } from "@biomesaw/world/src/codegen/tables/ReversePlayer.sol";
 import { PlayerStatus } from "@biomesaw/world/src/codegen/tables/PlayerStatus.sol";
 import { ObjectType } from "@biomesaw/world/src/codegen/tables/ObjectType.sol";
-import { Position } from "@biomesaw/world/src/codegen/tables/Position.sol";
-import { ReversePosition } from "@biomesaw/world/src/codegen/tables/ReversePosition.sol";
 import { Equipped } from "@biomesaw/world/src/codegen/tables/Equipped.sol";
 import { InventoryObjects } from "@biomesaw/world/src/codegen/tables/InventoryObjects.sol";
 import { InventoryEntity } from "@biomesaw/world/src/codegen/tables/InventoryEntity.sol";
 import { ReverseInventoryEntity } from "@biomesaw/world/src/codegen/tables/ReverseInventoryEntity.sol";
 import { InventorySlots } from "@biomesaw/world/src/codegen/tables/InventorySlots.sol";
 import { InventoryCount } from "@biomesaw/world/src/codegen/tables/InventoryCount.sol";
+
+import { Position, ReversePosition } from "@biomesaw/world/src/utils/Vec3Storage.sol";
 
 import { ObjectTypeId, ChestObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
 import { Vec3 } from "@biomesaw/world/src/Vec3.sol";
@@ -77,7 +77,7 @@ function getNumSlotsUsed(EntityId entityId) view returns (uint16) {
 }
 
 function getEntityAtCoord(Vec3 coord) view returns (EntityId) {
-  return ReversePosition.getEntityId(coord);
+  return ReversePosition.get(coord);
 }
 
 function numMaxInChest(ObjectTypeId objectTypeId) view returns (uint16) {

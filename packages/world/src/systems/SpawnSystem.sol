@@ -8,18 +8,12 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Position } from "../codegen/tables/Position.sol";
-import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
-import { ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
-import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
-import { ExploredChunkByIndex } from "../codegen/tables/ExploredChunkByIndex.sol";
 import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
-import { ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
+
+import { LocalEnergyPool, ExploredChunkByIndex, ExploredChunk, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId, AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
