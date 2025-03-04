@@ -143,6 +143,10 @@ library ObjectTypes {
   ObjectTypeId constant Ice = ObjectTypeId.wrap(Block | 241);
   ObjectTypeId constant SpiderWeb = ObjectTypeId.wrap(Block | 242);
   ObjectTypeId constant Bone = ObjectTypeId.wrap(Block | 243);
+
+  // ------------------------------------------------------------
+  // Non-Terrain Blocks (256 and above)
+  // ------------------------------------------------------------
   ObjectTypeId constant OakPlanks = ObjectTypeId.wrap(Block | 256);
   ObjectTypeId constant BirchPlanks = ObjectTypeId.wrap(Block | 257);
   ObjectTypeId constant JunglePlanks = ObjectTypeId.wrap(Block | 258);
