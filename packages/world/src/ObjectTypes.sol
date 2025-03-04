@@ -24,11 +24,15 @@ library ObjectTypes {
   ObjectTypeId constant Null = ObjectTypeId.wrap(0);
 
   // ------------------------------------------------------------
-  // Block
+  // Terrain Blocks (1-255 is reserved for terrain blocks)
   // ------------------------------------------------------------
+
+  // NonSolid
   ObjectTypeId constant Air = ObjectTypeId.wrap(Block | 1);
   ObjectTypeId constant Water = ObjectTypeId.wrap(Block | 2);
   ObjectTypeId constant Lava = ObjectTypeId.wrap(Block | 3);
+
+  // Stone
   ObjectTypeId constant Stone = ObjectTypeId.wrap(Block | 16);
   ObjectTypeId constant Bedrock = ObjectTypeId.wrap(Block | 17);
   ObjectTypeId constant Deepslate = ObjectTypeId.wrap(Block | 18);
@@ -42,17 +46,25 @@ library ObjectTypes {
   ObjectTypeId constant MossyCobblestone = ObjectTypeId.wrap(Block | 26);
   ObjectTypeId constant Obsidian = ObjectTypeId.wrap(Block | 27);
   ObjectTypeId constant Dripstone = ObjectTypeId.wrap(Block | 28);
+
+  // Gemstone
   ObjectTypeId constant Amethyst = ObjectTypeId.wrap(Block | 32);
   ObjectTypeId constant Glowstone = ObjectTypeId.wrap(Block | 33);
   ObjectTypeId constant AnyOre = ObjectTypeId.wrap(Block | 34);
+
+  // Soil
   ObjectTypeId constant Grass = ObjectTypeId.wrap(Block | 48);
   ObjectTypeId constant Dirt = ObjectTypeId.wrap(Block | 49);
   ObjectTypeId constant Moss = ObjectTypeId.wrap(Block | 50);
   ObjectTypeId constant Podzol = ObjectTypeId.wrap(Block | 51);
+
+  // Sand
   ObjectTypeId constant Gravel = ObjectTypeId.wrap(Block | 64);
   ObjectTypeId constant Sand = ObjectTypeId.wrap(Block | 65);
   ObjectTypeId constant RedSand = ObjectTypeId.wrap(Block | 66);
   ObjectTypeId constant Sandstone = ObjectTypeId.wrap(Block | 67);
+
+  // Clay
   ObjectTypeId constant Clay = ObjectTypeId.wrap(Block | 80);
   ObjectTypeId constant Terracotta = ObjectTypeId.wrap(Block | 81);
   ObjectTypeId constant BrownTerracotta = ObjectTypeId.wrap(Block | 82);
@@ -61,6 +73,8 @@ library ObjectTypes {
   ObjectTypeId constant LightGrayTerracotta = ObjectTypeId.wrap(Block | 85);
   ObjectTypeId constant YellowTerracotta = ObjectTypeId.wrap(Block | 86);
   ObjectTypeId constant RedTerracotta = ObjectTypeId.wrap(Block | 87);
+
+  // Log
   ObjectTypeId constant OakLog = ObjectTypeId.wrap(Block | 96);
   ObjectTypeId constant BirchLog = ObjectTypeId.wrap(Block | 97);
   ObjectTypeId constant JungleLog = ObjectTypeId.wrap(Block | 98);
@@ -68,6 +82,8 @@ library ObjectTypes {
   ObjectTypeId constant AcaciaLog = ObjectTypeId.wrap(Block | 100);
   ObjectTypeId constant SpruceLog = ObjectTypeId.wrap(Block | 101);
   ObjectTypeId constant DarkOakLog = ObjectTypeId.wrap(Block | 102);
+
+  // Leaves
   ObjectTypeId constant OakLeaves = ObjectTypeId.wrap(Block | 112);
   ObjectTypeId constant BirchLeaves = ObjectTypeId.wrap(Block | 113);
   ObjectTypeId constant JungleLeaves = ObjectTypeId.wrap(Block | 114);
@@ -75,6 +91,8 @@ library ObjectTypes {
   ObjectTypeId constant SpruceLeaves = ObjectTypeId.wrap(Block | 116);
   ObjectTypeId constant AcaciaLeaves = ObjectTypeId.wrap(Block | 117);
   ObjectTypeId constant DarkOakLeaves = ObjectTypeId.wrap(Block | 118);
+
+  // Flower
   ObjectTypeId constant AzaleaFlower = ObjectTypeId.wrap(Block | 128);
   ObjectTypeId constant BellFlower = ObjectTypeId.wrap(Block | 129);
   ObjectTypeId constant DandelionFlower = ObjectTypeId.wrap(Block | 130);
@@ -87,6 +105,8 @@ library ObjectTypes {
   ObjectTypeId constant PeonyFlower = ObjectTypeId.wrap(Block | 137);
   ObjectTypeId constant Ultraviolet = ObjectTypeId.wrap(Block | 138);
   ObjectTypeId constant SunFlower = ObjectTypeId.wrap(Block | 139);
+
+  // Greenery
   ObjectTypeId constant FescueGrass = ObjectTypeId.wrap(Block | 144);
   ObjectTypeId constant SwitchGrass = ObjectTypeId.wrap(Block | 145);
   ObjectTypeId constant CottonBush = ObjectTypeId.wrap(Block | 146);
@@ -94,6 +114,8 @@ library ObjectTypes {
   ObjectTypeId constant VinesBush = ObjectTypeId.wrap(Block | 148);
   ObjectTypeId constant IvyVines = ObjectTypeId.wrap(Block | 149);
   ObjectTypeId constant HempBush = ObjectTypeId.wrap(Block | 150);
+
+  // Edibles
   ObjectTypeId constant GoldenMushroom = ObjectTypeId.wrap(Block | 160);
   ObjectTypeId constant RedMushroom = ObjectTypeId.wrap(Block | 161);
   ObjectTypeId constant CoffeeBush = ObjectTypeId.wrap(Block | 162);
@@ -105,6 +127,8 @@ library ObjectTypes {
   ObjectTypeId constant RedMushroomBlock = ObjectTypeId.wrap(Block | 168);
   ObjectTypeId constant BrownMushroomBlock = ObjectTypeId.wrap(Block | 169);
   ObjectTypeId constant MushroomStem = ObjectTypeId.wrap(Block | 170);
+
+  // UnderwaterPlant
   ObjectTypeId constant Coral = ObjectTypeId.wrap(Block | 176);
   ObjectTypeId constant SeaAnemone = ObjectTypeId.wrap(Block | 177);
   ObjectTypeId constant Algae = ObjectTypeId.wrap(Block | 178);
@@ -113,6 +137,8 @@ library ObjectTypes {
   ObjectTypeId constant TubeCoralBlock = ObjectTypeId.wrap(Block | 181);
   ObjectTypeId constant BubbleCoralBlock = ObjectTypeId.wrap(Block | 182);
   ObjectTypeId constant BrainCoralBlock = ObjectTypeId.wrap(Block | 183);
+
+  // Other
   ObjectTypeId constant Snow = ObjectTypeId.wrap(Block | 240);
   ObjectTypeId constant Ice = ObjectTypeId.wrap(Block | 241);
   ObjectTypeId constant SpiderWeb = ObjectTypeId.wrap(Block | 242);
