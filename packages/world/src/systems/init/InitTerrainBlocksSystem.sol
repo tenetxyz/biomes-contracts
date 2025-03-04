@@ -53,7 +53,6 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(ObjectTypes.Dripstone, 100);
     createTerrainBlock(ObjectTypes.Amethyst, 100);
     createTerrainBlock(ObjectTypes.Glowstone, 100);
-    createTerrainBlock(ObjectTypes.AnyOre, 100);
     createTerrainBlock(ObjectTypes.Grass, 100);
     createTerrainBlock(ObjectTypes.Dirt, 100);
     createTerrainBlock(ObjectTypes.Moss, 100);
@@ -133,5 +132,11 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(ObjectTypes.AcaciaPlanks, 100);
     createTerrainBlock(ObjectTypes.SprucePlanks, 100);
     createTerrainBlock(ObjectTypes.DarkOakPlanks, 100);
+
+    createTerrainBlock(ObjectTypes.CoalOre, 100);
+    createTerrainBlock(ObjectTypes.SilverOre, 100);
+    createTerrainBlock(ObjectTypes.GoldOre, 100);
+    createTerrainBlock(ObjectTypes.DiamondOre, 100);
+    createTerrainBlock(ObjectTypes.NeptuniumOre, 100);
   }
 }
