@@ -224,6 +224,6 @@ library ObjectTypes {
   // Misc
   // ------------------------------------------------------------
   ObjectTypeId constant Player = ObjectTypeId.wrap(Misc | 0);
-  ObjectTypeId constant AnyLog = ObjectTypeId.wrap(Misc | 2047);
-  ObjectTypeId constant AnyPlanks = ObjectTypeId.wrap(Misc | 2046);
+  ObjectTypeId constant AnyLog = ObjectTypeId.wrap(Misc | 2046);
+  ObjectTypeId constant AnyPlanks = ObjectTypeId.wrap(Misc | 2047);
 }
