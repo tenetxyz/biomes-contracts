@@ -12,7 +12,8 @@ import { InventoryObjects } from "../../src/codegen/tables/InventoryObjects.sol"
 import { InventoryCount } from "../../src/codegen/tables/InventoryCount.sol";
 import { ReverseInventoryEntity } from "../../src/codegen/tables/ReverseInventoryEntity.sol";
 import { EnergyData } from "../../src/codegen/tables/Energy.sol";
-import { ObjectAmount, ObjectTypeId, getOreObjectTypes } from "../../src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../src/ObjectTypeId.sol";
+import { ObjectAmount, getOreObjectTypes } from "../../src/ObjectTypeLib.sol";
 import { addToInventoryCount as _addToInventoryCount, removeFromInventoryCount as _removeFromInventoryCount, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
 import { updateEnergyLevel as _updateEnergyLevel } from "../../src/utils/EnergyUtils.sol";
 

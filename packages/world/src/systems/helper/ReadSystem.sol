@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { Vec3, vec3 } from "../../Vec3.sol";
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../ObjectTypeId.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
@@ -31,7 +31,7 @@ contract ReadSystem is System {
     if (!entityId.exists()) {
       return
         EntityData({
-          objectTypeId: NullObjectTypeId,
+          objectTypeId: ObjectTypes.Null,
           entityId: EntityId.wrap(0),
           baseEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
@@ -56,7 +56,7 @@ contract ReadSystem is System {
     if (!entityId.exists()) {
       return
         EntityData({
-          objectTypeId: NullObjectTypeId,
+          objectTypeId: ObjectTypes.Null,
           entityId: EntityId.wrap(0),
           baseEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),

@@ -7,7 +7,8 @@ import { LocalEnergyPool } from "../../codegen/tables/LocalEnergyPool.sol";
 
 import { Position } from "../../utils/Vec3Storage.sol";
 
-import { ObjectTypeId, ObjectTypes.Player } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../ObjectTypeId.sol";
+import { ObjectTypes } from "../../ObjectTypes.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_TRANSFER_ENERGY_COST, SMART_CHEST_ENERGY_COST } from "../../Constants.sol";
 import { updateEnergyLevel, addEnergyToLocalPool } from "../../utils/EnergyUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";

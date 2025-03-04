@@ -4,7 +4,8 @@ pragma solidity >=0.8.24;
 import { BiomesTest } from "./BiomesTest.sol";
 
 import { TerrainLib, VERSION_PADDING } from "../src/systems/libraries/TerrainLib.sol";
-import { ObjectTypes.Air } from "../src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE } from "../src/Constants.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";

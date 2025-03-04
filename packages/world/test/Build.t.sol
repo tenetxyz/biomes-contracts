@@ -27,8 +27,8 @@ import { MinedOrePosition, ExploredChunk, ExploredChunkByIndex, ForceField, Forc
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { ObjectTypes.Player, ObjectTypes.Air, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID, GoldBarObjectID } from "../src/ObjectTypeIds.sol";
-import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -41,7 +41,7 @@ contract BuildTest is BiomesTest {
     assertTrue(ObjectTypeId.wrap(TerrainLib.getBlockType(buildCoord)) == ObjectTypes.Air, "Build coord is not air");
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertFalse(buildEntityId.exists(), "Build entity already exists");
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
@@ -77,7 +77,7 @@ contract BuildTest is BiomesTest {
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     setObjectAtCoord(buildCoord, ObjectTypes.Air);
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
@@ -115,7 +115,7 @@ contract BuildTest is BiomesTest {
     Vec3 topCoord = buildCoord + vec3(0, 1, 0);
     setObjectAtCoord(buildCoord, ObjectTypes.Air);
     setObjectAtCoord(topCoord, ObjectTypes.Air);
-    ObjectTypeId buildObjectTypeId = TextSignObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.TextSign;
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     EntityId topEntityId = ReversePosition.get(topCoord);
@@ -153,7 +153,7 @@ contract BuildTest is BiomesTest {
   function testJumpBuild() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
@@ -191,7 +191,7 @@ contract BuildTest is BiomesTest {
 
     (address bob, EntityId bobEntityId, Vec3 bobCoord) = spawnPlayerOnAirChunk(aliceCoord + vec3(0, 0, 3));
 
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     ObjectTypeMetadata.setCanPassThrough(buildObjectTypeId, true);
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 4);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 4);
@@ -243,7 +243,7 @@ contract BuildTest is BiomesTest {
   function testJumpBuildFailsIfPassThrough() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     ObjectTypeMetadata.setCanPassThrough(buildObjectTypeId, true);
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
@@ -256,11 +256,11 @@ contract BuildTest is BiomesTest {
   function testJumpBuildFailsIfNonAir() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
-    setObjectAtCoord(playerCoord + vec3(0, 2, 0), GrassObjectID);
+    setObjectAtCoord(playerCoord + vec3(0, 2, 0), ObjectTypes.Grass);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a non-passable block");
@@ -275,7 +275,7 @@ contract BuildTest is BiomesTest {
     setObjectAtCoord(bobCoord + vec3(0, 1, 0), ObjectTypes.Air);
     (address bob, EntityId bobEntityId) = createTestPlayer(bobCoord);
 
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
@@ -288,8 +288,8 @@ contract BuildTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
-    setObjectAtCoord(buildCoord, GrassObjectID);
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    setObjectAtCoord(buildCoord, ObjectTypes.Grass);
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
@@ -299,7 +299,7 @@ contract BuildTest is BiomesTest {
     vm.expectRevert("Cannot build on a non-air block");
     world.build(buildObjectTypeId, buildCoord);
 
-    setObjectAtCoord(buildCoord, TextSignObjectID);
+    setObjectAtCoord(buildCoord, ObjectTypes.TextSign);
 
     Vec3 topCoord = buildCoord + vec3(0, 1, 0);
 
@@ -317,7 +317,7 @@ contract BuildTest is BiomesTest {
 
     (address bob, EntityId bobEntityId, Vec3 bobCoord) = spawnPlayerOnAirChunk(aliceCoord + vec3(0, 0, 1));
 
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
@@ -339,7 +339,7 @@ contract BuildTest is BiomesTest {
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     setObjectAtCoord(buildCoord, ObjectTypes.Air);
-    ObjectTypeId buildObjectTypeId = GoldBarObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.GoldBar;
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
@@ -355,7 +355,7 @@ contract BuildTest is BiomesTest {
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     EntityId airEntityId = setObjectAtCoord(buildCoord, ObjectTypes.Air);
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
@@ -373,7 +373,7 @@ contract BuildTest is BiomesTest {
 
     Vec3 buildCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
     EntityId airEntityId = setObjectAtCoord(buildCoord, ObjectTypes.Air);
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord);
 
@@ -404,7 +404,7 @@ contract BuildTest is BiomesTest {
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     setObjectAtCoord(buildCoord, ObjectTypes.Air);
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
@@ -425,7 +425,7 @@ contract BuildTest is BiomesTest {
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     EntityId airEntityId = setObjectAtCoord(buildCoord, ObjectTypes.Air);
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
@@ -440,7 +440,7 @@ contract BuildTest is BiomesTest {
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     EntityId airEntityId = setObjectAtCoord(buildCoord, ObjectTypes.Air);
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
@@ -454,7 +454,7 @@ contract BuildTest is BiomesTest {
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
     setObjectAtCoord(buildCoord, ObjectTypes.Air);
-    ObjectTypeId buildObjectTypeId = GrassObjectID;
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);

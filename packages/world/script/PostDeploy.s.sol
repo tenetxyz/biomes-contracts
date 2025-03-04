@@ -29,13 +29,11 @@ contract PostDeploy is Script {
     IWorld(worldAddress).initThermoblastObjectTypes();
     IWorld(worldAddress).initInteractableObjectTypes();
     IWorld(worldAddress).initWorkbenchObjectTypes();
-    IWorld(worldAddress).initDyedObjectTypes();
     IWorld(worldAddress).initHandcraftedObjectTypes();
 
     IWorld(worldAddress).initThermoblastRecipes();
     IWorld(worldAddress).initInteractablesRecipes();
     IWorld(worldAddress).initWorkbenchRecipes();
-    IWorld(worldAddress).initDyedRecipes();
     IWorld(worldAddress).initHandcrafedRecipes();
 
     vm.stopBroadcast();

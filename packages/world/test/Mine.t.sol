@@ -27,8 +27,9 @@ import { MinedOrePosition, ExploredChunk, ExploredChunkByIndex, ForceField, Loca
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { ObjectTypes.Player, ObjectTypes.Air, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID, AnyOreObjectID, ObjectAmount } from "../src/ObjectTypeIds.sol";
-import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { ObjectAmount } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -97,13 +98,13 @@ contract MineTest is BiomesTest {
 
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
 
-    setTerrainAtCoord(mineCoord, AnyOreObjectID);
+    setTerrainAtCoord(mineCoord, ObjectTypes.AnyOre);
     uint8 o = TerrainLib.getBlockType(mineCoord);
-    assertTrue(ObjectTypeId.wrap(uint16(o)) == AnyOreObjectID, "Didn't work");
-    ObjectTypeMetadata.setMass(AnyOreObjectID, uint32(playerHandMassReduction - 1));
+    assertTrue(ObjectTypeId.wrap(uint16(o)) == ObjectTypes.AnyOre, "Didn't work");
+    ObjectTypeMetadata.setMass(ObjectTypes.AnyOre, uint32(playerHandMassReduction - 1));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(!mineEntityId.exists(), "Mine entity already exists");
-    assertInventoryHasObject(aliceEntityId, AnyOreObjectID, 0);
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.AnyOre, 0);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     ObjectAmount[] memory oreAmounts = TestUtils.inventoryGetOreAmounts(aliceEntityId);
@@ -122,7 +123,7 @@ contract MineTest is BiomesTest {
 
     mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
-    assertInventoryHasObject(aliceEntityId, AnyOreObjectID, 0);
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.AnyOre, 0);
     assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 1");
     oreAmounts = TestUtils.inventoryGetOreAmounts(aliceEntityId);
     assertEq(oreAmounts.length, 1, "No ores in inventory");
@@ -139,13 +140,13 @@ contract MineTest is BiomesTest {
 
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
 
-    setTerrainAtCoord(mineCoord, AnyOreObjectID);
+    setTerrainAtCoord(mineCoord, ObjectTypes.AnyOre);
     uint8 o = TerrainLib.getBlockType(mineCoord);
-    assertTrue(ObjectTypeId.wrap(uint16(o)) == AnyOreObjectID, "Didn't work");
-    ObjectTypeMetadata.setMass(AnyOreObjectID, uint32(playerHandMassReduction * 2));
+    assertTrue(ObjectTypeId.wrap(uint16(o)) == ObjectTypes.AnyOre, "Didn't work");
+    ObjectTypeMetadata.setMass(ObjectTypes.AnyOre, uint32(playerHandMassReduction * 2));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(!mineEntityId.exists(), "Mine entity already exists");
-    assertInventoryHasObject(aliceEntityId, AnyOreObjectID, 0);
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.AnyOre, 0);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     ObjectAmount[] memory oreAmounts = TestUtils.inventoryGetOreAmounts(aliceEntityId);
@@ -163,7 +164,7 @@ contract MineTest is BiomesTest {
     endGasReport();
 
     mineEntityId = ReversePosition.get(mineCoord);
-    assertTrue(ObjectType.get(mineEntityId) == AnyOreObjectID, "Mine entity is not any ore");
+    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.AnyOre, "Mine entity is not any ore");
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     oreAmounts = TestUtils.inventoryGetOreAmounts(aliceEntityId);
     assertEq(oreAmounts.length, 0, "Got an ore in inventory");
@@ -177,7 +178,7 @@ contract MineTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
-    ObjectTypeId mineObjectTypeId = GrassObjectID;
+    ObjectTypeId mineObjectTypeId = ObjectTypes.Grass;
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
     EntityId mineEntityId = ReversePosition.get(mineCoord);
@@ -201,7 +202,7 @@ contract MineTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
-    ObjectTypeId mineObjectTypeId = TextSignObjectID;
+    ObjectTypeId mineObjectTypeId = ObjectTypes.TextSign;
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
     Vec3 topCoord = mineCoord + vec3(0, 1, 0);
@@ -235,7 +236,7 @@ contract MineTest is BiomesTest {
 
     // Mine again but with a non-base coord
     vm.prank(alice);
-    world.build(TextSignObjectID, mineCoord);
+    world.build(ObjectTypes.TextSign, mineCoord);
 
     mineEntityId = ReversePosition.get(mineCoord);
     topEntityId = ReversePosition.get(topCoord);
@@ -262,7 +263,7 @@ contract MineTest is BiomesTest {
     vm.expectRevert("Object is not mineable");
     world.mine(mineCoord);
 
-    setObjectAtCoord(mineCoord, WaterObjectID);
+    setObjectAtCoord(mineCoord, ObjectTypes.Water);
 
     vm.prank(alice);
     vm.expectRevert("Object is not mineable");
@@ -273,7 +274,7 @@ contract MineTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
-    ObjectTypeId mineObjectTypeId = DirtObjectID;
+    ObjectTypeId mineObjectTypeId = ObjectTypes.Dirt;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
     vm.prank(alice);
@@ -281,7 +282,7 @@ contract MineTest is BiomesTest {
     world.mine(mineCoord);
 
     mineCoord = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y(), playerCoord.z());
-    setObjectAtCoord(mineCoord, DirtObjectID);
+    setObjectAtCoord(mineCoord, ObjectTypes.Dirt);
 
     vm.prank(alice);
     vm.expectRevert("Cannot mine outside the world border");
@@ -298,7 +299,7 @@ contract MineTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
-    ObjectTypeId mineObjectTypeId = DirtObjectID;
+    ObjectTypeId mineObjectTypeId = ObjectTypes.Dirt;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
     Energy.set(
@@ -315,7 +316,7 @@ contract MineTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
-    ObjectTypeId mineObjectTypeId = DirtObjectID;
+    ObjectTypeId mineObjectTypeId = ObjectTypes.Dirt;
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
@@ -340,7 +341,7 @@ contract MineTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
-    ObjectTypeId mineObjectTypeId = DirtObjectID;
+    ObjectTypeId mineObjectTypeId = ObjectTypes.Dirt;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
     vm.expectRevert("Player does not exist");
@@ -351,7 +352,7 @@ contract MineTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
-    ObjectTypeId mineObjectTypeId = DirtObjectID;
+    ObjectTypeId mineObjectTypeId = ObjectTypes.Dirt;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
@@ -365,7 +366,7 @@ contract MineTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
-    ObjectTypeId mineObjectTypeId = ForceFieldObjectID;
+    ObjectTypeId mineObjectTypeId = ObjectTypes.ForceField;
     EntityId mineEntityId = setObjectAtCoord(mineCoord, mineObjectTypeId);
     Energy.set(
       mineEntityId,

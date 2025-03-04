@@ -11,7 +11,7 @@ import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { notify, UnequipNotifData } from "../utils/NotifUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
-import { ObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { Vec3 } from "../Vec3.sol";
 
 contract UnequipSystem is System {

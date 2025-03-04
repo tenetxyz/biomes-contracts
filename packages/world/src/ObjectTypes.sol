@@ -167,7 +167,11 @@ uint16 constant Misc = uint16(3) << OFFSET_BITS;
     // ------------------------------------------------------------
     // Item
     // ------------------------------------------------------------
-    ObjectTypeId constant ChipBattery = ObjectTypeId.wrap(Item | 0);
+    ObjectTypeId constant GoldBar = ObjectTypeId.wrap(Item | 0);
+    ObjectTypeId constant SilverBar = ObjectTypeId.wrap(Item | 1);
+    ObjectTypeId constant Diamond = ObjectTypeId.wrap(Item | 2);
+    ObjectTypeId constant NeptuniumBar = ObjectTypeId.wrap(Item | 3);
+    ObjectTypeId constant ChipBattery = ObjectTypeId.wrap(Item | 4);
 
     // ------------------------------------------------------------
     // Misc

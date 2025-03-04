@@ -20,7 +20,8 @@ import { Chip } from "../../codegen/tables/Chip.sol";
 import { Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../../utils/Vec3Storage.sol";
 
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
-import { ObjectTypeId, NullObjectTypeId } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../ObjectTypeId.sol";
+import { ObjectTypes } from "../../ObjectTypes.sol";
 import { InventoryObject, PlayerEntityData, BlockEntityData } from "../../Types.sol";
 
 import { EntityId } from "../../EntityId.sol";
@@ -75,7 +76,7 @@ contract ReadTwoSystem is System {
         BlockEntityData({
           entityId: EntityId.wrap(0),
           baseEntityId: EntityId.wrap(0),
-          objectTypeId: NullObjectTypeId,
+          objectTypeId: ObjectTypes.Null,
           position: vec3(0, 0, 0),
           inventory: new InventoryObject[](0),
           chipAddress: address(0)

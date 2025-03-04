@@ -3,8 +3,11 @@ pragma solidity >=0.8.24;
 
 import { MinedOreCount } from "./codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "./codegen/tables/TotalBurnedOreCount.sol";
+import { Direction } from "./codegen/common.sol";
+
 import { ObjectTypeId } from "./ObjectTypeId.sol";
 import { ObjectTypes, Block, Tool, Item, Misc, CATEGORY_MASK } from "./ObjectTypes.sol";
+import { Vec3, vec3 } from "./Vec3.sol";
 
 struct ObjectAmount {
   ObjectTypeId objectTypeId;
@@ -14,6 +17,50 @@ struct ObjectAmount {
 library ObjectTypeIdLib {
   function unwrap(ObjectTypeId self) internal pure returns (uint16) {
     return ObjectTypeId.unwrap(self);
+  }
+
+  function getObjectTypeSchema(ObjectTypeId objectTypeId) internal pure returns (Vec3[] memory) {
+    if (objectTypeId == ObjectTypes.Player) {
+      Vec3[] memory playerRelativePositions = new Vec3[](1);
+      playerRelativePositions[0] = vec3(0, 1, 0);
+      return playerRelativePositions;
+    }
+
+    if (objectTypeId == ObjectTypes.Bed) {
+      Vec3[] memory bedRelativePositions = new Vec3[](1);
+      bedRelativePositions[0] = vec3(0, 0, 1);
+      return bedRelativePositions;
+    }
+
+    if (objectTypeId == ObjectTypes.TextSign || objectTypeId == ObjectTypes.SmartTextSign) {
+      Vec3[] memory textSignRelativePositions = new Vec3[](1);
+      textSignRelativePositions[0] = vec3(0, 1, 0);
+      return textSignRelativePositions;
+    }
+
+    return new Vec3[](0);
+  }
+
+  /// @dev Get relative schema coords, including base coord
+  function getRelativeCoords(
+    ObjectTypeId self,
+    Vec3 baseCoord,
+    Direction direction
+  ) internal pure returns (Vec3[] memory) {
+    Vec3[] memory schemaCoords = getObjectTypeSchema(self);
+    Vec3[] memory coords = new Vec3[](schemaCoords.length + 1);
+
+    coords[0] = baseCoord;
+
+    for (uint256 i = 0; i < schemaCoords.length; i++) {
+      coords[i + 1] = baseCoord + schemaCoords[i].rotate(direction);
+    }
+
+    return coords;
+  }
+
+  function getRelativeCoords(ObjectTypeId objectTypeId, Vec3 baseCoord) internal pure returns (Vec3[] memory) {
+    return getRelativeCoords(objectTypeId, baseCoord, Direction.PositiveZ);
   }
 
   function getCategory(ObjectTypeId self) internal pure returns (uint16) {

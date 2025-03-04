@@ -26,8 +26,8 @@ import { MinedOrePosition, ExploredChunk, ExploredChunkByIndex, ForceField, Loca
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { ObjectTypes.Player, ObjectTypes.Air, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
-import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -177,7 +177,7 @@ contract GravityTest is BiomesTest {
     }
     Vec3 expectedFinalCoord = newCoords[newCoords.length - 1] - vec3(0, 1, 0);
     setObjectAtCoord(newCoords[newCoords.length - 1], ObjectTypes.Air);
-    setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), DirtObjectID);
+    setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), ObjectTypes.Dirt);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
@@ -210,7 +210,7 @@ contract GravityTest is BiomesTest {
     setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 2, 0), ObjectTypes.Air);
     Vec3 expectedFinalCoord = newCoords[newCoords.length - 1] - vec3(0, 3, 0);
     setObjectAtCoord(newCoords[newCoords.length - 1], ObjectTypes.Air);
-    setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), DirtObjectID);
+    setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), ObjectTypes.Dirt);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
@@ -251,7 +251,7 @@ contract GravityTest is BiomesTest {
     setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 2, 0), ObjectTypes.Air);
     Vec3 expectedFinalAliceCoord = newCoords[newCoords.length - 1] - vec3(0, 3, 0);
     setObjectAtCoord(newCoords[newCoords.length - 1], ObjectTypes.Air);
-    setObjectAtCoord(expectedFinalAliceCoord - vec3(0, 1, 0), DirtObjectID);
+    setObjectAtCoord(expectedFinalAliceCoord - vec3(0, 1, 0), ObjectTypes.Dirt);
 
     uint128 bobEnergyBefore = Energy.getEnergy(bobEntityId);
     uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
