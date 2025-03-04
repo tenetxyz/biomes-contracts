@@ -2594,6 +2594,24 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "setInitialEnergyPool",
+    "inputs": [
+      {
+        "name": "shardCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "energy",
+        "type": "uint128",
+        "internalType": "uint128"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "setRecord",
     "inputs": [
       {
