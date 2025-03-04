@@ -24,7 +24,10 @@ import { getObjectTypeIdAt, getPlayer, setPlayer } from "./EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
+
+using ObjectTypeLib for ObjectTypeId;
 
 function requireValidPlayer(address player) returns (EntityId, Vec3, EnergyData memory) {
   checkWorldStatus();

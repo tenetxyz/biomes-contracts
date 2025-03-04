@@ -11,6 +11,9 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { InventoryObject, InventoryEntity } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
+
+using ObjectTypeLib for ObjectTypeId;
 
 function getEntityInventory(EntityId entityId) view returns (InventoryObject[] memory) {
   uint16[] memory objectTypeIds = InventoryObjects._get(entityId);

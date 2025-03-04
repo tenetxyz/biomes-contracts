@@ -24,10 +24,13 @@ import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 import { PLAYER_HIT_ENERGY_COST } from "../Constants.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 
 contract HitMachineSystem is System {
+  using ObjectTypeLib for ObjectTypeId;
+
   function hitMachineCommon(
     EntityId playerEntityId,
     EnergyData memory playerEnergyData,

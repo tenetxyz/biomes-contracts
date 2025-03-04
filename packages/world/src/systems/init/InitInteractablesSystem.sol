@@ -45,7 +45,7 @@ contract InitInteractablesSystem is System {
   }
 
   function initInteractablesRecipes() public {
-    createSingleInputWithStationRecipe(ObjectTypes.Workbench, ObjectTypes.AnyLumber, 8, ObjectTypes.Chest, 1);
+    createSingleInputWithStationRecipe(ObjectTypes.Workbench, ObjectTypes.AnyPlanks, 8, ObjectTypes.Chest, 1);
     createDoubleInputWithStationRecipe(
       ObjectTypes.Workbench,
       ObjectTypes.Chest,
@@ -55,7 +55,7 @@ contract InitInteractablesSystem is System {
       ObjectTypes.SmartChest,
       1
     );
-    createSingleInputWithStationRecipe(ObjectTypes.Workbench, ObjectTypes.AnyLumber, 4, ObjectTypes.TextSign, 1);
+    createSingleInputWithStationRecipe(ObjectTypes.Workbench, ObjectTypes.AnyPlanks, 4, ObjectTypes.TextSign, 1);
     createDoubleInputWithStationRecipe(
       ObjectTypes.Workbench,
       ObjectTypes.TextSign,
@@ -68,7 +68,7 @@ contract InitInteractablesSystem is System {
     createSingleInputRecipe(ObjectTypes.AnyLog, 5, ObjectTypes.Workbench, 1);
     createSingleInputRecipe(ObjectTypes.Stone, 9, ObjectTypes.Thermoblaster, 1);
     createDoubleInputRecipe(ObjectTypes.Clay, 4, ObjectTypes.Sand, 4, ObjectTypes.Dyeomatic, 1);
-    createDoubleInputRecipe(ObjectTypes.Stone, 6, ObjectTypes.Moonstone, 2, ObjectTypes.Powerstone, 1);
+    createDoubleInputRecipe(ObjectTypes.Stone, 6, ObjectTypes.Sand, 2, ObjectTypes.Powerstone, 1);
     createDoubleInputWithStationRecipe(
       ObjectTypes.Thermoblaster,
       ObjectTypes.Stone,
@@ -99,9 +99,9 @@ contract InitInteractablesSystem is System {
 
     createDoubleInputWithStationRecipe(
       ObjectTypes.Workbench,
-      ObjectTypes.AnyLumber,
+      ObjectTypes.AnyPlanks,
       8,
-      ObjectTypes.AnyCottonBlock,
+      ObjectTypes.SilverBar,
       8,
       ObjectTypes.Bed,
       1

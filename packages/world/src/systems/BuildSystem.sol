@@ -16,6 +16,7 @@ import { ForceFieldMetadata, PlayerPosition, ReversePlayerPosition } from "../ut
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -51,6 +52,8 @@ library BuildLib {
 }
 
 contract BuildSystem is System {
+  using ObjectTypeLib for ObjectTypeId;
+
   function buildWithExtraData(
     ObjectTypeId buildObjectTypeId,
     Vec3 baseCoord,

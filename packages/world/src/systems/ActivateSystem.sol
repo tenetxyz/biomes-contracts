@@ -9,6 +9,7 @@ import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { requireValidPlayer } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { checkWorldStatus } from "../Utils.sol";
@@ -16,6 +17,8 @@ import { checkWorldStatus } from "../Utils.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract ActivateSystem is System {
+  using ObjectTypeLib for ObjectTypeId;
+
   function activate(EntityId entityId) public {
     checkWorldStatus();
 

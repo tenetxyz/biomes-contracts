@@ -10,6 +10,7 @@ import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonEntity, transferInventoryEntity } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -20,7 +21,6 @@ import { Vec3 } from "../Vec3.sol";
 import { PLAYER_DROP_ENERGY_COST } from "../Constants.sol";
 import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
 
 // TODO: combine the tool and non-tool drop functions
 contract DropSystem is System {

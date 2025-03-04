@@ -10,6 +10,7 @@ import { Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from
 
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
+import { ObjectTypeLib } from "../../ObjectTypeLib.sol";
 import { inWorldBorder } from "../../Utils.sol";
 import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
@@ -21,6 +22,8 @@ import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { getObjectTypeIdAt, getPlayer, setPlayer } from "../../utils/EntityUtils.sol";
 
 library MoveLib {
+  using ObjectTypeLib for ObjectTypeId;
+
   function _requireValidMove(Vec3 baseOldCoord, Vec3 baseNewCoord) internal view {
     Vec3[] memory oldPlayerCoords = ObjectTypes.Player.getRelativeCoords(baseOldCoord);
     Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(baseNewCoord);

@@ -20,7 +20,9 @@ import { ExploredChunk, ExploredChunkByIndex, ForceField, LocalEnergyPool, Rever
 
 import { ISpawnTileChip } from "../src/prototypes/ISpawnTileChip.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -38,6 +40,8 @@ contract TestSpawnChip is ISpawnTileChip, System {
 }
 
 contract SpawnTest is BiomesTest {
+  using ObjectTypeLib for ObjectTypeId;
+
   function spawnEnergy() internal view returns (uint128) {
     uint32 playerMass = ObjectTypeMetadata.getMass(ObjectTypes.Player);
     return MAX_PLAYER_ENERGY + massToEnergy(playerMass);

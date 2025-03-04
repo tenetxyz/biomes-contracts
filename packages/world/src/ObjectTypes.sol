@@ -6,7 +6,7 @@ import { ObjectTypeId } from "./ObjectTypeId.sol";
 // This file is auto-generated. Do not edit directly.
 
 uint8 constant OFFSET_BITS = 11;
-uint16 constant CATEGORY_MASK = 0x7ff;
+uint16 constant CATEGORY_MASK = 0xf800;
 
 // ------------------------------------------------------------
 // Object Categories

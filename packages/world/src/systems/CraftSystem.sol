@@ -15,6 +15,7 @@ import { ActionType } from "../codegen/common.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, removeFromInventoryCount, removeAnyFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -25,6 +26,8 @@ import { Vec3 } from "../Vec3.sol";
 import { PLAYER_CRAFT_ENERGY_COST } from "../Constants.sol";
 
 contract CraftSystem is System {
+  using ObjectTypeLib for ObjectTypeId;
+
   function craftWithStation(bytes32 recipeId, EntityId stationEntityId) public {
     RecipesData memory recipeData = Recipes._get(recipeId);
     require(recipeData.inputTypes.length > 0, "Recipe not found");

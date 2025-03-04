@@ -12,8 +12,11 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 
 import { EntityId } from "../EntityId.sol";
+
+using ObjectTypeLib for ObjectTypeId;
 
 function addToInventoryCount(
   EntityId ownerEntityId,

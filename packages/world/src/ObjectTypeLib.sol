@@ -14,7 +14,7 @@ struct ObjectAmount {
   uint16 amount;
 }
 
-library ObjectTypeIdLib {
+library ObjectTypeLib {
   function unwrap(ObjectTypeId self) internal pure returns (uint16) {
     return ObjectTypeId.unwrap(self);
   }
@@ -89,6 +89,13 @@ library ObjectTypeIdLib {
 
   function isAny(ObjectTypeId self) internal pure returns (bool) {
     return self == ObjectTypes.AnyLog || self == ObjectTypes.AnyPlanks;
+  }
+
+  function isWhacker(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return
+      objectTypeId == ObjectTypes.WoodenWhacker ||
+      objectTypeId == ObjectTypes.StoneWhacker ||
+      objectTypeId == ObjectTypes.SilverWhacker;
   }
 
   function canHoldDisplay(ObjectTypeId objectTypeId) internal pure returns (bool) {
@@ -188,3 +195,5 @@ function getOreObjectTypes() pure returns (ObjectTypeId[] memory) {
   result[4] = ObjectTypes.NeptuniumOre;
   return result;
 }
+
+using ObjectTypeLib for ObjectTypeId;

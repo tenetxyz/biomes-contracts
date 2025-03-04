@@ -20,6 +20,7 @@ import { OreCommitment } from "../utils/Vec3Storage.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
@@ -124,6 +125,8 @@ library MineLib {
 }
 
 contract MineSystem is System {
+  using ObjectTypeLib for ObjectTypeId;
+
   function _removeBlock(EntityId entityId, Vec3 coord) internal {
     ObjectType._set(entityId, ObjectTypes.Air);
 

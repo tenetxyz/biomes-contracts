@@ -26,6 +26,7 @@ import { Vec3, vec3 } from "../src/Vec3.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { energyToMass } from "../src/utils/EnergyUtils.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -34,6 +35,8 @@ import { BiomesAssertions } from "./BiomesAssertions.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
 abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
+  using ObjectTypeLib for ObjectTypeId;
+
   IWorld internal world;
   int32 constant FLAT_CHUNK_GRASS_LEVEL = 4;
   uint128 playerHandMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST);
