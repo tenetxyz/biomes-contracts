@@ -12,6 +12,7 @@ import { ICraftSystem } from "./ICraftSystem.sol";
 import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
+import { IForceFieldSystem } from "./IForceFieldSystem.sol";
 import { IHitMachineSystem } from "./IHitMachineSystem.sol";
 import { IMachineSystem } from "./IMachineSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
@@ -48,6 +49,7 @@ interface IWorld is
   IDisplaySystem,
   IDropSystem,
   IEquipSystem,
+  IForceFieldSystem,
   IHitMachineSystem,
   IMachineSystem,
   IMineSystem,

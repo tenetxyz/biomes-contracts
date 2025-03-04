@@ -14,22 +14,27 @@ import { ActionType, Direction } from "../codegen/common.sol";
 
 import { ForceFieldMetadata, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
-import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
+import { transferEnergyToPool, updateEnergyLevel } from "../utils/EnergyUtils.sol";
+import { getPlayer } from "../utils/EntityUtils.sol";
+import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
+import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
+import { callChipOrRevert } from "../utils/callChip.sol";
 
-import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
+import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
-import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
-import { getPlayer } from "../utils/EntityUtils.sol";
-import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
+
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
+import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
 
 library BuildLib {
   function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) public returns (EntityId) {

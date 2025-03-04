@@ -18,21 +18,23 @@ import { Position } from "../utils/Vec3Storage.sol";
 import { MinedOrePosition } from "../utils/Vec3Storage.sol";
 import { OreCommitment } from "../utils/Vec3Storage.sol";
 
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
-import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { mulDiv } from "../utils/MathUtils.sol";
-import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { getOrCreateEntityAt, getPlayer } from "../utils/EntityUtils.sol";
+import { callChipOrRevert } from "../utils/callChip.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
 
+import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
 import { PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";

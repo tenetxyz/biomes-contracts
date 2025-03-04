@@ -28,4 +28,6 @@ interface IForceFieldChip is IChip {
   function onPowered(EntityId callerEntityId, EntityId targetEntityId, uint16 numBattery) external;
 
   function onForceFieldHit(EntityId callerEntityId, EntityId targetEntityId) external;
+
+  function onExpand(EntityId callerEntityId, EntityId targetEntityId, EntityId shardEntityId) external;
 }

@@ -19,14 +19,14 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { EntityId } from "../../EntityId.sol";
 
-struct ForceFieldMetadataData {
+struct ForceFieldShardMetadataData {
   uint128 totalMassInside;
   uint128 createdAt;
 }
 
-library ForceFieldMetadata {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ForceFieldMetada", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000466f7263654669656c644d6574616461);
+library ForceFieldShardMetadata {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ForceFieldShardM", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000466f7263654669656c6453686172644d);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020020010100000000000000000000000000000000000000000000000000000);
@@ -156,7 +156,7 @@ library ForceFieldMetadata {
   /**
    * @notice Get the full data.
    */
-  function get(EntityId entityId) internal view returns (ForceFieldMetadataData memory _table) {
+  function get(EntityId entityId) internal view returns (ForceFieldShardMetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -171,7 +171,7 @@ library ForceFieldMetadata {
   /**
    * @notice Get the full data.
    */
-  function _get(EntityId entityId) internal view returns (ForceFieldMetadataData memory _table) {
+  function _get(EntityId entityId) internal view returns (ForceFieldShardMetadataData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -216,7 +216,7 @@ library ForceFieldMetadata {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(EntityId entityId, ForceFieldMetadataData memory _table) internal {
+  function set(EntityId entityId, ForceFieldShardMetadataData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.totalMassInside, _table.createdAt);
 
     EncodedLengths _encodedLengths;
@@ -231,7 +231,7 @@ library ForceFieldMetadata {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(EntityId entityId, ForceFieldMetadataData memory _table) internal {
+  function _set(EntityId entityId, ForceFieldShardMetadataData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.totalMassInside, _table.createdAt);
 
     EncodedLengths _encodedLengths;
@@ -262,7 +262,7 @@ library ForceFieldMetadata {
     bytes memory _staticData,
     EncodedLengths,
     bytes memory
-  ) internal pure returns (ForceFieldMetadataData memory _table) {
+  ) internal pure returns (ForceFieldShardMetadataData memory _table) {
     (_table.totalMassInside, _table.createdAt) = decodeStatic(_staticData);
   }
 

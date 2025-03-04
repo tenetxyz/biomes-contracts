@@ -300,23 +300,30 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    ForceField: {
+    ForceFieldShard: {
       schema: {
         x: "int32",
         y: "int32",
         z: "int32",
-        forceFieldEntityId: "EntityId",
+        entityId: "EntityId",
       },
       key: ["x", "y", "z"],
     },
+    ForceFieldShardMetadata: {
+      schema: {
+        entityId: "EntityId",
+        totalMassInside: "uint128",
+        createdAt: "uint128",
+      },
+      key: ["entityId"],
+    },
     ForceFieldMetadata: {
       schema: {
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        entityId: "EntityId",
         totalMassInside: "uint128",
+        createdAt: "uint128",
       },
-      key: ["x", "y", "z"],
+      key: ["entityId"],
     },
     DisplayContent: {
       schema: {
