@@ -15,19 +15,22 @@ import { DisplayContentType } from "../codegen/common.sol";
 import { Position, ReversePosition } from "../utils/Vec3Storage.sol";
 
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
-import { ObjectTypeId, TextSignObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { getLatestEnergyData } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 
 contract DisplaySystem is System {
+  using ObjectTypeLib for ObjectTypeId;
+
   function getDisplayContent(EntityId entityId) public view returns (DisplayContentData memory) {
     require(entityId.exists(), "Entity does not exist");
 
     EntityId baseEntityId = entityId.baseEntityId();
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
-    if (!objectTypeId.isSmartItem()) {
+    if (!objectTypeId.isSmartDisplay()) {
       return DisplayContent._get(baseEntityId);
     }
     Vec3 entityCoord = Position._get(baseEntityId);
@@ -48,7 +51,7 @@ contract DisplaySystem is System {
 
   function setDisplayContent(EntityId entityId, DisplayContentData memory content) public {
     EntityId baseEntityId = entityId.baseEntityId();
-    require(ObjectType._get(baseEntityId).isBasicDisplay(), "You can only set the display content of a basic display");
+    require(ObjectType._get(baseEntityId).canHoldDisplay(), "You can only set the display content of a basic display");
     Vec3 entityCoord = Position._get(baseEntityId);
     require(ReversePosition._get(entityCoord) == baseEntityId, "Entity is not at the specified position");
 

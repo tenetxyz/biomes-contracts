@@ -35,29 +35,32 @@ import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, NullObjectTypeId, AnyLogObjectID, AnyLumberObjectID, WoodenPickObjectID, WoodenAxeObjectID, WoodenWhackerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLumberObjectID, BirchLumberObjectID, SakuraLumberObjectID, RubberLumberObjectID, LilacObjectID, AzaleaObjectID, MagentaDyeObjectID, CobblestoneBrickObjectID, CobblestoneShinglesObjectID, ThermoblasterObjectID, WorkbenchObjectID, DiamondObjectID } from "../src/ObjectTypeIds.sol";
-import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 import { hashRecipe } from "../src/utils/RecipeUtils.sol";
 
 contract CraftTest is BiomesTest {
+  using ObjectTypeLib for ObjectTypeId;
+
   function testCraftSingleInputSingleOutput() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = OakLogObjectID;
+    inputTypes[0] = ObjectTypes.OakLog;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = OakLumberObjectID;
+    outputTypes[0] = ObjectTypes.OakPlanks;
     uint16[] memory outputAmounts = new uint16[](1);
     outputAmounts[0] = 4;
-    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -83,19 +86,19 @@ contract CraftTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](2);
-    inputTypes[0] = LilacObjectID;
-    inputTypes[1] = AzaleaObjectID;
+    inputTypes[0] = ObjectTypes.Clay;
+    inputTypes[1] = ObjectTypes.Sand;
     uint16[] memory inputAmounts = new uint16[](2);
-    inputAmounts[0] = 5;
-    inputAmounts[1] = 5;
+    inputAmounts[0] = 4;
+    inputAmounts[1] = 4;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = MagentaDyeObjectID;
+    outputTypes[0] = ObjectTypes.Dyeomatic;
     uint16[] memory outputAmounts = new uint16[](1);
-    outputAmounts[0] = 10;
-    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    outputAmounts[0] = 1;
+    bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -121,22 +124,22 @@ contract CraftTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = CobblestoneBrickObjectID;
+    inputTypes[0] = ObjectTypes.SilverOre;
     uint16[] memory inputAmounts = new uint16[](1);
-    inputAmounts[0] = 4;
+    inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = CobblestoneShinglesObjectID;
+    outputTypes[0] = ObjectTypes.SilverBar;
     uint16[] memory outputAmounts = new uint16[](1);
-    outputAmounts[0] = 4;
-    bytes32 recipeId = hashRecipe(ThermoblasterObjectID, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    outputAmounts[0] = 1;
+    bytes32 recipeId = hashRecipe(ObjectTypes.Thermoblaster, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
     Vec3 stationCoord = playerCoord + vec3(1, 0, 0);
-    EntityId stationEntityId = setObjectAtCoord(stationCoord, ThermoblasterObjectID);
+    EntityId stationEntityId = setObjectAtCoord(stationCoord, ObjectTypes.Thermoblaster);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
@@ -160,26 +163,26 @@ contract CraftTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = AnyLumberObjectID;
+    inputTypes[0] = ObjectTypes.AnyPlanks;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 8;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = ChestObjectID;
+    outputTypes[0] = ObjectTypes.Chest;
     uint16[] memory outputAmounts = new uint16[](1);
     outputAmounts[0] = 1;
-    bytes32 recipeId = hashRecipe(WorkbenchObjectID, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    bytes32 recipeId = hashRecipe(ObjectTypes.Workbench, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
-    ObjectTypeId inputObjectTypeId1 = OakLumberObjectID;
-    ObjectTypeId inputObjectTypeId2 = BirchLumberObjectID;
-    ObjectTypeId inputObjectTypeId3 = RubberLumberObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId1, 2);
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId2, 3);
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId3, 3);
+    ObjectTypeId inputObjectTypeId1 = ObjectTypes.OakPlanks;
+    ObjectTypeId inputObjectTypeId2 = ObjectTypes.BirchPlanks;
+    ObjectTypeId inputObjectTypeId3 = ObjectTypes.JunglePlanks;
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId1, 2);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId2, 3);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId3, 3);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 2);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId2, 3);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId3, 3);
     Vec3 stationCoord = playerCoord + vec3(1, 0, 0);
-    EntityId stationEntityId = setObjectAtCoord(stationCoord, WorkbenchObjectID);
+    EntityId stationEntityId = setObjectAtCoord(stationCoord, ObjectTypes.Workbench);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
@@ -203,17 +206,17 @@ contract CraftTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = AnyLogObjectID;
+    inputTypes[0] = ObjectTypes.AnyLog;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 4;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = WoodenPickObjectID;
+    outputTypes[0] = ObjectTypes.WoodenPick;
     uint16[] memory outputAmounts = new uint16[](1);
     outputAmounts[0] = 1;
-    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
-    ObjectTypeId inputObjectTypeId = SakuraLogObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId, 4);
+    ObjectTypeId inputObjectTypeId = ObjectTypes.SakuraLog;
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId, 4);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 4);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -241,17 +244,17 @@ contract CraftTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = AnyLogObjectID;
+    inputTypes[0] = ObjectTypes.AnyLog;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 4;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = WoodenPickObjectID;
+    outputTypes[0] = ObjectTypes.WoodenPick;
     uint16[] memory outputAmounts = new uint16[](1);
     outputAmounts[0] = 1;
-    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
-    ObjectTypeId inputObjectTypeId = SakuraLogObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId, 8);
+    ObjectTypeId inputObjectTypeId = ObjectTypes.SakuraLog;
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId, 8);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 8);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -272,8 +275,8 @@ contract CraftTest is BiomesTest {
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
 
-    outputTypes[0] = WoodenAxeObjectID;
-    recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    outputTypes[0] = ObjectTypes.WoodenAxe;
+    recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
@@ -302,40 +305,40 @@ contract CraftTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = OakLogObjectID;
+    inputTypes[0] = ObjectTypes.OakLog;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = OakLumberObjectID;
+    outputTypes[0] = ObjectTypes.OakPlanks;
     uint16[] memory outputAmounts = new uint16[](1);
     outputAmounts[0] = 4;
-    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
     world.craft(recipeId);
 
     inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = AnyLumberObjectID;
+    inputTypes[0] = ObjectTypes.AnyPlanks;
     inputAmounts = new uint16[](1);
     inputAmounts[0] = 8;
     outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = ChestObjectID;
+    outputTypes[0] = ObjectTypes.Chest;
     outputAmounts = new uint16[](1);
     outputAmounts[0] = 1;
-    recipeId = hashRecipe(WorkbenchObjectID, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    recipeId = hashRecipe(ObjectTypes.Workbench, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
-    ObjectTypeId inputObjectTypeId1 = OakLumberObjectID;
-    ObjectTypeId inputObjectTypeId2 = BirchLumberObjectID;
-    ObjectTypeId inputObjectTypeId3 = RubberLumberObjectID;
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId1, 1);
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId2, 1);
-    TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputObjectTypeId3, 1);
+    ObjectTypeId inputObjectTypeId1 = ObjectTypes.OakPlanks;
+    ObjectTypeId inputObjectTypeId2 = ObjectTypes.BirchPlanks;
+    ObjectTypeId inputObjectTypeId3 = ObjectTypes.JunglePlanks;
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId1, 1);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId2, 1);
+    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId3, 1);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 1);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId2, 1);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId3, 1);
     Vec3 stationCoord = playerCoord + vec3(1, 0, 0);
-    EntityId stationEntityId = setObjectAtCoord(stationCoord, WorkbenchObjectID);
+    EntityId stationEntityId = setObjectAtCoord(stationCoord, ObjectTypes.Workbench);
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
@@ -346,14 +349,14 @@ contract CraftTest is BiomesTest {
     (address alice, , ) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = OakLogObjectID;
+    inputTypes[0] = ObjectTypes.OakLog;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = DiamondObjectID;
+    outputTypes[0] = ObjectTypes.Diamond;
     uint16[] memory outputAmounts = new uint16[](1);
     outputAmounts[0] = 4;
-    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     vm.prank(alice);
     vm.expectRevert("Recipe not found");
@@ -364,22 +367,22 @@ contract CraftTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = CobblestoneBrickObjectID;
+    inputTypes[0] = ObjectTypes.SilverOre;
     uint16[] memory inputAmounts = new uint16[](1);
-    inputAmounts[0] = 4;
+    inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = CobblestoneShinglesObjectID;
+    outputTypes[0] = ObjectTypes.SilverBar;
     uint16[] memory outputAmounts = new uint16[](1);
-    outputAmounts[0] = 4;
-    bytes32 recipeId = hashRecipe(ThermoblasterObjectID, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    outputAmounts[0] = 1;
+    bytes32 recipeId = hashRecipe(ObjectTypes.Thermoblaster, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
     Vec3 stationCoord = playerCoord + vec3(1, 0, 0);
-    EntityId stationEntityId = setObjectAtCoord(stationCoord, WorkbenchObjectID);
+    EntityId stationEntityId = setObjectAtCoord(stationCoord, ObjectTypes.Workbench);
 
     vm.prank(alice);
     vm.expectRevert("This recipe requires a station");
@@ -390,7 +393,7 @@ contract CraftTest is BiomesTest {
     world.craftWithStation(recipeId, stationEntityId);
 
     stationCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
-    stationEntityId = setObjectAtCoord(stationCoord, ThermoblasterObjectID);
+    stationEntityId = setObjectAtCoord(stationCoord, ObjectTypes.Thermoblaster);
 
     vm.prank(alice);
     vm.expectRevert("Player is too far");
@@ -401,24 +404,24 @@ contract CraftTest is BiomesTest {
     (address alice, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = OakLogObjectID;
+    inputTypes[0] = ObjectTypes.OakLog;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = OakLumberObjectID;
+    outputTypes[0] = ObjectTypes.OakPlanks;
     uint16[] memory outputAmounts = new uint16[](1);
     outputAmounts[0] = 4;
-    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     TestUtils.addToInventoryCount(
       aliceEntityId,
-      PlayerObjectID,
-      OakLogObjectID,
-      ObjectTypeMetadata.getMaxInventorySlots(PlayerObjectID) * ObjectTypeMetadata.getStackable(OakLogObjectID)
+      ObjectTypes.Player,
+      ObjectTypes.OakLog,
+      ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player) * ObjectTypeMetadata.getStackable(ObjectTypes.OakLog)
     );
     assertEq(
       InventorySlots.get(aliceEntityId),
-      ObjectTypeMetadata.getMaxInventorySlots(PlayerObjectID),
+      ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player),
       "Inventory slots is not max"
     );
 
@@ -431,17 +434,17 @@ contract CraftTest is BiomesTest {
     (address alice, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = OakLogObjectID;
+    inputTypes[0] = ObjectTypes.OakLog;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = OakLumberObjectID;
+    outputTypes[0] = ObjectTypes.OakPlanks;
     uint16[] memory outputAmounts = new uint16[](1);
     outputAmounts[0] = 4;
-    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -456,17 +459,17 @@ contract CraftTest is BiomesTest {
     (, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = OakLogObjectID;
+    inputTypes[0] = ObjectTypes.OakLog;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = OakLumberObjectID;
+    outputTypes[0] = ObjectTypes.OakPlanks;
     uint16[] memory outputAmounts = new uint16[](1);
     outputAmounts[0] = 4;
-    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -478,17 +481,17 @@ contract CraftTest is BiomesTest {
     (address alice, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = OakLogObjectID;
+    inputTypes[0] = ObjectTypes.OakLog;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = OakLumberObjectID;
+    outputTypes[0] = ObjectTypes.OakPlanks;
     uint16[] memory outputAmounts = new uint16[](1);
     outputAmounts[0] = 4;
-    bytes32 recipeId = hashRecipe(NullObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts);
+    bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, PlayerObjectID, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 

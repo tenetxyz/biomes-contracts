@@ -11,7 +11,8 @@ import { Vec3 } from "../../Vec3.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 
-import { ObjectTypeId, ForceFieldObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../ObjectTypeId.sol";
+import { ObjectTypes } from "../../ObjectTypes.sol";
 import { updateEnergyLevel } from "../../utils/EnergyUtils.sol";
 import { getForceField, setupForceField, destroyForceField } from "../../utils/ForceFieldUtils.sol";
 
@@ -31,7 +32,7 @@ library ForceFieldLib {
     for (uint256 i = 0; i < coords.length; i++) {
       Vec3 coord = coords[i];
       EntityId forceFieldEntityId = getForceField(coord);
-      if (objectTypeId == ForceFieldObjectID) {
+      if (objectTypeId == ObjectTypes.ForceField) {
         require(!forceFieldEntityId.exists(), "Force field overlaps with another force field");
         setupForceField(baseEntityId, coord);
       }
@@ -72,7 +73,7 @@ library ForceFieldLib {
         }
       }
 
-      if (objectTypeId == ForceFieldObjectID) {
+      if (objectTypeId == ObjectTypes.ForceField) {
         destroyForceField(baseEntityId, coord);
       }
     }

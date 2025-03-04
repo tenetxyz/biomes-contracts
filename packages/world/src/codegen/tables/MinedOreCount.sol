@@ -17,7 +17,7 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../ObjectTypeId.sol";
 
 library MinedOreCount {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "MinedOreCount", typeId: RESOURCE_TABLE });`

@@ -18,7 +18,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
 import { EntityId } from "../../EntityId.sol";
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../ObjectTypeId.sol";
 
 library InventoryCount {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "InventoryCount", typeId: RESOURCE_TABLE });`

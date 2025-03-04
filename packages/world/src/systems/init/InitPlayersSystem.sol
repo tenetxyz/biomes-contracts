@@ -5,13 +5,13 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { MAX_PLAYER_ENERGY } from "../../Constants.sol";
-import { PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypes } from "../../ObjectTypes.sol";
 
 contract InitPlayersSystem is System {
   function initPlayerObjectTypes() public {
     // Players
     ObjectTypeMetadata._set(
-      PlayerObjectID,
+      ObjectTypes.Player,
       ObjectTypeMetadataData({
         stackable: 0,
         maxInventorySlots: 36,

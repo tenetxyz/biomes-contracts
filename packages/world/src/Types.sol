@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { EnergyData } from "./codegen/tables/Energy.sol";
 import { Vec3 } from "./Vec3.sol";
 import { EntityId } from "./EntityId.sol";
-import { ObjectTypeId } from "./ObjectTypeIds.sol";
+import { ObjectTypeId } from "./ObjectTypeId.sol";
 
 struct InventoryEntity {
   EntityId entityId;

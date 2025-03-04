@@ -9,7 +9,8 @@ import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
-import { ObjectTypeId, AirObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonEntity, transferInventoryEntity } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -29,7 +30,7 @@ contract DropSystem is System {
     requireInPlayerInfluence(playerCoord, coord);
 
     (EntityId entityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
-    require(objectTypeId == AirObjectID, "Cannot drop on a non-air block");
+    require(objectTypeId == ObjectTypes.Air, "Cannot drop on a non-air block");
 
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_DROP_ENERGY_COST);
 
@@ -38,7 +39,7 @@ contract DropSystem is System {
 
   function drop(ObjectTypeId dropObjectTypeId, uint16 numToDrop, Vec3 coord) public {
     (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
-    transferInventoryNonEntity(playerEntityId, entityId, AirObjectID, dropObjectTypeId, numToDrop);
+    transferInventoryNonEntity(playerEntityId, entityId, ObjectTypes.Air, dropObjectTypeId, numToDrop);
 
     notify(
       playerEntityId,
@@ -48,7 +49,7 @@ contract DropSystem is System {
 
   function dropTool(EntityId toolEntityId, Vec3 coord) public {
     (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
-    ObjectTypeId toolObjectTypeId = transferInventoryEntity(playerEntityId, entityId, AirObjectID, toolEntityId);
+    ObjectTypeId toolObjectTypeId = transferInventoryEntity(playerEntityId, entityId, ObjectTypes.Air, toolEntityId);
 
     notify(playerEntityId, DropNotifData({ dropCoord: coord, dropObjectTypeId: toolObjectTypeId, dropAmount: 1 }));
   }
@@ -63,7 +64,7 @@ contract DropSystem is System {
       ObjectTypeId currentToolObjectTypeId = transferInventoryEntity(
         playerEntityId,
         entityId,
-        AirObjectID,
+        ObjectTypes.Air,
         toolEntityIds[i]
       );
       if (i > 0) {

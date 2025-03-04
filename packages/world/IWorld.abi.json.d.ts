@@ -1745,20 +1745,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "initDyedObjectTypes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initDyedRecipes",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "initHandcrafedRecipes",
     "inputs": [],
     "outputs": [],

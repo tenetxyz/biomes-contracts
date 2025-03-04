@@ -8,7 +8,7 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { TerrainLib } from "../systems/libraries/TerrainLib.sol";
 
 import { getUniqueEntity } from "../Utils.sol";
-import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 

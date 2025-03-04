@@ -6,7 +6,7 @@ import { ActionType } from "../codegen/common.sol";
 
 import { Vec3 } from "../Vec3.sol";
 import { EntityId } from "../EntityId.sol";
-import { ObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
 
 struct BuildNotifData {
   EntityId buildEntityId;

@@ -13,7 +13,8 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { ObjectTypeId, PlayerObjectID, SmartChestObjectID, ForceFieldObjectID, SmartTextSignObjectID, SpawnTileObjectID, BedObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
@@ -51,15 +52,15 @@ contract ChipSystem is System {
     (address chipAddress, bool publicAccess) = Systems._get(chipSystemId);
     require(!publicAccess, "Chip system must be private");
 
-    if (objectTypeId == ForceFieldObjectID) {
+    if (objectTypeId == ObjectTypes.ForceField) {
       _requireInterface(chipAddress, type(IForceFieldChip).interfaceId);
-    } else if (objectTypeId == SmartChestObjectID) {
+    } else if (objectTypeId == ObjectTypes.SmartChest) {
       _requireInterface(chipAddress, type(IChestChip).interfaceId);
-    } else if (objectTypeId == SmartTextSignObjectID) {
+    } else if (objectTypeId == ObjectTypes.SmartTextSign) {
       _requireInterface(chipAddress, type(IDisplayChip).interfaceId);
-    } else if (objectTypeId == SpawnTileObjectID) {
+    } else if (objectTypeId == ObjectTypes.SpawnTile) {
       _requireInterface(chipAddress, type(ISpawnTileChip).interfaceId);
-    } else if (objectTypeId == BedObjectID) {
+    } else if (objectTypeId == ObjectTypes.Bed) {
       _requireInterface(chipAddress, type(IBedChip).interfaceId);
     } else {
       revert("Cannot attach a chip to this object");

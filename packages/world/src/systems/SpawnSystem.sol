@@ -16,7 +16,8 @@ import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
 import { LocalEnergyPool, ExploredChunkByIndex, ExploredChunk, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
-import { ObjectTypeId, AirObjectID, PlayerObjectID, SpawnTileObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { checkWorldStatus, getUniqueEntity, inWorldBorder } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { mod } from "../utils/MathUtils.sol";
@@ -75,7 +76,7 @@ contract SpawnSystem is System {
     require(!forceFieldEntityId.exists(), "Cannot spawn in force field");
 
     // Extract energy from local pool
-    uint32 playerMass = ObjectTypeMetadata._getMass(PlayerObjectID);
+    uint32 playerMass = ObjectTypeMetadata._getMass(ObjectTypes.Player);
     uint128 energyRequired = getEnergyCostToSpawn(playerMass);
     removeEnergyFromLocalPool(spawnCoord, energyRequired);
 
@@ -85,14 +86,14 @@ contract SpawnSystem is System {
   function spawn(EntityId spawnTileEntityId, Vec3 spawnCoord, bytes memory extraData) public returns (EntityId) {
     checkWorldStatus();
     ObjectTypeId objectTypeId = ObjectType._get(spawnTileEntityId);
-    require(objectTypeId == SpawnTileObjectID, "Not a spawn tile");
+    require(objectTypeId == ObjectTypes.SpawnTile, "Not a spawn tile");
 
     Vec3 spawnTileCoord = Position._get(spawnTileEntityId);
     require(spawnTileCoord.inSurroundingCube(spawnCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH), "Spawn tile is too far away");
 
     EntityId forceFieldEntityId = getForceField(spawnTileCoord);
     require(forceFieldEntityId.exists(), "Spawn tile is not inside a forcefield");
-    uint32 playerMass = ObjectTypeMetadata._getMass(PlayerObjectID);
+    uint32 playerMass = ObjectTypeMetadata._getMass(ObjectTypes.Player);
     uint128 energyRequired = getEnergyCostToSpawn(playerMass);
     EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
     require(machineData.energy >= energyRequired, "Not enough energy in spawn tile forcefield");

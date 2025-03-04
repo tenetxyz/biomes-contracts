@@ -20,7 +20,9 @@ import { ExploredChunk, ExploredChunkByIndex, ForceField, LocalEnergyPool, Rever
 
 import { ISpawnTileChip } from "../src/prototypes/ISpawnTileChip.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID } from "../src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -38,8 +40,10 @@ contract TestSpawnChip is ISpawnTileChip, System {
 }
 
 contract SpawnTest is BiomesTest {
+  using ObjectTypeLib for ObjectTypeId;
+
   function spawnEnergy() internal view returns (uint128) {
-    uint32 playerMass = ObjectTypeMetadata.getMass(PlayerObjectID);
+    uint32 playerMass = ObjectTypeMetadata.getMass(ObjectTypes.Player);
     return MAX_PLAYER_ENERGY + massToEnergy(playerMass);
   }
 
@@ -56,7 +60,7 @@ contract SpawnTest is BiomesTest {
     EntityId belowEntityId = randomEntityId();
     Vec3 belowCoord = spawnCoord - vec3(0, 1, 0);
     ReversePosition.set(belowCoord, belowEntityId);
-    ObjectType.set(belowEntityId, DirtObjectID);
+    ObjectType.set(belowEntityId, ObjectTypes.Dirt);
 
     // Give energy for local shard
     Vec3 shardCoord = spawnCoord.toLocalEnergyPoolShardCoord();
@@ -103,7 +107,7 @@ contract SpawnTest is BiomesTest {
     EntityId spawnTileEntityId = randomEntityId();
     Position.set(spawnTileEntityId, spawnTileCoord);
     ReversePosition.set(spawnTileCoord, spawnTileEntityId);
-    ObjectType.set(spawnTileEntityId, SpawnTileObjectID);
+    ObjectType.set(spawnTileEntityId, ObjectTypes.SpawnTile);
 
     TestSpawnChip chip = new TestSpawnChip();
     bytes14 namespace = "chipNamespace";
@@ -150,7 +154,7 @@ contract SpawnTest is BiomesTest {
     EntityId spawnTileEntityId = randomEntityId();
     Position.set(spawnTileEntityId, spawnTileCoord);
     ReversePosition.set(spawnTileCoord, spawnTileEntityId);
-    ObjectType.set(spawnTileEntityId, SpawnTileObjectID);
+    ObjectType.set(spawnTileEntityId, ObjectTypes.SpawnTile);
 
     vm.prank(alice);
     vm.expectRevert("Spawn tile is too far away");
@@ -168,7 +172,7 @@ contract SpawnTest is BiomesTest {
     EntityId spawnTileEntityId = randomEntityId();
     Position.set(spawnTileEntityId, spawnTileCoord);
     ReversePosition.set(spawnTileCoord, spawnTileEntityId);
-    ObjectType.set(spawnTileEntityId, SpawnTileObjectID);
+    ObjectType.set(spawnTileEntityId, ObjectTypes.SpawnTile);
 
     vm.prank(alice);
     vm.expectRevert("Spawn tile is not inside a forcefield");
@@ -189,7 +193,7 @@ contract SpawnTest is BiomesTest {
     EntityId spawnTileEntityId = randomEntityId();
     Position.set(spawnTileEntityId, spawnTileCoord);
     ReversePosition.set(spawnTileCoord, spawnTileEntityId);
-    ObjectType.set(spawnTileEntityId, SpawnTileObjectID);
+    ObjectType.set(spawnTileEntityId, ObjectTypes.SpawnTile);
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy in spawn tile forcefield");

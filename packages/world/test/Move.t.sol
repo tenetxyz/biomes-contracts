@@ -28,13 +28,16 @@ import { ExploredChunk, ExploredChunkByIndex, MinedOrePosition, ForceField, Loca
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, SmartChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
-import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract MoveTest is BiomesTest {
+  using ObjectTypeLib for ObjectTypeId;
+
   function _testMoveMultipleBlocks(address player, uint8 numBlocksToMove, bool overTerrain) internal {
     EntityId playerEntityId = Player.get(player);
     Vec3 startingCoord = PlayerPosition.get(playerEntityId);
@@ -45,13 +48,13 @@ contract MoveTest is BiomesTest {
       Vec3 belowCoord = newCoords[i] - vec3(0, 1, 0);
       Vec3 aboveCoord = newCoords[i] + vec3(0, 1, 0);
       if (overTerrain) {
-        setTerrainAtCoord(newCoords[i], AirObjectID);
-        setTerrainAtCoord(aboveCoord, AirObjectID);
-        setTerrainAtCoord(belowCoord, GrassObjectID);
+        setTerrainAtCoord(newCoords[i], ObjectTypes.Air);
+        setTerrainAtCoord(aboveCoord, ObjectTypes.Air);
+        setTerrainAtCoord(belowCoord, ObjectTypes.Grass);
       } else {
-        setObjectAtCoord(newCoords[i], AirObjectID);
-        setObjectAtCoord(aboveCoord, AirObjectID);
-        setObjectAtCoord(belowCoord, GrassObjectID);
+        setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+        setObjectAtCoord(aboveCoord, ObjectTypes.Air);
+        setObjectAtCoord(belowCoord, ObjectTypes.Grass);
       }
     }
 
@@ -139,8 +142,8 @@ contract MoveTest is BiomesTest {
     Vec3[] memory newCoords = new Vec3[](numJumps);
     for (uint32 i = 0; i < numJumps; i++) {
       newCoords[i] = playerCoord + vec3(0, int32(i) + 1, 0);
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -169,11 +172,11 @@ contract MoveTest is BiomesTest {
     Vec3[] memory newCoords = new Vec3[](numGlides + 1);
     for (uint32 i = 0; i < newCoords.length; i++) {
       newCoords[i] = playerCoord + vec3(0, 1, int32(int256(uint256(i))));
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
     Vec3 expectedFinalCoord = playerCoord + vec3(0, 0, int32(int256(numGlides)));
-    setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), GrassObjectID);
+    setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), ObjectTypes.Grass);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
@@ -225,8 +228,8 @@ contract MoveTest is BiomesTest {
     newCoords[2] = playerCoord + vec3(0, 0, 1);
     newCoords[3] = playerCoord;
     for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -256,11 +259,11 @@ contract MoveTest is BiomesTest {
     newCoords[4] = playerCoord + vec3(0, 0, -1);
     newCoords[5] = playerCoord + vec3(0, 0, -2);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
     Vec3 expectedFinalCoord = newCoords[newCoords.length - 1];
-    setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), GrassObjectID);
+    setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), ObjectTypes.Grass);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
@@ -285,8 +288,8 @@ contract MoveTest is BiomesTest {
     Vec3[] memory newCoords = new Vec3[](numJumps);
     for (uint8 i = 0; i < numJumps; i++) {
       newCoords[i] = playerCoord + vec3(0, int32(int(uint(i))) + 1, 0);
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
 
     vm.prank(alice);
@@ -301,8 +304,8 @@ contract MoveTest is BiomesTest {
     Vec3[] memory newCoords = new Vec3[](numGlides + 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
       newCoords[i] = playerCoord + vec3(0, 1, int32(int(uint(i))));
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
 
     vm.prank(alice);
@@ -317,17 +320,17 @@ contract MoveTest is BiomesTest {
     newCoords[0] = playerCoord + vec3(0, 0, 1);
     newCoords[1] = playerCoord + vec3(0, 0, 2);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
 
-    setObjectAtCoord(newCoords[1], DirtObjectID);
+    setObjectAtCoord(newCoords[1], ObjectTypes.Dirt);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a non-passable block");
     world.move(newCoords);
 
-    setObjectAtCoord(newCoords[0] + vec3(0, 1, 0), DirtObjectID);
+    setObjectAtCoord(newCoords[0] + vec3(0, 1, 0), ObjectTypes.Dirt);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a non-passable block");
@@ -342,8 +345,8 @@ contract MoveTest is BiomesTest {
     Vec3[] memory newCoords = new Vec3[](2);
     newCoords[0] = aliceCoord + vec3(0, 0, 1);
     newCoords[1] = bobCoord;
-    setObjectAtCoord(newCoords[0], AirObjectID);
-    setObjectAtCoord(newCoords[0] + vec3(0, 1, 0), AirObjectID);
+    setObjectAtCoord(newCoords[0], ObjectTypes.Air);
+    setObjectAtCoord(newCoords[0] + vec3(0, 1, 0), ObjectTypes.Air);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a player");
@@ -363,8 +366,8 @@ contract MoveTest is BiomesTest {
     newCoords[0] = playerCoord + vec3(0, 0, 1);
     newCoords[1] = playerCoord + vec3(0, 0, 3);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
 
     vm.prank(alice);
@@ -395,8 +398,8 @@ contract MoveTest is BiomesTest {
     newCoords[0] = playerCoord + vec3(0, 0, 1);
     newCoords[1] = playerCoord + vec3(0, 0, 2);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
 
     vm.expectRevert("Player does not exist");
@@ -410,8 +413,8 @@ contract MoveTest is BiomesTest {
     newCoords[0] = playerCoord + vec3(0, 0, 1);
     newCoords[1] = playerCoord + vec3(0, 0, 2);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], AirObjectID);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), AirObjectID);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());

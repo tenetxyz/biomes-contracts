@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { Vec3, vec3 } from "../../Vec3.sol";
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../ObjectTypeId.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
@@ -17,7 +17,7 @@ import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
 import { Position, PlayerPosition, ReversePosition, ReversePlayerPosition } from "../../utils/Vec3Storage.sol";
 
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
-import { NullObjectTypeId, PlayerObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypes } from "../../ObjectTypes.sol";
 import { InventoryObject, EntityData } from "../../Types.sol";
 import { EntityId } from "../../EntityId.sol";
 
@@ -31,7 +31,7 @@ contract ReadSystem is System {
     if (!entityId.exists()) {
       return
         EntityData({
-          objectTypeId: NullObjectTypeId,
+          objectTypeId: ObjectTypes.Null,
           entityId: EntityId.wrap(0),
           baseEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
@@ -56,7 +56,7 @@ contract ReadSystem is System {
     if (!entityId.exists()) {
       return
         EntityData({
-          objectTypeId: NullObjectTypeId,
+          objectTypeId: ObjectTypes.Null,
           entityId: EntityId.wrap(0),
           baseEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
@@ -104,7 +104,7 @@ contract ReadSystem is System {
 
   function getCoordForEntityId(EntityId entityId) public view returns (Vec3) {
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
-    if (objectTypeId == PlayerObjectID) {
+    if (objectTypeId == ObjectTypes.Player) {
       EntityId bedEntityId = PlayerStatus._getBedEntityId(entityId);
       if (bedEntityId.exists()) {
         return Position._get(bedEntityId);

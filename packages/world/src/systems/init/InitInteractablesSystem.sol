@@ -4,11 +4,9 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { WorkbenchObjectID } from "../../ObjectTypeIds.sol";
 
-import { ObjectTypeId } from "../../ObjectTypeIds.sol";
-import { ChestObjectID, SmartChestObjectID, ThermoblasterObjectID, PowerStoneObjectID, WorkbenchObjectID, DyeomaticObjectID, ForceFieldObjectID, TextSignObjectID, SmartTextSignObjectID, PipeObjectID, SpawnTileObjectID, BedObjectID } from "../../ObjectTypeIds.sol";
-import { AnyLumberObjectID, AnyGlassObjectID, StoneObjectID, ClayObjectID, SandObjectID, AnyLogObjectID, CoalOreObjectID, GlassObjectID, MoonstoneObjectID, SilverBarObjectID, NeptuniumOreObjectID, AnyCottonBlockObjectID } from "../../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../../ObjectTypeId.sol";
+import { ObjectTypes } from "../../ObjectTypes.sol";
 
 import { createSingleInputRecipe, createDoubleInputRecipe, createSingleInputWithStationRecipe, createDoubleInputWithStationRecipe } from "../../utils/RecipeUtils.sol";
 
@@ -32,72 +30,80 @@ contract InitInteractablesSystem is System {
   }
 
   function initInteractableObjectTypes() public {
-    createInteractableBlock(ChestObjectID, 20, 24, 1);
-    createInteractableBlock(SmartChestObjectID, 20, 24, 1);
-    createInteractableBlock(TextSignObjectID, 20, 0, 99);
-    createInteractableBlock(SmartTextSignObjectID, 20, 0, 99);
-    createInteractableBlock(ThermoblasterObjectID, 80, 0, 1);
-    createInteractableBlock(WorkbenchObjectID, 20, 0, 1);
-    createInteractableBlock(DyeomaticObjectID, 80, 0, 1);
-    createInteractableBlock(PowerStoneObjectID, 80, 0, 1);
-    createInteractableBlock(ForceFieldObjectID, 80, 0, 99);
-    createInteractableBlock(PipeObjectID, 80, 0, 99);
-    createInteractableBlock(SpawnTileObjectID, 80, 0, 99);
-    createInteractableBlock(BedObjectID, 80, 36, 1);
+    createInteractableBlock(ObjectTypes.Chest, 20, 24, 1);
+    createInteractableBlock(ObjectTypes.SmartChest, 20, 24, 1);
+    createInteractableBlock(ObjectTypes.TextSign, 20, 0, 99);
+    createInteractableBlock(ObjectTypes.SmartTextSign, 20, 0, 99);
+    createInteractableBlock(ObjectTypes.Thermoblaster, 80, 0, 1);
+    createInteractableBlock(ObjectTypes.Workbench, 20, 0, 1);
+    createInteractableBlock(ObjectTypes.Dyeomatic, 80, 0, 1);
+    createInteractableBlock(ObjectTypes.Powerstone, 80, 0, 1);
+    createInteractableBlock(ObjectTypes.ForceField, 80, 0, 99);
+    createInteractableBlock(ObjectTypes.Pipe, 80, 0, 99);
+    createInteractableBlock(ObjectTypes.SpawnTile, 80, 0, 99);
+    createInteractableBlock(ObjectTypes.Bed, 80, 36, 1);
   }
 
   function initInteractablesRecipes() public {
-    createSingleInputWithStationRecipe(WorkbenchObjectID, AnyLumberObjectID, 8, ChestObjectID, 1);
+    createSingleInputWithStationRecipe(ObjectTypes.Workbench, ObjectTypes.AnyPlanks, 8, ObjectTypes.Chest, 1);
     createDoubleInputWithStationRecipe(
-      WorkbenchObjectID,
-      ChestObjectID,
+      ObjectTypes.Workbench,
+      ObjectTypes.Chest,
       1,
-      SilverBarObjectID,
+      ObjectTypes.SilverBar,
       1,
-      SmartChestObjectID,
+      ObjectTypes.SmartChest,
       1
     );
-    createSingleInputWithStationRecipe(WorkbenchObjectID, AnyLumberObjectID, 4, TextSignObjectID, 1);
+    createSingleInputWithStationRecipe(ObjectTypes.Workbench, ObjectTypes.AnyPlanks, 4, ObjectTypes.TextSign, 1);
     createDoubleInputWithStationRecipe(
-      WorkbenchObjectID,
-      TextSignObjectID,
+      ObjectTypes.Workbench,
+      ObjectTypes.TextSign,
       1,
-      SilverBarObjectID,
+      ObjectTypes.SilverBar,
       1,
-      SmartTextSignObjectID,
+      ObjectTypes.SmartTextSign,
       1
     );
-    createSingleInputRecipe(AnyLogObjectID, 5, WorkbenchObjectID, 1);
-    createSingleInputRecipe(StoneObjectID, 9, ThermoblasterObjectID, 1);
-    createDoubleInputRecipe(ClayObjectID, 4, SandObjectID, 4, DyeomaticObjectID, 1);
-    createDoubleInputRecipe(StoneObjectID, 6, MoonstoneObjectID, 2, PowerStoneObjectID, 1);
+    createSingleInputRecipe(ObjectTypes.AnyLog, 5, ObjectTypes.Workbench, 1);
+    createSingleInputRecipe(ObjectTypes.Stone, 9, ObjectTypes.Thermoblaster, 1);
+    createDoubleInputRecipe(ObjectTypes.Clay, 4, ObjectTypes.Sand, 4, ObjectTypes.Dyeomatic, 1);
+    createDoubleInputRecipe(ObjectTypes.Stone, 6, ObjectTypes.Sand, 2, ObjectTypes.Powerstone, 1);
     createDoubleInputWithStationRecipe(
-      ThermoblasterObjectID,
-      StoneObjectID,
+      ObjectTypes.Thermoblaster,
+      ObjectTypes.Stone,
       30,
-      AnyGlassObjectID,
+      ObjectTypes.SilverBar,
       5,
-      ForceFieldObjectID,
+      ObjectTypes.ForceField,
       1
     );
-    createDoubleInputWithStationRecipe(WorkbenchObjectID, StoneObjectID, 4, SilverBarObjectID, 1, PipeObjectID, 1);
     createDoubleInputWithStationRecipe(
-      ThermoblasterObjectID,
-      ForceFieldObjectID,
-      1,
-      NeptuniumOreObjectID,
+      ObjectTypes.Workbench,
+      ObjectTypes.Stone,
       4,
-      SpawnTileObjectID,
+      ObjectTypes.SilverBar,
+      1,
+      ObjectTypes.Pipe,
+      1
+    );
+    createDoubleInputWithStationRecipe(
+      ObjectTypes.Thermoblaster,
+      ObjectTypes.ForceField,
+      1,
+      ObjectTypes.NeptuniumOre,
+      4,
+      ObjectTypes.SpawnTile,
       1
     );
 
     createDoubleInputWithStationRecipe(
-      WorkbenchObjectID,
-      AnyLumberObjectID,
+      ObjectTypes.Workbench,
+      ObjectTypes.AnyPlanks,
       8,
-      AnyCottonBlockObjectID,
+      ObjectTypes.SilverBar,
       8,
-      BedObjectID,
+      ObjectTypes.Bed,
       1
     );
   }

@@ -11,7 +11,8 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
-import { ObjectTypeId, AirObjectID, PlayerObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 
 import { Position, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
@@ -23,7 +24,10 @@ import { getObjectTypeIdAt, getPlayer, setPlayer } from "./EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
+
+using ObjectTypeLib for ObjectTypeId;
 
 function requireValidPlayer(address player) returns (EntityId, Vec3, EnergyData memory) {
   checkWorldStatus();
@@ -61,7 +65,7 @@ function requireInPlayerInfluence(Vec3 playerCoord, EntityId entityId) view retu
 
 function createPlayer(EntityId playerEntityId, Vec3 playerCoord) {
   // Set the player object type first
-  ObjectType._set(playerEntityId, PlayerObjectID);
+  ObjectType._set(playerEntityId, ObjectTypes.Player);
 
   // Position the player at the given coordinates
   addPlayerToGrid(playerEntityId, playerCoord);
@@ -70,23 +74,26 @@ function createPlayer(EntityId playerEntityId, Vec3 playerCoord) {
 function addPlayerToGrid(EntityId playerEntityId, Vec3 playerCoord) {
   // Check if the spawn location is valid
   ObjectTypeId terrainObjectTypeId = getObjectTypeIdAt(playerCoord);
-  require(terrainObjectTypeId == AirObjectID && !getPlayer(playerCoord).exists(), "Cannot spawn on a non-air block");
+  require(
+    terrainObjectTypeId == ObjectTypes.Air && !getPlayer(playerCoord).exists(),
+    "Cannot spawn on a non-air block"
+  );
 
   // Set the player at the base coordinate
   setPlayer(playerCoord, playerEntityId);
 
   // Handle the player's body parts
-  Vec3[] memory coords = PlayerObjectID.getRelativeCoords(playerCoord);
+  Vec3[] memory coords = ObjectTypes.Player.getRelativeCoords(playerCoord);
   // Only iterate through relative schema coords
   for (uint256 i = 1; i < coords.length; i++) {
     Vec3 relativeCoord = coords[i];
     ObjectTypeId relativeTerrainObjectTypeId = getObjectTypeIdAt(relativeCoord);
     require(
-      relativeTerrainObjectTypeId == AirObjectID && !getPlayer(relativeCoord).exists(),
+      relativeTerrainObjectTypeId == ObjectTypes.Air && !getPlayer(relativeCoord).exists(),
       "Cannot spawn on a non-air block"
     );
     EntityId relativePlayerEntityId = getUniqueEntity();
-    ObjectType._set(relativePlayerEntityId, PlayerObjectID);
+    ObjectType._set(relativePlayerEntityId, ObjectTypes.Player);
     setPlayer(relativeCoord, relativePlayerEntityId);
     BaseEntity._set(relativePlayerEntityId, playerEntityId);
   }
@@ -96,7 +103,7 @@ function removePlayerFromGrid(EntityId playerEntityId, Vec3 playerCoord) {
   PlayerPosition._deleteRecord(playerEntityId);
   ReversePlayerPosition._deleteRecord(playerCoord);
 
-  Vec3[] memory coords = PlayerObjectID.getRelativeCoords(playerCoord);
+  Vec3[] memory coords = ObjectTypes.Player.getRelativeCoords(playerCoord);
   // Only iterate through relative schema coords
   for (uint256 i = 1; i < coords.length; i++) {
     Vec3 relativeCoord = coords[i];

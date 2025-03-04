@@ -3,7 +3,8 @@ pragma solidity >=0.8.24;
 
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
 
-import { ObjectTypeId, NullObjectTypeId } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 
 function createRecipe(
   ObjectTypeId stationObjectTypeId,
@@ -64,7 +65,7 @@ function createSingleInputRecipe(
   uint16 outputObjectTypeAmount
 ) {
   createSingleInputWithStationRecipe(
-    NullObjectTypeId,
+    ObjectTypes.Null,
     inputObjectTypeId,
     inputObjectTypeAmount,
     outputObjectTypeId,
@@ -106,7 +107,7 @@ function createDoubleInputRecipe(
   uint16 outputObjectTypeAmount
 ) {
   createDoubleInputWithStationRecipe(
-    NullObjectTypeId,
+    ObjectTypes.Null,
     inputObjectTypeId1,
     inputObjectTypeAmount1,
     inputObjectTypeId2,

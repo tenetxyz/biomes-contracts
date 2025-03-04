@@ -18,8 +18,9 @@ import { Position } from "../utils/Vec3Storage.sol";
 import { MinedOrePosition } from "../utils/Vec3Storage.sol";
 import { OreCommitment } from "../utils/Vec3Storage.sol";
 
-import { ObjectTypeId, AirObjectID, WaterObjectID, PlayerObjectID, BedObjectID } from "../ObjectTypeIds.sol";
-import { AnyOreObjectID, CoalOreObjectID, SilverOreObjectID, GoldOreObjectID, DiamondOreObjectID, NeptuniumOreObjectID } from "../ObjectTypeIds.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
@@ -55,11 +56,11 @@ library MineLib {
 
     // TODO: can optimize by not storing these in memory and returning the type depending on for loop index
     ObjectTypeId[5] memory ores = [
-      CoalOreObjectID,
-      SilverOreObjectID,
-      GoldOreObjectID,
-      DiamondOreObjectID,
-      NeptuniumOreObjectID
+      ObjectTypes.CoalOre,
+      ObjectTypes.SilverOre,
+      ObjectTypes.GoldOre,
+      ObjectTypes.DiamondOre,
+      ObjectTypes.NeptuniumOre
     ];
 
     uint256[5] memory max = [MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM];
@@ -124,8 +125,10 @@ library MineLib {
 }
 
 contract MineSystem is System {
+  using ObjectTypeLib for ObjectTypeId;
+
   function _removeBlock(EntityId entityId, Vec3 coord) internal {
-    ObjectType._set(entityId, AirObjectID);
+    ObjectType._set(entityId, ObjectTypes.Air);
 
     Vec3 aboveCoord = coord + vec3(0, 1, 0);
     EntityId aboveEntityId = getPlayer(aboveCoord);
@@ -160,7 +163,7 @@ contract MineSystem is System {
     {
       uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);
       if (finalMass == 0) {
-        if (mineObjectTypeId == AnyOreObjectID) {
+        if (mineObjectTypeId == ObjectTypes.AnyOre) {
           mineObjectTypeId = MineLib.mineRandomOre(coord);
         }
         Mass._deleteRecord(baseEntityId);
@@ -170,11 +173,11 @@ contract MineSystem is System {
         }
 
         // If mining a bed with a sleeping player, kill the player
-        if (mineObjectTypeId == BedObjectID) {
+        if (mineObjectTypeId == ObjectTypes.Bed) {
           MineLib.mineBed(baseEntityId, baseCoord);
         }
 
-        addToInventoryCount(playerEntityId, PlayerObjectID, mineObjectTypeId, 1);
+        addToInventoryCount(playerEntityId, ObjectTypes.Player, mineObjectTypeId, 1);
 
         _removeBlock(baseEntityId, baseCoord);
 

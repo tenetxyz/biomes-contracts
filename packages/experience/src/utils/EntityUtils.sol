@@ -16,7 +16,8 @@ import { InventoryCount } from "@biomesaw/world/src/codegen/tables/InventoryCoun
 
 import { Position, ReversePosition } from "@biomesaw/world/src/utils/Vec3Storage.sol";
 
-import { ObjectTypeId, ChestObjectID } from "@biomesaw/world/src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "@biomesaw/world/src/ObjectTypeId.sol";
+import { ObjectTypes } from "@biomesaw/world/src/ObjectTypes.sol";
 import { Vec3 } from "@biomesaw/world/src/Vec3.sol";
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 
@@ -81,5 +82,5 @@ function getEntityAtCoord(Vec3 coord) view returns (EntityId) {
 }
 
 function numMaxInChest(ObjectTypeId objectTypeId) view returns (uint16) {
-  return getStackable(objectTypeId) * ObjectTypeMetadata.getMaxInventorySlots(ChestObjectID);
+  return getStackable(objectTypeId) * ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Chest);
 }

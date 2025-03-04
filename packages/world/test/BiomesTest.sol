@@ -24,7 +24,9 @@ import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
-import { ObjectTypeId, PlayerObjectID, AirObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, WaterObjectID, ForceFieldObjectID } from "../src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { energyToMass } from "../src/utils/EnergyUtils.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
@@ -33,6 +35,8 @@ import { BiomesAssertions } from "./BiomesAssertions.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
 abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
+  using ObjectTypeLib for ObjectTypeId;
+
   IWorld internal world;
   int32 constant FLAT_CHUNK_GRASS_LEVEL = 4;
   uint128 playerHandMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST);
@@ -58,15 +62,15 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
   function createTestPlayer(Vec3 coord) internal returns (address, EntityId) {
     address playerAddress = vm.randomAddress();
     EntityId playerEntityId = randomEntityId();
-    ObjectType.set(playerEntityId, PlayerObjectID);
+    ObjectType.set(playerEntityId, ObjectTypes.Player);
     PlayerPosition.set(playerEntityId, coord);
     ReversePlayerPosition.set(coord, playerEntityId);
 
-    Vec3[] memory relativePositions = PlayerObjectID.getObjectTypeSchema();
+    Vec3[] memory relativePositions = ObjectTypes.Player.getObjectTypeSchema();
     for (uint256 i = 0; i < relativePositions.length; i++) {
       Vec3 relativeCoord = coord + relativePositions[i];
       EntityId relativePlayerEntityId = randomEntityId();
-      ObjectType.set(relativePlayerEntityId, PlayerObjectID);
+      ObjectType.set(relativePlayerEntityId, ObjectTypes.Player);
       PlayerPosition.set(relativePlayerEntityId, relativeCoord);
       ReversePlayerPosition.set(relativeCoord, relativePlayerEntityId);
       BaseEntity.set(relativePlayerEntityId, playerEntityId);
@@ -75,7 +79,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     Player.set(playerAddress, playerEntityId);
     ReversePlayer.set(playerEntityId, playerAddress);
 
-    Mass.set(playerEntityId, ObjectTypeMetadata.getMass(PlayerObjectID));
+    Mass.set(playerEntityId, ObjectTypeMetadata.getMass(ObjectTypes.Player));
     Energy.set(
       playerEntityId,
       EnergyData({
@@ -99,11 +103,11 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
         chunk[x][y] = new uint8[](uint256(int256(CHUNK_SIZE)));
         for (uint256 z = 0; z < uint256(int256(CHUNK_SIZE)); z++) {
           if (y < uint256(int256(FLAT_CHUNK_GRASS_LEVEL))) {
-            chunk[x][y][z] = uint8(ObjectTypeId.unwrap(DirtObjectID));
+            chunk[x][y][z] = uint8(ObjectTypeId.unwrap(ObjectTypes.Dirt));
           } else if (y == uint256(int256(FLAT_CHUNK_GRASS_LEVEL))) {
-            chunk[x][y][z] = uint8(ObjectTypeId.unwrap(GrassObjectID));
+            chunk[x][y][z] = uint8(ObjectTypeId.unwrap(ObjectTypes.Grass));
           } else {
-            chunk[x][y][z] = uint8(ObjectTypeId.unwrap(AirObjectID));
+            chunk[x][y][z] = uint8(ObjectTypeId.unwrap(ObjectTypes.Air));
           }
         }
       }
@@ -157,7 +161,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
   }
 
   function _getAirChunk() internal pure returns (uint8[][][] memory chunk) {
-    chunk = _getChunk(AirObjectID);
+    chunk = _getChunk(ObjectTypes.Air);
   }
 
   function setupAirChunk(Vec3 coord) internal {
@@ -173,7 +177,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
   }
 
   function _getWaterChunk() internal pure returns (uint8[][][] memory chunk) {
-    chunk = _getChunk(WaterObjectID);
+    chunk = _getChunk(ObjectTypes.Water);
   }
 
   function setupWaterChunk(Vec3 coord) internal {
@@ -252,9 +256,9 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
 
   function spawnPlayerOnAirChunk(Vec3 spawnCoord) internal returns (address, EntityId, Vec3) {
     Vec3 belowCoord = spawnCoord - vec3(0, 1, 0);
-    setTerrainAtCoord(spawnCoord, AirObjectID);
-    setTerrainAtCoord(spawnCoord + vec3(0, 1, 0), AirObjectID);
-    setTerrainAtCoord(belowCoord, DirtObjectID);
+    setTerrainAtCoord(spawnCoord, ObjectTypes.Air);
+    setTerrainAtCoord(spawnCoord + vec3(0, 1, 0), ObjectTypes.Air);
+    setTerrainAtCoord(belowCoord, ObjectTypes.Dirt);
 
     (address alice, EntityId aliceEntityId) = createTestPlayer(spawnCoord);
     Vec3 playerCoord = PlayerPosition.get(aliceEntityId);
@@ -264,7 +268,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
 
   function setupForceField(Vec3 coord) internal returns (EntityId) {
     // Set forcefield with no energy
-    EntityId forceFieldEntityId = setObjectAtCoord(coord, ForceFieldObjectID);
+    EntityId forceFieldEntityId = setObjectAtCoord(coord, ObjectTypes.ForceField);
     Vec3 shardCoord = coord.toForceFieldShardCoord();
     ForceField.set(shardCoord, forceFieldEntityId);
     return forceFieldEntityId;

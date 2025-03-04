@@ -31,17 +31,20 @@ import { ExploredChunk, ExploredChunkByIndex, MinedOrePosition, PlayerPosition, 
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
-import { PlayerObjectID, AirObjectID, WoodenPickObjectID, WoodenAxeObjectID, WaterObjectID, DirtObjectID, SpawnTileObjectID, GrassObjectID, ForceFieldObjectID, ChestObjectID, TextSignObjectID } from "../src/ObjectTypeIds.sol";
-import { ObjectTypeId } from "../src/ObjectTypeIds.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract EquipTest is BiomesTest {
+  using ObjectTypeLib for ObjectTypeId;
+
   function testEquip() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    ObjectTypeId toolObjectTypeId = ObjectTypes.WoodenPick;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
@@ -59,7 +62,7 @@ contract EquipTest is BiomesTest {
   function testUnequip() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    ObjectTypeId toolObjectTypeId = ObjectTypes.WoodenPick;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
@@ -83,11 +86,11 @@ contract EquipTest is BiomesTest {
   function testEquipAlreadyEquipped() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    ObjectTypeId toolObjectTypeId1 = WoodenPickObjectID;
+    ObjectTypeId toolObjectTypeId1 = ObjectTypes.WoodenPick;
     EntityId toolEntityId1 = addToolToInventory(aliceEntityId, toolObjectTypeId1);
     assertInventoryHasTool(aliceEntityId, toolEntityId1, 1);
 
-    ObjectTypeId toolObjectTypeId2 = WoodenAxeObjectID;
+    ObjectTypeId toolObjectTypeId2 = ObjectTypes.WoodenAxe;
     EntityId toolEntityId2 = addToolToInventory(aliceEntityId, toolObjectTypeId2);
     assertInventoryHasTool(aliceEntityId, toolEntityId2, 1);
 
@@ -111,7 +114,7 @@ contract EquipTest is BiomesTest {
   function testUnequipNothingEquipped() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    ObjectTypeId toolObjectTypeId = ObjectTypes.WoodenPick;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
@@ -128,8 +131,8 @@ contract EquipTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 dropCoord = playerCoord + vec3(0, 1, 0);
-    setObjectAtCoord(dropCoord, AirObjectID);
-    ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
+    setObjectAtCoord(dropCoord, ObjectTypes.Air);
+    ObjectTypeId transferObjectTypeId = ObjectTypes.WoodenPick;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     EntityId airEntityId = ReversePosition.get(dropCoord);
@@ -162,9 +165,9 @@ contract EquipTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ChestObjectID);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
 
-    ObjectTypeId transferObjectTypeId = WoodenPickObjectID;
+    ObjectTypeId transferObjectTypeId = ObjectTypes.WoodenPick;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
@@ -203,7 +206,7 @@ contract EquipTest is BiomesTest {
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
 
-    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    ObjectTypeId toolObjectTypeId = ObjectTypes.WoodenPick;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
@@ -223,7 +226,7 @@ contract EquipTest is BiomesTest {
     assertLt(toolMassAfter, toolMassBefore, "Tool mass is not less");
 
     mineEntityId = ReversePosition.get(mineCoord);
-    assertTrue(ObjectType.get(mineEntityId) == AirObjectID, "Mine entity is not air");
+    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -246,7 +249,7 @@ contract EquipTest is BiomesTest {
 
     (address bob, EntityId bobEntityId, Vec3 bobCoord) = spawnPlayerOnAirChunk(aliceCoord + vec3(0, 0, 1));
 
-    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    ObjectTypeId toolObjectTypeId = ObjectTypes.WoodenPick;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
@@ -266,7 +269,7 @@ contract EquipTest is BiomesTest {
   function testEquipFailsIfNoPlayer() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    ObjectTypeId toolObjectTypeId = ObjectTypes.WoodenPick;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
@@ -279,7 +282,7 @@ contract EquipTest is BiomesTest {
   function testEquipFailsIfSleeping() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    ObjectTypeId toolObjectTypeId = ObjectTypes.WoodenPick;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
@@ -295,7 +298,7 @@ contract EquipTest is BiomesTest {
   function testUnequipFailsIfNoPlayer() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    ObjectTypeId toolObjectTypeId = ObjectTypes.WoodenPick;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
@@ -313,7 +316,7 @@ contract EquipTest is BiomesTest {
   function testUnequipFailsIfSleeping() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    ObjectTypeId toolObjectTypeId = WoodenPickObjectID;
+    ObjectTypeId toolObjectTypeId = ObjectTypes.WoodenPick;
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
