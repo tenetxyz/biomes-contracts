@@ -25,6 +25,7 @@ export default defineWorld({
       "DetachChip",
       "InitiateOreReveal",
       "RevealOre",
+      "ExpandForceField",
     ],
     DisplayContentType: ["None", "Text", "Image"],
     Direction: [

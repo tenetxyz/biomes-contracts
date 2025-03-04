@@ -9,12 +9,29 @@ import { EntityId } from "../src/EntityId.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 
 contract Vec3Test is BiomesTest {
+  function testVec3Encoding() public pure {
+    Vec3 vec = vec3(1, 2, 3);
+    assertEq(vec.x(), 1);
+    assertEq(vec.y(), 2);
+    assertEq(vec.z(), 3);
+
+    vec = vec3(-1, -2, -3);
+    assertEq(vec.x(), -1);
+    assertEq(vec.y(), -2);
+    assertEq(vec.z(), -3);
+  }
+
   function testVec3ToEntity() public {
     EntityId entityId = randomEntityId();
-    Vec3 vec = vec3(1, 2, 3);
 
+    Vec3 vec = vec3(1, 2, 3);
     Position.set(entityId, vec);
     Vec3 stored = Position.get(entityId);
+    assertEq(vec, stored, "Vec3s do not match");
+
+    vec = vec3(-1, -2, -3);
+    Position.set(entityId, vec);
+    stored = Position.get(entityId);
     assertEq(vec, stored, "Vec3s do not match");
   }
 

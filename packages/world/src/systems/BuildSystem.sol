@@ -24,7 +24,6 @@ import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 
 import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
-import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { getPlayer } from "../utils/EntityUtils.sol";
@@ -48,6 +47,35 @@ library BuildLib {
     ObjectType._set(terrainEntityId, buildObjectTypeId);
 
     return terrainEntityId;
+  }
+
+  function _requireBuildsAllowed(
+    EntityId playerEntityId,
+    EntityId baseEntityId,
+    ObjectTypeId objectTypeId,
+    Vec3[] memory coords,
+    bytes memory extraData
+  ) public {
+    for (uint256 i = 0; i < coords.length; i++) {
+      Vec3 coord = coords[i];
+      EntityId forceFieldEntityId = getForceField(coord);
+      if (objectTypeId == ObjectTypes.ForceField) {
+        require(!forceFieldEntityId.exists(), "Force field overlaps with another force field");
+        setupForceField(baseEntityId, coord);
+      }
+
+      if (forceFieldEntityId.exists()) {
+        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+        if (machineData.energy > 0) {
+          bytes memory onBuildCall = abi.encodeCall(
+            IForceFieldChip.onBuild,
+            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
+          );
+
+          callChipOrRevert(forceFieldEntityId.getChipAddress(), onBuildCall);
+        }
+      }
+    }
   }
 }
 
@@ -93,7 +121,7 @@ contract BuildSystem is System {
     );
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
-    ForceFieldLib.requireBuildsAllowed(playerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
+    BuildLib._requireBuildsAllowed(playerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
 
     return baseEntityId;
   }
