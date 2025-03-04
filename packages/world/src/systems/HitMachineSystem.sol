@@ -10,9 +10,10 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
+import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { Position, ForceFieldMetadata } from "../utils/Vec3Storage.sol";
+import { Position } from "../utils/Vec3Storage.sol";
 
 import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
@@ -46,8 +47,7 @@ contract HitMachineSystem is System {
     require(toolObjectTypeId.isWhacker(), "You must use a whacker to hit machines");
 
     uint128 baseEnergyReduction = PLAYER_HIT_ENERGY_COST + massToEnergy(toolMassReduction);
-    Vec3 forceFieldShardCoord = machineCoord.toForceFieldShardCoord();
-    uint128 protection = ForceFieldMetadata._getTotalMassInside(forceFieldShardCoord);
+    uint128 protection = ForceFieldMetadata._getTotalMassInside(machineEntityId);
     // TODO: scale protection otherwise, targetEnergyReduction will be 0
     uint128 targetEnergyReduction = baseEnergyReduction / protection;
     uint128 newMachineEnergy = targetEnergyReduction <= machineData.energy
