@@ -126,7 +126,6 @@ library MineLib {
 
   function _requireMinesAllowed(
     EntityId playerEntityId,
-    EntityId baseEntityId,
     ObjectTypeId objectTypeId,
     Vec3[] memory coords,
     bytes memory extraData
@@ -225,9 +224,11 @@ contract MineSystem is System {
       MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
     );
 
-    MineLib._requireMinesAllowed(playerEntityId, baseEntityId, mineObjectTypeId, coords, extraData);
+    // TODO: not sure about this
     if (mineObjectTypeId == ObjectTypes.ForceField && finalMass == 0) {
       destroyForceField(baseEntityId);
+    } else {
+      MineLib._requireMinesAllowed(playerEntityId, mineObjectTypeId, coords, extraData);
     }
 
     return baseEntityId;
