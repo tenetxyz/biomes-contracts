@@ -139,7 +139,7 @@ contract MineSystem is System {
     }
   }
 
-  function mineWithExtraData(Vec3 coord, bytes memory extraData) public payable {
+  function mineWithExtraData(Vec3 coord, bytes memory extraData) public payable returns (EntityId) {
     require(inWorldBorder(coord), "Cannot mine outside the world border");
 
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
@@ -200,9 +200,24 @@ contract MineSystem is System {
     );
 
     ForceFieldLib.requireMinesAllowed(playerEntityId, baseEntityId, mineObjectTypeId, coords, extraData);
+
+    return baseEntityId;
+  }
+
+  function mineUntilDestroyedWithExtraData(Vec3 coord, bytes memory extraData) public payable {
+    uint128 massLeft = 0;
+    do {
+      // TODO: factor out the mass reduction logic so it's cheaper to call
+      EntityId entityId = mineWithExtraData(coord, extraData);
+      massLeft = Mass._getMass(entityId);
+    } while (massLeft > 0);
   }
 
   function mine(Vec3 coord) public payable {
     mineWithExtraData(coord, new bytes(0));
+  }
+
+  function mineUntilDestroyed(Vec3 coord) public payable {
+    mineUntilDestroyedWithExtraData(coord, new bytes(0));
   }
 }

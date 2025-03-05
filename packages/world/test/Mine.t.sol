@@ -96,6 +96,30 @@ contract MineTest is BiomesTest {
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
+  function testMineRequiresMultipleMinesUntilDestroyed() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
+    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction * 2));
+    EntityId mineEntityId = ReversePosition.get(mineCoord);
+    assertFalse(mineEntityId.exists(), "Mine entity already exists");
+    assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
+
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+
+    vm.prank(alice);
+    world.mineUntilDestroyed(mineCoord);
+
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+
+    mineEntityId = ReversePosition.get(mineCoord);
+    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
+    assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
+    afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+  }
+
   function testMineOre() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 

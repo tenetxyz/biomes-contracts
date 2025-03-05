@@ -1950,7 +1950,20 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "mineWithExtraData",
+    "name": "mineUntilDestroyed",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "mineUntilDestroyedWithExtraData",
     "inputs": [
       {
         "name": "coord",
@@ -1964,6 +1977,30 @@ declare const abi: [
       }
     ],
     "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "mineWithExtraData",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
     "stateMutability": "payable"
   },
   {
