@@ -38,8 +38,21 @@ contract SpawnSystem is System {
     return energyRequired;
   }
 
+  function getAllRandomSpawnCoords(
+    address sender
+  ) public view returns (Vec3[] memory spawnCoords, uint256[] memory blockNumbers) {
+    spawnCoords = new Vec3[](SPAWN_BLOCK_RANGE);
+    blockNumbers = new uint256[](SPAWN_BLOCK_RANGE);
+    for (uint256 i = 0; i < SPAWN_BLOCK_RANGE; i++) {
+      uint256 blockNumber = block.number - (i + 1);
+      spawnCoords[i] = getRandomSpawnCoord(blockNumber, sender);
+      blockNumbers[i] = blockNumber;
+    }
+    return (spawnCoords, blockNumbers);
+  }
+
   // TODO: do we want to use something like solady's prng?
-  function getRandomSpawnCoord(uint256 blockNumber, address sender, int32 y) public view returns (Vec3 spawnCoord) {
+  function getRandomSpawnCoord(uint256 blockNumber, address sender) public view returns (Vec3 spawnCoord) {
     uint256 exploredChunkCount = ExploredChunkCount._get();
     require(exploredChunkCount > 0, "No explored chunks available");
 
@@ -50,6 +63,7 @@ contract SpawnSystem is System {
 
     // Convert chunk coordinates to world coordinates and add random offset
     int32 chunkWorldX = chunk.x() * CHUNK_SIZE;
+    int32 chunkWorldY = chunk.y() * CHUNK_SIZE;
     int32 chunkWorldZ = chunk.z() * CHUNK_SIZE;
 
     // Convert CHUNK_SIZE from int32 to uint256
@@ -60,7 +74,7 @@ contract SpawnSystem is System {
     int32 relativeX = int32(int256(posRand % chunkSize));
     int32 relativeZ = int32(int256((posRand / chunkSize) % chunkSize));
 
-    return vec3(chunkWorldX + relativeX, y, chunkWorldZ + relativeZ);
+    return vec3(chunkWorldX + relativeX, chunkWorldY, chunkWorldZ + relativeZ);
   }
 
   function randomSpawn(uint256 blockNumber, int32 y) public returns (EntityId) {
@@ -70,7 +84,9 @@ contract SpawnSystem is System {
       "Can only choose past 10 blocks"
     );
 
-    Vec3 spawnCoord = getRandomSpawnCoord(blockNumber, _msgSender(), y);
+    Vec3 spawnCoord = getRandomSpawnCoord(blockNumber, _msgSender());
+    // Use the y coordinate given by the player
+    spawnCoord = vec3(spawnCoord.x(), y, spawnCoord.z());
 
     EntityId forceFieldEntityId = getForceField(spawnCoord);
     require(!forceFieldEntityId.exists(), "Cannot spawn in force field");

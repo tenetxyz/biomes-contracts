@@ -3,6 +3,6 @@ procs:
     shell: pnpm run deploy:local
   explorer:
     cwd: packages/world
-    shell: pnpm explorer --dev --pi 3008
+    shell: pnpm explorer --pi 3008
   anvil:
     shell: echo "Cleaning up anvil..." && rm -rf ~/.foundry/anvil/tmp/ && echo "Starting anvil..." && anvil --block-time 2 --block-base-fee-per-gas 50 --gas-limit 100000000

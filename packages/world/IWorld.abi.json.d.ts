@@ -514,6 +514,30 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "getAllRandomSpawnCoords",
+    "inputs": [
+      {
+        "name": "sender",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "spawnCoords",
+        "type": "uint96[]",
+        "internalType": "Vec3[]"
+      },
+      {
+        "name": "blockNumbers",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getBlockEntityData",
     "inputs": [
       {
@@ -1608,11 +1632,6 @@ declare const abi: [
         "name": "sender",
         "type": "address",
         "internalType": "address"
-      },
-      {
-        "name": "y",
-        "type": "int32",
-        "internalType": "int32"
       }
     ],
     "outputs": [
@@ -1982,7 +2001,20 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "mineWithExtraData",
+    "name": "mineUntilDestroyed",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "mineUntilDestroyedWithExtraData",
     "inputs": [
       {
         "name": "coord",
@@ -1996,6 +2028,30 @@ declare const abi: [
       }
     ],
     "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "mineWithExtraData",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
     "stateMutability": "payable"
   },
   {
@@ -2619,6 +2675,24 @@ declare const abi: [
         "name": "fieldLayout",
         "type": "bytes32",
         "internalType": "FieldLayout"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setInitialEnergyPool",
+    "inputs": [
+      {
+        "name": "shardCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "energy",
+        "type": "uint128",
+        "internalType": "uint128"
       }
     ],
     "outputs": [],
