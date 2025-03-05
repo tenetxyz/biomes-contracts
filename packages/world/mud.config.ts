@@ -26,6 +26,7 @@ export default defineWorld({
       "InitiateOreReveal",
       "RevealOre",
       "ExpandForceField",
+      "ContractForceField",
     ],
     DisplayContentType: ["None", "Text", "Image"],
     Direction: [
@@ -305,17 +306,15 @@ export default defineWorld({
         x: "int32",
         y: "int32",
         z: "int32",
-        totalMassInside: "uint128",
         lastAddedToForceField: "uint128",
         entityId: "EntityId",
-        forcefieldId: "EntityId",
+        forceFieldId: "EntityId",
       },
       key: ["x", "y", "z"],
     },
     ForceField: {
       schema: {
         entityId: "EntityId",
-        totalMassInside: "uint128",
         createdAt: "uint128",
       },
       key: ["entityId"],

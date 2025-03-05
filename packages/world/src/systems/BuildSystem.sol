@@ -20,7 +20,7 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 import { transferEnergyToPool, updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getPlayer } from "../utils/EntityUtils.sol";
-import { getForceField, setupForceField, increaseForceFieldMass } from "../utils/ForceFieldUtils.sol";
+import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 
@@ -109,8 +109,6 @@ contract BuildSystem is System {
       EntityId relativeEntityId = BuildLib._addBlock(buildObjectTypeId, relativeCoord);
       BaseEntity._set(relativeEntityId, baseEntityId);
     }
-
-    increaseForceFieldMass(baseCoord, mass);
 
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
 

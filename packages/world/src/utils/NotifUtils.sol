@@ -108,6 +108,11 @@ struct ExpandForceFieldNotifData {
   EntityId shardEntityId;
 }
 
+struct ContractForceFieldNotifData {
+  EntityId forceFieldEntityId;
+  EntityId shardEntityId;
+}
+
 function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {
   PlayerActionNotif._set(
     playerEntityId,
@@ -243,6 +248,16 @@ function notify(EntityId playerEntityId, ExpandForceFieldNotifData memory expand
     PlayerActionNotifData({
       actionType: ActionType.ExpandForceField,
       actionData: abi.encode(expandForceFieldNotifData)
+    })
+  );
+}
+
+function notify(EntityId playerEntityId, ContractForceFieldNotifData memory contractForceFieldNotifData) {
+  PlayerActionNotif._set(
+    playerEntityId,
+    PlayerActionNotifData({
+      actionType: ActionType.ContractForceField,
+      actionData: abi.encode(contractForceFieldNotifData)
     })
   );
 }

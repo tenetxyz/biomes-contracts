@@ -20,10 +20,9 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { EntityId } from "../../EntityId.sol";
 
 struct ForceFieldShardData {
-  uint128 totalMassInside;
   uint128 lastAddedToForceField;
   EntityId entityId;
-  EntityId forcefieldId;
+  EntityId forceFieldId;
 }
 
 library ForceFieldShard {
@@ -31,12 +30,12 @@ library ForceFieldShard {
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000466f7263654669656c64536861726400);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0060040010102020000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0050030010202000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (int32, int32, int32)
   Schema constant _keySchema = Schema.wrap(0x000c030023232300000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint128, uint128, bytes32, bytes32)
-  Schema constant _valueSchema = Schema.wrap(0x006004000f0f5f5f000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint128, bytes32, bytes32)
+  Schema constant _valueSchema = Schema.wrap(0x005003000f5f5f00000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -54,11 +53,10 @@ library ForceFieldShard {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](4);
-    fieldNames[0] = "totalMassInside";
-    fieldNames[1] = "lastAddedToForceField";
-    fieldNames[2] = "entityId";
-    fieldNames[3] = "forcefieldId";
+    fieldNames = new string[](3);
+    fieldNames[0] = "lastAddedToForceField";
+    fieldNames[1] = "entityId";
+    fieldNames[2] = "forceFieldId";
   }
 
   /**
@@ -76,56 +74,6 @@ library ForceFieldShard {
   }
 
   /**
-   * @notice Get totalMassInside.
-   */
-  function getTotalMassInside(int32 x, int32 y, int32 z) internal view returns (uint128 totalMassInside) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint128(bytes16(_blob)));
-  }
-
-  /**
-   * @notice Get totalMassInside.
-   */
-  function _getTotalMassInside(int32 x, int32 y, int32 z) internal view returns (uint128 totalMassInside) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint128(bytes16(_blob)));
-  }
-
-  /**
-   * @notice Set totalMassInside.
-   */
-  function setTotalMassInside(int32 x, int32 y, int32 z, uint128 totalMassInside) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((totalMassInside)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set totalMassInside.
-   */
-  function _setTotalMassInside(int32 x, int32 y, int32 z, uint128 totalMassInside) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = bytes32(uint256(int256(x)));
-    _keyTuple[1] = bytes32(uint256(int256(y)));
-    _keyTuple[2] = bytes32(uint256(int256(z)));
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((totalMassInside)), _fieldLayout);
-  }
-
-  /**
    * @notice Get lastAddedToForceField.
    */
   function getLastAddedToForceField(int32 x, int32 y, int32 z) internal view returns (uint128 lastAddedToForceField) {
@@ -134,7 +82,7 @@ library ForceFieldShard {
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint128(bytes16(_blob)));
   }
 
@@ -147,7 +95,7 @@ library ForceFieldShard {
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint128(bytes16(_blob)));
   }
 
@@ -160,7 +108,7 @@ library ForceFieldShard {
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((lastAddedToForceField)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastAddedToForceField)), _fieldLayout);
   }
 
   /**
@@ -172,7 +120,7 @@ library ForceFieldShard {
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((lastAddedToForceField)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastAddedToForceField)), _fieldLayout);
   }
 
   /**
@@ -184,7 +132,7 @@ library ForceFieldShard {
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return EntityId.wrap(bytes32(_blob));
   }
 
@@ -197,7 +145,7 @@ library ForceFieldShard {
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
     return EntityId.wrap(bytes32(_blob));
   }
 
@@ -210,7 +158,7 @@ library ForceFieldShard {
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
 
   /**
@@ -222,57 +170,57 @@ library ForceFieldShard {
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
 
   /**
-   * @notice Get forcefieldId.
+   * @notice Get forceFieldId.
    */
-  function getForcefieldId(int32 x, int32 y, int32 z) internal view returns (EntityId forcefieldId) {
+  function getForceFieldId(int32 x, int32 y, int32 z) internal view returns (EntityId forceFieldId) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return EntityId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get forcefieldId.
+   * @notice Get forceFieldId.
    */
-  function _getForcefieldId(int32 x, int32 y, int32 z) internal view returns (EntityId forcefieldId) {
+  function _getForceFieldId(int32 x, int32 y, int32 z) internal view returns (EntityId forceFieldId) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return EntityId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Set forcefieldId.
+   * @notice Set forceFieldId.
    */
-  function setForcefieldId(int32 x, int32 y, int32 z, EntityId forcefieldId) internal {
+  function setForceFieldId(int32 x, int32 y, int32 z, EntityId forceFieldId) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked(EntityId.unwrap(forcefieldId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked(EntityId.unwrap(forceFieldId)), _fieldLayout);
   }
 
   /**
-   * @notice Set forcefieldId.
+   * @notice Set forceFieldId.
    */
-  function _setForcefieldId(int32 x, int32 y, int32 z, EntityId forcefieldId) internal {
+  function _setForceFieldId(int32 x, int32 y, int32 z, EntityId forceFieldId) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked(EntityId.unwrap(forcefieldId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked(EntityId.unwrap(forceFieldId)), _fieldLayout);
   }
 
   /**
@@ -316,12 +264,11 @@ library ForceFieldShard {
     int32 x,
     int32 y,
     int32 z,
-    uint128 totalMassInside,
     uint128 lastAddedToForceField,
     EntityId entityId,
-    EntityId forcefieldId
+    EntityId forceFieldId
   ) internal {
-    bytes memory _staticData = encodeStatic(totalMassInside, lastAddedToForceField, entityId, forcefieldId);
+    bytes memory _staticData = encodeStatic(lastAddedToForceField, entityId, forceFieldId);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -341,12 +288,11 @@ library ForceFieldShard {
     int32 x,
     int32 y,
     int32 z,
-    uint128 totalMassInside,
     uint128 lastAddedToForceField,
     EntityId entityId,
-    EntityId forcefieldId
+    EntityId forceFieldId
   ) internal {
-    bytes memory _staticData = encodeStatic(totalMassInside, lastAddedToForceField, entityId, forcefieldId);
+    bytes memory _staticData = encodeStatic(lastAddedToForceField, entityId, forceFieldId);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -363,12 +309,7 @@ library ForceFieldShard {
    * @notice Set the full data using the data struct.
    */
   function set(int32 x, int32 y, int32 z, ForceFieldShardData memory _table) internal {
-    bytes memory _staticData = encodeStatic(
-      _table.totalMassInside,
-      _table.lastAddedToForceField,
-      _table.entityId,
-      _table.forcefieldId
-    );
+    bytes memory _staticData = encodeStatic(_table.lastAddedToForceField, _table.entityId, _table.forceFieldId);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -385,12 +326,7 @@ library ForceFieldShard {
    * @notice Set the full data using the data struct.
    */
   function _set(int32 x, int32 y, int32 z, ForceFieldShardData memory _table) internal {
-    bytes memory _staticData = encodeStatic(
-      _table.totalMassInside,
-      _table.lastAddedToForceField,
-      _table.entityId,
-      _table.forcefieldId
-    );
+    bytes memory _staticData = encodeStatic(_table.lastAddedToForceField, _table.entityId, _table.forceFieldId);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -408,18 +344,12 @@ library ForceFieldShard {
    */
   function decodeStatic(
     bytes memory _blob
-  )
-    internal
-    pure
-    returns (uint128 totalMassInside, uint128 lastAddedToForceField, EntityId entityId, EntityId forcefieldId)
-  {
-    totalMassInside = (uint128(Bytes.getBytes16(_blob, 0)));
+  ) internal pure returns (uint128 lastAddedToForceField, EntityId entityId, EntityId forceFieldId) {
+    lastAddedToForceField = (uint128(Bytes.getBytes16(_blob, 0)));
 
-    lastAddedToForceField = (uint128(Bytes.getBytes16(_blob, 16)));
+    entityId = EntityId.wrap(Bytes.getBytes32(_blob, 16));
 
-    entityId = EntityId.wrap(Bytes.getBytes32(_blob, 32));
-
-    forcefieldId = EntityId.wrap(Bytes.getBytes32(_blob, 64));
+    forceFieldId = EntityId.wrap(Bytes.getBytes32(_blob, 48));
   }
 
   /**
@@ -433,9 +363,7 @@ library ForceFieldShard {
     EncodedLengths,
     bytes memory
   ) internal pure returns (ForceFieldShardData memory _table) {
-    (_table.totalMassInside, _table.lastAddedToForceField, _table.entityId, _table.forcefieldId) = decodeStatic(
-      _staticData
-    );
+    (_table.lastAddedToForceField, _table.entityId, _table.forceFieldId) = decodeStatic(_staticData);
   }
 
   /**
@@ -467,12 +395,11 @@ library ForceFieldShard {
    * @return The static data, encoded into a sequence of bytes.
    */
   function encodeStatic(
-    uint128 totalMassInside,
     uint128 lastAddedToForceField,
     EntityId entityId,
-    EntityId forcefieldId
+    EntityId forceFieldId
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(totalMassInside, lastAddedToForceField, entityId, forcefieldId);
+    return abi.encodePacked(lastAddedToForceField, entityId, forceFieldId);
   }
 
   /**
@@ -482,12 +409,11 @@ library ForceFieldShard {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
-    uint128 totalMassInside,
     uint128 lastAddedToForceField,
     EntityId entityId,
-    EntityId forcefieldId
+    EntityId forceFieldId
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(totalMassInside, lastAddedToForceField, entityId, forcefieldId);
+    bytes memory _staticData = encodeStatic(lastAddedToForceField, entityId, forceFieldId);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

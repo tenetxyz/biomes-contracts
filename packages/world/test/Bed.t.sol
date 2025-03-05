@@ -17,8 +17,9 @@ import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { BedPlayer, BedPlayerData } from "../src/codegen/tables/BedPlayer.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
-import { ExploredChunk, ExploredChunkByIndex, ForceField, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
+import { ExploredChunk, ExploredChunkByIndex, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
 import { IBedChip } from "../src/prototypes/IBedChip.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -358,7 +359,7 @@ contract BedTest is BiomesTest {
   function testRemoveDeadPlayerFromBed() public {
     (address alice, EntityId aliceEntityId, Vec3 coord) = setupFlatChunkWithPlayer();
 
-    Vec3 bedCoord = coord - vec3(2, 0, 0);
+    Vec3 bedCoord = coord + vec3(2, 0, 0);
 
     uint128 initialPlayerEnergy = Energy.getEnergy(aliceEntityId);
 

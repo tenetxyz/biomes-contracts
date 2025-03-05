@@ -23,7 +23,7 @@ import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { mulDiv } from "../utils/MathUtils.sol";
-import { getForceField, destroyForceField, decreaseForceFieldMass } from "../utils/ForceFieldUtils.sol";
+import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { getOrCreateEntityAt, getPlayer } from "../utils/EntityUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
@@ -108,9 +108,7 @@ library MineLib {
     (uint128 toolMassReduction, ) = useEquipped(playerEntityId);
     uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassReduction;
     uint128 massLeft = Mass._getMass(minedEntityId);
-    totalMassReduction = massLeft <= totalMassReduction ? massLeft : totalMassReduction;
-    decreaseForceFieldMass(coord, totalMassReduction);
-    uint128 finalMass = massLeft - totalMassReduction;
+    return massLeft <= totalMassReduction ? 0 : massLeft - totalMassReduction;
   }
 
   function _mineBed(EntityId bedEntityId, Vec3 bedCoord) public {
@@ -146,10 +144,6 @@ library MineLib {
 
           callChipOrRevert(forceFieldEntityId.getChipAddress(), onMineCall);
         }
-      }
-
-      if (objectTypeId == ObjectTypes.ForceField) {
-        destroyForceField(baseEntityId, coord);
       }
     }
   }
@@ -191,38 +185,36 @@ contract MineSystem is System {
     // First coord will be the base coord, the rest is relative schema coords
     Vec3[] memory coords = mineObjectTypeId.getRelativeCoords(baseCoord, Orientation._get(baseEntityId));
 
-    {
-      uint128 finalMass = MineLib._processMassReduction(playerEntityId, baseEntityId, baseCoord);
-      if (finalMass == 0) {
-        if (mineObjectTypeId == ObjectTypes.AnyOre) {
-          mineObjectTypeId = MineLib._mineRandomOre(coord);
-        }
-        Mass._deleteRecord(baseEntityId);
-
-        if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
-          DisplayContent._deleteRecord(baseEntityId);
-        }
-
-        // If mining a bed with a sleeping player, kill the player
-        if (mineObjectTypeId == ObjectTypes.Bed) {
-          MineLib._mineBed(baseEntityId, baseCoord);
-        }
-
-        addToInventoryCount(playerEntityId, ObjectTypes.Player, mineObjectTypeId, 1);
-
-        _removeBlock(baseEntityId, baseCoord);
-
-        // Only iterate through relative schema coords
-        for (uint256 i = 1; i < coords.length; i++) {
-          Vec3 relativeCoord = coords[i];
-          (EntityId relativeEntityId, ) = getOrCreateEntityAt(relativeCoord);
-          BaseEntity._deleteRecord(relativeEntityId);
-
-          _removeBlock(relativeEntityId, relativeCoord);
-        }
-      } else {
-        Mass._setMass(baseEntityId, finalMass);
+    uint128 finalMass = MineLib._processMassReduction(playerEntityId, baseEntityId, baseCoord);
+    if (finalMass == 0) {
+      if (mineObjectTypeId == ObjectTypes.AnyOre) {
+        mineObjectTypeId = MineLib._mineRandomOre(coord);
       }
+      Mass._deleteRecord(baseEntityId);
+
+      if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
+        DisplayContent._deleteRecord(baseEntityId);
+      }
+
+      // If mining a bed with a sleeping player, kill the player
+      if (mineObjectTypeId == ObjectTypes.Bed) {
+        MineLib._mineBed(baseEntityId, baseCoord);
+      }
+
+      addToInventoryCount(playerEntityId, ObjectTypes.Player, mineObjectTypeId, 1);
+
+      _removeBlock(baseEntityId, baseCoord);
+
+      // Only iterate through relative schema coords
+      for (uint256 i = 1; i < coords.length; i++) {
+        Vec3 relativeCoord = coords[i];
+        (EntityId relativeEntityId, ) = getOrCreateEntityAt(relativeCoord);
+        BaseEntity._deleteRecord(relativeEntityId);
+
+        _removeBlock(relativeEntityId, relativeCoord);
+      }
+    } else {
+      Mass._setMass(baseEntityId, finalMass);
     }
 
     notify(
@@ -231,6 +223,9 @@ contract MineSystem is System {
     );
 
     MineLib._requireMinesAllowed(playerEntityId, baseEntityId, mineObjectTypeId, coords, extraData);
+    if (mineObjectTypeId == ObjectTypes.ForceField && finalMass == 0) {
+      destroyForceField(baseEntityId);
+    }
   }
 
   function mine(Vec3 coord) public payable {

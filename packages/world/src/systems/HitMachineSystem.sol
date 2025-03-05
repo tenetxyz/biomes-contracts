@@ -10,7 +10,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
-import { ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
+import { ForceField } from "../codegen/tables/ForceField.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
@@ -46,18 +46,13 @@ contract HitMachineSystem is System {
     (uint128 toolMassReduction, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId);
     require(toolObjectTypeId.isWhacker(), "You must use a whacker to hit machines");
 
-    uint128 baseEnergyReduction = PLAYER_HIT_ENERGY_COST + massToEnergy(toolMassReduction);
-    uint128 protection = ForceFieldMetadata._getTotalMassInside(machineEntityId);
-    // TODO: scale protection otherwise, targetEnergyReduction will be 0
-    uint128 targetEnergyReduction = baseEnergyReduction / protection;
-    uint128 newMachineEnergy = targetEnergyReduction <= machineData.energy
-      ? machineData.energy - targetEnergyReduction
-      : 0;
+    uint128 energyReduction = PLAYER_HIT_ENERGY_COST + massToEnergy(toolMassReduction);
+    uint128 newMachineEnergy = energyReduction <= machineData.energy ? machineData.energy - energyReduction : 0;
 
     require(playerEnergyData.energy > PLAYER_HIT_ENERGY_COST, "Not enough energy");
     playerEntityId.setEnergy(playerEnergyData.energy - PLAYER_HIT_ENERGY_COST);
     machineEntityId.setEnergy(newMachineEnergy);
-    addEnergyToLocalPool(machineCoord, PLAYER_HIT_ENERGY_COST + targetEnergyReduction);
+    addEnergyToLocalPool(machineCoord, PLAYER_HIT_ENERGY_COST + energyReduction);
 
     notify(playerEntityId, HitMachineNotifData({ machineEntityId: machineEntityId, machineCoord: machineCoord }));
 

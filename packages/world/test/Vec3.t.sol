@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { BiomesTest, console } from "./BiomesTest.sol";
 
-import { ExploredChunk, ExploredChunkByIndex, ForceField, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
+import { ExploredChunk, ExploredChunkByIndex, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
 import { EntityId } from "../src/EntityId.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";

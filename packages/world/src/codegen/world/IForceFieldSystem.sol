@@ -12,5 +12,12 @@ import { Vec3 } from "../../Vec3.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IForceFieldSystem {
-  function expandForceField(EntityId forceFieldEntityId, Vec3 shardCoord) external;
+  function expandForceField(
+    EntityId forceFieldEntityId,
+    Vec3 refShardCoord,
+    Vec3 fromShardCoord,
+    Vec3 toShardCoord
+  ) external;
+
+  function contractForceField(EntityId forceFieldEntityId, Vec3 fromShardCoord, Vec3 toShardCoord) external;
 }

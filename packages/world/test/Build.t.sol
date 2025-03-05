@@ -23,7 +23,7 @@ import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { MinedOrePosition, ExploredChunk, ExploredChunkByIndex, ForceField, ForceFieldMetadata, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, ExploredChunk, ExploredChunkByIndex, ForceFieldShard, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -49,8 +49,6 @@ contract BuildTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    Vec3 forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
-    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord);
 
     vm.prank(alice);
     startGasReport("build terrain");
@@ -68,11 +66,6 @@ contract BuildTest is BiomesTest {
       ObjectTypeMetadata.getMass(buildObjectTypeId),
       "Build entity mass is not correct"
     );
-    assertEq(
-      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord),
-      localMassBefore + ObjectTypeMetadata.getMass(buildObjectTypeId),
-      "Force field mass is not correct"
-    );
   }
 
   function testBuildNonTerrain() public {
@@ -88,7 +81,6 @@ contract BuildTest is BiomesTest {
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     Vec3 forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
-    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord);
 
     vm.prank(alice);
     startGasReport("build non-terrain");
@@ -103,11 +95,6 @@ contract BuildTest is BiomesTest {
       Mass.getMass(buildEntityId),
       ObjectTypeMetadata.getMass(buildObjectTypeId),
       "Build entity mass is not correct"
-    );
-    assertEq(
-      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord),
-      localMassBefore + ObjectTypeMetadata.getMass(buildObjectTypeId),
-      "Force field mass is not correct"
     );
   }
 
@@ -128,7 +115,6 @@ contract BuildTest is BiomesTest {
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     Vec3 forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
-    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord);
 
     vm.prank(alice);
     startGasReport("build multi-size");
@@ -146,11 +132,6 @@ contract BuildTest is BiomesTest {
       "Build entity mass is not correct"
     );
     assertEq(Mass.getMass(topEntityId), 0, "Top entity mass is not correct");
-    assertEq(
-      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord),
-      localMassBefore + ObjectTypeMetadata.getMass(buildObjectTypeId),
-      "Force field mass is not correct"
-    );
   }
 
   function testJumpBuild() public {
@@ -162,7 +143,6 @@ contract BuildTest is BiomesTest {
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     Vec3 forceFieldShardCoord = playerCoord.toForceFieldShardCoord();
-    uint128 localMassBefore = ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord);
 
     vm.prank(alice);
     startGasReport("jump build");
@@ -181,11 +161,6 @@ contract BuildTest is BiomesTest {
       Mass.getMass(buildEntityId),
       ObjectTypeMetadata.getMass(buildObjectTypeId),
       "Build entity mass is not correct"
-    );
-    assertEq(
-      ForceFieldMetadata.getTotalMassInside(forceFieldShardCoord),
-      localMassBefore + ObjectTypeMetadata.getMass(buildObjectTypeId),
-      "Force field mass is not correct"
     );
   }
 

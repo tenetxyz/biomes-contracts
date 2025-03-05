@@ -16,6 +16,7 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerActivity } from "../src/codegen/tables/PlayerActivity.sol";
+import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { Vec3 } from "../src/Vec3.sol";
 import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
@@ -23,7 +24,7 @@ import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 
-import { Position, ForceField, ReversePosition, PlayerPosition, ReversePlayerPosition, LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
+import { Position, ReversePosition, PlayerPosition, ReversePlayerPosition, LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
 
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { EntityId } from "../src/EntityId.sol";
@@ -74,13 +75,12 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
   function getEnergyDataSnapshot(
     EntityId playerEntityId,
     Vec3 snapshotCoord
-  ) internal view returns (EnergyDataSnapshot memory) {
+  ) internal returns (EnergyDataSnapshot memory) {
     EnergyDataSnapshot memory snapshot;
     snapshot.playerEnergy = Energy.getEnergy(playerEntityId);
     Vec3 shardCoord = snapshotCoord.toLocalEnergyPoolShardCoord();
     snapshot.localPoolEnergy = LocalEnergyPool.get(shardCoord);
-    Vec3 forceFieldShardCoord = snapshotCoord.toForceFieldShardCoord();
-    EntityId forceFieldEntityId = ForceField.get(forceFieldShardCoord);
+    EntityId forceFieldEntityId = TestUtils.getForceField(snapshotCoord);
     snapshot.forceFieldEnergy = forceFieldEntityId.exists() ? Energy.getEnergy(forceFieldEntityId) : 0;
     return snapshot;
   }

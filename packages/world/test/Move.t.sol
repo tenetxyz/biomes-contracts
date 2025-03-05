@@ -23,8 +23,9 @@ import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
+import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
-import { ExploredChunk, ExploredChunkByIndex, MinedOrePosition, ForceField, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { ExploredChunk, ExploredChunkByIndex, MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";

@@ -6,6 +6,7 @@ import { console } from "forge-std/console.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
 import { EntityId } from "../../src/EntityId.sol";
+import { Vec3 } from "../../src/Vec3.sol";
 
 import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";
 import { InventoryObjects } from "../../src/codegen/tables/InventoryObjects.sol";
@@ -16,6 +17,7 @@ import { ObjectTypeId } from "../../src/ObjectTypeId.sol";
 import { ObjectAmount, getOreObjectTypes } from "../../src/ObjectTypeLib.sol";
 import { addToInventoryCount as _addToInventoryCount, removeFromInventoryCount as _removeFromInventoryCount, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
 import { updateEnergyLevel as _updateEnergyLevel } from "../../src/utils/EnergyUtils.sol";
+import { getForceField as _getForceField, setupForceField as _setupForceField } from "../../src/utils/ForceFieldUtils.sol";
 
 Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
@@ -119,6 +121,14 @@ library TestUtils {
 
   function updateEnergyLevel(EntityId entityId) public asWorld returns (EnergyData memory) {
     return _updateEnergyLevel(entityId);
+  }
+
+  function getForceField(Vec3 coord) public asWorld returns (EntityId) {
+    return _getForceField(coord);
+  }
+
+  function setupForceField(EntityId forceFieldId, Vec3 coord) public asWorld {
+    _setupForceField(forceFieldId, coord);
   }
 
   // No need to use asWorld here

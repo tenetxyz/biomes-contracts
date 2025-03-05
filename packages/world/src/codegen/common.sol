@@ -23,7 +23,8 @@ enum ActionType {
   DetachChip,
   InitiateOreReveal,
   RevealOre,
-  ExpandForceField
+  ExpandForceField,
+  ContractForceField
 }
 
 enum DisplayContentType {

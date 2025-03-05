@@ -15,8 +15,9 @@ import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
-import { ExploredChunk, ExploredChunkByIndex, ForceField, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
+import { ExploredChunk, ExploredChunkByIndex, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
 import { ISpawnTileChip } from "../src/prototypes/ISpawnTileChip.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -86,7 +87,7 @@ contract SpawnTest is BiomesTest {
 
   function testSpawn() public {
     address alice = vm.randomAddress();
-    Vec3 spawnCoord = vec3(0, 0, 0);
+    Vec3 spawnCoord = vec3(0, 1, 0);
     Vec3 spawnTileCoord = spawnCoord - vec3(0, 1, 0);
 
     setupAirChunk(spawnCoord);

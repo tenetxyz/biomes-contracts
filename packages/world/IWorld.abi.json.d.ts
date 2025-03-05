@@ -275,6 +275,29 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "contractForceField",
+    "inputs": [
+      {
+        "name": "forceFieldEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "fromShardCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "toShardCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "craft",
     "inputs": [
       {
@@ -433,6 +456,34 @@ declare const abi: [
         "name": "inventoryEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "expandForceField",
+    "inputs": [
+      {
+        "name": "forceFieldEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "refShardCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "fromShardCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "toShardCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],

@@ -22,6 +22,12 @@ function neq(Vec3 a, Vec3 b) pure returns (bool) {
   return Vec3.unwrap(a) != Vec3.unwrap(b);
 }
 
+function leq(Vec3 a, Vec3 b) pure returns (bool) {
+  (int32 minX, int32 minY, int32 minZ) = a.xyz();
+  (int32 maxX, int32 maxY, int32 maxZ) = b.xyz();
+  return minX <= maxX && minY <= maxY && minZ <= maxZ;
+}
+
 function add(Vec3 a, Vec3 b) pure returns (Vec3) {
   return vec3(a.x() + b.x(), a.y() + b.y(), a.z() + b.z());
 }
@@ -79,6 +85,10 @@ library Vec3Lib {
   function z(Vec3 a) internal pure returns (int32) {
     // Extract x component (rightmost 32 bits)
     return int32(uint32(Vec3.unwrap(a) & 0xFFFFFFFF));
+  }
+
+  function xyz(Vec3 self) internal pure returns (int32, int32, int32) {
+    return (self.x(), self.y(), self.z());
   }
 
   function mul(Vec3 a, int32 scalar) internal pure returns (Vec3) {
@@ -198,7 +208,7 @@ library Vec3Lib {
 }
 
 using Vec3Lib for Vec3 global;
-using { eq as ==, neq as !=, add as +, sub as - } for Vec3 global;
+using { eq as ==, neq as !=, add as +, sub as -, leq as <= } for Vec3 global;
 
 // ======== Helper Functions ========
 
