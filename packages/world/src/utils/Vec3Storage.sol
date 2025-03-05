@@ -358,7 +358,7 @@ library ForceFieldShard {
       _ForceFieldShard._fieldLayout,
       position
     );
-    (value.lastAddedToForceField, value.entityId, value.forceFieldId) = _ForceFieldShard.decodeStatic(staticData);
+    (value.entityId, value.forceFieldId, value.forceFieldCreatedAt) = _ForceFieldShard.decodeStatic(staticData);
   }
 
   function _get(Vec3 position) internal view returns (ForceFieldShardData memory value) {
@@ -367,7 +367,7 @@ library ForceFieldShard {
       _ForceFieldShard._fieldLayout,
       position
     );
-    (value.lastAddedToForceField, value.entityId, value.forceFieldId) = _ForceFieldShard.decodeStatic(staticData);
+    (value.entityId, value.forceFieldId, value.forceFieldCreatedAt) = _ForceFieldShard.decodeStatic(staticData);
   }
 
   function _getForceFieldId(Vec3 position) internal view returns (EntityId) {
@@ -377,18 +377,18 @@ library ForceFieldShard {
 
   function set(Vec3 position, ForceFieldShardData memory value) internal {
     bytes memory staticData = _ForceFieldShard.encodeStatic(
-      value.lastAddedToForceField,
       value.entityId,
-      value.forceFieldId
+      value.forceFieldId,
+      value.forceFieldCreatedAt
     );
     Vec3Storage.set(_ForceFieldShard._tableId, _ForceFieldShard._fieldLayout, position, staticData);
   }
 
   function _set(Vec3 position, ForceFieldShardData memory value) internal {
     bytes memory staticData = _ForceFieldShard.encodeStatic(
-      value.lastAddedToForceField,
       value.entityId,
-      value.forceFieldId
+      value.forceFieldId,
+      value.forceFieldCreatedAt
     );
     Vec3Storage._set(_ForceFieldShard._tableId, _ForceFieldShard._fieldLayout, position, staticData);
   }

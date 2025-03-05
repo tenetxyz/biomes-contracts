@@ -26,8 +26,7 @@ function _isShardActive(ForceFieldShardData memory shardData, EntityId forceFiel
   }
 
   // Only perform the storage read if the previous checks pass
-  uint128 createdAt = ForceField._getCreatedAt(forceFieldId);
-  return createdAt > 0 && shardData.lastAddedToForceField > createdAt;
+  return shardData.forceFieldCreatedAt == ForceField._getCreatedAt(forceFieldId);
 }
 
 /**
@@ -57,34 +56,26 @@ function isForceFieldShard(EntityId forceFieldEntityId, Vec3 shardCoord) view re
   return _isShardActive(shardData, forceFieldEntityId);
 }
 
+function isForceFieldShardActive(Vec3 shardCoord) view returns (bool) {
+  ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
+  return _isShardActive(shardData, shardData.forceFieldId);
+}
+
+function isForceFieldActive(EntityId forceFieldEntityId) view returns (bool) {
+  return forceFieldEntityId.exists() && ForceField._getCreatedAt(forceFieldEntityId) > 0;
+}
+
 /**
  * @notice Set up a new forcefield with its initial shard
  * @param forceFieldEntityId The forcefield entity ID
  * @param coord The coordinate for the initial shard
  */
 function setupForceField(EntityId forceFieldEntityId, Vec3 coord) {
-  Vec3 shardCoord = coord.toForceFieldShardCoord();
-  ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
-
-  // Check if a forcefield already exists for this shard
-  if (_isShardActive(shardData, shardData.forceFieldId)) {
-    revert("Forcefield already exists for this shard");
-  }
-
-  // Create a new shard entity if needed
-  if (!shardData.entityId.exists()) {
-    shardData.entityId = getUniqueEntity();
-    ObjectType._set(shardData.entityId, ObjectTypes.ForceFieldShard);
-  }
-
   // Set up the forcefield first
   ForceField._setCreatedAt(forceFieldEntityId, uint128(block.timestamp));
 
-  // We add one to the timestamp to ensure it's greater than the forcefield creation time
-  shardData.lastAddedToForceField = uint128(block.timestamp) + 1;
-  shardData.forceFieldId = forceFieldEntityId;
-
-  ForceFieldShard._set(shardCoord, shardData);
+  Vec3 shardCoord = coord.toForceFieldShardCoord();
+  setupForceFieldShard(forceFieldEntityId, shardCoord);
 }
 
 /**
@@ -96,11 +87,6 @@ function setupForceField(EntityId forceFieldEntityId, Vec3 coord) {
 function setupForceFieldShard(EntityId forceFieldEntityId, Vec3 shardCoord) returns (EntityId) {
   ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
 
-  // Check if a forcefield already exists for this shard
-  if (_isShardActive(shardData, shardData.forceFieldId)) {
-    revert("Shard already belongs to a forcefield");
-  }
-
   // Create a new shard entity if needed
   if (!shardData.entityId.exists()) {
     shardData.entityId = getUniqueEntity();
@@ -108,8 +94,8 @@ function setupForceFieldShard(EntityId forceFieldEntityId, Vec3 shardCoord) retu
   }
 
   // Update the shard data to associate it with the forcefield
-  shardData.lastAddedToForceField = uint128(block.timestamp);
   shardData.forceFieldId = forceFieldEntityId;
+  shardData.forceFieldCreatedAt = ForceField._getCreatedAt(forceFieldEntityId);
 
   ForceFieldShard._set(shardCoord, shardData);
   return shardData.entityId;
@@ -117,28 +103,14 @@ function setupForceFieldShard(EntityId forceFieldEntityId, Vec3 shardCoord) retu
 
 /**
  * @notice Remove a shard from a forcefield
- * @param forceFieldEntityId The forcefield entity ID
  * @param shardCoord The shard coordinate to remove
  * @return The shard entity ID
  */
-function removeForceFieldShard(EntityId forceFieldEntityId, Vec3 shardCoord) returns (EntityId) {
+function removeForceFieldShard(Vec3 shardCoord) returns (EntityId) {
   ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
 
-  // Check if the shard belongs to the specified forcefield
-  if (shardData.forceFieldId != forceFieldEntityId) {
-    revert("Shard does not belong to the forcefield");
-  }
-
-  // Check if the shard is active in the forcefield
-  if (!_isShardActive(shardData, forceFieldEntityId)) {
-    revert("Shard does not belong to a forcefield");
-  }
-
   // Disassociate the shard from the forcefield
-  shardData.forceFieldId = EntityId.wrap(0);
-  shardData.lastAddedToForceField = 0;
-
-  ForceFieldShard._set(shardCoord, shardData);
+  ForceFieldShard._deleteRecord(shardCoord);
   return shardData.entityId;
 }
 

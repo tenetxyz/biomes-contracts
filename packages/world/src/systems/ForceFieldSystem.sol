@@ -16,7 +16,7 @@ import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 import { notify, ExpandForceFieldNotifData, ContractForceFieldNotifData } from "../utils/NotifUtils.sol";
-import { isForceFieldShard, setupForceFieldShard, removeForceFieldShard } from "../utils/ForceFieldUtils.sol";
+import { isForceFieldShard, isForceFieldShardActive, setupForceFieldShard, removeForceFieldShard } from "../utils/ForceFieldUtils.sol";
 import { ForceFieldShard } from "../utils/Vec3Storage.sol";
 
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
@@ -56,6 +56,9 @@ contract ForceFieldSystem is System {
       for (int32 y = fromShardCoord.y(); y <= toShardCoord.x(); y++) {
         for (int32 z = fromShardCoord.z(); z <= toShardCoord.x(); z++) {
           Vec3 shardCoord = vec3(x, y, z);
+          if (isForceFieldShardActive(shardCoord)) {
+            continue;
+          }
           EntityId shardEntityId = setupForceFieldShard(forceFieldEntityId, shardCoord);
           addedShards++;
         }
@@ -96,7 +99,7 @@ contract ForceFieldSystem is System {
           Vec3 shardCoord = vec3(x, y, z);
           // Only count if the shard exists
           if (isForceFieldShard(forceFieldEntityId, shardCoord)) {
-            removeForceFieldShard(forceFieldEntityId, shardCoord);
+            removeForceFieldShard(shardCoord);
             removedShards++;
           }
         }

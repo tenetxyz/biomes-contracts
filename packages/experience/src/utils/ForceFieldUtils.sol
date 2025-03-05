@@ -14,8 +14,7 @@ function getForceField(EntityId entityId) view returns (EntityId) {
   Vec3 shardCoord = coord.toForceFieldShardCoord();
   ForceFieldShardData memory shardData = ForceFieldShard.get(shardCoord);
   if (
-    !shardData.forceFieldId.exists() ||
-    shardData.lastAddedToForceField <= ForceField.getCreatedAt(shardData.forceFieldId)
+    !shardData.forceFieldId.exists() || shardData.forceFieldCreatedAt != ForceField.getCreatedAt(shardData.forceFieldId)
   ) {
     return EntityId.wrap(0);
   }
