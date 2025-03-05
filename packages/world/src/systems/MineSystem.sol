@@ -23,7 +23,7 @@ import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { mulDiv } from "../utils/MathUtils.sol";
-import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
+import { getForceField, destroyForceField, decreaseForceFieldMass } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { getOrCreateEntityAt, getPlayer } from "../utils/EntityUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
@@ -104,11 +104,13 @@ library MineLib {
     return ore;
   }
 
-  function _processMassReduction(EntityId playerEntityId, EntityId minedEntityId) public returns (uint128) {
+  function _processMassReduction(EntityId playerEntityId, EntityId minedEntityId, Vec3 coord) public returns (uint128) {
     (uint128 toolMassReduction, ) = useEquipped(playerEntityId);
     uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassReduction;
     uint128 massLeft = Mass._getMass(minedEntityId);
-    return massLeft <= totalMassReduction ? 0 : massLeft - totalMassReduction;
+    totalMassReduction = massLeft <= totalMassReduction ? massLeft : totalMassReduction;
+    decreaseForceFieldMass(coord, totalMassReduction);
+    uint128 finalMass = massLeft - totalMassReduction;
   }
 
   function _mineBed(EntityId bedEntityId, Vec3 bedCoord) public {
@@ -190,7 +192,7 @@ contract MineSystem is System {
     Vec3[] memory coords = mineObjectTypeId.getRelativeCoords(baseCoord, Orientation._get(baseEntityId));
 
     {
-      uint128 finalMass = MineLib._processMassReduction(playerEntityId, baseEntityId);
+      uint128 finalMass = MineLib._processMassReduction(playerEntityId, baseEntityId, baseCoord);
       if (finalMass == 0) {
         if (mineObjectTypeId == ObjectTypes.AnyOre) {
           mineObjectTypeId = MineLib._mineRandomOre(coord);

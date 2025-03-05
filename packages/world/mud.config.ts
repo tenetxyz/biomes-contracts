@@ -306,7 +306,7 @@ export default defineWorld({
         y: "int32",
         z: "int32",
         totalMassInside: "uint128",
-        createdAt: "uint128",
+        lastAddedToForceField: "uint128",
         entityId: "EntityId",
         forcefieldId: "EntityId",
       },

@@ -7,14 +7,62 @@ import { ForceField, ForceFieldData } from "../codegen/tables/ForceField.sol";
 
 import { getUniqueEntity } from "../Utils.sol";
 
-import { ForceFieldShard } from "../utils/Vec3Storage.sol";
+import { ForceFieldShard, ForceFieldShardData } from "../utils/Vec3Storage.sol";
 
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
 
+function increaseForceFieldMass(Vec3 coord, uint128 mass) {
+  Vec3 shardCoord = coord.toForceFieldShardCoord();
+  ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
+
+  if (!shardData.entityId.exists()) {
+    shardData.entityId = getUniqueEntity();
+  } else {
+    if (
+      shardData.forcefieldId.exists() &&
+      // TODO: what if a shard was added to the removed forcefield in the same block?
+      shardData.lastAddedToForceField >= ForceField._getCreatedAt(shardData.forcefieldId)
+    ) {
+      ForceField._setTotalMassInside(
+        shardData.forceFieldId,
+        ForceField._getTotalMassInside(shardData.forceFieldId) + mass
+      );
+    }
+  }
+
+  shardData.totalMassInside += mass;
+
+  ForceFieldShard._set(shardCoord, shardData);
+}
+
+function decreaseForceFieldMass(Vec3 coord, uint128 mass) {
+  Vec3 shardCoord = coord.toForceFieldShardCoord();
+  ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
+
+  if (!shardData.entityId.exists()) {
+    shardData.entityId = getUniqueEntity();
+  } else {
+    if (
+      shardData.forcefieldId.exists() &&
+      // TODO: what if a shard was added to the removed forcefield in the same block?
+      shardData.lastAddedToForceField >= ForceField._getCreatedAt(shardData.forcefieldId)
+    ) {
+      ForceField._setTotalMassInside(
+        shardData.forceFieldId,
+        ForceField._getTotalMassInside(shardData.forceFieldId) + mass
+      );
+    }
+  }
+
+  shardData.totalMassInside -= mass;
+
+  ForceFieldShard._set(shardCoord, shardData);
+}
+
 function getOrCreateForceFieldShard(Vec3 coord) view returns (ForceFieldShardData memory) {
   Vec3 shardCoord = coord.toForceFieldShardCoord();
-  ForceFieldShardData shardData = ForceFieldShard._get(shardCoord);
+  ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
   if (!shardData.entityId.exists()) {
     shardData.entityId = getUniqueEntity();
     ForceFieldShard._setEntityId(shardCoord, shardData.entityId);
@@ -23,8 +71,13 @@ function getOrCreateForceFieldShard(Vec3 coord) view returns (ForceFieldShardDat
   return shardData;
 }
 
+function getForceFieldShard(Vec3 coord) view returns (ForceFieldShardData memory) {
+  Vec3 shardCoord = coord.toForceFieldShardCoord();
+  return ForceFieldShard._get(shardCoord);
+}
+
 function getForceField(Vec3 coord) view returns (EntityId) {
-  ForceFieldShardData shardData = getOrCreateForceFieldShard(coord);
+  ForceFieldShardData memory shardData = getOrCreateForceFieldShard(coord);
   if (
     !shardData.forcefieldId.exists() ||
     shardData.lastAddedToForceField <= ForceField._getCreatedAt(shardData.forcefieldId)
@@ -36,8 +89,10 @@ function getForceField(Vec3 coord) view returns (EntityId) {
 }
 
 function setupForceField(EntityId forceFieldEntityId, Vec3 coord) {
-  ForceFieldShardData shardData = getOrCreateForceFieldShard(coord);
-  ForceFieldShard._setLastAddedToForceField(block.timestamp);
+  ForceFieldShardData memory shardData = getOrCreateForceFieldShard(coord);
+  shardData.lastAddedToForceField = block.timestamp;
+  shardData.forceFieldId = forceFieldEntityId;
+  ForceFieldShard._set(coord, shardData);
   ForceField._set(
     forceFieldEntityId,
     ForceFieldData({ createdAt: block.timestamp, totalMassInside: shardData.totalMassInside })

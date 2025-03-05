@@ -12,7 +12,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ActionType, Direction } from "../codegen/common.sol";
 
-import { ForceFieldMetadata, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
+import { PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
@@ -20,7 +20,7 @@ import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUti
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 import { transferEnergyToPool, updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getPlayer } from "../utils/EntityUtils.sol";
-import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
+import { getForceField, setupForceField, increaseForceFieldMass } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 
@@ -110,11 +110,7 @@ contract BuildSystem is System {
       BaseEntity._set(relativeEntityId, baseEntityId);
     }
 
-    Vec3 forceFieldShardCoord = baseCoord.toForceFieldShardCoord();
-    ForceFieldMetadata._setTotalMassInside(
-      forceFieldShardCoord,
-      ForceFieldMetadata._getTotalMassInside(forceFieldShardCoord) + mass
-    );
+    increaseForceFieldMass(baseCoord, mass);
 
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
 
