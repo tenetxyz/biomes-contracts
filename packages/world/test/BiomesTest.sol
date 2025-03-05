@@ -137,10 +137,10 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     uint256 blockNumber = block.number - 5;
 
     address alice = vm.randomAddress();
-    Vec3 spawnCoord = world.getRandomSpawnCoord(blockNumber, alice, y);
+    Vec3 spawnCoord = world.getRandomSpawnCoord(blockNumber, alice);
 
     vm.prank(alice);
-    EntityId aliceEntityId = world.randomSpawn(blockNumber, spawnCoord.y());
+    EntityId aliceEntityId = world.randomSpawn(blockNumber, y);
 
     Vec3 playerCoord = PlayerPosition.get(aliceEntityId);
 

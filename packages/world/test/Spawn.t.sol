@@ -54,7 +54,7 @@ contract SpawnTest is BiomesTest {
     // Explore chunk at (0, 0, 0)
     setupAirChunk(vec3(0, 0, 0));
 
-    Vec3 spawnCoord = world.getRandomSpawnCoord(blockNumber, alice, 0);
+    Vec3 spawnCoord = world.getRandomSpawnCoord(blockNumber, alice);
 
     // Set below entity to dirt so gravity doesn't apply
     EntityId belowEntityId = randomEntityId();
@@ -67,7 +67,7 @@ contract SpawnTest is BiomesTest {
     LocalEnergyPool.set(shardCoord, spawnEnergy());
 
     vm.prank(alice);
-    EntityId playerEntityId = world.randomSpawn(blockNumber, spawnCoord.y());
+    EntityId playerEntityId = world.randomSpawn(blockNumber, 0);
     assertTrue(playerEntityId.exists());
   }
 

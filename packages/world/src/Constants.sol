@@ -35,6 +35,8 @@ uint256 constant CHUNK_COMMIT_EXPIRY_BLOCKS = 256;
 int32 constant CHUNK_COMMIT_HALF_WIDTH = 2;
 uint256 constant RESPAWN_ORE_BLOCK_RANGE = 10;
 
+address constant PHYSICS_ORACLE_ADDRESS = 0xe67AcfFCe0B542540F1520a9eaD7Aa86ff31196E;
+
 // ------------------------------------------------------------
 // Values To Tune
 // ------------------------------------------------------------
