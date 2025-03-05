@@ -53,8 +53,8 @@ contract ForceFieldSystem is System {
     uint128 addedShards = 0;
 
     for (int32 x = fromShardCoord.x(); x <= toShardCoord.x(); x++) {
-      for (int32 y = fromShardCoord.y(); y <= toShardCoord.x(); y++) {
-        for (int32 z = fromShardCoord.z(); z <= toShardCoord.x(); z++) {
+      for (int32 y = fromShardCoord.y(); y <= toShardCoord.y(); y++) {
+        for (int32 z = fromShardCoord.z(); z <= toShardCoord.z(); z++) {
           Vec3 shardCoord = vec3(x, y, z);
           if (isForceFieldShard(forceFieldEntityId, shardCoord)) {
             continue;
@@ -94,8 +94,8 @@ contract ForceFieldSystem is System {
     require(fromShardCoord <= toShardCoord, "Invalid coordinates");
 
     for (int32 x = fromShardCoord.x(); x <= toShardCoord.x(); x++) {
-      for (int32 y = fromShardCoord.y(); y <= toShardCoord.x(); y++) {
-        for (int32 z = fromShardCoord.z(); z <= toShardCoord.x(); z++) {
+      for (int32 y = fromShardCoord.y(); y <= toShardCoord.y(); y++) {
+        for (int32 z = fromShardCoord.z(); z <= toShardCoord.z(); z++) {
           Vec3 shardCoord = vec3(x, y, z);
           // Only count if the shard exists
           if (isForceFieldShard(forceFieldEntityId, shardCoord)) {
