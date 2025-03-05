@@ -56,7 +56,7 @@ contract ForceFieldSystem is System {
       for (int32 y = fromShardCoord.y(); y <= toShardCoord.x(); y++) {
         for (int32 z = fromShardCoord.z(); z <= toShardCoord.x(); z++) {
           Vec3 shardCoord = vec3(x, y, z);
-          if (isForceFieldShardActive(shardCoord)) {
+          if (isForceFieldShard(forceFieldEntityId, shardCoord)) {
             continue;
           }
           EntityId shardEntityId = setupForceFieldShard(forceFieldEntityId, shardCoord);
