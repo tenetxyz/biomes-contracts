@@ -13,6 +13,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
+import { getUniqueEntity } from "../Utils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -107,10 +108,7 @@ function useEquipped(EntityId entityId) returns (uint128 massUsed, ObjectTypeId 
 
     if (massLeft <= massUsed) {
       // Destroy equipped item
-      removeFromInventoryCount(entityId, inventoryObjectTypeId, 1);
-      Mass._deleteRecord(inventoryEntityId);
-      InventoryEntity._deleteRecord(inventoryEntityId);
-      removeEntityIdFromReverseInventoryEntity(entityId, inventoryEntityId);
+      removeToolFromInventory(entityId, inventoryEntityId, inventoryObjectTypeId);
       Equipped._deleteRecord(entityId);
 
       // Burn ores and make them available for respawn
@@ -214,4 +212,27 @@ function transferInventoryEntity(
   removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);
   addToInventoryCount(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
   return inventoryObjectTypeId;
+}
+
+function addToolToInventory(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId) returns (EntityId) {
+  require(toolObjectTypeId.isTool(), "Object type is not a tool");
+  EntityId newInventoryEntityId = getUniqueEntity();
+  ObjectType._set(newInventoryEntityId, toolObjectTypeId);
+  InventoryEntity._set(newInventoryEntityId, ownerEntityId);
+  ReverseInventoryEntity._push(ownerEntityId, EntityId.unwrap(newInventoryEntityId));
+  // TODO: figure out how mass should work with multiple inputs/outputs
+  // TODO: should we check that total output energy == total input energy? or should we do it at the recipe level?
+  // uint128 toolMass = totalInputObjectMass + energyToMass(totalInputObjectEnergy);
+  Mass._set(newInventoryEntityId, ObjectTypeMetadata._getMass(toolObjectTypeId));
+  addToInventoryCount(ownerEntityId, ObjectType._get(ownerEntityId), toolObjectTypeId, 1);
+  return newInventoryEntityId;
+}
+
+function removeToolFromInventory(EntityId ownerEntityId, EntityId toolEntityId, ObjectTypeId toolObjectTypeId) {
+  require(toolObjectTypeId.isTool(), "Object type is not a tool");
+  require(InventoryEntity._get(toolEntityId) == ownerEntityId, "This tool is not owned by the owner");
+  removeFromInventoryCount(ownerEntityId, toolObjectTypeId, 1);
+  Mass._deleteRecord(toolEntityId);
+  InventoryEntity._deleteRecord(toolEntityId);
+  removeEntityIdFromReverseInventoryEntity(ownerEntityId, toolEntityId);
 }

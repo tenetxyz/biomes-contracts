@@ -22,6 +22,7 @@ import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
+import { IAdminSystem } from "./IAdminSystem.sol";
 import { IOracleSystem } from "./IOracleSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
 import { IReadTwoSystem } from "./IReadTwoSystem.sol";
@@ -59,6 +60,7 @@ interface IWorld is
   ITerrainSystem,
   ITransferSystem,
   IUnequipSystem,
+  IAdminSystem,
   IOracleSystem,
   IReadSystem,
   IReadTwoSystem,

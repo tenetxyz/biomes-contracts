@@ -27,6 +27,7 @@ contract TestScript is Script {
   function run(address worldAddress) external {
     // Specify a store so that you can use tables directly in PostDeploy
     StoreSwitch.setStoreAddress(worldAddress);
+    IWorld world = IWorld(worldAddress);
 
     // Load the private key from the `PRIVATE_KEY` environment variable (in .env)
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -39,8 +40,8 @@ contract TestScript is Script {
     Energy.setEnergy(playerEntityId, MAX_PLAYER_ENERGY);
     Energy.setLastUpdatedTime(playerEntityId, uint128(block.timestamp));
 
-    // TestUtils.addToInventoryCount(playerEntityId, ObjectTypes.Player, ObjectTypes.OakLog, 99);
-    // TestUtils.addToInventoryCount(playerEntityId, ObjectTypes.Player, ObjectTypes.Chest, 1);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.OakLog, 99);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.Chest, 1);
 
     vm.stopBroadcast();
   }

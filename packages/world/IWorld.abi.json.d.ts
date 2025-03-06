@@ -27,6 +27,94 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "adminAddToInventory",
+    "inputs": [
+      {
+        "name": "ownerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "objectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "numObjectsToAdd",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "adminAddToolToInventory",
+    "inputs": [
+      {
+        "name": "ownerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "toolObjectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "adminRemoveFromInventory",
+    "inputs": [
+      {
+        "name": "ownerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "objectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "numObjectsToRemove",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "adminRemoveToolFromInventory",
+    "inputs": [
+      {
+        "name": "ownerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "toolEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "attachChip",
     "inputs": [
       {

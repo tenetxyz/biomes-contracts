@@ -348,9 +348,8 @@ contract MineTest is BiomesTest {
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
-    TestUtils.addToInventoryCount(
+    TestUtils.addToInventory(
       aliceEntityId,
-      ObjectTypes.Player,
       mineObjectTypeId,
       ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player) * ObjectTypeMetadata.getStackable(mineObjectTypeId)
     );

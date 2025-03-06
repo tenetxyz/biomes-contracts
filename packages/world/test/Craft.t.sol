@@ -60,7 +60,7 @@ contract CraftTest is BiomesTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -98,7 +98,7 @@ contract CraftTest is BiomesTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -134,7 +134,7 @@ contract CraftTest is BiomesTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Thermoblaster, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -175,9 +175,9 @@ contract CraftTest is BiomesTest {
     ObjectTypeId inputObjectTypeId1 = ObjectTypes.OakPlanks;
     ObjectTypeId inputObjectTypeId2 = ObjectTypes.BirchPlanks;
     ObjectTypeId inputObjectTypeId3 = ObjectTypes.JunglePlanks;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId1, 2);
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId2, 3);
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId3, 3);
+    TestUtils.addToInventory(aliceEntityId, inputObjectTypeId1, 2);
+    TestUtils.addToInventory(aliceEntityId, inputObjectTypeId2, 3);
+    TestUtils.addToInventory(aliceEntityId, inputObjectTypeId3, 3);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 2);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId2, 3);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId3, 3);
@@ -216,7 +216,7 @@ contract CraftTest is BiomesTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     ObjectTypeId inputObjectTypeId = ObjectTypes.SakuraLog;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId, 4);
+    TestUtils.addToInventory(aliceEntityId, inputObjectTypeId, 4);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 4);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -254,7 +254,7 @@ contract CraftTest is BiomesTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     ObjectTypeId inputObjectTypeId = ObjectTypes.SakuraLog;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId, 8);
+    TestUtils.addToInventory(aliceEntityId, inputObjectTypeId, 8);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 8);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -331,9 +331,9 @@ contract CraftTest is BiomesTest {
     ObjectTypeId inputObjectTypeId1 = ObjectTypes.OakPlanks;
     ObjectTypeId inputObjectTypeId2 = ObjectTypes.BirchPlanks;
     ObjectTypeId inputObjectTypeId3 = ObjectTypes.JunglePlanks;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId1, 1);
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId2, 1);
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputObjectTypeId3, 1);
+    TestUtils.addToInventory(aliceEntityId, inputObjectTypeId1, 1);
+    TestUtils.addToInventory(aliceEntityId, inputObjectTypeId2, 1);
+    TestUtils.addToInventory(aliceEntityId, inputObjectTypeId3, 1);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 1);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId2, 1);
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId3, 1);
@@ -377,7 +377,7 @@ contract CraftTest is BiomesTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Thermoblaster, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -413,9 +413,8 @@ contract CraftTest is BiomesTest {
     outputAmounts[0] = 4;
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
-    TestUtils.addToInventoryCount(
+    TestUtils.addToInventory(
       aliceEntityId,
-      ObjectTypes.Player,
       ObjectTypes.OakLog,
       ObjectTypeMetadata.getMaxInventorySlots(ObjectTypes.Player) * ObjectTypeMetadata.getStackable(ObjectTypes.OakLog)
     );
@@ -444,7 +443,7 @@ contract CraftTest is BiomesTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -469,7 +468,7 @@ contract CraftTest is BiomesTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
@@ -491,7 +490,7 @@ contract CraftTest is BiomesTest {
     bytes32 recipeId = hashRecipe(ObjectTypes.Null, inputTypes, inputAmounts, outputTypes, outputAmounts);
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
-      TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, inputTypes[i], inputAmounts[i]);
+      TestUtils.addToInventory(aliceEntityId, inputTypes[i], inputAmounts[i]);
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
