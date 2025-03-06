@@ -29,7 +29,7 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X, PLAYER_FALL_ENERGY_COST } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
@@ -64,7 +64,11 @@ contract GravityTest is BiomesTest {
     assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+    uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
+      beforeEnergyDataSnapshot,
+      afterEnergyDataSnapshot
+    );
+    assertTrue(playerEnergyLost < PLAYER_FALL_ENERGY_COST, "Player energy lost is not less than the move energy cost");
   }
 
   function testMineFallMultipleBlocks() public {
@@ -99,7 +103,14 @@ contract GravityTest is BiomesTest {
     assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+    uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
+      beforeEnergyDataSnapshot,
+      afterEnergyDataSnapshot
+    );
+    assertTrue(
+      playerEnergyLost >= PLAYER_FALL_ENERGY_COST,
+      "Player energy lost is not greater than the move energy cost"
+    );
   }
 
   function testMineFallFatal() public {
@@ -166,6 +177,8 @@ contract GravityTest is BiomesTest {
       (aliceEnergyBefore - aliceEnergyAfter) + (bobEnergyBefore - bobEnergyAfter),
       "Alice and Bob did not lose energy"
     );
+    assertTrue((aliceEnergyBefore - aliceEnergyAfter) > PLAYER_FALL_ENERGY_COST, "Alice did not lose energy");
+    assertTrue((bobEnergyBefore - bobEnergyAfter) > PLAYER_FALL_ENERGY_COST, "Bob did not lose energy");
   }
 
   function testMoveFallSingleBlocok() public {
@@ -196,7 +209,14 @@ contract GravityTest is BiomesTest {
       "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+    uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
+      beforeEnergyDataSnapshot,
+      afterEnergyDataSnapshot
+    );
+    assertTrue(
+      playerEnergyLost >= PLAYER_FALL_ENERGY_COST,
+      "Player energy lost is not greater than the move energy cost"
+    );
   }
 
   function testMoveFallMultipleBlocks() public {
@@ -229,7 +249,14 @@ contract GravityTest is BiomesTest {
       "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+    uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
+      beforeEnergyDataSnapshot,
+      afterEnergyDataSnapshot
+    );
+    assertTrue(
+      playerEnergyLost >= PLAYER_FALL_ENERGY_COST,
+      "Player energy lost is not greater than the move energy cost"
+    );
   }
 
   function testMoveStackedPlayers() public {
@@ -288,6 +315,8 @@ contract GravityTest is BiomesTest {
       (aliceEnergyBefore - aliceEnergyAfter) + (bobEnergyBefore - bobEnergyAfter),
       "Alice and Bob did not lose energy"
     );
+    assertTrue((aliceEnergyBefore - aliceEnergyAfter) > PLAYER_FALL_ENERGY_COST, "Alice did not lose energy");
+    assertTrue((bobEnergyBefore - bobEnergyAfter) > PLAYER_FALL_ENERGY_COST, "Bob did not lose energy");
   }
 
   function testMoveFallFatal() public {
