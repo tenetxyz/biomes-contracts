@@ -42,7 +42,7 @@ contract MineTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
-    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
@@ -66,7 +66,7 @@ contract MineTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
-    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction * 2));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
@@ -100,7 +100,7 @@ contract MineTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
-    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction * 2));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
@@ -126,8 +126,8 @@ contract MineTest is BiomesTest {
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
 
     setTerrainAtCoord(mineCoord, ObjectTypes.AnyOre);
-    uint8 o = TerrainLib.getBlockType(mineCoord);
-    assertTrue(ObjectTypeId.wrap(uint16(o)) == ObjectTypes.AnyOre, "Didn't work");
+    ObjectTypeId o = TerrainLib.getBlockType(mineCoord);
+    assertTrue(o == ObjectTypes.AnyOre, "Didn't work");
     ObjectTypeMetadata.setMass(ObjectTypes.AnyOre, uint32(playerHandMassReduction - 1));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(!mineEntityId.exists(), "Mine entity already exists");
@@ -168,8 +168,8 @@ contract MineTest is BiomesTest {
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
 
     setTerrainAtCoord(mineCoord, ObjectTypes.AnyOre);
-    uint8 o = TerrainLib.getBlockType(mineCoord);
-    assertTrue(ObjectTypeId.wrap(uint16(o)) == ObjectTypes.AnyOre, "Didn't work");
+    ObjectTypeId o = TerrainLib.getBlockType(mineCoord);
+    assertTrue(o == ObjectTypes.AnyOre, "Didn't work");
     ObjectTypeMetadata.setMass(ObjectTypes.AnyOre, uint32(playerHandMassReduction * 2));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(!mineEntityId.exists(), "Mine entity already exists");

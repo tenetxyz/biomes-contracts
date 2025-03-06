@@ -13,7 +13,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
 
-import { LocalEnergyPool, ExploredChunkByIndex, ExploredChunk, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
+import { ExploredChunkByIndex, ExploredChunk, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
@@ -83,6 +83,8 @@ contract SpawnSystem is System {
     ObjectTypeId spawnObjectTypeId = getObjectTypeIdAt(spawnCoord);
     ObjectTypeId belowObjectTypeId = getObjectTypeIdAt(belowCoord);
     return
+      spawnObjectTypeId != ObjectTypes.Null &&
+      belowObjectTypeId != ObjectTypes.Null &&
       ObjectTypeMetadata._getCanPassThrough(spawnObjectTypeId) &&
       !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId);
   }

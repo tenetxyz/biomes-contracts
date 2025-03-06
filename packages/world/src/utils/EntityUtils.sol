@@ -9,23 +9,33 @@ import { TerrainLib } from "../systems/libraries/TerrainLib.sol";
 
 import { getUniqueEntity } from "../Utils.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 
+/// @notice Get the object type id at a given coordinate.
+/// @dev Returns ObjectTypes.Null if the chunk is not explored yet.
 function getObjectTypeIdAt(Vec3 coord) view returns (ObjectTypeId) {
   EntityId entityId = ReversePosition._get(coord);
-  if (!entityId.exists()) {
-    return ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
-  }
-  return ObjectType._get(entityId);
+  return entityId.exists() ? ObjectType._get(entityId) : TerrainLib._getBlockType(coord);
+}
+
+/// @notice Get the object type id at a given coordinate.
+/// @dev Reverts if the chunk is not explored yet.
+function safeGetObjectTypeIdAt(Vec3 coord) view returns (ObjectTypeId) {
+  ObjectTypeId objectTypeId = getObjectTypeIdAt(coord);
+  require(objectTypeId != ObjectTypes.Null, "Chunk not explored yet");
+  return objectTypeId;
 }
 
 function getOrCreateEntityAt(Vec3 coord) returns (EntityId, ObjectTypeId) {
   EntityId entityId = ReversePosition._get(coord);
   ObjectTypeId objectTypeId;
   if (!entityId.exists()) {
-    // TODO: move wrapping to TerrainLib?
-    objectTypeId = ObjectTypeId.wrap(TerrainLib._getBlockType(coord));
+    objectTypeId = TerrainLib._getBlockType(coord);
+    if (objectTypeId == ObjectTypes.Null) {
+      revert("Chunk not explored yet");
+    }
 
     entityId = getUniqueEntity();
     Position._set(entityId, coord);

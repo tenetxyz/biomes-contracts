@@ -20,7 +20,7 @@ import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { updateEnergyLevel } from "./EnergyUtils.sol";
 import { getForceField } from "./ForceFieldUtils.sol";
 import { transferAllInventoryEntities } from "./InventoryUtils.sol";
-import { getObjectTypeIdAt, getPlayer, setPlayer } from "./EntityUtils.sol";
+import { safeGetObjectTypeIdAt, getPlayer, setPlayer } from "./EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
@@ -73,7 +73,7 @@ function createPlayer(EntityId playerEntityId, Vec3 playerCoord) {
 
 function addPlayerToGrid(EntityId playerEntityId, Vec3 playerCoord) {
   // Check if the spawn location is valid
-  ObjectTypeId terrainObjectTypeId = getObjectTypeIdAt(playerCoord);
+  ObjectTypeId terrainObjectTypeId = safeGetObjectTypeIdAt(playerCoord);
   require(
     terrainObjectTypeId == ObjectTypes.Air && !getPlayer(playerCoord).exists(),
     "Cannot spawn on a non-air block"
@@ -87,7 +87,7 @@ function addPlayerToGrid(EntityId playerEntityId, Vec3 playerCoord) {
   // Only iterate through relative schema coords
   for (uint256 i = 1; i < coords.length; i++) {
     Vec3 relativeCoord = coords[i];
-    ObjectTypeId relativeTerrainObjectTypeId = getObjectTypeIdAt(relativeCoord);
+    ObjectTypeId relativeTerrainObjectTypeId = safeGetObjectTypeIdAt(relativeCoord);
     require(
       relativeTerrainObjectTypeId == ObjectTypes.Air && !getPlayer(relativeCoord).exists(),
       "Cannot spawn on a non-air block"
