@@ -62,7 +62,6 @@ library MoveLib {
       if (gravityAppliesForMove) {
         if (oldBaseCoord.y() < newBaseCoord.y()) {
           numJumps++;
-          currentFallHeight = 0;
           require(numJumps <= MAX_PLAYER_JUMPS, "Cannot jump more than 3 blocks");
         } else if (oldBaseCoord.y() > newBaseCoord.y()) {
           // then we are falling, so should be fine
