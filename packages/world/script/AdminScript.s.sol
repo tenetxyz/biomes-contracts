@@ -40,7 +40,7 @@ contract AdminScript is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
-    ensureAdminSystem(worldAddress);
+    ensureAdminSystem(world);
 
     EntityId playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
     require(playerEntityId.exists(), "Player entity not found");
@@ -54,7 +54,7 @@ contract AdminScript is Script {
     vm.stopBroadcast();
   }
 
-  function ensureAdminSystem(address worldAddress) internal {
+  function ensureAdminSystem(IWorld world) internal {
     AdminSystem adminSystem = new AdminSystem();
     ResourceId adminSystemId = WorldResourceIdLib.encode({
       typeId: RESOURCE_SYSTEM,
@@ -62,27 +62,27 @@ contract AdminScript is Script {
       name: "AdminSystem"
     });
     address existingSystem = Systems.getSystem(adminSystemId);
-    IWorld(worldAddress).registerSystem(adminSystemId, adminSystem, true);
+    world.registerSystem(adminSystemId, adminSystem, true);
     if (existingSystem != address(0)) {
       return;
     }
 
-    IWorld(worldAddress).registerRootFunctionSelector(
+    world.registerRootFunctionSelector(
       adminSystemId,
       "adminAddToInventory(bytes32,uint16,uint16)",
       "adminAddToInventory(bytes32,uint16,uint16)"
     );
-    IWorld(worldAddress).registerRootFunctionSelector(
+    world.registerRootFunctionSelector(
       adminSystemId,
       "adminAddToolToInventory(bytes32,uint16)",
       "adminAddToolToInventory(bytes32,uint16)"
     );
-    IWorld(worldAddress).registerRootFunctionSelector(
+    world.registerRootFunctionSelector(
       adminSystemId,
       "adminRemoveFromInventory(bytes32,uint16,uint16)",
       "adminRemoveFromInventory(bytes32,uint16,uint16)"
     );
-    IWorld(worldAddress).registerRootFunctionSelector(
+    world.registerRootFunctionSelector(
       adminSystemId,
       "adminRemoveToolFromInventory(bytes32,bytes32)",
       "adminRemoveToolFromInventory(bytes32,bytes32)"
