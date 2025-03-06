@@ -1701,6 +1701,25 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "getValidSpawnY",
+    "inputs": [
+      {
+        "name": "spawnCoordCandidate",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "spawnCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getValueSchema",
     "inputs": [
       {
@@ -1880,6 +1899,25 @@ declare const abi: [
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "isValidSpawn",
+    "inputs": [
+      {
+        "name": "spawnCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
