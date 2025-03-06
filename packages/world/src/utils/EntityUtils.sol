@@ -27,7 +27,7 @@ function getObjectTypeIdAt(Vec3 coord) view returns (ObjectTypeId) {
 /// @dev Reverts if the chunk is not explored yet.
 function safeGetObjectTypeIdAt(Vec3 coord) view returns (ObjectTypeId) {
   ObjectTypeId objectTypeId = getObjectTypeIdAt(coord);
-  require(objectTypeId != ObjectTypes.Null, "Chunk not explored yet");
+  require(!objectTypeId.isNull(), "Chunk not explored yet");
   return objectTypeId;
 }
 
