@@ -16,8 +16,7 @@ import { ActionType } from "../codegen/common.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { getUniqueEntity } from "../Utils.sol";
-import { addToInventoryCount, removeFromInventoryCount, removeAnyFromInventoryCount, addToolToInventory } from "../utils/InventoryUtils.sol";
+import { addToInventory, removeFromInventory, removeAnyFromInventory, addToolToInventory } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, CraftNotifData } from "../utils/NotifUtils.sol";
 import { energyToMass, transferEnergyToPool } from "../utils/EnergyUtils.sol";
@@ -48,9 +47,9 @@ contract CraftSystem is System {
       // totalInputObjectMass += ObjectTypeMetadata._getMass(inputObjectTypeId);
       // totalInputObjectEnergy += ObjectTypeMetadata._getEnergy(inputObjectTypeId);
       if (inputObjectTypeId.isAny()) {
-        removeAnyFromInventoryCount(playerEntityId, inputObjectTypeId, recipeData.inputAmounts[i]);
+        removeAnyFromInventory(playerEntityId, inputObjectTypeId, recipeData.inputAmounts[i]);
       } else {
-        removeFromInventoryCount(playerEntityId, inputObjectTypeId, recipeData.inputAmounts[i]);
+        removeFromInventory(playerEntityId, inputObjectTypeId, recipeData.inputAmounts[i]);
       }
     }
 
@@ -63,7 +62,7 @@ contract CraftSystem is System {
           addToolToInventory(playerEntityId, outputType);
         }
       } else {
-        addToInventoryCount(playerEntityId, ObjectTypes.Player, outputType, outputAmount);
+        addToInventory(playerEntityId, ObjectTypes.Player, outputType, outputAmount);
       }
     }
 

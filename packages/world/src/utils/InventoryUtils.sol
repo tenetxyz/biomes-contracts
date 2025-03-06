@@ -19,7 +19,7 @@ import { EntityId } from "../EntityId.sol";
 
 using ObjectTypeLib for ObjectTypeId;
 
-function addToInventoryCount(
+function addToInventory(
   EntityId ownerEntityId,
   ObjectTypeId ownerObjectTypeId,
   ObjectTypeId objectTypeId,
@@ -48,7 +48,7 @@ function addToInventoryCount(
   }
 }
 
-function removeFromInventoryCount(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToRemove) {
+function removeFromInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToRemove) {
   uint16 numInitialObjects = InventoryCount._get(ownerEntityId, objectTypeId);
   require(numInitialObjects >= numObjectsToRemove, "Not enough objects in the inventory");
 
@@ -80,14 +80,14 @@ function removeFromInventoryCount(EntityId ownerEntityId, ObjectTypeId objectTyp
   }
 }
 
-function removeAnyFromInventoryCount(EntityId playerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToRemove) {
+function removeAnyFromInventory(EntityId playerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToRemove) {
   uint16 remaining = numObjectsToRemove;
   ObjectTypeId[] memory objectTypeIds = objectTypeId.getObjectTypes();
   for (uint256 i = 0; i < objectTypeIds.length; i++) {
     uint16 owned = InventoryCount._get(playerEntityId, objectTypeIds[i]);
     uint16 spend = owned > remaining ? remaining : owned;
     if (spend > 0) {
-      removeFromInventoryCount(playerEntityId, objectTypeIds[i], spend);
+      removeFromInventory(playerEntityId, objectTypeIds[i], spend);
       remaining -= spend;
     }
   }
@@ -164,8 +164,8 @@ function transferAllInventoryEntities(
   uint16[] memory fromObjectTypeIds = InventoryObjects._get(fromEntityId);
   for (uint256 i = 0; i < fromObjectTypeIds.length; i++) {
     uint16 objectTypeCount = InventoryCount._get(fromEntityId, ObjectTypeId.wrap(fromObjectTypeIds[i]));
-    addToInventoryCount(toEntityId, toObjectTypeId, ObjectTypeId.wrap(fromObjectTypeIds[i]), objectTypeCount);
-    removeFromInventoryCount(fromEntityId, ObjectTypeId.wrap(fromObjectTypeIds[i]), objectTypeCount);
+    addToInventory(toEntityId, toObjectTypeId, ObjectTypeId.wrap(fromObjectTypeIds[i]), objectTypeCount);
+    removeFromInventory(fromEntityId, ObjectTypeId.wrap(fromObjectTypeIds[i]), objectTypeCount);
     numTransferred += objectTypeCount;
   }
 
@@ -190,8 +190,8 @@ function transferInventoryNonEntity(
 ) {
   require(transferObjectTypeId.isBlock() || transferObjectTypeId.isItem(), "Object type is not a block or item");
   require(numObjectsToTransfer > 0, "Amount must be greater than 0");
-  removeFromInventoryCount(srcEntityId, transferObjectTypeId, numObjectsToTransfer);
-  addToInventoryCount(dstEntityId, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);
+  removeFromInventory(srcEntityId, transferObjectTypeId, numObjectsToTransfer);
+  addToInventory(dstEntityId, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);
 }
 
 function transferInventoryEntity(
@@ -209,8 +209,8 @@ function transferInventoryEntity(
   removeEntityIdFromReverseInventoryEntity(srcEntityId, inventoryEntityId);
 
   ObjectTypeId inventoryObjectTypeId = ObjectType._get(inventoryEntityId);
-  removeFromInventoryCount(srcEntityId, inventoryObjectTypeId, 1);
-  addToInventoryCount(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
+  removeFromInventory(srcEntityId, inventoryObjectTypeId, 1);
+  addToInventory(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
   return inventoryObjectTypeId;
 }
 
@@ -224,14 +224,14 @@ function addToolToInventory(EntityId ownerEntityId, ObjectTypeId toolObjectTypeI
   // TODO: should we check that total output energy == total input energy? or should we do it at the recipe level?
   // uint128 toolMass = totalInputObjectMass + energyToMass(totalInputObjectEnergy);
   Mass._set(newInventoryEntityId, ObjectTypeMetadata._getMass(toolObjectTypeId));
-  addToInventoryCount(ownerEntityId, ObjectType._get(ownerEntityId), toolObjectTypeId, 1);
+  addToInventory(ownerEntityId, ObjectType._get(ownerEntityId), toolObjectTypeId, 1);
   return newInventoryEntityId;
 }
 
 function removeToolFromInventory(EntityId ownerEntityId, EntityId toolEntityId, ObjectTypeId toolObjectTypeId) {
   require(toolObjectTypeId.isTool(), "Object type is not a tool");
   require(InventoryEntity._get(toolEntityId) == ownerEntityId, "This tool is not owned by the owner");
-  removeFromInventoryCount(ownerEntityId, toolObjectTypeId, 1);
+  removeFromInventory(ownerEntityId, toolObjectTypeId, 1);
   Mass._deleteRecord(toolEntityId);
   InventoryEntity._deleteRecord(toolEntityId);
   removeEntityIdFromReverseInventoryEntity(ownerEntityId, toolEntityId);

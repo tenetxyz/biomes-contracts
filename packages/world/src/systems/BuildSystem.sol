@@ -18,7 +18,7 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
-import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
+import { removeFromInventory } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 
@@ -85,7 +85,7 @@ contract BuildSystem is System {
 
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
 
-    removeFromInventoryCount(playerEntityId, buildObjectTypeId, 1);
+    removeFromInventory(playerEntityId, buildObjectTypeId, 1);
 
     notify(
       playerEntityId,

@@ -10,7 +10,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
+import { removeFromInventory } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
@@ -30,7 +30,7 @@ contract MachineSystem is System {
 
     EntityId baseEntityId = entityId.baseEntityId();
 
-    removeFromInventoryCount(playerEntityId, ObjectTypes.ChipBattery, numBattery);
+    removeFromInventory(playerEntityId, ObjectTypes.ChipBattery, numBattery);
 
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
     require(ObjectTypeLib.isMachine(objectTypeId), "Can only power machines");

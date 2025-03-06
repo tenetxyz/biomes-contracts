@@ -7,7 +7,7 @@ import { ROOT_NAMESPACE_ID } from "@latticexyz/world/src/constants.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 
-import { addToInventoryCount, removeFromInventoryCount, addToolToInventory, removeToolFromInventory } from "../../utils/InventoryUtils.sol";
+import { addToInventory, removeFromInventory, addToolToInventory, removeToolFromInventory } from "../../utils/InventoryUtils.sol";
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../../ObjectTypeLib.sol";
 import { EntityId } from "../../EntityId.sol";
@@ -27,7 +27,7 @@ contract AdminSystem is System {
     uint16 numObjectsToAdd
   ) public onlyAdmin {
     require(!objectTypeId.isTool(), "To add a tool, you must use adminAddToolToInventory");
-    addToInventoryCount(ownerEntityId, ObjectType._get(ownerEntityId), objectTypeId, numObjectsToAdd);
+    addToInventory(ownerEntityId, ObjectType._get(ownerEntityId), objectTypeId, numObjectsToAdd);
   }
 
   function adminAddToolToInventory(
@@ -43,7 +43,7 @@ contract AdminSystem is System {
     uint16 numObjectsToRemove
   ) public onlyAdmin {
     require(!objectTypeId.isTool(), "To remove a tool, you must pass in the tool entity id");
-    removeFromInventoryCount(ownerEntityId, objectTypeId, numObjectsToRemove);
+    removeFromInventory(ownerEntityId, objectTypeId, numObjectsToRemove);
   }
 
   function adminRemoveToolFromInventory(EntityId ownerEntityId, EntityId toolEntityId) public onlyAdmin {

@@ -14,7 +14,7 @@ import { ReverseInventoryEntity } from "../../src/codegen/tables/ReverseInventor
 import { EnergyData } from "../../src/codegen/tables/Energy.sol";
 import { ObjectTypeId } from "../../src/ObjectTypeId.sol";
 import { ObjectTypeLib, ObjectAmount, getOreObjectTypes } from "../../src/ObjectTypeLib.sol";
-import { addToInventoryCount as _addToInventoryCount, removeFromInventoryCount as _removeFromInventoryCount, addToolToInventory as _addToolToInventory, removeToolFromInventory as _removeToolFromInventory, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
+import { addToInventory as _addToInventory, removeFromInventory as _removeFromInventory, addToolToInventory as _addToolToInventory, removeToolFromInventory as _removeToolFromInventory, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
 import { updateEnergyLevel as _updateEnergyLevel } from "../../src/utils/EnergyUtils.sol";
 
 Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
@@ -59,7 +59,7 @@ library TestUtils {
 
   function addToInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToAdd) public asWorld {
     require(!objectTypeId.isTool(), "To add a tool, you must use addToolToInventory");
-    _addToInventoryCount(ownerEntityId, ObjectType._get(ownerEntityId), objectTypeId, numObjectsToAdd);
+    _addToInventory(ownerEntityId, ObjectType._get(ownerEntityId), objectTypeId, numObjectsToAdd);
   }
 
   function addToolToInventory(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId) public asWorld returns (EntityId) {
@@ -72,7 +72,7 @@ library TestUtils {
     uint16 numObjectsToRemove
   ) public asWorld {
     require(!objectTypeId.isTool(), "To remove a tool, you must pass in the tool entity id");
-    _removeFromInventoryCount(ownerEntityId, objectTypeId, numObjectsToRemove);
+    _removeFromInventory(ownerEntityId, objectTypeId, numObjectsToRemove);
   }
 
   function removeFromInventory(EntityId ownerEntityId, EntityId toolEntityId) public asWorld {
