@@ -232,7 +232,7 @@ contract CraftTest is BiomesTest {
     EntityId toolEntityId = EntityId.wrap(toolEntityIds[0]);
     assertTrue(toolEntityId.exists(), "tool entity id should exist");
     ObjectTypeId toolObjectTypeId = ObjectType.get(toolEntityId);
-    assertTrue(toolObjectTypeId == outputTypes[0], "tool object type should be equal to expected output object type");
+    assertEq(toolObjectTypeId, outputTypes[0], "tool object type should be equal to expected output object type");
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
     assertEq(Mass.get(toolEntityId), ObjectTypeMetadata.getMass(outputTypes[0]), "mass should be equal to tool mass");
 
@@ -268,7 +268,7 @@ contract CraftTest is BiomesTest {
     EntityId toolEntityId = EntityId.wrap(toolEntityIds[0]);
     assertTrue(toolEntityId.exists(), "tool entity id should exist");
     ObjectTypeId toolObjectTypeId = ObjectType.get(toolEntityId);
-    assertTrue(toolObjectTypeId == outputTypes[0], "tool object type should be equal to expected output object type");
+    assertEq(toolObjectTypeId, outputTypes[0], "tool object type should be equal to expected output object type");
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
     assertEq(Mass.get(toolEntityId), ObjectTypeMetadata.getMass(outputTypes[0]), "mass should be equal to tool mass");
 
@@ -289,7 +289,7 @@ contract CraftTest is BiomesTest {
     EntityId toolEntityId2 = EntityId.wrap(toolEntityIds[1]);
     assertTrue(toolEntityId2.exists(), "tool entity id should exist");
     ObjectTypeId toolObjectTypeId2 = ObjectType.get(toolEntityId2);
-    assertTrue(toolObjectTypeId2 == outputTypes[0], "tool object type should be equal to expected output object type");
+    assertEq(toolObjectTypeId2, outputTypes[0], "tool object type should be equal to expected output object type");
     assertInventoryHasTool(aliceEntityId, toolEntityId2, 1);
     assertEq(Mass.get(toolEntityId2), ObjectTypeMetadata.getMass(outputTypes[0]), "mass should be equal to tool mass");
 

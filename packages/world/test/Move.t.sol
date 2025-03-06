@@ -69,9 +69,10 @@ contract MoveTest is BiomesTest {
 
     Vec3 finalCoord = PlayerPosition.get(playerEntityId);
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
-    assertTrue(finalCoord == newCoords[numBlocksToMove - 1], "Player did not move to the correct coord");
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == playerEntityId,
+    assertEq(finalCoord, newCoords[numBlocksToMove - 1], "Player did not move to the correct coord");
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      playerEntityId,
       "Above coord is not the player"
     );
     assertEq(EntityId.unwrap(ReversePlayerPosition.get(startingCoord)), bytes32(0), "Player position was not deleted");
@@ -155,10 +156,11 @@ contract MoveTest is BiomesTest {
 
     // Expect the player to fall down back to the original coord
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(finalCoord == playerCoord, "Player did not fall back to the original coord");
+    assertEq(finalCoord, playerCoord, "Player did not fall back to the original coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      aliceEntityId,
       "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -185,10 +187,11 @@ contract MoveTest is BiomesTest {
 
     // Expect the player to fall down back after the last block
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(finalCoord == expectedFinalCoord, "Player did not move to new coords");
+    assertEq(finalCoord, expectedFinalCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      aliceEntityId,
       "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -216,10 +219,11 @@ contract MoveTest is BiomesTest {
 
     // Expect the player to be above the grass
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(finalCoord == grassCoord + vec3(0, 1, 0), "Player did not move to the grass coord");
+    assertEq(finalCoord, grassCoord + vec3(0, 1, 0), "Player did not move to the grass coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      aliceEntityId,
       "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -228,12 +232,14 @@ contract MoveTest is BiomesTest {
       afterEnergyDataSnapshot
     );
     // Fall damage is greater than the move energy cost
-    assertTrue(
-      PLAYER_FALL_ENERGY_COST > PLAYER_MOVE_ENERGY_COST,
+    assertGt(
+      PLAYER_FALL_ENERGY_COST,
+      PLAYER_MOVE_ENERGY_COST,
       "Fall energy cost is not greater than the move energy cost"
     );
-    assertTrue(
-      playerEnergyLost == PLAYER_MOVE_ENERGY_COST * newCoords.length,
+    assertEq(
+      playerEnergyLost,
+      PLAYER_MOVE_ENERGY_COST * newCoords.length,
       "Player energy lost is not greater than the move energy cost"
     );
   }
@@ -259,10 +265,11 @@ contract MoveTest is BiomesTest {
 
     // Expect the player to be above the grass
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(finalCoord == grassCoord + vec3(0, 1, 0), "Player did not move to the grass coord");
+    assertEq(finalCoord, grassCoord + vec3(0, 1, 0), "Player did not move to the grass coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      aliceEntityId,
       "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -271,12 +278,14 @@ contract MoveTest is BiomesTest {
       afterEnergyDataSnapshot
     );
     // Fall damage is greater than the move energy cost
-    assertTrue(
-      PLAYER_FALL_ENERGY_COST > PLAYER_MOVE_ENERGY_COST,
+    assertGt(
+      PLAYER_FALL_ENERGY_COST,
+      PLAYER_MOVE_ENERGY_COST,
       "Fall energy cost is not greater than the move energy cost"
     );
-    assertTrue(
-      playerEnergyLost > PLAYER_MOVE_ENERGY_COST * newCoords.length,
+    assertGt(
+      playerEnergyLost,
+      PLAYER_MOVE_ENERGY_COST * newCoords.length,
       "Player energy lost is not greater than the move energy cost"
     );
   }
@@ -295,10 +304,11 @@ contract MoveTest is BiomesTest {
     world.move(newCoords);
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(finalCoord == newCoords[newCoords.length - 1], "Player did not move to new coords");
+    assertEq(finalCoord, newCoords[newCoords.length - 1], "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      aliceEntityId,
       "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -324,10 +334,11 @@ contract MoveTest is BiomesTest {
     world.move(newCoords);
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(finalCoord == playerCoord, "Player did not move to new coords");
+    assertEq(finalCoord, playerCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      aliceEntityId,
       "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -357,10 +368,11 @@ contract MoveTest is BiomesTest {
     world.move(newCoords);
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(finalCoord == expectedFinalCoord, "Player did not move to new coords");
+    assertEq(finalCoord, expectedFinalCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      aliceEntityId,
       "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);

@@ -53,22 +53,23 @@ contract GravityTest is BiomesTest {
     endGasReport();
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(finalCoord == mineCoord, "Player did not move to new coords");
+    assertEq(finalCoord, mineCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      aliceEntityId,
       "Above coord is not the player"
     );
 
     mineEntityId = ReversePosition.get(mineCoord);
-    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
+    assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
       beforeEnergyDataSnapshot,
       afterEnergyDataSnapshot
     );
-    assertTrue(playerEnergyLost < PLAYER_FALL_ENERGY_COST, "Player energy lost is not less than the move energy cost");
+    assertLt(playerEnergyLost, PLAYER_FALL_ENERGY_COST, "Player energy lost is not less than the move energy cost");
   }
 
   function testMineFallMultipleBlocks() public {
@@ -92,25 +93,23 @@ contract GravityTest is BiomesTest {
     endGasReport();
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(finalCoord == mineCoord - vec3(0, 2, 0), "Player did not move to new coords");
+    assertEq(finalCoord, mineCoord - vec3(0, 2, 0), "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      aliceEntityId,
       "Above coord is not the player"
     );
 
     mineEntityId = ReversePosition.get(mineCoord);
-    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
+    assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
       beforeEnergyDataSnapshot,
       afterEnergyDataSnapshot
     );
-    assertTrue(
-      playerEnergyLost >= PLAYER_FALL_ENERGY_COST,
-      "Player energy lost is not greater than the move energy cost"
-    );
+    assertGt(playerEnergyLost, PLAYER_FALL_ENERGY_COST, "Player energy lost is not greater than the move energy cost");
   }
 
   function testMineFallFatal() public {
@@ -150,26 +149,28 @@ contract GravityTest is BiomesTest {
 
     Vec3 finalAliceCoord = PlayerPosition.get(aliceEntityId);
     Vec3 finalBobCoord = PlayerPosition.get(bobEntityId);
-    assertTrue(finalAliceCoord == mineCoord - vec3(0, 2, 0), "Player alice did not move to new coords");
-    assertTrue(finalBobCoord == mineCoord, "Player bob did not move to new coords");
+    assertEq(finalAliceCoord, mineCoord - vec3(0, 2, 0), "Player alice did not move to new coords");
+    assertEq(finalBobCoord, mineCoord, "Player bob did not move to new coords");
     {
       Vec3 aboveFinalAliceCoord = finalAliceCoord + vec3(0, 1, 0);
-      assertTrue(
-        BaseEntity.get(ReversePlayerPosition.get(aboveFinalAliceCoord)) == aliceEntityId,
+      assertEq(
+        BaseEntity.get(ReversePlayerPosition.get(aboveFinalAliceCoord)),
+        aliceEntityId,
         "Above coord is not the player alice"
       );
       Vec3 aboveFinalBobCoord = finalBobCoord + vec3(0, 1, 0);
-      assertTrue(
-        BaseEntity.get(ReversePlayerPosition.get(aboveFinalBobCoord)) == bobEntityId,
+      assertEq(
+        BaseEntity.get(ReversePlayerPosition.get(aboveFinalBobCoord)),
+        bobEntityId,
         "Above coord is not the player bob"
       );
     }
 
     mineEntityId = ReversePosition.get(mineCoord);
-    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
+    assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertGt(energyGainedInPool, 0, "Local energy pool did not gain energy");
     uint128 aliceEnergyAfter = Energy.getEnergy(aliceEntityId);
     uint128 bobEnergyAfter = Energy.getEnergy(bobEntityId);
     assertEq(
@@ -177,8 +178,8 @@ contract GravityTest is BiomesTest {
       (aliceEnergyBefore - aliceEnergyAfter) + (bobEnergyBefore - bobEnergyAfter),
       "Alice and Bob did not lose energy"
     );
-    assertTrue((aliceEnergyBefore - aliceEnergyAfter) > PLAYER_FALL_ENERGY_COST, "Alice did not lose energy");
-    assertTrue((bobEnergyBefore - bobEnergyAfter) > PLAYER_FALL_ENERGY_COST, "Bob did not lose energy");
+    assertGt(aliceEnergyBefore - aliceEnergyAfter, PLAYER_FALL_ENERGY_COST, "Alice did not lose energy");
+    assertGt(bobEnergyBefore - bobEnergyAfter, PLAYER_FALL_ENERGY_COST, "Bob did not lose energy");
   }
 
   function testMoveFallSingleBlocok() public {
@@ -202,10 +203,11 @@ contract GravityTest is BiomesTest {
     endGasReport();
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(finalCoord == expectedFinalCoord, "Player did not fall back to the original coord");
+    assertEq(finalCoord, expectedFinalCoord, "Player did not fall back to the original coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      aliceEntityId,
       "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -213,10 +215,7 @@ contract GravityTest is BiomesTest {
       beforeEnergyDataSnapshot,
       afterEnergyDataSnapshot
     );
-    assertTrue(
-      playerEnergyLost >= PLAYER_FALL_ENERGY_COST,
-      "Player energy lost is not greater than the move energy cost"
-    );
+    assertGt(playerEnergyLost, PLAYER_FALL_ENERGY_COST, "Player energy lost is not greater than the move energy cost");
   }
 
   function testMoveFallMultipleBlocks() public {
@@ -242,10 +241,11 @@ contract GravityTest is BiomesTest {
     endGasReport();
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
-    assertTrue(finalCoord == expectedFinalCoord, "Player did not fall back to the original coord");
+    assertEq(finalCoord, expectedFinalCoord, "Player did not fall back to the original coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      aliceEntityId,
       "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -253,10 +253,7 @@ contract GravityTest is BiomesTest {
       beforeEnergyDataSnapshot,
       afterEnergyDataSnapshot
     );
-    assertTrue(
-      playerEnergyLost >= PLAYER_FALL_ENERGY_COST,
-      "Player energy lost is not greater than the move energy cost"
-    );
+    assertGt(playerEnergyLost, PLAYER_FALL_ENERGY_COST, "Player energy lost is not greater than the move energy cost");
   }
 
   function testMoveStackedPlayers() public {
@@ -294,20 +291,22 @@ contract GravityTest is BiomesTest {
 
     Vec3 finalAliceCoord = PlayerPosition.get(aliceEntityId);
     Vec3 finalBobCoord = PlayerPosition.get(bobEntityId);
-    assertTrue(finalAliceCoord == expectedFinalAliceCoord, "Player alice did not move to new coords");
-    assertTrue(finalBobCoord == aliceCoord, "Player bob did not move to new coords");
+    assertEq(finalAliceCoord, expectedFinalAliceCoord, "Player alice did not move to new coords");
+    assertEq(finalBobCoord, aliceCoord, "Player bob did not move to new coords");
     Vec3 aboveFinalAliceCoord = finalAliceCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalAliceCoord)) == aliceEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalAliceCoord)),
+      aliceEntityId,
       "Above coord is not the player alice"
     );
     Vec3 aboveFinalBobCoord = finalBobCoord + vec3(0, 1, 0);
-    assertTrue(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalBobCoord)) == bobEntityId,
+    assertEq(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalBobCoord)),
+      bobEntityId,
       "Above coord is not the player bob"
     );
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertGt(energyGainedInPool, 0, "Local energy pool did not gain energy");
     uint128 aliceEnergyAfter = Energy.getEnergy(aliceEntityId);
     uint128 bobEnergyAfter = Energy.getEnergy(bobEntityId);
     assertEq(
@@ -315,8 +314,8 @@ contract GravityTest is BiomesTest {
       (aliceEnergyBefore - aliceEnergyAfter) + (bobEnergyBefore - bobEnergyAfter),
       "Alice and Bob did not lose energy"
     );
-    assertTrue((aliceEnergyBefore - aliceEnergyAfter) > PLAYER_FALL_ENERGY_COST, "Alice did not lose energy");
-    assertTrue((bobEnergyBefore - bobEnergyAfter) > PLAYER_FALL_ENERGY_COST, "Bob did not lose energy");
+    assertGt(aliceEnergyBefore - aliceEnergyAfter, PLAYER_FALL_ENERGY_COST, "Alice did not lose energy");
+    assertGt(bobEnergyBefore - bobEnergyAfter, PLAYER_FALL_ENERGY_COST, "Bob did not lose energy");
   }
 
   function testMoveFallFatal() public {

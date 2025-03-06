@@ -57,7 +57,7 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
   function assertInventoryHasTool(EntityId entityId, EntityId toolEntityId, uint16 amount) internal view {
     assertInventoryHasObject(entityId, ObjectType.get(toolEntityId), amount);
     if (amount > 0) {
-      assertTrue(InventoryEntity.get(toolEntityId) == entityId, "Inventory entity is not owned by entity");
+      assertEq(InventoryEntity.get(toolEntityId), entityId, "Inventory entity is not owned by entity");
       assertTrue(
         TestUtils.reverseInventoryEntityHasEntity(entityId, toolEntityId),
         "Inventory entity is not in reverse inventory entity"
@@ -90,7 +90,7 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
     EnergyDataSnapshot memory afterEnergyDataSnapshot
   ) internal pure returns (uint128 playerEnergyLost) {
     playerEnergyLost = beforeEnergyDataSnapshot.playerEnergy - afterEnergyDataSnapshot.playerEnergy;
-    assertTrue(playerEnergyLost > 0, "Player energy did not decrease");
+    assertGt(playerEnergyLost, 0, "Player energy did not decrease");
     uint128 localPoolEnergyGained = afterEnergyDataSnapshot.localPoolEnergy - beforeEnergyDataSnapshot.localPoolEnergy;
     assertEq(localPoolEnergyGained, playerEnergyLost, "Local pool energy did not gain energy");
   }
@@ -100,6 +100,22 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
   }
 
   function assertEq(Vec3 a, Vec3 b) internal pure {
+    assertTrue(a == b, "");
+  }
+
+  function assertEq(EntityId a, EntityId b, string memory err) internal pure {
+    assertTrue(a == b, err);
+  }
+
+  function assertEq(EntityId a, EntityId b) internal pure {
+    assertTrue(a == b, "");
+  }
+
+  function assertEq(ObjectTypeId a, ObjectTypeId b, string memory err) internal pure {
+    assertTrue(a == b, err);
+  }
+
+  function assertEq(ObjectTypeId a, ObjectTypeId b) internal pure {
     assertTrue(a == b, "");
   }
 }

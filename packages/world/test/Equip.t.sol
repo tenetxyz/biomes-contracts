@@ -48,14 +48,14 @@ contract EquipTest is BiomesTest {
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
     startGasReport("equip tool");
     world.equip(toolEntityId);
     endGasReport();
 
-    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+    assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
   }
 
@@ -66,12 +66,12 @@ contract EquipTest is BiomesTest {
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
     world.equip(toolEntityId);
 
-    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+    assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
     vm.prank(alice);
@@ -79,7 +79,7 @@ contract EquipTest is BiomesTest {
     world.unequip();
     endGasReport();
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
   }
 
@@ -94,19 +94,19 @@ contract EquipTest is BiomesTest {
     EntityId toolEntityId2 = addToolToInventory(aliceEntityId, toolObjectTypeId2);
     assertInventoryHasTool(aliceEntityId, toolEntityId2, 1);
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
     world.equip(toolEntityId1);
 
-    assertTrue(Equipped.get(aliceEntityId) == toolEntityId1, "Equipped entity is not tool entity id");
+    assertEq(Equipped.get(aliceEntityId), toolEntityId1, "Equipped entity is not tool entity id");
     assertInventoryHasTool(aliceEntityId, toolEntityId1, 1);
     assertInventoryHasTool(aliceEntityId, toolEntityId2, 1);
 
     vm.prank(alice);
     world.equip(toolEntityId2);
 
-    assertTrue(Equipped.get(aliceEntityId) == toolEntityId2, "Equipped entity is not tool entity id");
+    assertEq(Equipped.get(aliceEntityId), toolEntityId2, "Equipped entity is not tool entity id");
     assertInventoryHasTool(aliceEntityId, toolEntityId1, 1);
     assertInventoryHasTool(aliceEntityId, toolEntityId2, 1);
   }
@@ -118,12 +118,12 @@ contract EquipTest is BiomesTest {
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
     world.unequip();
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
   }
 
@@ -140,23 +140,23 @@ contract EquipTest is BiomesTest {
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
     world.equip(toolEntityId);
 
-    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+    assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
     vm.prank(alice);
     world.dropTool(toolEntityId, dropCoord);
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
     assertInventoryHasTool(airEntityId, toolEntityId, 1);
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
-    assertTrue(InventoryEntity.get(toolEntityId) == airEntityId, "Inventory entity is not air");
+    assertEq(InventoryEntity.get(toolEntityId), airEntityId, "Inventory entity is not air");
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
@@ -174,17 +174,17 @@ contract EquipTest is BiomesTest {
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
     world.equip(toolEntityId);
 
-    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+    assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
     vm.prank(alice);
     world.transferTool(chestEntityId, true, toolEntityId);
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     assertInventoryHasTool(chestEntityId, toolEntityId, 1);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
@@ -212,7 +212,7 @@ contract EquipTest is BiomesTest {
 
     vm.prank(alice);
     world.equip(toolEntityId);
-    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+    assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     uint128 toolMassBefore = Mass.getMass(toolEntityId);
@@ -226,7 +226,7 @@ contract EquipTest is BiomesTest {
     assertLt(toolMassAfter, toolMassBefore, "Tool mass is not less");
 
     mineEntityId = ReversePosition.get(mineCoord);
-    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
+    assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -273,7 +273,7 @@ contract EquipTest is BiomesTest {
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.expectRevert("Player does not exist");
     world.equip(toolEntityId);
@@ -286,7 +286,7 @@ contract EquipTest is BiomesTest {
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 
@@ -302,12 +302,12 @@ contract EquipTest is BiomesTest {
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
     world.equip(toolEntityId);
 
-    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+    assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
     vm.expectRevert("Player does not exist");
     world.unequip();
@@ -320,12 +320,12 @@ contract EquipTest is BiomesTest {
     EntityId toolEntityId = addToolToInventory(aliceEntityId, toolObjectTypeId);
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
-    assertTrue(Equipped.get(aliceEntityId) == EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
+    assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
     world.equip(toolEntityId);
 
-    assertTrue(Equipped.get(aliceEntityId) == toolEntityId, "Equipped entity is not tool entity id");
+    assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 
