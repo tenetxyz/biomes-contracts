@@ -98,6 +98,10 @@ library ObjectTypeLib {
       objectTypeId == ObjectTypes.SilverWhacker;
   }
 
+  function isMachine(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return objectTypeId == ObjectTypes.ForceField;
+  }
+
   function canHoldDisplay(ObjectTypeId objectTypeId) internal pure returns (bool) {
     return objectTypeId == ObjectTypes.TextSign || objectTypeId == ObjectTypes.SmartTextSign;
   }
