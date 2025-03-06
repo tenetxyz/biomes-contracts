@@ -80,6 +80,29 @@ function removeFromInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, 
   }
 }
 
+function addToolToInventory(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId) returns (EntityId) {
+  require(toolObjectTypeId.isTool(), "Object type is not a tool");
+  EntityId newInventoryEntityId = getUniqueEntity();
+  ObjectType._set(newInventoryEntityId, toolObjectTypeId);
+  InventoryEntity._set(newInventoryEntityId, ownerEntityId);
+  ReverseInventoryEntity._push(ownerEntityId, EntityId.unwrap(newInventoryEntityId));
+  // TODO: figure out how mass should work with multiple inputs/outputs
+  // TODO: should we check that total output energy == total input energy? or should we do it at the recipe level?
+  // uint128 toolMass = totalInputObjectMass + energyToMass(totalInputObjectEnergy);
+  Mass._set(newInventoryEntityId, ObjectTypeMetadata._getMass(toolObjectTypeId));
+  addToInventory(ownerEntityId, ObjectType._get(ownerEntityId), toolObjectTypeId, 1);
+  return newInventoryEntityId;
+}
+
+function removeToolFromInventory(EntityId ownerEntityId, EntityId toolEntityId, ObjectTypeId toolObjectTypeId) {
+  require(toolObjectTypeId.isTool(), "Object type is not a tool");
+  require(InventoryEntity._get(toolEntityId) == ownerEntityId, "This tool is not owned by the owner");
+  removeFromInventory(ownerEntityId, toolObjectTypeId, 1);
+  Mass._deleteRecord(toolEntityId);
+  InventoryEntity._deleteRecord(toolEntityId);
+  removeEntityIdFromReverseInventoryEntity(ownerEntityId, toolEntityId);
+}
+
 function removeAnyFromInventory(EntityId playerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToRemove) {
   uint16 remaining = numObjectsToRemove;
   ObjectTypeId[] memory objectTypeIds = objectTypeId.getObjectTypes();
@@ -212,27 +235,4 @@ function transferInventoryEntity(
   removeFromInventory(srcEntityId, inventoryObjectTypeId, 1);
   addToInventory(dstEntityId, dstObjectTypeId, inventoryObjectTypeId, 1);
   return inventoryObjectTypeId;
-}
-
-function addToolToInventory(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId) returns (EntityId) {
-  require(toolObjectTypeId.isTool(), "Object type is not a tool");
-  EntityId newInventoryEntityId = getUniqueEntity();
-  ObjectType._set(newInventoryEntityId, toolObjectTypeId);
-  InventoryEntity._set(newInventoryEntityId, ownerEntityId);
-  ReverseInventoryEntity._push(ownerEntityId, EntityId.unwrap(newInventoryEntityId));
-  // TODO: figure out how mass should work with multiple inputs/outputs
-  // TODO: should we check that total output energy == total input energy? or should we do it at the recipe level?
-  // uint128 toolMass = totalInputObjectMass + energyToMass(totalInputObjectEnergy);
-  Mass._set(newInventoryEntityId, ObjectTypeMetadata._getMass(toolObjectTypeId));
-  addToInventory(ownerEntityId, ObjectType._get(ownerEntityId), toolObjectTypeId, 1);
-  return newInventoryEntityId;
-}
-
-function removeToolFromInventory(EntityId ownerEntityId, EntityId toolEntityId, ObjectTypeId toolObjectTypeId) {
-  require(toolObjectTypeId.isTool(), "Object type is not a tool");
-  require(InventoryEntity._get(toolEntityId) == ownerEntityId, "This tool is not owned by the owner");
-  removeFromInventory(ownerEntityId, toolObjectTypeId, 1);
-  Mass._deleteRecord(toolEntityId);
-  InventoryEntity._deleteRecord(toolEntityId);
-  removeEntityIdFromReverseInventoryEntity(ownerEntityId, toolEntityId);
 }
