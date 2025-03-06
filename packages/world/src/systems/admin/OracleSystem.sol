@@ -10,7 +10,7 @@ import { Vec3 } from "../../Vec3.sol";
 import { PHYSICS_ORACLE_ADDRESS } from "../../Constants.sol";
 
 contract OracleSystem is System {
-  function setInitialEnergyPool(Vec3 shardCoord, uint128 energy) public {
+  function oracleSetInitialEnergyPool(Vec3 shardCoord, uint128 energy) public {
     address namespaceOwner = NamespaceOwner.get(ROOT_NAMESPACE_ID);
     require(
       _msgSender() == PHYSICS_ORACLE_ADDRESS || _msgSender() == namespaceOwner,

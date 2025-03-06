@@ -14,7 +14,7 @@ import { ActionType } from "../codegen/common.sol";
 
 import { Position, ForceFieldMetadata } from "../utils/Vec3Storage.sol";
 
-import { addToInventoryCount, removeFromInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
+import { useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel, massToEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
