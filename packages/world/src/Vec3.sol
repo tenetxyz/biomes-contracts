@@ -166,6 +166,41 @@ library Vec3Lib {
     revert("Direction not supported for rotation");
   }
 
+  // Check if the shard is adjacent to the cuboid
+  function isAdjacentToCuboid(Vec3 self, Vec3 from, Vec3 to) internal pure returns (bool) {
+    // X-axis adjacency (left or right face)
+    if (
+      (self.x() == from.x() - 1 || self.x() == to.x() + 1) &&
+      self.y() >= from.y() &&
+      self.y() <= to.y() &&
+      self.z() >= from.z() &&
+      self.z() <= to.z()
+    ) {
+      return true;
+    }
+    // Y-axis adjacency (bottom or top face)
+    if (
+      (self.y() == from.y() - 1 || self.y() == to.y() + 1) &&
+      self.x() >= from.x() &&
+      self.x() <= to.x() &&
+      self.z() >= from.z() &&
+      self.z() <= to.z()
+    ) {
+      return true;
+    }
+    // Z-axis adjacency (front or back face)
+    if (
+      (self.z() == from.z() - 1 || self.z() == to.z() + 1) &&
+      self.x() >= from.x() &&
+      self.x() <= to.x() &&
+      self.y() >= from.y() &&
+      self.y() <= to.y()
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   function inSurroundingCube(Vec3 self, Vec3 other, int32 radius) internal pure returns (bool) {
     return chebyshevDistance(self, other) <= radius;
   }

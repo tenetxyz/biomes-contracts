@@ -13,11 +13,13 @@ import { InventoryObjects } from "../../src/codegen/tables/InventoryObjects.sol"
 import { InventoryCount } from "../../src/codegen/tables/InventoryCount.sol";
 import { ReverseInventoryEntity } from "../../src/codegen/tables/ReverseInventoryEntity.sol";
 import { EnergyData } from "../../src/codegen/tables/Energy.sol";
+import { computeBoundaryShards as _computeBoundaryShards } from "../../src/systems/ForceFieldSystem.sol";
+
 import { ObjectTypeId } from "../../src/ObjectTypeId.sol";
 import { ObjectAmount, getOreObjectTypes } from "../../src/ObjectTypeLib.sol";
 import { addToInventoryCount as _addToInventoryCount, removeFromInventoryCount as _removeFromInventoryCount, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
 import { updateEnergyLevel as _updateEnergyLevel } from "../../src/utils/EnergyUtils.sol";
-import { getForceField as _getForceField, setupForceField as _setupForceField } from "../../src/utils/ForceFieldUtils.sol";
+import { isForceFieldShard as _isForceFieldShard, isForceFieldActive as _isForceFieldActive, getForceField as _getForceField, setupForceField as _setupForceField } from "../../src/utils/ForceFieldUtils.sol";
 
 Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
@@ -123,12 +125,24 @@ library TestUtils {
     return _updateEnergyLevel(entityId);
   }
 
+  function isForceFieldActive(EntityId forceFieldEntityId) public asWorld returns (bool) {
+    return _isForceFieldActive(forceFieldEntityId);
+  }
+
+  function isForceFieldShard(EntityId forceFieldEntityId, Vec3 shardCoord) public asWorld returns (bool) {
+    return _isForceFieldShard(forceFieldEntityId, shardCoord);
+  }
+
   function getForceField(Vec3 coord) public asWorld returns (EntityId) {
     return _getForceField(coord);
   }
 
   function setupForceField(EntityId forceFieldId, Vec3 coord) public asWorld {
     _setupForceField(forceFieldId, coord);
+  }
+
+  function computeBoundaryShards(EntityId forceFieldId, Vec3 from, Vec3 to) public asWorld returns (Vec3[] memory) {
+    return _computeBoundaryShards(forceFieldId, from, to);
   }
 
   // No need to use asWorld here

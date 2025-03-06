@@ -291,6 +291,11 @@ declare const abi: [
         "name": "toShardCoord",
         "type": "uint96",
         "internalType": "Vec3"
+      },
+      {
+        "name": "parents",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
       }
     ],
     "outputs": [],

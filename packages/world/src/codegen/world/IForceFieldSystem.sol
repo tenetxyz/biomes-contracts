@@ -19,5 +19,10 @@ interface IForceFieldSystem {
     Vec3 toShardCoord
   ) external;
 
-  function contractForceField(EntityId forceFieldEntityId, Vec3 fromShardCoord, Vec3 toShardCoord) external;
+  function contractForceField(
+    EntityId forceFieldEntityId,
+    Vec3 fromShardCoord,
+    Vec3 toShardCoord,
+    uint256[] memory parents
+  ) external;
 }
