@@ -120,7 +120,7 @@ contract DropTest is BiomesTest {
     assertInventoryHasTool(airEntityId, toolEntityId, 1);
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
-    assertTrue(InventoryEntity.get(toolEntityId) == airEntityId, "Inventory entity is not air");
+    assertEq(InventoryEntity.get(toolEntityId), airEntityId, "Inventory entity is not air");
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
@@ -147,7 +147,7 @@ contract DropTest is BiomesTest {
     assertInventoryHasTool(airEntityId, toolEntityId, 1);
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
-    assertTrue(InventoryEntity.get(toolEntityId) == airEntityId, "Inventory entity is not air");
+    assertEq(InventoryEntity.get(toolEntityId), airEntityId, "Inventory entity is not air");
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
@@ -290,8 +290,8 @@ contract DropTest is BiomesTest {
     world.mine(chestCoord);
 
     EntityId airEntityId = ReversePosition.get(chestCoord);
-    assertTrue(airEntityId.exists(), "Drop entity does not exist");
-    assertTrue(ObjectType.get(airEntityId) == ObjectTypes.Air, "Drop entity is not air");
+    assertEq(airEntityId.exists(), true, "Drop entity does not exist");
+    assertEq(ObjectType.get(airEntityId), ObjectTypes.Air, "Drop entity is not air");
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToPickup);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);

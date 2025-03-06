@@ -41,7 +41,7 @@ contract BuildTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
-    assertTrue(ObjectTypeId.wrap(TerrainLib.getBlockType(buildCoord)) == ObjectTypes.Air, "Build coord is not air");
+    assertEq(ObjectTypeId.wrap(TerrainLib.getBlockType(buildCoord)), ObjectTypes.Air, "Build coord is not air");
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertFalse(buildEntityId.exists(), "Build entity already exists");
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
@@ -58,7 +58,7 @@ contract BuildTest is BiomesTest {
     endGasReport();
 
     buildEntityId = ReversePosition.get(buildCoord);
-    assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
+    assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
 
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
@@ -95,7 +95,7 @@ contract BuildTest is BiomesTest {
     world.build(buildObjectTypeId, buildCoord);
     endGasReport();
 
-    assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
+    assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -135,8 +135,8 @@ contract BuildTest is BiomesTest {
     world.build(buildObjectTypeId, buildCoord);
     endGasReport();
 
-    assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
-    assertTrue(ObjectType.get(topEntityId) == buildObjectTypeId, "Top entity is not build object type");
+    assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
+    assertEq(ObjectType.get(topEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -173,7 +173,7 @@ contract BuildTest is BiomesTest {
     assertEq(playerCoordAfter, playerCoord + vec3(0, 1, 0), "Player coord is not correct");
 
     EntityId buildEntityId = ReversePosition.get(playerCoord);
-    assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
+    assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -203,7 +203,7 @@ contract BuildTest is BiomesTest {
     world.build(buildObjectTypeId, bobCoord);
 
     EntityId buildEntityId = ReversePosition.get(bobCoord);
-    assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Build entity is not build object type");
+    assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
     assertEq(
       Mass.getMass(buildEntityId),
       ObjectTypeMetadata.getMass(buildObjectTypeId),
@@ -214,7 +214,7 @@ contract BuildTest is BiomesTest {
     vm.prank(alice);
     world.build(buildObjectTypeId, aboveBobCoord);
     buildEntityId = ReversePosition.get(aboveBobCoord);
-    assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Top entity is not build object type");
+    assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertEq(
       Mass.getMass(buildEntityId),
       ObjectTypeMetadata.getMass(buildObjectTypeId),
@@ -224,7 +224,7 @@ contract BuildTest is BiomesTest {
     vm.prank(alice);
     world.build(buildObjectTypeId, aliceCoord);
     buildEntityId = ReversePosition.get(aliceCoord);
-    assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Top entity is not build object type");
+    assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertEq(
       Mass.getMass(buildEntityId),
       ObjectTypeMetadata.getMass(buildObjectTypeId),
@@ -235,7 +235,7 @@ contract BuildTest is BiomesTest {
     vm.prank(alice);
     world.build(buildObjectTypeId, aboveAliceCoord);
     buildEntityId = ReversePosition.get(aboveAliceCoord);
-    assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Top entity is not build object type");
+    assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertEq(
       Mass.getMass(buildEntityId),
       ObjectTypeMetadata.getMass(buildObjectTypeId),

@@ -47,7 +47,7 @@ contract EnergyTest is BiomesTest {
     world.activatePlayer(alice);
 
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertGt(energyGainedInPool, 0, "Local energy pool did not gain energy");
     assertEq(Energy.getEnergy(aliceEntityId), aliceEnergyBefore - energyGainedInPool, "Player did not lose energy");
   }
 
@@ -74,7 +74,7 @@ contract EnergyTest is BiomesTest {
     world.activate(forceFieldEntityId);
 
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
-    assertTrue(energyGainedInPool > 0, "Local energy pool did not gain energy");
+    assertGt(energyGainedInPool, 0, "Local energy pool did not gain energy");
     assertEq(
       Energy.getEnergy(forceFieldEntityId),
       forceFieldEnergyBefore - energyGainedInPool,
