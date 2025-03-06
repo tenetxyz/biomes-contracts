@@ -30,7 +30,6 @@ import { AdminSystem } from "../src/systems/admin/AdminSystem.sol";
 
 contract AdminScript is Script {
   function ensureAdminSystem(address worldAddress) internal {
-    // Manually deploy a system with another namespace
     AdminSystem adminSystem = new AdminSystem();
     ResourceId adminSystemId = WorldResourceIdLib.encode({
       typeId: RESOURCE_SYSTEM,
