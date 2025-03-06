@@ -13,8 +13,8 @@ import { InventoryCount } from "../../src/codegen/tables/InventoryCount.sol";
 import { ReverseInventoryEntity } from "../../src/codegen/tables/ReverseInventoryEntity.sol";
 import { EnergyData } from "../../src/codegen/tables/Energy.sol";
 import { ObjectTypeId } from "../../src/ObjectTypeId.sol";
-import { ObjectAmount, getOreObjectTypes } from "../../src/ObjectTypeLib.sol";
-import { addToInventoryCount as _addToInventoryCount, removeFromInventoryCount as _removeFromInventoryCount, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
+import { ObjectTypeLib, ObjectAmount, getOreObjectTypes } from "../../src/ObjectTypeLib.sol";
+import { addToInventory as _addToInventory, removeFromInventory as _removeFromInventory, addToolToInventory as _addToolToInventory, removeToolFromInventory as _removeToolFromInventory, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
 import { updateEnergyLevel as _updateEnergyLevel } from "../../src/utils/EnergyUtils.sol";
 
 Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
@@ -22,6 +22,8 @@ Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 bytes32 constant LIB_ADDRESS_SLOT = keccak256("TestUtils.libAddress");
 
 library TestUtils {
+  using ObjectTypeLib for ObjectTypeId;
+
   /// @dev Allows calling test utils in the context of world
   modifier asWorld() {
     address world = WorldContextConsumerLib._world();
@@ -55,21 +57,26 @@ library TestUtils {
     return address(bytes20(vm.load(address(this), LIB_ADDRESS_SLOT)));
   }
 
-  function addToInventoryCount(
-    EntityId ownerEntityId,
-    ObjectTypeId ownerObjectTypeId,
-    ObjectTypeId objectTypeId,
-    uint16 numObjectsToAdd
-  ) public asWorld {
-    _addToInventoryCount(ownerEntityId, ownerObjectTypeId, objectTypeId, numObjectsToAdd);
+  function addToInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToAdd) public asWorld {
+    require(!objectTypeId.isTool(), "To add a tool, you must use addToolToInventory");
+    _addToInventory(ownerEntityId, ObjectType._get(ownerEntityId), objectTypeId, numObjectsToAdd);
   }
 
-  function removeFromInventoryCount(
+  function addToolToInventory(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId) public asWorld returns (EntityId) {
+    return _addToolToInventory(ownerEntityId, toolObjectTypeId);
+  }
+
+  function removeFromInventory(
     EntityId ownerEntityId,
     ObjectTypeId objectTypeId,
     uint16 numObjectsToRemove
   ) public asWorld {
-    _removeFromInventoryCount(ownerEntityId, objectTypeId, numObjectsToRemove);
+    require(!objectTypeId.isTool(), "To remove a tool, you must pass in the tool entity id");
+    _removeFromInventory(ownerEntityId, objectTypeId, numObjectsToRemove);
+  }
+
+  function removeFromInventory(EntityId ownerEntityId, EntityId toolEntityId) public asWorld {
+    _removeToolFromInventory(ownerEntityId, toolEntityId, ObjectType.get(toolEntityId));
   }
 
   function useEquipped(EntityId entityId) public asWorld {

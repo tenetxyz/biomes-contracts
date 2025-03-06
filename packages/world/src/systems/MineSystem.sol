@@ -23,7 +23,7 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
-import { addToInventoryCount, useEquipped } from "../utils/InventoryUtils.sol";
+import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { mulDiv } from "../utils/MathUtils.sol";
@@ -179,7 +179,7 @@ contract MineSystem is System {
           MineLib.mineBed(baseEntityId, baseCoord);
         }
 
-        addToInventoryCount(playerEntityId, ObjectTypes.Player, mineObjectTypeId, 1);
+        addToInventory(playerEntityId, ObjectTypes.Player, mineObjectTypeId, 1);
 
         _removeBlock(baseEntityId, baseCoord);
 

@@ -400,4 +400,11 @@ export default defineWorld({
       key: ["entityId"],
     },
   },
+  systems: {
+    AdminSystem: {
+      deploy: {
+        disabled: true,
+      },
+    },
+  },
 });
