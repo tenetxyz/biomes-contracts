@@ -88,8 +88,8 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
   function assertEnergyFlowedFromPlayerToLocalPool(
     EnergyDataSnapshot memory beforeEnergyDataSnapshot,
     EnergyDataSnapshot memory afterEnergyDataSnapshot
-  ) internal pure {
-    uint128 playerEnergyLost = beforeEnergyDataSnapshot.playerEnergy - afterEnergyDataSnapshot.playerEnergy;
+  ) internal pure returns (uint128 playerEnergyLost) {
+    playerEnergyLost = beforeEnergyDataSnapshot.playerEnergy - afterEnergyDataSnapshot.playerEnergy;
     assertTrue(playerEnergyLost > 0, "Player energy did not decrease");
     uint128 localPoolEnergyGained = afterEnergyDataSnapshot.localPoolEnergy - beforeEnergyDataSnapshot.localPoolEnergy;
     assertEq(localPoolEnergyGained, playerEnergyLost, "Local pool energy did not gain energy");

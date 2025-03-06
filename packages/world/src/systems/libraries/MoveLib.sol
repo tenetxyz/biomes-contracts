@@ -12,7 +12,7 @@ import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 import { ObjectTypeLib } from "../../ObjectTypeLib.sol";
 import { inWorldBorder } from "../../Utils.sol";
-import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../../Constants.sol";
+import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, PLAYER_FALL_DAMAGE_THRESHOLD } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
@@ -51,6 +51,7 @@ library MoveLib {
     uint16 numJumps = 0;
     uint16 numFalls = 0;
     uint16 numGlides = 0;
+    uint16 currentFallHeight = 0;
 
     Vec3 oldBaseCoord = playerCoords[0];
     for (uint256 i = 0; i < newBaseCoords.length; i++) {
@@ -61,10 +62,14 @@ library MoveLib {
       if (gravityAppliesForMove) {
         if (oldBaseCoord.y() < newBaseCoord.y()) {
           numJumps++;
+          currentFallHeight = 0;
           require(numJumps <= MAX_PLAYER_JUMPS, "Cannot jump more than 3 blocks");
         } else if (oldBaseCoord.y() > newBaseCoord.y()) {
           // then we are falling, so should be fine
-          numFalls++;
+          currentFallHeight += 1;
+          if (currentFallHeight >= PLAYER_FALL_DAMAGE_THRESHOLD) {
+            numFalls++;
+          }
           numGlides = 0;
         } else {
           // we are gliding
@@ -74,9 +79,14 @@ library MoveLib {
       } else {
         numJumps = 0;
         numGlides = 0;
+        currentFallHeight = 0;
       }
 
       oldBaseCoord = newBaseCoord;
+    }
+
+    if (gravityAppliesForMove) {
+      numFalls += 1;
     }
 
     return (gravityAppliesForMove, numFalls);

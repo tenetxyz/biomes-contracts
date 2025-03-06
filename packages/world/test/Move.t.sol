@@ -31,7 +31,7 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, PLAYER_FALL_DAMAGE_THRESHOLD } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
@@ -193,6 +193,92 @@ contract MoveTest is BiomesTest {
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
+  }
+
+  function testMoveFallWithoutDamage() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+
+    uint32 numFalls = PLAYER_FALL_DAMAGE_THRESHOLD - 1;
+    Vec3[] memory newCoords = new Vec3[](numFalls + 1);
+    for (uint32 i = 0; i < numFalls; i++) {
+      Vec3 airCoord = playerCoord + vec3(0, -int32(i + 1), 1);
+      setObjectAtCoord(airCoord, ObjectTypes.Air);
+      newCoords[i] = airCoord + vec3(0, 1, 0);
+    }
+    Vec3 grassCoord = playerCoord + vec3(0, -int32(numFalls + 1), 1);
+    newCoords[numFalls] = grassCoord + vec3(0, 1, 0);
+    setObjectAtCoord(grassCoord, ObjectTypes.Grass);
+
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+
+    vm.prank(alice);
+    world.move(newCoords);
+
+    // Expect the player to be above the grass
+    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    assertTrue(finalCoord == grassCoord + vec3(0, 1, 0), "Player did not move to the grass coord");
+    Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
+    assertTrue(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+      "Above coord is not the player"
+    );
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
+      beforeEnergyDataSnapshot,
+      afterEnergyDataSnapshot
+    );
+    // Fall damage is greater than the move energy cost
+    assertTrue(
+      PLAYER_FALL_ENERGY_COST > PLAYER_MOVE_ENERGY_COST,
+      "Fall energy cost is not greater than the move energy cost"
+    );
+    assertTrue(
+      playerEnergyLost == PLAYER_MOVE_ENERGY_COST * newCoords.length,
+      "Player energy lost is not greater than the move energy cost"
+    );
+  }
+
+  function testMoveFallDamage() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+
+    uint32 numFalls = PLAYER_FALL_DAMAGE_THRESHOLD + 1;
+    Vec3[] memory newCoords = new Vec3[](numFalls + 1);
+    for (uint32 i = 0; i < numFalls; i++) {
+      Vec3 airCoord = playerCoord + vec3(0, -int32(i + 1), 1);
+      setObjectAtCoord(airCoord, ObjectTypes.Air);
+      newCoords[i] = airCoord + vec3(0, 1, 0);
+    }
+    Vec3 grassCoord = playerCoord + vec3(0, -int32(numFalls + 1), 1);
+    newCoords[numFalls] = grassCoord + vec3(0, 1, 0);
+    setObjectAtCoord(grassCoord, ObjectTypes.Grass);
+
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+
+    vm.prank(alice);
+    world.move(newCoords);
+
+    // Expect the player to be above the grass
+    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    assertTrue(finalCoord == grassCoord + vec3(0, 1, 0), "Player did not move to the grass coord");
+    Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
+    assertTrue(
+      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)) == aliceEntityId,
+      "Above coord is not the player"
+    );
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
+      beforeEnergyDataSnapshot,
+      afterEnergyDataSnapshot
+    );
+    // Fall damage is greater than the move energy cost
+    assertTrue(
+      PLAYER_FALL_ENERGY_COST > PLAYER_MOVE_ENERGY_COST,
+      "Fall energy cost is not greater than the move energy cost"
+    );
+    assertTrue(
+      playerEnergyLost > PLAYER_MOVE_ENERGY_COST * newCoords.length,
+      "Player energy lost is not greater than the move energy cost"
+    );
   }
 
   function testMoveThroughWater() public {
