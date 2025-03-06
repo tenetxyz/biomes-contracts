@@ -166,11 +166,13 @@ contract ForceFieldSystem is System {
       for (int32 y = fromShardCoord.y(); y <= toShardCoord.y(); y++) {
         for (int32 z = fromShardCoord.z(); z <= toShardCoord.z(); z++) {
           Vec3 shardCoord = vec3(x, y, z);
-          require(
-            !isForceFieldShardActive(shardCoord) || isForceFieldShard(forceFieldEntityId, shardCoord),
-            "Can't expand to existing forcefield"
-          );
-          EntityId shardEntityId = setupForceFieldShard(forceFieldEntityId, shardCoord);
+          // If already belongs to the forcefield, skip it
+          if (isForceFieldShard(forceFieldEntityId, shardCoord)) {
+            continue;
+          }
+
+          require(!isForceFieldShardActive(shardCoord), "Can't expand to existing forcefield");
+          setupForceFieldShard(forceFieldEntityId, shardCoord);
           addedShards++;
         }
       }
@@ -179,16 +181,13 @@ contract ForceFieldSystem is System {
     // Increase drain rate per new shard
     Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + MACHINE_ENERGY_DRAIN_RATE * addedShards);
 
-    // TODO: notifications
-    // notify(
-    //   playerEntityId,
-    //   ExpandForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId, shardEntityId: shardEntityId })
-    // );
-    //
-    // callChipOrRevert(
-    //   forceFieldEntityId.getChipAddress(),
-    //   abi.encodeCall(IForceFieldChip.onExpand, (playerEntityId, forceFieldEntityId, shardEntityId))
-    // );
+    // TODO: should we include a list of added shards?
+    notify(playerEntityId, ExpandForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
+
+    callChipOrRevert(
+      forceFieldEntityId.getChipAddress(),
+      abi.encodeCall(IForceFieldChip.onExpand, (playerEntityId, forceFieldEntityId))
+    );
   }
 
   /**
@@ -240,17 +239,13 @@ contract ForceFieldSystem is System {
     // Update drain rate
     Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - MACHINE_ENERGY_DRAIN_RATE * removedShards);
 
-    // TODO: notifications
-    // Notify the player
-    // notify(
-    //   playerEntityId,
-    //   ContractForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId, shardEntityId: shardEntityId })
-    // );
-    //
-    // // Call the chip if it exists
-    // callChipOrRevert(
-    //   forceFieldEntityId.getChipAddress(),
-    //   abi.encodeCall(IForceFieldChip.onContract, (playerEntityId, forceFieldEntityId, shardEntityId))
-    // );
+    // TODO: should we include a list of removed shards?
+    notify(playerEntityId, ContractForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
+
+    // Call the chip if it exists
+    callChipOrRevert(
+      forceFieldEntityId.getChipAddress(),
+      abi.encodeCall(IForceFieldChip.onContract, (playerEntityId, forceFieldEntityId))
+    );
   }
 }

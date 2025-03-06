@@ -43,9 +43,9 @@ contract TestForceFieldChip is IForceFieldChip, System {
 
   function onForceFieldHit(EntityId callerEntityId, EntityId targetEntityId) external {}
 
-  function onExpand(EntityId callerEntityId, EntityId targetEntityId, EntityId shardEntityId) external {}
+  function onExpand(EntityId callerEntityId, EntityId targetEntityId) external {}
 
-  function onContract(EntityId callerEntityId, EntityId targetEntityId, EntityId shardEntityId) external {}
+  function onContract(EntityId callerEntityId, EntityId targetEntityId) external {}
 
   function setRevertOnBuild(bool _revertOnBuild) external {
     revertOnBuild = _revertOnBuild;
@@ -208,7 +208,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testSetupForceField() public {
     // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -232,7 +232,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testExpandForceField() public {
     // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     EnergyData memory initialEnergyData = EnergyData({
       lastUpdatedTime: uint128(block.timestamp),
@@ -252,7 +252,9 @@ contract ForceFieldTest is BiomesTest {
 
     // Expand the force field
     vm.prank(alice);
+    startGasReport("Expand forcefield 2x2");
     world.expandForceField(forceFieldEntityId, refShardCoord, fromShardCoord, toShardCoord);
+    endGasReport();
 
     // Calculate expected number of added shards (2x1x2 = 4 new shards)
     uint128 addedShards = 4;
@@ -280,7 +282,7 @@ contract ForceFieldTest is BiomesTest {
   }
 
   function testContractForceField() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -293,12 +295,14 @@ contract ForceFieldTest is BiomesTest {
 
     // Expand the force field
     vm.prank(alice);
+    startGasReport("Expand forcefield 3x3");
     world.expandForceField(
       forceFieldEntityId,
       refShardCoord,
       refShardCoord + vec3(1, 0, 0),
       refShardCoord + vec3(3, 0, 2)
     );
+    endGasReport();
 
     // Get energy data after expansion
     EnergyData memory afterExpandEnergyData = Energy.get(forceFieldEntityId);
@@ -308,12 +312,6 @@ contract ForceFieldTest is BiomesTest {
       Vec3 contractFrom = refShardCoord + vec3(2, 0, 0);
       Vec3 contractTo = refShardCoord + vec3(3, 0, 1);
 
-      // Boundary shards
-      // (2,0,1)
-      // (2,0,2)
-      // (3,0,3)
-      // (4,0,3)
-
       uint256[] memory parents = new uint256[](5);
       parents[0] = 0;
       parents[1] = 0;
@@ -321,18 +319,10 @@ contract ForceFieldTest is BiomesTest {
       parents[3] = 2;
       parents[4] = 3;
 
-      Vec3[] memory boundaryShards = TestForceFieldUtils.computeBoundaryShards(
-        forceFieldEntityId,
-        contractFrom,
-        contractTo
-      );
-
-      for (uint256 i = 0; i < boundaryShards.length; i++) {
-        console.log(boundaryShards[i].toString());
-      }
-
       vm.prank(alice);
+      startGasReport("Contract forcefield 2x2");
       world.contractForceField(forceFieldEntityId, contractFrom, contractTo, parents);
+      endGasReport();
     }
 
     // Get energy data after contraction
@@ -366,7 +356,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testExpandForceFieldFailsIfInvalidCoordinates() public {
     // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -390,7 +380,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testExpandForceFieldFailsIfRefShardNotAdjacent() public {
     // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -414,7 +404,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testExpandForceFieldFailsIfRefShardNotInForceField() public {
     // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -438,7 +428,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testContractForceFieldFailsIfInvalidCoordinates() public {
     // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -469,7 +459,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testContractForceFieldFailsIfNoBoundaryShards() public {
     // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -491,7 +481,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testContractForceFieldFailsIfInvalidSpanningTree() public {
     // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -534,7 +524,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testComputeBoundaryShards() public {
     // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Create a 3x3x3 force field
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -591,7 +581,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testExpandIntoExistingForceField() public {
     // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Create first force field
     Vec3 forceField1Coord = playerCoord + vec3(2, 0, 0);

@@ -105,12 +105,10 @@ struct WakeupNotifData {
 
 struct ExpandForceFieldNotifData {
   EntityId forceFieldEntityId;
-  EntityId shardEntityId;
 }
 
 struct ContractForceFieldNotifData {
   EntityId forceFieldEntityId;
-  EntityId shardEntityId;
 }
 
 function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {

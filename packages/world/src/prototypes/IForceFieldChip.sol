@@ -29,7 +29,7 @@ interface IForceFieldChip is IChip {
 
   function onForceFieldHit(EntityId callerEntityId, EntityId targetEntityId) external;
 
-  function onExpand(EntityId callerEntityId, EntityId targetEntityId, EntityId shardEntityId) external;
+  function onExpand(EntityId callerEntityId, EntityId targetEntityId) external;
 
-  function onContract(EntityId callerEntityId, EntityId targetEntityId, EntityId shardEntityId) external;
+  function onContract(EntityId callerEntityId, EntityId targetEntityId) external;
 }
