@@ -11,6 +11,9 @@ import { registerERC20 } from "@latticexyz/world-modules/src/modules/erc20-puppe
 import { registerERC721 } from "@latticexyz/world-modules/src/modules/erc721-puppet/registerERC721.sol";
 import { ERC721MetadataData as MUDERC721MetadataData } from "@latticexyz/world-modules/src/modules/erc721-puppet/tables/ERC721Metadata.sol";
 import { ERC20MetadataData as MUDERC20MetadataData } from "@latticexyz/world-modules/src/modules/erc20-puppet/tables/ERC20Metadata.sol";
+import { ResourceId, WorldResourceIdLib, WorldResourceIdInstance } from "@latticexyz/world/src/WorldResourceId.sol";
+import { ROOT_NAMESPACE } from "@latticexyz/world/src/constants.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 
 import { Energy } from "../src/codegen/tables/Energy.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
@@ -22,8 +25,42 @@ import { EntityId } from "../src/EntityId.sol";
 
 import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 import { TestUtils } from "../test/utils/TestUtils.sol";
+import { AdminSystem } from "../src/systems/admin/AdminSystem.sol";
 
 contract TestScript is Script {
+  function ensureAdminSystem(address worldAddress) internal {
+    // Manually deploy a system with another namespace
+    AdminSystem adminSystem = new AdminSystem();
+    ResourceId adminSystemId = WorldResourceIdLib.encode({
+      typeId: RESOURCE_SYSTEM,
+      namespace: ROOT_NAMESPACE,
+      name: "AdminSystem"
+    });
+    // Check if system is already registered
+
+    IWorld(worldAddress).registerSystem(adminSystemId, adminSystem, true);
+    IWorld(worldAddress).registerRootFunctionSelector(
+      adminSystemId,
+      "adminAddToInventory(bytes32,uint16,uint16)",
+      "adminAddToInventory(bytes32,uint16,uint16)"
+    );
+    IWorld(worldAddress).registerRootFunctionSelector(
+      adminSystemId,
+      "adminAddToolToInventory(bytes32,uint16)",
+      "adminAddToolToInventory(bytes32,uint16)"
+    );
+    IWorld(worldAddress).registerRootFunctionSelector(
+      adminSystemId,
+      "adminRemoveFromInventory(bytes32,uint16,uint16)",
+      "adminRemoveFromInventory(bytes32,uint16,uint16)"
+    );
+    IWorld(worldAddress).registerRootFunctionSelector(
+      adminSystemId,
+      "adminRemoveToolFromInventory(bytes32,bytes32)",
+      "adminRemoveToolFromInventory(bytes32,bytes32)"
+    );
+  }
+
   function run(address worldAddress) external {
     // Specify a store so that you can use tables directly in PostDeploy
     StoreSwitch.setStoreAddress(worldAddress);
@@ -34,6 +71,8 @@ contract TestScript is Script {
 
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
+
+    ensureAdminSystem(worldAddress);
 
     EntityId playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
     require(playerEntityId.exists(), "Player entity not found");
