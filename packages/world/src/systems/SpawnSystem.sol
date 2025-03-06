@@ -29,6 +29,7 @@ import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { createPlayer } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
+import { getObjectTypeIdAt } from "../utils/EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -75,6 +76,26 @@ contract SpawnSystem is System {
     int32 relativeZ = int32(int256((posRand / chunkSize) % chunkSize));
 
     return vec3(chunkWorldX + relativeX, chunkWorldY, chunkWorldZ + relativeZ);
+  }
+
+  function isValidSpawn(Vec3 spawnCoord) public view returns (bool) {
+    Vec3 belowCoord = spawnCoord - vec3(0, 1, 0);
+    ObjectTypeId spawnObjectTypeId = getObjectTypeIdAt(spawnCoord);
+    ObjectTypeId belowObjectTypeId = getObjectTypeIdAt(belowCoord);
+    return
+      ObjectTypeMetadata._getCanPassThrough(spawnObjectTypeId) &&
+      !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId);
+  }
+
+  function getValidSpawnY(Vec3 spawnCoordCandidate) public view returns (Vec3 spawnCoord) {
+    for (int32 i = 0; i < CHUNK_SIZE; i++) {
+      spawnCoord = spawnCoordCandidate + vec3(0, i, 0);
+      if (isValidSpawn(spawnCoord)) {
+        return spawnCoord;
+      }
+    }
+
+    revert("No valid spawn Y found in chunk");
   }
 
   function randomSpawn(uint256 blockNumber, int32 y) public returns (EntityId) {
