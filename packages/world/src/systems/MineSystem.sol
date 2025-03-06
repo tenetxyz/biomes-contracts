@@ -155,7 +155,9 @@ contract MineSystem is System {
 
     // Chip needs to be detached first
     require(baseEntityId.getChipAddress() == address(0), "Cannot mine a chipped block");
-    require(updateEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
+    if (ObjectTypeLib.isMachine(mineObjectTypeId)) {
+      require(updateEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
+    }
 
     // First coord will be the base coord, the rest is relative schema coords
     Vec3[] memory coords = mineObjectTypeId.getRelativeCoords(baseCoord, Orientation._get(baseEntityId));

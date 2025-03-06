@@ -21,6 +21,7 @@ import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 
 contract MachineSystem is System {
   function powerMachine(EntityId entityId, uint16 numBattery) public {
@@ -32,7 +33,7 @@ contract MachineSystem is System {
     removeFromInventoryCount(playerEntityId, ObjectTypes.ChipBattery, numBattery);
 
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
-    require(objectTypeId == ObjectTypes.ForceField, "Invalid object type");
+    require(ObjectTypeLib.isMachine(objectTypeId), "Can only power machines");
     EnergyData memory machineData = updateEnergyLevel(baseEntityId);
 
     uint128 newEnergyLevel = machineData.energy + (uint128(numBattery) * 10);
