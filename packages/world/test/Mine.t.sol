@@ -34,7 +34,7 @@ import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { ObjectAmount } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { TestUtils } from "./utils/TestUtils.sol";
+import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
 contract MineTest is BiomesTest {
   using ObjectTypeLib for ObjectTypeId;
@@ -135,7 +135,7 @@ contract MineTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, ObjectTypes.AnyOre, 0);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    ObjectAmount[] memory oreAmounts = TestUtils.inventoryGetOreAmounts(aliceEntityId);
+    ObjectAmount[] memory oreAmounts = inventoryGetOreAmounts(aliceEntityId);
     assertEq(oreAmounts.length, 0, "Existing ores in inventory");
     assertEq(TotalMinedOreCount.get(), 0, "Mined ore count is not 0");
 
@@ -153,7 +153,7 @@ contract MineTest is BiomesTest {
     assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, ObjectTypes.AnyOre, 0);
     assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 1");
-    oreAmounts = TestUtils.inventoryGetOreAmounts(aliceEntityId);
+    oreAmounts = inventoryGetOreAmounts(aliceEntityId);
     assertEq(oreAmounts.length, 1, "No ores in inventory");
     assertEq(oreAmounts[0].amount, 1, "Did not get exactly one ore");
     assertEq(MinedOreCount.get(oreAmounts[0].objectTypeId), 1, "Mined ore count was not updated");
@@ -177,7 +177,7 @@ contract MineTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, ObjectTypes.AnyOre, 0);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    ObjectAmount[] memory oreAmounts = TestUtils.inventoryGetOreAmounts(aliceEntityId);
+    ObjectAmount[] memory oreAmounts = inventoryGetOreAmounts(aliceEntityId);
     assertEq(oreAmounts.length, 0, "Existing ores in inventory");
     assertEq(TotalMinedOreCount.get(), 0, "Mined ore count is not 0");
 
@@ -194,7 +194,7 @@ contract MineTest is BiomesTest {
     mineEntityId = ReversePosition.get(mineCoord);
     assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.AnyOre, "Mine entity is not any ore");
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
-    oreAmounts = TestUtils.inventoryGetOreAmounts(aliceEntityId);
+    oreAmounts = inventoryGetOreAmounts(aliceEntityId);
     assertEq(oreAmounts.length, 0, "Got an ore in inventory");
     assertEq(TotalMinedOreCount.get(), 0, "Total mined ore count was increased");
 
@@ -348,7 +348,7 @@ contract MineTest is BiomesTest {
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
-    TestUtils.addToInventoryCount(
+    TestInventoryUtils.addToInventoryCount(
       aliceEntityId,
       ObjectTypes.Player,
       mineObjectTypeId,

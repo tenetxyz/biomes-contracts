@@ -31,7 +31,7 @@ import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_D
 
 import { LocalEnergyPool, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../src/utils/Vec3Storage.sol";
 import { energyToMass } from "../src/utils/EnergyUtils.sol";
-import { TestUtils } from "./utils/TestUtils.sol";
+import { TestInventoryUtils, TestForceFieldUtils, TestEnergyUtils } from "./utils/TestUtils.sol";
 import { BiomesAssertions } from "./BiomesAssertions.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
@@ -53,7 +53,9 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     address owner = NamespaceOwner.get(rootNamespace);
     vm.prank(owner);
     world.transferOwnership(rootNamespace, address(this));
-    TestUtils.init(address(TestUtils));
+    TestInventoryUtils.init(address(TestInventoryUtils));
+    TestForceFieldUtils.init(address(TestForceFieldUtils));
+    TestEnergyUtils.init(address(TestEnergyUtils));
   }
 
   function randomEntityId() internal returns (EntityId) {
@@ -242,7 +244,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     ReverseInventoryEntity.push(ownerEntityId, EntityId.unwrap(toolEntityId));
     Mass.set(toolEntityId, ObjectTypeMetadata.getMass(toolObjectTypeId));
 
-    TestUtils.addToInventoryCount(ownerEntityId, ObjectType.get(ownerEntityId), toolObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(ownerEntityId, ObjectType.get(ownerEntityId), toolObjectTypeId, 1);
     return toolEntityId;
   }
 
@@ -271,7 +273,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
   function setupForceField(Vec3 coord) internal returns (EntityId) {
     // Set forcefield with no energy
     EntityId forceFieldEntityId = setObjectAtCoord(coord, ObjectTypes.ForceField);
-    TestUtils.setupForceField(forceFieldEntityId, coord);
+    TestForceFieldUtils.setupForceField(forceFieldEntityId, coord);
     return forceFieldEntityId;
   }
 

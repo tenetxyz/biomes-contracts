@@ -8,6 +8,8 @@ import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 
+import { ObjectAmount, getOreObjectTypes } from "../src/ObjectTypeLib.sol";
+
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
@@ -21,6 +23,7 @@ import { Vec3 } from "../src/Vec3.sol";
 import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
+import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 
@@ -32,7 +35,7 @@ import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { energyToMass } from "../src/utils/EnergyUtils.sol";
-import { TestUtils } from "./utils/TestUtils.sol";
+import { TestForceFieldUtils } from "./utils/TestUtils.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
@@ -43,15 +46,58 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
     uint128 forceFieldEnergy;
   }
 
+  function inventoryObjectsHasObjectType(
+    EntityId ownerEntityId,
+    ObjectTypeId objectTypeId
+  ) internal view returns (bool) {
+    uint16[] memory inventoryObjectTypes = InventoryObjects.get(ownerEntityId);
+    for (uint256 i = 0; i < inventoryObjectTypes.length; i++) {
+      if (inventoryObjectTypes[i] == ObjectTypeId.unwrap(objectTypeId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function reverseInventoryEntityHasEntity(
+    EntityId ownerEntityId,
+    EntityId inventoryEntityId
+  ) internal view returns (bool) {
+    bytes32[] memory inventoryEntityIds = ReverseInventoryEntity.get(ownerEntityId);
+    for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
+      if (inventoryEntityIds[i] == EntityId.unwrap(inventoryEntityId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function inventoryGetOreAmounts(EntityId owner) internal view returns (ObjectAmount[] memory) {
+    ObjectTypeId[] memory ores = getOreObjectTypes();
+
+    uint256 numOres = 0;
+    for (uint256 i = 0; i < ores.length; i++) {
+      if (InventoryCount.get(owner, ores[i]) > 0) numOres++;
+    }
+
+    ObjectAmount[] memory oreAmounts = new ObjectAmount[](numOres);
+    for (uint256 i = 0; i < ores.length; i++) {
+      uint16 count = InventoryCount.get(owner, ores[i]);
+      if (count > 0) {
+        oreAmounts[numOres - 1] = ObjectAmount(ores[i], count);
+        numOres--;
+      }
+    }
+
+    return oreAmounts;
+  }
+
   function assertInventoryHasObject(EntityId entityId, ObjectTypeId objectTypeId, uint16 amount) internal view {
     assertEq(InventoryCount.get(entityId, objectTypeId), amount, "Inventory count is not correct");
     if (amount > 0) {
-      assertTrue(
-        TestUtils.inventoryObjectsHasObjectType(entityId, objectTypeId),
-        "Inventory objects does not have object type"
-      );
+      assertTrue(inventoryObjectsHasObjectType(entityId, objectTypeId), "Inventory objects does not have object type");
     } else {
-      assertFalse(TestUtils.inventoryObjectsHasObjectType(entityId, objectTypeId), "Inventory objects has object type");
+      assertFalse(inventoryObjectsHasObjectType(entityId, objectTypeId), "Inventory objects has object type");
     }
   }
 
@@ -60,13 +106,13 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
     if (amount > 0) {
       assertTrue(InventoryEntity.get(toolEntityId) == entityId, "Inventory entity is not owned by entity");
       assertTrue(
-        TestUtils.reverseInventoryEntityHasEntity(entityId, toolEntityId),
+        reverseInventoryEntityHasEntity(entityId, toolEntityId),
         "Inventory entity is not in reverse inventory entity"
       );
     } else {
       assertFalse(InventoryEntity.get(toolEntityId) == entityId, "Inventory entity is not owned by entity");
       assertFalse(
-        TestUtils.reverseInventoryEntityHasEntity(entityId, toolEntityId),
+        reverseInventoryEntityHasEntity(entityId, toolEntityId),
         "Inventory entity is in reverse inventory entity"
       );
     }
@@ -80,7 +126,7 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
     snapshot.playerEnergy = Energy.getEnergy(playerEntityId);
     Vec3 shardCoord = snapshotCoord.toLocalEnergyPoolShardCoord();
     snapshot.localPoolEnergy = LocalEnergyPool.get(shardCoord);
-    EntityId forceFieldEntityId = TestUtils.getForceField(snapshotCoord);
+    EntityId forceFieldEntityId = TestForceFieldUtils.getForceField(snapshotCoord);
     snapshot.forceFieldEnergy = forceFieldEntityId.exists() ? Energy.getEnergy(forceFieldEntityId) : 0;
     return snapshot;
   }

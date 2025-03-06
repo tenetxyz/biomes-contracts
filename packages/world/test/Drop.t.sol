@@ -36,7 +36,7 @@ import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { PickupData } from "../src/Types.sol";
-import { TestUtils } from "./utils/TestUtils.sol";
+import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
 contract DropTest is BiomesTest {
   using ObjectTypeLib for ObjectTypeId;
@@ -48,7 +48,7 @@ contract DropTest is BiomesTest {
     setTerrainAtCoord(dropCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     uint16 numToTransfer = 10;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, numToTransfer);
+    TestInventoryUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     EntityId airEntityId = ReversePosition.get(dropCoord);
     assertFalse(airEntityId.exists(), "Drop entity already exists");
@@ -77,7 +77,7 @@ contract DropTest is BiomesTest {
     setObjectAtCoord(dropCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     uint16 numToTransfer = 10;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, numToTransfer);
+    TestInventoryUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     EntityId airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity doesn't exist");
@@ -160,7 +160,7 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     uint16 numToPickup = 10;
-    TestUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, numToPickup);
+    TestInventoryUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, numToPickup);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToPickup);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
@@ -212,7 +212,7 @@ contract DropTest is BiomesTest {
     ObjectTypeId objectObjectTypeId = ObjectTypes.Grass;
     uint16 numToPickup = 10;
     ObjectTypeId toolObjectTypeId = ObjectTypes.WoodenPick;
-    TestUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, objectObjectTypeId, numToPickup);
+    TestInventoryUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, objectObjectTypeId, numToPickup);
     EntityId toolEntityId = addToolToInventory(airEntityId, toolObjectTypeId);
     assertInventoryHasTool(airEntityId, toolEntityId, 1);
     assertInventoryHasObject(aliceEntityId, toolObjectTypeId, 0);
@@ -247,7 +247,7 @@ contract DropTest is BiomesTest {
     ObjectTypeId objectObjectTypeId = ObjectTypes.Grass;
     uint16 numToPickup = 10;
     ObjectTypeId toolObjectTypeId1 = ObjectTypes.WoodenPick;
-    TestUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, objectObjectTypeId, numToPickup);
+    TestInventoryUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, objectObjectTypeId, numToPickup);
     EntityId toolEntityId1 = addToolToInventory(airEntityId, toolObjectTypeId1);
     ObjectTypeId toolObjectTypeId2 = ObjectTypes.WoodenAxe;
     EntityId toolEntityId2 = addToolToInventory(airEntityId, toolObjectTypeId2);
@@ -283,7 +283,7 @@ contract DropTest is BiomesTest {
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     uint16 numToPickup = 10;
-    TestUtils.addToInventoryCount(chestEntityId, ObjectTypes.Chest, transferObjectTypeId, numToPickup);
+    TestInventoryUtils.addToInventoryCount(chestEntityId, ObjectTypes.Chest, transferObjectTypeId, numToPickup);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToPickup);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
@@ -314,11 +314,11 @@ contract DropTest is BiomesTest {
     Vec3 pickupCoord = playerCoord + vec3(0, 1, 0);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    TestUtils.addToInventoryCount(
+    TestInventoryUtils.addToInventoryCount(
       aliceEntityId,
       ObjectTypes.Player,
       transferObjectTypeId,
@@ -378,7 +378,7 @@ contract DropTest is BiomesTest {
     Vec3 pickupCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 1, 0);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
@@ -399,7 +399,7 @@ contract DropTest is BiomesTest {
     Vec3 dropCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 1, 0);
     setObjectAtCoord(dropCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
@@ -425,7 +425,7 @@ contract DropTest is BiomesTest {
     Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
     setObjectAtCoord(dropCoord, ObjectTypes.Dirt);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
@@ -446,7 +446,7 @@ contract DropTest is BiomesTest {
     world.pickup(ObjectTypes.Grass, 1, pickupCoord);
 
     EntityId chestEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.Chest);
-    TestUtils.addToInventoryCount(chestEntityId, ObjectTypes.Chest, ObjectTypes.Grass, 1);
+    TestInventoryUtils.addToInventoryCount(chestEntityId, ObjectTypes.Chest, ObjectTypes.Grass, 1);
 
     vm.prank(alice);
     vm.expectRevert("Cannot pickup from a non-air block");
@@ -459,7 +459,7 @@ contract DropTest is BiomesTest {
     Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
@@ -478,7 +478,7 @@ contract DropTest is BiomesTest {
     Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
     EntityId airEntityId = setObjectAtCoord(dropCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     EntityId toolEntityId1 = addToolToInventory(aliceEntityId, ObjectTypes.WoodenPick);
     EntityId toolEntityId2 = addToolToInventory(aliceEntityId, ObjectTypes.WoodenAxe);
@@ -509,7 +509,7 @@ contract DropTest is BiomesTest {
     Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
@@ -526,7 +526,7 @@ contract DropTest is BiomesTest {
     Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
     setObjectAtCoord(dropCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     Energy.setEnergy(aliceEntityId, 1);
@@ -542,7 +542,7 @@ contract DropTest is BiomesTest {
     Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
@@ -556,7 +556,7 @@ contract DropTest is BiomesTest {
     Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
     setObjectAtCoord(dropCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     vm.expectRevert("Player does not exist");
@@ -569,7 +569,7 @@ contract DropTest is BiomesTest {
     Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(airEntityId, ObjectTypes.Air, transferObjectTypeId, 1);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
@@ -586,7 +586,7 @@ contract DropTest is BiomesTest {
     Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
     setObjectAtCoord(dropCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());

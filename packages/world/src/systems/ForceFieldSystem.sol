@@ -78,54 +78,37 @@ function computeBoundaryShards(
   Vec3 fromShardCoord,
   Vec3 toShardCoord
 ) view returns (Vec3[] memory) {
-  (int256 x1, int256 y1, int256 z1) = fromShardCoord.xyz();
-  (int256 x2, int256 y2, int256 z2) = toShardCoord.xyz();
-
-  Vec3[] memory tempBoundary;
+  uint256 maxSize;
   {
-    uint256 dx = uint256(x2 - x1 + 1);
-    uint256 dy = uint256(y2 - y1 + 1);
-    uint256 dz = uint256(z2 - z1 + 1);
-    uint256 maxSize = 2 * (dx * dy + dx * dz + dy * dz);
-    tempBoundary = new Vec3[](maxSize);
+    (int256 dx, int256 dy, int256 dz) = (toShardCoord - fromShardCoord).xyz();
+    uint256 innerVolume = uint256(dx + 1) * uint256(dy + 1) * uint256(dz + 1);
+    uint256 outerVolume = uint256(dx + 3) * uint256(dy + 3) * uint256(dz + 3);
+    maxSize = outerVolume - innerVolume;
   }
 
+  Vec3 expandedFrom = fromShardCoord - vec3(1, 1, 1);
+  Vec3 expandedTo = toShardCoord + vec3(1, 1, 1);
+
+  Vec3[] memory tempBoundary = new Vec3[](maxSize);
   uint256 count = 0;
 
-  // Face at x = x1 - 1
-  for (int256 y = y1; y <= y2; y++) {
-    for (int256 z = z1; z <= z2; z++) {
-      count = addBoundary(forceFieldEntityId, x1 - 1, y, z, tempBoundary, count);
-    }
-  }
-  // Face at x = x2 + 1
-  for (int256 y = y1; y <= y2; y++) {
-    for (int256 z = z1; z <= z2; z++) {
-      count = addBoundary(forceFieldEntityId, x2 + 1, y, z, tempBoundary, count);
-    }
-  }
-  // Face at y = y1 - 1
-  for (int256 x = x1; x <= x2; x++) {
-    for (int256 z = z1; z <= z2; z++) {
-      count = addBoundary(forceFieldEntityId, x, y1 - 1, z, tempBoundary, count);
-    }
-  }
-  // Face at y = y2 + 1
-  for (int256 x = x1; x <= x2; x++) {
-    for (int256 z = z1; z <= z2; z++) {
-      count = addBoundary(forceFieldEntityId, x, y2 + 1, z, tempBoundary, count);
-    }
-  }
-  // Face at z = z1 - 1
-  for (int256 x = x1; x <= x2; x++) {
-    for (int256 y = y1; y <= y2; y++) {
-      count = addBoundary(forceFieldEntityId, x, y, z1 - 1, tempBoundary, count);
-    }
-  }
-  // Face at z = z2 + 1
-  for (int256 x = x1; x <= x2; x++) {
-    for (int256 y = y1; y <= y2; y++) {
-      count = addBoundary(forceFieldEntityId, x, y, z2 + 1, tempBoundary, count);
+  // Iterate through the entire expanded cuboid
+  for (int32 x = expandedFrom.x(); x <= expandedTo.x(); x++) {
+    for (int32 y = expandedFrom.y(); y <= expandedTo.y(); y++) {
+      for (int32 z = expandedFrom.z(); z <= expandedTo.z(); z++) {
+        Vec3 currentPos = vec3(x, y, z);
+
+        // Skip if the coordinate is inside the original cuboid
+        if (fromShardCoord <= currentPos && currentPos <= toShardCoord) {
+          continue;
+        }
+
+        // Add to boundary if it's a forcefield shard
+        if (isForceFieldShard(forceFieldEntityId, currentPos)) {
+          tempBoundary[count] = currentPos;
+          count++;
+        }
+      }
     }
   }
 
@@ -183,9 +166,10 @@ contract ForceFieldSystem is System {
       for (int32 y = fromShardCoord.y(); y <= toShardCoord.y(); y++) {
         for (int32 z = fromShardCoord.z(); z <= toShardCoord.z(); z++) {
           Vec3 shardCoord = vec3(x, y, z);
-          if (isForceFieldShard(forceFieldEntityId, shardCoord)) {
-            continue;
-          }
+          require(
+            !isForceFieldShardActive(shardCoord) || isForceFieldShard(forceFieldEntityId, shardCoord),
+            "Can't expand to existing forcefield"
+          );
           EntityId shardEntityId = setupForceFieldShard(forceFieldEntityId, shardCoord);
           addedShards++;
         }

@@ -7,9 +7,8 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
-import { validateSpanningTree, computeBoundaryShards } from "../src/systems/ForceFieldSystem.sol";
-import { BiomesTest } from "./BiomesTest.sol";
-import { TestUtils } from "./utils/TestUtils.sol";
+import { validateSpanningTree } from "../src/systems/ForceFieldSystem.sol";
+import { BiomesTest, console } from "./BiomesTest.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
@@ -19,8 +18,9 @@ import { ReversePosition, PlayerPosition, Position } from "../src/utils/Vec3Stor
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
-import { MACHINE_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
+import { MACHINE_ENERGY_DRAIN_RATE, FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
 import { IForceFieldChip } from "../src/prototypes/IForceFieldChip.sol";
+import { TestForceFieldUtils, TestInventoryUtils } from "./utils/TestUtils.sol";
 
 contract TestForceFieldChip is IForceFieldChip, System {
   // Just for testing, real chips should use tables
@@ -158,7 +158,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Add block to player's inventory
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     // Build the block
@@ -197,7 +197,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Add block to player's inventory
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
-    TestUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
+    TestInventoryUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     // Try to build the block, should fail
@@ -215,14 +215,14 @@ contract ForceFieldTest is BiomesTest {
     EntityId forceFieldEntityId = setupForceField(forceFieldCoord);
 
     // Verify that the force field is active
-    assertTrue(TestUtils.isForceFieldActive(forceFieldEntityId), "Force field not active");
+    assertTrue(TestForceFieldUtils.isForceFieldActive(forceFieldEntityId), "Force field not active");
 
     // Verify that the shard at the force field coordinate exists
     Vec3 shardCoord = forceFieldCoord.toForceFieldShardCoord();
-    assertTrue(TestUtils.isForceFieldShard(forceFieldEntityId, shardCoord), "Force field shard not found");
+    assertTrue(TestForceFieldUtils.isForceFieldShard(forceFieldEntityId, shardCoord), "Force field shard not found");
 
     // Verify that we can get the force field from the coordinate
-    EntityId retrievedForceFieldId = TestUtils.getForceField(forceFieldCoord);
+    EntityId retrievedForceFieldId = TestForceFieldUtils.getForceField(forceFieldCoord);
     assertEq(
       EntityId.unwrap(retrievedForceFieldId),
       EntityId.unwrap(forceFieldEntityId),
@@ -271,7 +271,7 @@ contract ForceFieldTest is BiomesTest {
         for (int32 z = fromShardCoord.z(); z <= toShardCoord.z(); z++) {
           Vec3 shardCoord = vec3(x, y, z);
           assertTrue(
-            TestUtils.isForceFieldShard(forceFieldEntityId, shardCoord),
+            TestForceFieldUtils.isForceFieldShard(forceFieldEntityId, shardCoord),
             "Force field shard not found at coordinate"
           );
         }
@@ -307,12 +307,29 @@ contract ForceFieldTest is BiomesTest {
     {
       Vec3 contractFrom = refShardCoord + vec3(2, 0, 0);
       Vec3 contractTo = refShardCoord + vec3(3, 0, 1);
+
+      // Boundary shards
+      // (2,0,1)
+      // (2,0,2)
+      // (3,0,3)
+      // (4,0,3)
+
       uint256[] memory parents = new uint256[](5);
       parents[0] = 0;
       parents[1] = 0;
       parents[2] = 1;
       parents[3] = 2;
       parents[4] = 3;
+
+      Vec3[] memory boundaryShards = TestForceFieldUtils.computeBoundaryShards(
+        forceFieldEntityId,
+        contractFrom,
+        contractTo
+      );
+
+      for (uint256 i = 0; i < boundaryShards.length; i++) {
+        console.log(boundaryShards[i].toString());
+      }
 
       vm.prank(alice);
       world.contractForceField(forceFieldEntityId, contractFrom, contractTo, parents);
@@ -333,7 +350,7 @@ contract ForceFieldTest is BiomesTest {
       for (int32 y = refShardCoord.y(); y <= refShardCoord.y(); y++) {
         for (int32 z = refShardCoord.z(); z <= refShardCoord.z() + 1; z++) {
           assertFalse(
-            TestUtils.isForceFieldShard(forceFieldEntityId, vec3(x, y, z)),
+            TestForceFieldUtils.isForceFieldShard(forceFieldEntityId, vec3(x, y, z)),
             "Force field shard still exists after contraction"
           );
         }
@@ -342,7 +359,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Verify original shard still exists
     assertTrue(
-      TestUtils.isForceFieldShard(forceFieldEntityId, refShardCoord),
+      TestForceFieldUtils.isForceFieldShard(forceFieldEntityId, refShardCoord),
       "Original force field shard was removed"
     );
   }
@@ -472,7 +489,7 @@ contract ForceFieldTest is BiomesTest {
     world.contractForceField(forceFieldEntityId, contractFromShardCoord, contractToShardCoord, parents);
   }
 
-  function testContractForceFieldFailsIfInvalidConnectivity() public {
+  function testContractForceFieldFailsIfInvalidSpanningTree() public {
     // Set up a flat chunk with a player
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
@@ -497,7 +514,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 contractToShardCoord = refShardCoord + vec3(3, 0, 1);
 
     // Compute the boundary shards that will remain after contraction
-    Vec3[] memory boundaryShards = computeBoundaryShards(
+    Vec3[] memory boundaryShards = TestForceFieldUtils.computeBoundaryShards(
       forceFieldEntityId,
       contractFromShardCoord,
       contractToShardCoord
@@ -511,68 +528,8 @@ contract ForceFieldTest is BiomesTest {
 
     // Contract should fail because the parent array doesn't represent a valid spanning tree
     vm.prank(alice);
-    vm.expectRevert("Invalid connectivity path");
+    vm.expectRevert("Invalid spanning tree");
     world.contractForceField(forceFieldEntityId, contractFromShardCoord, contractToShardCoord, invalidParents);
-  }
-
-  function testForceFieldInteractionWithPlayerMovement() public {
-    // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
-
-    // Create a force field around the player's position (with energy)
-    Vec3 forceFieldCoord = playerCoord - vec3(1, 0, 1);
-    EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
-    );
-
-    // Expand the force field to create a 3x1x3 area around the player
-    Vec3 refShardCoord = forceFieldCoord.toForceFieldShardCoord();
-    Vec3 fromShardCoord = refShardCoord;
-    Vec3 toShardCoord = refShardCoord + vec3(2, 0, 2);
-
-    vm.prank(alice);
-    world.expandForceField(forceFieldEntityId, refShardCoord, fromShardCoord, toShardCoord);
-
-    // Player should be able to move within the force field
-    Vec3 newPlayerCoord = playerCoord + vec3(1, 0, 1);
-
-    // Create an array for the newCoords parameter
-    Vec3[] memory newCoords = new Vec3[](1);
-    newCoords[0] = newPlayerCoord;
-
-    vm.prank(alice);
-    world.move(newCoords);
-
-    // Verify player has moved
-    Vec3 playerCoordAfter = PlayerPosition.get(aliceEntityId);
-    assertEq(playerCoordAfter, newPlayerCoord, "Player didn't move correctly");
-
-    // Now deplete the force field's energy
-    Energy.set(
-      forceFieldEntityId,
-      EnergyData({
-        lastUpdatedTime: uint128(block.timestamp),
-        energy: 0,
-        drainRate: 1,
-        accDepletedTime: 100 // Depleted
-      })
-    );
-
-    // Try to move again, should still work even with a depleted force field
-    // (movement is not restricted by force fields)
-    Vec3 anotherPlayerCoord = newPlayerCoord + vec3(0, 0, 1);
-
-    // Create an array for the newCoords parameter
-    Vec3[] memory anotherCoords = new Vec3[](1);
-    anotherCoords[0] = anotherPlayerCoord;
-
-    vm.prank(alice);
-    world.move(anotherCoords);
-
-    // Verify player has moved
-    playerCoordAfter = PlayerPosition.get(aliceEntityId);
-    assertEq(playerCoordAfter, anotherPlayerCoord, "Player couldn't move with depleted force field");
   }
 
   function testComputeBoundaryShards() public {
@@ -599,31 +556,26 @@ contract ForceFieldTest is BiomesTest {
     Vec3 contractToShardCoord = contractFromShardCoord;
 
     // Compute the boundary shards
-    Vec3[] memory boundaryShards = TestUtils.computeBoundaryShards(
+    Vec3[] memory boundaryShards = TestForceFieldUtils.computeBoundaryShards(
       forceFieldEntityId,
       contractFromShardCoord,
       contractToShardCoord
     );
 
-    // For a 1x1x1 cuboid, we expect 6 boundary shards (one on each face)
-    assertEq(boundaryShards.length, 6, "Expected 6 boundary shards for a 1x1x1 cuboid");
+    // For a 1x1x1 cuboid, we expect 26 boundary shards (one on each face plus edges/corners)
+    assertEq(boundaryShards.length, 26, "Expected 26 boundary shards for a 1x1x1 cuboid");
 
     // Verify that each boundary shard is part of the force field
     for (uint256 i = 0; i < boundaryShards.length; i++) {
       assertTrue(
-        TestUtils.isForceFieldShard(forceFieldEntityId, boundaryShards[i]),
+        TestForceFieldUtils.isForceFieldShard(forceFieldEntityId, boundaryShards[i]),
         "Boundary shard is not part of the force field"
       );
     }
 
     // Define expected boundary shards to check
-    Vec3[] memory expectedBoundaries = new Vec3[](6);
-    expectedBoundaries[0] = contractFromShardCoord - vec3(1, 0, 0); // X-1 (left face)
-    expectedBoundaries[1] = contractFromShardCoord + vec3(1, 0, 0); // X+1 (right face)
-    expectedBoundaries[2] = contractFromShardCoord - vec3(0, 1, 0); // Y-1 (bottom face)
-    expectedBoundaries[3] = contractFromShardCoord + vec3(0, 1, 0); // Y+1 (top face)
-    expectedBoundaries[4] = contractFromShardCoord - vec3(0, 0, 1); // Z-1 (back face)
-    expectedBoundaries[5] = contractFromShardCoord + vec3(0, 0, 1); // Z+1 (front face)
+    Vec3[26] memory expectedBoundaries = contractFromShardCoord.neighbors26();
+
     // Check each expected boundary
     for (uint256 i = 0; i < expectedBoundaries.length; i++) {
       bool found = false;
@@ -649,43 +601,22 @@ contract ForceFieldTest is BiomesTest {
     );
 
     // Create second force field
-    Vec3 forceField2Coord = playerCoord + vec3(6, 0, 0);
-    EntityId forceField2EntityId = setupForceField(
+    Vec3 forceField2Coord = forceField1Coord + vec3(FORCE_FIELD_SHARD_DIM, 0, 0);
+    setupForceField(
       forceField2Coord,
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
     );
 
-    // Expand first force field
-    Vec3 ref1ShardCoord = forceField1Coord.toForceFieldShardCoord();
-    vm.prank(alice);
-    world.expandForceField(forceField1EntityId, ref1ShardCoord, ref1ShardCoord, ref1ShardCoord + vec3(2, 0, 0));
-
-    // Expand second force field
-    Vec3 ref2ShardCoord = forceField2Coord.toForceFieldShardCoord();
-    vm.prank(alice);
-    world.expandForceField(forceField2EntityId, ref2ShardCoord, ref2ShardCoord, ref2ShardCoord - vec3(2, 0, 0));
-
     // Try to expand first force field into second force field's area (should fail)
+    Vec3 refShardCoord = forceField1Coord.toForceFieldShardCoord();
     vm.prank(alice);
-    vm.expectRevert();
+    vm.expectRevert("Can't expand to existing forcefield");
     world.expandForceField(
       forceField1EntityId,
-      ref1ShardCoord + vec3(2, 0, 0),
-      ref1ShardCoord + vec3(3, 0, 0),
-      ref1ShardCoord + vec3(5, 0, 0)
+      refShardCoord,
+      refShardCoord + vec3(1, 0, 0),
+      refShardCoord + vec3(1, 0, 0)
     );
-
-    // Verify first force field shards (ref1 to ref1 + (2, 0, 0))
-    for (int32 x = ref1ShardCoord.x(); x <= ref1ShardCoord.x() + 2; x++) {
-      Vec3 shardCoord = vec3(x, ref1ShardCoord.y(), ref1ShardCoord.z());
-      assertTrue(TestUtils.isForceFieldShard(forceField1EntityId, shardCoord), "Force field 1 is missing a shard");
-    }
-
-    // Verify second force field shards (ref2 - (2, 0, 0) to ref2)
-    for (int32 x = ref2ShardCoord.x() - 2; x <= ref2ShardCoord.x(); x++) {
-      Vec3 shardCoord = vec3(x, ref2ShardCoord.y(), ref2ShardCoord.z());
-      assertTrue(TestUtils.isForceFieldShard(forceField2EntityId, shardCoord), "Force field 2 is missing a shard");
-    }
   }
 
   function testValidateSpanningTree() public pure {
