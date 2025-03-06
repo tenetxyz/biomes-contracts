@@ -14,6 +14,7 @@ import { ERC20MetadataData as MUDERC20MetadataData } from "@latticexyz/world-mod
 import { ResourceId, WorldResourceIdLib, WorldResourceIdInstance } from "@latticexyz/world/src/WorldResourceId.sol";
 import { ROOT_NAMESPACE } from "@latticexyz/world/src/constants.sol";
 import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { Energy } from "../src/codegen/tables/Energy.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
@@ -36,9 +37,12 @@ contract AdminScript is Script {
       namespace: ROOT_NAMESPACE,
       name: "AdminSystem"
     });
-    // Check if system is already registered
-
+    address existingSystem = Systems.getSystem(adminSystemId);
     IWorld(worldAddress).registerSystem(adminSystemId, adminSystem, true);
+    if (existingSystem != address(0)) {
+      return;
+    }
+
     IWorld(worldAddress).registerRootFunctionSelector(
       adminSystemId,
       "adminAddToInventory(bytes32,uint16,uint16)",
