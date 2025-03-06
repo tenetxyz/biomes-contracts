@@ -29,6 +29,31 @@ import { TestUtils } from "../test/utils/TestUtils.sol";
 import { AdminSystem } from "../src/systems/admin/AdminSystem.sol";
 
 contract AdminScript is Script {
+  function run(address worldAddress) external {
+    // Specify a store so that you can use tables directly in PostDeploy
+    StoreSwitch.setStoreAddress(worldAddress);
+    IWorld world = IWorld(worldAddress);
+
+    // Load the private key from the `PRIVATE_KEY` environment variable (in .env)
+    uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+
+    // Start broadcasting transactions from the deployer account
+    vm.startBroadcast(deployerPrivateKey);
+
+    ensureAdminSystem(worldAddress);
+
+    EntityId playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
+    require(playerEntityId.exists(), "Player entity not found");
+    Energy.setEnergy(playerEntityId, MAX_PLAYER_ENERGY);
+    Energy.setLastUpdatedTime(playerEntityId, uint128(block.timestamp));
+
+    world.adminAddToInventory(playerEntityId, ObjectTypes.OakLog, 99);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.Chest, 1);
+    world.adminAddToolToInventory(playerEntityId, ObjectTypes.SilverPick);
+
+    vm.stopBroadcast();
+  }
+
   function ensureAdminSystem(address worldAddress) internal {
     AdminSystem adminSystem = new AdminSystem();
     ResourceId adminSystemId = WorldResourceIdLib.encode({
@@ -62,30 +87,5 @@ contract AdminScript is Script {
       "adminRemoveToolFromInventory(bytes32,bytes32)",
       "adminRemoveToolFromInventory(bytes32,bytes32)"
     );
-  }
-
-  function run(address worldAddress) external {
-    // Specify a store so that you can use tables directly in PostDeploy
-    StoreSwitch.setStoreAddress(worldAddress);
-    IWorld world = IWorld(worldAddress);
-
-    // Load the private key from the `PRIVATE_KEY` environment variable (in .env)
-    uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-
-    // Start broadcasting transactions from the deployer account
-    vm.startBroadcast(deployerPrivateKey);
-
-    ensureAdminSystem(worldAddress);
-
-    EntityId playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
-    require(playerEntityId.exists(), "Player entity not found");
-    Energy.setEnergy(playerEntityId, MAX_PLAYER_ENERGY);
-    Energy.setLastUpdatedTime(playerEntityId, uint128(block.timestamp));
-
-    world.adminAddToInventory(playerEntityId, ObjectTypes.OakLog, 99);
-    world.adminAddToInventory(playerEntityId, ObjectTypes.Chest, 1);
-    world.adminAddToolToInventory(playerEntityId, ObjectTypes.SilverPick);
-
-    vm.stopBroadcast();
   }
 }
