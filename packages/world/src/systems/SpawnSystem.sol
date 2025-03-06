@@ -17,6 +17,7 @@ import { ExploredChunkByIndex, ExploredChunk, Position, ReversePosition, PlayerP
 
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { checkWorldStatus, getUniqueEntity, inWorldBorder } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
@@ -34,6 +35,8 @@ import { getObjectTypeIdAt } from "../utils/EntityUtils.sol";
 import { EntityId } from "../EntityId.sol";
 
 contract SpawnSystem is System {
+  using ObjectTypeLib for ObjectTypeId;
+
   function getEnergyCostToSpawn(uint32 playerMass) internal pure returns (uint128) {
     uint128 energyRequired = MAX_PLAYER_ENERGY + massToEnergy(playerMass);
     return energyRequired;
@@ -83,8 +86,8 @@ contract SpawnSystem is System {
     ObjectTypeId spawnObjectTypeId = getObjectTypeIdAt(spawnCoord);
     ObjectTypeId belowObjectTypeId = getObjectTypeIdAt(belowCoord);
     return
-      spawnObjectTypeId != ObjectTypes.Null &&
-      belowObjectTypeId != ObjectTypes.Null &&
+      !spawnObjectTypeId.isNull() &&
+      !belowObjectTypeId.isNull() &&
       ObjectTypeMetadata._getCanPassThrough(spawnObjectTypeId) &&
       !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId);
   }

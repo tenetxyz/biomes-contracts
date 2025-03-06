@@ -165,6 +165,6 @@ contract TerrainTest is BiomesTest {
   /// forge-config: default.allow_internal_expect_revert = true
   function testGetBlockType_ChunkNotExplored() public {
     ObjectTypeId blockType = TerrainLib.getBlockType(vec3(0, 0, 0));
-    assertTrue(blockType == ObjectTypes.Null);
+    assertEq(blockType, ObjectTypes.Null);
   }
 }
