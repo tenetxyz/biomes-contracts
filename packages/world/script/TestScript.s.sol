@@ -42,6 +42,7 @@ contract TestScript is Script {
 
     world.adminAddToInventory(playerEntityId, ObjectTypes.OakLog, 99);
     world.adminAddToInventory(playerEntityId, ObjectTypes.Chest, 1);
+    world.adminAddToolToInventory(playerEntityId, ObjectTypes.SilverPick);
 
     vm.stopBroadcast();
   }
