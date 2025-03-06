@@ -27,7 +27,7 @@ import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 import { TestUtils } from "../test/utils/TestUtils.sol";
 import { AdminSystem } from "../src/systems/admin/AdminSystem.sol";
 
-contract TestScript is Script {
+contract AdminScript is Script {
   function ensureAdminSystem(address worldAddress) internal {
     // Manually deploy a system with another namespace
     AdminSystem adminSystem = new AdminSystem();
