@@ -36,9 +36,7 @@ function getOrCreateEntityAt(Vec3 coord) returns (EntityId, ObjectTypeId) {
   ObjectTypeId objectTypeId;
   if (!entityId.exists()) {
     objectTypeId = TerrainLib._getBlockType(coord);
-    if (objectTypeId.isNull()) {
-      revert("Chunk not explored yet");
-    }
+    require(!objectTypeId.isNull(), "Chunk not explored yet");
 
     entityId = getUniqueEntity();
     Position._set(entityId, coord);
