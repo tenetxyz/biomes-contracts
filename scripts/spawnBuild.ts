@@ -1,6 +1,5 @@
 import { Hex } from "viem";
 import { setupNetwork } from "./setupNetwork";
-import { ALL_SYSTEM_IDS, EMPTY_BYTES_32 } from "./constants";
 import fs from "fs";
 import prompts from "prompts";
 

@@ -1,6 +1,6 @@
 import { Hex } from "viem";
 import { setupNetwork } from "./setupNetwork";
-import { ALL_SYSTEM_IDS, EMPTY_BYTES_32 } from "./constants";
+import { EMPTY_BYTES_32 } from "./constants";
 import fs from "fs";
 import prompts from "prompts";
 
@@ -24,28 +24,28 @@ async function main() {
 
   for (const player of players) {
     console.log(`Deleting all hooks for player ${player}`);
-    for (const systemId of ALL_SYSTEM_IDS) {
-      const systemHooks = await publicClient.readContract({
-        address: worldAddress as Hex,
-        abi: IWorldAbi,
-        functionName: "getOptionalSystemHooks",
-        args: [player, systemId, EMPTY_BYTES_32],
-        account,
-      });
-      if (systemHooks.length === 0) {
-        continue;
-      }
-      console.log(`Got ${systemHooks.length} hooks for player ${player} and system ${systemId}`);
+    // for (const systemId of ALL_SYSTEM_IDS) {
+    //   const systemHooks = await publicClient.readContract({
+    //     address: worldAddress as Hex,
+    //     abi: IWorldAbi,
+    //     functionName: "getOptionalSystemHooks",
+    //     args: [player, systemId, EMPTY_BYTES_32],
+    //     account,
+    //   });
+    //   if (systemHooks.length === 0) {
+    //     continue;
+    //   }
+    //   console.log(`Got ${systemHooks.length} hooks for player ${player} and system ${systemId}`);
 
-      await callTx(
-        {
-          ...txOptions,
-          functionName: "deleteAllUserHooks",
-          args: [player, systemId, EMPTY_BYTES_32],
-        },
-        `Deleting all hooks for player ${player} and system ${systemId}`,
-      );
-    }
+    //   await callTx(
+    //     {
+    //       ...txOptions,
+    //       functionName: "deleteAllUserHooks",
+    //       args: [player, systemId, EMPTY_BYTES_32],
+    //     },
+    //     `Deleting all hooks for player ${player} and system ${systemId}`,
+    //   );
+    // }
   }
 
   process.exit(0);
