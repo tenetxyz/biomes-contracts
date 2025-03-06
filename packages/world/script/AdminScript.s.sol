@@ -55,17 +55,17 @@ contract AdminScript is Script {
   }
 
   function ensureAdminSystem(IWorld world) internal {
-    AdminSystem adminSystem = new AdminSystem();
     ResourceId adminSystemId = WorldResourceIdLib.encode({
       typeId: RESOURCE_SYSTEM,
       namespace: ROOT_NAMESPACE,
       name: "AdminSystem"
     });
-    address existingSystem = Systems.getSystem(adminSystemId);
-    world.registerSystem(adminSystemId, adminSystem, true);
-    if (existingSystem != address(0)) {
+    address existingAdminSystem = Systems.getSystem(adminSystemId);
+    if (existingAdminSystem != address(0)) {
       return;
     }
+    AdminSystem adminSystem = new AdminSystem();
+    world.registerSystem(adminSystemId, adminSystem, true);
 
     world.registerRootFunctionSelector(
       adminSystemId,
