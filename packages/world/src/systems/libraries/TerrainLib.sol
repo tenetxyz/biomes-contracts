@@ -6,6 +6,8 @@ import { SSTORE2 } from "../../utils/SSTORE2.sol";
 import { CHUNK_SIZE } from "../../Constants.sol";
 import { mod } from "../../utils/MathUtils.sol";
 import { Vec3, vec3 } from "../../Vec3.sol";
+import { ObjectTypeId } from "../../ObjectTypeId.sol";
+import { ObjectTypes } from "../../ObjectTypes.sol";
 
 uint256 constant VERSION_PADDING = 1;
 
@@ -14,21 +16,26 @@ library TerrainLib {
   bytes1 constant _VERSION = 0x00;
 
   /// @notice Get the terrain block type of a voxel coordinate.
+  /// @dev Returns ObjectTypes.Null if the chunk is not explored yet.
   /// @dev Assumes to be called from a root system.
-  function _getBlockType(Vec3 coord) public view returns (uint8) {
+  function _getBlockType(Vec3 coord) public view returns (ObjectTypeId) {
     return getBlockType(coord, address(this));
   }
 
   /// @notice Get the terrain block type of a voxel coordinate.
+  /// @dev Returns ObjectTypes.Null if the chunk is not explored yet.
   /// @dev Can be called from either a root or non-root system, but consumes slightly more gas.
-  function getBlockType(Vec3 coord) internal view returns (uint8) {
+  function getBlockType(Vec3 coord) internal view returns (ObjectTypeId) {
     return getBlockType(coord, WorldContextConsumerLib._world());
   }
 
   /// @notice Get the terrain block type of a voxel coordinate.
-  function getBlockType(Vec3 coord, address world) internal view returns (uint8) {
+  /// @dev Returns ObjectTypes.Null if the chunk is not explored yet.
+  function getBlockType(Vec3 coord, address world) internal view returns (ObjectTypeId) {
     Vec3 chunkCoord = coord.toChunkCoord();
-    require(_isChunkExplored(chunkCoord, world), "Chunk not explored yet");
+    if (!_isChunkExplored(chunkCoord, world)) {
+      return ObjectTypes.Null;
+    }
 
     address chunkPointer = _getChunkPointer(chunkCoord, world);
     bytes1 version = chunkPointer.readBytes1(0);
@@ -37,7 +44,7 @@ library TerrainLib {
     uint256 index = _getBlockIndex(coord);
     bytes1 blockType = chunkPointer.readBytes1(index);
 
-    return uint8(blockType);
+    return ObjectTypeId.wrap(uint16(uint8(blockType)));
   }
 
   /// @dev Get the relative coordinate of a voxel coordinate within a chunk

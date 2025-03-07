@@ -99,14 +99,14 @@ library ObjectTypes {
   ObjectTypeId constant MangroveLog = ObjectTypeId.wrap(Block | 103);
 
   // Leaves
-  ObjectTypeId constant OakLeaves = ObjectTypeId.wrap(Block | 112);
-  ObjectTypeId constant BirchLeaves = ObjectTypeId.wrap(Block | 113);
-  ObjectTypeId constant JungleLeaves = ObjectTypeId.wrap(Block | 114);
-  ObjectTypeId constant SakuraLeaves = ObjectTypeId.wrap(Block | 115);
-  ObjectTypeId constant SpruceLeaves = ObjectTypeId.wrap(Block | 116);
-  ObjectTypeId constant AcaciaLeaves = ObjectTypeId.wrap(Block | 117);
-  ObjectTypeId constant DarkOakLeaves = ObjectTypeId.wrap(Block | 118);
-  ObjectTypeId constant MangroveLeaves = ObjectTypeId.wrap(Block | 119);
+  ObjectTypeId constant OakLeaf = ObjectTypeId.wrap(Block | 112);
+  ObjectTypeId constant BirchLeaf = ObjectTypeId.wrap(Block | 113);
+  ObjectTypeId constant JungleLeaf = ObjectTypeId.wrap(Block | 114);
+  ObjectTypeId constant SakuraLeaf = ObjectTypeId.wrap(Block | 115);
+  ObjectTypeId constant SpruceLeaf = ObjectTypeId.wrap(Block | 116);
+  ObjectTypeId constant AcaciaLeaf = ObjectTypeId.wrap(Block | 117);
+  ObjectTypeId constant DarkOakLeaf = ObjectTypeId.wrap(Block | 118);
+  ObjectTypeId constant MangroveLeaf = ObjectTypeId.wrap(Block | 119);
   ObjectTypeId constant MangroveRoots = ObjectTypeId.wrap(Block | 120);
   ObjectTypeId constant MuddyMangroveRoots = ObjectTypeId.wrap(Block | 121);
 
@@ -129,9 +129,9 @@ library ObjectTypes {
   ObjectTypeId constant FescueGrass = ObjectTypeId.wrap(Block | 144);
   ObjectTypeId constant SwitchGrass = ObjectTypeId.wrap(Block | 145);
   ObjectTypeId constant CottonBush = ObjectTypeId.wrap(Block | 146);
-  ObjectTypeId constant Bamboo = ObjectTypeId.wrap(Block | 147);
+  ObjectTypeId constant BambooBush = ObjectTypeId.wrap(Block | 147);
   ObjectTypeId constant VinesBush = ObjectTypeId.wrap(Block | 148);
-  ObjectTypeId constant IvyVines = ObjectTypeId.wrap(Block | 149);
+  ObjectTypeId constant IvyVine = ObjectTypeId.wrap(Block | 149);
   ObjectTypeId constant HempBush = ObjectTypeId.wrap(Block | 150);
 
   // Edibles

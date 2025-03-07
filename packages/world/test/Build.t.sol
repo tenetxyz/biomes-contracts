@@ -41,7 +41,7 @@ contract BuildTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
-    assertEq(ObjectTypeId.wrap(TerrainLib.getBlockType(buildCoord)), ObjectTypes.Air, "Build coord is not air");
+    assertEq(TerrainLib.getBlockType(buildCoord), ObjectTypes.Air, "Build coord is not air");
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertFalse(buildEntityId.exists(), "Build entity already exists");
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;

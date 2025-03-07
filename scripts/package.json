@@ -4,22 +4,15 @@
   "private": true,
   "description": "",
   "scripts": {
-    "fillTerrain": "npx tsx fillTerrain.ts",
-    "fillTerrainPrecalc": "npx tsx fillTerrainPrecalc.ts",
-    "readTerrain": "npx tsx readTerrain.ts",
     "readWorld": "npx tsx readWorld.ts",
-    "watchWorld": "npx tsx watchWorld.ts",
     "writeWorld": "npx tsx writeWorld.ts",
     "spawnBuild": "npx tsx spawnBuild.ts",
-    "measureGas": "npx tsx gas/measureGas.ts",
     "downloadTxHashes": "npx tsx downloadTxHashes.ts",
     "downloadTxs": "npx tsx downloadTxs.ts",
     "parseTxs": "npx tsx parseTxs.ts",
     "parseSavedTxs": "npx tsx parseSavedTxs.ts",
     "parseTxData": "npx tsx parseTxData.ts",
-    "governor": "npx tsx governor.ts",
     "dozer": "npx tsx dozer.ts",
-    "resolveCommitments": "npx tsx resolveCommitments.ts",
     "parseStats": "npx tsx parseStats.ts"
   },
   "dependencies": {

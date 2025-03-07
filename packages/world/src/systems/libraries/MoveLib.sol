@@ -19,7 +19,7 @@ import { EntityId } from "../../EntityId.sol";
 import { Vec3, vec3 } from "../../Vec3.sol";
 import { transferEnergyToPool } from "../../utils/EnergyUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
-import { getObjectTypeIdAt, getPlayer, setPlayer } from "../../utils/EntityUtils.sol";
+import { safeGetObjectTypeIdAt, getPlayer, setPlayer } from "../../utils/EntityUtils.sol";
 
 library MoveLib {
   using ObjectTypeLib for ObjectTypeId;
@@ -35,7 +35,7 @@ library MoveLib {
       require(inWorldBorder(newCoord), "Cannot move outside the world border");
       require(oldCoord.inSurroundingCube(newCoord, 1), "New coord is too far from old coord");
 
-      ObjectTypeId newObjectTypeId = getObjectTypeIdAt(newCoord);
+      ObjectTypeId newObjectTypeId = safeGetObjectTypeIdAt(newCoord);
       require(ObjectTypeMetadata._getCanPassThrough(newObjectTypeId), "Cannot move through a non-passable block");
 
       EntityId playerEntityIdAtCoord = getPlayer(newCoord);
@@ -152,7 +152,7 @@ library MoveLib {
       return false;
     }
 
-    ObjectTypeId belowObjectTypeId = getObjectTypeIdAt(belowCoord);
+    ObjectTypeId belowObjectTypeId = safeGetObjectTypeIdAt(belowCoord);
     // Players can swim in water so we don't want to apply gravity to them
     if (belowObjectTypeId == ObjectTypes.Water || !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
       return false;

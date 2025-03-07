@@ -18,6 +18,10 @@ interface ISpawnSystem {
 
   function getRandomSpawnCoord(uint256 blockNumber, address sender) external view returns (Vec3 spawnCoord);
 
+  function isValidSpawn(Vec3 spawnCoord) external view returns (bool);
+
+  function getValidSpawnY(Vec3 spawnCoordCandidate) external view returns (Vec3 spawnCoord);
+
   function randomSpawn(uint256 blockNumber, int32 y) external returns (EntityId);
 
   function spawn(EntityId spawnTileEntityId, Vec3 spawnCoord, bytes memory extraData) external returns (EntityId);

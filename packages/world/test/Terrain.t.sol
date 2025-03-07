@@ -103,21 +103,24 @@ contract TerrainTest is BiomesTest {
 
     Vec3 coord = vec3(1, 2, 3);
     startGasReport("TerrainLib.getBlockType (non-root)");
-    uint8 blockType = TerrainLib.getBlockType(coord);
+    ObjectTypeId blockType = TerrainLib.getBlockType(coord);
     endGasReport();
 
     startGasReport("TerrainLib.getBlockType (root)");
     blockType = TerrainLib.getBlockType(coord, worldAddress);
     endGasReport();
 
-    assertEq(blockType, chunk[1][2][3]);
+    assertEq(ObjectTypeId.unwrap(blockType), uint16(chunk[1][2][3]));
 
     for (int32 x = 0; x < CHUNK_SIZE; x++) {
       for (int32 y = 0; y < CHUNK_SIZE; y++) {
         for (int32 z = 0; z < CHUNK_SIZE; z++) {
           coord = vec3(x, y, z);
           blockType = TerrainLib.getBlockType(coord);
-          assertEq(blockType, chunk[uint256(int256(x))][uint256(int256(y))][uint256(int256(z))]);
+          assertEq(
+            ObjectTypeId.unwrap(blockType),
+            uint16(chunk[uint256(int256(x))][uint256(int256(y))][uint256(int256(z))])
+          );
         }
       }
     }
@@ -141,27 +144,27 @@ contract TerrainTest is BiomesTest {
     Vec3 chunkCoord = vec3(0, 0, 0);
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
     Vec3 coord = vec3(1, 2, 3);
-    uint8 blockType = TerrainLib.getBlockType(coord);
-    assertEq(blockType, chunk[1][2][3]);
+    ObjectTypeId blockType = TerrainLib.getBlockType(coord);
+    assertEq(ObjectTypeId.unwrap(blockType), uint16(chunk[1][2][3]));
 
     // Test for chunks that are not at the origin
     chunkCoord = vec3(1, 2, 3);
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
     coord = vec3(16 + 1, 16 * 2 + 2, 16 * 3 + 3);
     blockType = TerrainLib.getBlockType(coord);
-    assertEq(blockType, chunk[1][2][3]);
+    assertEq(ObjectTypeId.unwrap(blockType), uint16(chunk[1][2][3]));
 
     // Test for negative coordinates
     chunkCoord = vec3(-1, -2, -3);
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
     coord = vec3(-16 + 1, -16 * 2 + 2, -16 * 3 + 3);
     blockType = TerrainLib.getBlockType(coord);
-    assertEq(blockType, chunk[1][2][3]);
+    assertEq(ObjectTypeId.unwrap(blockType), uint16(chunk[1][2][3]));
   }
 
   /// forge-config: default.allow_internal_expect_revert = true
-  function testGetBlockType_Fail_ChunkNotExplored() public {
-    vm.expectRevert("Chunk not explored yet");
-    TerrainLib.getBlockType(vec3(0, 0, 0));
+  function testGetBlockType_ChunkNotExplored() public {
+    ObjectTypeId blockType = TerrainLib.getBlockType(vec3(0, 0, 0));
+    assertEq(blockType, ObjectTypes.Null);
   }
 }
