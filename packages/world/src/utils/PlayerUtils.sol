@@ -77,13 +77,6 @@ function requireFragmentInPlayerInfluence(Vec3 playerCoord, EntityId fragmentEnt
   return closest;
 }
 
-// Helper function to clamp a value between min and max
-function clamp(int32 value, int32 min, int32 max) pure returns (int32) {
-  if (value < min) return min;
-  if (value > max) return max;
-  return value;
-}
-
 function createPlayer(EntityId playerEntityId, Vec3 playerCoord) {
   // Set the player object type first
   ObjectType._set(playerEntityId, ObjectTypes.Player);
