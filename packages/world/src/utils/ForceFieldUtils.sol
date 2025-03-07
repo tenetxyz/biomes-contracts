@@ -5,19 +5,17 @@ import { Vec3 } from "../Vec3.sol";
 
 import { ForceField } from "../codegen/tables/ForceField.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { Chip } from "../codegen/tables/Chip.sol";
 
 import { getUniqueEntity } from "../Utils.sol";
 
-import { ForceFieldShard, ForceFieldShardData } from "../utils/Vec3Storage.sol";
+import { ForceFieldShard, ForceFieldShardData, ForceFieldShardPosition } from "../utils/Vec3Storage.sol";
 
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
 
 /**
- * @notice Check if a shard is active in a forcefield
- * @param shardData The shard data to check
- * @param forceFieldId The forcefield ID to check against
- * @return True if the shard is active in the forcefield
+ * @dev Check if a shard is active in a specific forcefield
  */
 function _isShardActive(ForceFieldShardData memory shardData, EntityId forceFieldId) view returns (bool) {
   // Short-circuit to avoid unnecessary storage reads
@@ -30,45 +28,53 @@ function _isShardActive(ForceFieldShardData memory shardData, EntityId forceFiel
 }
 
 /**
- * @notice Get the forcefield entity ID for a given coordinate
- * @param coord The coordinate to check
- * @return The forcefield entity ID, or 0 if no active forcefield exists
+ * @dev Get the forcefield and shard entity IDs for a given coordinate
  */
-function getForceField(Vec3 coord) view returns (EntityId) {
+function getForceField(Vec3 coord) view returns (EntityId, EntityId) {
   Vec3 shardCoord = coord.toForceFieldShardCoord();
   ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
 
   if (!_isShardActive(shardData, shardData.forceFieldId)) {
-    return EntityId.wrap(0);
+    return (EntityId.wrap(0), shardData.entityId);
   }
 
-  return shardData.forceFieldId;
+  return (shardData.forceFieldId, shardData.entityId);
 }
 
 /**
- * @notice Check if a shard belongs to a specific forcefield
- * @param forceFieldEntityId The forcefield entity ID to check
- * @param shardCoord The shard coordinate to check
- * @return True if the shard belongs to the forcefield
+ * @dev Check if the shard at coord belongs to a forcefield
  */
 function isForceFieldShard(EntityId forceFieldEntityId, Vec3 shardCoord) view returns (bool) {
   ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
   return _isShardActive(shardData, forceFieldEntityId);
 }
 
+/**
+ * @dev Check if the shard at coord is active and belongs to any forcefield
+ */
 function isForceFieldShardActive(Vec3 shardCoord) view returns (bool) {
   ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
   return _isShardActive(shardData, shardData.forceFieldId);
 }
 
+/**
+ * @dev Check if the is active and belongs to any forcefield
+ */
+function isForceFieldShardActive(EntityId shardEntityId) view returns (bool) {
+  Vec3 shardCoord = ForceFieldShardPosition._get(shardEntityId);
+  ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
+  return _isShardActive(shardData, shardData.forceFieldId);
+}
+
+/**
+ * @dev Check if the forcefield is active (exists and hasn't been destroyed
+ */
 function isForceFieldActive(EntityId forceFieldEntityId) view returns (bool) {
   return forceFieldEntityId.exists() && ForceField._getCreatedAt(forceFieldEntityId) > 0;
 }
 
 /**
- * @notice Set up a new forcefield with its initial shard
- * @param forceFieldEntityId The forcefield entity ID
- * @param coord The coordinate for the initial shard
+ * @dev Set up a new forcefield with its initial shard
  */
 function setupForceField(EntityId forceFieldEntityId, Vec3 coord) {
   // Set up the forcefield first
@@ -79,10 +85,7 @@ function setupForceField(EntityId forceFieldEntityId, Vec3 coord) {
 }
 
 /**
- * @notice Add a shard to an existing forcefield
- * @param forceFieldEntityId The forcefield entity ID
- * @param shardCoord The shard coordinate to add
- * @return The shard entity ID
+ * @dev Add a shard to an existing forcefield
  */
 function setupForceFieldShard(EntityId forceFieldEntityId, Vec3 shardCoord) returns (EntityId) {
   ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
@@ -90,6 +93,7 @@ function setupForceFieldShard(EntityId forceFieldEntityId, Vec3 shardCoord) retu
   // Create a new shard entity if needed
   if (!shardData.entityId.exists()) {
     shardData.entityId = getUniqueEntity();
+    ForceFieldShardPosition._set(shardData.entityId, shardCoord);
     ObjectType._set(shardData.entityId, ObjectTypes.ForceFieldShard);
   }
 
@@ -97,17 +101,19 @@ function setupForceFieldShard(EntityId forceFieldEntityId, Vec3 shardCoord) retu
   shardData.forceFieldId = forceFieldEntityId;
   shardData.forceFieldCreatedAt = ForceField._getCreatedAt(forceFieldEntityId);
 
+  Chip._deleteRecord(shardData.entityId);
+
   ForceFieldShard._set(shardCoord, shardData);
   return shardData.entityId;
 }
 
 /**
- * @notice Remove a shard from a forcefield
- * @param shardCoord The shard coordinate to remove
- * @return The shard entity ID
+ * @dev Remove a shard from a forcefield
  */
 function removeForceFieldShard(Vec3 shardCoord) returns (EntityId) {
   ForceFieldShardData memory shardData = ForceFieldShard._get(shardCoord);
+
+  Chip._deleteRecord(shardData.entityId);
 
   // Disassociate the shard from the forcefield
   ForceFieldShard._deleteRecord(shardCoord);
@@ -115,9 +121,9 @@ function removeForceFieldShard(Vec3 shardCoord) returns (EntityId) {
 }
 
 /**
- * @notice Destroy a forcefield
- * @param forceFieldEntityId The forcefield entity ID to destroy
+ * @dev Destroy a forcefield
  */
 function destroyForceField(EntityId forceFieldEntityId) {
+  Chip._deleteRecord(forceFieldEntityId);
   ForceField._deleteRecord(forceFieldEntityId);
 }

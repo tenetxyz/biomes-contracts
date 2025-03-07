@@ -31,6 +31,7 @@ import { PlayerStatus } from "./tables/PlayerStatus.sol";
 import { PlayerActivity } from "./tables/PlayerActivity.sol";
 import { Chip } from "./tables/Chip.sol";
 import { ForceFieldShard, ForceFieldShardData } from "./tables/ForceFieldShard.sol";
+import { ForceFieldShardPosition, ForceFieldShardPositionData } from "./tables/ForceFieldShardPosition.sol";
 import { ForceField } from "./tables/ForceField.sol";
 import { DisplayContent, DisplayContentData } from "./tables/DisplayContent.sol";
 import { OreCommitment } from "./tables/OreCommitment.sol";

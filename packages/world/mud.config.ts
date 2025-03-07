@@ -312,6 +312,15 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
+    ForceFieldShardPosition: {
+      schema: {
+        entityId: "EntityId",
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      key: ["entityId"],
+    },
     ForceField: {
       schema: {
         entityId: "EntityId",

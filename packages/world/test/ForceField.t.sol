@@ -222,7 +222,7 @@ contract ForceFieldTest is BiomesTest {
     assertTrue(TestForceFieldUtils.isForceFieldShard(forceFieldEntityId, shardCoord), "Force field shard not found");
 
     // Verify that we can get the force field from the coordinate
-    EntityId retrievedForceFieldId = TestForceFieldUtils.getForceField(forceFieldCoord);
+    (EntityId retrievedForceFieldId, ) = TestForceFieldUtils.getForceField(forceFieldCoord);
     assertEq(
       EntityId.unwrap(retrievedForceFieldId),
       EntityId.unwrap(forceFieldEntityId),

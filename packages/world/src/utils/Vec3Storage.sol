@@ -16,6 +16,7 @@ import { LocalEnergyPool as _LocalEnergyPool } from "../codegen/tables/LocalEner
 import { ExploredChunk as _ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 import { ExploredChunkByIndex as _ExploredChunkByIndex } from "../codegen/tables/ExploredChunkByIndex.sol";
 import { ForceFieldShard as _ForceFieldShard, ForceFieldShardData } from "../codegen/tables/ForceFieldShard.sol";
+import { ForceFieldShardPosition as _ForceFieldShardPosition } from "../codegen/tables/ForceFieldShardPosition.sol";
 import { OreCommitment as _OreCommitment } from "../codegen/tables/OreCommitment.sol";
 import { MinedOrePosition as _MinedOrePosition } from "../codegen/tables/MinedOrePosition.sol";
 
@@ -399,6 +400,33 @@ library ForceFieldShard {
 
   function _deleteRecord(Vec3 position) internal {
     Vec3Storage._deleteRecord(_ForceFieldShard._tableId, position);
+  }
+}
+
+library ForceFieldShardPosition {
+  function get(EntityId entityId) internal view returns (Vec3 position) {
+    return Vec3Storage.get(_ForceFieldShardPosition._tableId, _ForceFieldShardPosition._fieldLayout, entityId.unwrap());
+  }
+
+  function _get(EntityId entityId) internal view returns (Vec3 position) {
+    return
+      Vec3Storage._get(_ForceFieldShardPosition._tableId, _ForceFieldShardPosition._fieldLayout, entityId.unwrap());
+  }
+
+  function set(EntityId entityId, Vec3 position) internal {
+    Vec3Storage.set(_ForceFieldShardPosition._tableId, entityId.unwrap(), position);
+  }
+
+  function _set(EntityId entityId, Vec3 position) internal {
+    Vec3Storage._set(_ForceFieldShardPosition._tableId, entityId.unwrap(), position);
+  }
+
+  function deleteRecord(EntityId entityId) internal {
+    Vec3Storage.deleteRecord(_ForceFieldShardPosition._tableId, entityId.unwrap());
+  }
+
+  function _deleteRecord(EntityId entityId) internal {
+    Vec3Storage._deleteRecord(_ForceFieldShardPosition._tableId, entityId.unwrap());
   }
 }
 

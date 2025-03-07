@@ -88,7 +88,7 @@ contract SpawnSystem is System {
     // Use the y coordinate given by the player
     spawnCoord = vec3(spawnCoord.x(), y, spawnCoord.z());
 
-    EntityId forceFieldEntityId = getForceField(spawnCoord);
+    (EntityId forceFieldEntityId, ) = getForceField(spawnCoord);
     require(!forceFieldEntityId.exists(), "Cannot spawn in force field");
 
     // Extract energy from local pool
@@ -107,7 +107,7 @@ contract SpawnSystem is System {
     Vec3 spawnTileCoord = Position._get(spawnTileEntityId);
     require(spawnTileCoord.inSurroundingCube(spawnCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH), "Spawn tile is too far away");
 
-    EntityId forceFieldEntityId = getForceField(spawnTileCoord);
+    (EntityId forceFieldEntityId, ) = getForceField(spawnTileCoord);
     require(forceFieldEntityId.exists(), "Spawn tile is not inside a forcefield");
     uint32 playerMass = ObjectTypeMetadata._getMass(ObjectTypes.Player);
     uint128 energyRequired = getEnergyCostToSpawn(playerMass);
@@ -117,12 +117,8 @@ contract SpawnSystem is System {
 
     EntityId playerEntityId = _spawnPlayer(playerMass, spawnCoord);
 
-    address chipAddress = spawnTileEntityId.getChipAddress();
-    // TODO: should we do this check at the callChip level?
-    require(chipAddress != address(0), "Spawn tile has no chip");
-
     bytes memory onSpawnCall = abi.encodeCall(ISpawnTileChip.onSpawn, (playerEntityId, spawnTileEntityId, extraData));
-    callChipOrRevert(chipAddress, onSpawnCall);
+    callChipOrRevert(spawnTileEntityId.getChip(), onSpawnCall);
 
     return playerEntityId;
   }

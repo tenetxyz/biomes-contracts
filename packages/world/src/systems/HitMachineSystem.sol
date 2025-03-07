@@ -58,23 +58,15 @@ contract HitMachineSystem is System {
 
     // Use safeCallChip to use a fixed amount of gas as we don't want the chip to prevent hitting the machine
     safeCallChip(
-      machineEntityId.getChipAddress(),
+      machineEntityId.getChip(),
       abi.encodeCall(IForceFieldChip.onForceFieldHit, (playerEntityId, machineEntityId))
     );
-  }
-
-  function hitMachine(EntityId entityId) public {
-    (EntityId playerEntityId, Vec3 playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(_msgSender());
-    Vec3 entityCoord = requireInPlayerInfluence(playerCoord, entityId);
-    EntityId baseEntityId = entityId.baseEntityId();
-
-    hitMachineCommon(playerEntityId, playerEnergyData, baseEntityId, entityCoord);
   }
 
   function hitForceField(Vec3 entityCoord) public {
     (EntityId playerEntityId, Vec3 playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, entityCoord);
-    EntityId forceFieldEntityId = getForceField(entityCoord);
+    (EntityId forceFieldEntityId, ) = getForceField(entityCoord);
     require(forceFieldEntityId.exists(), "No force field at this location");
     Vec3 forceFieldCoord = Position._get(forceFieldEntityId);
     hitMachineCommon(playerEntityId, playerEnergyData, forceFieldEntityId, forceFieldCoord);

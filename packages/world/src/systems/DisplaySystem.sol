@@ -35,7 +35,7 @@ contract DisplaySystem is System {
     }
     Vec3 entityCoord = Position._get(baseEntityId);
 
-    EntityId forceFieldEntityId = getForceField(entityCoord);
+    (EntityId forceFieldEntityId, ) = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
       (EnergyData memory machineData, ) = getLatestEnergyData(forceFieldEntityId);

@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -63,7 +64,9 @@ library BuildLib {
   ) public {
     for (uint256 i = 0; i < coords.length; i++) {
       Vec3 coord = coords[i];
-      EntityId forceFieldEntityId = getForceField(coord);
+      (EntityId forceFieldEntityId, EntityId shardEntityId) = getForceField(coord);
+
+      // If placing a forcefield, there should be no active forcefield at coord
       if (objectTypeId == ObjectTypes.ForceField) {
         require(!forceFieldEntityId.exists(), "Force field overlaps with another force field");
         setupForceField(baseEntityId, coord);
@@ -77,7 +80,13 @@ library BuildLib {
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
-          callChipOrRevert(forceFieldEntityId.getChipAddress(), onBuildCall);
+          // We know shard is active because its forcefield exists, so we can use its chip
+          ResourceId shardChip = shardEntityId.getChip();
+          if (shardChip.unwrap() != 0) {
+            callChipOrRevert(shardChip, onBuildCall);
+          } else {
+            callChipOrRevert(forceFieldEntityId.getChip(), onBuildCall);
+          }
         }
       }
     }

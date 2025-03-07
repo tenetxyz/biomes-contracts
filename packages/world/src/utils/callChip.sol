@@ -10,9 +10,14 @@ import { Chip } from "../codegen/tables/Chip.sol";
 import { EntityId } from "../EntityId.sol";
 import { SAFE_CHIP_GAS } from "../Constants.sol";
 
-function callChip(address chipAddress, bytes memory callData) returns (bool, bytes memory) {
+function callChip(ResourceId chipSystemId, bytes memory callData) returns (bool, bytes memory) {
   address msgSender = WorldContextConsumerLib._msgSender();
   uint256 msgValue = WorldContextConsumerLib._msgValue();
+
+  (address chipAddress, ) = Systems._get(chipSystemId);
+  if (chipAddress == address(0)) {
+    return (true, "");
+  }
 
   return
     chipAddress.call{ value: 0 }(
@@ -20,9 +25,14 @@ function callChip(address chipAddress, bytes memory callData) returns (bool, byt
     );
 }
 
-function safeCallChip(address chipAddress, bytes memory callData) returns (bool, bytes memory) {
+function safeCallChip(ResourceId chipSystemId, bytes memory callData) returns (bool, bytes memory) {
   address msgSender = WorldContextConsumerLib._msgSender();
   uint256 msgValue = WorldContextConsumerLib._msgValue();
+
+  (address chipAddress, ) = Systems._get(chipSystemId);
+  if (chipAddress == address(0)) {
+    return (true, "");
+  }
 
   return
     chipAddress.call{ value: 0, gas: SAFE_CHIP_GAS }(
@@ -30,8 +40,8 @@ function safeCallChip(address chipAddress, bytes memory callData) returns (bool,
     );
 }
 
-function callChipOrRevert(address chipAddress, bytes memory callData) returns (bytes memory) {
-  (bool success, bytes memory returnData) = callChip(chipAddress, callData);
+function callChipOrRevert(ResourceId chipSystemId, bytes memory callData) returns (bytes memory) {
+  (bool success, bytes memory returnData) = callChip(chipSystemId, callData);
   if (!success) {
     revertWithBytes(returnData);
   }

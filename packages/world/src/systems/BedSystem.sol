@@ -64,7 +64,7 @@ contract BedSystem is System {
     (EntityId dropEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(dropCoord);
     require(objectTypeId == ObjectTypes.Air, "Cannot drop items on a non-air block");
 
-    EntityId forceFieldEntityId = getForceField(bedCoord);
+    (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
     (, EnergyData memory playerData) = BedLib.updateEntities(forceFieldEntityId, playerEntityId, bedEntityId, bedCoord);
 
     require(playerData.energy == 0, "Player is not dead");
@@ -86,7 +86,7 @@ contract BedSystem is System {
     bedEntityId = bedEntityId.baseEntityId();
     require(!BedPlayer._getPlayerEntityId(bedEntityId).exists(), "Bed full");
 
-    EntityId forceFieldEntityId = getForceField(Position._get(bedEntityId));
+    (EntityId forceFieldEntityId, ) = getForceField(Position._get(bedEntityId));
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
     EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
     require(machineData.energy > 0, "Forcefield has no energy");
@@ -103,11 +103,8 @@ contract BedSystem is System {
 
     notify(playerEntityId, SleepNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
 
-    address chipAddress = bedEntityId.getChipAddress();
-    require(chipAddress != address(0), "Bed has no chip");
-
     bytes memory onSleepCall = abi.encodeCall(IBedChip.onSleep, (playerEntityId, bedEntityId, extraData));
-    callChipOrRevert(chipAddress, onSleepCall);
+    callChipOrRevert(bedEntityId.getChip(), onSleepCall);
   }
 
   function wakeupWithExtraData(Vec3 spawnCoord, bytes memory extraData) public {
@@ -123,7 +120,7 @@ contract BedSystem is System {
     Vec3 bedCoord = Position._get(bedEntityId);
     require(bedCoord.inSurroundingCube(spawnCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH), "Bed is too far away");
 
-    EntityId forceFieldEntityId = getForceField(bedCoord);
+    (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
     (EnergyData memory machineData, EnergyData memory playerData) = BedLib.updateEntities(
       forceFieldEntityId,
       playerEntityId,
@@ -142,13 +139,8 @@ contract BedSystem is System {
     notify(playerEntityId, WakeupNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
 
     if (machineData.energy > 0) {
-      address chipAddress = bedEntityId.getChipAddress();
-
-      // If someone removed the chip we don't want the player to be stuck
-      if (chipAddress == address(0)) return;
-
       bytes memory onWakeupCall = abi.encodeCall(IBedChip.onWakeup, (playerEntityId, bedEntityId, extraData));
-      callChipOrRevert(chipAddress, onWakeupCall);
+      callChipOrRevert(bedEntityId.getChip(), onWakeupCall);
     }
   }
 

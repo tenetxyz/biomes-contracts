@@ -18,12 +18,13 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 import { addToInventoryCount, removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
-import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { getForceField, isForceFieldShardActive } from "../utils/ForceFieldUtils.sol";
 import { notify, AttachChipNotifData, DetachChipNotifData } from "../utils/NotifUtils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+import { IForceFieldShardChip } from "../prototypes/IForceFieldShardChip.sol";
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { IBedChip } from "../prototypes/IBedChip.sol";
@@ -44,16 +45,25 @@ contract ChipSystem is System {
   function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) public payable {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     Vec3 entityCoord = requireInPlayerInfluence(playerCoord, entityId);
+
     EntityId baseEntityId = entityId.baseEntityId();
-    require(baseEntityId.getChipAddress() == address(0), "Chip already attached");
 
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
+
+    if (objectTypeId == ObjectTypes.ForceFieldShard) {
+      // Require the forcefield shard to be active and not have a chip attached
+      require(isForceFieldShardActive(baseEntityId) && baseEntityId.getChip().unwrap() == 0, "Chip already attached");
+    } else {
+      require(baseEntityId.getChip().unwrap() == 0, "Chip already attached");
+    }
 
     (address chipAddress, bool publicAccess) = Systems._get(chipSystemId);
     require(!publicAccess, "Chip system must be private");
 
     if (objectTypeId == ObjectTypes.ForceField) {
       _requireInterface(chipAddress, type(IForceFieldChip).interfaceId);
+    } else if (objectTypeId == ObjectTypes.ForceFieldShard) {
+      _requireInterface(chipAddress, type(IForceFieldShardChip).interfaceId);
     } else if (objectTypeId == ObjectTypes.SmartChest) {
       _requireInterface(chipAddress, type(IChestChip).interfaceId);
     } else if (objectTypeId == ObjectTypes.SmartTextSign) {
@@ -74,7 +84,7 @@ contract ChipSystem is System {
     );
 
     bytes memory onAttachedCall = abi.encodeCall(IChip.onAttached, (playerEntityId, baseEntityId, extraData));
-    callChipOrRevert(baseEntityId.getChipAddress(), onAttachedCall);
+    callChipOrRevert(chipSystemId, onAttachedCall);
   }
 
   function detachChipWithExtraData(EntityId entityId, bytes memory extraData) public payable {
@@ -82,17 +92,19 @@ contract ChipSystem is System {
     Vec3 entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
 
-    EntityId forceFieldEntityId = getForceField(entityCoord);
+    (EntityId forceFieldEntityId, ) = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
       machineEnergyLevel = updateEnergyLevel(forceFieldEntityId).energy;
     }
 
-    address chipAddress = baseEntityId.getChipAddress();
-    require(chipAddress != address(0), "No chip attached");
+    ResourceId chipSystemId = baseEntityId.getChip();
+
+    require(chipSystemId.unwrap() != 0, "No chip attached");
 
     Chip._deleteRecord(baseEntityId);
 
+    (address chipAddress, ) = Systems._get(chipSystemId);
     notify(
       playerEntityId,
       DetachChipNotifData({ detachEntityId: baseEntityId, detachCoord: entityCoord, chipAddress: chipAddress })
@@ -101,9 +113,9 @@ contract ChipSystem is System {
     bytes memory onDetachedCall = abi.encodeCall(IChip.onDetached, (playerEntityId, baseEntityId, extraData));
     if (machineEnergyLevel > 0) {
       // Don't safe call here because we want to revert if the chip doesn't allow the detachment
-      callChipOrRevert(chipAddress, onDetachedCall);
+      callChipOrRevert(chipSystemId, onDetachedCall);
     } else {
-      safeCallChip(chipAddress, onDetachedCall);
+      safeCallChip(chipSystemId, onDetachedCall);
     }
   }
 

@@ -185,7 +185,7 @@ contract ForceFieldSystem is System {
     notify(playerEntityId, ExpandForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
 
     callChipOrRevert(
-      forceFieldEntityId.getChipAddress(),
+      forceFieldEntityId.getChip(),
       abi.encodeCall(IForceFieldChip.onExpand, (playerEntityId, forceFieldEntityId))
     );
   }
@@ -244,7 +244,7 @@ contract ForceFieldSystem is System {
 
     // Call the chip if it exists
     callChipOrRevert(
-      forceFieldEntityId.getChipAddress(),
+      forceFieldEntityId.getChip(),
       abi.encodeCall(IForceFieldChip.onContract, (playerEntityId, forceFieldEntityId))
     );
   }

@@ -165,7 +165,7 @@ library TestForceFieldUtils {
     return _isForceFieldShard(forceFieldEntityId, shardCoord);
   }
 
-  function getForceField(Vec3 coord) public asWorld returns (EntityId) {
+  function getForceField(Vec3 coord) public asWorld returns (EntityId, EntityId) {
     return _getForceField(coord);
   }
 

@@ -1807,19 +1807,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "hitMachine",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "initHandcrafedRecipes",
     "inputs": [],
     "outputs": [],

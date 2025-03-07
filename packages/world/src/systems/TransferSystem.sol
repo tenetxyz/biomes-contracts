@@ -24,8 +24,7 @@ contract TransferSystem is System {
     TransferData memory transferData,
     bytes memory extraData
   ) internal {
-    address chipAddress = chestEntityId.getChipAddress();
-    if (chipAddress != address(0) && machineEnergyLevel > 0) {
+    if (machineEnergyLevel > 0) {
       // Forward any ether sent with the transaction to the hook
       // Don't safe call here as we want to revert if the chip doesn't allow the transfer
       bytes memory onTransferCall = abi.encodeCall(
@@ -40,7 +39,7 @@ contract TransferSystem is System {
           })
         )
       );
-      callChipOrRevert(chipAddress, onTransferCall);
+      callChipOrRevert(chestEntityId.getChip(), onTransferCall);
     }
   }
 

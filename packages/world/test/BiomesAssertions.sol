@@ -126,7 +126,7 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
     snapshot.playerEnergy = Energy.getEnergy(playerEntityId);
     Vec3 shardCoord = snapshotCoord.toLocalEnergyPoolShardCoord();
     snapshot.localPoolEnergy = LocalEnergyPool.get(shardCoord);
-    EntityId forceFieldEntityId = TestForceFieldUtils.getForceField(snapshotCoord);
+    (EntityId forceFieldEntityId, ) = TestForceFieldUtils.getForceField(snapshotCoord);
     snapshot.forceFieldEnergy = forceFieldEntityId.exists() ? Energy.getEnergy(forceFieldEntityId) : 0;
     return snapshot;
   }

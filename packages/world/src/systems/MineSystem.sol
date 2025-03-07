@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
 import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
@@ -114,7 +115,7 @@ library MineLib {
   function _mineBed(EntityId bedEntityId, Vec3 bedCoord) public {
     EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(bedEntityId);
     if (sleepingPlayerId.exists()) {
-      EntityId forceFieldEntityId = getForceField(bedCoord);
+      (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
       EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
       EnergyData memory playerData = updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, machineData, bedCoord);
       removePlayerFromBed(sleepingPlayerId, bedEntityId, forceFieldEntityId);
@@ -132,7 +133,7 @@ library MineLib {
   ) public {
     for (uint256 i = 0; i < coords.length; i++) {
       Vec3 coord = coords[i];
-      EntityId forceFieldEntityId = getForceField(coord);
+      (EntityId forceFieldEntityId, EntityId shardEntityId) = getForceField(coord);
       if (forceFieldEntityId.exists()) {
         EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
         if (machineData.energy > 0) {
@@ -141,7 +142,13 @@ library MineLib {
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
-          callChipOrRevert(forceFieldEntityId.getChipAddress(), onMineCall);
+          // We know shard is active because its forcefield exists, so we can use its chip
+          ResourceId shardChip = shardEntityId.getChip();
+          if (shardChip.unwrap() != 0) {
+            callChipOrRevert(shardChip, onMineCall);
+          } else {
+            callChipOrRevert(forceFieldEntityId.getChip(), onMineCall);
+          }
         }
       }
     }
@@ -178,7 +185,7 @@ contract MineSystem is System {
     Vec3 baseCoord = Position._get(baseEntityId);
 
     // Chip needs to be detached first
-    require(baseEntityId.getChipAddress() == address(0), "Cannot mine a chipped block");
+    require(baseEntityId.getChip().unwrap() == 0, "Cannot mine a chipped block");
     require(updateEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
 
     // First coord will be the base coord, the rest is relative schema coords
