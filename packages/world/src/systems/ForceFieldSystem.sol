@@ -204,7 +204,7 @@ contract ForceFieldSystem is System {
     uint256[] memory parents
   ) public {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, forceFieldEntityId);
+    Vec3 forceFieldCoord = requireInPlayerInfluence(playerCoord, forceFieldEntityId);
 
     ObjectTypeId objectTypeId = ObjectType._get(forceFieldEntityId);
     require(objectTypeId == ObjectTypes.ForceField, "Invalid object type");
@@ -222,11 +222,15 @@ contract ForceFieldSystem is System {
     // Validate that boundaryShards are connected
     require(validateSpanningTree(boundaryShards, parents), "Invalid spanning tree");
 
+    Vec3 forceFieldShardCoord = forceFieldCoord.toForceFieldShardCoord();
+
     // Now we can safely remove the shards
     for (int32 x = fromShardCoord.x(); x <= toShardCoord.x(); x++) {
       for (int32 y = fromShardCoord.y(); y <= toShardCoord.y(); y++) {
         for (int32 z = fromShardCoord.z(); z <= toShardCoord.z(); z++) {
           Vec3 shardCoord = vec3(x, y, z);
+          require(forceFieldShardCoord != shardCoord, "Can't remove forcefield's shard");
+
           // Only count if the shard exists
           if (isForceFieldShard(forceFieldEntityId, shardCoord)) {
             removeForceFieldShard(shardCoord);

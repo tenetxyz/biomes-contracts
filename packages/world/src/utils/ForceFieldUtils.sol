@@ -9,7 +9,7 @@ import { Chip } from "../codegen/tables/Chip.sol";
 
 import { getUniqueEntity } from "../Utils.sol";
 
-import { ForceFieldShard, ForceFieldShardData, ForceFieldShardPosition } from "../utils/Vec3Storage.sol";
+import { Position, ForceFieldShard, ForceFieldShardData, ForceFieldShardPosition } from "../utils/Vec3Storage.sol";
 
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
