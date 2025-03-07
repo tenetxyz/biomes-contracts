@@ -205,14 +205,11 @@ contract ForceFieldSystem is System {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     Vec3 forceFieldCoord = requireInPlayerInfluence(playerCoord, forceFieldEntityId);
 
+    require(fromShardCoord <= toShardCoord, "Invalid coordinates");
+
     ObjectTypeId objectTypeId = ObjectType._get(forceFieldEntityId);
     require(objectTypeId == ObjectTypes.ForceField, "Invalid object type");
-
-    // Decrease drain rate
     EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
-
-    uint128 removedShards = 0;
-    require(fromShardCoord <= toShardCoord, "Invalid coordinates");
 
     {
       // First, identify all boundary shards (shards adjacent to the cuboid to be removed)
@@ -222,6 +219,8 @@ contract ForceFieldSystem is System {
       // Validate that boundaryShards are connected
       require(validateSpanningTree(boundaryShards, parents), "Invalid spanning tree");
     }
+
+    uint128 removedShards = 0;
 
     {
       Vec3 forceFieldShardCoord = forceFieldCoord.toForceFieldShardCoord();
