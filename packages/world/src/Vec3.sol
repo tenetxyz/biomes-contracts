@@ -22,6 +22,12 @@ function neq(Vec3 a, Vec3 b) pure returns (bool) {
   return Vec3.unwrap(a) != Vec3.unwrap(b);
 }
 
+function lt(Vec3 a, Vec3 b) pure returns (bool) {
+  (int32 minX, int32 minY, int32 minZ) = a.xyz();
+  (int32 maxX, int32 maxY, int32 maxZ) = b.xyz();
+  return minX < maxX && minY < maxY && minZ < maxZ;
+}
+
 function leq(Vec3 a, Vec3 b) pure returns (bool) {
   (int32 minX, int32 minY, int32 minZ) = a.xyz();
   (int32 maxX, int32 maxY, int32 maxZ) = b.xyz();
@@ -120,6 +126,12 @@ library Vec3Lib {
     int32 dz = abs(z(a) - z(b));
 
     return max3(dx, dy, dz);
+  }
+
+  function clamp(Vec3 self, Vec3 min, Vec3 max) internal pure returns (Vec3) {
+    if (self < min) return min;
+    if (max < self) return max;
+    return self;
   }
 
   function getNeighbor(Vec3 self, Direction direction) internal pure returns (Vec3) {
@@ -239,7 +251,7 @@ library Vec3Lib {
 }
 
 using Vec3Lib for Vec3 global;
-using { eq as ==, neq as !=, add as +, sub as -, leq as <= } for Vec3 global;
+using { eq as ==, neq as !=, add as +, sub as -, leq as <=, lt as < } for Vec3 global;
 
 // ======== Helper Functions ========
 

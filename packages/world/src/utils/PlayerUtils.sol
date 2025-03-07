@@ -14,7 +14,7 @@ import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 
-import { Position, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
+import { Position, PlayerPosition, ReversePlayerPosition, ForceFieldFragmentPosition } from "../utils/Vec3Storage.sol";
 
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { updateEnergyLevel } from "./EnergyUtils.sol";
@@ -23,9 +23,9 @@ import { transferAllInventoryEntities } from "./InventoryUtils.sol";
 import { safeGetObjectTypeIdAt, getPlayer, setPlayer } from "./EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
-import { Vec3 } from "../Vec3.sol";
+import { Vec3, vec3 } from "../Vec3.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
+import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE, FORCE_FIELD_FRAGMENT_DIM } from "../Constants.sol";
 
 using ObjectTypeLib for ObjectTypeId;
 
@@ -61,6 +61,27 @@ function requireInPlayerInfluence(Vec3 playerCoord, EntityId entityId) view retu
   Vec3 coord = Position._get(entityId);
   requireInPlayerInfluence(playerCoord, coord);
   return coord;
+}
+
+// Checks if the player is in range of the fragment (8x8x8 cube)
+function requireFragmentInPlayerInfluence(Vec3 playerCoord, EntityId fragmentEntityId) view returns (Vec3) {
+  Vec3 fragmentCoord = ForceFieldFragmentPosition._get(fragmentEntityId);
+  // Calculate the closest point in the fragment to the player
+  // For each dimension, clamp the player's position to the fragment's bounds
+  Vec3 fragmentGridCoord = fragmentCoord.mul(FORCE_FIELD_FRAGMENT_DIM);
+
+  int32 range = FORCE_FIELD_FRAGMENT_DIM - 1;
+  Vec3 closest = playerCoord.clamp(fragmentGridCoord, fragmentGridCoord + vec3(range, range, range));
+
+  requireInPlayerInfluence(playerCoord, closest);
+  return closest;
+}
+
+// Helper function to clamp a value between min and max
+function clamp(int32 value, int32 min, int32 max) pure returns (int32) {
+  if (value < min) return min;
+  if (value > max) return max;
+  return value;
 }
 
 function createPlayer(EntityId playerEntityId, Vec3 playerCoord) {

@@ -10,7 +10,6 @@ import { Vec3 } from "../../src/Vec3.sol";
 
 import { EnergyData } from "../../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";
-import { computeBoundaryFragments as _computeBoundaryFragments } from "../../src/systems/ForceFieldSystem.sol";
 
 import { ObjectTypeId } from "../../src/ObjectTypeId.sol";
 import { addToInventory as _addToInventory, removeFromInventory as _removeFromInventory, addToolToInventory as _addToolToInventory, removeToolFromInventory as _removeToolFromInventory, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
@@ -184,9 +183,5 @@ library TestForceFieldUtils {
 
   function destroyForceField(EntityId forceFieldId) public asWorld {
     _destroyForceField(forceFieldId);
-  }
-
-  function computeBoundaryFragments(EntityId forceFieldId, Vec3 from, Vec3 to) public asWorld returns (Vec3[] memory) {
-    return _computeBoundaryFragments(forceFieldId, from, to);
   }
 }

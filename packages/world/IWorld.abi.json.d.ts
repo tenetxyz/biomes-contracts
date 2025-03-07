@@ -363,6 +363,40 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "computeBoundaryFragments",
+    "inputs": [
+      {
+        "name": "forceFieldEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "fromFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "toFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint96[]",
+        "internalType": "Vec3[]"
+      },
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "contractForceField",
     "inputs": [
       {
@@ -384,6 +418,39 @@ declare const abi: [
         "name": "parents",
         "type": "uint256[]",
         "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "contractForceFieldWithExtraData",
+    "inputs": [
+      {
+        "name": "forceFieldEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "fromFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "toFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "parents",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -577,6 +644,39 @@ declare const abi: [
         "name": "toFragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "expandForceFieldWithExtraData",
+    "inputs": [
+      {
+        "name": "forceFieldEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "refFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "fromFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "toFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -2203,7 +2303,7 @@ declare const abi: [
     "name": "oracleSetInitialEnergyPool",
     "inputs": [
       {
-        "name": "fragmentCoord",
+        "name": "shardCoord",
         "type": "uint96",
         "internalType": "Vec3"
       },
@@ -3316,6 +3416,35 @@ declare const abi: [
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "validateSpanningTree",
+    "inputs": [
+      {
+        "name": "boundaryFragments",
+        "type": "uint96[]",
+        "internalType": "Vec3[]"
+      },
+      {
+        "name": "len",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "parents",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "pure"
   },
   {
     "type": "function",

@@ -13,7 +13,19 @@ interface IForceFieldChip is IForceFieldFragmentChip {
 
   function onForceFieldHit(EntityId callerEntityId, EntityId targetEntityId) external;
 
-  function onExpand(EntityId callerEntityId, EntityId targetEntityId) external;
+  function onExpand(
+    EntityId callerEntityId,
+    EntityId targetEntityId,
+    Vec3 fromFragmentCoord,
+    Vec3 toFragmentCoord,
+    bytes memory extraData
+  ) external;
 
-  function onContract(EntityId callerEntityId, EntityId targetEntityId) external;
+  function onContract(
+    EntityId callerEntityId,
+    EntityId targetEntityId,
+    Vec3 fromFragmentCoord,
+    Vec3 toFragmentCoord,
+    bytes memory extraData
+  ) external;
 }

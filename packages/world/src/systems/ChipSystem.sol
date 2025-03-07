@@ -15,7 +15,7 @@ import { ActionType } from "../codegen/common.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { requireValidPlayer, requireInPlayerInfluence, requireFragmentInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getForceField, isForceFieldFragmentActive } from "../utils/ForceFieldUtils.sol";
 import { notify, AttachChipNotifData, DetachChipNotifData } from "../utils/NotifUtils.sol";
@@ -43,20 +43,19 @@ contract ChipSystem is System {
 
   function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) public payable {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    Vec3 entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
     EntityId baseEntityId = entityId.baseEntityId();
-
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
 
+    require(baseEntityId.getChip().unwrap() == 0, "Chip already attached");
+
+    Vec3 entityCoord;
+    // ForceField fragments don't have a position on the grid, so we need to handle them differently
     if (objectTypeId == ObjectTypes.ForceFieldFragment) {
-      // Require the forcefield fragment to be active and not have a chip attached
-      require(
-        isForceFieldFragmentActive(baseEntityId) && baseEntityId.getChip().unwrap() == 0,
-        "Chip already attached"
-      );
+      // TODO: figure out proximity checks for fragments
+      entityCoord = requireFragmentInPlayerInfluence(playerCoord, baseEntityId);
     } else {
-      require(baseEntityId.getChip().unwrap() == 0, "Chip already attached");
+      entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     }
 
     (address chipAddress, bool publicAccess) = Systems._get(chipSystemId);
@@ -91,8 +90,16 @@ contract ChipSystem is System {
 
   function detachChipWithExtraData(EntityId entityId, bytes memory extraData) public payable {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    Vec3 entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     EntityId baseEntityId = entityId.baseEntityId();
+
+    Vec3 entityCoord;
+    // ForceField fragments don't have a position on the grid, so we need to handle them differently
+    if (ObjectType._get(baseEntityId) == ObjectTypes.ForceFieldFragment) {
+      // TODO: figure out proximity checks for fragments
+      entityCoord = requireFragmentInPlayerInfluence(playerCoord, baseEntityId);
+    } else {
+      entityCoord = requireInPlayerInfluence(playerCoord, entityId);
+    }
 
     (EntityId forceFieldEntityId, ) = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;

@@ -101,6 +101,7 @@ function setupForceFieldFragment(EntityId forceFieldEntityId, Vec3 fragmentCoord
   fragmentData.forceFieldId = forceFieldEntityId;
   fragmentData.forceFieldCreatedAt = ForceField._getCreatedAt(forceFieldEntityId);
 
+  require(fragmentData.entityId.getChip().unwrap() == 0, "Can't expand into a fragment with a chip");
   Chip._deleteRecord(fragmentData.entityId);
 
   ForceFieldFragment._set(fragmentCoord, fragmentData);
@@ -113,6 +114,7 @@ function setupForceFieldFragment(EntityId forceFieldEntityId, Vec3 fragmentCoord
 function removeForceFieldFragment(Vec3 fragmentCoord) returns (EntityId) {
   ForceFieldFragmentData memory fragmentData = ForceFieldFragment._get(fragmentCoord);
 
+  require(fragmentData.entityId.getChip().unwrap() == 0, "Can't remove a fragment with a chip");
   Chip._deleteRecord(fragmentData.entityId);
 
   // Disassociate the fragment from the forcefield
@@ -121,7 +123,7 @@ function removeForceFieldFragment(Vec3 fragmentCoord) returns (EntityId) {
 }
 
 /**
- * @dev Destroy a forcefield
+ * @dev Destroys a forcefield, without cleaning up its shards
  */
 function destroyForceField(EntityId forceFieldEntityId) {
   Chip._deleteRecord(forceFieldEntityId);

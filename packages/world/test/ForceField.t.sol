@@ -7,7 +7,6 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
-import { validateSpanningTree } from "../src/systems/ForceFieldSystem.sol";
 import { BiomesTest, console } from "./BiomesTest.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { EntityId } from "../src/EntityId.sol";
@@ -28,9 +27,9 @@ contract TestForceFieldChip is IForceFieldChip, System {
   bool revertOnBuild;
   bool revertOnMine;
 
-  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
+  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
 
-  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
+  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
 
   function onBuild(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external payable {
     require(!revertOnBuild, "Not allowed by forcefield");
@@ -44,9 +43,21 @@ contract TestForceFieldChip is IForceFieldChip, System {
 
   function onForceFieldHit(EntityId callerEntityId, EntityId targetEntityId) external {}
 
-  function onExpand(EntityId callerEntityId, EntityId targetEntityId) external {}
+  function onExpand(
+    EntityId callerEntityId,
+    EntityId targetEntityId,
+    Vec3 fromFragmentCoord,
+    Vec3 toFragmentCoord,
+    bytes memory extraData
+  ) external {}
 
-  function onContract(EntityId callerEntityId, EntityId targetEntityId) external {}
+  function onContract(
+    EntityId callerEntityId,
+    EntityId targetEntityId,
+    Vec3 fromFragmentCoord,
+    Vec3 toFragmentCoord,
+    bytes memory extraData
+  ) external {}
 
   function setRevertOnBuild(bool _revertOnBuild) external {
     revertOnBuild = _revertOnBuild;
@@ -682,15 +693,15 @@ contract ForceFieldTest is BiomesTest {
     Vec3 contractToFragmentCoord = refFragmentCoord + vec3(3, 0, 1);
 
     // Compute the boundary fragments that will remain after contraction
-    Vec3[] memory boundaryFragments = TestForceFieldUtils.computeBoundaryFragments(
+    (Vec3[] memory boundaryFragments, uint256 len) = world.computeBoundaryFragments(
       forceFieldEntityId,
       contractFromFragmentCoord,
       contractToFragmentCoord
     );
 
     // Create an INVALID parent array for the boundary fragments (all zeros)
-    uint256[] memory invalidParents = new uint256[](boundaryFragments.length);
-    for (uint256 i = 0; i < boundaryFragments.length; i++) {
+    uint256[] memory invalidParents = new uint256[](len);
+    for (uint256 i = 0; i < len; i++) {
       invalidParents[i] = 0; // This creates disconnected components
     }
 
@@ -724,17 +735,17 @@ contract ForceFieldTest is BiomesTest {
     Vec3 contractToFragmentCoord = contractFromFragmentCoord;
 
     // Compute the boundary fragments
-    Vec3[] memory boundaryFragments = TestForceFieldUtils.computeBoundaryFragments(
+    (Vec3[] memory boundaryFragments, uint256 len) = world.computeBoundaryFragments(
       forceFieldEntityId,
       contractFromFragmentCoord,
       contractToFragmentCoord
     );
 
     // For a 1x1x1 cuboid, we expect 26 boundary fragments (one on each face plus edges/corners)
-    assertEq(boundaryFragments.length, 26, "Expected 26 boundary fragments for a 1x1x1 cuboid");
+    assertEq(len, 26, "Expected 26 boundary fragments for a 1x1x1 cuboid");
 
     // Verify that each boundary fragment is part of the force field
-    for (uint256 i = 0; i < boundaryFragments.length; i++) {
+    for (uint256 i = 0; i < len; i++) {
       assertTrue(
         TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, boundaryFragments[i]),
         "Boundary fragment is not part of the force field"
@@ -747,7 +758,7 @@ contract ForceFieldTest is BiomesTest {
     // Check each expected boundary
     for (uint256 i = 0; i < expectedBoundaries.length; i++) {
       bool found = false;
-      for (uint256 j = 0; j < boundaryFragments.length; j++) {
+      for (uint256 j = 0; j < len; j++) {
         if (expectedBoundaries[i] == boundaryFragments[j]) {
           found = true;
           break;
@@ -874,17 +885,17 @@ contract ForceFieldTest is BiomesTest {
     Vec3 contractTo = refFragmentCoord + vec3(4, 1, 1);
 
     // Compute boundary fragments
-    Vec3[] memory boundaryFragments = TestForceFieldUtils.computeBoundaryFragments(
+    (Vec3[] memory boundaryFragments, uint256 len) = world.computeBoundaryFragments(
       forceFieldEntityId,
       contractFrom,
       contractTo
     );
 
     // Ensure we have the correct number of boundary fragments
-    assertEq(boundaryFragments.length, 1, "Expected 1 boundary fragment");
+    assertEq(len, 1, "Expected 1 boundary fragment");
 
     // Create a valid spanning tree for the boundary
-    uint256[] memory parents = new uint256[](boundaryFragments.length);
+    uint256[] memory parents = new uint256[](len);
     parents[0] = 0; // Root
 
     vm.prank(alice);
@@ -1148,12 +1159,12 @@ contract ForceFieldTest is BiomesTest {
     vm.stopPrank();
   }
 
-  function testValidateSpanningTree() public pure {
+  function testValidateSpanningTree() public {
     // Test case 1: Empty array (trivial case)
     {
       Vec3[] memory fragments = new Vec3[](0);
       uint256[] memory parents = new uint256[](0);
-      assertTrue(validateSpanningTree(fragments, parents), "Empty array should be valid");
+      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Empty array should not be valid");
     }
 
     // Test case 2: Single node (trivial case)
@@ -1162,7 +1173,7 @@ contract ForceFieldTest is BiomesTest {
       fragments[0] = vec3(0, 0, 0);
       uint256[] memory parents = new uint256[](1);
       parents[0] = 0; // Self-referential
-      assertTrue(validateSpanningTree(fragments, parents), "Single node should be valid");
+      assertTrue(world.validateSpanningTree(fragments, fragments.length, parents), "Single node should be valid");
     }
 
     // Test case 3: Simple line of 3 nodes
@@ -1177,7 +1188,7 @@ contract ForceFieldTest is BiomesTest {
       parents[1] = 0; // Parent is fragments[0]
       parents[2] = 1; // Parent is fragments[1]
 
-      assertTrue(validateSpanningTree(fragments, parents), "Line of 3 nodes should be valid");
+      assertTrue(world.validateSpanningTree(fragments, fragments.length, parents), "Line of 3 nodes should be valid");
     }
 
     // Test case 4: Star pattern (all nodes connected to root)
@@ -1196,7 +1207,7 @@ contract ForceFieldTest is BiomesTest {
       parents[3] = 0;
       parents[4] = 0;
 
-      assertTrue(validateSpanningTree(fragments, parents), "Star pattern should be valid");
+      assertTrue(world.validateSpanningTree(fragments, fragments.length, parents), "Star pattern should be valid");
     }
 
     // Test case 5: Invalid - parents array length mismatch
@@ -1210,7 +1221,7 @@ contract ForceFieldTest is BiomesTest {
       parents[0] = 0;
       parents[1] = 0;
 
-      assertFalse(validateSpanningTree(fragments, parents), "Invalid parents length");
+      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Invalid parents length");
     }
 
     // Test case 6: Invalid - non-adjacent nodes
@@ -1225,7 +1236,7 @@ contract ForceFieldTest is BiomesTest {
       parents[1] = 0;
       parents[2] = 1; // Claims fragments[1] is parent, but they're not adjacent
 
-      assertFalse(validateSpanningTree(fragments, parents), "Non-adjacent fragments");
+      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Non-adjacent fragments");
     }
 
     // Test case 7: Invalid - disconnected graph
@@ -1242,7 +1253,10 @@ contract ForceFieldTest is BiomesTest {
       parents[2] = 2; // Self-referential, creating a second "root"
       parents[3] = 2;
 
-      assertFalse(validateSpanningTree(fragments, parents), "Disconnected graph should be invalid");
+      assertFalse(
+        world.validateSpanningTree(fragments, fragments.length, parents),
+        "Disconnected graph should be invalid"
+      );
     }
 
     // Test case 8: Invalid - cycle in the graph
@@ -1257,7 +1271,7 @@ contract ForceFieldTest is BiomesTest {
       parents[1] = 0;
       parents[2] = 1;
 
-      assertFalse(validateSpanningTree(fragments, parents), "Root must be self-referential");
+      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Root must be self-referential");
     }
 
     // Test case 9: Valid - complex tree with branches
@@ -1280,7 +1294,7 @@ contract ForceFieldTest is BiomesTest {
       parents[5] = 2; // Connected to branch 2
       parents[6] = 3; // Connected to level 2 of branch 1
 
-      assertTrue(validateSpanningTree(fragments, parents), "Complex tree should be valid");
+      assertTrue(world.validateSpanningTree(fragments, fragments.length, parents), "Complex tree should be valid");
     }
 
     // Test case 10: Invalid - diagonal neighbors (not in Von Neumann neighborhood)
@@ -1293,7 +1307,7 @@ contract ForceFieldTest is BiomesTest {
       parents[0] = 0;
       parents[1] = 0;
 
-      assertFalse(validateSpanningTree(fragments, parents), "Non-adjacent fragments");
+      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Non-adjacent fragments");
     }
 
     // Test case 11: Invalid - parent index out of bounds
@@ -1308,7 +1322,7 @@ contract ForceFieldTest is BiomesTest {
       parents[1] = 0;
       parents[2] = 999; // Parent index out of bounds
 
-      assertFalse(validateSpanningTree(fragments, parents), "Parent index out of bounds");
+      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Parent index out of bounds");
     }
 
     // Test case 12: Invalid - cycle in the middle of the array
@@ -1327,7 +1341,7 @@ contract ForceFieldTest is BiomesTest {
       parents[3] = 2; // Part of the cycle
       parents[4] = 3; // Valid connection to node 3
 
-      assertFalse(validateSpanningTree(fragments, parents), "Cycle in the middle of the array");
+      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Cycle in the middle of the array");
     }
 
     // Test case 13: Invalid - multiple nodes pointing to non-existent parent
@@ -1346,7 +1360,10 @@ contract ForceFieldTest is BiomesTest {
       parents[3] = 10; // Same invalid parent
       parents[4] = 0;
 
-      assertFalse(validateSpanningTree(fragments, parents), "Multiple nodes pointing to non-existent parent");
+      assertFalse(
+        world.validateSpanningTree(fragments, fragments.length, parents),
+        "Multiple nodes pointing to non-existent parent"
+      );
     }
 
     // Test case 14: Invalid - node is its own parent (except root)
@@ -1363,7 +1380,7 @@ contract ForceFieldTest is BiomesTest {
       parents[2] = 2; // Node is its own parent
       parents[3] = 2; // Valid
 
-      assertFalse(validateSpanningTree(fragments, parents), "Node cannot be its own parent");
+      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Node cannot be its own parent");
     }
 
     // Test case 15: Invalid - complex cycle in a larger graph
@@ -1388,7 +1405,7 @@ contract ForceFieldTest is BiomesTest {
       parents[6] = 7; // Part of cycle
       parents[7] = 5; // Creates cycle: 5->6->7->5
 
-      assertFalse(validateSpanningTree(fragments, parents), "Complex cycle in larger graph");
+      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Complex cycle in larger graph");
     }
 
     // Test case 16: Invalid - root not at index 0
@@ -1405,7 +1422,7 @@ contract ForceFieldTest is BiomesTest {
       parents[2] = 1;
       parents[3] = 2;
 
-      assertFalse(validateSpanningTree(fragments, parents), "Root must be at index 0");
+      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Root must be at index 0");
     }
 
     // Test case 17: Invalid - parent references later index (creating forward reference)
@@ -1422,7 +1439,10 @@ contract ForceFieldTest is BiomesTest {
       parents[2] = 1;
       parents[3] = 0;
 
-      assertFalse(validateSpanningTree(fragments, parents), "Forward reference creates invalid tree");
+      assertFalse(
+        world.validateSpanningTree(fragments, fragments.length, parents),
+        "Forward reference creates invalid tree"
+      );
     }
 
     // Test case 18: Valid - zigzag pattern
@@ -1441,7 +1461,7 @@ contract ForceFieldTest is BiomesTest {
       parents[3] = 2;
       parents[4] = 3;
 
-      assertTrue(validateSpanningTree(fragments, parents), "Zigzag pattern should be valid");
+      assertTrue(world.validateSpanningTree(fragments, fragments.length, parents), "Zigzag pattern should be valid");
     }
 
     // Test case 19: Invalid - multiple roots
@@ -1462,7 +1482,7 @@ contract ForceFieldTest is BiomesTest {
       parents[4] = 3;
       parents[5] = 4;
 
-      assertFalse(validateSpanningTree(fragments, parents), "Multiple roots should be invalid");
+      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Multiple roots should be invalid");
     }
 
     // Test case 20: Invalid - complex disconnected components
@@ -1497,7 +1517,10 @@ contract ForceFieldTest is BiomesTest {
       parents[8] = 7;
       parents[9] = 8;
 
-      assertFalse(validateSpanningTree(fragments, parents), "Complex disconnected components should be invalid");
+      assertFalse(
+        world.validateSpanningTree(fragments, fragments.length, parents),
+        "Complex disconnected components should be invalid"
+      );
     }
   }
 }

@@ -233,11 +233,10 @@ contract MineSystem is System {
       MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
     );
 
-    // TODO: not sure about this
+    MineLib._requireMinesAllowed(playerEntityId, mineObjectTypeId, coords, extraData);
+
     if (mineObjectTypeId == ObjectTypes.ForceField && finalMass == 0) {
       destroyForceField(baseEntityId);
-    } else {
-      MineLib._requireMinesAllowed(playerEntityId, mineObjectTypeId, coords, extraData);
     }
 
     return baseEntityId;

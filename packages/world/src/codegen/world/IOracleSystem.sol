@@ -11,5 +11,5 @@ import { Vec3 } from "../../Vec3.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IOracleSystem {
-  function oracleSetInitialEnergyPool(Vec3 fragmentCoord, uint128 energy) external;
+  function oracleSetInitialEnergyPool(Vec3 shardCoord, uint128 energy) external;
 }
