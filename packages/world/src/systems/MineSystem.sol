@@ -31,7 +31,7 @@ import { callChipOrRevert } from "../utils/callChip.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
 
-import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+import { IForceFieldShardChip } from "../prototypes/IForceFieldChip.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
@@ -138,7 +138,7 @@ library MineLib {
         EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onMineCall = abi.encodeCall(
-            IForceFieldChip.onMine,
+            IForceFieldShardChip.onMine,
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 

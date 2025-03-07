@@ -25,7 +25,7 @@ import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 
-import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+import { IForceFieldShardChip } from "../prototypes/IForceFieldChip.sol";
 
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -76,7 +76,7 @@ library BuildLib {
         EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onBuildCall = abi.encodeCall(
-            IForceFieldChip.onBuild,
+            IForceFieldShardChip.onBuild,
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
