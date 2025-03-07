@@ -20,6 +20,7 @@ import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { MACHINE_ENERGY_DRAIN_RATE, FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
 import { IForceFieldChip } from "../src/prototypes/IForceFieldChip.sol";
+import { IForceFieldShardChip } from "../src/prototypes/IForceFieldShardChip.sol";
 import { TestForceFieldUtils, TestInventoryUtils } from "./utils/TestUtils.sol";
 
 contract TestForceFieldChip is IForceFieldChip, System {
@@ -60,9 +61,38 @@ contract TestForceFieldChip is IForceFieldChip, System {
   }
 }
 
+contract TestForceFieldShardChip is IForceFieldShardChip, System {
+  // Just for testing, real chips should use tables
+  bool revertOnBuild;
+  bool revertOnMine;
+
+  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
+
+  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
+
+  function onBuild(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external payable {
+    require(!revertOnBuild, "Not allowed by forcefield shard");
+  }
+
+  function onMine(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external payable {
+    require(!revertOnMine, "Not allowed by forcefield shard");
+  }
+
+  function setRevertOnBuild(bool _revertOnBuild) external {
+    revertOnBuild = _revertOnBuild;
+  }
+
+  function setRevertOnMine(bool _revertOnMine) external {
+    revertOnMine = _revertOnMine;
+  }
+
+  function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
+    return interfaceId == type(IForceFieldShardChip).interfaceId || super.supportsInterface(interfaceId);
+  }
+}
+
 contract ForceFieldTest is BiomesTest {
-  function attachTestChip(EntityId forceFieldEntityId) internal returns (TestForceFieldChip) {
-    TestForceFieldChip chip = new TestForceFieldChip();
+  function attachTestChip(EntityId forceFieldEntityId, System chip) internal {
     bytes14 namespace = "chipNamespace";
     ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);
     ResourceId chipSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "chipName");
@@ -76,7 +106,6 @@ contract ForceFieldTest is BiomesTest {
     (address bob, ) = createTestPlayer(coord - vec3(1, 0, 0));
     vm.prank(bob);
     world.attachChip(forceFieldEntityId, chipSystemId);
-    return chip;
   }
 
   function testMineWithForceFieldWithNoEnergy() public {
@@ -90,7 +119,8 @@ contract ForceFieldTest is BiomesTest {
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1, accDepletedTime: 0 })
     );
 
-    TestForceFieldChip chip = attachTestChip(forceFieldEntityId);
+    TestForceFieldChip chip = new TestForceFieldChip();
+    attachTestChip(forceFieldEntityId, chip);
     chip.setRevertOnMine(true);
 
     // Mine a block within the force field's area
@@ -120,7 +150,8 @@ contract ForceFieldTest is BiomesTest {
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
     );
 
-    TestForceFieldChip chip = attachTestChip(forceFieldEntityId);
+    TestForceFieldChip chip = new TestForceFieldChip();
+    attachTestChip(forceFieldEntityId, chip);
     chip.setRevertOnMine(true);
 
     // Mine a block within the force field's area
@@ -136,6 +167,36 @@ contract ForceFieldTest is BiomesTest {
     world.mine(mineCoord);
   }
 
+  function testMineFailsIfNotAllowedByForceFieldShard() public {
+    // Set up a flat chunk with a player
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    // Set up a force field with energy
+    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
+    setupForceField(
+      forceFieldCoord,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+    );
+
+    (, EntityId shardEntityId) = TestForceFieldUtils.getForceField(forceFieldCoord);
+
+    TestForceFieldShardChip chip = new TestForceFieldShardChip();
+    attachTestChip(shardEntityId, chip);
+    chip.setRevertOnMine(true);
+
+    // Mine a block within the force field's area
+    Vec3 mineCoord = forceFieldCoord + vec3(1, 0, 0);
+
+    ObjectTypeId mineObjectTypeId = ObjectTypes.Grass;
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
+
+    // Prank as the player to mine the block
+    vm.prank(alice);
+    vm.expectRevert("Not allowed by forcefield shard");
+    world.mine(mineCoord);
+  }
+
   function testBuildWithForceFieldWithNoEnergy() public {
     // Set up a flat chunk with a player
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
@@ -147,7 +208,8 @@ contract ForceFieldTest is BiomesTest {
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1, accDepletedTime: 0 })
     );
 
-    TestForceFieldChip chip = attachTestChip(forceFieldEntityId);
+    TestForceFieldChip chip = new TestForceFieldChip();
+    attachTestChip(forceFieldEntityId, chip);
     chip.setRevertOnBuild(true);
 
     // Define build coordinates within force field
@@ -186,7 +248,8 @@ contract ForceFieldTest is BiomesTest {
       })
     );
 
-    TestForceFieldChip chip = attachTestChip(forceFieldEntityId);
+    TestForceFieldChip chip = new TestForceFieldChip();
+    attachTestChip(forceFieldEntityId, chip);
     chip.setRevertOnBuild(true);
 
     // Define build coordinates within force field
@@ -203,6 +266,45 @@ contract ForceFieldTest is BiomesTest {
     // Try to build the block, should fail
     vm.prank(alice);
     vm.expectRevert("Not allowed by forcefield");
+    world.build(buildObjectTypeId, buildCoord);
+  }
+
+  function testBuildFailsIfNotAllowedByForceFieldShard() public {
+    // Set up a flat chunk with a player
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    // Set up a force field with NO energy (depleted)
+    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
+    setupForceField(
+      forceFieldCoord,
+      EnergyData({
+        lastUpdatedTime: uint128(block.timestamp),
+        energy: 1000,
+        drainRate: 1,
+        accDepletedTime: 100 // Depleted
+      })
+    );
+
+    (, EntityId shardEntityId) = TestForceFieldUtils.getForceField(forceFieldCoord);
+
+    TestForceFieldShardChip chip = new TestForceFieldShardChip();
+    attachTestChip(shardEntityId, chip);
+    chip.setRevertOnBuild(true);
+
+    // Define build coordinates within force field
+    Vec3 buildCoord = forceFieldCoord + vec3(1, 0, 1);
+
+    // Set terrain at build coord to air
+    setTerrainAtCoord(buildCoord, ObjectTypes.Air);
+
+    // Add block to player's inventory
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
+    TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
+
+    // Try to build the block, should fail
+    vm.prank(alice);
+    vm.expectRevert("Not allowed by forcefield shard");
     world.build(buildObjectTypeId, buildCoord);
   }
 
