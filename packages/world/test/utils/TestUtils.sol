@@ -16,7 +16,7 @@ import { ObjectTypeId } from "../../src/ObjectTypeId.sol";
 import { addToInventory as _addToInventory, removeFromInventory as _removeFromInventory, addToolToInventory as _addToolToInventory, removeToolFromInventory as _removeToolFromInventory, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
 import { ObjectTypeLib, ObjectAmount, getOreObjectTypes } from "../../src/ObjectTypeLib.sol";
 import { updateEnergyLevel as _updateEnergyLevel } from "../../src/utils/EnergyUtils.sol";
-import { isForceFieldShard as _isForceFieldShard, isForceFieldActive as _isForceFieldActive, getForceField as _getForceField, setupForceField as _setupForceField } from "../../src/utils/ForceFieldUtils.sol";
+import { isForceFieldShard as _isForceFieldShard, isForceFieldActive as _isForceFieldActive, getForceField as _getForceField, setupForceField as _setupForceField, destroyForceField as _destroyForceField } from "../../src/utils/ForceFieldUtils.sol";
 
 Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
@@ -180,6 +180,10 @@ library TestForceFieldUtils {
 
   function setupForceField(EntityId forceFieldId, Vec3 coord) public asWorld {
     _setupForceField(forceFieldId, coord);
+  }
+
+  function destroyForceField(EntityId forceFieldId) public asWorld {
+    _destroyForceField(forceFieldId);
   }
 
   function computeBoundaryShards(EntityId forceFieldId, Vec3 from, Vec3 to) public asWorld returns (Vec3[] memory) {

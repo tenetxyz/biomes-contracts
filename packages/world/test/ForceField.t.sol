@@ -21,7 +21,7 @@ import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { MACHINE_ENERGY_DRAIN_RATE, FORCE_FIELD_SHARD_DIM } from "../src/Constants.sol";
 import { IForceFieldChip } from "../src/prototypes/IForceFieldChip.sol";
 import { IForceFieldShardChip } from "../src/prototypes/IForceFieldShardChip.sol";
-import { TestForceFieldUtils, TestInventoryUtils } from "./utils/TestUtils.sol";
+import { TestForceFieldUtils, TestInventoryUtils, TestEnergyUtils } from "./utils/TestUtils.sol";
 
 contract TestForceFieldChip is IForceFieldChip, System {
   // Just for testing, real chips should use tables
@@ -330,6 +330,79 @@ contract ForceFieldTest is BiomesTest {
       EntityId.unwrap(forceFieldEntityId),
       "Retrieved incorrect force field"
     );
+  }
+
+  function testShardChipIsNotUsedIfNoEnergy() public {
+    // Set up a flat chunk with a player
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    // Set up a force field with NO energy
+    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
+    EntityId forceFieldEntityId = setupForceField(
+      forceFieldCoord,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1, accDepletedTime: 0 })
+    );
+
+    // Get the shard entity ID
+    (, EntityId shardEntityId) = TestForceFieldUtils.getForceField(forceFieldCoord);
+
+    // Attach a chip to the shard
+    TestForceFieldShardChip chip = new TestForceFieldShardChip();
+    attachTestChip(shardEntityId, chip);
+    chip.setRevertOnMine(true);
+
+    // Mine a block within the force field's area
+    Vec3 mineCoord = forceFieldCoord + vec3(1, 0, 0);
+
+    ObjectTypeId mineObjectTypeId = ObjectTypes.Grass;
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
+
+    // Prank as the player to mine the block, should not revert since forcefield has no energy
+    vm.prank(alice);
+    world.mine(mineCoord);
+
+    // Verify that the block was successfully mined (should be replaced with Air)
+    EntityId mineEntityId = ReversePosition.get(mineCoord);
+    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Block was not mined");
+  }
+
+  function testShardChipIsNotUsedIfNotActive() public {
+    // Set up a flat chunk with a player
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    // Set up a force field with energy
+    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
+    EntityId forceFieldEntityId = setupForceField(
+      forceFieldCoord,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+    );
+
+    // Get the shard entity ID
+    (, EntityId shardEntityId) = TestForceFieldUtils.getForceField(forceFieldCoord);
+
+    // Attach a chip to the shard
+    TestForceFieldShardChip chip = new TestForceFieldShardChip();
+    attachTestChip(shardEntityId, chip);
+    chip.setRevertOnMine(true);
+
+    // Destroy the forcefield
+    TestForceFieldUtils.destroyForceField(forceFieldEntityId);
+
+    // Mine a block within the force field's area
+    Vec3 mineCoord = forceFieldCoord + vec3(1, 0, 0);
+
+    ObjectTypeId mineObjectTypeId = ObjectTypes.Grass;
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
+
+    // Prank as the player to mine the block, should not revert since forcefield is destroyed
+    vm.prank(alice);
+    world.mine(mineCoord);
+
+    // Verify that the block was successfully mined (should be replaced with Air)
+    EntityId mineEntityId = ReversePosition.get(mineCoord);
+    assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Block was not mined");
   }
 
   function testExpandForceField() public {
@@ -709,6 +782,367 @@ contract ForceFieldTest is BiomesTest {
       refShardCoord + vec3(1, 0, 0),
       refShardCoord + vec3(1, 0, 0)
     );
+  }
+
+  function testForceFieldEnergyDrainsOverTime() public {
+    // Set up a flat chunk with a player
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    // Create a force field with energy
+    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
+    EntityId forceFieldEntityId = setupForceField(
+      forceFieldCoord,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 100, drainRate: 1, accDepletedTime: 0 })
+    );
+
+    // Fast forward time
+    uint256 timeToAdvance = 50; // seconds
+    vm.warp(vm.getBlockTimestamp() + timeToAdvance);
+
+    TestEnergyUtils.updateEnergyLevel(forceFieldEntityId);
+
+    // Check energy level (should be reduced)
+    EnergyData memory currentEnergy = Energy.get(forceFieldEntityId);
+    assertEq(currentEnergy.energy, 50, "Energy should be reduced after time passes");
+
+    // Fast forward enough time to deplete all energy
+    vm.warp(vm.getBlockTimestamp() + 60);
+
+    TestEnergyUtils.updateEnergyLevel(forceFieldEntityId);
+
+    // Check energy level (should be 0)
+    currentEnergy = Energy.get(forceFieldEntityId);
+    assertEq(currentEnergy.energy, 0, "Energy should be completely depleted");
+    assertEq(currentEnergy.accDepletedTime, 10, "Accumulated depleted time should be tracked");
+  }
+
+  function testExpandAndContractForceFieldComplex() public {
+    // Set up a flat chunk with a player
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    // Create a force field with energy
+    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
+    EntityId forceFieldEntityId = setupForceField(
+      forceFieldCoord,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+    );
+
+    Vec3 refShardCoord = forceFieldCoord.toForceFieldShardCoord();
+
+    // Expand in multiple directions to create a complex shape
+    vm.startPrank(alice);
+
+    // Expand in the X direction
+    world.expandForceField(
+      forceFieldEntityId,
+      refShardCoord,
+      refShardCoord + vec3(1, 0, 0),
+      refShardCoord + vec3(2, 0, 0)
+    );
+
+    // Expand in the Y direction
+    world.expandForceField(
+      forceFieldEntityId,
+      refShardCoord,
+      refShardCoord + vec3(0, 1, 0),
+      refShardCoord + vec3(0, 2, 0)
+    );
+
+    // Expand in the Z direction
+    world.expandForceField(
+      forceFieldEntityId,
+      refShardCoord,
+      refShardCoord + vec3(0, 0, 1),
+      refShardCoord + vec3(0, 0, 2)
+    );
+
+    // Expand diagonally from a different reference point
+    world.expandForceField(
+      forceFieldEntityId,
+      refShardCoord + vec3(2, 0, 0),
+      refShardCoord + vec3(3, 0, 0),
+      refShardCoord + vec3(3, 1, 1)
+    );
+
+    vm.stopPrank();
+
+    // Now contract part of the force field (removing everything in x > 1)
+    Vec3 contractFrom = refShardCoord + vec3(2, 0, 0);
+    Vec3 contractTo = refShardCoord + vec3(4, 1, 1);
+
+    // Compute boundary shards
+    Vec3[] memory boundaryShards = TestForceFieldUtils.computeBoundaryShards(
+      forceFieldEntityId,
+      contractFrom,
+      contractTo
+    );
+
+    // Ensure we have the correct number of boundary shards
+    assertEq(boundaryShards.length, 1, "Expected 1 boundary shard");
+
+    // Create a valid spanning tree for the boundary
+    uint256[] memory parents = new uint256[](boundaryShards.length);
+    parents[0] = 0; // Root
+
+    vm.prank(alice);
+    world.contractForceField(forceFieldEntityId, contractFrom, contractTo, parents);
+
+    uint256 remainingShards = 0;
+
+    // Check all possible locations where shards might be
+    for (int32 x = refShardCoord.x(); x <= refShardCoord.x() + 3; x++) {
+      for (int32 y = refShardCoord.y(); y <= refShardCoord.y() + 3; y++) {
+        for (int32 z = refShardCoord.z(); z <= refShardCoord.z() + 3; z++) {
+          if (TestForceFieldUtils.isForceFieldShard(forceFieldEntityId, vec3(x, y, z))) {
+            remainingShards++;
+          }
+        }
+      }
+    }
+
+    // Remaing shards are the main shard plus 4 shards in x == 1 and 1 shard in x == 2
+    assertEq(remainingShards, 6, "Expected 6 remaining shards after contraction");
+
+    // Check energy drain rate has been updated correctly
+    EnergyData memory energyData = Energy.get(forceFieldEntityId);
+    assertEq(
+      energyData.drainRate,
+      1 + MACHINE_ENERGY_DRAIN_RATE * 5, // 1 (base) + 5 (additional shards)
+      "Energy drain rate should be updated"
+    );
+  }
+
+  function testOnBuildAndOnMineHooksForForceField() public {
+    // Set up a flat chunk with a player
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    // Set up a force field
+    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
+    EntityId forceFieldEntityId = setupForceField(
+      forceFieldCoord,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+    );
+
+    // Create and attach a test chip
+    TestForceFieldChip chip = new TestForceFieldChip();
+    attachTestChip(forceFieldEntityId, chip);
+
+    // Test onBuild hook
+    {
+      // Set the chip to allow building
+      chip.setRevertOnBuild(false);
+
+      // Define build coordinates within force field
+      Vec3 buildCoord = forceFieldCoord + vec3(1, 0, 1);
+
+      // Set terrain at build coord to air
+      setTerrainAtCoord(buildCoord, ObjectTypes.Air);
+
+      // Add block to player's inventory
+      ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
+      TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
+      assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
+
+      // Build should succeed
+      vm.prank(alice);
+      world.build(buildObjectTypeId, buildCoord);
+
+      // Verify build succeeded
+      EntityId buildEntityId = ReversePosition.get(buildCoord);
+      assertTrue(ObjectType.get(buildEntityId) == buildObjectTypeId, "Block was not built correctly");
+
+      // Now set the chip to disallow building
+      chip.setRevertOnBuild(true);
+
+      // Define new build coordinates
+      Vec3 buildCoord2 = forceFieldCoord + vec3(-1, 0, 1);
+
+      // Set terrain at build coord to air
+      setTerrainAtCoord(buildCoord2, ObjectTypes.Air);
+
+      // Add block to player's inventory
+      TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
+      assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
+
+      // Build should fail
+      vm.prank(alice);
+      vm.expectRevert("Not allowed by forcefield");
+      world.build(buildObjectTypeId, buildCoord2);
+    }
+
+    // Test onMine hook
+    {
+      // Set the chip to allow mining
+      chip.setRevertOnMine(false);
+
+      // Mine a block within the force field's area
+      Vec3 mineCoord = forceFieldCoord + vec3(1, 0, 0);
+
+      ObjectTypeId mineObjectTypeId = ObjectTypes.Grass;
+      ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+      setObjectAtCoord(mineCoord, mineObjectTypeId);
+
+      // Mining should succeed
+      vm.prank(alice);
+      world.mine(mineCoord);
+
+      // Verify mining succeeded
+      EntityId mineEntityId = ReversePosition.get(mineCoord);
+      assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Block was not mined");
+
+      // Now set the chip to disallow mining
+      chip.setRevertOnMine(true);
+
+      // Define new mine coordinates
+      Vec3 mineCoord2 = forceFieldCoord + vec3(-1, 0, 0);
+
+      setObjectAtCoord(mineCoord2, mineObjectTypeId);
+
+      // Mining should fail
+      vm.prank(alice);
+      vm.expectRevert("Not allowed by forcefield");
+      world.mine(mineCoord2);
+    }
+  }
+
+  function testOverlappingForceFieldBoundaries() public {
+    // Set up a flat chunk with a player
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    // Create first force field
+    Vec3 forceField1Coord = playerCoord - vec3(10, 0, 0);
+    EntityId forceField1EntityId = setupForceField(
+      forceField1Coord,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+    );
+
+    // Create second force field
+    Vec3 forceField2Coord = playerCoord + vec3(10, 0, 0);
+    EntityId forceField2EntityId = setupForceField(
+      forceField2Coord,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+    );
+
+    // Expand first force field towards second
+    Vec3 refShardCoord1 = forceField1Coord.toForceFieldShardCoord();
+    vm.prank(alice);
+    world.expandForceField(
+      forceField1EntityId,
+      refShardCoord1,
+      refShardCoord1 + vec3(1, 0, 0),
+      refShardCoord1 + vec3(1, 0, 0)
+    );
+
+    // Expand second force field towards first
+    Vec3 refShardCoord2 = forceField2Coord.toForceFieldShardCoord();
+    vm.prank(alice);
+    world.expandForceField(
+      forceField2EntityId,
+      refShardCoord2,
+      refShardCoord2 - vec3(1, 0, 0),
+      refShardCoord2 - vec3(1, 0, 0)
+    );
+
+    // Try to expand first force field into area occupied by second force field
+    // This should fail
+    vm.prank(alice);
+    vm.expectRevert("Can't expand to existing forcefield");
+    world.expandForceField(
+      forceField1EntityId,
+      refShardCoord1 + vec3(1, 0, 0),
+      refShardCoord1 + vec3(2, 0, 0),
+      refShardCoord1 + vec3(2, 0, 0)
+    );
+
+    // Try to expand second force field into area occupied by first force field
+    // This should fail
+    vm.prank(alice);
+    vm.expectRevert("Can't expand to existing forcefield");
+    world.expandForceField(
+      forceField2EntityId,
+      refShardCoord2 - vec3(1, 0, 0),
+      refShardCoord2 - vec3(2, 0, 0),
+      refShardCoord2 - vec3(2, 0, 0)
+    );
+  }
+
+  function testForceFieldExpandGasUsage() public {
+    // Set up a flat chunk with a player
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    // Create a force field with energy
+    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
+    EntityId forceFieldEntityId = setupForceField(
+      forceFieldCoord,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: 1, accDepletedTime: 0 })
+    );
+
+    Vec3 refShardCoord = forceFieldCoord.toForceFieldShardCoord();
+
+    uint256 snapshotId = vm.snapshotState();
+
+    // Test expanding with different cuboid sizes
+    vm.startPrank(alice);
+
+    // 1x1x1 expansion (single shard)
+    startGasReport("Expand forcefield 1x1x1");
+    world.expandForceField(
+      forceFieldEntityId,
+      refShardCoord,
+      refShardCoord + vec3(1, 0, 0),
+      refShardCoord + vec3(1, 0, 0)
+    );
+    endGasReport();
+
+    vm.revertToState(snapshotId);
+
+    // 2x2x1 expansion (4 shards)
+    startGasReport("Expand forcefield 2x2x1 = 4");
+    world.expandForceField(
+      forceFieldEntityId,
+      refShardCoord,
+      refShardCoord + vec3(1, 0, 0),
+      refShardCoord + vec3(2, 1, 0)
+    );
+    endGasReport();
+
+    vm.revertToState(snapshotId);
+
+    // 2x2x2 expansion (8 shards)
+    startGasReport("Expand forcefield 2x2x2 = 8");
+    world.expandForceField(
+      forceFieldEntityId,
+      refShardCoord,
+      refShardCoord + vec3(1, 0, 0),
+      refShardCoord + vec3(2, 1, 1)
+    );
+    endGasReport();
+
+    vm.revertToState(snapshotId);
+
+    // 3x3x1 expansion (9 shards)
+    startGasReport("Expand forcefield 3x3x1 = 9");
+    world.expandForceField(
+      forceFieldEntityId,
+      refShardCoord,
+      refShardCoord + vec3(1, 0, 0),
+      refShardCoord + vec3(3, 2, 0)
+    );
+    endGasReport();
+
+    vm.revertToState(snapshotId);
+
+    // 3x3x3 expansion (27 shards)
+    startGasReport("Expand forcefield 3x3x3 = 27");
+    world.expandForceField(
+      forceFieldEntityId,
+      refShardCoord,
+      refShardCoord + vec3(1, 0, 0),
+      refShardCoord + vec3(3, 2, 2)
+    );
+    endGasReport();
+
+    vm.stopPrank();
   }
 
   function testValidateSpanningTree() public pure {
