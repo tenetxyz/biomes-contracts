@@ -16,7 +16,7 @@ import { ActionType, Direction } from "../codegen/common.sol";
 import { PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
-import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
+import { removeFromInventory } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 import { transferEnergyToPool, updateEnergyLevel } from "../utils/EnergyUtils.sol";
@@ -121,7 +121,7 @@ contract BuildSystem is System {
 
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
 
-    removeFromInventoryCount(playerEntityId, buildObjectTypeId, 1);
+    removeFromInventory(playerEntityId, buildObjectTypeId, 1);
 
     notify(
       playerEntityId,

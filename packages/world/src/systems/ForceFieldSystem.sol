@@ -10,7 +10,6 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { ForceField } from "../codegen/tables/ForceField.sol";
 
-import { removeFromInventoryCount } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getUniqueEntity } from "../Utils.sol";
@@ -215,26 +214,29 @@ contract ForceFieldSystem is System {
     uint128 removedShards = 0;
     require(fromShardCoord <= toShardCoord, "Invalid coordinates");
 
-    // First, identify all boundary shards (shards adjacent to the cuboid to be removed)
-    Vec3[] memory boundaryShards = computeBoundaryShards(forceFieldEntityId, fromShardCoord, toShardCoord);
-    require(boundaryShards.length > 0, "No boundary shards found");
+    {
+      // First, identify all boundary shards (shards adjacent to the cuboid to be removed)
+      Vec3[] memory boundaryShards = computeBoundaryShards(forceFieldEntityId, fromShardCoord, toShardCoord);
+      require(boundaryShards.length > 0, "No boundary shards found");
 
-    // Validate that boundaryShards are connected
-    require(validateSpanningTree(boundaryShards, parents), "Invalid spanning tree");
+      // Validate that boundaryShards are connected
+      require(validateSpanningTree(boundaryShards, parents), "Invalid spanning tree");
+    }
 
-    Vec3 forceFieldShardCoord = forceFieldCoord.toForceFieldShardCoord();
+    {
+      Vec3 forceFieldShardCoord = forceFieldCoord.toForceFieldShardCoord();
+      // Now we can safely remove the shards
+      for (int32 x = fromShardCoord.x(); x <= toShardCoord.x(); x++) {
+        for (int32 y = fromShardCoord.y(); y <= toShardCoord.y(); y++) {
+          for (int32 z = fromShardCoord.z(); z <= toShardCoord.z(); z++) {
+            Vec3 shardCoord = vec3(x, y, z);
+            require(forceFieldShardCoord != shardCoord, "Can't remove forcefield's shard");
 
-    // Now we can safely remove the shards
-    for (int32 x = fromShardCoord.x(); x <= toShardCoord.x(); x++) {
-      for (int32 y = fromShardCoord.y(); y <= toShardCoord.y(); y++) {
-        for (int32 z = fromShardCoord.z(); z <= toShardCoord.z(); z++) {
-          Vec3 shardCoord = vec3(x, y, z);
-          require(forceFieldShardCoord != shardCoord, "Can't remove forcefield's shard");
-
-          // Only count if the shard exists
-          if (isForceFieldShard(forceFieldEntityId, shardCoord)) {
-            removeForceFieldShard(shardCoord);
-            removedShards++;
+            // Only count if the shard exists
+            if (isForceFieldShard(forceFieldEntityId, shardCoord)) {
+              removeForceFieldShard(shardCoord);
+              removedShards++;
+            }
           }
         }
       }

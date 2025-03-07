@@ -16,8 +16,7 @@ import { ActionType } from "../codegen/common.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { getUniqueEntity } from "../Utils.sol";
-import { addToInventoryCount, removeFromInventoryCount, removeAnyFromInventoryCount } from "../utils/InventoryUtils.sol";
+import { addToInventory, removeFromInventory, removeAnyFromInventory, addToolToInventory } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, CraftNotifData } from "../utils/NotifUtils.sol";
 import { energyToMass, transferEnergyToPool } from "../utils/EnergyUtils.sol";
@@ -48,9 +47,9 @@ contract CraftSystem is System {
       // totalInputObjectMass += ObjectTypeMetadata._getMass(inputObjectTypeId);
       // totalInputObjectEnergy += ObjectTypeMetadata._getEnergy(inputObjectTypeId);
       if (inputObjectTypeId.isAny()) {
-        removeAnyFromInventoryCount(playerEntityId, inputObjectTypeId, recipeData.inputAmounts[i]);
+        removeAnyFromInventory(playerEntityId, inputObjectTypeId, recipeData.inputAmounts[i]);
       } else {
-        removeFromInventoryCount(playerEntityId, inputObjectTypeId, recipeData.inputAmounts[i]);
+        removeFromInventory(playerEntityId, inputObjectTypeId, recipeData.inputAmounts[i]);
       }
     }
 
@@ -60,18 +59,11 @@ contract CraftSystem is System {
       uint16 outputAmount = recipeData.outputAmounts[i];
       if (outputType.isTool()) {
         for (uint256 j = 0; j < outputAmount; j++) {
-          EntityId newInventoryEntityId = getUniqueEntity();
-          ObjectType._set(newInventoryEntityId, outputType);
-          InventoryEntity._set(newInventoryEntityId, playerEntityId);
-          ReverseInventoryEntity._push(playerEntityId, EntityId.unwrap(newInventoryEntityId));
-          // TODO: figure out how mass should work with multiple inputs/outputs
-          // TODO: should we check that total output energy == total input energy? or should we do it at the recipe level?
-          // uint128 toolMass = totalInputObjectMass + energyToMass(totalInputObjectEnergy);
-          Mass._set(newInventoryEntityId, ObjectTypeMetadata._getMass(outputType));
+          addToolToInventory(playerEntityId, outputType);
         }
+      } else {
+        addToInventory(playerEntityId, ObjectTypes.Player, outputType, outputAmount);
       }
-
-      addToInventoryCount(playerEntityId, ObjectTypes.Player, outputType, outputAmount);
     }
 
     // TODO: handle dyes

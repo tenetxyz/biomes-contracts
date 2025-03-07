@@ -21,8 +21,10 @@ int32 constant LOCAL_ENERGY_POOL_SHARD_DIM = 512;
 
 int32 constant MAX_PLAYER_INFLUENCE_HALF_WIDTH = 10;
 int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
+
 uint16 constant MAX_PLAYER_JUMPS = 3;
 uint16 constant MAX_PLAYER_GLIDES = 10;
+uint16 constant PLAYER_FALL_DAMAGE_THRESHOLD = 3;
 
 uint256 constant SPAWN_BLOCK_RANGE = 10;
 
@@ -42,8 +44,8 @@ address constant PHYSICS_ORACLE_ADDRESS = 0xe67AcfFCe0B542540F1520a9eaD7Aa86ff31
 // ------------------------------------------------------------
 uint128 constant MASS_TO_ENERGY_MULTIPLIER = 50;
 
-uint128 constant MAX_PLAYER_ENERGY = 100_000;
-uint128 constant PLAYER_ENERGY_DRAIN_RATE = 100;
+uint128 constant MAX_PLAYER_ENERGY = 1_000_000;
+uint128 constant PLAYER_ENERGY_DRAIN_RATE = 10;
 
 uint128 constant MACHINE_ENERGY_DRAIN_RATE = 100;
 
@@ -52,8 +54,8 @@ uint128 constant SMART_CHEST_ENERGY_COST = 100;
 uint128 constant PLAYER_BUILD_ENERGY_COST = 100;
 uint128 constant PLAYER_MINE_ENERGY_COST = 100;
 uint128 constant PLAYER_HIT_ENERGY_COST = 100;
-uint128 constant PLAYER_MOVE_ENERGY_COST = 100;
-uint128 constant PLAYER_FALL_ENERGY_COST = MAX_PLAYER_ENERGY / 10; // This makes it so, with full energy, you die from a 10 block fall
+uint128 constant PLAYER_MOVE_ENERGY_COST = 5;
+uint128 constant PLAYER_FALL_ENERGY_COST = MAX_PLAYER_ENERGY / 25; // This makes it so, with full energy, you die from a 25 block fall
 uint128 constant PLAYER_CRAFT_ENERGY_COST = 100;
 uint128 constant PLAYER_DROP_ENERGY_COST = 100;
 uint128 constant PLAYER_PICKUP_ENERGY_COST = 100;

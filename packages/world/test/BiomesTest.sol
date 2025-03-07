@@ -234,18 +234,6 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     return entityId;
   }
 
-  function addToolToInventory(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId) internal returns (EntityId) {
-    require(toolObjectTypeId.isTool(), "Object type is not a tool");
-    EntityId toolEntityId = randomEntityId();
-    ObjectType.set(toolEntityId, toolObjectTypeId);
-    InventoryEntity.set(toolEntityId, ownerEntityId);
-    ReverseInventoryEntity.push(ownerEntityId, EntityId.unwrap(toolEntityId));
-    Mass.set(toolEntityId, ObjectTypeMetadata.getMass(toolObjectTypeId));
-
-    TestInventoryUtils.addToInventoryCount(ownerEntityId, ObjectType.get(ownerEntityId), toolObjectTypeId, 1);
-    return toolEntityId;
-  }
-
   function setupAirChunkWithPlayer() internal returns (address, EntityId, Vec3) {
     setupAirChunk(vec3(0, 0, 0));
     return spawnPlayerOnAirChunk(vec3(0, 1, 0));

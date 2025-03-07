@@ -158,7 +158,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Add block to player's inventory
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
+    TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     // Build the block
@@ -197,7 +197,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Add block to player's inventory
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventoryCount(aliceEntityId, ObjectTypes.Player, buildObjectTypeId, 1);
+    TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     // Try to build the block, should fail
