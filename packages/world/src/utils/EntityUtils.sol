@@ -10,7 +10,6 @@ import { TerrainLib } from "../systems/libraries/TerrainLib.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 
