@@ -23,7 +23,7 @@ import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { MinedOrePosition, ExploredChunk, ExploredChunkByIndex, ForceFieldShard, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, ExploredChunk, ExploredChunkByIndex, ForceFieldFragment, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -80,7 +80,7 @@ contract BuildTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    Vec3 forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
+    Vec3 forceFieldFragmentCoord = buildCoord.toForceFieldFragmentCoord();
 
     vm.prank(alice);
     startGasReport("build non-terrain");
@@ -114,7 +114,7 @@ contract BuildTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    Vec3 forceFieldShardCoord = buildCoord.toForceFieldShardCoord();
+    Vec3 forceFieldFragmentCoord = buildCoord.toForceFieldFragmentCoord();
 
     vm.prank(alice);
     startGasReport("build multi-size");
@@ -142,7 +142,7 @@ contract BuildTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    Vec3 forceFieldShardCoord = playerCoord.toForceFieldShardCoord();
+    Vec3 forceFieldFragmentCoord = playerCoord.toForceFieldFragmentCoord();
 
     vm.prank(alice);
     startGasReport("jump build");

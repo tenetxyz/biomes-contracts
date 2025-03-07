@@ -301,7 +301,7 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    ForceFieldShard: {
+    ForceFieldFragment: {
       schema: {
         x: "int32",
         y: "int32",
@@ -312,7 +312,8 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
-    ForceFieldShardPosition: {
+    ForceFieldFragmentPosition: {
+      name: "FragmentPosition",
       schema: {
         entityId: "EntityId",
         x: "int32",

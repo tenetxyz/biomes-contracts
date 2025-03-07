@@ -19,15 +19,15 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { EntityId } from "../../EntityId.sol";
 
-struct ForceFieldShardPositionData {
+struct ForceFieldFragmentPositionData {
   int32 x;
   int32 y;
   int32 z;
 }
 
-library ForceFieldShardPosition {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ForceFieldShardP", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000466f7263654669656c64536861726450);
+library ForceFieldFragmentPosition {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "FragmentPosition", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000467261676d656e74506f736974696f6e);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x000c030004040400000000000000000000000000000000000000000000000000);
@@ -200,7 +200,7 @@ library ForceFieldShardPosition {
   /**
    * @notice Get the full data.
    */
-  function get(EntityId entityId) internal view returns (ForceFieldShardPositionData memory _table) {
+  function get(EntityId entityId) internal view returns (ForceFieldFragmentPositionData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -215,7 +215,7 @@ library ForceFieldShardPosition {
   /**
    * @notice Get the full data.
    */
-  function _get(EntityId entityId) internal view returns (ForceFieldShardPositionData memory _table) {
+  function _get(EntityId entityId) internal view returns (ForceFieldFragmentPositionData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -260,7 +260,7 @@ library ForceFieldShardPosition {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(EntityId entityId, ForceFieldShardPositionData memory _table) internal {
+  function set(EntityId entityId, ForceFieldFragmentPositionData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.x, _table.y, _table.z);
 
     EncodedLengths _encodedLengths;
@@ -275,7 +275,7 @@ library ForceFieldShardPosition {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(EntityId entityId, ForceFieldShardPositionData memory _table) internal {
+  function _set(EntityId entityId, ForceFieldFragmentPositionData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.x, _table.y, _table.z);
 
     EncodedLengths _encodedLengths;
@@ -308,7 +308,7 @@ library ForceFieldShardPosition {
     bytes memory _staticData,
     EncodedLengths,
     bytes memory
-  ) internal pure returns (ForceFieldShardPositionData memory _table) {
+  ) internal pure returns (ForceFieldFragmentPositionData memory _table) {
     (_table.x, _table.y, _table.z) = decodeStatic(_staticData);
   }
 

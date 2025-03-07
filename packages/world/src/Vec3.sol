@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { Position } from "./codegen/tables/Position.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { Direction } from "./codegen/common.sol";
-import { CHUNK_SIZE, FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM } from "./Constants.sol";
+import { CHUNK_SIZE, FORCE_FIELD_FRAGMENT_DIM, LOCAL_ENERGY_POOL_SHARD_DIM } from "./Constants.sol";
 
 // Vec3 stores 3 packed int32 values (x, y, z)
 type Vec3 is uint96;
@@ -166,7 +166,7 @@ library Vec3Lib {
     revert("Direction not supported for rotation");
   }
 
-  // Check if the shard is adjacent to the cuboid
+  // Check if the coord is adjacent to the cuboid
   function isAdjacentToCuboid(Vec3 self, Vec3 from, Vec3 to) internal pure returns (bool) {
     // X-axis adjacency (left or right face)
     if (
@@ -218,23 +218,19 @@ library Vec3Lib {
     return a.floorDiv(CHUNK_SIZE);
   }
 
-  function toShardCoord(Vec3 self, int32 shardDim, bool ignoreY) internal pure returns (Vec3) {
-    return
-      vec3(
-        _floorDiv(self.x(), shardDim),
-        ignoreY ? int32(0) : _floorDiv(self.y(), shardDim),
-        _floorDiv(self.z(), shardDim)
-      );
-  }
-
-  function toForceFieldShardCoord(Vec3 coord) internal pure returns (Vec3) {
-    return toShardCoord(coord, FORCE_FIELD_SHARD_DIM, false);
+  function toForceFieldFragmentCoord(Vec3 coord) internal pure returns (Vec3) {
+    return coord.floorDiv(FORCE_FIELD_FRAGMENT_DIM);
   }
 
   // Note: Local Energy Pool shards are 2D for now, but the table supports 3D
   // Thats why the Y is ignored, and 0 in the util functions
   function toLocalEnergyPoolShardCoord(Vec3 coord) internal pure returns (Vec3) {
-    return toShardCoord(coord, LOCAL_ENERGY_POOL_SHARD_DIM, true);
+    return
+      vec3(
+        _floorDiv(coord.x(), LOCAL_ENERGY_POOL_SHARD_DIM),
+        int32(0),
+        _floorDiv(coord.z(), LOCAL_ENERGY_POOL_SHARD_DIM)
+      );
   }
 
   function toString(Vec3 a) internal pure returns (string memory) {

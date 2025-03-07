@@ -25,7 +25,7 @@ import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 
-import { IForceFieldShardChip } from "../prototypes/IForceFieldChip.sol";
+import { IForceFieldFragmentChip } from "../prototypes/IForceFieldChip.sol";
 
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -64,7 +64,7 @@ library BuildLib {
   ) public {
     for (uint256 i = 0; i < coords.length; i++) {
       Vec3 coord = coords[i];
-      (EntityId forceFieldEntityId, EntityId shardEntityId) = getForceField(coord);
+      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(coord);
 
       // If placing a forcefield, there should be no active forcefield at coord
       if (objectTypeId == ObjectTypes.ForceField) {
@@ -76,14 +76,14 @@ library BuildLib {
         EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onBuildCall = abi.encodeCall(
-            IForceFieldShardChip.onBuild,
+            IForceFieldFragmentChip.onBuild,
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
-          // We know shard is active because its forcefield exists, so we can use its chip
-          ResourceId shardChip = shardEntityId.getChip();
-          if (shardChip.unwrap() != 0) {
-            callChipOrRevert(shardChip, onBuildCall);
+          // We know fragment is active because its forcefield exists, so we can use its chip
+          ResourceId fragmentChip = fragmentEntityId.getChip();
+          if (fragmentChip.unwrap() != 0) {
+            callChipOrRevert(fragmentChip, onBuildCall);
           } else {
             callChipOrRevert(forceFieldEntityId.getChip(), onBuildCall);
           }

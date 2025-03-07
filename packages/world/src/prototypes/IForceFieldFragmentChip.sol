@@ -8,7 +8,7 @@ import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 
 // Interface for a force field chip
-interface IForceFieldShardChip is IChip {
+interface IForceFieldFragmentChip is IChip {
   function onBuild(
     EntityId targetEntityId,
     EntityId callerEntityId,

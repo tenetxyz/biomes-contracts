@@ -10,14 +10,14 @@ import { Vec3 } from "../../Vec3.sol";
 import { PHYSICS_ORACLE_ADDRESS } from "../../Constants.sol";
 
 contract OracleSystem is System {
-  function oracleSetInitialEnergyPool(Vec3 shardCoord, uint128 energy) public {
+  function oracleSetInitialEnergyPool(Vec3 fragmentCoord, uint128 energy) public {
     address namespaceOwner = NamespaceOwner.get(ROOT_NAMESPACE_ID);
     require(
       _msgSender() == PHYSICS_ORACLE_ADDRESS || _msgSender() == namespaceOwner,
       "Only the physics oracle can set the initial energy pool"
     );
-    require(shardCoord.y() == 0, "Energy pool chunks are 2D only");
-    InitialEnergyPool.set(shardCoord, energy);
-    LocalEnergyPool.set(shardCoord, energy);
+    require(fragmentCoord.y() == 0, "Energy pool chunks are 2D only");
+    InitialEnergyPool.set(fragmentCoord, energy);
+    LocalEnergyPool.set(fragmentCoord, energy);
   }
 }

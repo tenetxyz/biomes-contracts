@@ -2,13 +2,13 @@
 pragma solidity >=0.8.24;
 
 import { Vec3 } from "../Vec3.sol";
-import { IForceFieldShardChip } from "./IForceFieldShardChip.sol";
+import { IForceFieldFragmentChip } from "./IForceFieldFragmentChip.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 
 // Interface for a force field chip
-interface IForceFieldChip is IForceFieldShardChip {
+interface IForceFieldChip is IForceFieldFragmentChip {
   function onPowered(EntityId callerEntityId, EntityId targetEntityId, uint16 numBattery) external;
 
   function onForceFieldHit(EntityId callerEntityId, EntityId targetEntityId) external;

@@ -17,13 +17,13 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
-import { getForceField, isForceFieldShardActive } from "../utils/ForceFieldUtils.sol";
+import { getForceField, isForceFieldFragmentActive } from "../utils/ForceFieldUtils.sol";
 import { notify, AttachChipNotifData, DetachChipNotifData } from "../utils/NotifUtils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";
 import { IChestChip } from "../prototypes/IChestChip.sol";
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
-import { IForceFieldShardChip } from "../prototypes/IForceFieldShardChip.sol";
+import { IForceFieldFragmentChip } from "../prototypes/IForceFieldFragmentChip.sol";
 import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { IBedChip } from "../prototypes/IBedChip.sol";
@@ -49,9 +49,12 @@ contract ChipSystem is System {
 
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
 
-    if (objectTypeId == ObjectTypes.ForceFieldShard) {
-      // Require the forcefield shard to be active and not have a chip attached
-      require(isForceFieldShardActive(baseEntityId) && baseEntityId.getChip().unwrap() == 0, "Chip already attached");
+    if (objectTypeId == ObjectTypes.ForceFieldFragment) {
+      // Require the forcefield fragment to be active and not have a chip attached
+      require(
+        isForceFieldFragmentActive(baseEntityId) && baseEntityId.getChip().unwrap() == 0,
+        "Chip already attached"
+      );
     } else {
       require(baseEntityId.getChip().unwrap() == 0, "Chip already attached");
     }
@@ -61,8 +64,8 @@ contract ChipSystem is System {
 
     if (objectTypeId == ObjectTypes.ForceField) {
       _requireInterface(chipAddress, type(IForceFieldChip).interfaceId);
-    } else if (objectTypeId == ObjectTypes.ForceFieldShard) {
-      _requireInterface(chipAddress, type(IForceFieldShardChip).interfaceId);
+    } else if (objectTypeId == ObjectTypes.ForceFieldFragment) {
+      _requireInterface(chipAddress, type(IForceFieldFragmentChip).interfaceId);
     } else if (objectTypeId == ObjectTypes.SmartChest) {
       _requireInterface(chipAddress, type(IChestChip).interfaceId);
     } else if (objectTypeId == ObjectTypes.SmartTextSign) {

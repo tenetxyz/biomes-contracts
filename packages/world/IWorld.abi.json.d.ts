@@ -371,12 +371,12 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "fromShardCoord",
+        "name": "fromFragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       },
       {
-        "name": "toShardCoord",
+        "name": "toFragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       },
@@ -564,17 +564,17 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "refShardCoord",
+        "name": "refFragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       },
       {
-        "name": "fromShardCoord",
+        "name": "fromFragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       },
       {
-        "name": "toShardCoord",
+        "name": "toFragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       }
@@ -2203,7 +2203,7 @@ declare const abi: [
     "name": "oracleSetInitialEnergyPool",
     "inputs": [
       {
-        "name": "shardCoord",
+        "name": "fragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       },

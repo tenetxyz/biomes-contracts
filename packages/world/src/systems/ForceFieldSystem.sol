@@ -15,8 +15,8 @@ import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 import { notify, ExpandForceFieldNotifData, ContractForceFieldNotifData } from "../utils/NotifUtils.sol";
-import { isForceFieldShard, isForceFieldShardActive, setupForceFieldShard, removeForceFieldShard } from "../utils/ForceFieldUtils.sol";
-import { ForceFieldShard } from "../utils/Vec3Storage.sol";
+import { isForceFieldFragment, isForceFieldFragmentActive, setupForceFieldFragment, removeForceFieldFragment } from "../utils/ForceFieldUtils.sol";
+import { ForceFieldFragment } from "../utils/Vec3Storage.sol";
 
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
@@ -29,13 +29,13 @@ import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
 // TODO: move to utils?
 
 /**
- * @notice Validates that the boundary shards form a connected component using a spanning tree
- * @param boundaryShards Array of boundary shard coordinates
- * @param parents Array indicating the parent of each shard in the spanning tree
- * @return True if the spanning tree is valid and connects all boundary shards
+ * @notice Validates that the boundary fragments form a connected component using a spanning tree
+ * @param boundaryFragments Array of boundary fragment coordinates
+ * @param parents Array indicating the parent of each fragment in the spanning tree
+ * @return True if the spanning tree is valid and connects all boundary fragments
  */
-function validateSpanningTree(Vec3[] memory boundaryShards, uint256[] memory parents) pure returns (bool) {
-  uint256 n = boundaryShards.length;
+function validateSpanningTree(Vec3[] memory boundaryFragments, uint256[] memory parents) pure returns (bool) {
+  uint256 n = boundaryFragments.length;
 
   if (n == 0) return true;
   if (n == 1) return parents.length == 1 && parents[0] == 0;
@@ -53,7 +53,7 @@ function validateSpanningTree(Vec3[] memory boundaryShards, uint256[] memory par
     uint256 parent = parents[i];
 
     // Parent must be in valid range, already visited and adjacent
-    if (parent >= n || !visited[parent] || !boundaryShards[parent].inVonNeumannNeighborhood(boundaryShards[i])) {
+    if (parent >= n || !visited[parent] || !boundaryFragments[parent].inVonNeumannNeighborhood(boundaryFragments[i])) {
       return false;
     }
 
@@ -66,27 +66,27 @@ function validateSpanningTree(Vec3[] memory boundaryShards, uint256[] memory par
 }
 
 /**
- * @notice Identify all boundary shards of a forcefield that are adjacent to a cuboid
+ * @notice Identify all boundary fragments of a forcefield that are adjacent to a cuboid
  * @param forceFieldEntityId The forcefield entity ID
- * @param fromShardCoord The starting coordinate of the cuboid
- * @param toShardCoord The ending coordinate of the cuboid
- * @return An array of boundary shard coordinates
+ * @param fromFragmentCoord The starting coordinate of the cuboid
+ * @param toFragmentCoord The ending coordinate of the cuboid
+ * @return An array of boundary fragment coordinates
  */
-function computeBoundaryShards(
+function computeBoundaryFragments(
   EntityId forceFieldEntityId,
-  Vec3 fromShardCoord,
-  Vec3 toShardCoord
+  Vec3 fromFragmentCoord,
+  Vec3 toFragmentCoord
 ) view returns (Vec3[] memory) {
   uint256 maxSize;
   {
-    (int256 dx, int256 dy, int256 dz) = (toShardCoord - fromShardCoord).xyz();
+    (int256 dx, int256 dy, int256 dz) = (toFragmentCoord - fromFragmentCoord).xyz();
     uint256 innerVolume = uint256(dx + 1) * uint256(dy + 1) * uint256(dz + 1);
     uint256 outerVolume = uint256(dx + 3) * uint256(dy + 3) * uint256(dz + 3);
     maxSize = outerVolume - innerVolume;
   }
 
-  Vec3 expandedFrom = fromShardCoord - vec3(1, 1, 1);
-  Vec3 expandedTo = toShardCoord + vec3(1, 1, 1);
+  Vec3 expandedFrom = fromFragmentCoord - vec3(1, 1, 1);
+  Vec3 expandedTo = toFragmentCoord + vec3(1, 1, 1);
 
   Vec3[] memory tempBoundary = new Vec3[](maxSize);
   uint256 count = 0;
@@ -98,12 +98,12 @@ function computeBoundaryShards(
         Vec3 currentPos = vec3(x, y, z);
 
         // Skip if the coordinate is inside the original cuboid
-        if (fromShardCoord <= currentPos && currentPos <= toShardCoord) {
+        if (fromFragmentCoord <= currentPos && currentPos <= toFragmentCoord) {
           continue;
         }
 
-        // Add to boundary if it's a forcefield shard
-        if (isForceFieldShard(forceFieldEntityId, currentPos)) {
+        // Add to boundary if it's a forcefield fragment
+        if (isForceFieldFragment(forceFieldEntityId, currentPos)) {
           tempBoundary[count] = currentPos;
           count++;
         }
@@ -113,11 +113,11 @@ function computeBoundaryShards(
 
   // Copy to a right-sized array
   // TODO: instead of iterating we could just return the array and the count
-  Vec3[] memory boundaryShards = new Vec3[](count);
+  Vec3[] memory boundaryFragments = new Vec3[](count);
   for (uint256 i = 0; i < count; i++) {
-    boundaryShards[i] = tempBoundary[i];
+    boundaryFragments[i] = tempBoundary[i];
   }
-  return boundaryShards;
+  return boundaryFragments;
 }
 
 function addBoundary(
@@ -128,9 +128,9 @@ function addBoundary(
   Vec3[] memory tempBoundary,
   uint256 count
 ) view returns (uint256) {
-  Vec3 shardCoord = vec3(int32(x), int32(y), int32(z));
-  if (isForceFieldShard(forceFieldEntityId, shardCoord)) {
-    tempBoundary[count] = shardCoord;
+  Vec3 fragmentCoord = vec3(int32(x), int32(y), int32(z));
+  if (isForceFieldFragment(forceFieldEntityId, fragmentCoord)) {
+    tempBoundary[count] = fragmentCoord;
     return count + 1;
   }
   return count;
@@ -139,9 +139,9 @@ function addBoundary(
 contract ForceFieldSystem is System {
   function expandForceField(
     EntityId forceFieldEntityId,
-    Vec3 refShardCoord,
-    Vec3 fromShardCoord,
-    Vec3 toShardCoord
+    Vec3 refFragmentCoord,
+    Vec3 fromFragmentCoord,
+    Vec3 toFragmentCoord
   ) public {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, forceFieldEntityId);
@@ -150,37 +150,37 @@ contract ForceFieldSystem is System {
     require(objectTypeId == ObjectTypes.ForceField, "Invalid object type");
     EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
 
-    require(fromShardCoord <= toShardCoord, "Invalid coordinates");
+    require(fromFragmentCoord <= toFragmentCoord, "Invalid coordinates");
 
     require(
-      refShardCoord.isAdjacentToCuboid(fromShardCoord, toShardCoord),
-      "Reference shard is not adjacent to new shards"
+      refFragmentCoord.isAdjacentToCuboid(fromFragmentCoord, toFragmentCoord),
+      "Reference fragment is not adjacent to new fragments"
     );
 
-    require(isForceFieldShard(forceFieldEntityId, refShardCoord), "Reference shard is not part of forcefield");
+    require(isForceFieldFragment(forceFieldEntityId, refFragmentCoord), "Reference fragment is not part of forcefield");
 
-    uint128 addedShards = 0;
+    uint128 addedFragments = 0;
 
-    for (int32 x = fromShardCoord.x(); x <= toShardCoord.x(); x++) {
-      for (int32 y = fromShardCoord.y(); y <= toShardCoord.y(); y++) {
-        for (int32 z = fromShardCoord.z(); z <= toShardCoord.z(); z++) {
-          Vec3 shardCoord = vec3(x, y, z);
+    for (int32 x = fromFragmentCoord.x(); x <= toFragmentCoord.x(); x++) {
+      for (int32 y = fromFragmentCoord.y(); y <= toFragmentCoord.y(); y++) {
+        for (int32 z = fromFragmentCoord.z(); z <= toFragmentCoord.z(); z++) {
+          Vec3 fragmentCoord = vec3(x, y, z);
           // If already belongs to the forcefield, skip it
-          if (isForceFieldShard(forceFieldEntityId, shardCoord)) {
+          if (isForceFieldFragment(forceFieldEntityId, fragmentCoord)) {
             continue;
           }
 
-          require(!isForceFieldShardActive(shardCoord), "Can't expand to existing forcefield");
-          setupForceFieldShard(forceFieldEntityId, shardCoord);
-          addedShards++;
+          require(!isForceFieldFragmentActive(fragmentCoord), "Can't expand to existing forcefield");
+          setupForceFieldFragment(forceFieldEntityId, fragmentCoord);
+          addedFragments++;
         }
       }
     }
 
-    // Increase drain rate per new shard
-    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + MACHINE_ENERGY_DRAIN_RATE * addedShards);
+    // Increase drain rate per new fragment
+    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + MACHINE_ENERGY_DRAIN_RATE * addedFragments);
 
-    // TODO: should we include a list of added shards?
+    // TODO: should we include a list of added fragments?
     notify(playerEntityId, ExpandForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
 
     callChipOrRevert(
@@ -190,51 +190,55 @@ contract ForceFieldSystem is System {
   }
 
   /**
-   * @notice Contract a forcefield by removing shards within a specified cuboid
+   * @notice Contract a forcefield by removing fragments within a specified cuboid
    * @param forceFieldEntityId The forcefield entity ID
-   * @param fromShardCoord The starting coordinate of the cuboid to remove
-   * @param toShardCoord The ending coordinate of the cuboid to remove
-   * @param parents Indicates the parent of each boundary shard in the spanning tree, parents must be ordered (each parent comes before its children)
+   * @param fromFragmentCoord The starting coordinate of the cuboid to remove
+   * @param toFragmentCoord The ending coordinate of the cuboid to remove
+   * @param parents Indicates the parent of each boundary fragment in the spanning tree, parents must be ordered (each parent comes before its children)
    */
   function contractForceField(
     EntityId forceFieldEntityId,
-    Vec3 fromShardCoord,
-    Vec3 toShardCoord,
+    Vec3 fromFragmentCoord,
+    Vec3 toFragmentCoord,
     uint256[] memory parents
   ) public {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     Vec3 forceFieldCoord = requireInPlayerInfluence(playerCoord, forceFieldEntityId);
 
-    require(fromShardCoord <= toShardCoord, "Invalid coordinates");
+    require(fromFragmentCoord <= toFragmentCoord, "Invalid coordinates");
 
     ObjectTypeId objectTypeId = ObjectType._get(forceFieldEntityId);
     require(objectTypeId == ObjectTypes.ForceField, "Invalid object type");
     EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
 
     {
-      // First, identify all boundary shards (shards adjacent to the cuboid to be removed)
-      Vec3[] memory boundaryShards = computeBoundaryShards(forceFieldEntityId, fromShardCoord, toShardCoord);
-      require(boundaryShards.length > 0, "No boundary shards found");
+      // First, identify all boundary fragments (fragments adjacent to the cuboid to be removed)
+      Vec3[] memory boundaryFragments = computeBoundaryFragments(
+        forceFieldEntityId,
+        fromFragmentCoord,
+        toFragmentCoord
+      );
+      require(boundaryFragments.length > 0, "No boundary fragments found");
 
-      // Validate that boundaryShards are connected
-      require(validateSpanningTree(boundaryShards, parents), "Invalid spanning tree");
+      // Validate that boundaryFragments are connected
+      require(validateSpanningTree(boundaryFragments, parents), "Invalid spanning tree");
     }
 
-    uint128 removedShards = 0;
+    uint128 removedFragments = 0;
 
     {
-      Vec3 forceFieldShardCoord = forceFieldCoord.toForceFieldShardCoord();
-      // Now we can safely remove the shards
-      for (int32 x = fromShardCoord.x(); x <= toShardCoord.x(); x++) {
-        for (int32 y = fromShardCoord.y(); y <= toShardCoord.y(); y++) {
-          for (int32 z = fromShardCoord.z(); z <= toShardCoord.z(); z++) {
-            Vec3 shardCoord = vec3(x, y, z);
-            require(forceFieldShardCoord != shardCoord, "Can't remove forcefield's shard");
+      Vec3 forceFieldFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
+      // Now we can safely remove the fragments
+      for (int32 x = fromFragmentCoord.x(); x <= toFragmentCoord.x(); x++) {
+        for (int32 y = fromFragmentCoord.y(); y <= toFragmentCoord.y(); y++) {
+          for (int32 z = fromFragmentCoord.z(); z <= toFragmentCoord.z(); z++) {
+            Vec3 fragmentCoord = vec3(x, y, z);
+            require(forceFieldFragmentCoord != fragmentCoord, "Can't remove forcefield's fragment");
 
-            // Only count if the shard exists
-            if (isForceFieldShard(forceFieldEntityId, shardCoord)) {
-              removeForceFieldShard(shardCoord);
-              removedShards++;
+            // Only count if the fragment exists
+            if (isForceFieldFragment(forceFieldEntityId, fragmentCoord)) {
+              removeForceFieldFragment(fragmentCoord);
+              removedFragments++;
             }
           }
         }
@@ -242,9 +246,9 @@ contract ForceFieldSystem is System {
     }
 
     // Update drain rate
-    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - MACHINE_ENERGY_DRAIN_RATE * removedShards);
+    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - MACHINE_ENERGY_DRAIN_RATE * removedFragments);
 
-    // TODO: should we include a list of removed shards?
+    // TODO: should we include a list of removed fragments?
     notify(playerEntityId, ContractForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
 
     // Call the chip if it exists

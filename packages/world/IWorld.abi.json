@@ -371,12 +371,12 @@
         "internalType": "EntityId"
       },
       {
-        "name": "fromShardCoord",
+        "name": "fromFragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       },
       {
-        "name": "toShardCoord",
+        "name": "toFragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       },
@@ -564,17 +564,17 @@
         "internalType": "EntityId"
       },
       {
-        "name": "refShardCoord",
+        "name": "refFragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       },
       {
-        "name": "fromShardCoord",
+        "name": "fromFragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       },
       {
-        "name": "toShardCoord",
+        "name": "toFragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       }
@@ -2203,7 +2203,7 @@
     "name": "oracleSetInitialEnergyPool",
     "inputs": [
       {
-        "name": "shardCoord",
+        "name": "fragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       },

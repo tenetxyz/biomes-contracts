@@ -14,15 +14,15 @@ import { Vec3 } from "../../Vec3.sol";
 interface IForceFieldSystem {
   function expandForceField(
     EntityId forceFieldEntityId,
-    Vec3 refShardCoord,
-    Vec3 fromShardCoord,
-    Vec3 toShardCoord
+    Vec3 refFragmentCoord,
+    Vec3 fromFragmentCoord,
+    Vec3 toFragmentCoord
   ) external;
 
   function contractForceField(
     EntityId forceFieldEntityId,
-    Vec3 fromShardCoord,
-    Vec3 toShardCoord,
+    Vec3 fromFragmentCoord,
+    Vec3 toFragmentCoord,
     uint256[] memory parents
   ) external;
 }
