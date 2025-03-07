@@ -363,6 +363,101 @@
   },
   {
     "type": "function",
+    "name": "computeBoundaryFragments",
+    "inputs": [
+      {
+        "name": "forceFieldEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "fromFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "toFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint96[]",
+        "internalType": "Vec3[]"
+      },
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "contractForceField",
+    "inputs": [
+      {
+        "name": "forceFieldEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "fromFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "toFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "parents",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "contractForceFieldWithExtraData",
+    "inputs": [
+      {
+        "name": "forceFieldEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "fromFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "toFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "parents",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "craft",
     "inputs": [
       {
@@ -521,6 +616,67 @@
         "name": "inventoryEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "expandForceField",
+    "inputs": [
+      {
+        "name": "forceFieldEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "refFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "fromFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "toFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "expandForceFieldWithExtraData",
+    "inputs": [
+      {
+        "name": "forceFieldEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "refFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "fromFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "toFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -1851,19 +2007,6 @@
         "name": "entityCoord",
         "type": "uint96",
         "internalType": "Vec3"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "hitMachine",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
       }
     ],
     "outputs": [],
@@ -3273,6 +3416,35 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "validateSpanningTree",
+    "inputs": [
+      {
+        "name": "boundaryFragments",
+        "type": "uint96[]",
+        "internalType": "Vec3[]"
+      },
+      {
+        "name": "len",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "parents",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "pure"
   },
   {
     "type": "function",

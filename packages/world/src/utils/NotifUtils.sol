@@ -103,6 +103,14 @@ struct WakeupNotifData {
   Vec3 bedCoord;
 }
 
+struct ExpandForceFieldNotifData {
+  EntityId forceFieldEntityId;
+}
+
+struct ContractForceFieldNotifData {
+  EntityId forceFieldEntityId;
+}
+
 function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {
   PlayerActionNotif._set(
     playerEntityId,
@@ -229,5 +237,25 @@ function notify(EntityId playerEntityId, WakeupNotifData memory wakeupNotifData)
   PlayerActionNotif._set(
     playerEntityId,
     PlayerActionNotifData({ actionType: ActionType.Wakeup, actionData: abi.encode(wakeupNotifData) })
+  );
+}
+
+function notify(EntityId playerEntityId, ExpandForceFieldNotifData memory expandForceFieldNotifData) {
+  PlayerActionNotif._set(
+    playerEntityId,
+    PlayerActionNotifData({
+      actionType: ActionType.ExpandForceField,
+      actionData: abi.encode(expandForceFieldNotifData)
+    })
+  );
+}
+
+function notify(EntityId playerEntityId, ContractForceFieldNotifData memory contractForceFieldNotifData) {
+  PlayerActionNotif._set(
+    playerEntityId,
+    PlayerActionNotifData({
+      actionType: ActionType.ContractForceField,
+      actionData: abi.encode(contractForceFieldNotifData)
+    })
   );
 }

@@ -34,7 +34,7 @@ library TransferLib {
     uint128 energyCost = PLAYER_TRANSFER_ENERGY_COST;
 
     // TODO: what if it is not a smart chest?
-    EntityId forceFieldEntityId = getForceField(chestCoord);
+    (EntityId forceFieldEntityId, ) = getForceField(chestCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
       energyCost += SMART_CHEST_ENERGY_COST;

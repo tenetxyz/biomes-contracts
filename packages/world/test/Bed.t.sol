@@ -17,8 +17,9 @@ import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { BedPlayer, BedPlayerData } from "../src/codegen/tables/BedPlayer.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
-import { ExploredChunk, ExploredChunkByIndex, ForceField, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
+import { ExploredChunk, ExploredChunkByIndex, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
 import { IBedChip } from "../src/prototypes/IBedChip.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -27,7 +28,7 @@ import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
-import { TestUtils } from "./utils/TestUtils.sol";
+import { TestEnergyUtils } from "./utils/TestUtils.sol";
 
 contract TestBedChip is IBedChip, System {
   function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
@@ -279,7 +280,7 @@ contract BedTest is BiomesTest {
     vm.warp(vm.getBlockTimestamp() + 1000 seconds + 500 seconds);
 
     // Then we charge it again with the initial charge
-    TestUtils.updateEnergyLevel(forcefieldEntityId);
+    TestEnergyUtils.updateEnergyLevel(forcefieldEntityId);
     Energy.setEnergy(forcefieldEntityId, initialForcefieldEnergy);
 
     // Then we wait for another 1000 seconds so the forcefield is fully depleted again
@@ -342,7 +343,7 @@ contract BedTest is BiomesTest {
     vm.expectRevert("Player died while sleeping");
     world.wakeup(coord);
 
-    TestUtils.updateEnergyLevel(forcefieldEntityId);
+    TestEnergyUtils.updateEnergyLevel(forcefieldEntityId);
 
     EnergyData memory ffEnergyData = Energy.get(forcefieldEntityId);
     assertEq(ffEnergyData.energy, 0, "Forcefield energy wasn't drained correctly");
@@ -358,7 +359,7 @@ contract BedTest is BiomesTest {
   function testRemoveDeadPlayerFromBed() public {
     (address alice, EntityId aliceEntityId, Vec3 coord) = setupFlatChunkWithPlayer();
 
-    Vec3 bedCoord = coord - vec3(2, 0, 0);
+    Vec3 bedCoord = coord + vec3(2, 0, 0);
 
     uint128 initialPlayerEnergy = Energy.getEnergy(aliceEntityId);
 

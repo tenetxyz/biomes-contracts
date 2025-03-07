@@ -15,8 +15,8 @@ import { InitialEnergyPool as _InitialEnergyPool } from "../codegen/tables/Initi
 import { LocalEnergyPool as _LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { ExploredChunk as _ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
 import { ExploredChunkByIndex as _ExploredChunkByIndex } from "../codegen/tables/ExploredChunkByIndex.sol";
-import { ForceField as _ForceField } from "../codegen/tables/ForceField.sol";
-import { ForceFieldMetadata as _ForceFieldMetadata } from "../codegen/tables/ForceFieldMetadata.sol";
+import { ForceFieldFragment as _ForceFieldFragment, ForceFieldFragmentData } from "../codegen/tables/ForceFieldFragment.sol";
+import { ForceFieldFragmentPosition as _ForceFieldFragmentPosition } from "../codegen/tables/ForceFieldFragmentPosition.sol";
 import { OreCommitment as _OreCommitment } from "../codegen/tables/OreCommitment.sol";
 import { MinedOrePosition as _MinedOrePosition } from "../codegen/tables/MinedOrePosition.sol";
 
@@ -41,12 +41,46 @@ library Vec3Storage {
     }
   }
 
+  function getAsBytes(
+    ResourceId tableId,
+    FieldLayout fieldLayout,
+    Vec3 position
+  ) internal view returns (bytes memory output) {
+    (output, , ) = StoreSwitch.getRecord(tableId, _encodeKeyTuple(position), fieldLayout);
+  }
+
+  function _getAsBytes(
+    ResourceId tableId,
+    FieldLayout fieldLayout,
+    Vec3 position
+  ) internal view returns (bytes memory output) {
+    (output, , ) = StoreCore.getRecord(tableId, _encodeKeyTuple(position), fieldLayout);
+  }
+
   function get(ResourceId tableId, FieldLayout fieldLayout, Vec3 vec) internal view returns (bytes32) {
     return StoreSwitch.getStaticField(tableId, _encodeKeyTuple(vec), 0, fieldLayout);
   }
 
   function _get(ResourceId tableId, FieldLayout fieldLayout, Vec3 vec) internal view returns (bytes32) {
     return StoreCore.getStaticField(tableId, _encodeKeyTuple(vec), 0, fieldLayout);
+  }
+
+  function getStatic(
+    ResourceId tableId,
+    FieldLayout fieldLayout,
+    uint8 fieldIndex,
+    Vec3 vec
+  ) internal view returns (bytes32) {
+    return StoreSwitch.getStaticField(tableId, _encodeKeyTuple(vec), fieldIndex, fieldLayout);
+  }
+
+  function _getStatic(
+    ResourceId tableId,
+    FieldLayout fieldLayout,
+    uint8 fieldIndex,
+    Vec3 vec
+  ) internal view returns (bytes32) {
+    return StoreCore.getStaticField(tableId, _encodeKeyTuple(vec), fieldIndex, fieldLayout);
   }
 
   function set(ResourceId tableId, bytes32 key, Vec3 vec) internal {
@@ -318,71 +352,81 @@ library ExploredChunkByIndex {
   }
 }
 
-library ForceField {
-  function get(Vec3 position) internal view returns (EntityId value) {
-    return EntityId.wrap(Vec3Storage.get(_ForceField._tableId, _ForceField._fieldLayout, position));
+library ForceFieldFragment {
+  function get(Vec3 position) internal view returns (ForceFieldFragmentData memory value) {
+    bytes memory staticData = Vec3Storage.getAsBytes(
+      _ForceFieldFragment._tableId,
+      _ForceFieldFragment._fieldLayout,
+      position
+    );
+    (value.entityId, value.forceFieldId, value.forceFieldCreatedAt) = _ForceFieldFragment.decodeStatic(staticData);
   }
 
-  function _get(Vec3 position) internal view returns (EntityId value) {
-    return EntityId.wrap(Vec3Storage._get(_ForceField._tableId, _ForceField._fieldLayout, position));
+  function _get(Vec3 position) internal view returns (ForceFieldFragmentData memory value) {
+    bytes memory staticData = Vec3Storage._getAsBytes(
+      _ForceFieldFragment._tableId,
+      _ForceFieldFragment._fieldLayout,
+      position
+    );
+    (value.entityId, value.forceFieldId, value.forceFieldCreatedAt) = _ForceFieldFragment.decodeStatic(staticData);
   }
 
-  function set(Vec3 position, EntityId value) internal {
-    Vec3Storage.set(_ForceField._tableId, _ForceField._fieldLayout, position, abi.encodePacked(value));
+  function _getForceFieldId(Vec3 position) internal view returns (EntityId) {
+    bytes32 value = Vec3Storage._getStatic(_ForceFieldFragment._tableId, _ForceFieldFragment._fieldLayout, 2, position);
+    return EntityId.wrap(value);
   }
 
-  function _set(Vec3 position, EntityId value) internal {
-    Vec3Storage._set(_ForceField._tableId, _ForceField._fieldLayout, position, abi.encodePacked(value));
+  function set(Vec3 position, ForceFieldFragmentData memory value) internal {
+    bytes memory staticData = _ForceFieldFragment.encodeStatic(
+      value.entityId,
+      value.forceFieldId,
+      value.forceFieldCreatedAt
+    );
+    Vec3Storage.set(_ForceFieldFragment._tableId, _ForceFieldFragment._fieldLayout, position, staticData);
+  }
+
+  function _set(Vec3 position, ForceFieldFragmentData memory value) internal {
+    bytes memory staticData = _ForceFieldFragment.encodeStatic(
+      value.entityId,
+      value.forceFieldId,
+      value.forceFieldCreatedAt
+    );
+    Vec3Storage._set(_ForceFieldFragment._tableId, _ForceFieldFragment._fieldLayout, position, staticData);
   }
 
   function deleteRecord(Vec3 position) internal {
-    Vec3Storage.deleteRecord(_ForceField._tableId, position);
+    Vec3Storage.deleteRecord(_ForceFieldFragment._tableId, position);
   }
 
   function _deleteRecord(Vec3 position) internal {
-    Vec3Storage._deleteRecord(_ForceField._tableId, position);
+    Vec3Storage._deleteRecord(_ForceFieldFragment._tableId, position);
   }
 }
 
-library ForceFieldMetadata {
-  function get(Vec3 position) internal view returns (uint128 value) {
-    return uint128(bytes16(Vec3Storage.get(_ForceFieldMetadata._tableId, _ForceFieldMetadata._fieldLayout, position)));
+library ForceFieldFragmentPosition {
+  function get(EntityId entityId) internal view returns (Vec3 position) {
+    return Vec3Storage.get(_ForceFieldFragmentPosition._tableId, _ForceFieldFragmentPosition._fieldLayout, entityId.unwrap());
   }
 
-  function _get(Vec3 position) internal view returns (uint128 value) {
-    return uint128(bytes16(Vec3Storage._get(_ForceFieldMetadata._tableId, _ForceFieldMetadata._fieldLayout, position)));
+  function _get(EntityId entityId) internal view returns (Vec3 position) {
+    return
+      Vec3Storage._get(_ForceFieldFragmentPosition._tableId, _ForceFieldFragmentPosition._fieldLayout, entityId.unwrap());
   }
 
-  function getTotalMassInside(Vec3 position) internal view returns (uint128 value) {
-    return get(position);
+  function set(EntityId entityId, Vec3 position) internal {
+    Vec3Storage.set(_ForceFieldFragmentPosition._tableId, entityId.unwrap(), position);
   }
 
-  function _getTotalMassInside(Vec3 position) internal view returns (uint128 value) {
-    return _get(position);
+  function _set(EntityId entityId, Vec3 position) internal {
+    Vec3Storage._set(_ForceFieldFragmentPosition._tableId, entityId.unwrap(), position);
   }
 
-  function set(Vec3 position, uint128 value) internal {
-    Vec3Storage.set(_ForceFieldMetadata._tableId, _ForceFieldMetadata._fieldLayout, position, abi.encodePacked(value));
+  function deleteRecord(EntityId entityId) internal {
+    Vec3Storage.deleteRecord(_ForceFieldFragmentPosition._tableId, entityId.unwrap());
   }
 
-  function _set(Vec3 position, uint128 value) internal {
-    Vec3Storage._set(_ForceFieldMetadata._tableId, _ForceFieldMetadata._fieldLayout, position, abi.encodePacked(value));
-  }
-
-  function setTotalMassInside(Vec3 position, uint128 value) internal {
-    set(position, value);
-  }
-
-  function _setTotalMassInside(Vec3 position, uint128 value) internal {
-    _set(position, value);
-  }
-
-  function deleteRecord(Vec3 position) internal {
-    Vec3Storage.deleteRecord(_ForceFieldMetadata._tableId, position);
-  }
-
-  function _deleteRecord(Vec3 position) internal {
-    Vec3Storage._deleteRecord(_ForceFieldMetadata._tableId, position);
+  function _deleteRecord(EntityId entityId) internal {
+    Vec3Storage._deleteRecord(_ForceFieldFragmentPosition._tableId, entityId.unwrap());
   }
 }
 

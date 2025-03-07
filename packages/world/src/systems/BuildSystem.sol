@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -12,25 +13,29 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ActionType, Direction } from "../codegen/common.sol";
 
-import { ForceFieldMetadata, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
+import { PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
-import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
-
-import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
-import { TerrainLib } from "./libraries/TerrainLib.sol";
-import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
-import { MoveLib } from "./libraries/MoveLib.sol";
-import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
+import { transferEnergyToPool, updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getPlayer } from "../utils/EntityUtils.sol";
+import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
+import { callChipOrRevert } from "../utils/callChip.sol";
+
+import { IForceFieldFragmentChip } from "../prototypes/IForceFieldChip.sol";
+
+import { TerrainLib } from "./libraries/TerrainLib.sol";
+import { MoveLib } from "./libraries/MoveLib.sol";
+
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
+import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
 
 library BuildLib {
   function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) public returns (EntityId) {
@@ -48,6 +53,43 @@ library BuildLib {
     ObjectType._set(terrainEntityId, buildObjectTypeId);
 
     return terrainEntityId;
+  }
+
+  function _requireBuildsAllowed(
+    EntityId playerEntityId,
+    EntityId baseEntityId,
+    ObjectTypeId objectTypeId,
+    Vec3[] memory coords,
+    bytes memory extraData
+  ) public {
+    for (uint256 i = 0; i < coords.length; i++) {
+      Vec3 coord = coords[i];
+      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(coord);
+
+      // If placing a forcefield, there should be no active forcefield at coord
+      if (objectTypeId == ObjectTypes.ForceField) {
+        require(!forceFieldEntityId.exists(), "Force field overlaps with another force field");
+        setupForceField(baseEntityId, coord);
+      }
+
+      if (forceFieldEntityId.exists()) {
+        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+        if (machineData.energy > 0) {
+          bytes memory onBuildCall = abi.encodeCall(
+            IForceFieldFragmentChip.onBuild,
+            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
+          );
+
+          // We know fragment is active because its forcefield exists, so we can use its chip
+          ResourceId fragmentChip = fragmentEntityId.getChip();
+          if (fragmentChip.unwrap() != 0) {
+            callChipOrRevert(fragmentChip, onBuildCall);
+          } else {
+            callChipOrRevert(forceFieldEntityId.getChip(), onBuildCall);
+          }
+        }
+      }
+    }
   }
 }
 
@@ -77,12 +119,6 @@ contract BuildSystem is System {
       BaseEntity._set(relativeEntityId, baseEntityId);
     }
 
-    Vec3 forceFieldShardCoord = baseCoord.toForceFieldShardCoord();
-    ForceFieldMetadata._setTotalMassInside(
-      forceFieldShardCoord,
-      ForceFieldMetadata._getTotalMassInside(forceFieldShardCoord) + mass
-    );
-
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
 
     removeFromInventory(playerEntityId, buildObjectTypeId, 1);
@@ -93,7 +129,7 @@ contract BuildSystem is System {
     );
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
-    ForceFieldLib.requireBuildsAllowed(playerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
+    BuildLib._requireBuildsAllowed(playerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
 
     return baseEntityId;
   }

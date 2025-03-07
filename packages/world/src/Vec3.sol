@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { Position } from "./codegen/tables/Position.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { Direction } from "./codegen/common.sol";
-import { CHUNK_SIZE, FORCE_FIELD_SHARD_DIM, LOCAL_ENERGY_POOL_SHARD_DIM } from "./Constants.sol";
+import { CHUNK_SIZE, FORCE_FIELD_FRAGMENT_DIM, LOCAL_ENERGY_POOL_SHARD_DIM } from "./Constants.sol";
 
 // Vec3 stores 3 packed int32 values (x, y, z)
 type Vec3 is uint96;
@@ -20,6 +20,18 @@ function eq(Vec3 a, Vec3 b) pure returns (bool) {
 
 function neq(Vec3 a, Vec3 b) pure returns (bool) {
   return Vec3.unwrap(a) != Vec3.unwrap(b);
+}
+
+function lt(Vec3 a, Vec3 b) pure returns (bool) {
+  (int32 minX, int32 minY, int32 minZ) = a.xyz();
+  (int32 maxX, int32 maxY, int32 maxZ) = b.xyz();
+  return minX < maxX && minY < maxY && minZ < maxZ;
+}
+
+function leq(Vec3 a, Vec3 b) pure returns (bool) {
+  (int32 minX, int32 minY, int32 minZ) = a.xyz();
+  (int32 maxX, int32 maxY, int32 maxZ) = b.xyz();
+  return minX <= maxX && minY <= maxY && minZ <= maxZ;
 }
 
 function add(Vec3 a, Vec3 b) pure returns (Vec3) {
@@ -81,6 +93,10 @@ library Vec3Lib {
     return int32(uint32(Vec3.unwrap(a) & 0xFFFFFFFF));
   }
 
+  function xyz(Vec3 self) internal pure returns (int32, int32, int32) {
+    return (self.x(), self.y(), self.z());
+  }
+
   function mul(Vec3 a, int32 scalar) internal pure returns (Vec3) {
     return vec3(x(a) * scalar, y(a) * scalar, z(a) * scalar);
   }
@@ -110,6 +126,12 @@ library Vec3Lib {
     int32 dz = abs(z(a) - z(b));
 
     return max3(dx, dy, dz);
+  }
+
+  function clamp(Vec3 self, Vec3 min, Vec3 max) internal pure returns (Vec3) {
+    if (self < min) return min;
+    if (max < self) return max;
+    return self;
   }
 
   function getNeighbor(Vec3 self, Direction direction) internal pure returns (Vec3) {
@@ -156,6 +178,41 @@ library Vec3Lib {
     revert("Direction not supported for rotation");
   }
 
+  // Check if the coord is adjacent to the cuboid
+  function isAdjacentToCuboid(Vec3 self, Vec3 from, Vec3 to) internal pure returns (bool) {
+    // X-axis adjacency (left or right face)
+    if (
+      (self.x() == from.x() - 1 || self.x() == to.x() + 1) &&
+      self.y() >= from.y() &&
+      self.y() <= to.y() &&
+      self.z() >= from.z() &&
+      self.z() <= to.z()
+    ) {
+      return true;
+    }
+    // Y-axis adjacency (bottom or top face)
+    if (
+      (self.y() == from.y() - 1 || self.y() == to.y() + 1) &&
+      self.x() >= from.x() &&
+      self.x() <= to.x() &&
+      self.z() >= from.z() &&
+      self.z() <= to.z()
+    ) {
+      return true;
+    }
+    // Z-axis adjacency (front or back face)
+    if (
+      (self.z() == from.z() - 1 || self.z() == to.z() + 1) &&
+      self.x() >= from.x() &&
+      self.x() <= to.x() &&
+      self.y() >= from.y() &&
+      self.y() <= to.y()
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   function inSurroundingCube(Vec3 self, Vec3 other, int32 radius) internal pure returns (bool) {
     return chebyshevDistance(self, other) <= radius;
   }
@@ -173,23 +230,19 @@ library Vec3Lib {
     return a.floorDiv(CHUNK_SIZE);
   }
 
-  function toShardCoord(Vec3 self, int32 shardDim, bool ignoreY) internal pure returns (Vec3) {
-    return
-      vec3(
-        _floorDiv(self.x(), shardDim),
-        ignoreY ? int32(0) : _floorDiv(self.y(), shardDim),
-        _floorDiv(self.z(), shardDim)
-      );
-  }
-
-  function toForceFieldShardCoord(Vec3 coord) internal pure returns (Vec3) {
-    return toShardCoord(coord, FORCE_FIELD_SHARD_DIM, false);
+  function toForceFieldFragmentCoord(Vec3 coord) internal pure returns (Vec3) {
+    return coord.floorDiv(FORCE_FIELD_FRAGMENT_DIM);
   }
 
   // Note: Local Energy Pool shards are 2D for now, but the table supports 3D
   // Thats why the Y is ignored, and 0 in the util functions
   function toLocalEnergyPoolShardCoord(Vec3 coord) internal pure returns (Vec3) {
-    return toShardCoord(coord, LOCAL_ENERGY_POOL_SHARD_DIM, true);
+    return
+      vec3(
+        _floorDiv(coord.x(), LOCAL_ENERGY_POOL_SHARD_DIM),
+        int32(0),
+        _floorDiv(coord.z(), LOCAL_ENERGY_POOL_SHARD_DIM)
+      );
   }
 
   function toString(Vec3 a) internal pure returns (string memory) {
@@ -198,7 +251,7 @@ library Vec3Lib {
 }
 
 using Vec3Lib for Vec3 global;
-using { eq as ==, neq as !=, add as +, sub as - } for Vec3 global;
+using { eq as ==, neq as !=, add as +, sub as -, leq as <=, lt as < } for Vec3 global;
 
 // ======== Helper Functions ========
 

@@ -20,11 +20,14 @@ library EntityIdLib {
     return EntityId.unwrap(base) == bytes32(0) ? self : base;
   }
 
-  // TODO: Not sure if it should be included here or if it should be a standalone util
   function getChipAddress(EntityId entityId) internal view returns (address) {
-    ResourceId chipSystemId = Chip._getChipSystemId(entityId);
+    ResourceId chipSystemId = entityId.getChip();
     (address chipAddress, ) = Systems._get(chipSystemId);
     return chipAddress;
+  }
+
+  function getChip(EntityId entityId) internal view returns (ResourceId) {
+    return Chip._getChipSystemId(entityId);
   }
 
   function exists(EntityId self) internal pure returns (bool) {

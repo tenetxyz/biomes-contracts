@@ -13,7 +13,7 @@ import { Mass } from "../src/codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { LocalEnergyPool, Position, ForceField, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../src/utils/Vec3Storage.sol";
+import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerActivity } from "../src/codegen/tables/PlayerActivity.sol";
@@ -28,8 +28,10 @@ import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
+
+import { LocalEnergyPool, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../src/utils/Vec3Storage.sol";
 import { energyToMass } from "../src/utils/EnergyUtils.sol";
-import { TestUtils } from "./utils/TestUtils.sol";
+import { TestInventoryUtils, TestForceFieldUtils, TestEnergyUtils } from "./utils/TestUtils.sol";
 import { BiomesAssertions } from "./BiomesAssertions.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
@@ -51,7 +53,9 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     address owner = NamespaceOwner.get(rootNamespace);
     vm.prank(owner);
     world.transferOwnership(rootNamespace, address(this));
-    TestUtils.init(address(TestUtils));
+    TestInventoryUtils.init(address(TestInventoryUtils));
+    TestForceFieldUtils.init(address(TestForceFieldUtils));
+    TestEnergyUtils.init(address(TestEnergyUtils));
   }
 
   function randomEntityId() internal returns (EntityId) {
@@ -137,8 +141,6 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     uint256 blockNumber = block.number - 5;
 
     address alice = vm.randomAddress();
-    Vec3 spawnCoord = world.getRandomSpawnCoord(blockNumber, alice);
-
     vm.prank(alice);
     EntityId aliceEntityId = world.randomSpawn(blockNumber, y);
 
@@ -257,8 +259,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
   function setupForceField(Vec3 coord) internal returns (EntityId) {
     // Set forcefield with no energy
     EntityId forceFieldEntityId = setObjectAtCoord(coord, ObjectTypes.ForceField);
-    Vec3 shardCoord = coord.toForceFieldShardCoord();
-    ForceField.set(shardCoord, forceFieldEntityId);
+    TestForceFieldUtils.setupForceField(forceFieldEntityId, coord);
     return forceFieldEntityId;
   }
 

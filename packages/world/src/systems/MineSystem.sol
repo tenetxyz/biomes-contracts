@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
 import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
@@ -18,29 +19,30 @@ import { Position } from "../utils/Vec3Storage.sol";
 import { MinedOrePosition } from "../utils/Vec3Storage.sol";
 import { OreCommitment } from "../utils/Vec3Storage.sol";
 
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
-import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { mulDiv } from "../utils/MathUtils.sol";
-import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { getOrCreateEntityAt, getPlayer } from "../utils/EntityUtils.sol";
+import { callChipOrRevert } from "../utils/callChip.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
-import { ForceFieldLib } from "./libraries/ForceFieldLib.sol";
 
+import { IForceFieldFragmentChip } from "../prototypes/IForceFieldChip.sol";
+
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
 import { PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 
 library MineLib {
-  function mineRandomOre(Vec3 coord) public returns (ObjectTypeId) {
+  function _mineRandomOre(Vec3 coord) public returns (ObjectTypeId) {
     Vec3 chunkCoord = coord.toChunkCoord();
     uint256 commitment = OreCommitment._get(chunkCoord);
     // We can't get blockhash of current block
@@ -103,23 +105,52 @@ library MineLib {
     return ore;
   }
 
-  function processMassReduction(EntityId playerEntityId, EntityId minedEntityId) public returns (uint128) {
+  function _processMassReduction(EntityId playerEntityId, EntityId minedEntityId) public returns (uint128) {
     (uint128 toolMassReduction, ) = useEquipped(playerEntityId);
     uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassReduction;
     uint128 massLeft = Mass._getMass(minedEntityId);
     return massLeft <= totalMassReduction ? 0 : massLeft - totalMassReduction;
   }
 
-  function mineBed(EntityId bedEntityId, Vec3 bedCoord) public {
+  function _mineBed(EntityId bedEntityId, Vec3 bedCoord) public {
     EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(bedEntityId);
     if (sleepingPlayerId.exists()) {
-      EntityId forceFieldEntityId = getForceField(bedCoord);
+      (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
       EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
       EnergyData memory playerData = updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, machineData, bedCoord);
       removePlayerFromBed(sleepingPlayerId, bedEntityId, forceFieldEntityId);
 
       // This kills the player
       transferEnergyToPool(sleepingPlayerId, bedCoord, playerData.energy);
+    }
+  }
+
+  function _requireMinesAllowed(
+    EntityId playerEntityId,
+    ObjectTypeId objectTypeId,
+    Vec3[] memory coords,
+    bytes memory extraData
+  ) public {
+    for (uint256 i = 0; i < coords.length; i++) {
+      Vec3 coord = coords[i];
+      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(coord);
+      if (forceFieldEntityId.exists()) {
+        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+        if (machineData.energy > 0) {
+          bytes memory onMineCall = abi.encodeCall(
+            IForceFieldFragmentChip.onMine,
+            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
+          );
+
+          // We know fragment is active because its forcefield exists, so we can use its chip
+          ResourceId fragmentChip = fragmentEntityId.getChip();
+          if (fragmentChip.unwrap() != 0) {
+            callChipOrRevert(fragmentChip, onMineCall);
+          } else {
+            callChipOrRevert(forceFieldEntityId.getChip(), onMineCall);
+          }
+        }
+      }
     }
   }
 }
@@ -154,7 +185,7 @@ contract MineSystem is System {
     Vec3 baseCoord = Position._get(baseEntityId);
 
     // Chip needs to be detached first
-    require(baseEntityId.getChipAddress() == address(0), "Cannot mine a chipped block");
+    require(baseEntityId.getChip().unwrap() == 0, "Cannot mine a chipped block");
     if (ObjectTypeLib.isMachine(mineObjectTypeId)) {
       require(updateEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
     }
@@ -162,11 +193,12 @@ contract MineSystem is System {
     // First coord will be the base coord, the rest is relative schema coords
     Vec3[] memory coords = mineObjectTypeId.getRelativeCoords(baseCoord, Orientation._get(baseEntityId));
 
+    uint128 finalMass;
     {
-      uint128 finalMass = MineLib.processMassReduction(playerEntityId, baseEntityId);
+      finalMass = MineLib._processMassReduction(playerEntityId, baseEntityId);
       if (finalMass == 0) {
         if (mineObjectTypeId == ObjectTypes.AnyOre) {
-          mineObjectTypeId = MineLib.mineRandomOre(coord);
+          mineObjectTypeId = MineLib._mineRandomOre(coord);
         }
         Mass._deleteRecord(baseEntityId);
 
@@ -176,7 +208,7 @@ contract MineSystem is System {
 
         // If mining a bed with a sleeping player, kill the player
         if (mineObjectTypeId == ObjectTypes.Bed) {
-          MineLib.mineBed(baseEntityId, baseCoord);
+          MineLib._mineBed(baseEntityId, baseCoord);
         }
 
         addToInventory(playerEntityId, ObjectTypes.Player, mineObjectTypeId, 1);
@@ -201,7 +233,11 @@ contract MineSystem is System {
       MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
     );
 
-    ForceFieldLib.requireMinesAllowed(playerEntityId, baseEntityId, mineObjectTypeId, coords, extraData);
+    MineLib._requireMinesAllowed(playerEntityId, mineObjectTypeId, coords, extraData);
+
+    if (mineObjectTypeId == ObjectTypes.ForceField && finalMass == 0) {
+      destroyForceField(baseEntityId);
+    }
 
     return baseEntityId;
   }

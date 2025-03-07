@@ -25,6 +25,8 @@ export default defineWorld({
       "DetachChip",
       "InitiateOreReveal",
       "RevealOre",
+      "ExpandForceField",
+      "ContractForceField",
     ],
     DisplayContentType: ["None", "Text", "Image"],
     Direction: [
@@ -299,23 +301,33 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    ForceField: {
+    ForceFieldFragment: {
       schema: {
         x: "int32",
         y: "int32",
         z: "int32",
-        forceFieldEntityId: "EntityId",
+        entityId: "EntityId",
+        forceFieldId: "EntityId",
+        forceFieldCreatedAt: "uint128",
       },
       key: ["x", "y", "z"],
     },
-    ForceFieldMetadata: {
+    ForceFieldFragmentPosition: {
+      name: "FragmentPosition",
       schema: {
+        entityId: "EntityId",
         x: "int32",
         y: "int32",
         z: "int32",
-        totalMassInside: "uint128",
       },
-      key: ["x", "y", "z"],
+      key: ["entityId"],
+    },
+    ForceField: {
+      schema: {
+        entityId: "EntityId",
+        createdAt: "uint128",
+      },
+      key: ["entityId"],
     },
     DisplayContent: {
       schema: {
