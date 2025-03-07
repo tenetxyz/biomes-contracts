@@ -11,12 +11,13 @@ import { Mass } from "../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { Position, PlayerPosition, ReversePlayerPosition, ForceFieldFragmentPosition } from "../utils/Vec3Storage.sol";
 
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { updateEnergyLevel } from "./EnergyUtils.sol";
 import { getForceField } from "./ForceFieldUtils.sol";
 import { transferAllInventoryEntities } from "./InventoryUtils.sol";
@@ -89,8 +90,8 @@ function addPlayerToGrid(EntityId playerEntityId, Vec3 playerCoord) {
   // Check if the spawn location is valid
   ObjectTypeId terrainObjectTypeId = safeGetObjectTypeIdAt(playerCoord);
   require(
-    terrainObjectTypeId == ObjectTypes.Air && !getPlayer(playerCoord).exists(),
-    "Cannot spawn on a non-air block"
+    ObjectTypeMetadata._getCanPassThrough(terrainObjectTypeId) && !getPlayer(playerCoord).exists(),
+    "Cannot spawn on a non-passable block"
   );
 
   // Set the player at the base coordinate
@@ -103,8 +104,8 @@ function addPlayerToGrid(EntityId playerEntityId, Vec3 playerCoord) {
     Vec3 relativeCoord = coords[i];
     ObjectTypeId relativeTerrainObjectTypeId = safeGetObjectTypeIdAt(relativeCoord);
     require(
-      relativeTerrainObjectTypeId == ObjectTypes.Air && !getPlayer(relativeCoord).exists(),
-      "Cannot spawn on a non-air block"
+      ObjectTypeMetadata._getCanPassThrough(relativeTerrainObjectTypeId) && !getPlayer(relativeCoord).exists(),
+      "Cannot spawn on a non-passable block"
     );
     EntityId relativePlayerEntityId = getUniqueEntity();
     ObjectType._set(relativePlayerEntityId, ObjectTypes.Player);

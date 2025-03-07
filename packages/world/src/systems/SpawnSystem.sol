@@ -30,7 +30,7 @@ import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { createPlayer } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
-import { getObjectTypeIdAt } from "../utils/EntityUtils.sol";
+import { getObjectTypeIdAt, getPlayer } from "../utils/EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -83,13 +83,21 @@ contract SpawnSystem is System {
 
   function isValidSpawn(Vec3 spawnCoord) public view returns (bool) {
     Vec3 belowCoord = spawnCoord - vec3(0, 1, 0);
+    Vec3 topCoord = spawnCoord + vec3(0, 1, 0);
     ObjectTypeId spawnObjectTypeId = getObjectTypeIdAt(spawnCoord);
+    ObjectTypeId topObjectTypeId = getObjectTypeIdAt(topCoord);
     ObjectTypeId belowObjectTypeId = getObjectTypeIdAt(belowCoord);
     return
       !spawnObjectTypeId.isNull() &&
       !belowObjectTypeId.isNull() &&
+      !topObjectTypeId.isNull() &&
       ObjectTypeMetadata._getCanPassThrough(spawnObjectTypeId) &&
-      !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId);
+      ObjectTypeMetadata._getCanPassThrough(topObjectTypeId) &&
+      !getPlayer(spawnCoord).exists() &&
+      !getPlayer(topCoord).exists() &&
+      (belowObjectTypeId == ObjectTypes.Water ||
+        !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId) ||
+        getPlayer(belowCoord).exists());
   }
 
   function getValidSpawnY(Vec3 spawnCoordCandidate) public view returns (Vec3 spawnCoord) {
