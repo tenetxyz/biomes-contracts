@@ -156,7 +156,7 @@ library ObjectTypeLib {
   function burnOres(ObjectTypeId self) internal {
     ObjectAmount memory ores = self.getOreAmount();
     ObjectTypeId objectTypeId = ores.objectTypeId;
-    if (objectTypeId != ObjectTypes.Null) {
+    if (!objectTypeId.isNull()) {
       uint256 amount = ores.amount;
       // This increases the availability of the ores being burned
       MinedOreCount._set(objectTypeId, MinedOreCount._get(objectTypeId) - amount);

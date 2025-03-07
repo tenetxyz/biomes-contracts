@@ -13,10 +13,11 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
 
-import { LocalEnergyPool, ExploredChunkByIndex, ExploredChunk, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
+import { ExploredChunkByIndex, ExploredChunk, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { checkWorldStatus, getUniqueEntity, inWorldBorder } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
@@ -29,10 +30,13 @@ import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { createPlayer } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
+import { getObjectTypeIdAt } from "../utils/EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
 contract SpawnSystem is System {
+  using ObjectTypeLib for ObjectTypeId;
+
   function getEnergyCostToSpawn(uint32 playerMass) internal pure returns (uint128) {
     uint128 energyRequired = MAX_PLAYER_ENERGY + massToEnergy(playerMass);
     return energyRequired;
@@ -75,6 +79,28 @@ contract SpawnSystem is System {
     int32 relativeZ = int32(int256((posRand / chunkSize) % chunkSize));
 
     return vec3(chunkWorldX + relativeX, chunkWorldY, chunkWorldZ + relativeZ);
+  }
+
+  function isValidSpawn(Vec3 spawnCoord) public view returns (bool) {
+    Vec3 belowCoord = spawnCoord - vec3(0, 1, 0);
+    ObjectTypeId spawnObjectTypeId = getObjectTypeIdAt(spawnCoord);
+    ObjectTypeId belowObjectTypeId = getObjectTypeIdAt(belowCoord);
+    return
+      !spawnObjectTypeId.isNull() &&
+      !belowObjectTypeId.isNull() &&
+      ObjectTypeMetadata._getCanPassThrough(spawnObjectTypeId) &&
+      !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId);
+  }
+
+  function getValidSpawnY(Vec3 spawnCoordCandidate) public view returns (Vec3 spawnCoord) {
+    for (int32 i = 0; i < CHUNK_SIZE; i++) {
+      spawnCoord = spawnCoordCandidate + vec3(0, i, 0);
+      if (isValidSpawn(spawnCoord)) {
+        return spawnCoord;
+      }
+    }
+
+    revert("No valid spawn Y found in chunk");
   }
 
   function randomSpawn(uint256 blockNumber, int32 y) public returns (EntityId) {

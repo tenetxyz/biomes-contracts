@@ -35,11 +35,12 @@ import { TestUtils } from "./utils/TestUtils.sol";
 
 contract GravityTest is BiomesTest {
   using ObjectTypeLib for ObjectTypeId;
+
   function testMineFallSingleBlock() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     Vec3 mineCoord = playerCoord - vec3(0, 1, 0);
-    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
@@ -76,7 +77,7 @@ contract GravityTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     Vec3 mineCoord = playerCoord - vec3(0, 1, 0);
-    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
@@ -128,7 +129,7 @@ contract GravityTest is BiomesTest {
     }
 
     Vec3 mineCoord = aliceCoord - vec3(0, 1, 0);
-    ObjectTypeId mineObjectTypeId = ObjectTypeId.wrap(TerrainLib.getBlockType(mineCoord));
+    ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
