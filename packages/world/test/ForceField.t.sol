@@ -31,6 +31,10 @@ contract TestForceFieldChip is IForceFieldChip, System {
 
   function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
 
+  function onChipAttached(EntityId callerEntityId, EntityId targetEntityId, EntityId, bytes memory) external {}
+
+  function onChipDetached(EntityId callerEntityId, EntityId targetEntityId, EntityId, bytes memory) external {}
+
   function onBuild(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external payable {
     require(!revertOnBuild, "Not allowed by forcefield");
   }
@@ -80,6 +84,10 @@ contract TestForceFieldFragmentChip is IForceFieldFragmentChip, System {
   function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
 
   function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
+
+  function onChipAttached(EntityId callerEntityId, EntityId targetEntityId, EntityId, bytes memory) external {}
+
+  function onChipDetached(EntityId callerEntityId, EntityId targetEntityId, EntityId, bytes memory) external {}
 
   function onBuild(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external payable {
     require(!revertOnBuild, "Not allowed by forcefield fragment");
