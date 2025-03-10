@@ -3,7 +3,6 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { Player } from "../codegen/tables/Player.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -29,7 +28,7 @@ import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 
 import { Vec3 } from "../Vec3.sol";
 
-import { EntityId } from "../EntityId.sol";
+import { EntityId, encodePlayerEntityId } from "../EntityId.sol";
 
 // To avoid reaching bytecode size limit
 library BedLib {
@@ -112,7 +111,7 @@ contract BedSystem is System {
 
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
-    EntityId playerEntityId = Player._get(_msgSender());
+    EntityId playerEntityId = encodePlayerEntityId(_msgSender());
     require(playerEntityId.exists(), "Player does not exist");
     EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
     require(bedEntityId.exists(), "Player is not sleeping");

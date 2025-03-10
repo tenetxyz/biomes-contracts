@@ -5,8 +5,6 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { Player } from "../codegen/tables/Player.sol";
-import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
@@ -32,7 +30,7 @@ import { MoveLib } from "./libraries/MoveLib.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { getObjectTypeIdAt, getPlayer } from "../utils/EntityUtils.sol";
 
-import { EntityId } from "../EntityId.sol";
+import { EntityId, encodePlayerEntityId } from "../EntityId.sol";
 
 contract SpawnSystem is System {
   using ObjectTypeLib for ObjectTypeId;
@@ -162,13 +160,11 @@ contract SpawnSystem is System {
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     address playerAddress = _msgSender();
-    require(!Player._get(playerAddress).exists(), "Player already spawned");
+    EntityId basePlayerEntityId = encodePlayerEntityId(playerAddress);
 
-    EntityId basePlayerEntityId = getUniqueEntity();
+    // TODO: check that player is dead
+
     createPlayer(basePlayerEntityId, spawnCoord);
-
-    Player._set(playerAddress, basePlayerEntityId);
-    ReversePlayer._set(basePlayerEntityId, playerAddress);
 
     Mass._set(basePlayerEntityId, playerMass);
     Energy._set(

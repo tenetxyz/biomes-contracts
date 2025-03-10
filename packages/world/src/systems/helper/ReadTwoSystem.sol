@@ -6,7 +6,6 @@ import { Vec3, vec3 } from "../../Vec3.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
-import { Player } from "../../codegen/tables/Player.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
@@ -24,12 +23,12 @@ import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 import { InventoryObject, PlayerEntityData, BlockEntityData } from "../../Types.sol";
 
-import { EntityId } from "../../EntityId.sol";
+import { EntityId, encodePlayerEntityId } from "../../EntityId.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadTwoSystem is System {
   function getPlayerEntityData(address player) public view returns (PlayerEntityData memory) {
-    EntityId entityId = Player._get(player);
+    EntityId entityId = encodePlayerEntityId(player);
     if (!entityId.exists()) {
       return
         PlayerEntityData({

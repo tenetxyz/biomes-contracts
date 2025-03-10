@@ -11,17 +11,15 @@ import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResou
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
-import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerActivity } from "../src/codegen/tables/PlayerActivity.sol";
 import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
-import { EntityId } from "../src/EntityId.sol";
+import { EntityId, encodePlayerEntityId } from "../src/EntityId.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
@@ -65,7 +63,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
   // Create a valid player that can perform actions
   function createTestPlayer(Vec3 coord) internal returns (address, EntityId) {
     address playerAddress = vm.randomAddress();
-    EntityId playerEntityId = randomEntityId();
+    EntityId playerEntityId = encodePlayerEntityId(playerAddress);
     ObjectType.set(playerEntityId, ObjectTypes.Player);
     PlayerPosition.set(playerEntityId, coord);
     ReversePlayerPosition.set(coord, playerEntityId);
@@ -79,9 +77,6 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
       ReversePlayerPosition.set(relativeCoord, relativePlayerEntityId);
       BaseEntity.set(relativePlayerEntityId, playerEntityId);
     }
-
-    Player.set(playerAddress, playerEntityId);
-    ReversePlayer.set(playerEntityId, playerAddress);
 
     Mass.set(playerEntityId, ObjectTypeMetadata.getMass(ObjectTypes.Player));
     Energy.set(

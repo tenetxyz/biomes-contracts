@@ -12,7 +12,6 @@ import { Chip } from "../src/codegen/tables/Chip.sol";
 import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";

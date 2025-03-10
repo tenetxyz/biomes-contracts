@@ -8,7 +8,7 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
-import { EntityId } from "../src/EntityId.sol";
+import { EntityId, encodePlayerEntityId } from "../src/EntityId.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
 import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
@@ -22,7 +22,6 @@ import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
 import { ExploredChunk, ExploredChunkByIndex, MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
@@ -40,7 +39,7 @@ contract MoveTest is BiomesTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function _testMoveMultipleBlocks(address player, uint8 numBlocksToMove, bool overTerrain) internal {
-    EntityId playerEntityId = Player.get(player);
+    EntityId playerEntityId = encodePlayerEntityId(player);
     Vec3 startingCoord = PlayerPosition.get(playerEntityId);
     Vec3[] memory newCoords = new Vec3[](numBlocksToMove);
     for (uint32 i = 0; i < numBlocksToMove; i++) {

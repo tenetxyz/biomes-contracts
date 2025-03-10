@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { Player } from "../codegen/tables/Player.sol";
-import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -23,7 +21,7 @@ import { getForceField } from "./ForceFieldUtils.sol";
 import { transferAllInventoryEntities } from "./InventoryUtils.sol";
 import { safeGetObjectTypeIdAt, getPlayer, setPlayer } from "./EntityUtils.sol";
 
-import { EntityId } from "../EntityId.sol";
+import { EntityId, encodePlayerEntityId } from "../EntityId.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE, FORCE_FIELD_FRAGMENT_DIM } from "../Constants.sol";
@@ -32,7 +30,7 @@ using ObjectTypeLib for ObjectTypeId;
 
 function requireValidPlayer(address player) returns (EntityId, Vec3, EnergyData memory) {
   checkWorldStatus();
-  EntityId playerEntityId = Player._get(player);
+  EntityId playerEntityId = encodePlayerEntityId(player);
   require(playerEntityId.exists(), "Player does not exist");
   require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
   Vec3 playerCoord = PlayerPosition._get(playerEntityId);

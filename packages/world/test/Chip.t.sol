@@ -17,7 +17,6 @@ import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";

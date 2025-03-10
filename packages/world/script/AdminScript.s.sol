@@ -17,12 +17,11 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { Energy } from "../src/codegen/tables/Energy.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { Vec3 } from "../src/Vec3.sol";
-import { EntityId } from "../src/EntityId.sol";
+import { EntityId, encodePlayerEntityId } from "../src/EntityId.sol";
 
 import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 import { TestUtils } from "../test/utils/TestUtils.sol";
@@ -42,8 +41,8 @@ contract AdminScript is Script {
 
     ensureAdminSystem(world);
 
-    EntityId playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
-    require(playerEntityId.exists(), "Player entity not found");
+    EntityId playerEntityId = encodePlayerEntityId(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
+    // TODO: create player?
     Energy.setEnergy(playerEntityId, MAX_PLAYER_ENERGY);
     Energy.setLastUpdatedTime(playerEntityId, uint128(block.timestamp));
 

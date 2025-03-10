@@ -7,7 +7,6 @@ import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
 import { TotalBurnedOreCount } from "../codegen/tables/TotalBurnedOreCount.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Player } from "../codegen/tables/Player.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Position, ReversePosition, OreCommitment, MinedOrePosition } from "../utils/Vec3Storage.sol";
 

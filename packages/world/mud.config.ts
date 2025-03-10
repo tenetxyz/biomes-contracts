@@ -130,24 +130,6 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
-    PlayerPosition: {
-      schema: {
-        playerEntityId: "EntityId",
-        x: "int32",
-        y: "int32",
-        z: "int32",
-      },
-      key: ["playerEntityId"],
-    },
-    ReversePlayerPosition: {
-      schema: {
-        x: "int32",
-        y: "int32",
-        z: "int32",
-        playerEntityId: "EntityId",
-      },
-      key: ["x", "y", "z"],
-    },
     Orientation: {
       schema: {
         entityId: "EntityId",
@@ -254,19 +236,23 @@ export default defineWorld({
     // ------------------------------------------------------------
     // Player
     // ------------------------------------------------------------
-    Player: {
+    PlayerPosition: {
       schema: {
-        player: "address",
-        entityId: "EntityId",
+        playerEntityId: "EntityId",
+        x: "int32",
+        y: "int32",
+        z: "int32",
       },
-      key: ["player"],
+      key: ["playerEntityId"],
     },
-    ReversePlayer: {
+    ReversePlayerPosition: {
       schema: {
-        entityId: "EntityId",
-        player: "address",
+        x: "int32",
+        y: "int32",
+        z: "int32",
+        playerEntityId: "EntityId",
       },
-      key: ["entityId"],
+      key: ["x", "y", "z"],
     },
     BedPlayer: {
       schema: {

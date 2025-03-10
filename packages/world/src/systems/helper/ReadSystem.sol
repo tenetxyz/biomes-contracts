@@ -7,7 +7,6 @@ import { ObjectTypeId } from "../../ObjectTypeId.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
-import { Player } from "../../codegen/tables/Player.sol";
 import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
@@ -19,7 +18,7 @@ import { Position, PlayerPosition, ReversePosition, ReversePlayerPosition } from
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 import { InventoryObject, EntityData } from "../../Types.sol";
-import { EntityId } from "../../EntityId.sol";
+import { EntityId, encodePlayerEntityId } from "../../EntityId.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {
@@ -85,7 +84,7 @@ contract ReadSystem is System {
   }
 
   function getLastActivityTime(address player) public view returns (uint256) {
-    EntityId playerEntityId = Player._get(player);
+    EntityId playerEntityId = encodePlayerEntityId(player);
     if (PlayerStatus._getBedEntityId(playerEntityId).exists()) {
       return 0;
     }
@@ -93,7 +92,7 @@ contract ReadSystem is System {
   }
 
   function getInventory(address player) public view returns (InventoryObject[] memory) {
-    EntityId playerEntityId = Player._get(player);
+    EntityId playerEntityId = encodePlayerEntityId(player);
     require(playerEntityId.exists(), "Player not found");
     return getInventory(playerEntityId);
   }
@@ -117,7 +116,7 @@ contract ReadSystem is System {
   }
 
   function getPlayerCoord(address player) public view returns (Vec3) {
-    EntityId playerEntityId = Player._get(player);
+    EntityId playerEntityId = encodePlayerEntityId(player);
     require(playerEntityId.exists(), "Player not found");
     return getCoordForEntityId(playerEntityId);
   }

@@ -10,6 +10,43 @@ import { Energy, EnergyData } from "./codegen/tables/Energy.sol";
 
 type EntityId is bytes32;
 
+enum EntityType {
+  Player
+}
+
+function encodeEntityId(EntityType entityType, bytes31 data) pure returns (EntityId) {
+  bytes32 result;
+  uint8 t = uint8(entityType);
+
+  /// @solidity memory-safe-assembly
+  assembly {
+    // Set the first byte to entity type
+    result := or(result, shl(248, t))
+    // Set the next 31 bytes as the data
+    result := or(result, data)
+  }
+  return EntityId.wrap(result);
+}
+
+function decodeEntityId(EntityId entityId) pure returns (EntityType entityType, bytes31 data) {
+  /// @solidity memory-safe-assembly
+  assembly {
+    entityType := shr(248, entityId)
+    data := shr(8, shl(8, entityId))
+  }
+}
+
+function encodePlayerEntityId(address playerAddress) pure returns (EntityId) {
+  return encodeEntityId(EntityType.Player, bytes31(bytes20(playerAddress)));
+}
+
+function decodePlayerEntityId(EntityId entityId) pure returns (address) {
+  (EntityType entityType, bytes31 data) = decodeEntityId(entityId);
+  require(entityType == EntityType.Player, "Invalid entity type");
+
+  return address(bytes20(data));
+}
+
 library EntityIdLib {
   function isBaseEntity(EntityId self) internal view returns (bool) {
     return EntityId.unwrap(BaseEntity._get(self)) == bytes32(0);

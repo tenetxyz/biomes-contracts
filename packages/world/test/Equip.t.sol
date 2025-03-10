@@ -14,7 +14,6 @@ import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
