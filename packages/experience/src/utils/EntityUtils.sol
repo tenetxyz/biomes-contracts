@@ -3,8 +3,6 @@ pragma solidity >=0.8.24;
 
 import { IWorld } from "@biomesaw/world/src/codegen/world/IWorld.sol";
 import { ObjectTypeMetadata } from "@biomesaw/world/src/codegen/tables/ObjectTypeMetadata.sol";
-import { Player } from "@biomesaw/world/src/codegen/tables/Player.sol";
-import { ReversePlayer } from "@biomesaw/world/src/codegen/tables/ReversePlayer.sol";
 import { PlayerStatus } from "@biomesaw/world/src/codegen/tables/PlayerStatus.sol";
 import { ObjectType } from "@biomesaw/world/src/codegen/tables/ObjectType.sol";
 import { Equipped } from "@biomesaw/world/src/codegen/tables/Equipped.sol";
@@ -19,7 +17,7 @@ import { Position, ReversePosition } from "@biomesaw/world/src/utils/Vec3Storage
 import { ObjectTypeId } from "@biomesaw/world/src/ObjectTypeId.sol";
 import { ObjectTypes } from "@biomesaw/world/src/ObjectTypes.sol";
 import { Vec3 } from "@biomesaw/world/src/Vec3.sol";
-import { EntityId } from "@biomesaw/world/src/EntityId.sol";
+import { EntityId, encodePlayerEntityId, decodePlayerEntityId } from "@biomesaw/world/src/EntityId.sol";
 
 function getObjectTypeAtCoord(Vec3 coord) view returns (ObjectTypeId) {
   EntityId entityId = getEntityAtCoord(coord);
@@ -41,12 +39,12 @@ function getStackable(ObjectTypeId objectTypeId) view returns (uint16) {
   return ObjectTypeMetadata.getStackable(objectTypeId);
 }
 
-function getEntityFromPlayer(address playerAddress) view returns (EntityId) {
-  return Player.getEntityId(playerAddress);
+function getEntityFromPlayer(address playerAddress) pure returns (EntityId) {
+  return encodePlayerEntityId(playerAddress);
 }
 
-function getPlayerFromEntity(EntityId entityId) view returns (address) {
-  return ReversePlayer.getPlayer(entityId);
+function getPlayerFromEntity(EntityId entityId) pure returns (address) {
+  return decodePlayerEntityId(entityId);
 }
 
 function getEquipped(EntityId playerEntityId) view returns (EntityId) {

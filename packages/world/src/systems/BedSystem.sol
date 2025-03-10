@@ -112,7 +112,8 @@ contract BedSystem is System {
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     EntityId playerEntityId = encodePlayerEntityId(_msgSender());
-    require(playerEntityId.exists(), "Player does not exist");
+    // TODO: check that player is not dead (has energy)
+
     EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
     require(bedEntityId.exists(), "Player is not sleeping");
 

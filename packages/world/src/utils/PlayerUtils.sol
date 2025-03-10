@@ -31,7 +31,7 @@ using ObjectTypeLib for ObjectTypeId;
 function requireValidPlayer(address player) returns (EntityId, Vec3, EnergyData memory) {
   checkWorldStatus();
   EntityId playerEntityId = encodePlayerEntityId(player);
-  require(playerEntityId.exists(), "Player does not exist");
+  // TODO: check that player is not dead (has energy)
   require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
   Vec3 playerCoord = PlayerPosition._get(playerEntityId);
 
