@@ -84,20 +84,36 @@ contract SpawnSystem is System {
   function isValidSpawn(Vec3 spawnCoord) public view returns (bool) {
     Vec3 belowCoord = spawnCoord - vec3(0, 1, 0);
     Vec3 topCoord = spawnCoord + vec3(0, 1, 0);
+
     ObjectTypeId spawnObjectTypeId = getObjectTypeIdAt(spawnCoord);
+    if (
+      spawnObjectTypeId.isNull() ||
+      !ObjectTypeMetadata._getCanPassThrough(spawnObjectTypeId) ||
+      getPlayer(spawnCoord).exists()
+    ) {
+      return false;
+    }
+
     ObjectTypeId topObjectTypeId = getObjectTypeIdAt(topCoord);
+    if (
+      topObjectTypeId.isNull() ||
+      !ObjectTypeMetadata._getCanPassThrough(topObjectTypeId) ||
+      getPlayer(topCoord).exists()
+    ) {
+      return false;
+    }
+
     ObjectTypeId belowObjectTypeId = getObjectTypeIdAt(belowCoord);
-    return
-      !spawnObjectTypeId.isNull() &&
-      !belowObjectTypeId.isNull() &&
-      !topObjectTypeId.isNull() &&
-      ObjectTypeMetadata._getCanPassThrough(spawnObjectTypeId) &&
-      ObjectTypeMetadata._getCanPassThrough(topObjectTypeId) &&
-      !getPlayer(spawnCoord).exists() &&
-      !getPlayer(topCoord).exists() &&
-      (belowObjectTypeId == ObjectTypes.Water ||
-        !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId) ||
-        getPlayer(belowCoord).exists());
+    if (
+      belowObjectTypeId.isNull() ||
+      (belowObjectTypeId != ObjectTypes.Water &&
+        ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId) &&
+        !getPlayer(belowCoord).exists())
+    ) {
+      return false;
+    }
+
+    return true;
   }
 
   function getValidSpawnY(Vec3 spawnCoordCandidate) public view returns (Vec3 spawnCoord) {
@@ -162,17 +178,20 @@ contract SpawnSystem is System {
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     address playerAddress = _msgSender();
-    require(!Player._get(playerAddress).exists(), "Player already spawned");
+    EntityId playerEntityId = Player._get(playerAddress);
+    if (!playerEntityId.exists()) {
+      playerEntityId = getUniqueEntity();
+      createPlayer(playerEntityId, spawnCoord);
+      Mass._set(playerEntityId, playerMass);
+    } else {
+      require(updateEnergyLevel(playerEntityId).energy == 0, "Player already spawned");
+    }
 
-    EntityId basePlayerEntityId = getUniqueEntity();
-    createPlayer(basePlayerEntityId, spawnCoord);
+    Player._set(playerAddress, playerEntityId);
+    ReversePlayer._set(playerEntityId, playerAddress);
 
-    Player._set(playerAddress, basePlayerEntityId);
-    ReversePlayer._set(basePlayerEntityId, playerAddress);
-
-    Mass._set(basePlayerEntityId, playerMass);
     Energy._set(
-      basePlayerEntityId,
+      playerEntityId,
       EnergyData({
         energy: MAX_PLAYER_ENERGY,
         lastUpdatedTime: uint128(block.timestamp),
@@ -181,10 +200,10 @@ contract SpawnSystem is System {
       })
     );
 
-    PlayerActivity._set(basePlayerEntityId, uint128(block.timestamp));
+    PlayerActivity._set(playerEntityId, uint128(block.timestamp));
 
-    notify(basePlayerEntityId, SpawnNotifData({ playerAddress: playerAddress, spawnCoord: spawnCoord }));
+    notify(playerEntityId, SpawnNotifData({ playerAddress: playerAddress, spawnCoord: spawnCoord }));
 
-    return basePlayerEntityId;
+    return playerEntityId;
   }
 }
