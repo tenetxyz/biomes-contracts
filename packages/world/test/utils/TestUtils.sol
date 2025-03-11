@@ -15,7 +15,7 @@ import { ObjectTypeId } from "../../src/ObjectTypeId.sol";
 import { addToInventory as _addToInventory, removeFromInventory as _removeFromInventory, addToolToInventory as _addToolToInventory, removeToolFromInventory as _removeToolFromInventory, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
 import { ObjectTypeLib, ObjectAmount, getOreObjectTypes } from "../../src/ObjectTypeLib.sol";
 import { updateEnergyLevel as _updateEnergyLevel } from "../../src/utils/EnergyUtils.sol";
-import { isForceFieldFragment as _isForceFieldFragment, isForceFieldActive as _isForceFieldActive, getForceField as _getForceField, setupForceField as _setupForceField, destroyForceField as _destroyForceField } from "../../src/utils/ForceFieldUtils.sol";
+import { isFragmentActive as _isFragmentActive, isForceFieldActive as _isForceFieldActive, getForceField as _getForceField, setupForceField as _setupForceField, destroyForceField as _destroyForceField } from "../../src/utils/ForceFieldUtils.sol";
 
 Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
@@ -169,8 +169,8 @@ library TestForceFieldUtils {
     return _isForceFieldActive(forceFieldEntityId);
   }
 
-  function isForceFieldFragment(EntityId forceFieldEntityId, Vec3 fragmentCoord) public asWorld returns (bool) {
-    return _isForceFieldFragment(forceFieldEntityId, fragmentCoord);
+  function isFragmentActive(Vec3 fragmentCoord, EntityId forceFieldEntityId) public asWorld returns (bool) {
+    return _isFragmentActive(fragmentCoord, forceFieldEntityId);
   }
 
   function getForceField(Vec3 coord) public asWorld returns (EntityId, EntityId) {

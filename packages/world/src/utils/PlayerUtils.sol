@@ -64,9 +64,7 @@ function requireInPlayerInfluence(Vec3 playerCoord, EntityId entityId) view retu
   return coord;
 }
 
-// Checks if the player is in range of the fragment (8x8x8 cube)
-function requireFragmentInPlayerInfluence(Vec3 playerCoord, EntityId fragmentEntityId) view returns (Vec3) {
-  Vec3 fragmentCoord = ForceFieldFragmentPosition._get(fragmentEntityId);
+function requireFragmentInPlayerInfluence(Vec3 playerCoord, Vec3 fragmentCoord) pure returns (Vec3) {
   // Calculate the closest point in the fragment to the player
   // For each dimension, clamp the player's position to the fragment's bounds
   Vec3 fragmentGridCoord = fragmentCoord.mul(FORCE_FIELD_FRAGMENT_DIM);
@@ -75,6 +73,13 @@ function requireFragmentInPlayerInfluence(Vec3 playerCoord, EntityId fragmentEnt
   Vec3 closest = playerCoord.clamp(fragmentGridCoord, fragmentGridCoord + vec3(range, range, range));
 
   requireInPlayerInfluence(playerCoord, closest);
+  return closest;
+}
+
+// Checks if the player is in range of the fragment (8x8x8 cube)
+function requireFragmentInPlayerInfluence(Vec3 playerCoord, EntityId fragmentEntityId) view returns (Vec3) {
+  Vec3 fragmentCoord = ForceFieldFragmentPosition._get(fragmentEntityId);
+  Vec3 closest = requireFragmentInPlayerInfluence(playerCoord, fragmentCoord);
   return closest;
 }
 

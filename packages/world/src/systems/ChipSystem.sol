@@ -18,7 +18,7 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { requireValidPlayer, requireInPlayerInfluence, requireFragmentInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
-import { getForceField, isForceFieldFragmentActive } from "../utils/ForceFieldUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, AttachChipNotifData, DetachChipNotifData } from "../utils/NotifUtils.sol";
 
 import { IChip } from "../prototypes/IChip.sol";

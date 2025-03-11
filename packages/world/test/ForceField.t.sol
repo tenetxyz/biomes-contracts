@@ -398,7 +398,7 @@ contract ForceFieldTest is BiomesTest {
     // Verify that the fragment at the force field coordinate exists
     Vec3 fragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
     assertTrue(
-      TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, fragmentCoord),
+      TestForceFieldUtils.isFragmentActive(fragmentCoord, forceFieldEntityId),
       "Force field fragment not found"
     );
 
@@ -527,7 +527,7 @@ contract ForceFieldTest is BiomesTest {
         for (int32 z = fromFragmentCoord.z(); z <= toFragmentCoord.z(); z++) {
           Vec3 fragmentCoord = vec3(x, y, z);
           assertTrue(
-            TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, fragmentCoord),
+            TestForceFieldUtils.isFragmentActive(fragmentCoord, forceFieldEntityId),
             "Force field fragment not found at coordinate"
           );
         }
@@ -594,7 +594,7 @@ contract ForceFieldTest is BiomesTest {
       for (int32 y = refFragmentCoord.y(); y <= refFragmentCoord.y(); y++) {
         for (int32 z = refFragmentCoord.z(); z <= refFragmentCoord.z() + 1; z++) {
           assertFalse(
-            TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, vec3(x, y, z)),
+            TestForceFieldUtils.isFragmentActive(vec3(x, y, z), forceFieldEntityId),
             "Force field fragment still exists after contraction"
           );
         }
@@ -603,7 +603,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Verify original fragment still exists
     assertTrue(
-      TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, refFragmentCoord),
+      TestForceFieldUtils.isFragmentActive(refFragmentCoord, forceFieldEntityId),
       "Original force field fragment was removed"
     );
   }
@@ -781,7 +781,7 @@ contract ForceFieldTest is BiomesTest {
     (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Create a 3x3x3 force field
-    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
+    Vec3 forceFieldCoord = playerCoord + vec3(1, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
@@ -812,7 +812,7 @@ contract ForceFieldTest is BiomesTest {
     // Verify that each boundary fragment is part of the force field
     for (uint256 i = 0; i < len; i++) {
       assertTrue(
-        TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, boundaryFragments[i]),
+        TestForceFieldUtils.isFragmentActive(boundaryFragments[i], forceFieldEntityId),
         "Boundary fragment is not part of the force field"
       );
     }
@@ -968,7 +968,7 @@ contract ForceFieldTest is BiomesTest {
     for (int32 x = refFragmentCoord.x(); x <= refFragmentCoord.x() + 3; x++) {
       for (int32 y = refFragmentCoord.y(); y <= refFragmentCoord.y() + 3; y++) {
         for (int32 z = refFragmentCoord.z(); z <= refFragmentCoord.z() + 3; z++) {
-          if (TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, vec3(x, y, z))) {
+          if (TestForceFieldUtils.isFragmentActive(vec3(x, y, z), forceFieldEntityId)) {
             remainingFragments++;
           }
         }

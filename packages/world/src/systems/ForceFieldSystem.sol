@@ -10,13 +10,13 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { ForceField } from "../codegen/tables/ForceField.sol";
 
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { requireValidPlayer, requireFragmentInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 import { notify, ExpandForceFieldNotifData, ContractForceFieldNotifData } from "../utils/NotifUtils.sol";
-import { isForceFieldFragment, isForceFieldFragmentActive, setupForceFieldFragment, removeForceFieldFragment } from "../utils/ForceFieldUtils.sol";
-import { ForceFieldFragment } from "../utils/Vec3Storage.sol";
+import { isFragmentActive, setupForceFieldFragment, removeForceFieldFragment } from "../utils/ForceFieldUtils.sol";
+import { ForceFieldFragment, ForceFieldFragmentData, Position } from "../utils/Vec3Storage.sol";
 
 import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
 
@@ -108,7 +108,7 @@ contract ForceFieldSystem is System {
           }
 
           // Add to boundary if it's a forcefield fragment
-          if (isForceFieldFragment(forceFieldEntityId, currentPos)) {
+          if (isFragmentActive(currentPos, forceFieldEntityId)) {
             tempBoundary[count] = currentPos;
             count++;
           }
@@ -127,7 +127,6 @@ contract ForceFieldSystem is System {
     bytes memory extraData
   ) public {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, forceFieldEntityId);
 
     ObjectTypeId objectTypeId = ObjectType._get(forceFieldEntityId);
     require(objectTypeId == ObjectTypes.ForceField, "Invalid object type");
@@ -140,7 +139,7 @@ contract ForceFieldSystem is System {
       "Reference fragment is not adjacent to new fragments"
     );
 
-    require(isForceFieldFragment(forceFieldEntityId, refFragmentCoord), "Reference fragment is not part of forcefield");
+    require(isFragmentActive(refFragmentCoord, forceFieldEntityId), "Reference fragment is not part of forcefield");
 
     uint128 addedFragments = 0;
 
@@ -148,14 +147,19 @@ contract ForceFieldSystem is System {
       for (int32 y = fromFragmentCoord.y(); y <= toFragmentCoord.y(); y++) {
         for (int32 z = fromFragmentCoord.z(); z <= toFragmentCoord.z(); z++) {
           Vec3 fragmentCoord = vec3(x, y, z);
-          // TODO: optimize, these three functions are retrieving the shard's data
+
+          requireFragmentInPlayerInfluence(playerCoord, fragmentCoord);
+
           // If already belongs to the forcefield, skip it
-          if (isForceFieldFragment(forceFieldEntityId, fragmentCoord)) {
+          // TODO: Optimize
+          if (isFragmentActive(fragmentCoord, forceFieldEntityId)) {
             continue;
           }
 
-          require(!isForceFieldFragmentActive(fragmentCoord), "Can't expand to existing forcefield");
+          require(!isFragmentActive(fragmentCoord), "Can't expand to existing forcefield");
+
           setupForceFieldFragment(forceFieldEntityId, fragmentCoord);
+
           addedFragments++;
         }
       }
@@ -190,8 +194,6 @@ contract ForceFieldSystem is System {
     bytes memory extraData
   ) public {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    Vec3 forceFieldCoord = requireInPlayerInfluence(playerCoord, forceFieldEntityId);
-
     {
       require(fromFragmentCoord <= toFragmentCoord, "Invalid coordinates");
 
@@ -215,7 +217,8 @@ contract ForceFieldSystem is System {
     uint128 removedFragments = 0;
 
     {
-      Vec3 forceFieldFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
+      Vec3 forceFieldFragmentCoord = Position._get(forceFieldEntityId).toForceFieldFragmentCoord();
+
       // Now we can safely remove the fragments
       for (int32 x = fromFragmentCoord.x(); x <= toFragmentCoord.x(); x++) {
         for (int32 y = fromFragmentCoord.y(); y <= toFragmentCoord.y(); y++) {
@@ -223,10 +226,13 @@ contract ForceFieldSystem is System {
             Vec3 fragmentCoord = vec3(x, y, z);
             require(forceFieldFragmentCoord != fragmentCoord, "Can't remove forcefield's fragment");
 
+            requireFragmentInPlayerInfluence(playerCoord, fragmentCoord);
+
             // Only remove if the fragment is part of the forcefield
-            // TODO: optimize, both functions are retrieving the shard's data
-            if (isForceFieldFragment(forceFieldEntityId, fragmentCoord)) {
-              removeForceFieldFragment(fragmentCoord);
+            // TODO: optimize
+            if (isFragmentActive(fragmentCoord, forceFieldEntityId)) {
+              ForceFieldFragmentData memory fragmentData = ForceFieldFragment._get(fragmentCoord);
+              removeForceFieldFragment(fragmentData.entityId, fragmentCoord);
               removedFragments++;
             }
           }
