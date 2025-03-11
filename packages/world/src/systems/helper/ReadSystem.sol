@@ -40,14 +40,14 @@ contract ReadSystem is System {
         });
     }
 
-    EntityId baseEntityId = entityId.baseEntityId();
+    EntityId baseEntityId = BaseEntity._get(entityId);
 
     return
       EntityData({
         objectTypeId: ObjectType._get(entityId),
         entityId: entityId,
         baseEntityId: baseEntityId,
-        inventory: getInventory(baseEntityId),
+        inventory: getInventory(baseEntityId.exists() ? baseEntityId : entityId),
         position: getCoordForEntityId(entityId)
       });
   }
@@ -65,14 +65,14 @@ contract ReadSystem is System {
         });
     }
 
-    EntityId baseEntityId = entityId.baseEntityId();
+    EntityId baseEntityId = BaseEntity._get(entityId);
 
     return
       EntityData({
         objectTypeId: ObjectType._get(entityId),
         entityId: entityId,
         baseEntityId: baseEntityId,
-        inventory: getInventory(baseEntityId),
+        inventory: getInventory(baseEntityId.exists() ? baseEntityId : entityId),
         position: coord
       });
   }
