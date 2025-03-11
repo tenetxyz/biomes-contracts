@@ -10,6 +10,7 @@ import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { EnergyData } from "../codegen/tables/Energy.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { ActionType } from "../codegen/common.sol";
 
@@ -39,6 +40,16 @@ contract ChipSystem is System {
       ERC165Checker.supportsInterface(chipAddress, interfaceId),
       "Chip does not implement the required interface"
     );
+  }
+
+  function _callForceFieldChip(EntityId forceFieldEntityId, EntityId fragmentEntityId, bytes memory data) internal {
+    // We know fragment is active because its forcefield exists, so we can use its chip
+    ResourceId fragmentChip = fragmentEntityId.getChip();
+    if (fragmentChip.unwrap() != 0) {
+      callChipOrRevert(fragmentChip, data);
+    } else {
+      callChipOrRevert(forceFieldEntityId.getChip(), data);
+    }
   }
 
   function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) public payable {
@@ -77,12 +88,30 @@ contract ChipSystem is System {
       revert("Cannot attach a chip to this object");
     }
 
-    Chip._setChipSystemId(baseEntityId, chipSystemId);
-
     notify(
       playerEntityId,
       AttachChipNotifData({ attachEntityId: baseEntityId, attachCoord: entityCoord, chipAddress: chipAddress })
     );
+
+    // If forcefield is active, call its hook
+    if (objectTypeId != ObjectTypes.ForceField) {
+      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(entityCoord);
+      if (forceFieldEntityId.exists()) {
+        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+        if (machineData.energy > 0) {
+          bytes memory onChipAttachedCall = abi.encodeCall(
+            IForceFieldFragmentChip.onChipAttached,
+            (playerEntityId, forceFieldEntityId, baseEntityId, extraData)
+          );
+
+          _callForceFieldChip(forceFieldEntityId, fragmentEntityId, onChipAttachedCall);
+        }
+      }
+    }
+
+    // Chip needs to be set after calling the forcefield's hook,
+    // otherwise if it is a fragment it would call itself
+    Chip._setChipSystemId(baseEntityId, chipSystemId);
 
     bytes memory onAttachedCall = abi.encodeCall(IChip.onAttached, (playerEntityId, baseEntityId, extraData));
     callChipOrRevert(chipSystemId, onAttachedCall);
@@ -101,12 +130,6 @@ contract ChipSystem is System {
       entityCoord = requireInPlayerInfluence(playerCoord, entityId);
     }
 
-    (EntityId forceFieldEntityId, ) = getForceField(entityCoord);
-    uint256 machineEnergyLevel = 0;
-    if (forceFieldEntityId.exists()) {
-      machineEnergyLevel = updateEnergyLevel(forceFieldEntityId).energy;
-    }
-
     ResourceId chipSystemId = baseEntityId.getChip();
 
     require(chipSystemId.unwrap() != 0, "No chip attached");
@@ -114,13 +137,27 @@ contract ChipSystem is System {
     Chip._deleteRecord(baseEntityId);
 
     (address chipAddress, ) = Systems._get(chipSystemId);
+
     notify(
       playerEntityId,
       DetachChipNotifData({ detachEntityId: baseEntityId, detachCoord: entityCoord, chipAddress: chipAddress })
     );
 
+    (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(entityCoord);
+
+    EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+
+    // If forcefield is active, call its hook
     bytes memory onDetachedCall = abi.encodeCall(IChip.onDetached, (playerEntityId, baseEntityId, extraData));
-    if (machineEnergyLevel > 0) {
+    if (machineData.energy > 0) {
+      if (forceFieldEntityId.exists() && ObjectType._get(baseEntityId) != ObjectTypes.ForceField) {
+        bytes memory onChipDetachedCall = abi.encodeCall(
+          IForceFieldFragmentChip.onChipDetached,
+          (playerEntityId, forceFieldEntityId, baseEntityId, extraData)
+        );
+        _callForceFieldChip(forceFieldEntityId, fragmentEntityId, onChipDetachedCall);
+      }
+
       // Don't safe call here because we want to revert if the chip doesn't allow the detachment
       callChipOrRevert(chipSystemId, onDetachedCall);
     } else {

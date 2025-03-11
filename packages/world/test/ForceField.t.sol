@@ -12,6 +12,7 @@ import { Vec3, vec3 } from "../src/Vec3.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
+import { Chip } from "../src/codegen/tables/Chip.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ReversePosition, PlayerPosition, Position } from "../src/utils/Vec3Storage.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
@@ -20,16 +21,30 @@ import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { MACHINE_ENERGY_DRAIN_RATE, FORCE_FIELD_FRAGMENT_DIM } from "../src/Constants.sol";
 import { IForceFieldChip } from "../src/prototypes/IForceFieldChip.sol";
 import { IForceFieldFragmentChip } from "../src/prototypes/IForceFieldFragmentChip.sol";
+import { IChestChip } from "../src/prototypes/IChestChip.sol";
+import { ChipOnTransferData } from "../src/Types.sol";
 import { TestForceFieldUtils, TestInventoryUtils, TestEnergyUtils } from "./utils/TestUtils.sol";
 
 contract TestForceFieldChip is IForceFieldChip, System {
   // Just for testing, real chips should use tables
+  bool revertOnChipAttached;
+  bool revertOnChipDetached;
   bool revertOnBuild;
   bool revertOnMine;
 
   function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
 
   function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
+
+  function onChipAttached(EntityId, EntityId, EntityId, bytes memory) external {
+    require(!revertOnChipAttached, "Not allowed by forcefield");
+    // Function is now empty since we use vm.expectCall to verify it was called with correct parameters
+  }
+
+  function onChipDetached(EntityId, EntityId, EntityId, bytes memory) external {
+    require(!revertOnChipDetached, "Not allowed by forcefield");
+    // Function is now empty since we use vm.expectCall to verify it was called with correct parameters
+  }
 
   function onBuild(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external payable {
     require(!revertOnBuild, "Not allowed by forcefield");
@@ -67,6 +82,14 @@ contract TestForceFieldChip is IForceFieldChip, System {
     revertOnMine = _revertOnMine;
   }
 
+  function setRevertOnChipAttached(bool _revertOnChipAttached) external {
+    revertOnChipAttached = _revertOnChipAttached;
+  }
+
+  function setRevertOnChipDetached(bool _revertOnChipDetached) external {
+    revertOnChipDetached = _revertOnChipDetached;
+  }
+
   function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
     return interfaceId == type(IForceFieldChip).interfaceId || super.supportsInterface(interfaceId);
   }
@@ -76,10 +99,22 @@ contract TestForceFieldFragmentChip is IForceFieldFragmentChip, System {
   // Just for testing, real chips should use tables
   bool revertOnBuild;
   bool revertOnMine;
+  bool revertOnChipAttached;
+  bool revertOnChipDetached;
 
   function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
 
   function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
+
+  function onChipAttached(EntityId, EntityId, EntityId, bytes memory) external {
+    require(!revertOnChipAttached, "Not allowed by forcefield fragment");
+    // Function is now empty since we use vm.expectCall to verify it was called with correct parameters
+  }
+
+  function onChipDetached(EntityId, EntityId, EntityId, bytes memory) external {
+    require(!revertOnChipDetached, "Not allowed by forcefield fragment");
+    // Function is now empty since we use vm.expectCall to verify it was called with correct parameters
+  }
 
   function onBuild(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external payable {
     require(!revertOnBuild, "Not allowed by forcefield fragment");
@@ -97,26 +132,56 @@ contract TestForceFieldFragmentChip is IForceFieldFragmentChip, System {
     revertOnMine = _revertOnMine;
   }
 
+  function setRevertOnChipAttached(bool _revertOnChipAttached) external {
+    revertOnChipAttached = _revertOnChipAttached;
+  }
+
+  function setRevertOnChipDetached(bool _revertOnChipDetached) external {
+    revertOnChipDetached = _revertOnChipDetached;
+  }
+
   function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
     return interfaceId == type(IForceFieldFragmentChip).interfaceId || super.supportsInterface(interfaceId);
   }
 }
 
+contract TestChestChip is IChestChip, System {
+  // Control revert behavior
+  bool revertOnTransfer;
+
+  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
+
+  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
+
+  function onTransfer(ChipOnTransferData memory) external payable {
+    require(!revertOnTransfer, "Transfer not allowed by chest");
+  }
+
+  function setRevertOnTransfer(bool _revertOnTransfer) external {
+    revertOnTransfer = _revertOnTransfer;
+  }
+
+  function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
+    return interfaceId == type(IChestChip).interfaceId || super.supportsInterface(interfaceId);
+  }
+}
+
 contract ForceFieldTest is BiomesTest {
-  function attachTestChip(EntityId forceFieldEntityId, System chip) internal {
-    bytes14 namespace = "chipNamespace";
+  function attachTestChip(EntityId entityId, System chip) internal returns (ResourceId) {
+    bytes14 namespace = bytes14(vm.randomBytes(14));
     ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);
     ResourceId chipSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "chipName");
     world.registerNamespace(namespaceId);
     world.registerSystem(chipSystemId, chip, false);
     world.transferOwnership(namespaceId, address(0));
 
-    Vec3 coord = Position.get(forceFieldEntityId);
+    Vec3 coord = Position.get(entityId);
 
     // Attach chip with test player
     (address bob, ) = createTestPlayer(coord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachChip(forceFieldEntityId, chipSystemId);
+    world.attachChip(entityId, chipSystemId);
+    return chipSystemId;
   }
 
   function testMineWithForceFieldWithNoEnergy() public {
@@ -885,11 +950,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 contractTo = refFragmentCoord + vec3(4, 1, 1);
 
     // Compute boundary fragments
-    (Vec3[] memory boundaryFragments, uint256 len) = world.computeBoundaryFragments(
-      forceFieldEntityId,
-      contractFrom,
-      contractTo
-    );
+    (, uint256 len) = world.computeBoundaryFragments(forceFieldEntityId, contractFrom, contractTo);
 
     // Ensure we have the correct number of boundary fragments
     assertEq(len, 1, "Expected 1 boundary fragment");
@@ -1157,6 +1218,116 @@ contract ForceFieldTest is BiomesTest {
     endGasReport();
 
     vm.stopPrank();
+  }
+
+  function testAttachChipToObjectInForceField() public {
+    // Set up a flat chunk with a player
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    // Set up a force field with energy
+    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
+    EntityId forceFieldEntityId = setupForceField(
+      forceFieldCoord,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+    );
+
+    // Create forcefield chip and attach it
+    TestForceFieldChip forceFieldChip = new TestForceFieldChip();
+    attachTestChip(forceFieldEntityId, forceFieldChip);
+
+    // Set up a chest inside the forcefield
+    Vec3 chestCoord = forceFieldCoord + vec3(1, 0, 0);
+    setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
+
+    // Create a chest chip
+    TestChestChip chestChip = new TestChestChip();
+
+    // Register the chest chip
+    bytes14 namespace = "chestChipNS";
+    ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);
+    ResourceId chipSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "chestChip");
+    world.registerNamespace(namespaceId);
+    world.registerSystem(chipSystemId, chestChip, false);
+    world.transferOwnership(namespaceId, address(0));
+
+    // Expect the forcefield chip's onChipAttached to be called with the correct parameters
+    bytes memory expectedCallData = abi.encodeCall(
+      TestForceFieldChip.onChipAttached,
+      (aliceEntityId, forceFieldEntityId, chestEntityId, bytes(""))
+    );
+    vm.expectCall(address(forceFieldChip), expectedCallData);
+
+    // Attach chip with test player
+    vm.prank(alice);
+    world.attachChip(chestEntityId, chipSystemId);
+  }
+
+  function testAttachChipToObjectInForceFieldFailsWhenDisallowed() public {
+    // Set up a flat chunk with a player
+    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    // Set up a force field with energy
+    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
+    EntityId forceFieldEntityId = setupForceField(
+      forceFieldCoord,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+    );
+
+    // Create forcefield chip, attach it, and configure it to disallow chip attachments
+    TestForceFieldChip forceFieldChip = new TestForceFieldChip();
+    attachTestChip(forceFieldEntityId, forceFieldChip);
+    forceFieldChip.setRevertOnChipAttached(true);
+
+    // Set up a chest inside the forcefield
+    Vec3 chestCoord = forceFieldCoord + vec3(1, 0, 0);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
+
+    // Create the chest chip
+    TestChestChip chestChip = new TestChestChip();
+    bytes14 namespace = bytes14(vm.randomBytes(14));
+    ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);
+    ResourceId chipSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "chipName");
+    world.registerNamespace(namespaceId);
+    world.registerSystem(chipSystemId, chestChip, false);
+    world.transferOwnership(namespaceId, address(0));
+
+    // Attach chip with test player
+    vm.prank(alice);
+    vm.expectRevert("Not allowed by forcefield");
+    // Attempt to attach chip with test player, should fail
+    world.attachChip(chestEntityId, chipSystemId);
+  }
+
+  function testAttachChipToObjectWithNoForceFieldEnergy() public {
+    // Set up a flat chunk with a player
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+
+    // Set up a force field with NO energy
+    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
+    EntityId forceFieldEntityId = setupForceField(
+      forceFieldCoord,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1, accDepletedTime: 0 })
+    );
+
+    // Create forcefield chip and attach it
+    TestForceFieldChip forceFieldChip = new TestForceFieldChip();
+    attachTestChip(forceFieldEntityId, forceFieldChip);
+    forceFieldChip.setRevertOnChipAttached(true); // Should not matter since forcefield has no energy
+
+    // Set up a chest inside the forcefield
+    Vec3 chestCoord = forceFieldCoord + vec3(1, 0, 0);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
+
+    // Register the chest chip
+    TestChestChip chestChip = new TestChestChip();
+
+    // We explicitly do NOT use vm.expectCall here since we're testing that
+    // the hook is NOT called when there's no energy
+
+    // Attach the chip
+    ResourceId chestChipSystemId = attachTestChip(chestEntityId, chestChip);
+    assertEq(Chip.get(chestEntityId).unwrap(), chestChipSystemId.unwrap(), "Chip not atached to chest");
   }
 
   function testValidateSpanningTree() public {

@@ -24,4 +24,18 @@ interface IForceFieldFragmentChip is IChip {
     Vec3 coord,
     bytes memory extraData
   ) external payable;
+
+  function onChipAttached(
+    EntityId callerEntityId,
+    EntityId targetEntityId,
+    EntityId attachedToEntityId,
+    bytes memory extraData
+  ) external;
+
+  function onChipDetached(
+    EntityId callerEntityId,
+    EntityId targetEntityId,
+    EntityId detachedFromEntityId,
+    bytes memory extraData
+  ) external;
 }
