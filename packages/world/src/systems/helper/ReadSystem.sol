@@ -20,6 +20,7 @@ import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 import { InventoryObject, EntityData } from "../../Types.sol";
 import { EntityId } from "../../EntityId.sol";
+import { TerrainLib } from "../libraries/TerrainLib.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {
@@ -56,7 +57,7 @@ contract ReadSystem is System {
     if (!entityId.exists()) {
       return
         EntityData({
-          objectTypeId: ObjectTypes.Null,
+          objectTypeId: TerrainLib._getBlockType(coord),
           entityId: EntityId.wrap(0),
           baseEntityId: EntityId.wrap(0),
           inventory: new InventoryObject[](0),
