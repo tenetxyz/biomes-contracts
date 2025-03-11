@@ -139,7 +139,8 @@ contract TerrainTest is BiomesTest {
 
   function testExploreChunk_Fail_ChunkAlreadyExplored() public {
     uint8[][][] memory chunk = _getTestChunk();
-    bytes memory encodedChunk = encodeChunk(1, chunk);
+    uint8 biome = 1;
+    bytes memory encodedChunk = encodeChunk(biome, chunk);
     Vec3 chunkCoord = vec3(0, 0, 0);
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
 
@@ -149,7 +150,8 @@ contract TerrainTest is BiomesTest {
 
   function testGetBlockType() public {
     uint8[][][] memory chunk = _getTestChunk();
-    bytes memory encodedChunk = encodeChunk(1, chunk);
+    uint8 biome = 1;
+    bytes memory encodedChunk = encodeChunk(biome, chunk);
 
     // Test we can get the block type for a voxel in the chunk
     Vec3 chunkCoord = vec3(0, 0, 0);
