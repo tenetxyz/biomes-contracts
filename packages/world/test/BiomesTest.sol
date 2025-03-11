@@ -120,7 +120,8 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
 
   function setupFlatChunk(Vec3 coord) internal {
     uint8[][][] memory chunk = _getFlatChunk();
-    bytes memory encodedChunk = encodeChunk(chunk);
+    uint8 biome = 1;
+    bytes memory encodedChunk = encodeChunk(biome, chunk);
     Vec3 chunkCoord = coord.toChunkCoord();
     bytes32[] memory merkleProof = new bytes32[](0);
 
@@ -168,7 +169,8 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
 
   function setupAirChunk(Vec3 coord) internal {
     uint8[][][] memory chunk = _getAirChunk();
-    bytes memory encodedChunk = encodeChunk(chunk);
+    uint8 biome = 1;
+    bytes memory encodedChunk = encodeChunk(biome, chunk);
     Vec3 chunkCoord = coord.toChunkCoord();
     bytes32[] memory merkleProof = new bytes32[](0);
 
@@ -184,7 +186,8 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
 
   function setupWaterChunk(Vec3 coord) internal {
     uint8[][][] memory chunk = _getWaterChunk();
-    bytes memory encodedChunk = encodeChunk(chunk);
+    uint8 biome = 2;
+    bytes memory encodedChunk = encodeChunk(biome, chunk);
     Vec3 chunkCoord = coord.toChunkCoord();
     bytes32[] memory merkleProof = new bytes32[](0);
 

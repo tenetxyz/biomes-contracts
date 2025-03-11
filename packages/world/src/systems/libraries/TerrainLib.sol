@@ -10,6 +10,7 @@ import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 
 uint256 constant VERSION_PADDING = 1;
+uint256 constant BIOME_PADDING = 1;
 
 library TerrainLib {
   using SSTORE2 for address;
@@ -47,6 +48,31 @@ library TerrainLib {
     return ObjectTypeId.wrap(uint16(uint8(blockType)));
   }
 
+  /// @notice Get the biome of a voxel coordinate.
+  /// @dev Assumes to be called from a root system.
+  function _getBiome(Vec3 coord) internal view returns (uint8) {
+    return getBiome(coord, address(this));
+  }
+
+  /// @notice Get the biome of a voxel coordinate.
+  /// @dev Can be called from either a root or non-root system, but consumes slightly more gas.
+  function getBiome(Vec3 coord) internal view returns (uint8) {
+    return getBiome(coord, WorldContextConsumerLib._world());
+  }
+
+  /// @notice Get the biome of a voxel coordinate.
+  function getBiome(Vec3 coord, address world) internal view returns (uint8) {
+    Vec3 chunkCoord = coord.toChunkCoord();
+    require(_isChunkExplored(chunkCoord, world), "Chunk not explored");
+
+    address chunkPointer = _getChunkPointer(chunkCoord, world);
+    bytes1 version = chunkPointer.readBytes1(0);
+    require(version == _VERSION, "Unsupported chunk encoding version");
+
+    bytes1 biome = chunkPointer.readBytes1(1);
+    return uint8(biome);
+  }
+
   /// @dev Get the relative coordinate of a voxel coordinate within a chunk
   function _getRelativeCoord(Vec3 coord) internal pure returns (Vec3) {
     return
@@ -62,6 +88,7 @@ library TerrainLib {
     Vec3 relativeCoord = _getRelativeCoord(coord);
     return
       VERSION_PADDING +
+      BIOME_PADDING +
       uint256(
         int256(relativeCoord.x()) * CHUNK_SIZE ** 2 + int256(relativeCoord.y()) * CHUNK_SIZE + int256(relativeCoord.z())
       );
