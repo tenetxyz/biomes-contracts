@@ -98,6 +98,10 @@ library ObjectTypeLib {
       objectTypeId == ObjectTypes.SilverWhacker;
   }
 
+  function isHoe(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return objectTypeId == ObjectTypes.SilverHoe;
+  }
+
   function isMachine(ObjectTypeId objectTypeId) internal pure returns (bool) {
     return objectTypeId == ObjectTypes.ForceField;
   }
@@ -127,7 +131,7 @@ library ObjectTypeLib {
   /// Currently it only supports tools, and assumes that only a single type of ore is used
   function getOreAmount(ObjectTypeId self) internal pure returns (ObjectAmount memory) {
     // Silver tools
-    if (self == ObjectTypes.SilverPick || self == ObjectTypes.SilverAxe) {
+    if (self == ObjectTypes.SilverPick || self == ObjectTypes.SilverAxe || self == ObjectTypes.SilverHoe) {
       return ObjectAmount(ObjectTypes.SilverOre, 4); // 4 silver bars = 4 ores
     }
     if (self == ObjectTypes.SilverWhacker) {

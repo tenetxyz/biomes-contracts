@@ -64,6 +64,7 @@ library ObjectTypes {
   ObjectTypeId constant Farmland = ObjectTypeId.wrap(Block | 53);
   ObjectTypeId constant Mud = ObjectTypeId.wrap(Block | 54);
   ObjectTypeId constant PackedMud = ObjectTypeId.wrap(Block | 55);
+  ObjectTypeId constant WetFarmland = ObjectTypeId.wrap(Block | 56);
 
   // Sand
   ObjectTypeId constant Gravel = ObjectTypeId.wrap(Block | 64);
@@ -212,6 +213,7 @@ library ObjectTypes {
   ObjectTypeId constant DiamondAxe = ObjectTypeId.wrap(Tool | 12);
   ObjectTypeId constant NeptuniumPick = ObjectTypeId.wrap(Tool | 13);
   ObjectTypeId constant NeptuniumAxe = ObjectTypeId.wrap(Tool | 14);
+  ObjectTypeId constant SilverHoe = ObjectTypeId.wrap(Tool | 15);
 
   // ------------------------------------------------------------
   // Item
@@ -221,6 +223,9 @@ library ObjectTypes {
   ObjectTypeId constant Diamond = ObjectTypeId.wrap(Item | 2);
   ObjectTypeId constant NeptuniumBar = ObjectTypeId.wrap(Item | 3);
   ObjectTypeId constant ChipBattery = ObjectTypeId.wrap(Item | 4);
+
+  ObjectTypeId constant Bucket = ObjectTypeId.wrap(Item | 5);
+  ObjectTypeId constant WaterBucket = ObjectTypeId.wrap(Item | 6);
 
   // ------------------------------------------------------------
   // Misc

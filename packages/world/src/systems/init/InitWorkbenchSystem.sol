@@ -26,19 +26,6 @@ contract InitWorkbenchSystem is System {
     );
   }
 
-  function createBlock(ObjectTypeId terrainBlockObjectTypeId, uint32 mass) internal {
-    ObjectTypeMetadata._set(
-      terrainBlockObjectTypeId,
-      ObjectTypeMetadataData({
-        stackable: MAX_BLOCK_STACKABLE,
-        maxInventorySlots: 0,
-        mass: mass,
-        energy: 0,
-        canPassThrough: false
-      })
-    );
-  }
-
   function initWorkbenchObjectTypes() public {
     createTool(ObjectTypes.StonePick, 100000);
     createTool(ObjectTypes.StoneAxe, 100000);
@@ -47,6 +34,7 @@ contract InitWorkbenchSystem is System {
     createTool(ObjectTypes.SilverPick, 1400000);
     createTool(ObjectTypes.SilverAxe, 1400000);
     createTool(ObjectTypes.SilverWhacker, 1400000);
+    createTool(ObjectTypes.SilverHoe, 1400000);
 
     createTool(ObjectTypes.GoldPick, 1200000);
     createTool(ObjectTypes.GoldAxe, 1200000);
@@ -56,6 +44,12 @@ contract InitWorkbenchSystem is System {
 
     createTool(ObjectTypes.NeptuniumPick, 5500000);
     createTool(ObjectTypes.NeptuniumAxe, 5500000);
+
+    // TODO: inlining this as it is a special case
+    ObjectTypeMetadata._set(
+      ObjectTypes.Bucket,
+      ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+    );
   }
 
   function initWorkbenchRecipes() public {
@@ -106,6 +100,15 @@ contract InitWorkbenchSystem is System {
       1
     );
     createSingleInputWithStationRecipe(ObjectTypes.Workbench, ObjectTypes.SilverBar, 6, ObjectTypes.SilverWhacker, 1);
+    createDoubleInputWithStationRecipe(
+      ObjectTypes.Workbench,
+      ObjectTypes.AnyLog,
+      4,
+      ObjectTypes.SilverBar,
+      4,
+      ObjectTypes.SilverHoe,
+      1
+    );
 
     createDoubleInputWithStationRecipe(
       ObjectTypes.Workbench,
@@ -163,5 +166,7 @@ contract InitWorkbenchSystem is System {
       ObjectTypes.NeptuniumAxe,
       1
     );
+
+    createSingleInputWithStationRecipe(ObjectTypes.Workbench, ObjectTypes.AnyLog, 4, ObjectTypes.Bucket, 1);
   }
 }
