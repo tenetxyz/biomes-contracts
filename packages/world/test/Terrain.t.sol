@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { BiomesTest } from "./BiomesTest.sol";
 
-import { TerrainLib, VERSION_PADDING, BIOME_PADDING } from "../src/systems/libraries/TerrainLib.sol";
+import { TerrainLib, VERSION_PADDING, BIOME_PADDING, SURFACE_PADDING } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
@@ -51,19 +51,19 @@ contract TerrainTest is BiomesTest {
   function testGetBlockIndex() public {
     Vec3 coord = vec3(1, 2, 2);
     uint256 index = TerrainLib._getBlockIndex(coord);
-    assertEq(index, 1 * 256 + 2 * 16 + 2 + VERSION_PADDING + BIOME_PADDING);
+    assertEq(index, 1 * 256 + 2 * 16 + 2 + VERSION_PADDING + BIOME_PADDING + SURFACE_PADDING);
 
     coord = vec3(16, 17, 18);
     index = TerrainLib._getBlockIndex(coord);
-    assertEq(index, 0 * 256 + 1 * 16 + 2 + VERSION_PADDING + BIOME_PADDING);
+    assertEq(index, 0 * 256 + 1 * 16 + 2 + VERSION_PADDING + BIOME_PADDING + SURFACE_PADDING);
 
     coord = vec3(-1, -2, -3);
     index = TerrainLib._getBlockIndex(coord);
-    assertEq(index, 15 * 256 + 14 * 16 + 13 + VERSION_PADDING + BIOME_PADDING);
+    assertEq(index, 15 * 256 + 14 * 16 + 13 + VERSION_PADDING + BIOME_PADDING + SURFACE_PADDING);
 
     coord = vec3(16, -17, -18);
     index = TerrainLib._getBlockIndex(coord);
-    assertEq(index, 0 * 256 + 15 * 16 + 14 + VERSION_PADDING + BIOME_PADDING);
+    assertEq(index, 0 * 256 + 15 * 16 + 14 + VERSION_PADDING + BIOME_PADDING + SURFACE_PADDING);
   }
 
   function testGetChunkSalt() public {
@@ -78,7 +78,7 @@ contract TerrainTest is BiomesTest {
     assertEq(salt, bytes32(uint256(uint96(bytes12(abi.encodePacked(chunkCoord))))));
   }
 
-  function _getTestChunk() internal pure returns (uint8[][][] memory chunk) {
+  function _getTestChunk() internal pure returns (uint8[][][] memory chunk, uint8 biome, bool isSurface) {
     chunk = new uint8[][][](uint256(int256(CHUNK_SIZE)));
     for (uint256 x = 0; x < uint256(int256(CHUNK_SIZE)); x++) {
       chunk[x] = new uint8[][](uint256(int256(CHUNK_SIZE)));
@@ -89,12 +89,13 @@ contract TerrainTest is BiomesTest {
         }
       }
     }
+    biome = 1;
+    isSurface = true;
   }
 
   function testExploreChunk() public {
-    uint8[][][] memory chunk = _getTestChunk();
-    uint8 inputBiome = 1;
-    bytes memory encodedChunk = encodeChunk(inputBiome, chunk);
+    (uint8[][][] memory chunk, uint8 inputBiome, bool inputIsSurface) = _getTestChunk();
+    bytes memory encodedChunk = encodeChunk(inputBiome, inputIsSurface, chunk);
     Vec3 chunkCoord = vec3(0, 0, 0);
     bytes32[] memory merkleProof = new bytes32[](0);
 
@@ -123,6 +124,16 @@ contract TerrainTest is BiomesTest {
 
     assertEq(biome, inputBiome);
 
+    startGasReport("TerrainLib.isSurfaceChunk (non-root)");
+    bool isSurface = TerrainLib.isSurfaceChunk(coord.toChunkCoord());
+    endGasReport();
+
+    startGasReport("TerrainLib.isSurfaceChunk (root)");
+    isSurface = TerrainLib.isSurfaceChunk(coord.toChunkCoord(), worldAddress);
+    endGasReport();
+
+    assertEq(isSurface, inputIsSurface);
+
     for (int32 x = 0; x < CHUNK_SIZE; x++) {
       for (int32 y = 0; y < CHUNK_SIZE; y++) {
         for (int32 z = 0; z < CHUNK_SIZE; z++) {
@@ -138,9 +149,8 @@ contract TerrainTest is BiomesTest {
   }
 
   function testExploreChunk_Fail_ChunkAlreadyExplored() public {
-    uint8[][][] memory chunk = _getTestChunk();
-    uint8 biome = 1;
-    bytes memory encodedChunk = encodeChunk(biome, chunk);
+    (uint8[][][] memory chunk, uint8 biome, bool isSurface) = _getTestChunk();
+    bytes memory encodedChunk = encodeChunk(biome, isSurface, chunk);
     Vec3 chunkCoord = vec3(0, 0, 0);
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
 
@@ -149,9 +159,8 @@ contract TerrainTest is BiomesTest {
   }
 
   function testGetBlockType() public {
-    uint8[][][] memory chunk = _getTestChunk();
-    uint8 biome = 1;
-    bytes memory encodedChunk = encodeChunk(biome, chunk);
+    (uint8[][][] memory chunk, uint8 biome, bool isSurface) = _getTestChunk();
+    bytes memory encodedChunk = encodeChunk(biome, isSurface, chunk);
 
     // Test we can get the block type for a voxel in the chunk
     Vec3 chunkCoord = vec3(0, 0, 0);
