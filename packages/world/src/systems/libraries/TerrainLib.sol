@@ -50,18 +50,18 @@ library TerrainLib {
 
   /// @notice Get the biome of a voxel coordinate.
   /// @dev Assumes to be called from a root system.
-  function _getBiome(Vec3 coord) internal view returns (BiomeId) {
+  function _getBiome(Vec3 coord) internal view returns (uint8) {
     return getBiome(coord, address(this));
   }
 
   /// @notice Get the biome of a voxel coordinate.
   /// @dev Can be called from either a root or non-root system, but consumes slightly more gas.
-  function getBiome(Vec3 coord) internal view returns (BiomeId) {
+  function getBiome(Vec3 coord) internal view returns (uint8) {
     return getBiome(coord, WorldContextConsumerLib._world());
   }
 
   /// @notice Get the biome of a voxel coordinate.
-  function getBiome(Vec3 coord, address world) internal view returns (BiomeId) {
+  function getBiome(Vec3 coord, address world) internal view returns (uint8) {
     Vec3 chunkCoord = coord.toChunkCoord();
     require(_isChunkExplored(chunkCoord, world), "Chunk not explored");
 
@@ -70,7 +70,7 @@ library TerrainLib {
     require(version == _VERSION, "Unsupported chunk encoding version");
 
     bytes1 biome = chunkPointer.readBytes1(1);
-    return BiomeId.wrap(uint8(blockType));
+    return uint8(biome);
   }
 
   /// @dev Get the relative coordinate of a voxel coordinate within a chunk

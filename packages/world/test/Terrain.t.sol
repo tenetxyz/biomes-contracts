@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { BiomesTest } from "./BiomesTest.sol";
 
-import { TerrainLib, VERSION_PADDING } from "../src/systems/libraries/TerrainLib.sol";
+import { TerrainLib, VERSION_PADDING, BIOME_PADDING } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
@@ -51,19 +51,19 @@ contract TerrainTest is BiomesTest {
   function testGetBlockIndex() public {
     Vec3 coord = vec3(1, 2, 2);
     uint256 index = TerrainLib._getBlockIndex(coord);
-    assertEq(index, 1 * 256 + 2 * 16 + 2 + VERSION_PADDING);
+    assertEq(index, 1 * 256 + 2 * 16 + 2 + VERSION_PADDING + BIOME_PADDING);
 
     coord = vec3(16, 17, 18);
     index = TerrainLib._getBlockIndex(coord);
-    assertEq(index, 0 * 256 + 1 * 16 + 2 + VERSION_PADDING);
+    assertEq(index, 0 * 256 + 1 * 16 + 2 + VERSION_PADDING + BIOME_PADDING);
 
     coord = vec3(-1, -2, -3);
     index = TerrainLib._getBlockIndex(coord);
-    assertEq(index, 15 * 256 + 14 * 16 + 13 + VERSION_PADDING);
+    assertEq(index, 15 * 256 + 14 * 16 + 13 + VERSION_PADDING + BIOME_PADDING);
 
     coord = vec3(16, -17, -18);
     index = TerrainLib._getBlockIndex(coord);
-    assertEq(index, 0 * 256 + 15 * 16 + 14 + VERSION_PADDING);
+    assertEq(index, 0 * 256 + 15 * 16 + 14 + VERSION_PADDING + BIOME_PADDING);
   }
 
   function testGetChunkSalt() public {
@@ -93,7 +93,8 @@ contract TerrainTest is BiomesTest {
 
   function testExploreChunk() public {
     uint8[][][] memory chunk = _getTestChunk();
-    bytes memory encodedChunk = encodeChunk(chunk);
+    uint8 inputBiome = 1;
+    bytes memory encodedChunk = encodeChunk(inputBiome, chunk);
     Vec3 chunkCoord = vec3(0, 0, 0);
     bytes32[] memory merkleProof = new bytes32[](0);
 
@@ -112,6 +113,16 @@ contract TerrainTest is BiomesTest {
 
     assertEq(ObjectTypeId.unwrap(blockType), uint16(chunk[1][2][3]));
 
+    startGasReport("TerrainLib.getBiome (non-root)");
+    uint8 biome = TerrainLib.getBiome(coord);
+    endGasReport();
+
+    startGasReport("TerrainLib.getBiome (root)");
+    biome = TerrainLib.getBiome(coord, worldAddress);
+    endGasReport();
+
+    assertEq(biome, inputBiome);
+
     for (int32 x = 0; x < CHUNK_SIZE; x++) {
       for (int32 y = 0; y < CHUNK_SIZE; y++) {
         for (int32 z = 0; z < CHUNK_SIZE; z++) {
@@ -128,7 +139,7 @@ contract TerrainTest is BiomesTest {
 
   function testExploreChunk_Fail_ChunkAlreadyExplored() public {
     uint8[][][] memory chunk = _getTestChunk();
-    bytes memory encodedChunk = encodeChunk(chunk);
+    bytes memory encodedChunk = encodeChunk(1, chunk);
     Vec3 chunkCoord = vec3(0, 0, 0);
     IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
 
@@ -138,7 +149,7 @@ contract TerrainTest is BiomesTest {
 
   function testGetBlockType() public {
     uint8[][][] memory chunk = _getTestChunk();
-    bytes memory encodedChunk = encodeChunk(chunk);
+    bytes memory encodedChunk = encodeChunk(1, chunk);
 
     // Test we can get the block type for a voxel in the chunk
     Vec3 chunkCoord = vec3(0, 0, 0);
@@ -162,9 +173,14 @@ contract TerrainTest is BiomesTest {
     assertEq(ObjectTypeId.unwrap(blockType), uint16(chunk[1][2][3]));
   }
 
-  /// forge-config: default.allow_internal_expect_revert = true
   function testGetBlockType_ChunkNotExplored() public {
     ObjectTypeId blockType = TerrainLib.getBlockType(vec3(0, 0, 0));
     assertEq(blockType, ObjectTypes.Null);
+  }
+
+  /// forge-config: default.allow_internal_expect_revert = true
+  function testGetBiome_Fail_ChunkNotExplored() public {
+    vm.expectRevert("Chunk not explored");
+    TerrainLib.getBiome(vec3(0, 0, 0));
   }
 }
