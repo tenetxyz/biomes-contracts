@@ -109,6 +109,8 @@ library ObjectTypes {
   ObjectTypeId constant MangroveLeaf = ObjectTypeId.wrap(Block | 119);
   ObjectTypeId constant MangroveRoots = ObjectTypeId.wrap(Block | 120);
   ObjectTypeId constant MuddyMangroveRoots = ObjectTypeId.wrap(Block | 121);
+  ObjectTypeId constant AzaleaLeaf = ObjectTypeId.wrap(Block | 122);
+  ObjectTypeId constant FloweringAzaleaLeaf = ObjectTypeId.wrap(Block | 123);
 
   // Flower
   ObjectTypeId constant AzaleaFlower = ObjectTypeId.wrap(Block | 128);
