@@ -30,7 +30,7 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
@@ -350,24 +350,11 @@ contract BuildTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 buildCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
-    EntityId airEntityId = setObjectAtCoord(buildCoord, ObjectTypes.Air);
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
-    EntityId buildEntityId = ReversePosition.get(buildCoord);
 
     vm.prank(alice);
     vm.expectRevert("Player is too far");
-    world.build(buildObjectTypeId, buildCoord);
-
-    (address bob, EntityId bobEntityId, ) = spawnPlayerOnAirChunk(
-      vec3(WORLD_BORDER_LOW_X, playerCoord.y(), playerCoord.z())
-    );
-
-    buildCoord = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y(), playerCoord.z());
-    setObjectAtCoord(buildCoord, ObjectTypes.Air);
-
-    vm.prank(bob);
-    vm.expectRevert("Cannot build outside the world border");
     world.build(buildObjectTypeId, buildCoord);
 
     buildCoord = playerCoord - vec3(1, 0, 0);

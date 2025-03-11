@@ -19,7 +19,7 @@ import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLA
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { checkWorldStatus, getUniqueEntity, inWorldBorder } from "../Utils.sol";
+import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
@@ -174,7 +174,6 @@ contract SpawnSystem is System {
   }
 
   function _spawnPlayer(uint32 playerMass, Vec3 spawnCoord) internal returns (EntityId) {
-    require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     address playerAddress = _msgSender();

@@ -15,7 +15,7 @@ import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePl
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { checkWorldStatus, getUniqueEntity, inWorldBorder } from "../Utils.sol";
+import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol";
 import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
@@ -108,8 +108,6 @@ contract BedSystem is System {
   }
 
   function wakeupWithExtraData(Vec3 spawnCoord, bytes memory extraData) public {
-    require(inWorldBorder(spawnCoord), "Cannot spawn outside the world border");
-
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     EntityId playerEntityId = Player._get(_msgSender());

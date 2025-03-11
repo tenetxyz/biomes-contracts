@@ -11,7 +11,6 @@ import { Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 import { ObjectTypeLib } from "../../ObjectTypeLib.sol";
-import { inWorldBorder } from "../../Utils.sol";
 import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, PLAYER_FALL_DAMAGE_THRESHOLD } from "../../Constants.sol";
 import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 import { TerrainLib } from "./TerrainLib.sol";
@@ -32,7 +31,6 @@ library MoveLib {
       Vec3 oldCoord = oldPlayerCoords[i];
       Vec3 newCoord = newPlayerCoords[i];
 
-      require(inWorldBorder(newCoord), "Cannot move outside the world border");
       require(oldCoord.inSurroundingCube(newCoord, 1), "New coord is too far from old coord");
 
       ObjectTypeId newObjectTypeId = safeGetObjectTypeIdAt(newCoord);
@@ -147,10 +145,6 @@ library MoveLib {
 
   function _gravityApplies(Vec3 playerCoord) internal view returns (bool) {
     Vec3 belowCoord = playerCoord - vec3(0, 1, 0);
-    // We don't want players to fall off the edge of the world
-    if (!inWorldBorder(belowCoord)) {
-      return false;
-    }
 
     ObjectTypeId belowObjectTypeId = safeGetObjectTypeIdAt(belowCoord);
     // Players can swim in water so we don't want to apply gravity to them
