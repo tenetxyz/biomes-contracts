@@ -12,4 +12,6 @@ import { Vec3 } from "../../Vec3.sol";
  */
 interface ITerrainSystem {
   function exploreChunk(Vec3 chunkCoord, bytes memory chunkData, bytes32[] memory merkleProof) external;
+
+  function exploreRegionEnergy(Vec3 regionCoord, uint32 vegetationCount, bytes32[] memory merkleProof) external;
 }

@@ -50,3 +50,5 @@ uint256 constant MAX_SILVER = 5_000_000;
 uint256 constant MAX_GOLD = 1_000_000;
 uint256 constant MAX_DIAMOND = 500_000;
 uint256 constant MAX_NEPTUNIUM = 100_000;
+
+uint128 constant INITIAL_ENERGY_PER_VEGETATION = 100;

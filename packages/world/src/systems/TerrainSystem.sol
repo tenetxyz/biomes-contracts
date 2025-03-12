@@ -4,8 +4,9 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { Vec3 } from "../Vec3.sol";
 import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
-import { ExploredChunkByIndex, ExploredChunk } from "../utils/Vec3Storage.sol";
+import { ExploredChunkByIndex, ExploredChunk, InitialEnergyPool, LocalEnergyPool } from "../utils/Vec3Storage.sol";
 import { SSTORE2 } from "../utils/SSTORE2.sol";
+import { INITIAL_ENERGY_PER_VEGETATION } from "../Constants.sol";
 
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 
@@ -19,5 +20,14 @@ contract TerrainSystem is System {
     uint256 exploredChunkCount = ExploredChunkCount._get();
     ExploredChunkByIndex.set(exploredChunkCount, chunkCoord);
     ExploredChunkCount._set(exploredChunkCount + 1);
+  }
+
+  function exploreRegionEnergy(Vec3 regionCoord, uint32 vegetationCount, bytes32[] memory merkleProof) public {
+    require(regionCoord.y() == 0, "Energy pool chunks are 2D only");
+    // TODO: verify merkle proof
+
+    uint128 energy = vegetationCount * INITIAL_ENERGY_PER_VEGETATION;
+    InitialEnergyPool.set(regionCoord, energy);
+    LocalEnergyPool.set(regionCoord, energy);
   }
 }

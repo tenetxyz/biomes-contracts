@@ -10,6 +10,8 @@ import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE } from "../src/Constants.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { InitialEnergyPool, LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
+import { INITIAL_ENERGY_PER_VEGETATION } from "../src/Constants.sol";
 
 contract TerrainTest is BiomesTest {
   function testGetChunkCoord() public {
@@ -193,5 +195,19 @@ contract TerrainTest is BiomesTest {
   function testGetBiome_Fail_ChunkNotExplored() public {
     vm.expectRevert("Chunk not explored");
     TerrainLib.getBiome(vec3(0, 0, 0));
+  }
+
+  function testExploreRegionEnergy() public {
+    Vec3 regionCoord = vec3(0, 0, 0);
+    uint32 vegetationCount = 100;
+    bytes32[] memory merkleProof = new bytes32[](0);
+
+    IWorld(worldAddress).exploreRegionEnergy(regionCoord, vegetationCount, merkleProof);
+
+    uint128 energy = InitialEnergyPool.get(regionCoord);
+    assertEq(energy, vegetationCount * INITIAL_ENERGY_PER_VEGETATION);
+
+    energy = LocalEnergyPool.get(regionCoord);
+    assertEq(energy, vegetationCount * INITIAL_ENERGY_PER_VEGETATION);
   }
 }
