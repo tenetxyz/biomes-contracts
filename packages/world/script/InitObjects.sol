@@ -421,6 +421,10 @@ contract InitObjects {
       ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
     );
     ObjectTypeMetadata.set(
+      ObjectTypes.WheatSeeds,
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    );
+    ObjectTypeMetadata.set(
       ObjectTypes.Coral,
       ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
     );
