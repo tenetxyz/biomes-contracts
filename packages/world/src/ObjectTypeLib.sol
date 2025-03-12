@@ -114,6 +114,10 @@ library ObjectTypeLib {
     return objectTypeId == ObjectTypes.SmartTextSign;
   }
 
+  function isCropSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return objectTypeId == ObjectTypes.WheatSeeds;
+  }
+
   function getMineDrop(ObjectTypeId objectTypeId) internal pure returns (ObjectAmount[] memory) {
     ObjectAmount[] memory amounts;
     if (objectTypeId == ObjectTypes.FescueGrass) {

@@ -9,8 +9,10 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { Orientation } from "../codegen/tables/Orientation.sol";
+import { BuildTime } from "../codegen/tables/BuildTime.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { GrowableMetadata } from "../codegen/tables/GrowableMetadata.sol";
 import { ActionType, Direction } from "../codegen/common.sol";
 
 import { PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
@@ -18,8 +20,8 @@ import { PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol"
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
-import { transferEnergyToPool, updateEnergyLevel } from "../utils/EnergyUtils.sol";
+import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
+import { transferEnergyToPool, removeEnergyFromLocalPool, updateEnergyLevel } from "../utils/EnergyUtils.sol";
 import { getPlayer } from "../utils/EntityUtils.sol";
 import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
@@ -122,6 +124,14 @@ contract BuildSystem is System {
     transferEnergyToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
 
     removeFromInventory(playerEntityId, buildObjectTypeId, 1);
+
+    if (buildObjectTypeId.isCropSeed()) {
+      require(getObjectTypeIdAt(baseCoord - vec3(0, 1, 0)) == ObjectTypes.WetFarmland, "Crop seeds need wet farmland");
+      // TODO: should we set build time for all blocks?
+      BuildTime._set(baseEntityId, uint128(block.timestamp));
+      // TODO: Is it necessary to transfer to seed or can we just remove from pool?
+      removeEnergyFromLocalPool(baseCoord, GrowableMetadata._getEnergy(buildObjectTypeId));
+    }
 
     notify(
       playerEntityId,

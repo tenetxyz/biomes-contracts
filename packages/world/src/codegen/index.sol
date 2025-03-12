@@ -39,6 +39,8 @@ import { TotalMinedOreCount } from "./tables/TotalMinedOreCount.sol";
 import { MinedOrePosition, MinedOrePositionData } from "./tables/MinedOrePosition.sol";
 import { MinedOreCount } from "./tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "./tables/TotalBurnedOreCount.sol";
+import { BuildTime } from "./tables/BuildTime.sol";
+import { GrowableMetadata, GrowableMetadataData } from "./tables/GrowableMetadata.sol";
 import { PlayerActionNotif, PlayerActionNotifData } from "./tables/PlayerActionNotif.sol";
 import { WorldStatus } from "./tables/WorldStatus.sol";
 import { UniqueEntity } from "./tables/UniqueEntity.sol";

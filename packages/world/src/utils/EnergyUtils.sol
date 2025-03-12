@@ -88,6 +88,12 @@ function transferEnergyToPool(EntityId from, Vec3 poolCoord, uint128 amount) {
   addEnergyToLocalPool(poolCoord, amount);
 }
 
+function transferEnergyFromPool(EntityId to, Vec3 poolCoord, uint128 amount) {
+  removeEnergyFromLocalPool(poolCoord, amount);
+  uint128 current = Energy._getEnergy(to);
+  to.setEnergy(current + amount);
+}
+
 function updateSleepingPlayerEnergy(
   EntityId playerEntityId,
   EntityId bedEntityId,

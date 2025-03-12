@@ -8,11 +8,13 @@ import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
 import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { BuildTime } from "../codegen/tables/BuildTime.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { Orientation } from "../codegen/tables/Orientation.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
+import { GrowableMetadata, GrowableMetadataData } from "../codegen/tables/GrowableMetadata.sol";
 import { DisplayContentType } from "../codegen/common.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
@@ -22,7 +24,7 @@ import { OreCommitment } from "../utils/Vec3Storage.sol";
 import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
 import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
-import { updateEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+import { updateEnergyLevel, energyToMass, transferEnergyToPool, addEnergyToLocalPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { mulDiv } from "../utils/MathUtils.sol";
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
@@ -170,6 +172,29 @@ contract MineSystem is System {
     }
   }
 
+  function _handleDrop(
+    EntityId playerEntityId,
+    EntityId baseEntityId,
+    Vec3 mineCoord,
+    ObjectTypeId mineObjectTypeId
+  ) internal {
+    if (mineObjectTypeId == ObjectTypes.FescueGrass) {
+      // TODO: add randomness?
+      addToInventory(playerEntityId, ObjectTypes.Player, ObjectTypes.WheatSeeds, 1);
+    } else if (mineObjectTypeId == ObjectTypes.WheatSeeds) {
+      GrowableMetadataData memory growableData = GrowableMetadata._get(mineObjectTypeId);
+      uint128 buildTime = BuildTime._get(baseEntityId);
+      if (buildTime + growableData.timeToGrow <= block.timestamp) {
+        addToInventory(playerEntityId, ObjectTypes.Player, ObjectTypes.Wheat, 1);
+      } else {
+        addToInventory(playerEntityId, ObjectTypes.Player, ObjectTypes.WheatSeeds, 1);
+        addEnergyToLocalPool(mineCoord, growableData.energy);
+      }
+    } else {
+      addToInventory(playerEntityId, ObjectTypes.Player, mineObjectTypeId, 1);
+    }
+  }
+
   function mineWithExtraData(Vec3 coord, bytes memory extraData) public payable returns (EntityId) {
     require(inWorldBorder(coord), "Cannot mine outside the world border");
 
@@ -211,13 +236,7 @@ contract MineSystem is System {
           MineLib._mineBed(baseEntityId, baseCoord);
         }
 
-        {
-          ObjectAmount[] memory dropObjectAmounts = mineObjectTypeId.getMineDrop();
-          for (uint256 i = 0; i < dropObjectAmounts.length; i++) {
-            ObjectAmount memory objectAmount = dropObjectAmounts[i];
-            addToInventory(playerEntityId, ObjectTypes.Player, objectAmount.objectTypeId, objectAmount.amount);
-          }
-        }
+        _handleDrop(playerEntityId, baseEntityId, coord, mineObjectTypeId);
 
         _removeBlock(baseEntityId, baseCoord);
 

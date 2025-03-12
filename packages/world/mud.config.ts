@@ -378,6 +378,24 @@ export default defineWorld({
       key: [],
     },
     // ------------------------------------------------------------
+    // Farming
+    // ------------------------------------------------------------
+    BuildTime: {
+      schema: {
+        entityId: "EntityId",
+        timestamp: "uint128",
+      },
+      key: ["entityId"],
+    },
+    GrowableMetadata: {
+      schema: {
+        objectTypeId: "ObjectTypeId",
+        timeToGrow: "uint128",
+        energy: "uint32",
+      },
+      key: ["objectTypeId"],
+    },
+    // ------------------------------------------------------------
     // Offchain
     // ------------------------------------------------------------
     PlayerActionNotif: {
