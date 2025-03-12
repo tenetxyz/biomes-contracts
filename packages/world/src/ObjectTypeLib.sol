@@ -72,7 +72,7 @@ library ObjectTypeLib {
   }
 
   function isMineable(ObjectTypeId self) internal pure returns (bool) {
-    return self.isBlock() && self != ObjectTypes.Air && self != ObjectTypes.Water;
+    return self.isBlock() && self != ObjectTypes.Air && self != ObjectTypes.Water && self != ObjectTypes.Lava;
   }
 
   function isTool(ObjectTypeId id) internal pure returns (bool) {
