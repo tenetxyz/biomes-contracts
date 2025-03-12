@@ -190,9 +190,8 @@ library ObjectTypes {
   ObjectTypeId constant SmartChest = ObjectTypeId.wrap(Block | 602);
   ObjectTypeId constant TextSign = ObjectTypeId.wrap(Block | 603);
   ObjectTypeId constant SmartTextSign = ObjectTypeId.wrap(Block | 604);
-  ObjectTypeId constant Pipe = ObjectTypeId.wrap(Block | 605);
-  ObjectTypeId constant SpawnTile = ObjectTypeId.wrap(Block | 606);
-  ObjectTypeId constant Bed = ObjectTypeId.wrap(Block | 607);
+  ObjectTypeId constant SpawnTile = ObjectTypeId.wrap(Block | 605);
+  ObjectTypeId constant Bed = ObjectTypeId.wrap(Block | 606);
 
   // ------------------------------------------------------------
   // Tool
@@ -221,12 +220,16 @@ library ObjectTypes {
   ObjectTypeId constant Diamond = ObjectTypeId.wrap(Item | 2);
   ObjectTypeId constant NeptuniumBar = ObjectTypeId.wrap(Item | 3);
   ObjectTypeId constant ChipBattery = ObjectTypeId.wrap(Item | 4);
+  ObjectTypeId constant Chip = ObjectTypeId.wrap(Item | 5);
 
   // ------------------------------------------------------------
   // Misc
   // ------------------------------------------------------------
   ObjectTypeId constant Player = ObjectTypeId.wrap(Misc | 0);
   ObjectTypeId constant ForceFieldFragment = ObjectTypeId.wrap(Misc | 1);
-  ObjectTypeId constant AnyLog = ObjectTypeId.wrap(Misc | 2046);
-  ObjectTypeId constant AnyPlanks = ObjectTypeId.wrap(Misc | 2047);
+  ObjectTypeId constant AnyLog = ObjectTypeId.wrap(Misc | 2047);
+  ObjectTypeId constant AnyPlanks = ObjectTypeId.wrap(Misc | 2046);
+  ObjectTypeId constant AnyReinforcedPlanks = ObjectTypeId.wrap(Misc | 2045);
+  ObjectTypeId constant AnyGlass = ObjectTypeId.wrap(Misc | 2044);
+  ObjectTypeId constant AnyCottonBlock = ObjectTypeId.wrap(Misc | 2043);
 }

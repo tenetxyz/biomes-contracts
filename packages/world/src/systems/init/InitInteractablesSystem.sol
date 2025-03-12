@@ -39,7 +39,6 @@ contract InitInteractablesSystem is System {
     createInteractableBlock(ObjectTypes.Dyeomatic, 80, 0, 1);
     createInteractableBlock(ObjectTypes.Powerstone, 80, 0, 1);
     createInteractableBlock(ObjectTypes.ForceField, 80, 0, 99);
-    createInteractableBlock(ObjectTypes.Pipe, 80, 0, 99);
     createInteractableBlock(ObjectTypes.SpawnTile, 80, 0, 99);
     createInteractableBlock(ObjectTypes.Bed, 80, 36, 1);
   }
@@ -76,15 +75,6 @@ contract InitInteractablesSystem is System {
       ObjectTypes.SilverBar,
       5,
       ObjectTypes.ForceField,
-      1
-    );
-    createDoubleInputWithStationRecipe(
-      ObjectTypes.Workbench,
-      ObjectTypes.Stone,
-      4,
-      ObjectTypes.SilverBar,
-      1,
-      ObjectTypes.Pipe,
       1
     );
     createDoubleInputWithStationRecipe(
