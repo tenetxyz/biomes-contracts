@@ -11,6 +11,7 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 
 import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 
 contract InitObjectsScript is Script {
   function run(address worldAddress) external {
@@ -657,7 +658,13 @@ contract InitObjectsScript is Script {
     );
     ObjectTypeMetadata.set(
       ObjectTypes.Player,
-      ObjectTypeMetadataData({ stackable: 0, maxInventorySlots: 36, mass: 10, energy: 1000000, canPassThrough: false })
+      ObjectTypeMetadataData({
+        stackable: 0,
+        maxInventorySlots: 36,
+        mass: 10,
+        energy: uint32(MAX_PLAYER_ENERGY),
+        canPassThrough: false
+      })
     );
     ObjectTypeMetadata.set(
       ObjectTypes.AnyLog,

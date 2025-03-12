@@ -23,19 +23,6 @@ contract PostDeploy is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
-    IWorld(worldAddress).initPlayerObjectTypes();
-    IWorld(worldAddress).initTerrainBlockObjectTypes();
-
-    IWorld(worldAddress).initThermoblastObjectTypes();
-    IWorld(worldAddress).initInteractableObjectTypes();
-    IWorld(worldAddress).initWorkbenchObjectTypes();
-    IWorld(worldAddress).initHandcraftedObjectTypes();
-
-    IWorld(worldAddress).initThermoblastRecipes();
-    IWorld(worldAddress).initInteractablesRecipes();
-    IWorld(worldAddress).initWorkbenchRecipes();
-    IWorld(worldAddress).initHandcrafedRecipes();
-
     vm.stopBroadcast();
   }
 }

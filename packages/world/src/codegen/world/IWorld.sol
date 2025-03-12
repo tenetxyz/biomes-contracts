@@ -27,12 +27,6 @@ import { IAdminSystem } from "./IAdminSystem.sol";
 import { IOracleSystem } from "./IOracleSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
 import { IReadTwoSystem } from "./IReadTwoSystem.sol";
-import { IInitHandBlocksSystem } from "./IInitHandBlocksSystem.sol";
-import { IInitInteractablesSystem } from "./IInitInteractablesSystem.sol";
-import { IInitPlayersSystem } from "./IInitPlayersSystem.sol";
-import { IInitTerrainBlocksSystem } from "./IInitTerrainBlocksSystem.sol";
-import { IInitThermoblastSystem } from "./IInitThermoblastSystem.sol";
-import { IInitWorkbenchSystem } from "./IInitWorkbenchSystem.sol";
 
 /**
  * @title IWorld
@@ -65,11 +59,5 @@ interface IWorld is
   IAdminSystem,
   IOracleSystem,
   IReadSystem,
-  IReadTwoSystem,
-  IInitHandBlocksSystem,
-  IInitInteractablesSystem,
-  IInitPlayersSystem,
-  IInitTerrainBlocksSystem,
-  IInitThermoblastSystem,
-  IInitWorkbenchSystem
+  IReadTwoSystem
 {}
