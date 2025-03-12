@@ -380,20 +380,12 @@ export default defineWorld({
     // ------------------------------------------------------------
     // Farming
     // ------------------------------------------------------------
-    BuildTime: {
+    SeedGrowth: {
       schema: {
         entityId: "EntityId",
-        timestamp: "uint128",
+        fullyGrownAt: "uint128",
       },
       key: ["entityId"],
-    },
-    GrowableMetadata: {
-      schema: {
-        objectTypeId: "ObjectTypeId",
-        timeToGrow: "uint128",
-        energy: "uint128",
-      },
-      key: ["objectTypeId"],
     },
     // ------------------------------------------------------------
     // Offchain

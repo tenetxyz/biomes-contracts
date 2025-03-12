@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { GrowableMetadata, GrowableMetadataData } from "../../codegen/tables/GrowableMetadata.sol";
 
 import { energyToMass } from "../../utils/EnergyUtils.sol";
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
@@ -33,6 +32,23 @@ contract InitTerrainBlocksSystem is System {
         maxInventorySlots: type(uint16).max,
         mass: mass,
         energy: 0,
+        canPassThrough: true
+      })
+    );
+  }
+
+  function createPassableTerrainBlockWithEnergy(
+    ObjectTypeId terrainBlockObjectTypeId,
+    uint32 mass,
+    uint32 energy
+  ) internal {
+    ObjectTypeMetadata._set(
+      terrainBlockObjectTypeId,
+      ObjectTypeMetadataData({
+        stackable: MAX_BLOCK_STACKABLE,
+        maxInventorySlots: type(uint16).max,
+        mass: mass,
+        energy: energy,
         canPassThrough: true
       })
     );
@@ -142,15 +158,7 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(ObjectTypes.DiamondOre, 100);
     createTerrainBlock(ObjectTypes.NeptuniumOre, 100);
 
-    // TODO: move to a different init system?
-    // TODO: Should these have inventory slots?
-    // TODO: is this mass calculation correct?
-    uint128 wheatEnergy = 1000;
-    createPassableTerrainBlock(ObjectTypes.Wheat, uint32(100 + energyToMass(wheatEnergy)));
-    createPassableTerrainBlock(ObjectTypes.WheatSeeds, 100);
-    GrowableMetadata._set(
-      ObjectTypes.WheatSeeds,
-      GrowableMetadataData({ timeToGrow: 15 minutes, energy: wheatEnergy })
-    );
+    createPassableTerrainBlockWithEnergy(ObjectTypes.Wheat, 0, 1000);
+    createPassableTerrainBlockWithEnergy(ObjectTypes.WheatSeeds, 0, 1000);
   }
 }

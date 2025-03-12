@@ -14,8 +14,7 @@ import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
-import { GrowableMetadata } from "../src/codegen/tables/GrowableMetadata.sol";
-import { BuildTime } from "../src/codegen/tables/BuildTime.sol";
+import { SeedGrowth } from "../src/codegen/tables/SeedGrowth.sol";
 
 import { ReversePosition, PlayerPosition } from "../src/utils/Vec3Storage.sol";
 
@@ -204,7 +203,7 @@ contract FarmingTest is BiomesTest {
 
     // Check initial local energy pool
     uint128 initialLocalEnergy = LocalEnergyPool.get(farmlandCoord.toLocalEnergyPoolShardCoord());
-    uint128 seedEnergy = GrowableMetadata.getEnergy(ObjectTypes.WheatSeeds);
+    uint128 seedEnergy = ObjectTypeMetadata.getEnergy(ObjectTypes.WheatSeeds);
 
     // Plant wheat seeds
     vm.prank(alice);
@@ -223,9 +222,13 @@ contract FarmingTest is BiomesTest {
     );
 
     // Verify build time was set
-    uint128 buildTime = BuildTime.get(cropEntityId);
-    assertTrue(buildTime > 0, "Build time not set correctly");
-    assertEq(buildTime, uint128(block.timestamp), "Build time not equal to current block timestamp");
+    uint128 fullyGrownAt = SeedGrowth.getFullyGrownAt(cropEntityId);
+    assertTrue(fullyGrownAt > 0, "FullyGrownAt not set correctly");
+    assertEq(
+      fullyGrownAt,
+      uint128(block.timestamp) + ObjectTypes.WheatSeeds.timeToGrow(),
+      "Incorrect fullyGrownAt set"
+    );
 
     // Verify seeds were removed from inventory
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 0);
@@ -262,19 +265,23 @@ contract FarmingTest is BiomesTest {
     // Add wheat seeds to inventory
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeeds, 1);
 
+    Vec3 cropCoord = farmlandCoord + vec3(0, 1, 0);
+
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, farmlandCoord + vec3(0, 1, 0));
+    world.build(ObjectTypes.WheatSeeds, cropCoord);
 
     // Verify seeds were planted
-    EntityId cropEntityId = ReversePosition.get(farmlandCoord + vec3(0, 1, 0));
+    EntityId cropEntityId = ReversePosition.get(cropCoord);
     assertTrue(cropEntityId.exists(), "Crop entity doesn't exist after planting");
 
     // Get growth time required for the crop
-    uint128 timeToGrow = GrowableMetadata.getTimeToGrow(ObjectTypes.WheatSeeds);
+    uint128 fullyGrownAt = SeedGrowth.getFullyGrownAt(cropEntityId);
 
     // Advance time beyond the growth period
-    vm.warp(block.timestamp + timeToGrow + 1);
+    vm.warp(fullyGrownAt);
+    vm.prank(alice);
+    world.growSeed(cropCoord);
 
     // Check local energy pool before harvesting
     uint128 initialLocalEnergy = LocalEnergyPool.get(farmlandCoord.toLocalEnergyPoolShardCoord());
@@ -293,7 +300,7 @@ contract FarmingTest is BiomesTest {
     // Verify local energy pool hasn't changed (energy not returned since crop was fully grown)
     assertEq(
       LocalEnergyPool.get(farmlandCoord.toLocalEnergyPoolShardCoord()),
-      initialLocalEnergy,
+      initialLocalEnergy + PLAYER_MINE_ENERGY_COST,
       "Local energy pool shouldn't change after harvesting mature crop"
     );
   }
@@ -306,29 +313,34 @@ contract FarmingTest is BiomesTest {
     // Add wheat seeds to inventory
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeeds, 1);
 
+    Vec3 cropCoord = farmlandCoord + vec3(0, 1, 0);
+
     // Get initial energy
-    uint128 seedEnergy = GrowableMetadata.getEnergy(ObjectTypes.WheatSeeds);
+    uint128 seedEnergy = ObjectTypeMetadata.getEnergy(ObjectTypes.WheatSeeds);
 
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, farmlandCoord + vec3(0, 1, 0));
+    world.build(ObjectTypes.WheatSeeds, cropCoord);
 
     // Verify seeds were planted
-    EntityId cropEntityId = ReversePosition.get(farmlandCoord + vec3(0, 1, 0));
+    EntityId cropEntityId = ReversePosition.get(cropCoord);
     assertTrue(cropEntityId.exists(), "Crop entity doesn't exist after planting");
 
     // Get growth time required for the crop
-    uint128 timeToGrow = GrowableMetadata.getTimeToGrow(ObjectTypes.WheatSeeds);
+    uint128 fullyGrownAt = SeedGrowth.getFullyGrownAt(cropEntityId);
 
     // Advance time but not enough for full growth
-    vm.warp(block.timestamp + timeToGrow - 60); // 1 minute before full growth
+    vm.warp(fullyGrownAt - 1); // 1 second before full growth
+
+    // Update player's energy and transfer to pool
+    world.activatePlayer(alice);
 
     // Check local energy pool before harvesting
     uint128 beforeHarvestEnergy = LocalEnergyPool.get(farmlandCoord.toLocalEnergyPoolShardCoord());
 
     // Harvest the crop
     vm.prank(alice);
-    world.mineUntilDestroyed(farmlandCoord + vec3(0, 1, 0));
+    world.mineUntilDestroyed(cropCoord);
 
     // Verify original seeds were returned (not wheat)
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 1);
@@ -371,21 +383,25 @@ contract FarmingTest is BiomesTest {
     // Add wheat seeds to inventory
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeeds, 1);
 
+    Vec3 cropCoord = farmlandCoord + vec3(0, 1, 0);
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, farmlandCoord + vec3(0, 1, 0));
+    world.build(ObjectTypes.WheatSeeds, cropCoord);
 
     // Verify seeds were planted
-    EntityId cropEntityId = ReversePosition.get(farmlandCoord + vec3(0, 1, 0));
-    uint128 buildTime = BuildTime.get(cropEntityId);
-    uint128 timeToGrow = GrowableMetadata.getTimeToGrow(ObjectTypes.WheatSeeds);
+    EntityId cropEntityId = ReversePosition.get(cropCoord);
+    uint128 fullyGrownAt = SeedGrowth.getFullyGrownAt(cropEntityId);
 
-    // Mid-growth - Try harvesting halfway through growth
-    vm.warp(buildTime + timeToGrow / 2);
+    // Mid-growth - Try harvesting before fully grown
+    vm.warp(fullyGrownAt - 1);
+
+    vm.prank(alice);
+    vm.expectRevert("Seed cannot be grown yet");
+    world.growSeed(cropCoord);
 
     // Mine the crop
     vm.prank(alice);
-    world.mineUntilDestroyed(farmlandCoord + vec3(0, 1, 0));
+    world.mineUntilDestroyed(cropCoord);
 
     // We get seeds back, not wheat
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 1);
@@ -393,17 +409,19 @@ contract FarmingTest is BiomesTest {
 
     // Reset test by planting again
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, farmlandCoord + vec3(0, 1, 0));
+    world.build(ObjectTypes.WheatSeeds, cropCoord);
 
-    cropEntityId = ReversePosition.get(farmlandCoord + vec3(0, 1, 0));
-    buildTime = BuildTime.get(cropEntityId);
+    cropEntityId = ReversePosition.get(cropCoord);
+    fullyGrownAt = SeedGrowth.getFullyGrownAt(cropEntityId);
 
     // Full growth - Warp past the full growth time
-    vm.warp(buildTime + timeToGrow + 1);
+    vm.warp(fullyGrownAt + 1);
+    vm.prank(alice);
+    world.growSeed(cropCoord);
 
     // Mine the crop
     vm.prank(alice);
-    world.mineUntilDestroyed(farmlandCoord + vec3(0, 1, 0));
+    world.mineUntilDestroyed(cropCoord);
 
     // Now we get wheat and seeds
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 1);

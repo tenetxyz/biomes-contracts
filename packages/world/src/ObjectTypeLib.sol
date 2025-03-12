@@ -114,8 +114,61 @@ library ObjectTypeLib {
     return objectTypeId == ObjectTypes.SmartTextSign;
   }
 
-  function isCropSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
+  function isSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
     return objectTypeId == ObjectTypes.WheatSeeds;
+  }
+
+  function isCrop(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return objectTypeId == ObjectTypes.Wheat;
+  }
+
+  // TODO: one possible way to optimize is to follow some kind of schema for crops and their seeds
+  function getCrop(ObjectTypeId objectTypeId) internal pure returns (ObjectTypeId) {
+    if (objectTypeId == ObjectTypes.WheatSeeds) {
+      return ObjectTypes.Wheat;
+    }
+
+    return ObjectTypes.Null;
+  }
+
+  // TODO: one possible way to optimize is to follow some kind of schema for crops and their seeds
+  function getSeed(ObjectTypeId objectTypeId) internal pure returns (ObjectTypeId) {
+    if (objectTypeId == ObjectTypes.Wheat) {
+      return ObjectTypes.WheatSeeds;
+    }
+
+    return ObjectTypes.Null;
+  }
+
+  function getMineDrop(ObjectTypeId objectTypeId) internal pure returns (ObjectAmount[] memory amounts) {
+    // TODO: figure out conservation of fescue grass (no way to regenerate yet)
+    if (objectTypeId == ObjectTypes.FescueGrass) {
+      // TODO: add randomness?
+      amounts = new ObjectAmount[](1);
+      amounts[0] = ObjectAmount(ObjectTypes.WheatSeeds, 1);
+      return amounts;
+    }
+
+    ObjectTypeId seedTypeId = objectTypeId.getSeed();
+    if (seedTypeId != ObjectTypes.Null) {
+      amounts = new ObjectAmount[](2);
+      amounts[0] = ObjectAmount(objectTypeId, 1);
+      amounts[1] = ObjectAmount(seedTypeId, 1);
+      return amounts;
+    }
+
+    amounts = new ObjectAmount[](1);
+    amounts[0] = ObjectAmount(objectTypeId, 1);
+    return amounts;
+  }
+
+  function timeToGrow(ObjectTypeId objectTypeId) internal pure returns (uint128) {
+    // TODO: different times for different seeds
+    if (objectTypeId.isSeed()) {
+      return 15 minutes;
+    }
+
+    return 0;
   }
 
   function getObjectTypes(ObjectTypeId self) internal pure returns (ObjectTypeId[] memory) {

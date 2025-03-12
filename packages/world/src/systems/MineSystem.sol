@@ -7,14 +7,13 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
 import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { BuildTime } from "../codegen/tables/BuildTime.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { Orientation } from "../codegen/tables/Orientation.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
-import { GrowableMetadata, GrowableMetadataData } from "../codegen/tables/GrowableMetadata.sol";
 import { DisplayContentType } from "../codegen/common.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
@@ -160,7 +159,11 @@ library MineLib {
 contract MineSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
-  function _removeBlock(EntityId entityId, Vec3 coord) internal {
+  function _removeBlock(EntityId entityId, ObjectTypeId objectTypeId, Vec3 coord) internal {
+    if (objectTypeId.isSeed()) {
+      addEnergyToLocalPool(coord, ObjectTypeMetadata._getEnergy(objectTypeId));
+    }
+
     ObjectType._set(entityId, ObjectTypes.Air);
 
     Vec3 aboveCoord = coord + vec3(0, 1, 0);
@@ -172,28 +175,11 @@ contract MineSystem is System {
     }
   }
 
-  function _handleDrop(
-    EntityId playerEntityId,
-    EntityId baseEntityId,
-    Vec3 mineCoord,
-    ObjectTypeId mineObjectTypeId
-  ) internal {
-    if (mineObjectTypeId == ObjectTypes.FescueGrass) {
-      // TODO: add randomness?
-      addToInventory(playerEntityId, ObjectTypes.Player, ObjectTypes.WheatSeeds, 1);
-    } else if (mineObjectTypeId == ObjectTypes.WheatSeeds) {
-      // TODO: generalize for different crops
-      GrowableMetadataData memory growableData = GrowableMetadata._get(mineObjectTypeId);
-      uint128 buildTime = BuildTime._get(baseEntityId);
-      if (buildTime + growableData.timeToGrow <= block.timestamp) {
-        addToInventory(playerEntityId, ObjectTypes.Player, ObjectTypes.Wheat, 1);
-      } else {
-        addEnergyToLocalPool(mineCoord, growableData.energy);
-      }
-      // Drop seeds for both cases
-      addToInventory(playerEntityId, ObjectTypes.Player, ObjectTypes.WheatSeeds, 1);
-    } else {
-      addToInventory(playerEntityId, ObjectTypes.Player, mineObjectTypeId, 1);
+  function _handleDrop(EntityId playerEntityId, ObjectTypeId mineObjectTypeId) internal {
+    ObjectAmount[] memory amounts = mineObjectTypeId.getMineDrop();
+
+    for (uint256 i = 0; i < amounts.length; i++) {
+      addToInventory(playerEntityId, ObjectTypes.Player, amounts[i].objectTypeId, amounts[i].amount);
     }
   }
 
@@ -227,6 +213,7 @@ contract MineSystem is System {
         if (mineObjectTypeId == ObjectTypes.AnyOre) {
           mineObjectTypeId = MineLib._mineRandomOre(coord);
         }
+
         Mass._deleteRecord(baseEntityId);
 
         if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
@@ -236,17 +223,20 @@ contract MineSystem is System {
         // If mining a bed with a sleeping player, kill the player
         if (mineObjectTypeId == ObjectTypes.Bed) {
           MineLib._mineBed(baseEntityId, baseCoord);
-        } else if (mineObjectTypeId.isCropSeed()) {
-          // Turn wet farmland to regular farmland
-          (EntityId belowEntityId, ObjectTypeId belowTypeId) = getOrCreateEntityAt(baseCoord - vec3(0, 1, 0));
-          if (belowTypeId == ObjectTypes.WetFarmland) {
-            ObjectType._set(belowEntityId, ObjectTypes.Farmland);
+        }
+
+        {
+          // Remove seeds placed on top of this block
+          Vec3 aboveCoord = baseCoord + vec3(0, 1, 0);
+          (EntityId aboveEntityId, ObjectTypeId aboveTypeId) = getOrCreateEntityAt(aboveCoord);
+          if (aboveTypeId.isSeed()) {
+            _handleDrop(playerEntityId, aboveTypeId);
+            _removeBlock(aboveEntityId, aboveTypeId, aboveCoord);
           }
         }
 
-        _handleDrop(playerEntityId, baseEntityId, coord, mineObjectTypeId);
-
-        _removeBlock(baseEntityId, baseCoord);
+        _handleDrop(playerEntityId, mineObjectTypeId);
+        _removeBlock(baseEntityId, mineObjectTypeId, baseCoord);
 
         // Only iterate through relative schema coords
         for (uint256 i = 1; i < coords.length; i++) {
@@ -254,7 +244,7 @@ contract MineSystem is System {
           (EntityId relativeEntityId, ) = getOrCreateEntityAt(relativeCoord);
           BaseEntity._deleteRecord(relativeEntityId);
 
-          _removeBlock(relativeEntityId, relativeCoord);
+          _removeBlock(relativeEntityId, mineObjectTypeId, relativeCoord);
         }
       } else {
         Mass._setMass(baseEntityId, finalMass);

@@ -19,9 +19,9 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { EntityId } from "../../EntityId.sol";
 
-library BuildTime {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "BuildTime", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004275696c6454696d6500000000000000);
+library SeedGrowth {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "SeedGrowth", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000005365656447726f777468000000000000);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0010010010000000000000000000000000000000000000000000000000000000);
@@ -46,7 +46,7 @@ library BuildTime {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "timestamp";
+    fieldNames[0] = "fullyGrownAt";
   }
 
   /**
@@ -64,9 +64,9 @@ library BuildTime {
   }
 
   /**
-   * @notice Get timestamp.
+   * @notice Get fullyGrownAt.
    */
-  function getTimestamp(EntityId entityId) internal view returns (uint128 timestamp) {
+  function getFullyGrownAt(EntityId entityId) internal view returns (uint128 fullyGrownAt) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -75,9 +75,9 @@ library BuildTime {
   }
 
   /**
-   * @notice Get timestamp.
+   * @notice Get fullyGrownAt.
    */
-  function _getTimestamp(EntityId entityId) internal view returns (uint128 timestamp) {
+  function _getFullyGrownAt(EntityId entityId) internal view returns (uint128 fullyGrownAt) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -86,9 +86,9 @@ library BuildTime {
   }
 
   /**
-   * @notice Get timestamp.
+   * @notice Get fullyGrownAt.
    */
-  function get(EntityId entityId) internal view returns (uint128 timestamp) {
+  function get(EntityId entityId) internal view returns (uint128 fullyGrownAt) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -97,9 +97,9 @@ library BuildTime {
   }
 
   /**
-   * @notice Get timestamp.
+   * @notice Get fullyGrownAt.
    */
-  function _get(EntityId entityId) internal view returns (uint128 timestamp) {
+  function _get(EntityId entityId) internal view returns (uint128 fullyGrownAt) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -108,43 +108,43 @@ library BuildTime {
   }
 
   /**
-   * @notice Set timestamp.
+   * @notice Set fullyGrownAt.
    */
-  function setTimestamp(EntityId entityId, uint128 timestamp) internal {
+  function setFullyGrownAt(EntityId entityId, uint128 fullyGrownAt) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((timestamp)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((fullyGrownAt)), _fieldLayout);
   }
 
   /**
-   * @notice Set timestamp.
+   * @notice Set fullyGrownAt.
    */
-  function _setTimestamp(EntityId entityId, uint128 timestamp) internal {
+  function _setFullyGrownAt(EntityId entityId, uint128 fullyGrownAt) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((timestamp)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((fullyGrownAt)), _fieldLayout);
   }
 
   /**
-   * @notice Set timestamp.
+   * @notice Set fullyGrownAt.
    */
-  function set(EntityId entityId, uint128 timestamp) internal {
+  function set(EntityId entityId, uint128 fullyGrownAt) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((timestamp)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((fullyGrownAt)), _fieldLayout);
   }
 
   /**
-   * @notice Set timestamp.
+   * @notice Set fullyGrownAt.
    */
-  function _set(EntityId entityId, uint128 timestamp) internal {
+  function _set(EntityId entityId, uint128 fullyGrownAt) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((timestamp)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((fullyGrownAt)), _fieldLayout);
   }
 
   /**
@@ -171,8 +171,8 @@ library BuildTime {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint128 timestamp) internal pure returns (bytes memory) {
-    return abi.encodePacked(timestamp);
+  function encodeStatic(uint128 fullyGrownAt) internal pure returns (bytes memory) {
+    return abi.encodePacked(fullyGrownAt);
   }
 
   /**
@@ -181,8 +181,8 @@ library BuildTime {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(uint128 timestamp) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(timestamp);
+  function encode(uint128 fullyGrownAt) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(fullyGrownAt);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

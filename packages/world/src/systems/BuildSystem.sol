@@ -9,10 +9,9 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { Orientation } from "../codegen/tables/Orientation.sol";
-import { BuildTime } from "../codegen/tables/BuildTime.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { GrowableMetadata } from "../codegen/tables/GrowableMetadata.sol";
+import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
 import { ActionType, Direction } from "../codegen/common.sol";
 
 import { PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
@@ -125,13 +124,11 @@ contract BuildSystem is System {
 
     removeFromInventory(playerEntityId, buildObjectTypeId, 1);
 
-    if (buildObjectTypeId.isCropSeed()) {
+    if (buildObjectTypeId.isSeed()) {
       require(getObjectTypeIdAt(baseCoord - vec3(0, 1, 0)) == ObjectTypes.WetFarmland, "Crop seeds need wet farmland");
-      // TODO: should we set build time for all blocks?
-      BuildTime._set(baseEntityId, uint128(block.timestamp));
-      // TODO: Is it necessary to transfer to seed or can we just remove from pool?
-      // TODO: should it be taken from baseCoord or farmland coord?
-      removeEnergyFromLocalPool(baseCoord, GrowableMetadata._getEnergy(buildObjectTypeId));
+      removeEnergyFromLocalPool(baseCoord, ObjectTypeMetadata._getEnergy(buildObjectTypeId));
+
+      SeedGrowth._setFullyGrownAt(baseEntityId, uint128(block.timestamp) + buildObjectTypeId.timeToGrow());
     }
 
     notify(
