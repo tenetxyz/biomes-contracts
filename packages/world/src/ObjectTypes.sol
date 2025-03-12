@@ -227,6 +227,8 @@ library ObjectTypes {
   ObjectTypeId constant Bucket = ObjectTypeId.wrap(Item | 5);
   ObjectTypeId constant WaterBucket = ObjectTypeId.wrap(Item | 6);
 
+  ObjectTypeId constant WheatSeeds = ObjectTypeId.wrap(Item | 7);
+
   // ------------------------------------------------------------
   // Misc
   // ------------------------------------------------------------

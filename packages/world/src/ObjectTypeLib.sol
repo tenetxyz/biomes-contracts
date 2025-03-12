@@ -115,10 +115,15 @@ library ObjectTypeLib {
   }
 
   function getMineDrop(ObjectTypeId objectTypeId) internal pure returns (ObjectAmount[] memory) {
-    // TODO: return the corresponding type of the drop
-
-    ObjectAmount[] memory amounts = new ObjectAmount[](1);
-    amounts[0] = ObjectAmount(objectTypeId, 1);
+    ObjectAmount[] memory amounts;
+    if (objectTypeId == ObjectTypes.FescueGrass) {
+      // TODO: add randomness?
+      amounts = new ObjectAmount[](1);
+      amounts[0] = ObjectAmount(ObjectTypes.WheatSeeds, 1);
+    } else {
+      amounts = new ObjectAmount[](1);
+      amounts[0] = ObjectAmount(objectTypeId, 1);
+    }
     return amounts;
   }
 
