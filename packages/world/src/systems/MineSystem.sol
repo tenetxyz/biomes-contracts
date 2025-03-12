@@ -19,7 +19,7 @@ import { Position } from "../utils/Vec3Storage.sol";
 import { MinedOrePosition } from "../utils/Vec3Storage.sol";
 import { OreCommitment } from "../utils/Vec3Storage.sol";
 
-import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
+import { getUniqueEntity } from "../Utils.sol";
 import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
@@ -171,8 +171,6 @@ contract MineSystem is System {
   }
 
   function mineWithExtraData(Vec3 coord, bytes memory extraData) public payable returns (EntityId) {
-    require(inWorldBorder(coord), "Cannot mine outside the world border");
-
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 

@@ -33,7 +33,7 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { PickupData } from "../src/Types.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
@@ -384,12 +384,6 @@ contract DropTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Player is too far");
     world.pickup(transferObjectTypeId, 1, pickupCoord);
-
-    pickupCoord = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y() + 1, playerCoord.z());
-
-    vm.prank(alice);
-    vm.expectRevert("Cannot pickup outside the world border");
-    world.pickup(transferObjectTypeId, 1, pickupCoord);
   }
 
   function testDropFailsIfInvalidCoord() public {
@@ -403,12 +397,6 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is too far");
-    world.drop(transferObjectTypeId, 1, dropCoord);
-
-    dropCoord = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y() + 1, playerCoord.z());
-
-    vm.prank(alice);
-    vm.expectRevert("Cannot drop outside the world border");
     world.drop(transferObjectTypeId, 1, dropCoord);
 
     dropCoord = playerCoord + vec3(-1, 1, 0);

@@ -11,7 +11,6 @@ import { ReversePosition } from "../utils/Vec3Storage.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { inWorldBorder } from "../Utils.sol";
 import { transferInventoryNonEntity, transferInventoryEntity, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, PickupNotifData } from "../utils/NotifUtils.sol";
@@ -23,8 +22,6 @@ import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
 
 contract PickupSystem is System {
   function pickupCommon(Vec3 coord) internal returns (EntityId, EntityId) {
-    require(inWorldBorder(coord), "Cannot pickup outside the world border");
-
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
