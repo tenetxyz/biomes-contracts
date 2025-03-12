@@ -12,7 +12,7 @@ import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../src/codegen/table
 
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 
-contract InitObjectTypes is Script {
+contract InitObjectsScript is Script {
   function run(address worldAddress) external {
     StoreSwitch.setStoreAddress(worldAddress);
     IWorld world = IWorld(worldAddress);
