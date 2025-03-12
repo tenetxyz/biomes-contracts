@@ -775,6 +775,36 @@ contract InitRecipes {
       );
     }
     {
+      ObjectTypeId stationObjectTypeId = ObjectTypes.Null;
+      ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
+      inputTypes[0] = ObjectTypes.AnyLog;
+      uint16[] memory inputAmounts = new uint16[](1);
+      inputAmounts[0] = 4;
+      ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
+      outputTypes[0] = ObjectTypes.WoodenHoe;
+      uint16[] memory outputAmounts = new uint16[](1);
+      outputAmounts[0] = 1;
+
+      uint16[] memory _inputTypes;
+      assembly ("memory-safe") {
+        _inputTypes := inputTypes
+      }
+
+      uint16[] memory _outputTypes;
+      assembly ("memory-safe") {
+        _outputTypes := outputTypes
+      }
+
+      Recipes.set(
+        keccak256(abi.encode(stationObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts)),
+        stationObjectTypeId,
+        _inputTypes,
+        inputAmounts,
+        _outputTypes,
+        outputAmounts
+      );
+    }
+    {
       ObjectTypeId stationObjectTypeId = ObjectTypes.Workbench;
       ObjectTypeId[] memory inputTypes = new ObjectTypeId[](2);
       inputTypes[0] = ObjectTypes.AnyLog;
@@ -1134,6 +1164,36 @@ contract InitRecipes {
       inputAmounts[1] = 4;
       ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
       outputTypes[0] = ObjectTypes.NeptuniumAxe;
+      uint16[] memory outputAmounts = new uint16[](1);
+      outputAmounts[0] = 1;
+
+      uint16[] memory _inputTypes;
+      assembly ("memory-safe") {
+        _inputTypes := inputTypes
+      }
+
+      uint16[] memory _outputTypes;
+      assembly ("memory-safe") {
+        _outputTypes := outputTypes
+      }
+
+      Recipes.set(
+        keccak256(abi.encode(stationObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts)),
+        stationObjectTypeId,
+        _inputTypes,
+        inputAmounts,
+        _outputTypes,
+        outputAmounts
+      );
+    }
+    {
+      ObjectTypeId stationObjectTypeId = ObjectTypes.Null;
+      ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
+      inputTypes[0] = ObjectTypes.SilverBar;
+      uint16[] memory inputAmounts = new uint16[](1);
+      inputAmounts[0] = 3;
+      ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
+      outputTypes[0] = ObjectTypes.Bucket;
       uint16[] memory outputAmounts = new uint16[](1);
       outputAmounts[0] = 1;
 
