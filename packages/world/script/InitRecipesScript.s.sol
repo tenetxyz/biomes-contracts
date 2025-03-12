@@ -233,7 +233,7 @@ contract InitRecipesScript is Script {
       );
     }
     {
-      ObjectTypeId stationObjectTypeId = ObjectTypes.Null;
+      ObjectTypeId stationObjectTypeId = ObjectTypes.Thermoblaster;
       ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
       inputTypes[0] = ObjectTypes.SilverOre;
       uint16[] memory inputAmounts = new uint16[](1);
@@ -263,7 +263,7 @@ contract InitRecipesScript is Script {
       );
     }
     {
-      ObjectTypeId stationObjectTypeId = ObjectTypes.Null;
+      ObjectTypeId stationObjectTypeId = ObjectTypes.Thermoblaster;
       ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
       inputTypes[0] = ObjectTypes.GoldOre;
       uint16[] memory inputAmounts = new uint16[](1);
@@ -293,7 +293,7 @@ contract InitRecipesScript is Script {
       );
     }
     {
-      ObjectTypeId stationObjectTypeId = ObjectTypes.Null;
+      ObjectTypeId stationObjectTypeId = ObjectTypes.Thermoblaster;
       ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
       inputTypes[0] = ObjectTypes.DiamondOre;
       uint16[] memory inputAmounts = new uint16[](1);
@@ -323,7 +323,7 @@ contract InitRecipesScript is Script {
       );
     }
     {
-      ObjectTypeId stationObjectTypeId = ObjectTypes.Null;
+      ObjectTypeId stationObjectTypeId = ObjectTypes.Thermoblaster;
       ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
       inputTypes[0] = ObjectTypes.NeptuniumOre;
       uint16[] memory inputAmounts = new uint16[](1);
