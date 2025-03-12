@@ -6,12 +6,14 @@ pragma solidity >=0.8.24;
 import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.sol";
 import { IActivateSystem } from "./IActivateSystem.sol";
 import { IBedSystem } from "./IBedSystem.sol";
+import { IBucketSystem } from "./IBucketSystem.sol";
 import { IBuildSystem } from "./IBuildSystem.sol";
 import { IChipSystem } from "./IChipSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
 import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
+import { IFarmingSystem } from "./IFarmingSystem.sol";
 import { IForceFieldSystem } from "./IForceFieldSystem.sol";
 import { IHitMachineSystem } from "./IHitMachineSystem.sol";
 import { IMachineSystem } from "./IMachineSystem.sol";
@@ -39,12 +41,14 @@ interface IWorld is
   IBaseWorld,
   IActivateSystem,
   IBedSystem,
+  IBucketSystem,
   IBuildSystem,
   IChipSystem,
   ICraftSystem,
   IDisplaySystem,
   IDropSystem,
   IEquipSystem,
+  IFarmingSystem,
   IForceFieldSystem,
   IHitMachineSystem,
   IMachineSystem,
