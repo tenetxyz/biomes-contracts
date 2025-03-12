@@ -28,7 +28,7 @@ import { updateEnergyLevel, energyToMass, transferEnergyToPool, addEnergyToLocal
 import { mulDiv } from "../utils/MathUtils.sol";
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
-import { getOrCreateEntityAt, getPlayer } from "../utils/EntityUtils.sol";
+import { getOrCreateEntityAt, getObjectTypeIdAt, getPlayer } from "../utils/EntityUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -236,6 +236,12 @@ contract MineSystem is System {
         // If mining a bed with a sleeping player, kill the player
         if (mineObjectTypeId == ObjectTypes.Bed) {
           MineLib._mineBed(baseEntityId, baseCoord);
+        } else if (mineObjectTypeId.isCropSeed()) {
+          // Turn wet farmland to regular farmland
+          (EntityId belowEntityId, ObjectTypeId belowTypeId) = getOrCreateEntityAt(baseCoord - vec3(0, 1, 0));
+          if (belowTypeId == ObjectTypes.WetFarmland) {
+            ObjectType._set(belowEntityId, ObjectTypes.Farmland);
+          }
         }
 
         _handleDrop(playerEntityId, baseEntityId, coord, mineObjectTypeId);
