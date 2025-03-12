@@ -33,7 +33,7 @@ import { encodeChunk } from "./utils/encodeChunk.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
-import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
+import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { energyToMass } from "../src/utils/EnergyUtils.sol";
 import { TestForceFieldUtils } from "./utils/TestUtils.sol";
 

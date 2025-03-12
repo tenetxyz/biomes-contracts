@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-uint16 constant MAX_BLOCK_STACKABLE = 99;
-uint16 constant MAX_ITEM_STACKABLE = 99;
-uint16 constant MAX_TOOL_STACKABLE = 1;
-
 int32 constant FORCE_FIELD_FRAGMENT_DIM = 8;
 int32 constant LOCAL_ENERGY_POOL_SHARD_DIM = 512;
 

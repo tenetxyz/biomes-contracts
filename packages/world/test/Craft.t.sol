@@ -40,12 +40,21 @@ import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { hashRecipe } from "../src/utils/RecipeUtils.sol";
 
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
 contract CraftTest is BiomesTest {
   using ObjectTypeLib for ObjectTypeId;
+
+  function hashRecipe(
+    ObjectTypeId stationObjectTypeId,
+    ObjectTypeId[] memory inputTypes,
+    uint16[] memory inputAmounts,
+    ObjectTypeId[] memory outputTypes,
+    uint16[] memory outputAmounts
+  ) internal pure returns (bytes32) {
+    return keccak256(abi.encode(stationObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts));
+  }
 
   function testCraftSingleInputSingleOutput() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
