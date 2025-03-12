@@ -391,7 +391,7 @@ export default defineWorld({
       schema: {
         objectTypeId: "ObjectTypeId",
         timeToGrow: "uint128",
-        energy: "uint32",
+        energy: "uint128",
       },
       key: ["objectTypeId"],
     },

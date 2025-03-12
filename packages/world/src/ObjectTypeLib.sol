@@ -118,19 +118,6 @@ library ObjectTypeLib {
     return objectTypeId == ObjectTypes.WheatSeeds;
   }
 
-  function getMineDrop(ObjectTypeId objectTypeId) internal pure returns (ObjectAmount[] memory) {
-    ObjectAmount[] memory amounts;
-    if (objectTypeId == ObjectTypes.FescueGrass) {
-      // TODO: add randomness?
-      amounts = new ObjectAmount[](1);
-      amounts[0] = ObjectAmount(ObjectTypes.WheatSeeds, 1);
-    } else {
-      amounts = new ObjectAmount[](1);
-      amounts[0] = ObjectAmount(objectTypeId, 1);
-    }
-    return amounts;
-  }
-
   function getObjectTypes(ObjectTypeId self) internal pure returns (ObjectTypeId[] memory) {
     if (self == ObjectTypes.AnyLog) {
       return getLogObjectTypes();

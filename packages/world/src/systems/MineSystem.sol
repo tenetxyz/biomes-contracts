@@ -182,14 +182,16 @@ contract MineSystem is System {
       // TODO: add randomness?
       addToInventory(playerEntityId, ObjectTypes.Player, ObjectTypes.WheatSeeds, 1);
     } else if (mineObjectTypeId == ObjectTypes.WheatSeeds) {
+      // TODO: generalize for different crops
       GrowableMetadataData memory growableData = GrowableMetadata._get(mineObjectTypeId);
       uint128 buildTime = BuildTime._get(baseEntityId);
       if (buildTime + growableData.timeToGrow <= block.timestamp) {
         addToInventory(playerEntityId, ObjectTypes.Player, ObjectTypes.Wheat, 1);
       } else {
-        addToInventory(playerEntityId, ObjectTypes.Player, ObjectTypes.WheatSeeds, 1);
         addEnergyToLocalPool(mineCoord, growableData.energy);
       }
+      // Drop seeds for both cases
+      addToInventory(playerEntityId, ObjectTypes.Player, ObjectTypes.WheatSeeds, 1);
     } else {
       addToInventory(playerEntityId, ObjectTypes.Player, mineObjectTypeId, 1);
     }

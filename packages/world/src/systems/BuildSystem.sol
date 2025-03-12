@@ -130,6 +130,7 @@ contract BuildSystem is System {
       // TODO: should we set build time for all blocks?
       BuildTime._set(baseEntityId, uint128(block.timestamp));
       // TODO: Is it necessary to transfer to seed or can we just remove from pool?
+      // TODO: should it be taken from baseCoord or farmland coord?
       removeEnergyFromLocalPool(baseCoord, GrowableMetadata._getEnergy(buildObjectTypeId));
     }
 

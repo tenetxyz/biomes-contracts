@@ -6,6 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { GrowableMetadata, GrowableMetadataData } from "../../codegen/tables/GrowableMetadata.sol";
 
+import { energyToMass } from "../../utils/EnergyUtils.sol";
 import { MAX_BLOCK_STACKABLE } from "../../Constants.sol";
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
@@ -142,7 +143,14 @@ contract InitTerrainBlocksSystem is System {
     createTerrainBlock(ObjectTypes.NeptuniumOre, 100);
 
     // TODO: move to a different init system?
+    // TODO: Should these have inventory slots?
+    // TODO: is this mass calculation correct?
+    uint128 wheatEnergy = 1000;
+    createPassableTerrainBlock(ObjectTypes.Wheat, uint32(100 + energyToMass(wheatEnergy)));
     createPassableTerrainBlock(ObjectTypes.WheatSeeds, 100);
-    GrowableMetadata._set(ObjectTypes.WheatSeeds, GrowableMetadataData({ timeToGrow: 15 minutes, energy: 1000 }));
+    GrowableMetadata._set(
+      ObjectTypes.WheatSeeds,
+      GrowableMetadataData({ timeToGrow: 15 minutes, energy: wheatEnergy })
+    );
   }
 }

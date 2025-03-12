@@ -21,7 +21,7 @@ import { ObjectTypeId } from "../../ObjectTypeId.sol";
 
 struct GrowableMetadataData {
   uint128 timeToGrow;
-  uint32 energy;
+  uint128 energy;
 }
 
 library GrowableMetadata {
@@ -29,12 +29,12 @@ library GrowableMetadata {
   ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000047726f7761626c654d65746164617461);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0014020010040000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0020020010100000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (uint16)
   Schema constant _keySchema = Schema.wrap(0x0002010001000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint128, uint32)
-  Schema constant _valueSchema = Schema.wrap(0x001402000f030000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint128, uint128)
+  Schema constant _valueSchema = Schema.wrap(0x002002000f0f0000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -114,29 +114,29 @@ library GrowableMetadata {
   /**
    * @notice Get energy.
    */
-  function getEnergy(ObjectTypeId objectTypeId) internal view returns (uint32 energy) {
+  function getEnergy(ObjectTypeId objectTypeId) internal view returns (uint128 energy) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (uint32(bytes4(_blob)));
+    return (uint128(bytes16(_blob)));
   }
 
   /**
    * @notice Get energy.
    */
-  function _getEnergy(ObjectTypeId objectTypeId) internal view returns (uint32 energy) {
+  function _getEnergy(ObjectTypeId objectTypeId) internal view returns (uint128 energy) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (uint32(bytes4(_blob)));
+    return (uint128(bytes16(_blob)));
   }
 
   /**
    * @notice Set energy.
    */
-  function setEnergy(ObjectTypeId objectTypeId, uint32 energy) internal {
+  function setEnergy(ObjectTypeId objectTypeId, uint128 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -146,7 +146,7 @@ library GrowableMetadata {
   /**
    * @notice Set energy.
    */
-  function _setEnergy(ObjectTypeId objectTypeId, uint32 energy) internal {
+  function _setEnergy(ObjectTypeId objectTypeId, uint128 energy) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
@@ -186,7 +186,7 @@ library GrowableMetadata {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(ObjectTypeId objectTypeId, uint128 timeToGrow, uint32 energy) internal {
+  function set(ObjectTypeId objectTypeId, uint128 timeToGrow, uint128 energy) internal {
     bytes memory _staticData = encodeStatic(timeToGrow, energy);
 
     EncodedLengths _encodedLengths;
@@ -201,7 +201,7 @@ library GrowableMetadata {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(ObjectTypeId objectTypeId, uint128 timeToGrow, uint32 energy) internal {
+  function _set(ObjectTypeId objectTypeId, uint128 timeToGrow, uint128 energy) internal {
     bytes memory _staticData = encodeStatic(timeToGrow, energy);
 
     EncodedLengths _encodedLengths;
@@ -246,10 +246,10 @@ library GrowableMetadata {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (uint128 timeToGrow, uint32 energy) {
+  function decodeStatic(bytes memory _blob) internal pure returns (uint128 timeToGrow, uint128 energy) {
     timeToGrow = (uint128(Bytes.getBytes16(_blob, 0)));
 
-    energy = (uint32(Bytes.getBytes4(_blob, 16)));
+    energy = (uint128(Bytes.getBytes16(_blob, 16)));
   }
 
   /**
@@ -290,7 +290,7 @@ library GrowableMetadata {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint128 timeToGrow, uint32 energy) internal pure returns (bytes memory) {
+  function encodeStatic(uint128 timeToGrow, uint128 energy) internal pure returns (bytes memory) {
     return abi.encodePacked(timeToGrow, energy);
   }
 
@@ -302,7 +302,7 @@ library GrowableMetadata {
    */
   function encode(
     uint128 timeToGrow,
-    uint32 energy
+    uint128 energy
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(timeToGrow, energy);
 
