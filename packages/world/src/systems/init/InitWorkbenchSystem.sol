@@ -27,27 +27,32 @@ contract InitWorkbenchSystem is System {
   }
 
   function initWorkbenchObjectTypes() public {
-    createTool(ObjectTypes.StonePick, 100000);
-    createTool(ObjectTypes.StoneAxe, 100000);
-    createTool(ObjectTypes.StoneWhacker, 100000);
+    createTool(ObjectTypes.StonePick, 10000);
+    createTool(ObjectTypes.StoneAxe, 10000);
+    createTool(ObjectTypes.StoneWhacker, 10000);
 
-    createTool(ObjectTypes.SilverPick, 1400000);
-    createTool(ObjectTypes.SilverAxe, 1400000);
-    createTool(ObjectTypes.SilverWhacker, 1400000);
-    createTool(ObjectTypes.SilverHoe, 1400000);
+    createTool(ObjectTypes.SilverPick, 140000);
+    createTool(ObjectTypes.SilverAxe, 140000);
+    createTool(ObjectTypes.SilverWhacker, 140000);
+    createTool(ObjectTypes.SilverHoe, 140000);
 
-    createTool(ObjectTypes.GoldPick, 1200000);
-    createTool(ObjectTypes.GoldAxe, 1200000);
+    createTool(ObjectTypes.GoldPick, 120000);
+    createTool(ObjectTypes.GoldAxe, 120000);
 
-    createTool(ObjectTypes.DiamondPick, 1900000);
-    createTool(ObjectTypes.DiamondAxe, 1900000);
+    createTool(ObjectTypes.DiamondPick, 190000);
+    createTool(ObjectTypes.DiamondAxe, 190000);
 
-    createTool(ObjectTypes.NeptuniumPick, 5500000);
-    createTool(ObjectTypes.NeptuniumAxe, 5500000);
+    createTool(ObjectTypes.NeptuniumPick, 550000);
+    createTool(ObjectTypes.NeptuniumAxe, 550000);
 
     // TODO: inlining this as it is a special case
     ObjectTypeMetadata._set(
       ObjectTypes.Bucket,
+      ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+    );
+
+    ObjectTypeMetadata._set(
+      ObjectTypes.WaterBucket,
       ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
     );
   }

@@ -707,6 +707,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "fillBucket",
+    "inputs": [
+      {
+        "name": "waterCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "getAllRandomSpawnCoords",
     "inputs": [
       {
@@ -3123,6 +3136,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "till",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "transfer",
     "inputs": [
       {
@@ -3472,6 +3498,19 @@ declare const abi: [
         "name": "extraData",
         "type": "bytes",
         "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "wetFarmland",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "uint96",
+        "internalType": "Vec3"
       }
     ],
     "outputs": [],
