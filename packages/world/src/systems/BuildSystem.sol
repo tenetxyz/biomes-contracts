@@ -16,7 +16,7 @@ import { ActionType, Direction } from "../codegen/common.sol";
 
 import { PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
-import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
+import { getUniqueEntity } from "../Utils.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
@@ -40,7 +40,6 @@ import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
 
 library BuildLib {
   function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) public returns (EntityId) {
-    require(inWorldBorder(coord), "Cannot build outside the world border");
     (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = getOrCreateEntityAt(coord);
     require(terrainObjectTypeId == ObjectTypes.Air, "Cannot build on a non-air block");
     require(

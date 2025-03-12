@@ -12,7 +12,10 @@ import { registerERC721 } from "@latticexyz/world-modules/src/modules/erc721-pup
 import { ERC721MetadataData as MUDERC721MetadataData } from "@latticexyz/world-modules/src/modules/erc721-puppet/tables/ERC721Metadata.sol";
 import { ERC20MetadataData as MUDERC20MetadataData } from "@latticexyz/world-modules/src/modules/erc20-puppet/tables/ERC20Metadata.sol";
 
-contract PostDeploy is Script {
+import { InitObjects } from "./InitObjects.sol";
+import { InitRecipes } from "./InitRecipes.sol";
+
+contract PostDeploy is Script, InitObjects, InitRecipes {
   function run(address worldAddress) external {
     // Specify a store so that you can use tables directly in PostDeploy
     StoreSwitch.setStoreAddress(worldAddress);
@@ -23,18 +26,8 @@ contract PostDeploy is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
-    IWorld(worldAddress).initPlayerObjectTypes();
-    IWorld(worldAddress).initTerrainBlockObjectTypes();
-
-    IWorld(worldAddress).initThermoblastObjectTypes();
-    IWorld(worldAddress).initInteractableObjectTypes();
-    IWorld(worldAddress).initWorkbenchObjectTypes();
-    IWorld(worldAddress).initHandcraftedObjectTypes();
-
-    IWorld(worldAddress).initThermoblastRecipes();
-    IWorld(worldAddress).initInteractablesRecipes();
-    IWorld(worldAddress).initWorkbenchRecipes();
-    IWorld(worldAddress).initHandcrafedRecipes();
+    initObjects();
+    initRecipes();
 
     vm.stopBroadcast();
   }

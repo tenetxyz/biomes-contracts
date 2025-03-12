@@ -99,7 +99,7 @@ library ObjectTypeLib {
   }
 
   function isHoe(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return objectTypeId == ObjectTypes.SilverHoe;
+    return objectTypeId == ObjectTypes.WoodenHoe;
   }
 
   function isMachine(ObjectTypeId objectTypeId) internal pure returns (bool) {

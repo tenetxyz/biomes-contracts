@@ -11,7 +11,6 @@ import { Player } from "../codegen/tables/Player.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Position, ReversePosition, OreCommitment, MinedOrePosition } from "../utils/Vec3Storage.sol";
 
-import { inWorldBorder } from "../Utils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, InitiateOreRevealNotifData, RevealOreNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
