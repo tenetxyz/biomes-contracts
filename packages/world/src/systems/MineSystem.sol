@@ -211,7 +211,10 @@ contract MineSystem is System {
           MineLib._mineBed(baseEntityId, baseCoord);
         }
 
-        addToInventory(playerEntityId, ObjectTypes.Player, mineObjectTypeId, 1);
+        ObjectTypeId dropObjectTypeId = mineObjectTypeId.getMineDrop();
+        if (dropObjectTypeId != ObjectTypes.Null) {
+          addToInventory(playerEntityId, ObjectTypes.Player, dropObjectTypeId, 1);
+        }
 
         _removeBlock(baseEntityId, baseCoord);
 
