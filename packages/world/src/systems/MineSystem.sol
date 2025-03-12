@@ -35,7 +35,7 @@ import { IForceFieldFragmentChip } from "../prototypes/IForceFieldChip.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { ObjectTypeLib } from "../ObjectTypeLib.sol";
+import { ObjectTypeLib, ObjectAmount } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
 import { PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
@@ -211,9 +211,12 @@ contract MineSystem is System {
           MineLib._mineBed(baseEntityId, baseCoord);
         }
 
-        ObjectTypeId dropObjectTypeId = mineObjectTypeId.getMineDrop();
-        if (dropObjectTypeId != ObjectTypes.Null) {
-          addToInventory(playerEntityId, ObjectTypes.Player, dropObjectTypeId, 1);
+        {
+          ObjectAmount[] memory dropObjectAmounts = mineObjectTypeId.getMineDrop();
+          for (uint256 i = 0; i < dropObjectAmounts.length; i++) {
+            ObjectAmount memory objectAmount = dropObjectAmounts[i];
+            addToInventory(playerEntityId, ObjectTypes.Player, objectAmount.objectTypeId, objectAmount.amount);
+          }
         }
 
         _removeBlock(baseEntityId, baseCoord);

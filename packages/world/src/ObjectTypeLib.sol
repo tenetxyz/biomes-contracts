@@ -114,9 +114,12 @@ library ObjectTypeLib {
     return objectTypeId == ObjectTypes.SmartTextSign;
   }
 
-  function getMineDrop(ObjectTypeId objectTypeId) internal pure returns (ObjectTypeId) {
+  function getMineDrop(ObjectTypeId objectTypeId) internal pure returns (ObjectAmount[] memory) {
     // TODO: return the corresponding type of the drop
-    return objectTypeId;
+
+    ObjectAmount[] memory amounts = new ObjectAmount[](1);
+    amounts[0] = ObjectAmount(objectTypeId, 1);
+    return amounts;
   }
 
   function getObjectTypes(ObjectTypeId self) internal pure returns (ObjectTypeId[] memory) {
