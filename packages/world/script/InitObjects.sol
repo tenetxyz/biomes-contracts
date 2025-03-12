@@ -533,6 +533,10 @@ contract InitObjects {
       ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
     );
     ObjectTypeMetadata.set(
+      ObjectTypes.WetFarmland,
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    );
+    ObjectTypeMetadata.set(
       ObjectTypes.ForceField,
       ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
     );
@@ -570,6 +574,10 @@ contract InitObjects {
     );
     ObjectTypeMetadata.set(
       ObjectTypes.WoodenWhacker,
+      ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 18750, energy: 0, canPassThrough: false })
+    );
+    ObjectTypeMetadata.set(
+      ObjectTypes.WoodenHoe,
       ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 18750, energy: 0, canPassThrough: false })
     );
     ObjectTypeMetadata.set(
@@ -635,6 +643,14 @@ contract InitObjects {
     ObjectTypeMetadata.set(
       ObjectTypes.NeptuniumBar,
       ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+    );
+    ObjectTypeMetadata.set(
+      ObjectTypes.Bucket,
+      ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+    );
+    ObjectTypeMetadata.set(
+      ObjectTypes.WaterBucket,
+      ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
     );
     ObjectTypeMetadata.set(
       ObjectTypes.ChipBattery,
