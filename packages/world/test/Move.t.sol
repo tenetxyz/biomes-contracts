@@ -32,7 +32,7 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, PLAYER_FALL_DAMAGE_THRESHOLD } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, PLAYER_FALL_DAMAGE_THRESHOLD } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
@@ -459,7 +459,7 @@ contract MoveTest is BiomesTest {
   }
 
   function testMoveFailsIfInvalidCoord() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](2);
     newCoords[0] = playerCoord + vec3(0, 0, 1);
@@ -471,12 +471,6 @@ contract MoveTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("New coord is too far from old coord");
-    world.move(newCoords);
-
-    newCoords[1] = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y(), playerCoord.z() + 2); // Can't use vector addition here due to WORLD_BORDER_LOW_X
-
-    vm.prank(alice);
-    vm.expectRevert("Cannot move outside the world border");
     world.move(newCoords);
 
     newCoords[0] = playerCoord - vec3(1, 0, 0);
@@ -491,7 +485,7 @@ contract MoveTest is BiomesTest {
   }
 
   function testMoveFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](2);
     newCoords[0] = playerCoord + vec3(0, 0, 1);

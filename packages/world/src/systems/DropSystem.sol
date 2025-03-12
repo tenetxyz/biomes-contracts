@@ -11,7 +11,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { inWorldBorder, getUniqueEntity } from "../Utils.sol";
+import { getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonEntity, transferInventoryEntity } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { notify, DropNotifData } from "../utils/NotifUtils.sol";
@@ -25,7 +25,6 @@ import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 // TODO: combine the tool and non-tool drop functions
 contract DropSystem is System {
   function dropCommon(Vec3 coord) internal returns (EntityId, EntityId) {
-    require(inWorldBorder(coord), "Cannot drop outside the world border");
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 

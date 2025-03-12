@@ -49,6 +49,13 @@ contract AdminScript is Script {
 
     world.adminAddToInventory(playerEntityId, ObjectTypes.OakLog, 99);
     world.adminAddToInventory(playerEntityId, ObjectTypes.Chest, 1);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.SmartChest, 1);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.TextSign, 1);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.SmartTextSign, 1);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.Workbench, 1);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.Thermoblaster, 1);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.SpawnTile, 1);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.Bed, 1);
     world.adminAddToolToInventory(playerEntityId, ObjectTypes.SilverPick);
 
     vm.stopBroadcast();

@@ -32,7 +32,7 @@ import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { ObjectAmount } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, WORLD_BORDER_LOW_X } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
@@ -300,7 +300,7 @@ contract MineTest is BiomesTest {
   }
 
   function testMineFailsIfInvalidCoord() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
     ObjectTypeId mineObjectTypeId = ObjectTypes.Dirt;
@@ -308,13 +308,6 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is too far");
-    world.mine(mineCoord);
-
-    mineCoord = vec3(WORLD_BORDER_LOW_X - 1, playerCoord.y(), playerCoord.z());
-    setObjectAtCoord(mineCoord, ObjectTypes.Dirt);
-
-    vm.prank(alice);
-    vm.expectRevert("Cannot mine outside the world border");
     world.mine(mineCoord);
 
     mineCoord = playerCoord - vec3(1, 0, 0);
