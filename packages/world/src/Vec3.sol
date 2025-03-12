@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { Position } from "./codegen/tables/Position.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { Direction } from "./codegen/common.sol";
-import { CHUNK_SIZE, FORCE_FIELD_FRAGMENT_DIM, LOCAL_ENERGY_POOL_SHARD_DIM } from "./Constants.sol";
+import { CHUNK_SIZE, FRAGMENT_SIZE, REGION_SIZE } from "./Constants.sol";
 
 // Vec3 stores 3 packed int32 values (x, y, z)
 type Vec3 is uint96;
@@ -231,7 +231,7 @@ library Vec3Lib {
   }
 
   function toForceFieldFragmentCoord(Vec3 coord) internal pure returns (Vec3) {
-    return coord.floorDiv(FORCE_FIELD_FRAGMENT_DIM);
+    return coord.floorDiv(FRAGMENT_SIZE);
   }
 
   // Note: Local Energy Pool shards are 2D for now, but the table supports 3D
@@ -239,9 +239,9 @@ library Vec3Lib {
   function toLocalEnergyPoolShardCoord(Vec3 coord) internal pure returns (Vec3) {
     return
       vec3(
-        _floorDiv(coord.x(), LOCAL_ENERGY_POOL_SHARD_DIM),
+        _floorDiv(coord.x(), REGION_SIZE),
         int32(0),
-        _floorDiv(coord.z(), LOCAL_ENERGY_POOL_SHARD_DIM)
+        _floorDiv(coord.z(), REGION_SIZE)
       );
   }
 

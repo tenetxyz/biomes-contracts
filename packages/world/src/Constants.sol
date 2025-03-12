@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-int32 constant FORCE_FIELD_FRAGMENT_DIM = 8;
-int32 constant LOCAL_ENERGY_POOL_SHARD_DIM = 512;
-
 int32 constant MAX_PLAYER_INFLUENCE_HALF_WIDTH = 10;
 int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
 
@@ -13,8 +10,9 @@ uint16 constant PLAYER_FALL_DAMAGE_THRESHOLD = 3;
 
 uint256 constant SPAWN_BLOCK_RANGE = 10;
 
+int32 constant FRAGMENT_SIZE = 8;
 int32 constant CHUNK_SIZE = 16;
-int32 constant AREA_SIZE = 512;
+int32 constant REGION_SIZE = 512;
 
 uint256 constant SAFE_CHIP_GAS = 1_000_000;
 
