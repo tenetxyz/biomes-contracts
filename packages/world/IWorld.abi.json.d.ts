@@ -2014,6 +2014,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "growSeed",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "hitForceField",
     "inputs": [
       {

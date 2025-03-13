@@ -186,6 +186,7 @@ library ObjectTypes {
   ObjectTypeId constant DiamondOre = ObjectTypeId.wrap(Block | 270);
   ObjectTypeId constant NeptuniumOre = ObjectTypeId.wrap(Block | 271);
   ObjectTypeId constant WetFarmland = ObjectTypeId.wrap(Block | 272);
+  ObjectTypeId constant WheatSeeds = ObjectTypeId.wrap(Block | 273);
   ObjectTypeId constant ForceField = ObjectTypeId.wrap(Block | 600);
   ObjectTypeId constant Chest = ObjectTypeId.wrap(Block | 601);
   ObjectTypeId constant SmartChest = ObjectTypeId.wrap(Block | 602);

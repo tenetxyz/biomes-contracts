@@ -7,11 +7,13 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
 import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { Orientation } from "../codegen/tables/Orientation.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
+import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { DisplayContentType } from "../codegen/common.sol";
 
@@ -22,11 +24,11 @@ import { OreCommitment } from "../utils/Vec3Storage.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
-import { updateEnergyLevel, energyToMass, transferEnergyToPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+import { updateEnergyLevel, energyToMass, transferEnergyToPool, addEnergyToLocalPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { mulDiv } from "../utils/MathUtils.sol";
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
-import { getOrCreateEntityAt, getPlayer } from "../utils/EntityUtils.sol";
+import { getOrCreateEntityAt, getObjectTypeIdAt, getPlayer } from "../utils/EntityUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -35,7 +37,7 @@ import { IForceFieldFragmentChip } from "../prototypes/IForceFieldChip.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { ObjectTypeLib } from "../ObjectTypeLib.sol";
+import { ObjectTypeLib, ObjectAmount } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
 import { PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
@@ -158,7 +160,11 @@ library MineLib {
 contract MineSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
-  function _removeBlock(EntityId entityId, Vec3 coord) internal {
+  function _removeBlock(EntityId entityId, ObjectTypeId objectTypeId, Vec3 coord) internal {
+    if (objectTypeId.isSeed()) {
+      addEnergyToLocalPool(coord, ObjectTypeMetadata._getEnergy(objectTypeId));
+    }
+
     ObjectType._set(entityId, ObjectTypes.Air);
 
     Vec3 aboveCoord = coord + vec3(0, 1, 0);
@@ -168,6 +174,18 @@ contract MineSystem is System {
     if (aboveEntityId.exists()) {
       MoveLib.runGravity(aboveEntityId, aboveCoord);
     }
+  }
+
+  function _handleDrop(EntityId playerEntityId, ObjectTypeId mineObjectTypeId) internal {
+    ObjectAmount[] memory amounts = mineObjectTypeId.getMineDrop();
+
+    for (uint256 i = 0; i < amounts.length; i++) {
+      addToInventory(playerEntityId, ObjectTypes.Player, amounts[i].objectTypeId, amounts[i].amount);
+    }
+  }
+
+  function _requireSeedNotFullyGrown(EntityId entityId) internal view {
+    require(SeedGrowth._getFullyGrownAt(entityId) > block.timestamp, "Cannot mine fully grown seed");
   }
 
   function mineWithExtraData(Vec3 coord, bytes memory extraData) public payable returns (EntityId) {
@@ -184,8 +202,10 @@ contract MineSystem is System {
 
     // Chip needs to be detached first
     require(baseEntityId.getChip().unwrap() == 0, "Cannot mine a chipped block");
-    if (ObjectTypeLib.isMachine(mineObjectTypeId)) {
+    if (mineObjectTypeId.isMachine()) {
       require(updateEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
+    } else if (mineObjectTypeId.isSeed()) {
+      _requireSeedNotFullyGrown(baseEntityId);
     }
 
     // First coord will be the base coord, the rest is relative schema coords
@@ -197,21 +217,30 @@ contract MineSystem is System {
       if (finalMass == 0) {
         if (mineObjectTypeId == ObjectTypes.AnyOre) {
           mineObjectTypeId = MineLib._mineRandomOre(coord);
+        } else if (mineObjectTypeId == ObjectTypes.Bed) {
+          // If mining a bed with a sleeping player, kill the player
+          MineLib._mineBed(baseEntityId, baseCoord);
         }
-        Mass._deleteRecord(baseEntityId);
 
         if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
           DisplayContent._deleteRecord(baseEntityId);
         }
 
-        // If mining a bed with a sleeping player, kill the player
-        if (mineObjectTypeId == ObjectTypes.Bed) {
-          MineLib._mineBed(baseEntityId, baseCoord);
+        Mass._deleteRecord(baseEntityId);
+
+        {
+          // Remove seeds placed on top of this block
+          Vec3 aboveCoord = baseCoord + vec3(0, 1, 0);
+          (EntityId aboveEntityId, ObjectTypeId aboveTypeId) = getOrCreateEntityAt(aboveCoord);
+          if (aboveTypeId.isSeed()) {
+            _requireSeedNotFullyGrown(baseEntityId);
+            _removeBlock(aboveEntityId, aboveTypeId, aboveCoord);
+            _handleDrop(playerEntityId, aboveTypeId);
+          }
         }
 
-        addToInventory(playerEntityId, ObjectTypes.Player, mineObjectTypeId, 1);
-
-        _removeBlock(baseEntityId, baseCoord);
+        _removeBlock(baseEntityId, mineObjectTypeId, baseCoord);
+        _handleDrop(playerEntityId, mineObjectTypeId);
 
         // Only iterate through relative schema coords
         for (uint256 i = 1; i < coords.length; i++) {
@@ -219,7 +248,7 @@ contract MineSystem is System {
           (EntityId relativeEntityId, ) = getOrCreateEntityAt(relativeCoord);
           BaseEntity._deleteRecord(relativeEntityId);
 
-          _removeBlock(relativeEntityId, relativeCoord);
+          _removeBlock(relativeEntityId, mineObjectTypeId, relativeCoord);
         }
       } else {
         Mass._setMass(baseEntityId, finalMass);

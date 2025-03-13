@@ -12,4 +12,6 @@ import { Vec3 } from "../../Vec3.sol";
  */
 interface IFarmingSystem {
   function till(Vec3 coord) external;
+
+  function growSeed(Vec3 coord) external;
 }
