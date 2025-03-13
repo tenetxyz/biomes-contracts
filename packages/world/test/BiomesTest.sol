@@ -21,13 +21,14 @@ import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
+import { RegionMerkleRoot } from "../src/codegen/tables/RegionMerkleRoot.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
+import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, REGION_SIZE } from "../src/Constants.sol";
 
 import { LocalEnergyPool, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../src/utils/Vec3Storage.sol";
 import { energyToMass } from "../src/utils/EnergyUtils.sol";
@@ -124,6 +125,8 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     bool isSurface = true;
     bytes memory encodedChunk = encodeChunk(biome, isSurface, chunk);
     Vec3 chunkCoord = coord.toChunkCoord();
+    Vec3 regionCoord = chunkCoord.floorDiv(REGION_SIZE / CHUNK_SIZE);
+    RegionMerkleRoot.set(regionCoord.x(), regionCoord.z(), TerrainLib._getChunkLeafHash(chunkCoord, encodedChunk));
     bytes32[] memory merkleProof = new bytes32[](0);
 
     world.exploreChunk(chunkCoord, encodedChunk, merkleProof);
@@ -174,6 +177,8 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     bool isSurface = true;
     bytes memory encodedChunk = encodeChunk(biome, isSurface, chunk);
     Vec3 chunkCoord = coord.toChunkCoord();
+    Vec3 regionCoord = chunkCoord.floorDiv(REGION_SIZE / CHUNK_SIZE);
+    RegionMerkleRoot.set(regionCoord.x(), regionCoord.z(), TerrainLib._getChunkLeafHash(chunkCoord, encodedChunk));
     bytes32[] memory merkleProof = new bytes32[](0);
 
     world.exploreChunk(chunkCoord, encodedChunk, merkleProof);
@@ -192,6 +197,8 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     bool isSurface = true;
     bytes memory encodedChunk = encodeChunk(biome, isSurface, chunk);
     Vec3 chunkCoord = coord.toChunkCoord();
+    Vec3 regionCoord = chunkCoord.floorDiv(REGION_SIZE / CHUNK_SIZE);
+    RegionMerkleRoot.set(regionCoord.x(), regionCoord.z(), TerrainLib._getChunkLeafHash(chunkCoord, encodedChunk));
     bytes32[] memory merkleProof = new bytes32[](0);
 
     world.exploreChunk(chunkCoord, encodedChunk, merkleProof);

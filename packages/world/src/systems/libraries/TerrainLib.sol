@@ -138,4 +138,9 @@ library TerrainLib {
       isDefined := gt(extcodesize(chunkPointer), 0)
     }
   }
+
+  /// @dev Get the leaf hash of a chunk
+  function _getChunkLeafHash(Vec3 chunkCoord, bytes memory chunk) internal pure returns (bytes32) {
+    return keccak256(abi.encode(chunkCoord, chunk));
+  }
 }

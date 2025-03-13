@@ -18,6 +18,7 @@ import { LocalEnergyPool } from "./tables/LocalEnergyPool.sol";
 import { ExploredChunk } from "./tables/ExploredChunk.sol";
 import { ExploredChunkByIndex, ExploredChunkByIndexData } from "./tables/ExploredChunkByIndex.sol";
 import { ExploredChunkCount } from "./tables/ExploredChunkCount.sol";
+import { RegionMerkleRoot } from "./tables/RegionMerkleRoot.sol";
 import { InventorySlots } from "./tables/InventorySlots.sol";
 import { InventoryObjects } from "./tables/InventoryObjects.sol";
 import { InventoryCount } from "./tables/InventoryCount.sol";

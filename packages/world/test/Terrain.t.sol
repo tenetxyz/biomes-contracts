@@ -7,11 +7,12 @@ import { TerrainLib, VERSION_PADDING, BIOME_PADDING, SURFACE_PADDING } from "../
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { CHUNK_SIZE } from "../src/Constants.sol";
+import { CHUNK_SIZE, REGION_SIZE } from "../src/Constants.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { InitialEnergyPool, LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
 import { INITIAL_ENERGY_PER_VEGETATION } from "../src/Constants.sol";
+import { RegionMerkleRoot } from "../src/codegen/tables/RegionMerkleRoot.sol";
 
 contract TerrainTest is BiomesTest {
   function testGetChunkCoord() public {
@@ -95,10 +96,23 @@ contract TerrainTest is BiomesTest {
     isSurface = true;
   }
 
+  function _setupTestChunk(Vec3 chunkCoord) internal returns (uint8[][][] memory chunk) {
+    uint8 biome;
+    bool isSurface;
+    (chunk, biome, isSurface) = _getTestChunk();
+    bytes memory encodedChunk = encodeChunk(biome, isSurface, chunk);
+    Vec3 regionCoord = chunkCoord.floorDiv(REGION_SIZE / CHUNK_SIZE);
+    RegionMerkleRoot.set(regionCoord.x(), regionCoord.z(), TerrainLib._getChunkLeafHash(chunkCoord, encodedChunk));
+    bytes32[] memory merkleProof = new bytes32[](0);
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, merkleProof);
+  }
+
   function testExploreChunk() public {
     (uint8[][][] memory chunk, uint8 inputBiome, bool inputIsSurface) = _getTestChunk();
     bytes memory encodedChunk = encodeChunk(inputBiome, inputIsSurface, chunk);
     Vec3 chunkCoord = vec3(0, 0, 0);
+    Vec3 regionCoord = chunkCoord.floorDiv(REGION_SIZE / CHUNK_SIZE);
+    RegionMerkleRoot.set(regionCoord.x(), regionCoord.z(), TerrainLib._getChunkLeafHash(chunkCoord, encodedChunk));
     bytes32[] memory merkleProof = new bytes32[](0);
 
     startGasReport("TerrainLib.exploreChunk");
@@ -151,36 +165,33 @@ contract TerrainTest is BiomesTest {
   }
 
   function testExploreChunk_Fail_ChunkAlreadyExplored() public {
-    (uint8[][][] memory chunk, uint8 biome, bool isSurface) = _getTestChunk();
-    bytes memory encodedChunk = encodeChunk(biome, isSurface, chunk);
     Vec3 chunkCoord = vec3(0, 0, 0);
-    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+    (uint8[][][] memory chunk, uint8 biome, bool isSurface) = _getTestChunk();
+    _setupTestChunk(chunkCoord);
 
     vm.expectRevert("Chunk already explored");
-    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodeChunk(biome, isSurface, chunk), new bytes32[](0));
   }
 
   function testGetBlockType() public {
-    (uint8[][][] memory chunk, uint8 biome, bool isSurface) = _getTestChunk();
-    bytes memory encodedChunk = encodeChunk(biome, isSurface, chunk);
+    Vec3 chunkCoord = vec3(0, 0, 0);
+    uint8[][][] memory chunk = _setupTestChunk(vec3(0, 0, 0));
 
     // Test we can get the block type for a voxel in the chunk
-    Vec3 chunkCoord = vec3(0, 0, 0);
-    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
     Vec3 coord = vec3(1, 2, 3);
     ObjectTypeId blockType = TerrainLib.getBlockType(coord);
     assertEq(ObjectTypeId.unwrap(blockType), uint16(chunk[1][2][3]));
 
     // Test for chunks that are not at the origin
     chunkCoord = vec3(1, 2, 3);
-    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+    chunk = _setupTestChunk(chunkCoord);
     coord = vec3(16 + 1, 16 * 2 + 2, 16 * 3 + 3);
     blockType = TerrainLib.getBlockType(coord);
     assertEq(ObjectTypeId.unwrap(blockType), uint16(chunk[1][2][3]));
 
     // Test for negative coordinates
     chunkCoord = vec3(-1, -2, -3);
-    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+    chunk = _setupTestChunk(chunkCoord);
     coord = vec3(-16 + 1, -16 * 2 + 2, -16 * 3 + 3);
     blockType = TerrainLib.getBlockType(coord);
     assertEq(ObjectTypeId.unwrap(blockType), uint16(chunk[1][2][3]));
