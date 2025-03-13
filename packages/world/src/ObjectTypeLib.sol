@@ -14,6 +14,12 @@ struct ObjectAmount {
   uint16 amount;
 }
 
+struct TreeData {
+  ObjectTypeId logType;
+  ObjectTypeId leafType;
+  uint8 height;
+}
+
 library ObjectTypeLib {
   function unwrap(ObjectTypeId self) internal pure returns (uint16) {
     return ObjectTypeId.unwrap(self);
@@ -115,11 +121,22 @@ library ObjectTypeLib {
   }
 
   function isSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return isCropSeed(objectTypeId) || isTreeSeed(objectTypeId);
+  }
+
+  function isCropSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
     return objectTypeId == ObjectTypes.WheatSeeds;
   }
 
-  function isCrop(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return objectTypeId == ObjectTypes.Wheat;
+  function isTreeSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return
+      objectTypeId == ObjectTypes.OakSeed ||
+      objectTypeId == ObjectTypes.BirchSeed ||
+      objectTypeId == ObjectTypes.JungleSeed ||
+      objectTypeId == ObjectTypes.SakuraSeed ||
+      objectTypeId == ObjectTypes.SpruceSeed ||
+      objectTypeId == ObjectTypes.AcaciaSeed ||
+      objectTypeId == ObjectTypes.DarkOakSeed;
   }
 
   // TODO: one possible way to optimize is to follow some kind of schema for crops and their seeds
@@ -131,8 +148,28 @@ library ObjectTypeLib {
     return ObjectTypes.Null;
   }
 
+  function getTreeData(ObjectTypeId seedTypeId) internal pure returns (TreeData memory) {
+    if (seedTypeId == ObjectTypes.OakSeed) {
+      return TreeData(ObjectTypes.OakLog, ObjectTypes.OakLeaf, 5);
+    } else if (seedTypeId == ObjectTypes.BirchSeed) {
+      return TreeData(ObjectTypes.BirchLog, ObjectTypes.BirchLeaf, 6);
+    } else if (seedTypeId == ObjectTypes.JungleSeed) {
+      return TreeData(ObjectTypes.JungleLog, ObjectTypes.JungleLeaf, 7);
+    } else if (seedTypeId == ObjectTypes.SakuraSeed) {
+      return TreeData(ObjectTypes.SakuraLog, ObjectTypes.SakuraLeaf, 5);
+    } else if (seedTypeId == ObjectTypes.SpruceSeed) {
+      return TreeData(ObjectTypes.SpruceLog, ObjectTypes.SpruceLeaf, 6);
+    } else if (seedTypeId == ObjectTypes.AcaciaSeed) {
+      return TreeData(ObjectTypes.AcaciaLog, ObjectTypes.AcaciaLeaf, 4);
+    } else if (seedTypeId == ObjectTypes.DarkOakSeed) {
+      return TreeData(ObjectTypes.DarkOakLog, ObjectTypes.DarkOakLeaf, 4);
+    }
+
+    return TreeData(ObjectTypes.Null, ObjectTypes.Null, 0);
+  }
+
   // TODO: one possible way to optimize is to follow some kind of schema for crops and their seeds
-  function getSeed(ObjectTypeId objectTypeId) internal pure returns (ObjectTypeId) {
+  function getSeedDrop(ObjectTypeId objectTypeId) internal pure returns (ObjectTypeId) {
     if (objectTypeId == ObjectTypes.Wheat) {
       return ObjectTypes.WheatSeeds;
     }
@@ -147,17 +184,20 @@ library ObjectTypeLib {
       amounts = new ObjectAmount[](1);
       amounts[0] = ObjectAmount(ObjectTypes.WheatSeeds, 1);
       return amounts;
-    } else if (objectTypeId == ObjectTypes.Farmland || objectTypeId == ObjectTypes.WetFarmland) {
+    }
+
+    if (objectTypeId == ObjectTypes.Farmland || objectTypeId == ObjectTypes.WetFarmland) {
       amounts = new ObjectAmount[](1);
       amounts[0] = ObjectAmount(ObjectTypes.Dirt, 1);
-    } else {
-      ObjectTypeId seedTypeId = objectTypeId.getSeed();
-      if (seedTypeId != ObjectTypes.Null) {
-        amounts = new ObjectAmount[](2);
-        amounts[0] = ObjectAmount(objectTypeId, 1);
-        amounts[1] = ObjectAmount(seedTypeId, 1);
-        return amounts;
-      }
+      return amounts;
+    }
+
+    ObjectTypeId seedTypeId = objectTypeId.getSeedDrop();
+    if (seedTypeId != ObjectTypes.Null) {
+      amounts = new ObjectAmount[](2);
+      amounts[0] = ObjectAmount(objectTypeId, 1);
+      amounts[1] = ObjectAmount(seedTypeId, 1);
+      return amounts;
     }
 
     amounts = new ObjectAmount[](1);
