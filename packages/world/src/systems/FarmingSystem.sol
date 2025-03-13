@@ -64,8 +64,10 @@ contract FarmingSystem is System {
       (uint32 height, uint32 leaves) = _growTree(seedEntityId, coord, treeData);
       // If something blocked the height of the tree, return the logs energy to the pool
       uint32 energyToReturn = (treeData.height - height) * ObjectTypeMetadata._getEnergy(treeData.logType);
+
       // If not all leaves were generated, return their energy to the local pool
-      energyToReturn += (treeData.canopySize ** 2 - leaves) * ObjectTypeMetadata._getEnergy(treeData.leafType);
+      uint32 maxPossibleLeaves = (2 * treeData.canopySize + 1) ** 2 * 6 - treeData.height;
+      energyToReturn += (maxPossibleLeaves - leaves) * ObjectTypeMetadata._getEnergy(treeData.leafType);
       if (energyToReturn > 0) {
         addEnergyToLocalPool(coord, energyToReturn);
       }
