@@ -26,7 +26,7 @@ import { safeGetObjectTypeIdAt, getPlayer, setPlayer } from "./EntityUtils.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE, FORCE_FIELD_FRAGMENT_DIM } from "../Constants.sol";
+import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE, FRAGMENT_SIZE } from "../Constants.sol";
 
 using ObjectTypeLib for ObjectTypeId;
 
@@ -69,9 +69,9 @@ function requireFragmentInPlayerInfluence(Vec3 playerCoord, EntityId fragmentEnt
   Vec3 fragmentCoord = ForceFieldFragmentPosition._get(fragmentEntityId);
   // Calculate the closest point in the fragment to the player
   // For each dimension, clamp the player's position to the fragment's bounds
-  Vec3 fragmentGridCoord = fragmentCoord.mul(FORCE_FIELD_FRAGMENT_DIM);
+  Vec3 fragmentGridCoord = fragmentCoord.mul(FRAGMENT_SIZE);
 
-  int32 range = FORCE_FIELD_FRAGMENT_DIM - 1;
+  int32 range = FRAGMENT_SIZE - 1;
   Vec3 closest = playerCoord.clamp(fragmentGridCoord, fragmentGridCoord + vec3(range, range, range));
 
   requireInPlayerInfluence(playerCoord, closest);
