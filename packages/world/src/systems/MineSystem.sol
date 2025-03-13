@@ -160,11 +160,7 @@ library MineLib {
 contract MineSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
-  function _removeBlock(EntityId entityId, ObjectTypeId objectTypeId, Vec3 coord) internal {
-    if (objectTypeId.isSeed()) {
-      addEnergyToLocalPool(coord, ObjectTypeMetadata._getEnergy(objectTypeId));
-    }
-
+  function _removeBlock(EntityId entityId, Vec3 coord) internal {
     ObjectType._set(entityId, ObjectTypes.Air);
 
     Vec3 aboveCoord = coord + vec3(0, 1, 0);
@@ -234,13 +230,18 @@ contract MineSystem is System {
           (EntityId aboveEntityId, ObjectTypeId aboveTypeId) = getOrCreateEntityAt(aboveCoord);
           if (aboveTypeId.isSeed()) {
             _requireSeedNotFullyGrown(baseEntityId);
-            _removeBlock(aboveEntityId, aboveTypeId, aboveCoord);
+            _removeBlock(aboveEntityId, aboveCoord);
             _handleDrop(playerEntityId, aboveTypeId);
+            addEnergyToLocalPool(coord, ObjectTypeMetadata._getEnergy(aboveTypeId));
           }
         }
 
-        _removeBlock(baseEntityId, mineObjectTypeId, baseCoord);
+        _removeBlock(baseEntityId, baseCoord);
         _handleDrop(playerEntityId, mineObjectTypeId);
+
+        if (mineObjectTypeId.isSeed()) {
+          addEnergyToLocalPool(coord, ObjectTypeMetadata._getEnergy(mineObjectTypeId));
+        }
 
         // Only iterate through relative schema coords
         for (uint256 i = 1; i < coords.length; i++) {
@@ -248,7 +249,7 @@ contract MineSystem is System {
           (EntityId relativeEntityId, ) = getOrCreateEntityAt(relativeCoord);
           BaseEntity._deleteRecord(relativeEntityId);
 
-          _removeBlock(relativeEntityId, mineObjectTypeId, relativeCoord);
+          _removeBlock(relativeEntityId, relativeCoord);
         }
       } else {
         Mass._setMass(baseEntityId, finalMass);
