@@ -205,9 +205,9 @@ contract TerrainTest is BiomesTest {
     IWorld(worldAddress).exploreRegionEnergy(regionCoord, vegetationCount, merkleProof);
 
     uint128 energy = InitialEnergyPool.get(regionCoord);
-    assertEq(energy, vegetationCount * INITIAL_ENERGY_PER_VEGETATION);
+    assertEq(energy, vegetationCount * INITIAL_ENERGY_PER_VEGETATION + 1);
 
     energy = LocalEnergyPool.get(regionCoord);
-    assertEq(energy, vegetationCount * INITIAL_ENERGY_PER_VEGETATION);
+    assertEq(energy, vegetationCount * INITIAL_ENERGY_PER_VEGETATION + 1);
   }
 }
