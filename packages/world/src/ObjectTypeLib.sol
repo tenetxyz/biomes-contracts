@@ -147,14 +147,17 @@ library ObjectTypeLib {
       amounts = new ObjectAmount[](1);
       amounts[0] = ObjectAmount(ObjectTypes.WheatSeeds, 1);
       return amounts;
-    }
-
-    ObjectTypeId seedTypeId = objectTypeId.getSeed();
-    if (seedTypeId != ObjectTypes.Null) {
-      amounts = new ObjectAmount[](2);
-      amounts[0] = ObjectAmount(objectTypeId, 1);
-      amounts[1] = ObjectAmount(seedTypeId, 1);
-      return amounts;
+    } else if (objectTypeId == ObjectTypes.Farmland || objectTypeId == ObjectTypes.WetFarmland) {
+      amounts = new ObjectAmount[](1);
+      amounts[0] = ObjectAmount(ObjectTypes.Dirt, 1);
+    } else {
+      ObjectTypeId seedTypeId = objectTypeId.getSeed();
+      if (seedTypeId != ObjectTypes.Null) {
+        amounts = new ObjectAmount[](2);
+        amounts[0] = ObjectAmount(objectTypeId, 1);
+        amounts[1] = ObjectAmount(seedTypeId, 1);
+        return amounts;
+      }
     }
 
     amounts = new ObjectAmount[](1);

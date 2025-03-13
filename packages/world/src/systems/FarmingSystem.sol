@@ -37,9 +37,7 @@ contract FarmingSystem is System {
   }
 
   function growSeed(Vec3 coord) external {
-    // TODO: should this function be open?
-    (, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, coord);
+    requireValidPlayer(_msgSender());
 
     (EntityId seedEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(objectTypeId.isSeed(), "Not a seed");

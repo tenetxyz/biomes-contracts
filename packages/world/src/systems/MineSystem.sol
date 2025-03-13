@@ -13,6 +13,7 @@ import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { Orientation } from "../codegen/tables/Orientation.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
+import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { DisplayContentType } from "../codegen/common.sol";
 
@@ -183,6 +184,10 @@ contract MineSystem is System {
     }
   }
 
+  function _requireSeedNotFullyGrown(EntityId entityId) internal view {
+    require(SeedGrowth._getFullyGrownAt(entityId) > block.timestamp, "Cannot mine fully grown seed");
+  }
+
   function mineWithExtraData(Vec3 coord, bytes memory extraData) public payable returns (EntityId) {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
@@ -197,8 +202,10 @@ contract MineSystem is System {
 
     // Chip needs to be detached first
     require(baseEntityId.getChip().unwrap() == 0, "Cannot mine a chipped block");
-    if (ObjectTypeLib.isMachine(mineObjectTypeId)) {
+    if (mineObjectTypeId.isMachine()) {
       require(updateEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
+    } else if (mineObjectTypeId.isSeed()) {
+      _requireSeedNotFullyGrown(baseEntityId);
     }
 
     // First coord will be the base coord, the rest is relative schema coords
@@ -210,31 +217,30 @@ contract MineSystem is System {
       if (finalMass == 0) {
         if (mineObjectTypeId == ObjectTypes.AnyOre) {
           mineObjectTypeId = MineLib._mineRandomOre(coord);
+        } else if (mineObjectTypeId == ObjectTypes.Bed) {
+          // If mining a bed with a sleeping player, kill the player
+          MineLib._mineBed(baseEntityId, baseCoord);
         }
-
-        Mass._deleteRecord(baseEntityId);
 
         if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
           DisplayContent._deleteRecord(baseEntityId);
         }
 
-        // If mining a bed with a sleeping player, kill the player
-        if (mineObjectTypeId == ObjectTypes.Bed) {
-          MineLib._mineBed(baseEntityId, baseCoord);
-        }
+        Mass._deleteRecord(baseEntityId);
 
         {
           // Remove seeds placed on top of this block
           Vec3 aboveCoord = baseCoord + vec3(0, 1, 0);
           (EntityId aboveEntityId, ObjectTypeId aboveTypeId) = getOrCreateEntityAt(aboveCoord);
           if (aboveTypeId.isSeed()) {
-            _handleDrop(playerEntityId, aboveTypeId);
+            _requireSeedNotFullyGrown(baseEntityId);
             _removeBlock(aboveEntityId, aboveTypeId, aboveCoord);
+            _handleDrop(playerEntityId, aboveTypeId);
           }
         }
 
-        _handleDrop(playerEntityId, mineObjectTypeId);
         _removeBlock(baseEntityId, mineObjectTypeId, baseCoord);
+        _handleDrop(playerEntityId, mineObjectTypeId);
 
         // Only iterate through relative schema coords
         for (uint256 i = 1; i < coords.length; i++) {
