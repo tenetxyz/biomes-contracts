@@ -190,7 +190,7 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
-    ExploredChunkByIndex: {
+    SurfaceChunkByIndex: {
       schema: {
         index: "uint256",
         x: "int32",
@@ -199,7 +199,7 @@ export default defineWorld({
       },
       key: ["index"],
     },
-    ExploredChunkCount: {
+    SurfaceChunkCount: {
       schema: {
         count: "uint256",
       },

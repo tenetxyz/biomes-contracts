@@ -16,9 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-library ExploredChunkCount {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ExploredChunkCou", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004578706c6f7265644368756e6b436f75);
+library SurfaceChunkCount {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "SurfaceChunkCoun", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000537572666163654368756e6b436f756e);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
