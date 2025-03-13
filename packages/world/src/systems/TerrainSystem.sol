@@ -16,7 +16,6 @@ contract TerrainSystem is System {
     SSTORE2.writeDeterministic(chunkData, TerrainLib._getChunkSalt(chunkCoord));
 
     ExploredChunk.set(chunkCoord, _msgSender());
-    // TODO: we don't need to store the surface byte in the chunk's bytecode
     if (TerrainLib._isSurfaceChunk(chunkCoord)) {
       uint256 surfaceChunkCount = SurfaceChunkCount._get();
       SurfaceChunkByIndex.set(surfaceChunkCount, chunkCoord);
