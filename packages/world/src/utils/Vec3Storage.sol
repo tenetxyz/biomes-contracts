@@ -14,7 +14,7 @@ import { ReversePlayerPosition as _ReversePlayerPosition } from "../codegen/tabl
 import { InitialEnergyPool as _InitialEnergyPool } from "../codegen/tables/InitialEnergyPool.sol";
 import { LocalEnergyPool as _LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { ExploredChunk as _ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
-import { ExploredChunkByIndex as _ExploredChunkByIndex } from "../codegen/tables/ExploredChunkByIndex.sol";
+import { SurfaceChunkByIndex as _SurfaceChunkByIndex } from "../codegen/tables/SurfaceChunkByIndex.sol";
 import { ForceFieldFragment as _ForceFieldFragment, ForceFieldFragmentData } from "../codegen/tables/ForceFieldFragment.sol";
 import { ForceFieldFragmentPosition as _ForceFieldFragmentPosition } from "../codegen/tables/ForceFieldFragmentPosition.sol";
 import { OreCommitment as _OreCommitment } from "../codegen/tables/OreCommitment.sol";
@@ -326,29 +326,29 @@ library ExploredChunk {
   }
 }
 
-library ExploredChunkByIndex {
+library SurfaceChunkByIndex {
   function get(uint256 key) internal view returns (Vec3 position) {
-    return Vec3Storage.get(_ExploredChunkByIndex._tableId, _ExploredChunkByIndex._fieldLayout, bytes32(key));
+    return Vec3Storage.get(_SurfaceChunkByIndex._tableId, _SurfaceChunkByIndex._fieldLayout, bytes32(key));
   }
 
   function _get(uint256 key) internal view returns (Vec3 position) {
-    return Vec3Storage._get(_ExploredChunkByIndex._tableId, _ExploredChunkByIndex._fieldLayout, bytes32(key));
+    return Vec3Storage._get(_SurfaceChunkByIndex._tableId, _SurfaceChunkByIndex._fieldLayout, bytes32(key));
   }
 
   function set(uint256 key, Vec3 position) internal {
-    Vec3Storage.set(_ExploredChunkByIndex._tableId, bytes32(key), position);
+    Vec3Storage.set(_SurfaceChunkByIndex._tableId, bytes32(key), position);
   }
 
   function _set(uint256 key, Vec3 position) internal {
-    Vec3Storage._set(_ExploredChunkByIndex._tableId, bytes32(key), position);
+    Vec3Storage._set(_SurfaceChunkByIndex._tableId, bytes32(key), position);
   }
 
   function deleteRecord(uint256 key) internal {
-    Vec3Storage.deleteRecord(_ExploredChunkByIndex._tableId, bytes32(key));
+    Vec3Storage.deleteRecord(_SurfaceChunkByIndex._tableId, bytes32(key));
   }
 
   function _deleteRecord(uint256 key) internal {
-    Vec3Storage._deleteRecord(_ExploredChunkByIndex._tableId, bytes32(key));
+    Vec3Storage._deleteRecord(_SurfaceChunkByIndex._tableId, bytes32(key));
   }
 }
 
@@ -405,12 +405,21 @@ library ForceFieldFragment {
 
 library ForceFieldFragmentPosition {
   function get(EntityId entityId) internal view returns (Vec3 position) {
-    return Vec3Storage.get(_ForceFieldFragmentPosition._tableId, _ForceFieldFragmentPosition._fieldLayout, entityId.unwrap());
+    return
+      Vec3Storage.get(
+        _ForceFieldFragmentPosition._tableId,
+        _ForceFieldFragmentPosition._fieldLayout,
+        entityId.unwrap()
+      );
   }
 
   function _get(EntityId entityId) internal view returns (Vec3 position) {
     return
-      Vec3Storage._get(_ForceFieldFragmentPosition._tableId, _ForceFieldFragmentPosition._fieldLayout, entityId.unwrap());
+      Vec3Storage._get(
+        _ForceFieldFragmentPosition._tableId,
+        _ForceFieldFragmentPosition._fieldLayout,
+        entityId.unwrap()
+      );
   }
 
   function set(EntityId entityId, Vec3 position) internal {

@@ -16,15 +16,15 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-struct ExploredChunkByIndexData {
+struct SurfaceChunkByIndexData {
   int32 x;
   int32 y;
   int32 z;
 }
 
-library ExploredChunkByIndex {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ExploredChunkByI", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004578706c6f7265644368756e6b427949);
+library SurfaceChunkByIndex {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "SurfaceChunkByIn", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000537572666163654368756e6b4279496e);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x000c030004040400000000000000000000000000000000000000000000000000);
@@ -197,7 +197,7 @@ library ExploredChunkByIndex {
   /**
    * @notice Get the full data.
    */
-  function get(uint256 index) internal view returns (ExploredChunkByIndexData memory _table) {
+  function get(uint256 index) internal view returns (SurfaceChunkByIndexData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(index));
 
@@ -212,7 +212,7 @@ library ExploredChunkByIndex {
   /**
    * @notice Get the full data.
    */
-  function _get(uint256 index) internal view returns (ExploredChunkByIndexData memory _table) {
+  function _get(uint256 index) internal view returns (SurfaceChunkByIndexData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(index));
 
@@ -257,7 +257,7 @@ library ExploredChunkByIndex {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(uint256 index, ExploredChunkByIndexData memory _table) internal {
+  function set(uint256 index, SurfaceChunkByIndexData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.x, _table.y, _table.z);
 
     EncodedLengths _encodedLengths;
@@ -272,7 +272,7 @@ library ExploredChunkByIndex {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(uint256 index, ExploredChunkByIndexData memory _table) internal {
+  function _set(uint256 index, SurfaceChunkByIndexData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.x, _table.y, _table.z);
 
     EncodedLengths _encodedLengths;
@@ -305,7 +305,7 @@ library ExploredChunkByIndex {
     bytes memory _staticData,
     EncodedLengths,
     bytes memory
-  ) internal pure returns (ExploredChunkByIndexData memory _table) {
+  ) internal pure returns (SurfaceChunkByIndexData memory _table) {
     (_table.x, _table.y, _table.z) = decodeStatic(_staticData);
   }
 
