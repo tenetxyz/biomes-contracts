@@ -672,23 +672,23 @@ contract InitObjects {
     );
     ObjectTypeMetadata.set(
       ObjectTypes.AnyLog,
-      ObjectTypeMetadataData({ stackable: 0, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
     );
     ObjectTypeMetadata.set(
       ObjectTypes.AnyPlanks,
-      ObjectTypeMetadataData({ stackable: 0, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
     );
     ObjectTypeMetadata.set(
       ObjectTypes.AnyReinforcedPlanks,
-      ObjectTypeMetadataData({ stackable: 0, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
     );
     ObjectTypeMetadata.set(
       ObjectTypes.AnyGlass,
-      ObjectTypeMetadataData({ stackable: 0, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
     );
     ObjectTypeMetadata.set(
       ObjectTypes.AnyCottonBlock,
-      ObjectTypeMetadataData({ stackable: 0, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
     );
   }
 }
