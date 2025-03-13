@@ -18,6 +18,15 @@ function mod(int256 x, int256 y) pure returns (uint256) {
   return uint256(((x % y) + y) % y);
 }
 
+// TODO: we should import math utils from solady or OZ
+function min(int256 x, int256 y) pure returns (int256) {
+  return x > y ? y : x;
+}
+
+function max(int256 x, int256 y) pure returns (int256) {
+  return x < y ? y : x;
+}
+
 /**
  * @dev Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or
  * denominator == 0.

@@ -538,7 +538,12 @@ contract InitObjects {
     );
     ObjectTypeMetadata.set(
       ObjectTypes.WheatSeeds,
-      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 1000, canPassThrough: true })
+    );
+    // TODO: update client with all tree seeds
+    ObjectTypeMetadata.set(
+      ObjectTypes.OakSeed,
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 1000, canPassThrough: true })
     );
     ObjectTypeMetadata.set(
       ObjectTypes.ForceField,

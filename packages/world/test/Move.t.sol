@@ -464,16 +464,17 @@ contract MoveTest is BiomesTest {
     Vec3[] memory newCoords = new Vec3[](2);
     newCoords[0] = playerCoord + vec3(0, 0, 1);
     newCoords[1] = playerCoord + vec3(0, 0, 3);
-    for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
-    }
 
     vm.prank(alice);
     vm.expectRevert("New coord is too far from old coord");
     world.move(newCoords);
 
+    uint256 pathLength = uint256(int256(playerCoord.x()));
+    newCoords = new Vec3[](pathLength);
     newCoords[0] = playerCoord - vec3(1, 0, 0);
+    for (uint32 i = 0; i < pathLength; i++) {
+      newCoords[i] = (playerCoord - vec3(1, 0, 0).mul(int32(i)));
+    }
 
     vm.prank(alice);
     vm.expectRevert("Chunk not explored yet");
@@ -490,10 +491,6 @@ contract MoveTest is BiomesTest {
     Vec3[] memory newCoords = new Vec3[](2);
     newCoords[0] = playerCoord + vec3(0, 0, 1);
     newCoords[1] = playerCoord + vec3(0, 0, 2);
-    for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
-    }
 
     vm.expectRevert("Player does not exist");
     world.move(newCoords);
@@ -505,10 +502,6 @@ contract MoveTest is BiomesTest {
     Vec3[] memory newCoords = new Vec3[](2);
     newCoords[0] = playerCoord + vec3(0, 0, 1);
     newCoords[1] = playerCoord + vec3(0, 0, 2);
-    for (uint8 i = 0; i < newCoords.length; i++) {
-      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
-      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
-    }
 
     PlayerStatus.setBedEntityId(aliceEntityId, randomEntityId());
 

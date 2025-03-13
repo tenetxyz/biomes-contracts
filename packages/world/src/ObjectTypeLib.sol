@@ -17,7 +17,7 @@ struct ObjectAmount {
 struct TreeData {
   ObjectTypeId logType;
   ObjectTypeId leafType;
-  uint8 height;
+  uint32 height;
 }
 
 library ObjectTypeLib {

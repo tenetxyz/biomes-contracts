@@ -357,7 +357,7 @@ contract BuildTest is BiomesTest {
     vm.expectRevert("Player is too far");
     world.build(buildObjectTypeId, buildCoord);
 
-    buildCoord = playerCoord - vec3(1, 0, 0);
+    buildCoord = playerCoord - vec3(CHUNK_SIZE / 2 + 1, 0, 0);
 
     vm.prank(alice);
     vm.expectRevert("Chunk not explored yet");

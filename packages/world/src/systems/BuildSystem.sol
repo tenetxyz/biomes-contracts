@@ -124,13 +124,10 @@ contract BuildSystem is System {
     removeFromInventory(playerEntityId, buildObjectTypeId, 1);
 
     if (buildObjectTypeId.isSeed()) {
+      ObjectTypeId belowTypeId = getObjectTypeIdAt(baseCoord - vec3(0, 1, 0));
       if (buildObjectTypeId.isCropSeed()) {
-        require(
-          getObjectTypeIdAt(baseCoord - vec3(0, 1, 0)) == ObjectTypes.WetFarmland,
-          "Crop seeds need wet farmland"
-        );
+        require(belowTypeId == ObjectTypes.WetFarmland, "Crop seeds need wet farmland");
       } else if (buildObjectTypeId.isTreeSeed()) {
-        ObjectTypeId belowTypeId = getObjectTypeIdAt(baseCoord - vec3(0, 1, 0));
         require(belowTypeId == ObjectTypes.Dirt || belowTypeId == ObjectTypes.Grass, "Tree seeds need dirt or grass");
       }
 

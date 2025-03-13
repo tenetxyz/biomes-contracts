@@ -242,7 +242,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
 
   function setupAirChunkWithPlayer() internal returns (address, EntityId, Vec3) {
     setupAirChunk(vec3(0, 0, 0));
-    return spawnPlayerOnAirChunk(vec3(0, 1, 0));
+    return spawnPlayerOnAirChunk(vec3(CHUNK_SIZE / 2, 1, CHUNK_SIZE / 2));
   }
 
   function setupWaterChunkWithPlayer() internal returns (address, EntityId, Vec3) {

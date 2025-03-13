@@ -5,11 +5,14 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+// import { ObjectType } from "../codegen/tables/ObjectType.sol";
+// import { Mass } from "../codegen/tables/Mass.sol";
 
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { massToEnergy, transferEnergyToPool } from "../utils/EnergyUtils.sol";
+import { massToEnergy, transferEnergyToPool, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeLib, TreeData } from "../ObjectTypeLib.sol";
@@ -57,84 +60,100 @@ contract FarmingSystem is System {
       TreeData memory treeData = objectTypeId.getTreeData();
       require(treeData.logType != ObjectTypes.Null, "Invalid tree seed");
 
-      // First, check if we have enough space to grow the tree
-      bool hasSpace = _hasTreeSpace(coord, int32(uint32(treeData.height)));
-
-      if (hasSpace) {
-        // Grow the tree (replace the seed with the trunk and add blocks)
-        _growTree(seedEntityId, coord, treeData);
-      } else {
-        // Not enough space to grow tree, convert seed to a sapling (just the log)
-        // which can be mined. This prevents the seed from being stuck.
-        // TODO: return remaining energy to pool?
-        ObjectType._set(seedEntityId, treeData.logType);
+      // Grow the tree (replace the seed with the trunk and add blocks)
+      uint32 height = _growTree(seedEntityId, coord, treeData);
+      if (height < treeData.height) {
+        // If something blocked the height of the tree, return the logs energy to the pool
+        uint32 energyToReturn = (treeData.height - height) * ObjectTypeMetadata._getEnergy(treeData.logType);
+        addEnergyToLocalPool(coord, energyToReturn);
       }
     }
   }
 
-  function _hasTreeSpace(Vec3 coord, int32 height) internal view returns (bool) {
-    // Check vertical space for the trunk
-    for (int32 i = 0; i < height; i++) {
-      Vec3 checkCoord = coord + vec3(0, i, 0);
-      if (i > 0) {
-        // Skip the seed's position
-        ObjectTypeId objectTypeId = getObjectTypeIdAt(checkCoord);
-        if (objectTypeId != ObjectTypes.Air) {
-          return false;
-        }
-      }
-    }
-
-    // Check space for the canopy
-    int32 canopySize = 2; // How far from the trunk the leaves extend
-    for (int32 x = -canopySize; x <= canopySize; x++) {
-      for (int32 z = -canopySize; z <= canopySize; z++) {
-        // Check a few levels at the top for the canopy
-        for (int32 y = height - 3; y < height + 1; y++) {
-          if (x == 0 && z == 0 && y < height) {
-            continue; // Skip the trunk position
-          }
-          Vec3 checkCoord = coord + vec3(x, y, z);
-          ObjectTypeId objectTypeId = getObjectTypeIdAt(checkCoord);
-          if (objectTypeId != ObjectTypes.Air) {
-            return false;
-          }
-        }
-      }
-    }
-
-    return true;
-  }
-
-  function _growTree(EntityId seedEntityId, Vec3 baseCoord, TreeData memory treeData) internal {
+  function _growTree(EntityId seedEntityId, Vec3 baseCoord, TreeData memory treeData) internal returns (uint32) {
     // Replace the seed with the trunk
     ObjectType._set(seedEntityId, treeData.logType);
 
-    int32 height = int32(uint32(treeData.height));
+    uint32 height = treeData.height;
 
-    // Create the trunk
-    for (int32 i = 1; i < height; i++) {
-      Vec3 trunkCoord = baseCoord + vec3(0, i, 0);
-      (EntityId trunkEntityId, ) = getOrCreateEntityAt(trunkCoord);
+    // Create the trunk up to available space
+    for (uint32 i = 1; i < height; i++) {
+      Vec3 trunkCoord = baseCoord + vec3(0, int32(i), 0);
+      (EntityId trunkEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(trunkCoord);
+      if (objectTypeId != ObjectTypes.Air) {
+        height = i + 1;
+        break;
+      }
+
       ObjectType._set(trunkEntityId, treeData.logType);
     }
 
-    // Create the canopy
-    int32 canopyStart = height - 3;
-    int32 canopySize = 2;
+    if (height <= 2) {
+      // Very small tree, no leaves
+      return height;
+    }
 
+    // Adjust canopy parameters based on height
+    int32 canopySize;
+    int32 canopyStart;
+    int32 canopyEnd;
+
+    if (height <= 4) {
+      // Small tree
+      canopySize = 2;
+      canopyStart = int32(height - 2);
+      canopyEnd = int32(height + 1); // Extend 1 block above trunk
+    } else {
+      // Normal or tall tree
+      canopySize = 3;
+      canopyStart = int32(height - 3);
+      canopyEnd = int32(height + 2); // Extend 2 block above trunk
+    }
+
+    if (height < treeData.height) {
+      canopyEnd = int32(height);
+    }
+
+    // Generate a unique seed for this tree to ensure consistent randomness
+    uint256 treeSeed = uint256(keccak256(abi.encodePacked(baseCoord, block.timestamp)));
+
+    // Create the canopy
     for (int32 x = -canopySize; x <= canopySize; x++) {
       for (int32 z = -canopySize; z <= canopySize; z++) {
-        for (int32 y = canopyStart; y < height + 1; y++) {
-          if (x == 0 && z == 0 && y < height) {
-            continue; // Skip the trunk position
+        for (int32 y = canopyStart; y < canopyEnd; y++) {
+          // Skip the trunk position
+          if (x == 0 && z == 0 && y < int32(height)) {
+            continue;
           }
 
-          // Skip corners for a more natural look
-          if ((x == -canopySize || x == canopySize) && (z == -canopySize || z == canopySize)) {
-            // 50% chance to skip corners
-            if (uint(keccak256(abi.encodePacked(baseCoord, x, y, z))) % 2 == 0) {
+          // TODO: adjust to get desired shape
+
+          {
+            // Calculate distance from center axis for a more natural, rounded shape
+            int32 distanceFromCenter = x * x + z * z;
+            int32 cornerDistance = canopySize ** 2;
+
+            // Skip corners and edges based on distance and randomness for a more natural look
+            if (distanceFromCenter > cornerDistance) {
+              // Always skip if beyond maximum radius
               continue;
+            } else if (distanceFromCenter == cornerDistance) {
+              // At the corners (maximum distance), 75% chance to skip
+              if (uint256(keccak256(abi.encodePacked(treeSeed, x, y, z))) % 4 < 3) {
+                continue;
+              }
+            } else if (distanceFromCenter >= cornerDistance - 1) {
+              // Near corners, 50% chance to skip
+              if (uint256(keccak256(abi.encodePacked(treeSeed, x, y, z))) % 2 == 0) {
+                continue;
+              }
+            }
+
+            // Top layer of leaves should be smaller
+            if (y >= canopyEnd - 1) {
+              if (distanceFromCenter > canopySize) {
+                continue;
+              }
             }
           }
 
@@ -148,5 +167,7 @@ contract FarmingSystem is System {
         }
       }
     }
+
+    return height;
   }
 }
