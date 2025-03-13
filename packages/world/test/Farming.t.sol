@@ -445,7 +445,9 @@ contract FarmingTest is BiomesTest {
     // Plant oak seeds
     Vec3 seedCoord = dirtCoord + vec3(0, 1, 0);
     vm.prank(alice);
+    startGasReport("plant tree seed");
     world.build(ObjectTypes.OakSeed, seedCoord);
+    endGasReport();
 
     // Verify seeds were planted
     EntityId seedEntityId = ReversePosition.get(seedCoord);
@@ -540,7 +542,7 @@ contract FarmingTest is BiomesTest {
     }
 
     // Verify leaves exist in canopy area (test a few sample points)
-    int32 canopyStart = height - 2;
+    int32 canopyStart = height - 3;
 
     // Check some expected leaf positions
     Vec3[] memory leafPositions = new Vec3[](5);
@@ -586,7 +588,9 @@ contract FarmingTest is BiomesTest {
 
     // Grow the tree
     vm.prank(alice);
+    startGasReport("grow tree with obstruction");
     world.growSeed(seedCoord);
+    endGasReport();
 
     // Verify the seed is converted to log but remains a sapling (no additional blocks)
     assertEq(ObjectType.get(seedEntityId), ObjectTypes.OakLog, "Seed was not converted to log");
@@ -598,6 +602,46 @@ contract FarmingTest is BiomesTest {
       aboveEntity.exists() && ObjectType.get(aboveEntity) == ObjectTypes.OakLog,
       "Tree grew beyond obstruction"
     );
+  }
+
+  function testHarvestMatureTree() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    Vec3 dirtCoord = vec3(playerCoord.x() + 1, 0, playerCoord.z());
+    setObjectAtCoord(dirtCoord, ObjectTypes.Dirt);
+
+    // Add oak seed to inventory
+    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.OakSeed, 1);
+
+    // Plant oak seed
+    Vec3 seedCoord = dirtCoord + vec3(0, 1, 0);
+    vm.prank(alice);
+    world.build(ObjectTypes.OakSeed, seedCoord);
+
+    // Verify seed was planted
+    EntityId seedEntityId = ReversePosition.get(seedCoord);
+    assertTrue(seedEntityId.exists(), "Seed entity doesn't exist after planting");
+
+    // Get full grown time
+    uint128 fullyGrownAt = SeedGrowth.getFullyGrownAt(seedEntityId);
+
+    // Advance time to when the tree can grow
+    vm.warp(fullyGrownAt + 1);
+
+    // Grow the tree
+    vm.prank(alice);
+    world.growSeed(seedCoord);
+
+    // Verify the seed is now a log
+    assertEq(ObjectType.get(seedEntityId), ObjectTypes.OakLog, "Seed was not converted to log");
+
+    // Harvest the mature tree log
+    vm.prank(alice);
+    startGasReport("harvest mature tree log");
+    world.mineUntilDestroyed(seedCoord);
+    endGasReport();
+
+    // Verify log was obtained
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.OakLog, 1);
   }
 
   function testHarvestImmatureTreeSeed() public {
@@ -634,7 +678,9 @@ contract FarmingTest is BiomesTest {
 
     // Harvest the immature tree seed
     vm.prank(alice);
+    startGasReport("harvest immature tree seed");
     world.mineUntilDestroyed(seedCoord);
+    endGasReport();
 
     // Verify original seed was returned
     assertInventoryHasObject(aliceEntityId, ObjectTypes.OakSeed, 1);
@@ -648,5 +694,28 @@ contract FarmingTest is BiomesTest {
       beforeHarvestEnergy + seedEnergy + PLAYER_MINE_ENERGY_COST,
       "Energy not correctly returned to local pool"
     );
+  }
+
+  function testMineTreeLeaves() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+
+    // Create an oak leaf directly
+    Vec3 leafCoord = vec3(playerCoord.x() + 1, playerCoord.y() + 1, playerCoord.z());
+    setObjectAtCoord(leafCoord, ObjectTypes.OakLeaf);
+
+    EntityId leafEntityId = ReversePosition.get(leafCoord);
+    assertTrue(leafEntityId.exists(), "Leaf entity doesn't exist");
+
+    // Harvest the leaf
+    vm.prank(alice);
+    startGasReport("harvest tree leaf");
+    world.mineUntilDestroyed(leafCoord);
+    endGasReport();
+
+    // Verify leaf was obtained
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.OakLeaf, 1);
+
+    // Verify leaf entity no longer exists
+    assertEq(ObjectType.get(leafEntityId), ObjectTypes.Air, "Leaf wasn't removed after harvesting");
   }
 }

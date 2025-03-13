@@ -66,7 +66,7 @@ contract FarmingSystem is System {
       uint32 energyToReturn = (treeData.height - height) * ObjectTypeMetadata._getEnergy(treeData.logType);
 
       // If not all leaves were generated, return their energy to the local pool
-      uint32 maxPossibleLeaves = (2 * treeData.canopySize + 1) ** 2 * 6 - treeData.height;
+      uint32 maxPossibleLeaves = (2 * treeData.canopySize + 1) ** 2 * 5 - treeData.height;
       energyToReturn += (maxPossibleLeaves - leaves) * ObjectTypeMetadata._getEnergy(treeData.leafType);
       if (energyToReturn > 0) {
         addEnergyToLocalPool(coord, energyToReturn);
@@ -74,6 +74,7 @@ contract FarmingSystem is System {
     }
   }
 
+  // TODO: adjust to get desired shape
   function _growTree(
     EntityId seedEntityId,
     Vec3 baseCoord,
@@ -94,69 +95,77 @@ contract FarmingSystem is System {
     if (height <= 4) {
       // Small tree
       canopySize = int32(treeData.canopySize) - 1;
-      canopyStart = int32(height) - 2;
+      canopyStart = int32(height) - 1;
       canopyEnd = int32(height) + 1; // Extend 1 block above trunk
     } else {
       // Normal or tall tree
       canopySize = int32(treeData.canopySize);
-      canopyStart = int32(height) - 3;
-      canopyEnd = int32(height) + 2; // Extend 2 blocks above trunk
+      canopyStart = int32(height) - 2;
+      canopyEnd = int32(height) + 1; // Extend 1 block above trunk
     }
 
     if (height < treeData.height) {
       canopyEnd = int32(height);
     }
 
-    // Generate a unique seed for this tree to ensure consistent randomness
     uint32 leaves;
 
-    // Assigning to avoid stack too deep issues
+    int32 maxDistance = canopySize ** 2;
     ObjectTypeId leafType = treeData.leafType;
 
-    int32 maxDistance = canopySize ** 2;
-    // Create the canopy
-    for (int32 x = -canopySize; x <= canopySize; x++) {
-      for (int32 z = -canopySize; z <= canopySize; z++) {
-        for (int32 y = canopyStart; y < canopyEnd; y++) {
-          // Skip the trunk position
-          if (x == 0 && z == 0 && y < int32(height)) {
-            continue;
-          }
+    // Used for randomness
+    uint256 currentSeed = uint256(keccak256(abi.encodePacked(block.timestamp, baseCoord)));
 
-          // TODO: adjust to get desired shape
-
-          Vec3 leafCoord = baseCoord + vec3(x, y, z);
+    unchecked {
+      // Avoid stack too deep issues
+      Vec3 coord = baseCoord;
+      // Create the canopy
+      for (int32 x = -canopySize; x <= canopySize; ++x) {
+        for (int32 z = -canopySize; z <= canopySize; ++z) {
           // Calculate distance from center axis for a more natural, rounded shape
-          int32 distanceFromCenter = x * x + z * z;
-          // Skip corners and edges based on distance and randomness for a more natural look
+          int32 distanceFromCenter = x ** 2 + z ** 2;
           if (distanceFromCenter > maxDistance) {
             // Always skip if beyond maximum radius
             continue;
-          } else if (distanceFromCenter == maxDistance) {
+          }
+
+          uint256 skipChance;
+
+          // Skip corners and edges based on distance and randomness for a more natural look
+          if (distanceFromCenter == maxDistance) {
             // At the corners (maximum distance), 75% chance to skip
-            if (uint256(keccak256(abi.encodePacked(block.timestamp, leafCoord))) % 4 < 3) {
-              continue;
-            }
+            skipChance = 75;
           } else if (distanceFromCenter >= maxDistance - 1) {
-            // Near corners, 50% chance to skip
-            if (uint256(keccak256(abi.encodePacked(block.timestamp, leafCoord))) % 2 == 0) {
-              continue;
-            }
+            skipChance = 50;
           }
 
-          // Top layer of leaves should be smaller
-          if (y >= canopyEnd - 1) {
-            if (distanceFromCenter > canopySize) {
+          for (int32 y = canopyStart; y < canopyEnd; ++y) {
+            Vec3 leafCoord = coord + vec3(x, y, z);
+
+            // Skip the trunk position
+            if (x == 0 && z == 0 && y < int32(height)) {
               continue;
             }
-          }
 
-          (EntityId leafEntityId, ObjectTypeId existingType) = getOrCreateEntityAt(leafCoord);
+            // Top layer of leaves should be smaller
+            if (y >= canopyEnd - 1 && distanceFromCenter > canopySize) {
+              continue;
+            }
 
-          // Only place leaves in air blocks
-          if (existingType == ObjectTypes.Air) {
-            ObjectType._set(leafEntityId, leafType);
-            leaves++;
+            if (skipChance != 0) {
+              currentSeed = uint256(keccak256(abi.encodePacked(currentSeed)));
+              if (currentSeed % 100 < skipChance) {
+                continue;
+              }
+            }
+
+            (EntityId leafEntityId, ObjectTypeId existingType) = getOrCreateEntityAt(leafCoord);
+
+            // Only place leaves in air blocks
+            if (existingType == ObjectTypes.Air) {
+              ObjectType._set(leafEntityId, leafType);
+              leaves++;
+            }
           }
         }
       }
@@ -174,7 +183,7 @@ contract FarmingSystem is System {
       Vec3 trunkCoord = baseCoord + vec3(0, int32(i), 0);
       (EntityId trunkEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(trunkCoord);
       if (objectTypeId != ObjectTypes.Air) {
-        return i + 1;
+        return i;
       }
 
       ObjectType._set(trunkEntityId, treeData.logType);

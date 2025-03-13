@@ -151,19 +151,19 @@ library ObjectTypeLib {
 
   function getTreeData(ObjectTypeId seedTypeId) internal pure returns (TreeData memory) {
     if (seedTypeId == ObjectTypes.OakSeed) {
-      return TreeData(ObjectTypes.OakLog, ObjectTypes.OakLeaf, 5, 3);
+      return TreeData(ObjectTypes.OakLog, ObjectTypes.OakLeaf, 5, 2);
     } else if (seedTypeId == ObjectTypes.BirchSeed) {
-      return TreeData(ObjectTypes.BirchLog, ObjectTypes.BirchLeaf, 6, 3);
+      return TreeData(ObjectTypes.BirchLog, ObjectTypes.BirchLeaf, 6, 2);
     } else if (seedTypeId == ObjectTypes.JungleSeed) {
-      return TreeData(ObjectTypes.JungleLog, ObjectTypes.JungleLeaf, 7, 3);
+      return TreeData(ObjectTypes.JungleLog, ObjectTypes.JungleLeaf, 7, 2);
     } else if (seedTypeId == ObjectTypes.SakuraSeed) {
-      return TreeData(ObjectTypes.SakuraLog, ObjectTypes.SakuraLeaf, 5, 3);
+      return TreeData(ObjectTypes.SakuraLog, ObjectTypes.SakuraLeaf, 5, 2);
     } else if (seedTypeId == ObjectTypes.SpruceSeed) {
-      return TreeData(ObjectTypes.SpruceLog, ObjectTypes.SpruceLeaf, 6, 3);
+      return TreeData(ObjectTypes.SpruceLog, ObjectTypes.SpruceLeaf, 6, 2);
     } else if (seedTypeId == ObjectTypes.AcaciaSeed) {
-      return TreeData(ObjectTypes.AcaciaLog, ObjectTypes.AcaciaLeaf, 4, 3);
+      return TreeData(ObjectTypes.AcaciaLog, ObjectTypes.AcaciaLeaf, 4, 2);
     } else if (seedTypeId == ObjectTypes.DarkOakSeed) {
-      return TreeData(ObjectTypes.DarkOakLog, ObjectTypes.DarkOakLeaf, 4, 3);
+      return TreeData(ObjectTypes.DarkOakLog, ObjectTypes.DarkOakLeaf, 4, 2);
     }
 
     return TreeData(ObjectTypes.Null, ObjectTypes.Null, 0, 0);
