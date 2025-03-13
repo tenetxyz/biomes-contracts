@@ -66,6 +66,7 @@ contract FarmingSystem is System {
       } else {
         // Not enough space to grow tree, convert seed to a sapling (just the log)
         // which can be mined. This prevents the seed from being stuck.
+        // TODO: return remaining energy to pool?
         ObjectType._set(seedEntityId, treeData.logType);
       }
     }
