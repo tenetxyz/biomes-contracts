@@ -541,6 +541,10 @@ contract InitObjects {
       ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
     );
     ObjectTypeMetadata.set(
+      ObjectTypes.WheatSeeds,
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: true })
+    );
+    ObjectTypeMetadata.set(
       ObjectTypes.ForceField,
       ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
     );
