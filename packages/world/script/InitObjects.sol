@@ -421,10 +421,6 @@ contract InitObjects {
       ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
     );
     ObjectTypeMetadata.set(
-      ObjectTypes.WheatSeeds,
-      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
-    );
-    ObjectTypeMetadata.set(
       ObjectTypes.Coral,
       ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
     );
@@ -542,7 +538,7 @@ contract InitObjects {
     );
     ObjectTypeMetadata.set(
       ObjectTypes.WheatSeeds,
-      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: true })
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
     );
     ObjectTypeMetadata.set(
       ObjectTypes.ForceField,
@@ -680,23 +676,23 @@ contract InitObjects {
     );
     ObjectTypeMetadata.set(
       ObjectTypes.AnyLog,
-      ObjectTypeMetadataData({ stackable: 0, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
     );
     ObjectTypeMetadata.set(
       ObjectTypes.AnyPlanks,
-      ObjectTypeMetadataData({ stackable: 0, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
     );
     ObjectTypeMetadata.set(
       ObjectTypes.AnyReinforcedPlanks,
-      ObjectTypeMetadataData({ stackable: 0, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
     );
     ObjectTypeMetadata.set(
       ObjectTypes.AnyGlass,
-      ObjectTypeMetadataData({ stackable: 0, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
     );
     ObjectTypeMetadata.set(
       ObjectTypes.AnyCottonBlock,
-      ObjectTypeMetadataData({ stackable: 0, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+      ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
     );
   }
 }
