@@ -24,9 +24,11 @@ contract TerrainSystem is System {
 
   function exploreRegionEnergy(Vec3 regionCoord, uint32 vegetationCount, bytes32[] memory merkleProof) public {
     require(regionCoord.y() == 0, "Energy pool chunks are 2D only");
+    require(InitialEnergyPool.get(regionCoord) == 0, "Region energy already explored");
     // TODO: verify merkle proof
 
-    uint128 energy = vegetationCount * INITIAL_ENERGY_PER_VEGETATION;
+    // Add +1 to be able to distinguish between unexplored and empty region
+    uint128 energy = vegetationCount * INITIAL_ENERGY_PER_VEGETATION + 1;
     InitialEnergyPool.set(regionCoord, energy);
     LocalEnergyPool.set(regionCoord, energy);
   }
