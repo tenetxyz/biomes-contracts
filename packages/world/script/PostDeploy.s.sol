@@ -12,10 +12,11 @@ import { registerERC721 } from "@latticexyz/world-modules/src/modules/erc721-pup
 import { ERC721MetadataData as MUDERC721MetadataData } from "@latticexyz/world-modules/src/modules/erc721-puppet/tables/ERC721Metadata.sol";
 import { ERC20MetadataData as MUDERC20MetadataData } from "@latticexyz/world-modules/src/modules/erc20-puppet/tables/ERC20Metadata.sol";
 
-import { InitObjects } from "./InitObjects.sol";
-import { InitRecipes } from "./InitRecipes.sol";
+import { initTerrain } from "./initTerrain.sol";
+import { initObjects } from "./initObjects.sol";
+import { initRecipes } from "./initRecipes.sol";
 
-contract PostDeploy is Script, InitObjects, InitRecipes {
+contract PostDeploy is Script {
   function run(address worldAddress) external {
     // Specify a store so that you can use tables directly in PostDeploy
     StoreSwitch.setStoreAddress(worldAddress);
@@ -26,6 +27,7 @@ contract PostDeploy is Script, InitObjects, InitRecipes {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
+    initTerrain();
     initObjects();
     initRecipes();
 
