@@ -108,10 +108,14 @@ library MineLib {
   }
 
   function _processMassReduction(EntityId playerEntityId, EntityId minedEntityId) public returns (uint128) {
-    (uint128 toolMassReduction, ) = useEquipped(playerEntityId);
-    uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassReduction;
     uint128 massLeft = Mass._getMass(minedEntityId);
-    return massLeft <= totalMassReduction ? 0 : massLeft - totalMassReduction;
+    uint128 baseMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST);
+    if (massLeft <= baseMassReduction) {
+      return 0;
+    }
+    massLeft -= baseMassReduction;
+    (uint128 toolMassReduction, ) = useEquipped(playerEntityId, massLeft);
+    return massLeft <= toolMassReduction ? 0 : massLeft - toolMassReduction;
   }
 
   function _mineBed(EntityId bedEntityId, Vec3 bedCoord) public {
