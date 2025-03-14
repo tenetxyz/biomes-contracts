@@ -89,26 +89,16 @@ contract FarmingSystem is System {
       return (height, 0);
     }
 
-    // Adjust canopy parameters based on height
-    int32 canopySize;
-    int32 canopyStart;
-    int32 canopyEnd;
+    // Define canopy sphere parameters
+    int32 size = int32(treeData.canopySize);
+    int32 center = int32(height) + treeData.centerOffset; // Center of the canopy
+    int32 start = int32(height) - size; // Bottom of the canopy
+    int32 end = int32(height) + size;
+    int32 stretch = int32(treeData.stretchFactor);
 
-    if (height <= 4) {
-      // Small tree
-      canopySize = int32(treeData.canopySize) - 1;
-      canopyStart = int32(height) - 1;
-      canopyEnd = int32(height) + 1; // Extend 1 block above trunk
-    } else {
-      // Normal or tall tree
-      canopySize = int32(treeData.canopySize);
-      canopyStart = int32(height - treeData.canopySize);
-      canopyEnd = int32(height + treeData.canopySize - 1); // Extend 1 block above trunk
-    }
-
-    // If tree is blocked stop generating the canopy at the top
+    // Adjust if the tree is blocked
     if (height < treeData.height) {
-      canopyEnd = int32(height);
+      end = int32(height) + 1; // Still allow one layer above the trunk
     }
 
     uint32 leaves;
@@ -120,32 +110,37 @@ contract FarmingSystem is System {
 
     // Avoid stack too deep issues
     Vec3 coord = baseCoord;
-    for (int32 y = canopyStart; y < canopyEnd; ++y) {
-      int32 layerRadius = canopySize - abs(y - int32(height));
-      if (layerRadius <= 0) continue;
+    for (int32 y = start; y < end; ++y) {
+      // Calculate distance from sphere center
+      int32 dy = abs(y - center);
+
+      if (dy > size * stretch) {
+        continue;
+      }
+
+      int32 radius = (size * (stretch * stretch - dy * dy)) / (stretch * stretch);
+      if (radius <= 0) {
+        continue;
+      }
+
+      bool isEdge = (dy == end - 1);
+
       // Create the canopy
-      for (int32 x = -layerRadius; x <= layerRadius; ++x) {
-        for (int32 z = -layerRadius; z <= layerRadius; ++z) {
+      for (int32 x = -radius; x <= radius; ++x) {
+        for (int32 z = -radius; z <= radius; ++z) {
           // Skip the trunk position
           if (x == 0 && z == 0 && y < int32(height)) {
             continue;
           }
 
-          // Calculate distance from center axis
-          int32 distSquared = x * x + z * z;
-          int32 maxDistance = layerRadius * layerRadius;
-          if (distSquared > maxDistance) {
-            // Always skip if beyond maximum radius
-            continue;
-          }
-
-          if (distSquared >= maxDistance - 1) {
-            // At the corners (maximum distance), 75% chance to skip, near corners 50% chance
-            uint256 threshold = distSquared == maxDistance ? 75 : 50;
-            // Update randomness seed
+          // If it is a corner
+          if (abs(x) == radius && abs(z) == radius) {
+            if (isEdge) {
+              continue;
+            }
             currentSeed = uint256(keccak256(abi.encodePacked(currentSeed)));
-            if (currentSeed % 100 < threshold) {
-              // continue;
+            if (currentSeed % 100 < 25) {
+              continue;
             }
           }
 
@@ -153,7 +148,7 @@ contract FarmingSystem is System {
 
           // Only place leaves in air blocks
           if (existingType == ObjectTypes.Air) {
-            console.log((vec3(x, y, z)).toString());
+            console.log(vec3(x, y, z).toString());
             ObjectType._set(leafEntityId, leafType);
             leaves++;
           }
