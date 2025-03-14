@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-function absInt32(int32 a) pure returns (int32) {
+function abs(int32 a) pure returns (int32) {
   return a < 0 ? -a : a;
 }
 

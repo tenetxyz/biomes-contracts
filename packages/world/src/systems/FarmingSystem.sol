@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { console } from "forge-std/console.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -13,6 +14,7 @@ import { useEquipped } from "../utils/InventoryUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { massToEnergy, transferEnergyToPool, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
+import { abs } from "../utils/MathUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeLib, TreeData } from "../ObjectTypeLib.sol";
@@ -25,18 +27,18 @@ contract FarmingSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
   function till(Vec3 coord) external {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, coord);
-
-    (EntityId farmlandEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
-    require(objectTypeId == ObjectTypes.Dirt || objectTypeId == ObjectTypes.Grass, "Not dirt or grass");
-    (uint128 massUsed, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId);
-    require(toolObjectTypeId.isHoe(), "Must equip a hoe");
-
-    uint128 energyCost = PLAYER_TILL_ENERGY_COST + massToEnergy(massUsed);
-    transferEnergyToPool(playerEntityId, playerCoord, energyCost);
-
-    ObjectType._set(farmlandEntityId, ObjectTypes.Farmland);
+    // (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    // requireInPlayerInfluence(playerCoord, coord);
+    //
+    // (EntityId farmlandEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
+    // require(objectTypeId == ObjectTypes.Dirt || objectTypeId == ObjectTypes.Grass, "Not dirt or grass");
+    // (uint128 massUsed, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId);
+    // require(toolObjectTypeId.isHoe(), "Must equip a hoe");
+    //
+    // uint128 energyCost = PLAYER_TILL_ENERGY_COST + massToEnergy(massUsed);
+    // transferEnergyToPool(playerEntityId, playerCoord, energyCost);
+    //
+    // ObjectType._set(farmlandEntityId, ObjectTypes.Farmland);
   }
 
   function growSeed(Vec3 coord) external {
@@ -100,72 +102,60 @@ contract FarmingSystem is System {
     } else {
       // Normal or tall tree
       canopySize = int32(treeData.canopySize);
-      canopyStart = int32(height) - 2;
-      canopyEnd = int32(height) + 1; // Extend 1 block above trunk
+      canopyStart = int32(height - treeData.canopySize);
+      canopyEnd = int32(height + treeData.canopySize - 1); // Extend 1 block above trunk
     }
 
+    // If tree is blocked stop generating the canopy at the top
     if (height < treeData.height) {
       canopyEnd = int32(height);
     }
 
     uint32 leaves;
 
-    int32 maxDistance = canopySize ** 2;
-    ObjectTypeId leafType = treeData.leafType;
-
     // Used for randomness
     uint256 currentSeed = uint256(keccak256(abi.encodePacked(block.timestamp, baseCoord)));
 
-    unchecked {
-      // Avoid stack too deep issues
-      Vec3 coord = baseCoord;
+    ObjectTypeId leafType = treeData.leafType;
+
+    // Avoid stack too deep issues
+    Vec3 coord = baseCoord;
+    for (int32 y = canopyStart; y < canopyEnd; ++y) {
+      int32 layerRadius = canopySize - abs(y - int32(height));
+      if (layerRadius <= 0) continue;
       // Create the canopy
-      for (int32 x = -canopySize; x <= canopySize; ++x) {
-        for (int32 z = -canopySize; z <= canopySize; ++z) {
-          // Calculate distance from center axis for a more natural, rounded shape
-          int32 distanceFromCenter = x ** 2 + z ** 2;
-          if (distanceFromCenter > maxDistance) {
+      for (int32 x = -layerRadius; x <= layerRadius; ++x) {
+        for (int32 z = -layerRadius; z <= layerRadius; ++z) {
+          // Skip the trunk position
+          if (x == 0 && z == 0 && y < int32(height)) {
+            continue;
+          }
+
+          // Calculate distance from center axis
+          int32 distSquared = x * x + z * z;
+          int32 maxDistance = layerRadius * layerRadius;
+          if (distSquared > maxDistance) {
             // Always skip if beyond maximum radius
             continue;
           }
 
-          uint256 skipChance;
-
-          // Skip corners and edges based on distance and randomness for a more natural look
-          if (distanceFromCenter == maxDistance) {
-            // At the corners (maximum distance), 75% chance to skip
-            skipChance = 75;
-          } else if (distanceFromCenter >= maxDistance - 1) {
-            skipChance = 50;
+          if (distSquared >= maxDistance - 1) {
+            // At the corners (maximum distance), 75% chance to skip, near corners 50% chance
+            uint256 threshold = distSquared == maxDistance ? 75 : 50;
+            // Update randomness seed
+            currentSeed = uint256(keccak256(abi.encodePacked(currentSeed)));
+            if (currentSeed % 100 < threshold) {
+              // continue;
+            }
           }
 
-          for (int32 y = canopyStart; y < canopyEnd; ++y) {
-            Vec3 leafCoord = coord + vec3(x, y, z);
+          (EntityId leafEntityId, ObjectTypeId existingType) = getOrCreateEntityAt(coord + vec3(x, y, z));
 
-            // Skip the trunk position
-            if (x == 0 && z == 0 && y < int32(height)) {
-              continue;
-            }
-
-            // Top layer of leaves should be smaller
-            if (y >= canopyEnd - 1 && distanceFromCenter > canopySize) {
-              continue;
-            }
-
-            if (skipChance != 0) {
-              currentSeed = uint256(keccak256(abi.encodePacked(currentSeed)));
-              if (currentSeed % 100 < skipChance) {
-                continue;
-              }
-            }
-
-            (EntityId leafEntityId, ObjectTypeId existingType) = getOrCreateEntityAt(leafCoord);
-
-            // Only place leaves in air blocks
-            if (existingType == ObjectTypes.Air) {
-              ObjectType._set(leafEntityId, leafType);
-              leaves++;
-            }
+          // Only place leaves in air blocks
+          if (existingType == ObjectTypes.Air) {
+            console.log((vec3(x, y, z)).toString());
+            ObjectType._set(leafEntityId, leafType);
+            leaves++;
           }
         }
       }
