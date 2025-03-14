@@ -16,6 +16,7 @@ uint256 constant SURFACE_PADDING = 1;
 library TerrainLib {
   using SSTORE2 for address;
   bytes1 constant _VERSION = 0x00;
+  bytes32 constant _VEGETATION_KEY = keccak256(abi.encode("region.vegetation"));
 
   /// @notice Get the terrain block type of a voxel coordinate.
   /// @dev Returns ObjectTypes.Null if the chunk is not explored yet.
@@ -146,7 +147,6 @@ library TerrainLib {
 
   /// @dev Get the vegetation leaf hash
   function _getVegetationLeafHash(uint32 vegetationCount) internal pure returns (bytes32) {
-    bytes32 key = keccak256(abi.encode("region.vegetation"));
-    return keccak256(bytes.concat(keccak256(abi.encode(key, vegetationCount))));
+    return keccak256(bytes.concat(keccak256(abi.encode(_VEGETATION_KEY, vegetationCount))));
   }
 }
