@@ -18,6 +18,8 @@ contract TerrainSystem is System {
 
     Vec3 regionCoord = chunkCoord.floorDiv(REGION_SIZE / CHUNK_SIZE);
     bytes32 regionRoot = RegionMerkleRoot.get(regionCoord.x(), regionCoord.z());
+    require(regionRoot != bytes32(0), "Region not seeded");
+
     bytes32 leaf = TerrainLib._getChunkLeafHash(chunkCoord, chunkData);
     require(MerkleProof.verify(merkleProof, regionRoot, leaf), "Invalid merkle proof");
 
@@ -32,7 +34,12 @@ contract TerrainSystem is System {
   function exploreRegionEnergy(Vec3 regionCoord, uint32 vegetationCount, bytes32[] memory merkleProof) public {
     require(regionCoord.y() == 0, "Energy pool chunks are 2D only");
     require(InitialEnergyPool.get(regionCoord) == 0, "Region energy already explored");
-    // TODO: verify merkle proof
+
+    bytes32 regionRoot = RegionMerkleRoot.get(regionCoord.x(), regionCoord.z());
+    require(regionRoot != bytes32(0), "Region not seeded");
+
+    bytes32 leaf = TerrainLib._getVegetationLeafHash(vegetationCount);
+    require(MerkleProof.verify(merkleProof, regionRoot, leaf), "Invalid merkle proof");
 
     // Add +1 to be able to distinguish between unexplored and empty region
     uint128 energy = vegetationCount * INITIAL_ENERGY_PER_VEGETATION + 1;
