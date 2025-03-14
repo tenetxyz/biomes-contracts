@@ -13,6 +13,7 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { InitialEnergyPool, LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
 import { INITIAL_ENERGY_PER_VEGETATION } from "../src/Constants.sol";
 import { RegionMerkleRoot } from "../src/codegen/tables/RegionMerkleRoot.sol";
+import { MockChunk } from "./MockChunk.sol";
 
 contract TerrainTest is BiomesTest {
   function testGetChunkCoord() public {
@@ -220,5 +221,33 @@ contract TerrainTest is BiomesTest {
 
     energy = LocalEnergyPool.get(regionCoord);
     assertEq(energy, vegetationCount * INITIAL_ENERGY_PER_VEGETATION + 1);
+  }
+
+  function testVerifyChunkMerkleProof() public {
+    (int32 x, int32 z) = MockChunk.getRegionCoord();
+    RegionMerkleRoot.set(x, z, MockChunk.regionRoot);
+    bytes memory encodedChunk = MockChunk.encodedChunk;
+    bytes32[] memory proof = MockChunk.getProof();
+    Vec3 chunkCoord = MockChunk.getChunkCoord();
+
+    RegionMerkleRoot.set(x, z, MockChunk.regionRoot);
+
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, proof);
+  }
+
+  function testVerifyChunkMerkleProof_Fail_InvalidProof() public {
+    (int32 x, int32 z) = MockChunk.getRegionCoord();
+    RegionMerkleRoot.set(x, z, MockChunk.regionRoot);
+    bytes memory encodedChunk = MockChunk.encodedChunk;
+    bytes32[] memory proof = MockChunk.getProof();
+    Vec3 chunkCoord = MockChunk.getChunkCoord();
+    RegionMerkleRoot.set(x, z, MockChunk.regionRoot);
+
+    proof[0] = proof[0] ^ bytes32(uint256(1));
+    vm.expectRevert("Invalid merkle proof");
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, proof);
+
+    vm.expectRevert("Invalid merkle proof");
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
   }
 }

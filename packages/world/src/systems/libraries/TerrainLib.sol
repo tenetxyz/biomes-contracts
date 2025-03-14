@@ -141,6 +141,6 @@ library TerrainLib {
 
   /// @dev Get the leaf hash of a chunk
   function _getChunkLeafHash(Vec3 chunkCoord, bytes memory chunk) internal pure returns (bytes32) {
-    return keccak256(abi.encode(chunkCoord, chunk));
+    return keccak256(bytes.concat(keccak256(abi.encode(chunkCoord, chunk))));
   }
 }
