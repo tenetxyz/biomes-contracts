@@ -26,6 +26,80 @@ import { PLAYER_TILL_ENERGY_COST } from "../Constants.sol";
 contract FarmingSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
+  // Manually defined trunk positions (relative to base)
+  function _getTrunkPositions() internal pure returns (Vec3[] memory) {
+    Vec3[] memory trunkPositions = new Vec3[](5);
+    trunkPositions[0] = vec3(0, 0, 0); // Base (replaces seed)
+    trunkPositions[1] = vec3(0, 1, 0);
+    trunkPositions[2] = vec3(0, 2, 0);
+    trunkPositions[3] = vec3(0, 3, 0);
+    trunkPositions[4] = vec3(0, 4, 0);
+    return trunkPositions;
+  }
+
+  // Manually defined leaf positions (relative to base)
+  function _getLeafPositions() internal pure returns (Vec3[] memory) {
+    Vec3[] memory leafPositions = new Vec3[](46);
+
+    // Layer 1 (y=2)
+    leafPositions[0] = vec3(-1, 2, -1);
+    leafPositions[1] = vec3(-1, 2, 0);
+    leafPositions[2] = vec3(-1, 2, 1);
+    leafPositions[3] = vec3(0, 2, -1);
+    leafPositions[4] = vec3(0, 2, 1);
+    leafPositions[5] = vec3(1, 2, -1);
+    leafPositions[6] = vec3(1, 2, 0);
+    leafPositions[7] = vec3(1, 2, 1);
+
+    // Layer 2 (y=3)
+    leafPositions[8] = vec3(-2, 3, -1);
+    leafPositions[9] = vec3(-2, 3, 0);
+    leafPositions[10] = vec3(-2, 3, 1);
+    leafPositions[11] = vec3(-1, 3, -2);
+    leafPositions[12] = vec3(-1, 3, -1);
+    leafPositions[13] = vec3(-1, 3, 0);
+    leafPositions[14] = vec3(-1, 3, 1);
+    leafPositions[15] = vec3(-1, 3, 2);
+    leafPositions[16] = vec3(0, 3, -2);
+    leafPositions[17] = vec3(0, 3, -1);
+    leafPositions[18] = vec3(0, 3, 1);
+    leafPositions[19] = vec3(0, 3, 2);
+    leafPositions[20] = vec3(1, 3, -2);
+    leafPositions[21] = vec3(1, 3, -1);
+    leafPositions[22] = vec3(1, 3, 0);
+    leafPositions[23] = vec3(1, 3, 1);
+    leafPositions[24] = vec3(1, 3, 2);
+    leafPositions[25] = vec3(2, 3, -1);
+    leafPositions[26] = vec3(2, 3, 0);
+    leafPositions[27] = vec3(2, 3, 1);
+
+    // Layer 3 (y=4)
+    leafPositions[28] = vec3(-1, 4, -1);
+    leafPositions[29] = vec3(-1, 4, 0);
+    leafPositions[30] = vec3(-1, 4, 1);
+    leafPositions[31] = vec3(0, 4, -1);
+    leafPositions[32] = vec3(0, 4, 1);
+    leafPositions[33] = vec3(1, 4, -1);
+    leafPositions[34] = vec3(1, 4, 0);
+    leafPositions[35] = vec3(1, 4, 1);
+
+    // Layer 4 (y=5, above trunk)
+    leafPositions[36] = vec3(-1, 5, -1);
+    leafPositions[37] = vec3(-1, 5, 0);
+    leafPositions[38] = vec3(-1, 5, 1);
+    leafPositions[39] = vec3(0, 5, -1);
+    leafPositions[40] = vec3(0, 5, 0); // Top center
+    leafPositions[41] = vec3(0, 5, 1);
+    leafPositions[42] = vec3(1, 5, -1);
+    leafPositions[43] = vec3(1, 5, 0);
+    leafPositions[44] = vec3(1, 5, 1);
+
+    // Single leaf on top (y=6)
+    leafPositions[45] = vec3(0, 6, 0);
+
+    return leafPositions;
+  }
+
   function till(Vec3 coord) external {
     // (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     // requireInPlayerInfluence(playerCoord, coord);
@@ -68,7 +142,7 @@ contract FarmingSystem is System {
       uint32 energyToReturn = (treeData.height - height) * ObjectTypeMetadata._getEnergy(treeData.logType);
 
       // If not all leaves were generated, return their energy to the local pool
-      uint32 maxPossibleLeaves = (2 * treeData.canopySize + 1) ** 2 * 5 - treeData.height;
+      uint32 maxPossibleLeaves = 46; // Hardcoded number of leaf positions in our model
       energyToReturn += (maxPossibleLeaves - leaves) * ObjectTypeMetadata._getEnergy(treeData.leafType);
       if (energyToReturn > 0) {
         addEnergyToLocalPool(coord, energyToReturn);
@@ -76,109 +150,63 @@ contract FarmingSystem is System {
     }
   }
 
-  // TODO: adjust to get desired shape
+  // Use manually defined tree model with fixed trunk and leaf positions
   function _growTree(
     EntityId seedEntityId,
     Vec3 baseCoord,
     TreeData memory treeData
   ) internal returns (uint32, uint32) {
-    uint32 height = _growTreeTrunk(seedEntityId, baseCoord, treeData);
+    // Get manually defined trunk and leaf positions
+    Vec3[] memory trunkPositions = _getTrunkPositions();
+    Vec3[] memory leafPositions = _getLeafPositions();
 
-    if (height <= 2) {
-      // Very small tree, no leaves
-      return (height, 0);
-    }
+    // Place the trunk blocks from bottom up until blocked
+    uint32 trunkPlaced = 0;
 
-    // Adjust canopy parameters based on height
-    int32 canopySize;
-    int32 canopyStart;
-    int32 canopyEnd;
-
-    if (height <= 4) {
-      // Small tree
-      canopySize = int32(treeData.canopySize) - 1;
-      canopyStart = int32(height) - 1;
-      canopyEnd = int32(height) + 1; // Extend 1 block above trunk
-    } else {
-      // Normal or tall tree
-      canopySize = int32(treeData.canopySize);
-      canopyStart = int32(height - treeData.canopySize);
-      canopyEnd = int32(height + treeData.canopySize - 1); // Extend 1 block above trunk
-    }
-
-    // If tree is blocked stop generating the canopy at the top
-    if (height < treeData.height) {
-      canopyEnd = int32(height);
-    }
-
-    uint32 leaves;
-
-    // Used for randomness
-    uint256 currentSeed = uint256(keccak256(abi.encodePacked(block.timestamp, baseCoord)));
-
-    ObjectTypeId leafType = treeData.leafType;
-
-    // Avoid stack too deep issues
-    Vec3 coord = baseCoord;
-    for (int32 y = canopyStart; y < canopyEnd; ++y) {
-      int32 layerRadius = canopySize - abs(y - int32(height));
-      if (layerRadius <= 0) continue;
-      // Create the canopy
-      for (int32 x = -layerRadius; x <= layerRadius; ++x) {
-        for (int32 z = -layerRadius; z <= layerRadius; ++z) {
-          // Skip the trunk position
-          if (x == 0 && z == 0 && y < int32(height)) {
-            continue;
-          }
-
-          // Calculate distance from center axis
-          int32 distSquared = x * x + z * z;
-          int32 maxDistance = layerRadius * layerRadius;
-          if (distSquared > maxDistance) {
-            // Always skip if beyond maximum radius
-            continue;
-          }
-
-          if (distSquared >= maxDistance - 1) {
-            // At the corners (maximum distance), 75% chance to skip, near corners 50% chance
-            uint256 threshold = distSquared == maxDistance ? 75 : 50;
-            // Update randomness seed
-            currentSeed = uint256(keccak256(abi.encodePacked(currentSeed)));
-            if (currentSeed % 100 < threshold) {
-              // continue;
-            }
-          }
-
-          (EntityId leafEntityId, ObjectTypeId existingType) = getOrCreateEntityAt(coord + vec3(x, y, z));
-
-          // Only place leaves in air blocks
-          if (existingType == ObjectTypes.Air) {
-            console.log((vec3(x, y, z)).toString());
-            ObjectType._set(leafEntityId, leafType);
-            leaves++;
-          }
-        }
-      }
-    }
-
-    return (height, leaves);
-  }
-
-  function _growTreeTrunk(EntityId seedEntityId, Vec3 baseCoord, TreeData memory treeData) internal returns (uint32) {
-    // Replace the seed with the trunk
+    // Replace the seed with the first trunk block
     ObjectType._set(seedEntityId, treeData.logType);
+    trunkPlaced = 1; // Count the base trunk
 
-    // Create the trunk up to available space
-    for (uint32 i = 1; i < treeData.height; i++) {
-      Vec3 trunkCoord = baseCoord + vec3(0, int32(i), 0);
-      (EntityId trunkEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(trunkCoord);
-      if (objectTypeId != ObjectTypes.Air) {
-        return i;
+    // Place remaining trunk blocks
+    for (uint32 i = 1; i < trunkPositions.length; i++) {
+      Vec3 pos = baseCoord + trunkPositions[i];
+      (EntityId entityId, ObjectTypeId existingType) = getOrCreateEntityAt(pos);
+
+      // Stop if blocked
+      if (existingType != ObjectTypes.Air) {
+        break;
       }
 
-      ObjectType._set(trunkEntityId, treeData.logType);
+      ObjectType._set(entityId, treeData.logType);
+      trunkPlaced++;
     }
 
-    return treeData.height;
+    // If trunk is too short, don't place leaves
+    if (trunkPlaced <= 2) {
+      return (trunkPlaced, 0);
+    }
+
+    // Place leaf blocks from bottom up until blocked
+    uint32 leavesPlaced = 0;
+    for (uint32 i = 0; i < leafPositions.length; i++) {
+      // Skip leaf positions that would be above the actual trunk height
+      if (trunkPlaced < trunkPositions.length && leafPositions[i].y() > int32(trunkPlaced)) {
+        continue;
+      }
+
+      Vec3 pos = baseCoord + leafPositions[i];
+
+      (EntityId entityId, ObjectTypeId existingType) = getOrCreateEntityAt(pos);
+
+      // Only place leaves in air blocks
+      if (existingType == ObjectTypes.Air) {
+        ObjectType._set(entityId, treeData.leafType);
+        leavesPlaced++;
+      }
+    }
+
+    return (trunkPlaced, leavesPlaced);
   }
+
+  // This function is no longer needed as trunk placement is handled in _growTree
 }
