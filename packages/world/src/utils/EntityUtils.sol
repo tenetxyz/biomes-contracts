@@ -37,20 +37,25 @@ function getOrCreateEntityAt(Vec3 coord) returns (EntityId, ObjectTypeId) {
     objectTypeId = TerrainLib._getBlockType(coord);
     require(!objectTypeId.isNull(), "Chunk not explored yet");
 
-    entityId = getUniqueEntity();
-    Position._set(entityId, coord);
-    ReversePosition._set(coord, entityId);
-    ObjectType._set(entityId, objectTypeId);
-    // We assume all terrain blocks are only 1 voxel (no relative entities)
-    uint32 mass = ObjectTypeMetadata._getMass(objectTypeId);
-    if (mass > 0) {
-      Mass._setMass(entityId, mass);
-    }
+    entityId = createEntityAt(coord, objectTypeId);
   } else {
     objectTypeId = ObjectType._get(entityId);
   }
 
   return (entityId, objectTypeId);
+}
+
+function createEntityAt(Vec3 coord, ObjectTypeId objectTypeId) returns (EntityId) {
+  EntityId entityId = getUniqueEntity();
+  Position._set(entityId, coord);
+  ReversePosition._set(coord, entityId);
+  ObjectType._set(entityId, objectTypeId);
+  // We assume all terrain blocks are only 1 voxel (no relative entities)
+  uint32 mass = ObjectTypeMetadata._getMass(objectTypeId);
+  if (mass > 0) {
+    Mass._setMass(entityId, mass);
+  }
+  return entityId;
 }
 
 function getPlayer(Vec3 coord) view returns (EntityId) {
