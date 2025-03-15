@@ -43,7 +43,7 @@ contract HitMachineSystem is System {
       return;
     }
 
-    (uint128 toolMassReduction, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId);
+    (uint128 toolMassReduction, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId, type(uint128).max);
     require(toolObjectTypeId.isWhacker(), "You must use a whacker to hit machines");
 
     uint128 energyReduction = PLAYER_HIT_ENERGY_COST + massToEnergy(toolMassReduction);

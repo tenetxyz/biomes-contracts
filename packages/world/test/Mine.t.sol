@@ -58,6 +58,7 @@ contract MineTest is BiomesTest {
 
     mineEntityId = ReversePosition.get(mineCoord);
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
+    assertEq(Mass.getMass(mineEntityId), 0, "Mine entity mass is not 0");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -92,6 +93,7 @@ contract MineTest is BiomesTest {
     world.mine(mineCoord);
 
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
+    assertEq(Mass.getMass(mineEntityId), 0, "Mine entity mass is not 0");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -116,6 +118,7 @@ contract MineTest is BiomesTest {
 
     mineEntityId = ReversePosition.get(mineCoord);
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
+    assertEq(Mass.getMass(mineEntityId), 0, "Mine entity mass is not 0");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -151,6 +154,7 @@ contract MineTest is BiomesTest {
 
     mineEntityId = ReversePosition.get(mineCoord);
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
+    assertEq(Mass.getMass(mineEntityId), 0, "Mine entity mass is not 0");
     assertInventoryHasObject(aliceEntityId, ObjectTypes.AnyOre, 0);
     assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 1");
     oreAmounts = inventoryGetOreAmounts(aliceEntityId);
@@ -221,6 +225,7 @@ contract MineTest is BiomesTest {
     endGasReport();
 
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
+    assertEq(Mass.getMass(mineEntityId), 0, "Mine entity mass is not 0");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -256,6 +261,7 @@ contract MineTest is BiomesTest {
     endGasReport();
 
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
+    assertEq(Mass.getMass(mineEntityId), 0, "Mine entity mass is not 0");
     assertEq(ObjectType.get(topEntityId), ObjectTypes.Air, "Top entity is not air");
     assertEq(Mass.getMass(mineEntityId), 0, "Mine entity mass is not correct");
     assertEq(Mass.getMass(topEntityId), 0, "Top entity mass is not correct");
@@ -277,6 +283,7 @@ contract MineTest is BiomesTest {
     world.mine(topCoord);
 
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
+    assertEq(Mass.getMass(mineEntityId), 0, "Mine entity mass is not 0");
     assertEq(ObjectType.get(topEntityId), ObjectTypes.Air, "Top entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
   }
