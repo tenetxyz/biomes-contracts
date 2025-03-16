@@ -493,7 +493,7 @@ contract FarmingTest is BiomesTest {
   }
 
   function testTreeGrowthWithSpace() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
 
     Vec3 dirtCoord = vec3(CHUNK_SIZE / 2, 0, CHUNK_SIZE / 3);
     Vec3 seedCoord = dirtCoord + vec3(0, 1, 0);
@@ -525,24 +525,20 @@ contract FarmingTest is BiomesTest {
     // Verify the seed is now a log
     assertEq(ObjectType.get(seedEntityId), ObjectTypes.OakLog, "Seed was not converted to log");
 
-    // Get tree data to check height
+    // Get tree data to check trunkHeight
     TreeData memory treeData = ObjectTypes.OakSeed.getTreeData();
-    int32 height = int32(uint32(treeData.height));
+    int32 height = int32(uint32(treeData.trunkHeight));
 
     // Verify trunk exists
     for (int32 i = 0; i < height; i++) {
       Vec3 checkCoord = seedCoord + vec3(0, i, 0);
-      if (i == 0) {
-        // First log is the converted seed
-        continue;
-      }
       EntityId logEntityId = ReversePosition.get(checkCoord);
       assertTrue(logEntityId.exists(), "Log entity doesn't exist");
       assertEq(ObjectType.get(logEntityId), ObjectTypes.OakLog, "Entity is not oak log");
     }
 
     // Verify leaves exist in canopy area (test a few sample points)
-    int32 canopyStart = height - 3;
+    int32 canopyStart = int32(treeData.canopyStart);
 
     // Check some expected leaf positions
     Vec3[] memory leafPositions = new Vec3[](5);
@@ -554,8 +550,8 @@ contract FarmingTest is BiomesTest {
 
     for (uint256 i = 0; i < leafPositions.length; i++) {
       EntityId leafEntityId = ReversePosition.get(leafPositions[i]);
-      // assertTrue(leafEntityId.exists(), "Leaf entity doesn't exist");
-      // assertEq(ObjectType.get(leafEntityId), ObjectTypes.OakLeaf, "Entity is not oak leaf");
+      assertTrue(leafEntityId.exists(), "Leaf entity doesn't exist");
+      assertEq(ObjectType.get(leafEntityId), ObjectTypes.OakLeaf, "Entity is not oak leaf");
     }
   }
 

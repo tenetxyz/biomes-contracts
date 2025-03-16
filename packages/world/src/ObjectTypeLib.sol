@@ -17,8 +17,10 @@ struct ObjectAmount {
 struct TreeData {
   ObjectTypeId logType;
   ObjectTypeId leafType;
-  uint32 height;
-  uint32 canopySize;
+  uint32 trunkHeight;
+  uint32 canopyStart;
+  uint32 canopyEnd;
+  uint32 canopyWidth;
   int32 centerOffset;
   int32 stretchFactor;
 }
@@ -148,27 +150,39 @@ library ObjectTypeLib {
       return ObjectTypes.Wheat;
     }
 
-    return ObjectTypes.Null;
+    revert("Invalid crop seed type");
   }
 
   function getTreeData(ObjectTypeId seedTypeId) internal pure returns (TreeData memory) {
     if (seedTypeId == ObjectTypes.OakSeed) {
-      return TreeData(ObjectTypes.OakLog, ObjectTypes.OakLeaf, 5, 2, -1, 4);
-    } else if (seedTypeId == ObjectTypes.BirchSeed) {
-      return TreeData(ObjectTypes.BirchLog, ObjectTypes.BirchLeaf, 6, 2, 0, 2);
-    } else if (seedTypeId == ObjectTypes.JungleSeed) {
-      return TreeData(ObjectTypes.JungleLog, ObjectTypes.JungleLeaf, 7, 2, 0, 2);
-    } else if (seedTypeId == ObjectTypes.SakuraSeed) {
-      return TreeData(ObjectTypes.SakuraLog, ObjectTypes.SakuraLeaf, 5, 2, 0, 2);
-    } else if (seedTypeId == ObjectTypes.SpruceSeed) {
-      return TreeData(ObjectTypes.SpruceLog, ObjectTypes.SpruceLeaf, 6, 2, 0, 2);
-    } else if (seedTypeId == ObjectTypes.AcaciaSeed) {
-      return TreeData(ObjectTypes.AcaciaLog, ObjectTypes.AcaciaLeaf, 4, 2, 0, 1);
-    } else if (seedTypeId == ObjectTypes.DarkOakSeed) {
-      return TreeData(ObjectTypes.DarkOakLog, ObjectTypes.DarkOakLeaf, 4, 2, 0, 1);
-    }
+      return
+        TreeData({
+          logType: ObjectTypes.OakLog,
+          leafType: ObjectTypes.OakLeaf,
+          trunkHeight: 5,
+          canopyStart: 3,
+          canopyEnd: 7,
+          canopyWidth: 2,
+          centerOffset: -2,
+          stretchFactor: 2
+        });
+    } else if (seedTypeId == ObjectTypes.BirchSeed) {} else if (seedTypeId == ObjectTypes.JungleSeed) {} else if (
+      seedTypeId == ObjectTypes.SakuraSeed
+    ) {} else if (seedTypeId == ObjectTypes.SpruceSeed) {
+      return
+        TreeData({
+          logType: ObjectTypes.SpruceLog,
+          leafType: ObjectTypes.SpruceLeaf,
+          trunkHeight: 7,
+          canopyStart: 2,
+          canopyEnd: 10,
+          canopyWidth: 2,
+          centerOffset: -5,
+          stretchFactor: 3
+        });
+    } else if (seedTypeId == ObjectTypes.AcaciaSeed) {} else if (seedTypeId == ObjectTypes.DarkOakSeed) {}
 
-    return TreeData(ObjectTypes.Null, ObjectTypes.Null, 0, 0, 0, 0);
+    revert("Invalid tree seed type");
   }
 
   // TODO: one possible way to optimize is to follow some kind of schema for crops and their seeds

@@ -246,7 +246,8 @@ library Vec3Lib {
   }
 
   function toString(Vec3 a) internal pure returns (string memory) {
-    return string(abi.encodePacked("(", intToString(x(a)), ",", intToString(y(a)), ",", intToString(z(a)), ")"));
+    return
+      string(abi.encodePacked("{ x:", intToString(x(a)), ", y:", intToString(y(a)), ", z:", intToString(z(a)), " }"));
   }
 }
 
