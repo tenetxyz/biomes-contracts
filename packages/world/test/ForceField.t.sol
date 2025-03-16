@@ -18,7 +18,7 @@ import { ReversePosition, PlayerPosition, Position } from "../src/utils/Vec3Stor
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
-import { MACHINE_ENERGY_DRAIN_RATE, FORCE_FIELD_FRAGMENT_DIM } from "../src/Constants.sol";
+import { MACHINE_ENERGY_DRAIN_RATE, FRAGMENT_SIZE } from "../src/Constants.sol";
 import { IForceFieldChip } from "../src/prototypes/IForceFieldChip.sol";
 import { IForceFieldFragmentChip } from "../src/prototypes/IForceFieldFragmentChip.sol";
 import { IChestChip } from "../src/prototypes/IChestChip.sol";
@@ -845,7 +845,7 @@ contract ForceFieldTest is BiomesTest {
     );
 
     // Create second force field
-    Vec3 forceField2Coord = forceField1Coord + vec3(FORCE_FIELD_FRAGMENT_DIM, 0, 0);
+    Vec3 forceField2Coord = forceField1Coord + vec3(FRAGMENT_SIZE, 0, 0);
     setupForceField(
       forceField2Coord,
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })

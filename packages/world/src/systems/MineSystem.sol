@@ -248,7 +248,6 @@ contract MineSystem is System {
           Vec3 relativeCoord = coords[i];
           (EntityId relativeEntityId, ) = getOrCreateEntityAt(relativeCoord);
           BaseEntity._deleteRecord(relativeEntityId);
-
           _removeBlock(relativeEntityId, relativeCoord);
         }
       } else {

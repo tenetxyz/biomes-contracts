@@ -7,12 +7,16 @@ import { TerrainLib, VERSION_PADDING, BIOME_PADDING, SURFACE_PADDING } from "../
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { CHUNK_SIZE } from "../src/Constants.sol";
+import { CHUNK_SIZE, REGION_SIZE } from "../src/Constants.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { InitialEnergyPool, LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
+import { INITIAL_ENERGY_PER_VEGETATION } from "../src/Constants.sol";
+import { RegionMerkleRoot } from "../src/codegen/tables/RegionMerkleRoot.sol";
+import { MockChunk, MockVegetation } from "./mockData.sol";
 
 contract TerrainTest is BiomesTest {
-  function testGetChunkCoord() public {
+  function testGetChunkCoord() public pure {
     Vec3 coord = vec3(1, 2, 2);
     Vec3 chunkCoord = coord.toChunkCoord();
     assertEq(chunkCoord, vec3(0, 0, 0));
@@ -30,7 +34,7 @@ contract TerrainTest is BiomesTest {
     assertEq(chunkCoord, vec3(1, -2, -2));
   }
 
-  function testGetRelativeCoord() public {
+  function testGetRelativeCoord() public pure {
     Vec3 coord = vec3(1, 2, 2);
     Vec3 relativeCoord = TerrainLib._getRelativeCoord(coord);
     assertEq(relativeCoord, vec3(1, 2, 2));
@@ -48,7 +52,7 @@ contract TerrainTest is BiomesTest {
     assertEq(relativeCoord, vec3(0, 15, 14));
   }
 
-  function testGetBlockIndex() public {
+  function testGetBlockIndex() public pure {
     Vec3 coord = vec3(1, 2, 2);
     uint256 index = TerrainLib._getBlockIndex(coord);
     assertEq(index, 1 * 256 + 2 * 16 + 2 + VERSION_PADDING + BIOME_PADDING + SURFACE_PADDING);
@@ -66,7 +70,7 @@ contract TerrainTest is BiomesTest {
     assertEq(index, 0 * 256 + 15 * 16 + 14 + VERSION_PADDING + BIOME_PADDING + SURFACE_PADDING);
   }
 
-  function testGetChunkSalt() public {
+  function testGetChunkSalt() public pure {
     Vec3 chunkCoord = vec3(1, 2, 3);
     bytes32 salt = TerrainLib._getChunkSalt(chunkCoord);
     assertEq(salt, bytes32(abi.encodePacked(bytes20(0), chunkCoord)));
@@ -93,10 +97,23 @@ contract TerrainTest is BiomesTest {
     isSurface = true;
   }
 
+  function _setupTestChunk(Vec3 chunkCoord) internal returns (uint8[][][] memory chunk) {
+    uint8 biome;
+    bool isSurface;
+    (chunk, biome, isSurface) = _getTestChunk();
+    bytes memory encodedChunk = encodeChunk(biome, isSurface, chunk);
+    Vec3 regionCoord = chunkCoord.floorDiv(REGION_SIZE / CHUNK_SIZE);
+    RegionMerkleRoot.set(regionCoord.x(), regionCoord.z(), TerrainLib._getChunkLeafHash(chunkCoord, encodedChunk));
+    bytes32[] memory merkleProof = new bytes32[](0);
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, merkleProof);
+  }
+
   function testExploreChunk() public {
     (uint8[][][] memory chunk, uint8 inputBiome, bool inputIsSurface) = _getTestChunk();
     bytes memory encodedChunk = encodeChunk(inputBiome, inputIsSurface, chunk);
     Vec3 chunkCoord = vec3(0, 0, 0);
+    Vec3 regionCoord = chunkCoord.floorDiv(REGION_SIZE / CHUNK_SIZE);
+    RegionMerkleRoot.set(regionCoord.x(), regionCoord.z(), TerrainLib._getChunkLeafHash(chunkCoord, encodedChunk));
     bytes32[] memory merkleProof = new bytes32[](0);
 
     startGasReport("TerrainLib.exploreChunk");
@@ -149,42 +166,39 @@ contract TerrainTest is BiomesTest {
   }
 
   function testExploreChunk_Fail_ChunkAlreadyExplored() public {
-    (uint8[][][] memory chunk, uint8 biome, bool isSurface) = _getTestChunk();
-    bytes memory encodedChunk = encodeChunk(biome, isSurface, chunk);
     Vec3 chunkCoord = vec3(0, 0, 0);
-    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+    (uint8[][][] memory chunk, uint8 biome, bool isSurface) = _getTestChunk();
+    _setupTestChunk(chunkCoord);
 
     vm.expectRevert("Chunk already explored");
-    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodeChunk(biome, isSurface, chunk), new bytes32[](0));
   }
 
   function testGetBlockType() public {
-    (uint8[][][] memory chunk, uint8 biome, bool isSurface) = _getTestChunk();
-    bytes memory encodedChunk = encodeChunk(biome, isSurface, chunk);
+    Vec3 chunkCoord = vec3(0, 0, 0);
+    uint8[][][] memory chunk = _setupTestChunk(vec3(0, 0, 0));
 
     // Test we can get the block type for a voxel in the chunk
-    Vec3 chunkCoord = vec3(0, 0, 0);
-    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
     Vec3 coord = vec3(1, 2, 3);
     ObjectTypeId blockType = TerrainLib.getBlockType(coord);
     assertEq(ObjectTypeId.unwrap(blockType), uint16(chunk[1][2][3]));
 
     // Test for chunks that are not at the origin
     chunkCoord = vec3(1, 2, 3);
-    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+    chunk = _setupTestChunk(chunkCoord);
     coord = vec3(16 + 1, 16 * 2 + 2, 16 * 3 + 3);
     blockType = TerrainLib.getBlockType(coord);
     assertEq(ObjectTypeId.unwrap(blockType), uint16(chunk[1][2][3]));
 
     // Test for negative coordinates
     chunkCoord = vec3(-1, -2, -3);
-    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+    chunk = _setupTestChunk(chunkCoord);
     coord = vec3(-16 + 1, -16 * 2 + 2, -16 * 3 + 3);
     blockType = TerrainLib.getBlockType(coord);
     assertEq(ObjectTypeId.unwrap(blockType), uint16(chunk[1][2][3]));
   }
 
-  function testGetBlockType_ChunkNotExplored() public {
+  function testGetBlockType_ChunkNotExplored() public view {
     ObjectTypeId blockType = TerrainLib.getBlockType(vec3(0, 0, 0));
     assertEq(blockType, ObjectTypes.Null);
   }
@@ -193,5 +207,59 @@ contract TerrainTest is BiomesTest {
   function testGetBiome_Fail_ChunkNotExplored() public {
     vm.expectRevert("Chunk not explored");
     TerrainLib.getBiome(vec3(0, 0, 0));
+  }
+
+  function testVerifyChunkMerkleProof() public {
+    (int32 x, int32 z) = MockChunk.getRegionCoord();
+    RegionMerkleRoot.set(x, z, MockChunk.regionRoot);
+    bytes memory encodedChunk = MockChunk.encodedChunk;
+    bytes32[] memory proof = MockChunk.getProof();
+    Vec3 chunkCoord = MockChunk.getChunkCoord();
+
+    RegionMerkleRoot.set(x, z, MockChunk.regionRoot);
+
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, proof);
+  }
+
+  function testVerifyChunkMerkleProof_Fail_InvalidProof() public {
+    (int32 x, int32 z) = MockChunk.getRegionCoord();
+    RegionMerkleRoot.set(x, z, MockChunk.regionRoot);
+    bytes memory encodedChunk = MockChunk.encodedChunk;
+    bytes32[] memory proof = MockChunk.getProof();
+    Vec3 chunkCoord = MockChunk.getChunkCoord();
+    RegionMerkleRoot.set(x, z, MockChunk.regionRoot);
+
+    proof[0] = proof[0] ^ bytes32(uint256(1));
+    vm.expectRevert("Invalid merkle proof");
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, proof);
+
+    vm.expectRevert("Invalid merkle proof");
+    IWorld(worldAddress).exploreChunk(chunkCoord, encodedChunk, new bytes32[](0));
+  }
+
+  function testExploreRegionEnergy() public {
+    (int32 x, int32 z) = MockVegetation.getRegionCoord();
+    Vec3 regionCoord = vec3(x, 0, z);
+    uint32 vegetationCount = MockVegetation.vegetationCount;
+    bytes32[] memory merkleProof = MockVegetation.getProof();
+
+    IWorld(worldAddress).exploreRegionEnergy(regionCoord, vegetationCount, merkleProof);
+
+    uint128 energy = InitialEnergyPool.get(regionCoord);
+    assertEq(energy, vegetationCount * INITIAL_ENERGY_PER_VEGETATION + 1);
+
+    energy = LocalEnergyPool.get(regionCoord);
+    assertEq(energy, vegetationCount * INITIAL_ENERGY_PER_VEGETATION + 1);
+  }
+
+  function testExploreRegionEnergy_Fail_RegionNotSeeded() public {
+    RegionMerkleRoot.set(0, 0, bytes32(0));
+    vm.expectRevert("Region not seeded");
+    IWorld(worldAddress).exploreRegionEnergy(vec3(0, 0, 0), 100, new bytes32[](0));
+  }
+
+  function testExploreRegionEnergy_Fail_InvalidMerkleProof() public {
+    vm.expectRevert("Invalid merkle proof");
+    IWorld(worldAddress).exploreRegionEnergy(vec3(0, 0, 0), 100, new bytes32[](0));
   }
 }

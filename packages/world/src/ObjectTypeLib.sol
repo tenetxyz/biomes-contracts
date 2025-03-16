@@ -144,6 +144,10 @@ library ObjectTypeLib {
       objectTypeId == ObjectTypes.DarkOakSeed;
   }
 
+  function isCrop(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return objectTypeId == ObjectTypes.Wheat;
+  }
+
   // TODO: one possible way to optimize is to follow some kind of schema for crops and their seeds
   function getCrop(ObjectTypeId objectTypeId) internal pure returns (ObjectTypeId) {
     if (objectTypeId == ObjectTypes.WheatSeeds) {
