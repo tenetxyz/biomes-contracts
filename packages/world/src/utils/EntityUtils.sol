@@ -30,6 +30,19 @@ function safeGetObjectTypeIdAt(Vec3 coord) view returns (ObjectTypeId) {
   return objectTypeId;
 }
 
+function getEntityAt(Vec3 coord) view returns (EntityId, ObjectTypeId) {
+  EntityId entityId = ReversePosition._get(coord);
+  ObjectTypeId objectTypeId;
+  if (!entityId.exists()) {
+    objectTypeId = TerrainLib._getBlockType(coord);
+    require(!objectTypeId.isNull(), "Chunk not explored yet");
+  } else {
+    objectTypeId = ObjectType._get(entityId);
+  }
+
+  return (entityId, objectTypeId);
+}
+
 function getOrCreateEntityAt(Vec3 coord) returns (EntityId, ObjectTypeId) {
   EntityId entityId = ReversePosition._get(coord);
   ObjectTypeId objectTypeId;

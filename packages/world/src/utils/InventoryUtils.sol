@@ -129,12 +129,16 @@ function useEquipped(
     require(toolMassLeft > 0, "Tool is already broken");
 
     // TODO: separate mine and hit?
-    // use 10% of the mass if it's greater than 10
-    toolMassUsed = toolMassLeft >= useMassMax
-      ? useMassMax
-      : toolMassLeft > 10
-        ? toolMassLeft / 10
-        : toolMassLeft;
+    if (toolMassLeft >= useMassMax) {
+      toolMassUsed = useMassMax;
+    } else {
+      // use 10% of the mass if it's greater than 10
+      if (toolMassLeft > 10) {
+        toolMassUsed = toolMassLeft / 10;
+      } else {
+        toolMassUsed = toolMassLeft;
+      }
+    }
 
     if (toolMassLeft <= toolMassUsed) {
       // Destroy equipped item

@@ -28,7 +28,7 @@ import { updateEnergyLevel, energyToMass, transferEnergyToPool, addEnergyToLocal
 import { mulDiv } from "../utils/MathUtils.sol";
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
-import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, safeGetObjectTypeIdAt, getPlayer } from "../utils/EntityUtils.sol";
+import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, getPlayer } from "../utils/EntityUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -235,10 +235,12 @@ contract MineSystem is System {
         {
           // Remove seeds placed on top of this block
           Vec3 aboveCoord = baseCoord + vec3(0, 1, 0);
-          ObjectTypeId aboveTypeId = safeGetObjectTypeIdAt(aboveCoord);
+          (EntityId aboveEntityId, ObjectTypeId aboveTypeId) = getEntityAt(aboveCoord);
           if (aboveTypeId.isSeed()) {
             _requireSeedNotFullyGrown(baseEntityId);
-            EntityId aboveEntityId = createEntityAt(aboveCoord, aboveTypeId);
+            if (!aboveEntityId.exists()) {
+              aboveEntityId = createEntityAt(aboveCoord, aboveTypeId);
+            }
             _removeBlock(aboveEntityId, aboveTypeId, aboveCoord);
             _handleDrop(playerEntityId, aboveTypeId);
           }
