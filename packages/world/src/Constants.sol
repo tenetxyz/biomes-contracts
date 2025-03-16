@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-int32 constant FORCE_FIELD_FRAGMENT_DIM = 8;
-int32 constant LOCAL_ENERGY_POOL_SHARD_DIM = 512;
-
 int32 constant MAX_PLAYER_INFLUENCE_HALF_WIDTH = 10;
 int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
 
@@ -13,16 +10,15 @@ uint16 constant PLAYER_FALL_DAMAGE_THRESHOLD = 3;
 
 uint256 constant SPAWN_BLOCK_RANGE = 10;
 
-int32 constant CHUNK_SIZE = 16;
-int32 constant AREA_SIZE = 512;
+int32 constant FRAGMENT_SIZE = 8; // 8x8x8 (3D)
+int32 constant CHUNK_SIZE = 16; // 16x16x16 (3D)
+int32 constant REGION_SIZE = 512; // 512x512 (2D)
 
 uint256 constant SAFE_CHIP_GAS = 1_000_000;
 
 uint256 constant CHUNK_COMMIT_EXPIRY_BLOCKS = 256;
 int32 constant CHUNK_COMMIT_HALF_WIDTH = 2;
 uint256 constant RESPAWN_ORE_BLOCK_RANGE = 10;
-
-address constant PHYSICS_ORACLE_ADDRESS = 0xe67AcfFCe0B542540F1520a9eaD7Aa86ff31196E;
 
 // ------------------------------------------------------------
 // Values To Tune
@@ -52,3 +48,5 @@ uint256 constant MAX_SILVER = 5_000_000;
 uint256 constant MAX_GOLD = 1_000_000;
 uint256 constant MAX_DIAMOND = 500_000;
 uint256 constant MAX_NEPTUNIUM = 100_000;
+
+uint128 constant INITIAL_ENERGY_PER_VEGETATION = 100;

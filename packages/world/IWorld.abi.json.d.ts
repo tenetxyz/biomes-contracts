@@ -707,6 +707,29 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "exploreRegionEnergy",
+    "inputs": [
+      {
+        "name": "regionCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "vegetationCount",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "merkleProof",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "fillBucket",
     "inputs": [
       {
@@ -2014,6 +2037,19 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "growSeed",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "hitForceField",
     "inputs": [
       {
@@ -2236,24 +2272,6 @@ declare const abi: [
         "name": "directions",
         "type": "uint8[]",
         "internalType": "enum Direction[]"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "oracleSetInitialEnergyPool",
-    "inputs": [
-      {
-        "name": "shardCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "energy",
-        "type": "uint128",
-        "internalType": "uint128"
       }
     ],
     "outputs": [],
