@@ -2,7 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
-import { BlockEntityData } from "@biomesaw/world/src/Types.sol";
+import { EntityData } from "@biomesaw/world/src/Types.sol";
 
 import { SmartItemMetadataData } from "./codegen/tables/SmartItemMetadata.sol";
 import { GateApprovalsData } from "./codegen/tables/GateApprovals.sol";
@@ -19,8 +19,8 @@ struct PipeAccessDataWithEntityId {
   PipeAccessData pipeAccessData;
 }
 
-struct BlockExperienceEntityData {
-  BlockEntityData worldEntityData;
+struct ExperienceEntityData {
+  EntityData worldEntityData;
   address chipAttacher;
   address chipAdmin;
   SmartItemMetadataData smartItemMetadata;

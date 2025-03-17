@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 import { EnergyData } from "./codegen/tables/Energy.sol";
+import { Direction } from "./codegen/common.sol";
 import { Vec3 } from "./Vec3.sol";
 import { EntityId } from "./EntityId.sol";
 import { ObjectTypeId } from "./ObjectTypeId.sol";
@@ -19,31 +21,22 @@ struct InventoryObject {
 
 struct PlayerEntityData {
   address playerAddress;
-  EntityId entityId;
-  Vec3 position;
   EntityId bedEntityId;
   EntityId equippedEntityId;
-  InventoryObject[] inventory;
-  uint256 mass;
-  EnergyData energy;
   uint256 lastActionTime;
-}
-
-struct BlockEntityData {
-  EntityId entityId;
-  EntityId baseEntityId;
-  ObjectTypeId objectTypeId;
-  Vec3 position;
-  InventoryObject[] inventory;
-  address chipAddress;
+  EntityData entityData;
 }
 
 struct EntityData {
-  ObjectTypeId objectTypeId;
   EntityId entityId;
   EntityId baseEntityId;
-  InventoryObject[] inventory;
+  ObjectTypeId objectTypeId;
   Vec3 position;
+  Direction orientation;
+  InventoryObject[] inventory;
+  ResourceId chipSystemId;
+  uint256 mass;
+  EnergyData energy;
 }
 
 struct PickupData {
