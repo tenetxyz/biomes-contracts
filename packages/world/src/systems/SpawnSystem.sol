@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { LibPRNG } from "solady/utils/LibPRNG.sol";
 
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
@@ -35,6 +36,7 @@ import { EntityId } from "../EntityId.sol";
 
 contract SpawnSystem is System {
   using ObjectTypeLib for ObjectTypeId;
+  using LibPRNG for LibPRNG.PRNG;
 
   function getEnergyCostToSpawn(uint32 playerMass) internal pure returns (uint128) {
     uint128 energyRequired = MAX_PLAYER_ENERGY + massToEnergy(playerMass);
@@ -54,30 +56,27 @@ contract SpawnSystem is System {
     return (spawnCoords, blockNumbers);
   }
 
-  // TODO: do we want to use something like solady's prng?
   function getRandomSpawnCoord(uint256 blockNumber, address sender) public view returns (Vec3 spawnCoord) {
     uint256 exploredChunkCount = SurfaceChunkCount._get();
     require(exploredChunkCount > 0, "No surface chunks available");
 
     // Randomness used for the chunk index and relative coordinates
-    uint256 rand = uint256(keccak256(abi.encodePacked(blockhash(blockNumber), sender)));
-    uint256 chunkIndex = rand % exploredChunkCount;
+    LibPRNG.PRNG memory prng;
+    prng.seed(uint256(keccak256(abi.encodePacked(blockhash(blockNumber), sender))));
+    uint256 chunkIndex = prng.uniform(exploredChunkCount);
     Vec3 chunk = SurfaceChunkByIndex._get(chunkIndex);
 
     // Convert chunk coordinates to world coordinates and add random offset
-    int32 chunkWorldX = chunk.x() * CHUNK_SIZE;
-    int32 chunkWorldY = chunk.y() * CHUNK_SIZE;
-    int32 chunkWorldZ = chunk.z() * CHUNK_SIZE;
+    Vec3 coord = chunk.mul(CHUNK_SIZE);
 
     // Convert CHUNK_SIZE from int32 to uint256
     uint256 chunkSize = uint256(int256(CHUNK_SIZE));
 
     // Get random position within the chunk (0 to CHUNK_SIZE-1)
-    uint256 posRand = uint256(keccak256(abi.encodePacked(rand)));
-    int32 relativeX = int32(int256(posRand % chunkSize));
-    int32 relativeZ = int32(int256((posRand / chunkSize) % chunkSize));
+    int32 relativeX = int32(int256(prng.next() % chunkSize));
+    int32 relativeZ = int32(int256(prng.next() % chunkSize));
 
-    return vec3(chunkWorldX + relativeX, chunkWorldY, chunkWorldZ + relativeZ);
+    return coord + vec3(relativeX, 0, relativeZ);
   }
 
   function isValidSpawn(Vec3 spawnCoord) public view returns (bool) {
@@ -116,7 +115,7 @@ contract SpawnSystem is System {
   }
 
   function getValidSpawnY(Vec3 spawnCoordCandidate) public view returns (Vec3 spawnCoord) {
-    for (int32 i = 0; i < CHUNK_SIZE; i++) {
+    for (int32 i = CHUNK_SIZE - 1; i >= 0; i--) {
       spawnCoord = spawnCoordCandidate + vec3(0, i, 0);
       if (isValidSpawn(spawnCoord)) {
         return spawnCoord;
@@ -134,6 +133,9 @@ contract SpawnSystem is System {
     );
 
     Vec3 spawnCoord = getRandomSpawnCoord(blockNumber, _msgSender());
+
+    require(spawnCoord.y() <= y && y < spawnCoord.y() + CHUNK_SIZE, "y coordinate outside of spawn chunk");
+
     // Use the y coordinate given by the player
     spawnCoord = vec3(spawnCoord.x(), y, spawnCoord.z());
 

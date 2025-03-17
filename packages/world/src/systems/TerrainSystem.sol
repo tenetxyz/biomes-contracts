@@ -17,7 +17,7 @@ contract TerrainSystem is System {
     require(ExploredChunk._get(chunkCoord) == address(0), "Chunk already explored");
 
     Vec3 regionCoord = chunkCoord.floorDiv(REGION_SIZE / CHUNK_SIZE);
-    bytes32 regionRoot = RegionMerkleRoot.get(regionCoord.x(), regionCoord.z());
+    bytes32 regionRoot = RegionMerkleRoot._get(regionCoord.x(), regionCoord.z());
     require(regionRoot != bytes32(0), "Region not seeded");
 
     bytes32 leaf = TerrainLib._getChunkLeafHash(chunkCoord, chunkData);
@@ -25,19 +25,19 @@ contract TerrainSystem is System {
 
     SSTORE2.writeDeterministic(chunkData, TerrainLib._getChunkSalt(chunkCoord));
 
-    ExploredChunk.set(chunkCoord, _msgSender());
+    ExploredChunk._set(chunkCoord, _msgSender());
     if (TerrainLib._isSurfaceChunk(chunkCoord)) {
       uint256 surfaceChunkCount = SurfaceChunkCount._get();
-      SurfaceChunkByIndex.set(surfaceChunkCount, chunkCoord);
+      SurfaceChunkByIndex._set(surfaceChunkCount, chunkCoord);
       SurfaceChunkCount._set(surfaceChunkCount + 1);
     }
   }
 
   function exploreRegionEnergy(Vec3 regionCoord, uint32 vegetationCount, bytes32[] memory merkleProof) public {
     require(regionCoord.y() == 0, "Energy pool chunks are 2D only");
-    require(InitialEnergyPool.get(regionCoord) == 0, "Region energy already explored");
+    require(InitialEnergyPool._get(regionCoord) == 0, "Region energy already explored");
 
-    bytes32 regionRoot = RegionMerkleRoot.get(regionCoord.x(), regionCoord.z());
+    bytes32 regionRoot = RegionMerkleRoot._get(regionCoord.x(), regionCoord.z());
     require(regionRoot != bytes32(0), "Region not seeded");
 
     bytes32 leaf = TerrainLib._getVegetationLeafHash(vegetationCount);
@@ -45,7 +45,7 @@ contract TerrainSystem is System {
 
     // Add +1 to be able to distinguish between unexplored and empty region
     uint128 energy = vegetationCount * INITIAL_ENERGY_PER_VEGETATION + 1;
-    InitialEnergyPool.set(regionCoord, energy);
-    LocalEnergyPool.set(regionCoord, energy);
+    InitialEnergyPool._set(regionCoord, energy);
+    LocalEnergyPool._set(regionCoord, energy);
   }
 }
