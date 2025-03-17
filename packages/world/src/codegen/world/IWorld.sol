@@ -14,6 +14,7 @@ import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
 import { IFarmingSystem } from "./IFarmingSystem.sol";
+import { IFoodSystem } from "./IFoodSystem.sol";
 import { IForceFieldSystem } from "./IForceFieldSystem.sol";
 import { IHitMachineSystem } from "./IHitMachineSystem.sol";
 import { IMachineSystem } from "./IMachineSystem.sol";
@@ -48,6 +49,7 @@ interface IWorld is
   IDropSystem,
   IEquipSystem,
   IFarmingSystem,
+  IFoodSystem,
   IForceFieldSystem,
   IHitMachineSystem,
   IMachineSystem,

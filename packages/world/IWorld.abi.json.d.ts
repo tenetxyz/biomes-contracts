@@ -610,6 +610,24 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "eat",
+    "inputs": [
+      {
+        "name": "objectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "numToEat",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "equip",
     "inputs": [
       {
