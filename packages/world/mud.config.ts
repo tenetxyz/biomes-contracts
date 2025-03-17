@@ -168,7 +168,6 @@ export default defineWorld({
         lastUpdatedTime: "uint128",
         energy: "uint128",
         drainRate: "uint128",
-        accDepletedTime: "uint128",
       },
       key: ["entityId"],
     },
@@ -211,7 +210,7 @@ export default defineWorld({
         z: "int32",
         root: "bytes32",
       },
-      key: ["x", "z"]
+      key: ["x", "z"],
     },
     // ------------------------------------------------------------
     // Inventory
@@ -334,6 +333,7 @@ export default defineWorld({
       schema: {
         entityId: "EntityId",
         createdAt: "uint128",
+        accDepletedTime: "uint128",
       },
       key: ["entityId"],
     },

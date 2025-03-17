@@ -33,7 +33,7 @@ import { PlayerActivity } from "./tables/PlayerActivity.sol";
 import { Chip } from "./tables/Chip.sol";
 import { ForceFieldFragment, ForceFieldFragmentData } from "./tables/ForceFieldFragment.sol";
 import { ForceFieldFragmentPosition, ForceFieldFragmentPositionData } from "./tables/ForceFieldFragmentPosition.sol";
-import { ForceField } from "./tables/ForceField.sol";
+import { ForceField, ForceFieldData } from "./tables/ForceField.sol";
 import { DisplayContent, DisplayContentData } from "./tables/DisplayContent.sol";
 import { OreCommitment } from "./tables/OreCommitment.sol";
 import { TotalMinedOreCount } from "./tables/TotalMinedOreCount.sol";

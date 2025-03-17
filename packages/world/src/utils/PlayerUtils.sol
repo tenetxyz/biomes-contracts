@@ -18,7 +18,7 @@ import { Position, PlayerPosition, ReversePlayerPosition, ForceFieldFragmentPosi
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { updateEnergyLevel } from "./EnergyUtils.sol";
+import { updatePlayerEnergy } from "./EnergyUtils.sol";
 import { getForceField } from "./ForceFieldUtils.sol";
 import { transferAllInventoryEntities } from "./InventoryUtils.sol";
 import { safeGetObjectTypeIdAt, getPlayer, setPlayer } from "./EntityUtils.sol";
@@ -37,7 +37,7 @@ function requireValidPlayer(address player) returns (EntityId, Vec3, EnergyData 
   require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
   Vec3 playerCoord = PlayerPosition._get(playerEntityId);
 
-  EnergyData memory playerEnergyData = updateEnergyLevel(playerEntityId);
+  EnergyData memory playerEnergyData = updatePlayerEnergy(playerEntityId);
   require(playerEnergyData.energy > 0, "Player is dead");
 
   PlayerActivity._set(playerEntityId, uint128(block.timestamp));

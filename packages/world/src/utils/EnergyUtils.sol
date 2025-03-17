@@ -3,14 +3,17 @@ pragma solidity >=0.8.24;
 
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
+import { ForceField } from "../codegen/tables/ForceField.sol";
 
 import { LocalEnergyPool, Position } from "../utils/Vec3Storage.sol";
+import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { getEntityAt } from "../utils/EntityUtils.sol";
+// import { } from "../utils/PlayerUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
-import { MASS_TO_ENERGY_MULTIPLIER } from "../Constants.sol";
-import { PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
-
 import { Vec3 } from "../Vec3.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { MASS_TO_ENERGY_MULTIPLIER, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 function massToEnergy(uint128 mass) pure returns (uint128) {
   return uint128(mass * MASS_TO_ENERGY_MULTIPLIER);
@@ -20,47 +23,69 @@ function energyToMass(uint128 energy) pure returns (uint128) {
   return uint128(energy / MASS_TO_ENERGY_MULTIPLIER);
 }
 
-function getLatestEnergyData(EntityId entityId) view returns (EnergyData memory, uint128) {
+function getLatestEnergyData(EntityId entityId) view returns (EnergyData memory, uint128, uint128) {
   EnergyData memory energyData = Energy._get(entityId);
 
   // Calculate how much time has passed since last update
   uint128 timeSinceLastUpdate = uint128(block.timestamp) - energyData.lastUpdatedTime;
   if (timeSinceLastUpdate == 0) {
-    return (energyData, 0);
+    return (energyData, 0, 0);
   }
 
   // Update timestamp for all cases
   energyData.lastUpdatedTime = uint128(block.timestamp);
 
   if (energyData.energy == 0) {
-    energyData.accDepletedTime += timeSinceLastUpdate;
-    return (energyData, 0);
+    return (energyData, 0, timeSinceLastUpdate);
   }
 
   // Calculate energy drain
   uint128 energyDrained = timeSinceLastUpdate * energyData.drainRate;
 
+  uint128 depletedTime = 0;
   // Update accumulated depleted time if it ran out of energy on this update
   if (energyDrained >= energyData.energy) {
     // Calculate when it ran out by determining how much time it took to drain the energy
     uint128 timeToDeplete = energyData.energy / energyData.drainRate;
     // Add the remaining time after depletion to the accumulated depleted time
-    energyData.accDepletedTime += (timeSinceLastUpdate - timeToDeplete);
+    depletedTime = timeSinceLastUpdate - timeToDeplete;
     energyDrained = energyData.energy;
     energyData.energy = 0;
   } else {
     energyData.energy -= energyDrained;
   }
 
-  return (energyData, energyDrained);
+  return (energyData, energyDrained, depletedTime);
 }
 
-function updateEnergyLevel(EntityId entityId) returns (EnergyData memory) {
-  (EnergyData memory energyData, uint128 energyDrained) = getLatestEnergyData(entityId);
+function updateForceFieldEnergy(EntityId entityId) returns (EnergyData memory) {
+  (EnergyData memory energyData, uint128 energyDrained, uint128 depletedTime) = getLatestEnergyData(entityId);
   if (energyDrained > 0) {
     Vec3 coord = Position._get(entityId);
     addEnergyToLocalPool(coord, energyDrained);
   }
+
+  if (depletedTime > 0) {
+    ForceField._setAccDepletedTime(entityId, ForceField._getAccDepletedTime(entityId) + depletedTime);
+  }
+
+  Energy._set(entityId, energyData);
+  return energyData;
+}
+
+function updatePlayerEnergy(EntityId entityId) returns (EnergyData memory) {
+  (EnergyData memory energyData, uint128 energyDrained, ) = getLatestEnergyData(entityId);
+  if (energyDrained > 0) {
+    Vec3 coord = Position._get(entityId);
+    addEnergyToLocalPool(coord, energyDrained);
+
+    // Player died
+    if (energyData.energy == 0) {
+      (EntityId toEntityId, ObjectTypeId objectTypeId) = getEntityAt(coord);
+      transferAllInventoryEntities(entityId, toEntityId, objectTypeId);
+    }
+  }
+
   Energy._set(entityId, energyData);
   return energyData;
 }

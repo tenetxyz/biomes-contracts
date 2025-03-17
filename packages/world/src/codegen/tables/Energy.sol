@@ -23,7 +23,6 @@ struct EnergyData {
   uint128 lastUpdatedTime;
   uint128 energy;
   uint128 drainRate;
-  uint128 accDepletedTime;
 }
 
 library Energy {
@@ -31,12 +30,12 @@ library Energy {
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000456e6572677900000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0040040010101010000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0030030010101000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint128, uint128, uint128, uint128)
-  Schema constant _valueSchema = Schema.wrap(0x004004000f0f0f0f000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint128, uint128, uint128)
+  Schema constant _valueSchema = Schema.wrap(0x003003000f0f0f00000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -52,11 +51,10 @@ library Energy {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](4);
+    fieldNames = new string[](3);
     fieldNames[0] = "lastUpdatedTime";
     fieldNames[1] = "energy";
     fieldNames[2] = "drainRate";
-    fieldNames[3] = "accDepletedTime";
   }
 
   /**
@@ -200,48 +198,6 @@ library Energy {
   }
 
   /**
-   * @notice Get accDepletedTime.
-   */
-  function getAccDepletedTime(EntityId entityId) internal view returns (uint128 accDepletedTime) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (uint128(bytes16(_blob)));
-  }
-
-  /**
-   * @notice Get accDepletedTime.
-   */
-  function _getAccDepletedTime(EntityId entityId) internal view returns (uint128 accDepletedTime) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
-    return (uint128(bytes16(_blob)));
-  }
-
-  /**
-   * @notice Set accDepletedTime.
-   */
-  function setAccDepletedTime(EntityId entityId, uint128 accDepletedTime) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((accDepletedTime)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set accDepletedTime.
-   */
-  function _setAccDepletedTime(EntityId entityId, uint128 accDepletedTime) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((accDepletedTime)), _fieldLayout);
-  }
-
-  /**
    * @notice Get the full data.
    */
   function get(EntityId entityId) internal view returns (EnergyData memory _table) {
@@ -274,14 +230,8 @@ library Energy {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(
-    EntityId entityId,
-    uint128 lastUpdatedTime,
-    uint128 energy,
-    uint128 drainRate,
-    uint128 accDepletedTime
-  ) internal {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy, drainRate, accDepletedTime);
+  function set(EntityId entityId, uint128 lastUpdatedTime, uint128 energy, uint128 drainRate) internal {
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy, drainRate);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -295,14 +245,8 @@ library Energy {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(
-    EntityId entityId,
-    uint128 lastUpdatedTime,
-    uint128 energy,
-    uint128 drainRate,
-    uint128 accDepletedTime
-  ) internal {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy, drainRate, accDepletedTime);
+  function _set(EntityId entityId, uint128 lastUpdatedTime, uint128 energy, uint128 drainRate) internal {
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy, drainRate);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -317,12 +261,7 @@ library Energy {
    * @notice Set the full data using the data struct.
    */
   function set(EntityId entityId, EnergyData memory _table) internal {
-    bytes memory _staticData = encodeStatic(
-      _table.lastUpdatedTime,
-      _table.energy,
-      _table.drainRate,
-      _table.accDepletedTime
-    );
+    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.energy, _table.drainRate);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -337,12 +276,7 @@ library Energy {
    * @notice Set the full data using the data struct.
    */
   function _set(EntityId entityId, EnergyData memory _table) internal {
-    bytes memory _staticData = encodeStatic(
-      _table.lastUpdatedTime,
-      _table.energy,
-      _table.drainRate,
-      _table.accDepletedTime
-    );
+    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.energy, _table.drainRate);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -358,14 +292,12 @@ library Energy {
    */
   function decodeStatic(
     bytes memory _blob
-  ) internal pure returns (uint128 lastUpdatedTime, uint128 energy, uint128 drainRate, uint128 accDepletedTime) {
+  ) internal pure returns (uint128 lastUpdatedTime, uint128 energy, uint128 drainRate) {
     lastUpdatedTime = (uint128(Bytes.getBytes16(_blob, 0)));
 
     energy = (uint128(Bytes.getBytes16(_blob, 16)));
 
     drainRate = (uint128(Bytes.getBytes16(_blob, 32)));
-
-    accDepletedTime = (uint128(Bytes.getBytes16(_blob, 48)));
   }
 
   /**
@@ -379,7 +311,7 @@ library Energy {
     EncodedLengths,
     bytes memory
   ) internal pure returns (EnergyData memory _table) {
-    (_table.lastUpdatedTime, _table.energy, _table.drainRate, _table.accDepletedTime) = decodeStatic(_staticData);
+    (_table.lastUpdatedTime, _table.energy, _table.drainRate) = decodeStatic(_staticData);
   }
 
   /**
@@ -409,10 +341,9 @@ library Energy {
   function encodeStatic(
     uint128 lastUpdatedTime,
     uint128 energy,
-    uint128 drainRate,
-    uint128 accDepletedTime
+    uint128 drainRate
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(lastUpdatedTime, energy, drainRate, accDepletedTime);
+    return abi.encodePacked(lastUpdatedTime, energy, drainRate);
   }
 
   /**
@@ -424,10 +355,9 @@ library Energy {
   function encode(
     uint128 lastUpdatedTime,
     uint128 energy,
-    uint128 drainRate,
-    uint128 accDepletedTime
+    uint128 drainRate
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy, drainRate, accDepletedTime);
+    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy, drainRate);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
