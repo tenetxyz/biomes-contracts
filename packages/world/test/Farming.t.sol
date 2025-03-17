@@ -207,7 +207,7 @@ contract FarmingTest is BiomesTest {
 
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, farmlandCoord + vec3(0, 1, 0));
+    world.build(ObjectTypes.WheatSeeds, farmlandCoord + vec3(0, 1, 0), "");
 
     // Verify seeds were planted
     EntityId cropEntityId = ReversePosition.get(farmlandCoord + vec3(0, 1, 0));
@@ -246,7 +246,7 @@ contract FarmingTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Crop seeds need wet farmland");
-    world.build(ObjectTypes.WheatSeeds, dirtCoord + vec3(0, 1, 0));
+    world.build(ObjectTypes.WheatSeeds, dirtCoord + vec3(0, 1, 0), "");
 
     // Try to plant on farmland (not wet)
     Vec3 farmlandCoord = vec3(playerCoord.x() + 2, 0, playerCoord.z());
@@ -254,7 +254,7 @@ contract FarmingTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Crop seeds need wet farmland");
-    world.build(ObjectTypes.WheatSeeds, farmlandCoord + vec3(0, 1, 0));
+    world.build(ObjectTypes.WheatSeeds, farmlandCoord + vec3(0, 1, 0), "");
   }
 
   function testHarvestMatureWheatCrop() public {
@@ -269,7 +269,7 @@ contract FarmingTest is BiomesTest {
 
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, cropCoord);
+    world.build(ObjectTypes.WheatSeeds, cropCoord, "");
 
     // Verify seeds were planted
     EntityId cropEntityId = ReversePosition.get(cropCoord);
@@ -288,7 +288,7 @@ contract FarmingTest is BiomesTest {
 
     // Harvest the crop
     vm.prank(alice);
-    world.mineUntilDestroyed(farmlandCoord + vec3(0, 1, 0));
+    world.mineUntilDestroyed(farmlandCoord + vec3(0, 1, 0), "");
 
     // Verify wheat and seeds were obtained
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Wheat, 1);
@@ -320,7 +320,7 @@ contract FarmingTest is BiomesTest {
 
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, cropCoord);
+    world.build(ObjectTypes.WheatSeeds, cropCoord, "");
 
     // Verify seeds were planted
     EntityId cropEntityId = ReversePosition.get(cropCoord);
@@ -340,7 +340,7 @@ contract FarmingTest is BiomesTest {
 
     // Harvest the crop
     vm.prank(alice);
-    world.mineUntilDestroyed(cropCoord);
+    world.mineUntilDestroyed(cropCoord, "");
 
     // Verify original seeds were returned (not wheat)
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 1);
@@ -369,7 +369,7 @@ contract FarmingTest is BiomesTest {
 
     // Harvest the FescueGrass
     vm.prank(alice);
-    world.mineUntilDestroyed(grassCoord);
+    world.mineUntilDestroyed(grassCoord, "");
 
     // Verify wheat seeds were obtained
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 1);
@@ -386,7 +386,7 @@ contract FarmingTest is BiomesTest {
     Vec3 cropCoord = farmlandCoord + vec3(0, 1, 0);
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, cropCoord);
+    world.build(ObjectTypes.WheatSeeds, cropCoord, "");
 
     // Verify seeds were planted
     EntityId cropEntityId = ReversePosition.get(cropCoord);
@@ -401,7 +401,7 @@ contract FarmingTest is BiomesTest {
 
     // Mine the crop
     vm.prank(alice);
-    world.mineUntilDestroyed(cropCoord);
+    world.mineUntilDestroyed(cropCoord, "");
 
     // We get seeds back, not wheat
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 1);
@@ -409,7 +409,7 @@ contract FarmingTest is BiomesTest {
 
     // Reset test by planting again
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, cropCoord);
+    world.build(ObjectTypes.WheatSeeds, cropCoord, "");
 
     cropEntityId = ReversePosition.get(cropCoord);
     fullyGrownAt = SeedGrowth.getFullyGrownAt(cropEntityId);
@@ -421,7 +421,7 @@ contract FarmingTest is BiomesTest {
 
     // Mine the crop
     vm.prank(alice);
-    world.mineUntilDestroyed(cropCoord);
+    world.mineUntilDestroyed(cropCoord, "");
 
     // Now we get wheat and seeds
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 1);

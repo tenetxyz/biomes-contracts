@@ -52,7 +52,7 @@ contract ChipSystem is System {
     }
   }
 
-  function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) public payable {
+  function attachChip(EntityId entityId, ResourceId chipSystemId, bytes calldata extraData) public payable {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
 
     EntityId baseEntityId = entityId.baseEntityId();
@@ -117,7 +117,7 @@ contract ChipSystem is System {
     callChipOrRevert(chipSystemId, onAttachedCall);
   }
 
-  function detachChipWithExtraData(EntityId entityId, bytes memory extraData) public payable {
+  function detachChip(EntityId entityId, bytes calldata extraData) public payable {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     EntityId baseEntityId = entityId.baseEntityId();
 
@@ -163,13 +163,5 @@ contract ChipSystem is System {
     } else {
       safeCallChip(chipSystemId, onDetachedCall);
     }
-  }
-
-  function attachChip(EntityId entityId, ResourceId chipSystemId) public {
-    attachChipWithExtraData(entityId, chipSystemId, new bytes(0));
-  }
-
-  function detachChip(EntityId entityId) public {
-    detachChipWithExtraData(entityId, new bytes(0));
   }
 }

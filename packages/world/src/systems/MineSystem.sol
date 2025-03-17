@@ -139,7 +139,7 @@ library MineLib {
     EntityId playerEntityId,
     ObjectTypeId objectTypeId,
     Vec3[] memory coords,
-    bytes memory extraData
+    bytes calldata extraData
   ) public {
     for (uint256 i = 0; i < coords.length; i++) {
       Vec3 coord = coords[i];
@@ -196,7 +196,7 @@ contract MineSystem is System {
     require(SeedGrowth._getFullyGrownAt(entityId) > block.timestamp, "Cannot mine fully grown seed");
   }
 
-  function mineWithExtraData(Vec3 coord, bytes memory extraData) public payable returns (EntityId) {
+  function mine(Vec3 coord, bytes calldata extraData) public payable returns (EntityId) {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
@@ -280,20 +280,12 @@ contract MineSystem is System {
     return baseEntityId;
   }
 
-  function mineUntilDestroyedWithExtraData(Vec3 coord, bytes memory extraData) public payable {
+  function mineUntilDestroyed(Vec3 coord, bytes calldata extraData) public payable {
     uint128 massLeft = 0;
     do {
       // TODO: factor out the mass reduction logic so it's cheaper to call
-      EntityId entityId = mineWithExtraData(coord, extraData);
+      EntityId entityId = mine(coord, extraData);
       massLeft = Mass._getMass(entityId);
     } while (massLeft > 0);
-  }
-
-  function mine(Vec3 coord) public payable {
-    mineWithExtraData(coord, new bytes(0));
-  }
-
-  function mineUntilDestroyed(Vec3 coord) public payable {
-    mineUntilDestroyedWithExtraData(coord, new bytes(0));
   }
 }

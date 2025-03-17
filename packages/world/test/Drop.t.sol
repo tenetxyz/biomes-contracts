@@ -287,7 +287,7 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
-    world.mine(chestCoord);
+    world.mine(chestCoord, "");
 
     EntityId airEntityId = ReversePosition.get(chestCoord);
     assertEq(airEntityId.exists(), true, "Drop entity does not exist");

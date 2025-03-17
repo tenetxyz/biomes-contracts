@@ -119,12 +119,12 @@ contract ForceFieldSystem is System {
     return (tempBoundary, count);
   }
 
-  function expandForceFieldWithExtraData(
+  function expandForceField(
     EntityId forceFieldEntityId,
     Vec3 refFragmentCoord,
     Vec3 fromFragmentCoord,
     Vec3 toFragmentCoord,
-    bytes memory extraData
+    bytes calldata extraData
   ) public {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, forceFieldEntityId);
@@ -182,19 +182,24 @@ contract ForceFieldSystem is System {
    * @param toFragmentCoord The ending coordinate of the cuboid to remove
    * @param parents Indicates the parent of each boundary fragment in the spanning tree, parents must be ordered (each parent comes before its children)
    */
-  function contractForceFieldWithExtraData(
+  function contractForceField(
     EntityId forceFieldEntityId,
     Vec3 fromFragmentCoord,
     Vec3 toFragmentCoord,
     uint256[] calldata parents,
-    bytes memory extraData
+    bytes calldata extraData
   ) public {
+    require(fromFragmentCoord <= toFragmentCoord, "Invalid coordinates");
+
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    Vec3 forceFieldCoord = requireInPlayerInfluence(playerCoord, forceFieldEntityId);
+
+    Vec3 forceFieldFragmentCoord;
+    {
+      Vec3 forceFieldCoord = requireInPlayerInfluence(playerCoord, forceFieldEntityId);
+      forceFieldFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
+    }
 
     {
-      require(fromFragmentCoord <= toFragmentCoord, "Invalid coordinates");
-
       ObjectTypeId objectTypeId = ObjectType._get(forceFieldEntityId);
       require(objectTypeId == ObjectTypes.ForceField, "Invalid object type");
     }
@@ -212,10 +217,8 @@ contract ForceFieldSystem is System {
       require(validateSpanningTree(boundaryFragments, len, parents), "Invalid spanning tree");
     }
 
-    uint128 removedFragments = 0;
-
     {
-      Vec3 forceFieldFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
+      uint128 removedFragments = 0;
       // Now we can safely remove the fragments
       for (int32 x = fromFragmentCoord.x(); x <= toFragmentCoord.x(); x++) {
         for (int32 y = fromFragmentCoord.y(); y <= toFragmentCoord.y(); y++) {
@@ -232,12 +235,11 @@ contract ForceFieldSystem is System {
           }
         }
       }
+
+      EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+      // Update drain rate
+      Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - MACHINE_ENERGY_DRAIN_RATE * removedFragments);
     }
-
-    EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
-
-    // Update drain rate
-    Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - MACHINE_ENERGY_DRAIN_RATE * removedFragments);
 
     notify(playerEntityId, ContractForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
 
@@ -249,29 +251,5 @@ contract ForceFieldSystem is System {
         (playerEntityId, forceFieldEntityId, fromFragmentCoord, toFragmentCoord, extraData)
       )
     );
-  }
-
-  function expandForceField(
-    EntityId forceFieldEntityId,
-    Vec3 refFragmentCoord,
-    Vec3 fromFragmentCoord,
-    Vec3 toFragmentCoord
-  ) public {
-    expandForceFieldWithExtraData(
-      forceFieldEntityId,
-      refFragmentCoord,
-      fromFragmentCoord,
-      toFragmentCoord,
-      new bytes(0)
-    );
-  }
-
-  function contractForceField(
-    EntityId forceFieldEntityId,
-    Vec3 fromFragmentCoord,
-    Vec3 toFragmentCoord,
-    uint256[] calldata parents
-  ) external {
-    contractForceFieldWithExtraData(forceFieldEntityId, fromFragmentCoord, toFragmentCoord, parents, new bytes(0));
   }
 }

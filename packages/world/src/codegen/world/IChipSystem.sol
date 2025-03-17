@@ -12,11 +12,7 @@ import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IChipSystem {
-  function attachChipWithExtraData(EntityId entityId, ResourceId chipSystemId, bytes memory extraData) external payable;
+  function attachChip(EntityId entityId, ResourceId chipSystemId, bytes calldata extraData) external payable;
 
-  function detachChipWithExtraData(EntityId entityId, bytes memory extraData) external payable;
-
-  function attachChip(EntityId entityId, ResourceId chipSystemId) external;
-
-  function detachChip(EntityId entityId) external;
+  function detachChip(EntityId entityId, bytes calldata extraData) external payable;
 }

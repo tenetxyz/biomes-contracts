@@ -12,11 +12,7 @@ import { EntityId } from "../../EntityId.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IMineSystem {
-  function mineWithExtraData(Vec3 coord, bytes memory extraData) external payable returns (EntityId);
+  function mine(Vec3 coord, bytes calldata extraData) external payable returns (EntityId);
 
-  function mineUntilDestroyedWithExtraData(Vec3 coord, bytes memory extraData) external payable;
-
-  function mine(Vec3 coord) external payable;
-
-  function mineUntilDestroyed(Vec3 coord) external payable;
+  function mineUntilDestroyed(Vec3 coord, bytes calldata extraData) external payable;
 }

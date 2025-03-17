@@ -52,7 +52,7 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine terrain with hand, entirely mined");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
     endGasReport();
 
     mineEntityId = ReversePosition.get(mineCoord);
@@ -77,7 +77,7 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine terrain with hand, partially mined");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
     endGasReport();
 
     mineEntityId = ReversePosition.get(mineCoord);
@@ -89,7 +89,7 @@ contract MineTest is BiomesTest {
     beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
 
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
     assertEq(Mass.getMass(mineEntityId), 0, "Mine entity mass is not 0");
@@ -111,7 +111,7 @@ contract MineTest is BiomesTest {
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
-    world.mineUntilDestroyed(mineCoord);
+    world.mineUntilDestroyed(mineCoord, "");
 
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
@@ -148,7 +148,7 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine Ore with hand, entirely mined");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
     endGasReport();
 
     mineEntityId = ReversePosition.get(mineCoord);
@@ -191,7 +191,7 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine Ore with hand, partially mined");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
     endGasReport();
 
     mineEntityId = ReversePosition.get(mineCoord);
@@ -220,7 +220,7 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine non-terrain with hand, entirely mined");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
     endGasReport();
 
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
@@ -256,7 +256,7 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine multi-size with hand, entirely mined");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
     endGasReport();
 
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
@@ -270,7 +270,7 @@ contract MineTest is BiomesTest {
 
     // Mine again but with a non-base coord
     vm.prank(alice);
-    world.build(ObjectTypes.TextSign, mineCoord);
+    world.build(ObjectTypes.TextSign, mineCoord, "");
 
     mineEntityId = ReversePosition.get(mineCoord);
     topEntityId = ReversePosition.get(topCoord);
@@ -279,7 +279,7 @@ contract MineTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
 
     vm.prank(alice);
-    world.mine(topCoord);
+    world.mine(topCoord, "");
 
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
     assertEq(Mass.getMass(mineEntityId), 0, "Mine entity mass is not 0");
@@ -296,13 +296,13 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Object is not mineable");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
 
     setObjectAtCoord(mineCoord, ObjectTypes.Water);
 
     vm.prank(alice);
     vm.expectRevert("Object is not mineable");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
   }
 
   function testMineFailsIfInvalidCoord() public {
@@ -314,13 +314,13 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is too far");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
 
     mineCoord = playerCoord - vec3(1, 0, 0);
 
     vm.prank(alice);
     vm.expectRevert("Chunk not explored yet");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
   }
 
   function testMineFailsIfNotEnoughEnergy() public {
@@ -337,7 +337,7 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
   }
 
   function testMineFailsIfInventoryFull() public {
@@ -361,7 +361,7 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Inventory is full");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
   }
 
   function testMineFailsIfNoPlayer() public {
@@ -372,7 +372,7 @@ contract MineTest is BiomesTest {
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
     vm.expectRevert("Player does not exist");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
   }
 
   function testMineFailsIfSleeping() public {
@@ -386,7 +386,7 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
   }
 
   function testMineFailsIfHasEnergy() public {
@@ -402,6 +402,6 @@ contract MineTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot mine a machine that has energy");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
   }
 }

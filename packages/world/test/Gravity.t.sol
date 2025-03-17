@@ -50,7 +50,7 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine with single block fall");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
     endGasReport();
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
@@ -90,7 +90,7 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine with three block fall");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
     endGasReport();
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
@@ -145,7 +145,7 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine with three block fall with a stacked player");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
     endGasReport();
 
     Vec3 finalAliceCoord = PlayerPosition.get(aliceEntityId);
