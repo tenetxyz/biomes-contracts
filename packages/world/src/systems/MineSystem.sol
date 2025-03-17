@@ -46,7 +46,7 @@ import { Vec3, vec3 } from "../Vec3.sol";
 library MineLib {
   using LibPRNG for LibPRNG.PRNG;
 
-  function _mineRandomOre(Vec3 coord) public returns (ObjectTypeId) {
+  function _mineRandomOre(EntityId entityId, Vec3 coord) public returns (ObjectTypeId) {
     Vec3 chunkCoord = coord.toChunkCoord();
     uint256 commitment = OreCommitment._get(chunkCoord);
     // We can't get blockhash of current block
@@ -92,8 +92,8 @@ library MineLib {
 
     uint256 oreIndex = 0;
     {
+      // Get pseudo random number between 0 and totalRemaining
       LibPRNG.PRNG memory prng;
-      // Scale random number to total remaining
       prng.seed(uint256(keccak256(abi.encodePacked(blockhash(commitment), coord))));
       uint256 scaledRand = prng.uniform(totalRemaining);
 
@@ -106,6 +106,8 @@ library MineLib {
 
     ObjectTypeId ore = ores[oreIndex];
     MinedOreCount._set(ore, max[oreIndex] - remaining[oreIndex] + 1);
+    ObjectType._set(entityId, ore);
+    Mass._setMass(entityId, ObjectTypeMetadata._getMass(ore));
 
     return ore;
   }
@@ -214,6 +216,8 @@ contract MineSystem is System {
       require(updateEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
     } else if (mineObjectTypeId.isSeed()) {
       _requireSeedNotFullyGrown(baseEntityId);
+    } else if (mineObjectTypeId == ObjectTypes.AnyOre) {
+      mineObjectTypeId = MineLib._mineRandomOre(baseEntityId, coord);
     }
 
     // First coord will be the base coord, the rest is relative schema coords
@@ -223,9 +227,7 @@ contract MineSystem is System {
     {
       finalMass = MineLib._processMassReduction(playerEntityId, baseEntityId);
       if (finalMass == 0) {
-        if (mineObjectTypeId == ObjectTypes.AnyOre) {
-          mineObjectTypeId = MineLib._mineRandomOre(coord);
-        } else if (mineObjectTypeId == ObjectTypes.Bed) {
+        if (mineObjectTypeId == ObjectTypes.Bed) {
           // If mining a bed with a sleeping player, kill the player
           MineLib._mineBed(baseEntityId, baseCoord);
         }
@@ -256,7 +258,7 @@ contract MineSystem is System {
         // Only iterate through relative schema coords
         for (uint256 i = 1; i < coords.length; i++) {
           Vec3 relativeCoord = coords[i];
-          (EntityId relativeEntityId, ) = getOrCreateEntityAt(relativeCoord);
+          (EntityId relativeEntityId, ) = getEntityAt(relativeCoord);
           BaseEntity._deleteRecord(relativeEntityId);
 
           _removeBlock(relativeEntityId, mineObjectTypeId, relativeCoord);
