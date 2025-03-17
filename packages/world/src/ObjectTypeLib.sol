@@ -114,6 +114,10 @@ library ObjectTypeLib {
     return objectTypeId == ObjectTypes.SmartTextSign;
   }
 
+  function isFood(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return objectTypeId.isCrop();
+  }
+
   function isSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
     return objectTypeId == ObjectTypes.WheatSeeds;
   }
