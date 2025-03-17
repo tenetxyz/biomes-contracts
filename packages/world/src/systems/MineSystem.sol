@@ -108,6 +108,7 @@ library MineLib {
   }
 
   function _processMassReduction(EntityId playerEntityId, EntityId minedEntityId) public returns (uint128) {
+    // TODO: balancing, what should the proper mass and energy cost be?
     uint128 massLeft = Mass._getMass(minedEntityId);
     uint128 baseMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST);
     if (massLeft <= baseMassReduction) {
