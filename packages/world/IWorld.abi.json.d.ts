@@ -126,24 +126,6 @@ declare const abi: [
         "name": "chipSystemId",
         "type": "bytes32",
         "internalType": "ResourceId"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "attachChipWithExtraData",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "chipSystemId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
       },
       {
         "name": "extraData",
@@ -234,6 +216,11 @@ declare const abi: [
         "name": "baseCoord",
         "type": "uint96",
         "internalType": "Vec3"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [
@@ -248,35 +235,6 @@ declare const abi: [
   {
     "type": "function",
     "name": "buildWithDirection",
-    "inputs": [
-      {
-        "name": "buildObjectTypeId",
-        "type": "uint16",
-        "internalType": "ObjectTypeId"
-      },
-      {
-        "name": "baseCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "direction",
-        "type": "uint8",
-        "internalType": "enum Direction"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      }
-    ],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "buildWithExtraData",
     "inputs": [
       {
         "name": "buildObjectTypeId",
@@ -418,34 +376,6 @@ declare const abi: [
         "name": "parents",
         "type": "uint256[]",
         "internalType": "uint256[]"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "contractForceFieldWithExtraData",
-    "inputs": [
-      {
-        "name": "forceFieldEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "fromFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "toFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "parents",
-        "type": "uint256[]",
-        "internalType": "uint256[]"
       },
       {
         "name": "extraData",
@@ -521,19 +451,6 @@ declare const abi: [
   {
     "type": "function",
     "name": "detachChip",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "detachChipWithExtraData",
     "inputs": [
       {
         "name": "entityId",
@@ -642,34 +559,6 @@ declare const abi: [
   {
     "type": "function",
     "name": "expandForceField",
-    "inputs": [
-      {
-        "name": "forceFieldEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "refFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "fromFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "toFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "expandForceFieldWithExtraData",
     "inputs": [
       {
         "name": "forceFieldEntityId",
@@ -2120,6 +2009,11 @@ declare const abi: [
         "name": "buildObjectTypeId",
         "type": "uint16",
         "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -2128,24 +2022,6 @@ declare const abi: [
   {
     "type": "function",
     "name": "jumpBuildWithDirection",
-    "inputs": [
-      {
-        "name": "buildObjectTypeId",
-        "type": "uint16",
-        "internalType": "ObjectTypeId"
-      },
-      {
-        "name": "direction",
-        "type": "uint8",
-        "internalType": "enum Direction"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "jumpBuildWithExtraData",
     "inputs": [
       {
         "name": "buildObjectTypeId",
@@ -2174,50 +2050,6 @@ declare const abi: [
         "name": "coord",
         "type": "uint96",
         "internalType": "Vec3"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "mineUntilDestroyed",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "mineUntilDestroyedWithExtraData",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "mineWithExtraData",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "uint96",
-        "internalType": "Vec3"
       },
       {
         "name": "extraData",
@@ -2232,6 +2064,24 @@ declare const abi: [
         "internalType": "EntityId"
       }
     ],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "mineUntilDestroyed",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
     "stateMutability": "payable"
   },
   {
@@ -2934,19 +2784,6 @@ declare const abi: [
         "name": "bedEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "sleepWithExtraData",
-    "inputs": [
-      {
-        "name": "bedEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
       },
       {
         "name": "extraData",
@@ -3101,6 +2938,11 @@ declare const abi: [
         "name": "numToTransfer",
         "type": "uint16",
         "internalType": "uint16"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -3188,29 +3030,6 @@ declare const abi: [
         "name": "toolEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "transferToolWithExtraData",
-    "inputs": [
-      {
-        "name": "chestEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "isDeposit",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "toolEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
       },
       {
         "name": "extraData",
@@ -3239,62 +3058,6 @@ declare const abi: [
         "name": "toolEntityIds",
         "type": "bytes32[]",
         "internalType": "EntityId[]"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "transferToolsWithExtraData",
-    "inputs": [
-      {
-        "name": "chestEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "isDeposit",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "toolEntityIds",
-        "type": "bytes32[]",
-        "internalType": "EntityId[]"
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "transferWithExtraData",
-    "inputs": [
-      {
-        "name": "chestEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "isDeposit",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "transferObjectTypeId",
-        "type": "uint16",
-        "internalType": "ObjectTypeId"
-      },
-      {
-        "name": "numToTransfer",
-        "type": "uint16",
-        "internalType": "uint16"
       },
       {
         "name": "extraData",
@@ -3406,19 +3169,6 @@ declare const abi: [
   {
     "type": "function",
     "name": "wakeup",
-    "inputs": [
-      {
-        "name": "spawnCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "wakeupWithExtraData",
     "inputs": [
       {
         "name": "spawnCoord",

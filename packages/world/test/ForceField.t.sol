@@ -180,7 +180,7 @@ contract ForceFieldTest is BiomesTest {
     // Attach chip with test player
     (address bob, ) = createTestPlayer(coord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachChip(entityId, chipSystemId);
+    world.attachChip(entityId, chipSystemId, "");
     return chipSystemId;
   }
 
@@ -208,7 +208,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Prank as the player to mine the block
     vm.prank(alice);
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
 
     // Verify that the block was successfully mined (should be replaced with Air)
     EntityId mineEntityId = ReversePosition.get(mineCoord);
@@ -240,7 +240,7 @@ contract ForceFieldTest is BiomesTest {
     // Prank as the player to mine the block
     vm.prank(alice);
     vm.expectRevert("Not allowed by forcefield");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
   }
 
   function testMineFailsIfNotAllowedByForceFieldFragment() public {
@@ -270,7 +270,7 @@ contract ForceFieldTest is BiomesTest {
     // Prank as the player to mine the block
     vm.prank(alice);
     vm.expectRevert("Not allowed by forcefield fragment");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
   }
 
   function testBuildWithForceFieldWithNoEnergy() public {
@@ -301,7 +301,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Build the block
     vm.prank(alice);
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
 
     // Verify that the block was successfully built
     EntityId buildEntityId = ReversePosition.get(buildCoord);
@@ -342,7 +342,7 @@ contract ForceFieldTest is BiomesTest {
     // Try to build the block, should fail
     vm.prank(alice);
     vm.expectRevert("Not allowed by forcefield");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfNotAllowedByForceFieldFragment() public {
@@ -381,7 +381,7 @@ contract ForceFieldTest is BiomesTest {
     // Try to build the block, should fail
     vm.prank(alice);
     vm.expectRevert("Not allowed by forcefield fragment");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
   }
 
   function testSetupForceField() public {
@@ -439,7 +439,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Prank as the player to mine the block, should not revert since forcefield has no energy
     vm.prank(alice);
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
 
     // Verify that the block was successfully mined (should be replaced with Air)
     EntityId mineEntityId = ReversePosition.get(mineCoord);
@@ -477,7 +477,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Prank as the player to mine the block, should not revert since forcefield is destroyed
     vm.prank(alice);
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
 
     // Verify that the block was successfully mined (should be replaced with Air)
     EntityId mineEntityId = ReversePosition.get(mineCoord);
@@ -507,7 +507,7 @@ contract ForceFieldTest is BiomesTest {
     // Expand the force field
     vm.prank(alice);
     startGasReport("Expand forcefield 2x2");
-    world.expandForceField(forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord);
+    world.expandForceField(forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
     endGasReport();
 
     // Calculate expected number of added fragments (2x1x2 = 4 new fragments)
@@ -554,7 +554,8 @@ contract ForceFieldTest is BiomesTest {
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(3, 0, 2)
+      refFragmentCoord + vec3(3, 0, 2),
+      ""
     );
     endGasReport();
 
@@ -575,7 +576,7 @@ contract ForceFieldTest is BiomesTest {
 
       vm.prank(alice);
       startGasReport("Contract forcefield 2x2");
-      world.contractForceField(forceFieldEntityId, contractFrom, contractTo, parents);
+      world.contractForceField(forceFieldEntityId, contractFrom, contractTo, parents, "");
       endGasReport();
     }
 
@@ -629,7 +630,7 @@ contract ForceFieldTest is BiomesTest {
     // Expand should fail with these invalid coordinates
     vm.prank(alice);
     vm.expectRevert("Invalid coordinates");
-    world.expandForceField(forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord);
+    world.expandForceField(forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
   }
 
   function testExpandForceFieldFailsIfRefFragmentNotAdjacent() public {
@@ -653,7 +654,7 @@ contract ForceFieldTest is BiomesTest {
     // Expand should fail because new fragments not adjacent to reference fragment
     vm.prank(alice);
     vm.expectRevert("Reference fragment is not adjacent to new fragments");
-    world.expandForceField(forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord);
+    world.expandForceField(forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
   }
 
   function testExpandForceFieldFailsIfRefFragmentNotInForceField() public {
@@ -677,7 +678,7 @@ contract ForceFieldTest is BiomesTest {
     // Expand should fail because reference fragment is not part of the force field
     vm.prank(alice);
     vm.expectRevert("Reference fragment is not part of forcefield");
-    world.expandForceField(forceFieldEntityId, invalidRefFragmentCoord, fromFragmentCoord, toFragmentCoord);
+    world.expandForceField(forceFieldEntityId, invalidRefFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
   }
 
   function testContractForceFieldFailsIfInvalidCoordinates() public {
@@ -698,7 +699,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Expand the force field
     vm.prank(alice);
-    world.expandForceField(forceFieldEntityId, refFragmentCoord, expandFromFragmentCoord, expandToFragmentCoord);
+    world.expandForceField(forceFieldEntityId, refFragmentCoord, expandFromFragmentCoord, expandToFragmentCoord, "");
 
     // Try to contract with invalid coordinates (from > to)
     Vec3 contractFromFragmentCoord = refFragmentCoord + vec3(3, 0, 0);
@@ -708,7 +709,7 @@ contract ForceFieldTest is BiomesTest {
     // Contract should fail with invalid coordinates
     vm.prank(alice);
     vm.expectRevert("Invalid coordinates");
-    world.contractForceField(forceFieldEntityId, contractFromFragmentCoord, contractToFragmentCoord, parents);
+    world.contractForceField(forceFieldEntityId, contractFromFragmentCoord, contractToFragmentCoord, parents, "");
   }
 
   function testContractForceFieldFailsIfNoBoundaryFragments() public {
@@ -730,7 +731,7 @@ contract ForceFieldTest is BiomesTest {
     // Contract should fail because there are no boundary fragments
     vm.prank(alice);
     vm.expectRevert("No boundary fragments found");
-    world.contractForceField(forceFieldEntityId, contractFromFragmentCoord, contractToFragmentCoord, parents);
+    world.contractForceField(forceFieldEntityId, contractFromFragmentCoord, contractToFragmentCoord, parents, "");
   }
 
   function testContractForceFieldFailsIfInvalidSpanningTree() public {
@@ -751,7 +752,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Expand the force field
     vm.prank(alice);
-    world.expandForceField(forceFieldEntityId, refFragmentCoord, expandFromFragmentCoord, expandToFragmentCoord);
+    world.expandForceField(forceFieldEntityId, refFragmentCoord, expandFromFragmentCoord, expandToFragmentCoord, "");
 
     // Try to contract with valid coordinates but invalid parent array
     Vec3 contractFromFragmentCoord = refFragmentCoord + vec3(2, 0, 0);
@@ -773,7 +774,13 @@ contract ForceFieldTest is BiomesTest {
     // Contract should fail because the parent array doesn't represent a valid spanning tree
     vm.prank(alice);
     vm.expectRevert("Invalid spanning tree");
-    world.contractForceField(forceFieldEntityId, contractFromFragmentCoord, contractToFragmentCoord, invalidParents);
+    world.contractForceField(
+      forceFieldEntityId,
+      contractFromFragmentCoord,
+      contractToFragmentCoord,
+      invalidParents,
+      ""
+    );
   }
 
   function testComputeBoundaryFragments() public {
@@ -793,7 +800,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 expandToFragmentCoord = expandFromFragmentCoord + vec3(2, 2, 2);
 
     vm.prank(alice);
-    world.expandForceField(forceFieldEntityId, refFragmentCoord, expandFromFragmentCoord, expandToFragmentCoord);
+    world.expandForceField(forceFieldEntityId, refFragmentCoord, expandFromFragmentCoord, expandToFragmentCoord, "");
 
     // Define a 1x1x1 cuboid in the center to remove
     Vec3 contractFromFragmentCoord = expandFromFragmentCoord + vec3(1, 1, 1);
@@ -859,7 +866,8 @@ contract ForceFieldTest is BiomesTest {
       forceField1EntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(1, 0, 0)
+      refFragmentCoord + vec3(1, 0, 0),
+      ""
     );
   }
 
@@ -916,7 +924,8 @@ contract ForceFieldTest is BiomesTest {
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(2, 0, 0)
+      refFragmentCoord + vec3(2, 0, 0),
+      ""
     );
 
     // Expand in the Y direction
@@ -924,7 +933,8 @@ contract ForceFieldTest is BiomesTest {
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(0, 1, 0),
-      refFragmentCoord + vec3(0, 2, 0)
+      refFragmentCoord + vec3(0, 2, 0),
+      ""
     );
 
     // Expand in the Z direction
@@ -932,7 +942,8 @@ contract ForceFieldTest is BiomesTest {
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(0, 0, 1),
-      refFragmentCoord + vec3(0, 0, 2)
+      refFragmentCoord + vec3(0, 0, 2),
+      ""
     );
 
     // Expand diagonally from a different reference point
@@ -940,7 +951,8 @@ contract ForceFieldTest is BiomesTest {
       forceFieldEntityId,
       refFragmentCoord + vec3(2, 0, 0),
       refFragmentCoord + vec3(3, 0, 0),
-      refFragmentCoord + vec3(3, 1, 1)
+      refFragmentCoord + vec3(3, 1, 1),
+      ""
     );
 
     vm.stopPrank();
@@ -960,7 +972,7 @@ contract ForceFieldTest is BiomesTest {
     parents[0] = 0; // Root
 
     vm.prank(alice);
-    world.contractForceField(forceFieldEntityId, contractFrom, contractTo, parents);
+    world.contractForceField(forceFieldEntityId, contractFrom, contractTo, parents, "");
 
     uint256 remainingFragments = 0;
 
@@ -1020,7 +1032,7 @@ contract ForceFieldTest is BiomesTest {
 
       // Build should succeed
       vm.prank(alice);
-      world.build(buildObjectTypeId, buildCoord);
+      world.build(buildObjectTypeId, buildCoord, "");
 
       // Verify build succeeded
       EntityId buildEntityId = ReversePosition.get(buildCoord);
@@ -1042,7 +1054,7 @@ contract ForceFieldTest is BiomesTest {
       // Build should fail
       vm.prank(alice);
       vm.expectRevert("Not allowed by forcefield");
-      world.build(buildObjectTypeId, buildCoord2);
+      world.build(buildObjectTypeId, buildCoord2, "");
     }
 
     // Test onMine hook
@@ -1059,7 +1071,7 @@ contract ForceFieldTest is BiomesTest {
 
       // Mining should succeed
       vm.prank(alice);
-      world.mine(mineCoord);
+      world.mine(mineCoord, "");
 
       // Verify mining succeeded
       EntityId mineEntityId = ReversePosition.get(mineCoord);
@@ -1076,7 +1088,7 @@ contract ForceFieldTest is BiomesTest {
       // Mining should fail
       vm.prank(alice);
       vm.expectRevert("Not allowed by forcefield");
-      world.mine(mineCoord2);
+      world.mine(mineCoord2, "");
     }
   }
 
@@ -1105,7 +1117,8 @@ contract ForceFieldTest is BiomesTest {
       forceField1EntityId,
       refFragmentCoord1,
       refFragmentCoord1 + vec3(1, 0, 0),
-      refFragmentCoord1 + vec3(1, 0, 0)
+      refFragmentCoord1 + vec3(1, 0, 0),
+      ""
     );
 
     // Expand second force field towards first
@@ -1115,7 +1128,8 @@ contract ForceFieldTest is BiomesTest {
       forceField2EntityId,
       refFragmentCoord2,
       refFragmentCoord2 - vec3(1, 0, 0),
-      refFragmentCoord2 - vec3(1, 0, 0)
+      refFragmentCoord2 - vec3(1, 0, 0),
+      ""
     );
 
     // Try to expand first force field into area occupied by second force field
@@ -1126,7 +1140,8 @@ contract ForceFieldTest is BiomesTest {
       forceField1EntityId,
       refFragmentCoord1 + vec3(1, 0, 0),
       refFragmentCoord1 + vec3(2, 0, 0),
-      refFragmentCoord1 + vec3(2, 0, 0)
+      refFragmentCoord1 + vec3(2, 0, 0),
+      ""
     );
 
     // Try to expand second force field into area occupied by first force field
@@ -1137,7 +1152,8 @@ contract ForceFieldTest is BiomesTest {
       forceField2EntityId,
       refFragmentCoord2 - vec3(1, 0, 0),
       refFragmentCoord2 - vec3(2, 0, 0),
-      refFragmentCoord2 - vec3(2, 0, 0)
+      refFragmentCoord2 - vec3(2, 0, 0),
+      ""
     );
   }
 
@@ -1165,7 +1181,8 @@ contract ForceFieldTest is BiomesTest {
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(1, 0, 0)
+      refFragmentCoord + vec3(1, 0, 0),
+      ""
     );
     endGasReport();
 
@@ -1177,7 +1194,8 @@ contract ForceFieldTest is BiomesTest {
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(2, 1, 0)
+      refFragmentCoord + vec3(2, 1, 0),
+      ""
     );
     endGasReport();
 
@@ -1189,7 +1207,8 @@ contract ForceFieldTest is BiomesTest {
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(2, 1, 1)
+      refFragmentCoord + vec3(2, 1, 1),
+      ""
     );
     endGasReport();
 
@@ -1201,7 +1220,8 @@ contract ForceFieldTest is BiomesTest {
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(3, 2, 0)
+      refFragmentCoord + vec3(3, 2, 0),
+      ""
     );
     endGasReport();
 
@@ -1213,7 +1233,8 @@ contract ForceFieldTest is BiomesTest {
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(3, 2, 2)
+      refFragmentCoord + vec3(3, 2, 2),
+      ""
     );
     endGasReport();
 
@@ -1260,7 +1281,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Attach chip with test player
     vm.prank(alice);
-    world.attachChip(chestEntityId, chipSystemId);
+    world.attachChip(chestEntityId, chipSystemId, "");
   }
 
   function testAttachChipToObjectInForceFieldFailsWhenDisallowed() public {
@@ -1296,7 +1317,7 @@ contract ForceFieldTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Not allowed by forcefield");
     // Attempt to attach chip with test player, should fail
-    world.attachChip(chestEntityId, chipSystemId);
+    world.attachChip(chestEntityId, chipSystemId, "");
   }
 
   function testAttachChipToObjectWithNoForceFieldEnergy() public {

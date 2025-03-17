@@ -181,7 +181,7 @@ contract EquipTest is BiomesTest {
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
     vm.prank(alice);
-    world.transferTool(chestEntityId, true, toolEntityId);
+    world.transferTool(chestEntityId, true, toolEntityId, "");
 
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
@@ -219,7 +219,7 @@ contract EquipTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine terrain with tool, entirely mined");
-    world.mineUntilDestroyed(mineCoord);
+    world.mineUntilDestroyed(mineCoord, "");
     endGasReport();
 
     uint128 toolMassAfter = Mass.getMass(toolEntityId);

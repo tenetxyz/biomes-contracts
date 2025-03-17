@@ -120,7 +120,7 @@ contract SpawnTest is BiomesTest {
     // Attach chip with test player
     (address bob, ) = createTestPlayer(spawnTileCoord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachChip(spawnTileEntityId, chipSystemId);
+    world.attachChip(spawnTileEntityId, chipSystemId, "");
 
     // Spawn alice
     vm.prank(alice);

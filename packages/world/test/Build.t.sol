@@ -51,7 +51,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("build terrain");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
     endGasReport();
 
     buildEntityId = ReversePosition.get(buildCoord);
@@ -83,7 +83,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("build non-terrain");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
     endGasReport();
 
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
@@ -117,7 +117,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("build multi-size");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
     endGasReport();
 
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
@@ -145,7 +145,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("jump build");
-    world.jumpBuild(buildObjectTypeId);
+    world.jumpBuild(buildObjectTypeId, "");
     endGasReport();
 
     Vec3 playerCoordAfter = PlayerPosition.get(aliceEntityId);
@@ -174,7 +174,7 @@ contract BuildTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 4);
 
     vm.prank(alice);
-    world.build(buildObjectTypeId, bobCoord);
+    world.build(buildObjectTypeId, bobCoord, "");
 
     EntityId buildEntityId = ReversePosition.get(bobCoord);
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
@@ -186,7 +186,7 @@ contract BuildTest is BiomesTest {
 
     Vec3 aboveBobCoord = bobCoord + vec3(0, 1, 0);
     vm.prank(alice);
-    world.build(buildObjectTypeId, aboveBobCoord);
+    world.build(buildObjectTypeId, aboveBobCoord, "");
     buildEntityId = ReversePosition.get(aboveBobCoord);
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertEq(
@@ -196,7 +196,7 @@ contract BuildTest is BiomesTest {
     );
 
     vm.prank(alice);
-    world.build(buildObjectTypeId, aliceCoord);
+    world.build(buildObjectTypeId, aliceCoord, "");
     buildEntityId = ReversePosition.get(aliceCoord);
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertEq(
@@ -207,7 +207,7 @@ contract BuildTest is BiomesTest {
 
     Vec3 aboveAliceCoord = aliceCoord + vec3(0, 1, 0);
     vm.prank(alice);
-    world.build(buildObjectTypeId, aboveAliceCoord);
+    world.build(buildObjectTypeId, aboveAliceCoord, "");
     buildEntityId = ReversePosition.get(aboveAliceCoord);
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertEq(
@@ -227,7 +227,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot jump build on a pass-through block");
-    world.jumpBuild(buildObjectTypeId);
+    world.jumpBuild(buildObjectTypeId, "");
   }
 
   function testJumpBuildFailsIfNonAir() public {
@@ -241,7 +241,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a non-passable block");
-    world.jumpBuild(buildObjectTypeId);
+    world.jumpBuild(buildObjectTypeId, "");
   }
 
   function testJumpBuildFailsIfPlayer() public {
@@ -258,7 +258,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a player");
-    world.jumpBuild(buildObjectTypeId);
+    world.jumpBuild(buildObjectTypeId, "");
   }
 
   function testBuildFailsIfNonAir() public {
@@ -274,7 +274,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot build on a non-air block");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
 
     setObjectAtCoord(buildCoord, ObjectTypes.TextSign);
 
@@ -282,11 +282,11 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot build on a non-air block");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
 
     vm.prank(alice);
     vm.expectRevert("Cannot build on a non-air block");
-    world.build(buildObjectTypeId, topCoord);
+    world.build(buildObjectTypeId, topCoord, "");
   }
 
   function testBuildFailsIfPlayer() public {
@@ -300,15 +300,15 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot build on a player");
-    world.build(buildObjectTypeId, bobCoord);
+    world.build(buildObjectTypeId, bobCoord, "");
 
     vm.prank(alice);
     vm.expectRevert("Cannot build on a player");
-    world.build(buildObjectTypeId, bobCoord + vec3(0, 1, 0));
+    world.build(buildObjectTypeId, bobCoord + vec3(0, 1, 0), "");
 
     vm.prank(alice);
     vm.expectRevert("Cannot build on a player");
-    world.build(buildObjectTypeId, aliceCoord);
+    world.build(buildObjectTypeId, aliceCoord, "");
   }
 
   function testBuildFailsInvalidBlock() public {
@@ -324,7 +324,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot build non-block object");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfHasDroppedObjects() public {
@@ -342,7 +342,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot build where there are dropped objects");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfInvalidCoord() public {
@@ -354,13 +354,13 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is too far");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
 
     buildCoord = playerCoord - vec3(1, 0, 0);
 
     vm.prank(alice);
     vm.expectRevert("Chunk not explored yet");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfNotEnoughEnergy() public {
@@ -381,7 +381,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfDoesntHaveBlock() public {
@@ -396,7 +396,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfNoPlayer() public {
@@ -410,7 +410,7 @@ contract BuildTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
 
     vm.expectRevert("Player does not exist");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfSleeping() public {
@@ -427,6 +427,6 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
-    world.build(buildObjectTypeId, buildCoord);
+    world.build(buildObjectTypeId, buildCoord, "");
   }
 }
