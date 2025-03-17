@@ -21,16 +21,16 @@
     "test": "./runTests.bash"
   },
   "dependencies": {
-    "@latticexyz/cli": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/config": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/schema-type": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/store": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/world": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/world-consumer": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/world-modules": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/gas-report": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "solhint-config-mud": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "solhint-plugin-mud": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d"
+    "@latticexyz/cli": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/config": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/schema-type": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/store": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/world": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/world-consumer": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/world-modules": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/gas-report": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "solhint-config-mud": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "solhint-plugin-mud": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9"
   },
   "devDependencies": {
     "@openzeppelin/contracts": "^4.9.6",
