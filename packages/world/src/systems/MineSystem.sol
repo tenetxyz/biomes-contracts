@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+import { LibPRNG } from "solady/utils/LibPRNG.sol";
 
 import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
 import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
@@ -25,7 +26,6 @@ import { getUniqueEntity } from "../Utils.sol";
 import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel, energyToMass, transferEnergyToPool, addEnergyToLocalPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
-import { mulDiv } from "../utils/MathUtils.sol";
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, getPlayer } from "../utils/EntityUtils.sol";
@@ -44,13 +44,14 @@ import { PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.
 import { Vec3, vec3 } from "../Vec3.sol";
 
 library MineLib {
+  using LibPRNG for LibPRNG.PRNG;
+
   function _mineRandomOre(Vec3 coord) public returns (ObjectTypeId) {
     Vec3 chunkCoord = coord.toChunkCoord();
     uint256 commitment = OreCommitment._get(chunkCoord);
     // We can't get blockhash of current block
     require(block.number > commitment, "Not within commitment blocks");
     require(block.number <= commitment + CHUNK_COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
-    uint256 rand = uint256(keccak256(abi.encode(blockhash(commitment), coord)));
 
     // Set total mined ore and add position
     // We do this here to avoid stack too deep issues
@@ -91,8 +92,10 @@ library MineLib {
 
     uint256 oreIndex = 0;
     {
+      LibPRNG.PRNG memory prng;
       // Scale random number to total remaining
-      uint256 scaledRand = mulDiv(rand, totalRemaining, type(uint256).max);
+      prng.seed(uint256(keccak256(abi.encodePacked(blockhash(commitment), coord))));
+      uint256 scaledRand = prng.uniform(totalRemaining);
 
       uint256 acc;
       for (; oreIndex < remaining.length - 1; oreIndex++) {

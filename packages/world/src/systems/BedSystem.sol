@@ -17,7 +17,6 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol";
-import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";

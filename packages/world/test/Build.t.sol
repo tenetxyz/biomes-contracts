@@ -348,7 +348,7 @@ contract BuildTest is BiomesTest {
   function testBuildFailsIfInvalidCoord() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 buildCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
+    Vec3 buildCoord = playerCoord + vec3(int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, 0);
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
 
@@ -388,7 +388,7 @@ contract BuildTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
-    EntityId airEntityId = setObjectAtCoord(buildCoord, ObjectTypes.Air);
+    setObjectAtCoord(buildCoord, ObjectTypes.Air);
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");

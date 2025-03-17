@@ -72,18 +72,18 @@ importers:
       '@openzeppelin/contracts':
         specifier: ^5.0.2
         version: 5.0.2
-      ds-test:
-        specifier: https://github.com/dapphub/ds-test.git#e282159d5170298eb2455a6c05280ab5a73a4ef0
-        version: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
       forge-std:
-        specifier: https://github.com/foundry-rs/forge-std.git#74cfb77e308dd188d2f58864aaf44963ae6b88b1
-        version: https://codeload.github.com/foundry-rs/forge-std/tar.gz/74cfb77e308dd188d2f58864aaf44963ae6b88b1
+        specifier: https://github.com/foundry-rs/forge-std.git#3b20d60d14b343ee4f908cb8079495c07f5e8981
+        version: https://codeload.github.com/foundry-rs/forge-std/tar.gz/3b20d60d14b343ee4f908cb8079495c07f5e8981
       prettier:
         specifier: 3.2.5
         version: 3.2.5
       prettier-plugin-solidity:
         specifier: 1.3.1
         version: 1.3.1(prettier@3.2.5)
+      solady:
+        specifier: ^0.1.12
+        version: 0.1.12
       solhint:
         specifier: ^3.4.1
         version: 3.6.2(typescript@5.4.2)
@@ -136,6 +136,9 @@ importers:
       prettier-plugin-solidity:
         specifier: 1.1.3
         version: 1.1.3(prettier@3.2.5)
+      solady:
+        specifier: ^0.1.12
+        version: 0.1.12
       solhint:
         specifier: ^3.4.1
         version: 3.6.2(typescript@5.4.2)
@@ -4334,10 +4337,6 @@ packages:
       sqlite3:
         optional: true
 
-  ds-test@https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0:
-    resolution: {tarball: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0}
-    version: 1.0.0
-
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
@@ -4656,10 +4655,6 @@ packages:
     resolution: {tarball: https://codeload.github.com/foundry-rs/forge-std/tar.gz/3b20d60d14b343ee4f908cb8079495c07f5e8981}
     version: 1.9.6
 
-  forge-std@https://codeload.github.com/foundry-rs/forge-std/tar.gz/74cfb77e308dd188d2f58864aaf44963ae6b88b1:
-    resolution: {tarball: https://codeload.github.com/foundry-rs/forge-std/tar.gz/74cfb77e308dd188d2f58864aaf44963ae6b88b1}
-    version: 1.6.0
-
   fresh@0.5.2:
     resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
     engines: {node: '>= 0.6'}
@@ -4747,6 +4742,7 @@ packages:
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   globals@11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -4869,6 +4865,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.3:
     resolution: {integrity: sha512-x00IRNXNy63jwGkJmzPigoySHbaqpNuzKbBOmzK+g2OdZpQ9w+sxCN+VSB3ja7IAge2OP2qpfxTjeNcyjmW1uw==}
@@ -6325,6 +6322,9 @@ packages:
   socket.io-parser@4.2.4:
     resolution: {integrity: sha512-/GbIKmo8ioc+NIWIhwdecY0ge+qVBSMdgxGygevmdHj24bsfgtCmcUUcQ5ZzcylGFHsN3k4HB4Cgkl96KVnuew==}
     engines: {node: '>=10.0.0'}
+
+  solady@0.1.12:
+    resolution: {integrity: sha512-wfgSFhxPKJzrd2jsxe9u7/XWIaiFzJcS8Jy8uc/9H2uSwGZ/XM7IxfVaZohJj/P9gTBdkFRJ7xzsyTFy7Hz7CA==}
 
   solhint-config-mud@2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9:
     resolution: {integrity: sha512-w4P5Hl4dHVTfT6Z+gWBL1flTvpTmGQb4md96Wb1Ki+9tCGvyJNIiIEngVOgYHE9vjiHFOkPVIqSjw2rqItWAoA==}
@@ -12459,8 +12459,6 @@ snapshots:
       postgres: 3.4.5
       sql.js: 1.12.0
 
-  ds-test@https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0: {}
-
   dunder-proto@1.0.1:
     dependencies:
       call-bind-apply-helpers: 1.0.2
@@ -12943,8 +12941,6 @@ snapshots:
       signal-exit: 4.1.0
 
   forge-std@https://codeload.github.com/foundry-rs/forge-std/tar.gz/3b20d60d14b343ee4f908cb8079495c07f5e8981: {}
-
-  forge-std@https://codeload.github.com/foundry-rs/forge-std/tar.gz/74cfb77e308dd188d2f58864aaf44963ae6b88b1: {}
 
   fresh@0.5.2: {}
 
@@ -14817,6 +14813,8 @@ snapshots:
       debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
+
+  solady@0.1.12: {}
 
   solhint-config-mud@2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9: {}
 

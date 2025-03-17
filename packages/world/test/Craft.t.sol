@@ -399,7 +399,7 @@ contract CraftTest is BiomesTest {
     vm.expectRevert("Invalid station");
     world.craftWithStation(recipeId, stationEntityId);
 
-    stationCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
+    stationCoord = playerCoord + vec3(int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, 0);
     stationEntityId = setObjectAtCoord(stationCoord, ObjectTypes.Thermoblaster);
 
     vm.prank(alice);
