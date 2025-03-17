@@ -27,7 +27,7 @@ contract FarmingSystem is System {
 
     (EntityId farmlandEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(objectTypeId == ObjectTypes.Dirt || objectTypeId == ObjectTypes.Grass, "Not dirt or grass");
-    (uint128 massUsed, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId);
+    (uint128 massUsed, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId, type(uint128).max);
     require(toolObjectTypeId.isHoe(), "Must equip a hoe");
 
     uint128 energyCost = PLAYER_TILL_ENERGY_COST + massToEnergy(massUsed);

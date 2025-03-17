@@ -200,7 +200,8 @@ contract EquipTest is BiomesTest {
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
 
     ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    uint128 expectedMassReductionFromTool = 100;
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction + expectedMassReductionFromTool));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
@@ -218,12 +219,15 @@ contract EquipTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine terrain with tool, entirely mined");
-    world.mine(mineCoord);
+    world.mineUntilDestroyed(mineCoord);
     endGasReport();
 
     uint128 toolMassAfter = Mass.getMass(toolEntityId);
-    assertLt(toolMassAfter, toolMassBefore, "Tool mass is not less");
-
+    assertEq(
+      toolMassAfter,
+      toolMassBefore - expectedMassReductionFromTool,
+      "Tool mass is not reduced by expected amount"
+    );
     mineEntityId = ReversePosition.get(mineCoord);
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
