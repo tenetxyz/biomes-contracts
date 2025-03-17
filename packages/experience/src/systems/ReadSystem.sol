@@ -5,7 +5,7 @@ import { IWorld } from "@biomesaw/world/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
-import { BlockEntityData } from "@biomesaw/world/src/Types.sol";
+import { EntityData } from "@biomesaw/world/src/Types.sol";
 
 import { ChipAttachment } from "../codegen/tables/ChipAttachment.sol";
 import { ChipAdmin } from "../codegen/tables/ChipAdmin.sol";
@@ -15,11 +15,11 @@ import { ExchangeInfo, ExchangeInfoData } from "../codegen/tables/ExchangeInfo.s
 import { Exchanges } from "../codegen/tables/Exchanges.sol";
 import { PipeAccess } from "../codegen/tables/PipeAccess.sol";
 import { PipeAccessList } from "../codegen/tables/PipeAccessList.sol";
-import { BlockExperienceEntityData, PipeAccessDataWithEntityId, ExchangeInfoDataWithExchangeId } from "../Types.sol";
+import { ExperienceEntityData, PipeAccessDataWithEntityId, ExchangeInfoDataWithExchangeId } from "../Types.sol";
 
 contract ReadSystem is System {
-  function getBlockEntityData(EntityId entityId) public view returns (BlockExperienceEntityData memory) {
-    BlockEntityData memory blockEntityData = IWorld(_world()).getBlockEntityData(entityId);
+  function getEntityData(EntityId entityId) public view returns (ExperienceEntityData memory) {
+    EntityData memory worldEntityData = IWorld(_world()).getEntityData(entityId);
     bytes32[] memory exchangeIds = Exchanges.get(entityId);
     ExchangeInfoDataWithExchangeId[] memory exchangeInfoData = new ExchangeInfoDataWithExchangeId[](exchangeIds.length);
     for (uint256 i = 0; i < exchangeIds.length; i++) {
@@ -41,8 +41,8 @@ contract ReadSystem is System {
     }
 
     return
-      BlockExperienceEntityData({
-        worldEntityData: blockEntityData,
+      ExperienceEntityData({
+        worldEntityData: worldEntityData,
         chipAttacher: ChipAttachment.get(entityId),
         chipAdmin: ChipAdmin.get(entityId),
         smartItemMetadata: SmartItemMetadata.get(entityId),
@@ -52,11 +52,11 @@ contract ReadSystem is System {
       });
   }
 
-  function getBlocksEntityData(EntityId[] memory entityIds) public view returns (BlockExperienceEntityData[] memory) {
-    BlockExperienceEntityData[] memory blockExperienceEntityData = new BlockExperienceEntityData[](entityIds.length);
+  function getMultipleEntityData(EntityId[] memory entityIds) public view returns (ExperienceEntityData[] memory) {
+    ExperienceEntityData[] memory experienceEntityData = new ExperienceEntityData[](entityIds.length);
     for (uint256 i = 0; i < entityIds.length; i++) {
-      blockExperienceEntityData[i] = getBlockEntityData(entityIds[i]);
+      experienceEntityData[i] = getEntityData(entityIds[i]);
     }
-    return blockExperienceEntityData;
+    return experienceEntityData;
   }
 }

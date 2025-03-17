@@ -447,7 +447,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__getBlockEntityData",
+    "name": "experience__getEntityData",
     "inputs": [
       {
         "name": "entityId",
@@ -459,12 +459,12 @@ declare const abi: [
       {
         "name": "",
         "type": "tuple",
-        "internalType": "struct BlockExperienceEntityData",
+        "internalType": "struct ExperienceEntityData",
         "components": [
           {
             "name": "worldEntityData",
             "type": "tuple",
-            "internalType": "struct BlockEntityData",
+            "internalType": "struct EntityData",
             "components": [
               {
                 "name": "entityId",
@@ -485,6 +485,11 @@ declare const abi: [
                 "name": "position",
                 "type": "uint96",
                 "internalType": "Vec3"
+              },
+              {
+                "name": "orientation",
+                "type": "uint8",
+                "internalType": "enum Direction"
               },
               {
                 "name": "inventory",
@@ -521,9 +526,41 @@ declare const abi: [
                 ]
               },
               {
-                "name": "chipAddress",
-                "type": "address",
-                "internalType": "address"
+                "name": "chipSystemId",
+                "type": "bytes32",
+                "internalType": "ResourceId"
+              },
+              {
+                "name": "mass",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "energy",
+                "type": "tuple",
+                "internalType": "struct EnergyData",
+                "components": [
+                  {
+                    "name": "lastUpdatedTime",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "energy",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "drainRate",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "accDepletedTime",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  }
+                ]
               }
             ]
           },
@@ -666,7 +703,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__getBlocksEntityData",
+    "name": "experience__getMultipleEntityData",
     "inputs": [
       {
         "name": "entityIds",
@@ -678,12 +715,12 @@ declare const abi: [
       {
         "name": "",
         "type": "tuple[]",
-        "internalType": "struct BlockExperienceEntityData[]",
+        "internalType": "struct ExperienceEntityData[]",
         "components": [
           {
             "name": "worldEntityData",
             "type": "tuple",
-            "internalType": "struct BlockEntityData",
+            "internalType": "struct EntityData",
             "components": [
               {
                 "name": "entityId",
@@ -704,6 +741,11 @@ declare const abi: [
                 "name": "position",
                 "type": "uint96",
                 "internalType": "Vec3"
+              },
+              {
+                "name": "orientation",
+                "type": "uint8",
+                "internalType": "enum Direction"
               },
               {
                 "name": "inventory",
@@ -740,9 +782,41 @@ declare const abi: [
                 ]
               },
               {
-                "name": "chipAddress",
-                "type": "address",
-                "internalType": "address"
+                "name": "chipSystemId",
+                "type": "bytes32",
+                "internalType": "ResourceId"
+              },
+              {
+                "name": "mass",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "energy",
+                "type": "tuple",
+                "internalType": "struct EnergyData",
+                "components": [
+                  {
+                    "name": "lastUpdatedTime",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "energy",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "drainRate",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "accDepletedTime",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  }
+                ]
               }
             ]
           },

@@ -28,7 +28,6 @@ import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
 import { IAdminSystem } from "./IAdminSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
-import { IReadTwoSystem } from "./IReadTwoSystem.sol";
 
 /**
  * @title IWorld
@@ -62,6 +61,5 @@ interface IWorld is
   ITransferSystem,
   IUnequipSystem,
   IAdminSystem,
-  IReadSystem,
-  IReadTwoSystem
+  IReadSystem
 {}
