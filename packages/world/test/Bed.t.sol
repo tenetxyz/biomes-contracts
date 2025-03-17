@@ -9,7 +9,6 @@ import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
 import { BiomesTest, console } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 
@@ -19,7 +18,7 @@ import { BedPlayer, BedPlayerData } from "../src/codegen/tables/BedPlayer.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
-import { ExploredChunk, ExploredChunkByIndex, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
+import { LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
 import { IBedChip } from "../src/prototypes/IBedChip.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";

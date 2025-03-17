@@ -3,9 +3,9 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { Vec3 } from "../Vec3.sol";
-import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
+import { SurfaceChunkCount } from "../codegen/tables/SurfaceChunkCount.sol";
+import { SurfaceChunkByIndex, ExploredChunk, InitialEnergyPool, LocalEnergyPool } from "../utils/Vec3Storage.sol";
 import { RegionMerkleRoot } from "../codegen/tables/RegionMerkleRoot.sol";
-import { ExploredChunkByIndex, ExploredChunk, InitialEnergyPool, LocalEnergyPool } from "../utils/Vec3Storage.sol";
 import { SSTORE2 } from "../utils/SSTORE2.sol";
 import { INITIAL_ENERGY_PER_VEGETATION, REGION_SIZE, CHUNK_SIZE } from "../Constants.sol";
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
@@ -26,9 +26,11 @@ contract TerrainSystem is System {
     SSTORE2.writeDeterministic(chunkData, TerrainLib._getChunkSalt(chunkCoord));
 
     ExploredChunk.set(chunkCoord, _msgSender());
-    uint256 exploredChunkCount = ExploredChunkCount._get();
-    ExploredChunkByIndex.set(exploredChunkCount, chunkCoord);
-    ExploredChunkCount._set(exploredChunkCount + 1);
+    if (TerrainLib._isSurfaceChunk(chunkCoord)) {
+      uint256 surfaceChunkCount = SurfaceChunkCount._get();
+      SurfaceChunkByIndex.set(surfaceChunkCount, chunkCoord);
+      SurfaceChunkCount._set(surfaceChunkCount + 1);
+    }
   }
 
   function exploreRegionEnergy(Vec3 regionCoord, uint32 vegetationCount, bytes32[] memory merkleProof) public {

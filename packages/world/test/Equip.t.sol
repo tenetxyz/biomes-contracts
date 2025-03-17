@@ -9,7 +9,6 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
-import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
@@ -27,7 +26,7 @@ import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { ExploredChunk, ExploredChunkByIndex, MinedOrePosition, PlayerPosition, Position, ReversePosition, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, PlayerPosition, Position, ReversePosition, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";

@@ -11,9 +11,9 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
-import { ExploredChunkCount } from "../codegen/tables/ExploredChunkCount.sol";
+import { SurfaceChunkCount } from "../codegen/tables/SurfaceChunkCount.sol";
 
-import { ExploredChunkByIndex, ExploredChunk, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
+import { SurfaceChunkByIndex, ExploredChunk, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
 
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
@@ -57,13 +57,13 @@ contract SpawnSystem is System {
 
   // TODO: do we want to use something like solady's prng?
   function getRandomSpawnCoord(uint256 blockNumber, address sender) public view returns (Vec3 spawnCoord) {
-    uint256 exploredChunkCount = ExploredChunkCount._get();
-    require(exploredChunkCount > 0, "No explored chunks available");
+    uint256 exploredChunkCount = SurfaceChunkCount._get();
+    require(exploredChunkCount > 0, "No surface chunks available");
 
     // Randomness used for the chunk index and relative coordinates
     uint256 rand = uint256(keccak256(abi.encodePacked(blockhash(blockNumber), sender)));
     uint256 chunkIndex = rand % exploredChunkCount;
-    Vec3 chunk = ExploredChunkByIndex._get(chunkIndex);
+    Vec3 chunk = SurfaceChunkByIndex._get(chunkIndex);
 
     // Convert chunk coordinates to world coordinates and add random offset
     int32 chunkWorldX = chunk.x() * CHUNK_SIZE;
