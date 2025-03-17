@@ -37,8 +37,8 @@ contract FoodTest is BiomesTest {
     uint32 foodEnergyValue = ObjectTypeMetadata.getEnergy(foodType);
 
     // Eat food
-    vm.prank(alice);
     uint16 amountToEat = 2;
+    vm.prank(alice);
     world.eat(foodType, amountToEat);
 
     // Check if energy was added correctly

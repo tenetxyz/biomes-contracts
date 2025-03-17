@@ -308,7 +308,7 @@ contract MineTest is BiomesTest {
   function testMineFailsIfInvalidCoord() public {
     (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 mineCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
+    Vec3 mineCoord = playerCoord + vec3(int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, 0);
     ObjectTypeId mineObjectTypeId = ObjectTypes.Dirt;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 

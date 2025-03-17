@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { LibString } from "solady/utils/LibString.sol";
+import { FixedPointMathLib } from "solady/utils/FixedPointMathLib.sol";
+
 import { Position } from "./codegen/tables/Position.sol";
 import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { Direction } from "./codegen/common.sol";
@@ -78,6 +81,9 @@ function getDirectionVector(Direction direction) pure returns (Vec3) {
 }
 
 library Vec3Lib {
+  using LibString for *;
+  using FixedPointMathLib for *;
+
   function x(Vec3 a) internal pure returns (int32) {
     // Extract z component (leftmost 32 bits)
     return int32(uint32((Vec3.unwrap(a) >> 64) & 0xFFFFFFFF));
@@ -106,6 +112,10 @@ library Vec3Lib {
     return vec3(x(a) / scalar, y(a) / scalar, z(a) / scalar);
   }
 
+  function mod(Vec3 a, int32 scalar) internal pure returns (Vec3) {
+    return vec3(_mod(x(a), scalar), _mod(y(a), scalar), _mod(z(a), scalar));
+  }
+
   function floorDiv(Vec3 a, int32 divisor) internal pure returns (Vec3) {
     require(divisor != 0, "Division by zero");
 
@@ -116,16 +126,16 @@ library Vec3Lib {
     return vec3(-x(a), -y(a), -z(a));
   }
 
-  function manhattanDistance(Vec3 a, Vec3 b) internal pure returns (int64) {
-    return int64(abs(x(a) - x(b)) + abs(y(a) - y(b)) + abs(z(a) - z(b)));
+  function manhattanDistance(Vec3 a, Vec3 b) internal pure returns (uint256) {
+    return x(a).dist(x(b)) + y(a).dist(y(b)) + z(a).dist(z(b));
   }
 
-  function chebyshevDistance(Vec3 a, Vec3 b) internal pure returns (int32) {
-    int32 dx = abs(x(a) - x(b));
-    int32 dy = abs(y(a) - y(b));
-    int32 dz = abs(z(a) - z(b));
+  function chebyshevDistance(Vec3 a, Vec3 b) internal pure returns (uint256) {
+    uint256 dx = x(a).dist(x(b));
+    uint256 dy = y(a).dist(y(b));
+    uint256 dz = z(a).dist(z(b));
 
-    return max3(dx, dy, dz);
+    return FixedPointMathLib.max(FixedPointMathLib.max(dx, dy), dz);
   }
 
   function clamp(Vec3 self, Vec3 min, Vec3 max) internal pure returns (Vec3) {
@@ -213,7 +223,7 @@ library Vec3Lib {
     return false;
   }
 
-  function inSurroundingCube(Vec3 self, Vec3 other, int32 radius) internal pure returns (bool) {
+  function inSurroundingCube(Vec3 self, Vec3 other, uint256 radius) internal pure returns (bool) {
     return chebyshevDistance(self, other) <= radius;
   }
 
@@ -237,16 +247,11 @@ library Vec3Lib {
   // Note: Local Energy Pool shards are 2D for now, but the table supports 3D
   // Thats why the Y is ignored, and 0 in the util functions
   function toLocalEnergyPoolShardCoord(Vec3 coord) internal pure returns (Vec3) {
-    return
-      vec3(
-        _floorDiv(coord.x(), REGION_SIZE),
-        int32(0),
-        _floorDiv(coord.z(), REGION_SIZE)
-      );
+    return vec3(_floorDiv(coord.x(), REGION_SIZE), int32(0), _floorDiv(coord.z(), REGION_SIZE));
   }
 
   function toString(Vec3 a) internal pure returns (string memory) {
-    return string(abi.encodePacked("(", intToString(x(a)), ",", intToString(y(a)), ",", intToString(z(a)), ")"));
+    return string(abi.encodePacked("(", x(a).toString(), ",", y(a).toString(), ",", z(a).toString(), ")"));
   }
 }
 
@@ -254,49 +259,6 @@ using Vec3Lib for Vec3 global;
 using { eq as ==, neq as !=, add as +, sub as -, leq as <=, lt as < } for Vec3 global;
 
 // ======== Helper Functions ========
-
-function abs(int32 val) pure returns (int32) {
-  return val >= 0 ? val : -val;
-}
-
-function max3(int32 a, int32 b, int32 c) pure returns (int32) {
-  return a > b ? (a > c ? a : c) : (b > c ? b : c);
-}
-
-function min3(int32 a, int32 b, int32 c) pure returns (int32) {
-  return a < b ? (a < c ? a : c) : (b < c ? b : c);
-}
-
-function intToString(int32 value) pure returns (string memory) {
-  if (value == 0) {
-    return "0";
-  }
-
-  bool negative = value < 0;
-  uint32 absValue = negative ? uint32(-value) : uint32(value);
-
-  // Calculate number of digits
-  uint32 temp = absValue;
-  uint8 digits = 0;
-  while (temp > 0) {
-    digits++;
-    temp /= 10;
-  }
-
-  bytes memory buffer = new bytes(negative ? digits + 1 : digits);
-
-  if (negative) {
-    buffer[0] = "-";
-  }
-
-  temp = absValue;
-  for (uint8 i = 0; i < digits; i++) {
-    buffer[negative ? digits - i : digits - i - 1] = bytes1(uint8(48 + (temp % 10)));
-    temp /= 10;
-  }
-
-  return string(buffer);
-}
 
 // Floor division (integer division that rounds down)
 function _floorDiv(int32 a, int32 b) pure returns (int32) {
@@ -308,4 +270,9 @@ function _floorDiv(int32 a, int32 b) pure returns (int32) {
   }
 
   return a / b;
+}
+
+// The `%` operator in Solidity is not a modulo operator, it's a remainder operator, which behaves differently for negative numbers.
+function _mod(int32 x, int32 y) pure returns (int32) {
+  return ((x % y) + y) % y;
 }

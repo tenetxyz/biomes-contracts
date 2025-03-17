@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { SSTORE2 } from "../../utils/SSTORE2.sol";
 import { CHUNK_SIZE } from "../../Constants.sol";
-import { mod } from "../../utils/MathUtils.sol";
 import { Vec3, vec3 } from "../../Vec3.sol";
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
@@ -101,12 +100,7 @@ library TerrainLib {
 
   /// @dev Get the relative coordinate of a voxel coordinate within a chunk
   function _getRelativeCoord(Vec3 coord) internal pure returns (Vec3) {
-    return
-      vec3(
-        int32(uint32(mod(coord.x(), CHUNK_SIZE))),
-        int32(uint32(mod(coord.y(), CHUNK_SIZE))),
-        int32(uint32(mod(coord.z(), CHUNK_SIZE)))
-      );
+    return coord.mod(CHUNK_SIZE);
   }
 
   /// @dev Get the index of a voxel coordinate within the encoded chunk
