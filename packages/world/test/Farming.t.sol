@@ -153,7 +153,7 @@ contract FarmingTest is BiomesTest {
   function testTillFailsIfTooFar() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 dirtCoord = vec3(playerCoord.x() + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, playerCoord.z());
+    Vec3 dirtCoord = vec3(playerCoord.x() + int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, playerCoord.z());
     setTerrainAtCoord(dirtCoord, ObjectTypes.Dirt);
 
     EntityId hoeEntityId = TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenHoe);

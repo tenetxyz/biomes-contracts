@@ -353,11 +353,10 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfDoesntHaveBlock() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 dropCoord = playerCoord + vec3(0, 0, 1);
-    EntityId airEntityId = setObjectAtCoord(dropCoord, ObjectTypes.Air);
-    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
+    setObjectAtCoord(dropCoord, ObjectTypes.Air);
 
     EntityId toolEntityId = randomEntityId();
 
@@ -373,7 +372,7 @@ contract DropTest is BiomesTest {
   function testPickupFailsIfInvalidCoord() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 pickupCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 1, 0);
+    Vec3 pickupCoord = playerCoord + vec3(int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 1, 0);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addToInventory(airEntityId, transferObjectTypeId, 1);
@@ -388,7 +387,7 @@ contract DropTest is BiomesTest {
   function testDropFailsIfInvalidCoord() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 dropCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 1, 0);
+    Vec3 dropCoord = playerCoord + vec3(int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 1, 0);
     setObjectAtCoord(dropCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
@@ -420,7 +419,7 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfNonAirBlock() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     setTerrainAtCoord(pickupCoord, ObjectTypes.Air);
@@ -462,7 +461,7 @@ contract DropTest is BiomesTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
-    EntityId airEntityId = setObjectAtCoord(dropCoord, ObjectTypes.Air);
+    setObjectAtCoord(dropCoord, ObjectTypes.Air);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
@@ -523,7 +522,7 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     EntityId airEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.Air);
@@ -537,7 +536,7 @@ contract DropTest is BiomesTest {
   }
 
   function testDropFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
     setObjectAtCoord(dropCoord, ObjectTypes.Air);

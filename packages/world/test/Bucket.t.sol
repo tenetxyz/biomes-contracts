@@ -103,7 +103,7 @@ contract BucketTest is BiomesTest {
   function testFillBucketFailsIfTooFar() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupWaterChunkWithPlayer();
 
-    Vec3 waterCoord = vec3(playerCoord.x() + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, playerCoord.z());
+    Vec3 waterCoord = vec3(playerCoord.x() + int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, playerCoord.z());
 
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.Bucket, 1);
 
@@ -141,7 +141,7 @@ contract BucketTest is BiomesTest {
   function testWetFarmlandFailsIfTooFar() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 farmlandCoord = vec3(playerCoord.x() + MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, playerCoord.z());
+    Vec3 farmlandCoord = vec3(playerCoord.x() + int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, playerCoord.z());
     setObjectAtCoord(farmlandCoord, ObjectTypes.Farmland);
 
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WaterBucket, 1);
@@ -151,4 +151,3 @@ contract BucketTest is BiomesTest {
     world.wetFarmland(farmlandCoord);
   }
 }
-
