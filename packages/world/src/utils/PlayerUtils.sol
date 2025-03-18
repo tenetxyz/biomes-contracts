@@ -6,7 +6,6 @@ import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol"
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
@@ -44,7 +43,6 @@ library PlayerUtils {
     EnergyData memory playerEnergyData = updatePlayerEnergy(playerEntityId);
     require(playerEnergyData.energy > 0, "Player is dead");
 
-    PlayerActivity._set(playerEntityId, uint128(block.timestamp));
     return (playerEntityId, playerCoord, playerEnergyData);
   }
 

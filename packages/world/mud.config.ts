@@ -291,13 +291,6 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    PlayerActivity: {
-      schema: {
-        entityId: "EntityId",
-        lastActionTime: "uint128",
-      },
-      key: ["entityId"],
-    },
     // ------------------------------------------------------------
     // Smart Items
     // ------------------------------------------------------------

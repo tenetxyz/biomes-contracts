@@ -9,7 +9,6 @@ import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { PlayerActivity } from "../codegen/tables/PlayerActivity.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { SurfaceChunkCount } from "../codegen/tables/SurfaceChunkCount.sol";
@@ -191,8 +190,6 @@ contract SpawnSystem is System {
         drainRate: PLAYER_ENERGY_DRAIN_RATE
       })
     );
-
-    PlayerActivity._set(playerEntityId, uint128(block.timestamp));
 
     notify(playerEntityId, SpawnNotifData({ spawnCoord: spawnCoord }));
 

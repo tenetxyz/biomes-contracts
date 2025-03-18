@@ -23,7 +23,6 @@ struct PlayerEntityData {
   address playerAddress;
   EntityId bedEntityId;
   EntityId equippedEntityId;
-  uint256 lastActionTime;
   EntityData entityData;
 }
 

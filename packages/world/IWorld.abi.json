@@ -1444,11 +1444,6 @@
             "internalType": "EntityId"
           },
           {
-            "name": "lastActionTime",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
             "name": "entityData",
             "type": "tuple",
             "internalType": "struct EntityData",
@@ -1581,11 +1576,6 @@
             "name": "equippedEntityId",
             "type": "bytes32",
             "internalType": "EntityId"
-          },
-          {
-            "name": "lastActionTime",
-            "type": "uint256",
-            "internalType": "uint256"
           },
           {
             "name": "entityData",

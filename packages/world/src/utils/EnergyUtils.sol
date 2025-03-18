@@ -5,7 +5,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { Machine } from "../codegen/tables/Machine.sol";
 
-import { LocalEnergyPool, Position } from "../utils/Vec3Storage.sol";
+import { LocalEnergyPool, Position, PlayerPosition } from "../utils/Vec3Storage.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { getEntityAt } from "../utils/EntityUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
@@ -13,6 +13,7 @@ import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { MASS_TO_ENERGY_MULTIPLIER, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 function massToEnergy(uint128 mass) pure returns (uint128) {
@@ -78,7 +79,7 @@ function updateMachineEnergy(EntityId entityId) returns (EnergyData memory, uint
 function updatePlayerEnergy(EntityId entityId) returns (EnergyData memory) {
   (EnergyData memory energyData, uint128 energyDrained, ) = getLatestEnergyData(entityId);
   if (energyDrained > 0) {
-    Vec3 coord = Position._get(entityId);
+    Vec3 coord = PlayerPosition._get(entityId);
     addEnergyToLocalPool(coord, energyDrained);
 
     // Player died
@@ -112,7 +113,7 @@ function removeEnergyFromLocalPool(Vec3 coord, uint128 numToRemove) returns (uin
 function transferEnergyToPool(EntityId from, Vec3 poolCoord, uint128 amount) {
   uint128 current = Energy._getEnergy(from);
   require(current >= amount, "Not enough energy");
-  from.setEnergy(current - amount);
+  Energy._setEnergy(from, current - amount);
   addEnergyToLocalPool(poolCoord, amount);
 }
 

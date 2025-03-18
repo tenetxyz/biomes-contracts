@@ -17,7 +17,6 @@ import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
-import { PlayerActivity } from "../src/codegen/tables/PlayerActivity.sol";
 import { Vec3 } from "../src/Vec3.sol";
 import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";

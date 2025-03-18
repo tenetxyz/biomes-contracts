@@ -13,7 +13,6 @@ import { Mass } from "../../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { Chip } from "../../codegen/tables/Chip.sol";
 import { Equipped } from "../../codegen/tables/Equipped.sol";
-import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
@@ -136,7 +135,6 @@ contract ReadSystem is System {
           playerAddress: player,
           bedEntityId: EntityId.wrap(0),
           equippedEntityId: EntityId.wrap(0),
-          lastActionTime: 0,
           entityData: getEntityData(entityId)
         });
     }
@@ -146,7 +144,6 @@ contract ReadSystem is System {
         playerAddress: player,
         bedEntityId: PlayerStatus._getBedEntityId(entityId),
         equippedEntityId: Equipped._get(entityId),
-        lastActionTime: PlayerActivity._get(entityId),
         entityData: getEntityData(entityId)
       });
   }
