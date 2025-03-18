@@ -54,7 +54,7 @@ contract TestForceFieldProgram is IForceFieldProgram, System {
     require(!revertOnMine, "Not allowed by forcefield");
   }
 
-  function onPowered(EntityId callerEntityId, EntityId targetEntityId, uint16 numBattery) external {}
+  function onPowered(EntityId callerEntityId, EntityId targetEntityId, uint16 fuelAmount) external {}
 
   function onForceFieldHit(EntityId callerEntityId, EntityId targetEntityId) external {}
 

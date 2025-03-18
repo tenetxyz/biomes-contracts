@@ -44,7 +44,7 @@ contract MachineSystem is System {
 
     notify(
       playerEntityId,
-      PowerMachineNotifData({ machineEntityId: baseEntityId, machineCoord: entityCoord, numBattery: fuelAmount })
+      PowerMachineNotifData({ machineEntityId: baseEntityId, machineCoord: entityCoord, fuelAmount: fuelAmount })
     );
 
     callProgramOrRevert(

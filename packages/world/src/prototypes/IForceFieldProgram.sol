@@ -9,7 +9,7 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 
 // Interface for a force field program
 interface IForceFieldProgram is IForceFieldFragmentProgram {
-  function onPowered(EntityId callerEntityId, EntityId targetEntityId, uint16 numBattery) external;
+  function onPowered(EntityId callerEntityId, EntityId targetEntityId, uint16 fuelAmount) external;
 
   function onForceFieldHit(EntityId callerEntityId, EntityId targetEntityId) external;
 

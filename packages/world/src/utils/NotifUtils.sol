@@ -64,7 +64,7 @@ struct SpawnNotifData {
 struct PowerMachineNotifData {
   EntityId machineEntityId;
   Vec3 machineCoord;
-  uint16 numBattery;
+  uint16 fuelAmount;
 }
 
 struct HitMachineNotifData {
