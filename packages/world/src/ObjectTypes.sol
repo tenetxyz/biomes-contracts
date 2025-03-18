@@ -224,8 +224,7 @@ library ObjectTypes {
   ObjectTypeId constant NeptuniumBar = ObjectTypeId.wrap(Item | 3);
   ObjectTypeId constant Bucket = ObjectTypeId.wrap(Item | 4);
   ObjectTypeId constant WaterBucket = ObjectTypeId.wrap(Item | 5);
-  ObjectTypeId constant ChipBattery = ObjectTypeId.wrap(Item | 6);
-  ObjectTypeId constant Chip = ObjectTypeId.wrap(Item | 7);
+  ObjectTypeId constant Fuel = ObjectTypeId.wrap(Item | 6);
 
   // ------------------------------------------------------------
   // Misc

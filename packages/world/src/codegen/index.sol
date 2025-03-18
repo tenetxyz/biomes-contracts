@@ -30,7 +30,7 @@ import { ReversePlayer } from "./tables/ReversePlayer.sol";
 import { BedPlayer, BedPlayerData } from "./tables/BedPlayer.sol";
 import { PlayerStatus } from "./tables/PlayerStatus.sol";
 import { PlayerActivity } from "./tables/PlayerActivity.sol";
-import { Chip } from "./tables/Chip.sol";
+import { Program } from "./tables/Program.sol";
 import { ForceFieldFragment, ForceFieldFragmentData } from "./tables/ForceFieldFragment.sol";
 import { ForceFieldFragmentPosition, ForceFieldFragmentPositionData } from "./tables/ForceFieldFragmentPosition.sol";
 import { ForceField } from "./tables/ForceField.sol";

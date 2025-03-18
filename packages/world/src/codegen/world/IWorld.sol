@@ -8,7 +8,6 @@ import { IActivateSystem } from "./IActivateSystem.sol";
 import { IBedSystem } from "./IBedSystem.sol";
 import { IBucketSystem } from "./IBucketSystem.sol";
 import { IBuildSystem } from "./IBuildSystem.sol";
-import { IChipSystem } from "./IChipSystem.sol";
 import { ICraftSystem } from "./ICraftSystem.sol";
 import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
@@ -22,6 +21,7 @@ import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
 import { IOreSystem } from "./IOreSystem.sol";
 import { IPickupSystem } from "./IPickupSystem.sol";
+import { IProgramSystem } from "./IProgramSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 import { ITransferSystem } from "./ITransferSystem.sol";
@@ -42,7 +42,6 @@ interface IWorld is
   IBedSystem,
   IBucketSystem,
   IBuildSystem,
-  IChipSystem,
   ICraftSystem,
   IDisplaySystem,
   IDropSystem,
@@ -56,6 +55,7 @@ interface IWorld is
   IMoveSystem,
   IOreSystem,
   IPickupSystem,
+  IProgramSystem,
   ISpawnSystem,
   ITerrainSystem,
   ITransferSystem,

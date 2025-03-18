@@ -7,7 +7,7 @@ import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 
 import { PipeAccess } from "../codegen/tables/PipeAccess.sol";
 import { PipeAccessList } from "../codegen/tables/PipeAccessList.sol";
-import { requireChipOwner, requireChipOwnerOrNoOwner } from "../Utils.sol";
+import { requireProgramOwner, requireProgramOwnerOrNoOwner } from "../Utils.sol";
 import { pipeAccessExists } from "../utils/PipeUtils.sol";
 
 contract PipeSystem is System {
@@ -17,7 +17,7 @@ contract PipeSystem is System {
     bool depositAllowed,
     bool withdrawAllowed
   ) public {
-    requireChipOwner(targetEntityId);
+    requireProgramOwner(targetEntityId);
     if (!depositAllowed && !withdrawAllowed) {
       deletePipeAccess(targetEntityId, callerEntityId);
     } else {
@@ -29,7 +29,7 @@ contract PipeSystem is System {
   }
 
   function deletePipeAccess(EntityId targetEntityId, EntityId callerEntityId) public {
-    requireChipOwner(targetEntityId);
+    requireProgramOwner(targetEntityId);
     require(pipeAccessExists(targetEntityId, callerEntityId), "Pipe access does not exist");
     bytes32[] memory approvedEntityIds = PipeAccessList.get(targetEntityId);
     bytes32[] memory newApprovedEntityIds = new bytes32[](approvedEntityIds.length - 1);
@@ -45,7 +45,7 @@ contract PipeSystem is System {
   }
 
   function deletePipeAccessList(EntityId targetEntityId) public {
-    requireChipOwnerOrNoOwner(targetEntityId);
+    requireProgramOwnerOrNoOwner(targetEntityId);
     bytes32[] memory approvedEntityIds = PipeAccessList.get(targetEntityId);
     for (uint256 i = 0; i < approvedEntityIds.length; i++) {
       PipeAccess.deleteRecord(targetEntityId, EntityId.wrap(approvedEntityIds[i]));

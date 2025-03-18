@@ -7,8 +7,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 import { EntityData } from "@biomesaw/world/src/Types.sol";
 
-import { ChipAttachment } from "../codegen/tables/ChipAttachment.sol";
-import { ChipAdmin } from "../codegen/tables/ChipAdmin.sol";
+import { ProgramAttachment } from "../codegen/tables/ProgramAttachment.sol";
+import { ProgramAdmin } from "../codegen/tables/ProgramAdmin.sol";
 import { SmartItemMetadata, SmartItemMetadataData } from "../codegen/tables/SmartItemMetadata.sol";
 import { GateApprovals, GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
 import { ExchangeInfo, ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
@@ -43,8 +43,8 @@ contract ReadSystem is System {
     return
       ExperienceEntityData({
         worldEntityData: worldEntityData,
-        chipAttacher: ChipAttachment.get(entityId),
-        chipAdmin: ChipAdmin.get(entityId),
+        programAttacher: ProgramAttachment.get(entityId),
+        programAdmin: ProgramAdmin.get(entityId),
         smartItemMetadata: SmartItemMetadata.get(entityId),
         gateApprovalsData: GateApprovals.get(entityId),
         exchanges: exchangeInfoData,

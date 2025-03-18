@@ -19,9 +19,9 @@ import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
-import { callChipOrRevert } from "../utils/callChip.sol";
+import { callProgramOrRevert } from "../utils/callProgram.sol";
 import { massToEnergy, updateEnergyLevel, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
-import { IBedChip } from "../prototypes/IBedChip.sol";
+import { IBedProgram } from "../prototypes/IBedProgram.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
@@ -71,7 +71,7 @@ contract BedSystem is System {
     removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
 
     BedLib.transferInventory(bedEntityId, dropEntityId, ObjectTypes.Air);
-    // TODO: Should we safecall the chip?
+    // TODO: Should we safecall the program?
   }
 
   function sleep(EntityId bedEntityId, bytes calldata extraData) public {
@@ -102,8 +102,8 @@ contract BedSystem is System {
 
     notify(playerEntityId, SleepNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
 
-    bytes memory onSleepCall = abi.encodeCall(IBedChip.onSleep, (playerEntityId, bedEntityId, extraData));
-    callChipOrRevert(bedEntityId.getChip(), onSleepCall);
+    bytes memory onSleepCall = abi.encodeCall(IBedProgram.onSleep, (playerEntityId, bedEntityId, extraData));
+    callProgramOrRevert(bedEntityId.getProgram(), onSleepCall);
   }
 
   function wakeup(Vec3 spawnCoord, bytes calldata extraData) public {
@@ -136,8 +136,8 @@ contract BedSystem is System {
     notify(playerEntityId, WakeupNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
 
     if (machineData.energy > 0) {
-      bytes memory onWakeupCall = abi.encodeCall(IBedChip.onWakeup, (playerEntityId, bedEntityId, extraData));
-      callChipOrRevert(bedEntityId.getChip(), onWakeupCall);
+      bytes memory onWakeupCall = abi.encodeCall(IBedProgram.onWakeup, (playerEntityId, bedEntityId, extraData));
+      callProgramOrRevert(bedEntityId.getProgram(), onWakeupCall);
     }
   }
 }

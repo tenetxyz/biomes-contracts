@@ -30,7 +30,7 @@ contract ActivateSystem is System {
     if (objectTypeId == ObjectTypes.Player) {
       requireValidPlayer(ReversePlayer._get(baseEntityId));
     } else {
-      // if there's no chip, it'll just do nothing
+      // if there's no program, it'll just do nothing
       updateEnergyLevel(baseEntityId);
     }
   }

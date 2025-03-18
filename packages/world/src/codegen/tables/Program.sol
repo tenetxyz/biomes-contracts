@@ -20,9 +20,9 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { EntityId } from "../../EntityId.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-library Chip {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Chip", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000043686970000000000000000000000000);
+library Program {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Program", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000050726f6772616d000000000000000000);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
@@ -47,7 +47,7 @@ library Chip {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "chipSystemId";
+    fieldNames[0] = "programSystemId";
   }
 
   /**
@@ -65,9 +65,9 @@ library Chip {
   }
 
   /**
-   * @notice Get chipSystemId.
+   * @notice Get programSystemId.
    */
-  function getChipSystemId(EntityId entityId) internal view returns (ResourceId chipSystemId) {
+  function getProgramSystemId(EntityId entityId) internal view returns (ResourceId programSystemId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -76,9 +76,9 @@ library Chip {
   }
 
   /**
-   * @notice Get chipSystemId.
+   * @notice Get programSystemId.
    */
-  function _getChipSystemId(EntityId entityId) internal view returns (ResourceId chipSystemId) {
+  function _getProgramSystemId(EntityId entityId) internal view returns (ResourceId programSystemId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -87,9 +87,9 @@ library Chip {
   }
 
   /**
-   * @notice Get chipSystemId.
+   * @notice Get programSystemId.
    */
-  function get(EntityId entityId) internal view returns (ResourceId chipSystemId) {
+  function get(EntityId entityId) internal view returns (ResourceId programSystemId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -98,9 +98,9 @@ library Chip {
   }
 
   /**
-   * @notice Get chipSystemId.
+   * @notice Get programSystemId.
    */
-  function _get(EntityId entityId) internal view returns (ResourceId chipSystemId) {
+  function _get(EntityId entityId) internal view returns (ResourceId programSystemId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -109,43 +109,67 @@ library Chip {
   }
 
   /**
-   * @notice Set chipSystemId.
+   * @notice Set programSystemId.
    */
-  function setChipSystemId(EntityId entityId, ResourceId chipSystemId) internal {
+  function setProgramSystemId(EntityId entityId, ResourceId programSystemId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(chipSystemId)), _fieldLayout);
+    StoreSwitch.setStaticField(
+      _tableId,
+      _keyTuple,
+      0,
+      abi.encodePacked(ResourceId.unwrap(programSystemId)),
+      _fieldLayout
+    );
   }
 
   /**
-   * @notice Set chipSystemId.
+   * @notice Set programSystemId.
    */
-  function _setChipSystemId(EntityId entityId, ResourceId chipSystemId) internal {
+  function _setProgramSystemId(EntityId entityId, ResourceId programSystemId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(chipSystemId)), _fieldLayout);
+    StoreCore.setStaticField(
+      _tableId,
+      _keyTuple,
+      0,
+      abi.encodePacked(ResourceId.unwrap(programSystemId)),
+      _fieldLayout
+    );
   }
 
   /**
-   * @notice Set chipSystemId.
+   * @notice Set programSystemId.
    */
-  function set(EntityId entityId, ResourceId chipSystemId) internal {
+  function set(EntityId entityId, ResourceId programSystemId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(chipSystemId)), _fieldLayout);
+    StoreSwitch.setStaticField(
+      _tableId,
+      _keyTuple,
+      0,
+      abi.encodePacked(ResourceId.unwrap(programSystemId)),
+      _fieldLayout
+    );
   }
 
   /**
-   * @notice Set chipSystemId.
+   * @notice Set programSystemId.
    */
-  function _set(EntityId entityId, ResourceId chipSystemId) internal {
+  function _set(EntityId entityId, ResourceId programSystemId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ResourceId.unwrap(chipSystemId)), _fieldLayout);
+    StoreCore.setStaticField(
+      _tableId,
+      _keyTuple,
+      0,
+      abi.encodePacked(ResourceId.unwrap(programSystemId)),
+      _fieldLayout
+    );
   }
 
   /**
@@ -172,8 +196,8 @@ library Chip {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(ResourceId chipSystemId) internal pure returns (bytes memory) {
-    return abi.encodePacked(chipSystemId);
+  function encodeStatic(ResourceId programSystemId) internal pure returns (bytes memory) {
+    return abi.encodePacked(programSystemId);
   }
 
   /**
@@ -182,8 +206,8 @@ library Chip {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(ResourceId chipSystemId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(chipSystemId);
+  function encode(ResourceId programSystemId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(programSystemId);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
-import { Chip } from "./codegen/tables/Chip.sol";
+import { Program } from "./codegen/tables/Program.sol";
 import { BaseEntity } from "./codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "./codegen/tables/Energy.sol";
 
@@ -20,14 +20,14 @@ library EntityIdLib {
     return EntityId.unwrap(base) == bytes32(0) ? self : base;
   }
 
-  function getChipAddress(EntityId entityId) internal view returns (address) {
-    ResourceId chipSystemId = entityId.getChip();
-    (address chipAddress, ) = Systems._get(chipSystemId);
-    return chipAddress;
+  function getProgramAddress(EntityId entityId) internal view returns (address) {
+    ResourceId programSystemId = entityId.getProgram();
+    (address programAddress, ) = Systems._get(programSystemId);
+    return programAddress;
   }
 
-  function getChip(EntityId entityId) internal view returns (ResourceId) {
-    return Chip._getChipSystemId(entityId);
+  function getProgram(EntityId entityId) internal view returns (ResourceId) {
+    return Program._getProgramSystemId(entityId);
   }
 
   function exists(EntityId self) internal pure returns (bool) {

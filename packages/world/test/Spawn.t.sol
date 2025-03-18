@@ -18,7 +18,7 @@ import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
 import { LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
-import { ISpawnTileChip } from "../src/prototypes/ISpawnTileChip.sol";
+import { ISpawnTileProgram } from "../src/prototypes/ISpawnTileProgram.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
@@ -27,7 +27,7 @@ import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
-contract TestSpawnChip is ISpawnTileChip, System {
+contract TestSpawnProgram is ISpawnTileProgram, System {
   function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
 
   function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
@@ -35,7 +35,7 @@ contract TestSpawnChip is ISpawnTileChip, System {
   function onSpawn(EntityId callerEntityId, EntityId spawnTileEntityId, bytes memory extraData) external payable {}
 
   function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
-    return interfaceId == type(ISpawnTileChip).interfaceId || super.supportsInterface(interfaceId);
+    return interfaceId == type(ISpawnTileProgram).interfaceId || super.supportsInterface(interfaceId);
   }
 }
 
@@ -109,18 +109,18 @@ contract SpawnTest is BiomesTest {
     ReversePosition.set(spawnTileCoord, spawnTileEntityId);
     ObjectType.set(spawnTileEntityId, ObjectTypes.SpawnTile);
 
-    TestSpawnChip chip = new TestSpawnChip();
-    bytes14 namespace = "chipNamespace";
+    TestSpawnProgram program = new TestSpawnProgram();
+    bytes14 namespace = "programNS";
     ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);
-    ResourceId chipSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "chipName");
+    ResourceId programSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "programName");
     world.registerNamespace(namespaceId);
-    world.registerSystem(chipSystemId, chip, false);
+    world.registerSystem(programSystemId, program, false);
     world.transferOwnership(namespaceId, address(0));
 
-    // Attach chip with test player
+    // Attach program with test player
     (address bob, ) = createTestPlayer(spawnTileCoord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachChip(spawnTileEntityId, chipSystemId, "");
+    world.attachProgram(spawnTileEntityId, programSystemId, "");
 
     // Spawn alice
     vm.prank(alice);

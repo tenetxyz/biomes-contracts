@@ -4,50 +4,52 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { Chip } from "../codegen/tables/Chip.sol";
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
+import { Program } from "../codegen/tables/Program.sol";
+
+import { IForceFieldProgram } from "../prototypes/IForceFieldProgram.sol";
+
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
-import { callChipOrRevert } from "../utils/callChip.sol";
+import { callProgramOrRevert } from "../utils/callProgram.sol";
 import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
 
-import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
-
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
-import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 
 contract MachineSystem is System {
-  function powerMachine(EntityId entityId, uint16 numBattery) public {
+  function powerMachine(EntityId entityId, uint16 fuelAmount) public {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     Vec3 entityCoord = requireInPlayerInfluence(playerCoord, entityId);
 
     EntityId baseEntityId = entityId.baseEntityId();
 
-    removeFromInventory(playerEntityId, ObjectTypes.ChipBattery, numBattery);
+    removeFromInventory(playerEntityId, ObjectTypes.Fuel, fuelAmount);
 
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
     require(ObjectTypeLib.isMachine(objectTypeId), "Can only power machines");
     EnergyData memory machineData = updateEnergyLevel(baseEntityId);
 
-    uint128 newEnergyLevel = machineData.energy + (uint128(numBattery) * 10);
+    uint128 newEnergyLevel = machineData.energy + uint128(fuelAmount) * ObjectTypeMetadata._getEnergy(ObjectTypes.Fuel);
 
     baseEntityId.setEnergy(newEnergyLevel);
 
     notify(
       playerEntityId,
-      PowerMachineNotifData({ machineEntityId: baseEntityId, machineCoord: entityCoord, numBattery: numBattery })
+      PowerMachineNotifData({ machineEntityId: baseEntityId, machineCoord: entityCoord, fuelAmount: fuelAmount })
     );
 
-    callChipOrRevert(
-      baseEntityId.getChip(),
-      abi.encodeCall(IForceFieldChip.onPowered, (playerEntityId, baseEntityId, numBattery))
+    callProgramOrRevert(
+      baseEntityId.getProgram(),
+      abi.encodeCall(IForceFieldProgram.onPowered, (playerEntityId, baseEntityId, fuelAmount))
     );
   }
 }
