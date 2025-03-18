@@ -66,14 +66,14 @@ function updateMachineEnergy(EntityId entityId) returns (EnergyData memory, uint
     addEnergyToLocalPool(coord, energyDrained);
   }
 
-  uint128 accDepletedTime = Machine._getAccDepletedTime(entityId);
+  uint128 currentDepletedTime = Machine._getDepletedTime(entityId);
   if (depletedTime > 0) {
-    accDepletedTime += depletedTime;
-    Machine._setAccDepletedTime(entityId, accDepletedTime);
+    currentDepletedTime += depletedTime;
+    Machine._setDepletedTime(entityId, currentDepletedTime);
   }
 
   Energy._set(entityId, energyData);
-  return (energyData, accDepletedTime);
+  return (energyData, currentDepletedTime);
 }
 
 /// @dev Used within systems before performing an action
@@ -121,10 +121,10 @@ function transferEnergyToPool(EntityId from, Vec3 poolCoord, uint128 amount) {
 function updateSleepingPlayerEnergy(
   EntityId playerEntityId,
   EntityId bedEntityId,
-  uint128 accDepletedTime,
+  uint128 depletedTime,
   Vec3 bedCoord
 ) returns (EnergyData memory) {
-  uint128 timeWithoutEnergy = accDepletedTime - BedPlayer._getLastAccDepletedTime(bedEntityId);
+  uint128 timeWithoutEnergy = depletedTime - BedPlayer._getLastDepletedTime(bedEntityId);
   EnergyData memory playerEnergyData = Energy._get(playerEntityId);
 
   if (timeWithoutEnergy > 0) {
@@ -141,6 +141,6 @@ function updateSleepingPlayerEnergy(
   // Set last updated so next time updatePlayerEnergyLevel is called it will drain from here
   playerEnergyData.lastUpdatedTime = uint128(block.timestamp);
   Energy._set(playerEntityId, playerEnergyData);
-  BedPlayer._setLastAccDepletedTime(bedEntityId, accDepletedTime);
+  BedPlayer._setLastDepletedTime(bedEntityId, depletedTime);
   return playerEnergyData;
 }

@@ -279,7 +279,7 @@ export default defineWorld({
       schema: {
         bedEntityId: "EntityId",
         playerEntityId: "EntityId",
-        lastAccDepletedTime: "uint128",
+        lastDepletedTime: "uint128",
       },
       key: ["bedEntityId"],
     },
@@ -326,7 +326,7 @@ export default defineWorld({
       schema: {
         entityId: "EntityId",
         createdAt: "uint128",
-        accDepletedTime: "uint128",
+        depletedTime: "uint128",
       },
       key: ["entityId"],
     },

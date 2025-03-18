@@ -21,7 +21,7 @@ import { EntityId } from "../../EntityId.sol";
 
 struct MachineData {
   uint128 createdAt;
-  uint128 accDepletedTime;
+  uint128 depletedTime;
 }
 
 library Machine {
@@ -52,7 +52,7 @@ library Machine {
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](2);
     fieldNames[0] = "createdAt";
-    fieldNames[1] = "accDepletedTime";
+    fieldNames[1] = "depletedTime";
   }
 
   /**
@@ -112,9 +112,9 @@ library Machine {
   }
 
   /**
-   * @notice Get accDepletedTime.
+   * @notice Get depletedTime.
    */
-  function getAccDepletedTime(EntityId entityId) internal view returns (uint128 accDepletedTime) {
+  function getDepletedTime(EntityId entityId) internal view returns (uint128 depletedTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -123,9 +123,9 @@ library Machine {
   }
 
   /**
-   * @notice Get accDepletedTime.
+   * @notice Get depletedTime.
    */
-  function _getAccDepletedTime(EntityId entityId) internal view returns (uint128 accDepletedTime) {
+  function _getDepletedTime(EntityId entityId) internal view returns (uint128 depletedTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -134,23 +134,23 @@ library Machine {
   }
 
   /**
-   * @notice Set accDepletedTime.
+   * @notice Set depletedTime.
    */
-  function setAccDepletedTime(EntityId entityId, uint128 accDepletedTime) internal {
+  function setDepletedTime(EntityId entityId, uint128 depletedTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((accDepletedTime)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((depletedTime)), _fieldLayout);
   }
 
   /**
-   * @notice Set accDepletedTime.
+   * @notice Set depletedTime.
    */
-  function _setAccDepletedTime(EntityId entityId, uint128 accDepletedTime) internal {
+  function _setDepletedTime(EntityId entityId, uint128 depletedTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((accDepletedTime)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((depletedTime)), _fieldLayout);
   }
 
   /**
@@ -186,8 +186,8 @@ library Machine {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(EntityId entityId, uint128 createdAt, uint128 accDepletedTime) internal {
-    bytes memory _staticData = encodeStatic(createdAt, accDepletedTime);
+  function set(EntityId entityId, uint128 createdAt, uint128 depletedTime) internal {
+    bytes memory _staticData = encodeStatic(createdAt, depletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -201,8 +201,8 @@ library Machine {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(EntityId entityId, uint128 createdAt, uint128 accDepletedTime) internal {
-    bytes memory _staticData = encodeStatic(createdAt, accDepletedTime);
+  function _set(EntityId entityId, uint128 createdAt, uint128 depletedTime) internal {
+    bytes memory _staticData = encodeStatic(createdAt, depletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -217,7 +217,7 @@ library Machine {
    * @notice Set the full data using the data struct.
    */
   function set(EntityId entityId, MachineData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.createdAt, _table.accDepletedTime);
+    bytes memory _staticData = encodeStatic(_table.createdAt, _table.depletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -232,7 +232,7 @@ library Machine {
    * @notice Set the full data using the data struct.
    */
   function _set(EntityId entityId, MachineData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.createdAt, _table.accDepletedTime);
+    bytes memory _staticData = encodeStatic(_table.createdAt, _table.depletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -246,10 +246,10 @@ library Machine {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (uint128 createdAt, uint128 accDepletedTime) {
+  function decodeStatic(bytes memory _blob) internal pure returns (uint128 createdAt, uint128 depletedTime) {
     createdAt = (uint128(Bytes.getBytes16(_blob, 0)));
 
-    accDepletedTime = (uint128(Bytes.getBytes16(_blob, 16)));
+    depletedTime = (uint128(Bytes.getBytes16(_blob, 16)));
   }
 
   /**
@@ -263,7 +263,7 @@ library Machine {
     EncodedLengths,
     bytes memory
   ) internal pure returns (MachineData memory _table) {
-    (_table.createdAt, _table.accDepletedTime) = decodeStatic(_staticData);
+    (_table.createdAt, _table.depletedTime) = decodeStatic(_staticData);
   }
 
   /**
@@ -290,8 +290,8 @@ library Machine {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint128 createdAt, uint128 accDepletedTime) internal pure returns (bytes memory) {
-    return abi.encodePacked(createdAt, accDepletedTime);
+  function encodeStatic(uint128 createdAt, uint128 depletedTime) internal pure returns (bytes memory) {
+    return abi.encodePacked(createdAt, depletedTime);
   }
 
   /**
@@ -302,9 +302,9 @@ library Machine {
    */
   function encode(
     uint128 createdAt,
-    uint128 accDepletedTime
+    uint128 depletedTime
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(createdAt, accDepletedTime);
+    bytes memory _staticData = encodeStatic(createdAt, depletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

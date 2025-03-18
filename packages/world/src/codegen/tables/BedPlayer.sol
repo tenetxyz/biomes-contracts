@@ -21,7 +21,7 @@ import { EntityId } from "../../EntityId.sol";
 
 struct BedPlayerData {
   EntityId playerEntityId;
-  uint128 lastAccDepletedTime;
+  uint128 lastDepletedTime;
 }
 
 library BedPlayer {
@@ -52,7 +52,7 @@ library BedPlayer {
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](2);
     fieldNames[0] = "playerEntityId";
-    fieldNames[1] = "lastAccDepletedTime";
+    fieldNames[1] = "lastDepletedTime";
   }
 
   /**
@@ -112,9 +112,9 @@ library BedPlayer {
   }
 
   /**
-   * @notice Get lastAccDepletedTime.
+   * @notice Get lastDepletedTime.
    */
-  function getLastAccDepletedTime(EntityId bedEntityId) internal view returns (uint128 lastAccDepletedTime) {
+  function getLastDepletedTime(EntityId bedEntityId) internal view returns (uint128 lastDepletedTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(bedEntityId);
 
@@ -123,9 +123,9 @@ library BedPlayer {
   }
 
   /**
-   * @notice Get lastAccDepletedTime.
+   * @notice Get lastDepletedTime.
    */
-  function _getLastAccDepletedTime(EntityId bedEntityId) internal view returns (uint128 lastAccDepletedTime) {
+  function _getLastDepletedTime(EntityId bedEntityId) internal view returns (uint128 lastDepletedTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(bedEntityId);
 
@@ -134,23 +134,23 @@ library BedPlayer {
   }
 
   /**
-   * @notice Set lastAccDepletedTime.
+   * @notice Set lastDepletedTime.
    */
-  function setLastAccDepletedTime(EntityId bedEntityId, uint128 lastAccDepletedTime) internal {
+  function setLastDepletedTime(EntityId bedEntityId, uint128 lastDepletedTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(bedEntityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((lastAccDepletedTime)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((lastDepletedTime)), _fieldLayout);
   }
 
   /**
-   * @notice Set lastAccDepletedTime.
+   * @notice Set lastDepletedTime.
    */
-  function _setLastAccDepletedTime(EntityId bedEntityId, uint128 lastAccDepletedTime) internal {
+  function _setLastDepletedTime(EntityId bedEntityId, uint128 lastDepletedTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(bedEntityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((lastAccDepletedTime)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((lastDepletedTime)), _fieldLayout);
   }
 
   /**
@@ -186,8 +186,8 @@ library BedPlayer {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(EntityId bedEntityId, EntityId playerEntityId, uint128 lastAccDepletedTime) internal {
-    bytes memory _staticData = encodeStatic(playerEntityId, lastAccDepletedTime);
+  function set(EntityId bedEntityId, EntityId playerEntityId, uint128 lastDepletedTime) internal {
+    bytes memory _staticData = encodeStatic(playerEntityId, lastDepletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -201,8 +201,8 @@ library BedPlayer {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(EntityId bedEntityId, EntityId playerEntityId, uint128 lastAccDepletedTime) internal {
-    bytes memory _staticData = encodeStatic(playerEntityId, lastAccDepletedTime);
+  function _set(EntityId bedEntityId, EntityId playerEntityId, uint128 lastDepletedTime) internal {
+    bytes memory _staticData = encodeStatic(playerEntityId, lastDepletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -217,7 +217,7 @@ library BedPlayer {
    * @notice Set the full data using the data struct.
    */
   function set(EntityId bedEntityId, BedPlayerData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.playerEntityId, _table.lastAccDepletedTime);
+    bytes memory _staticData = encodeStatic(_table.playerEntityId, _table.lastDepletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -232,7 +232,7 @@ library BedPlayer {
    * @notice Set the full data using the data struct.
    */
   function _set(EntityId bedEntityId, BedPlayerData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.playerEntityId, _table.lastAccDepletedTime);
+    bytes memory _staticData = encodeStatic(_table.playerEntityId, _table.lastDepletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -246,12 +246,10 @@ library BedPlayer {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(
-    bytes memory _blob
-  ) internal pure returns (EntityId playerEntityId, uint128 lastAccDepletedTime) {
+  function decodeStatic(bytes memory _blob) internal pure returns (EntityId playerEntityId, uint128 lastDepletedTime) {
     playerEntityId = EntityId.wrap(Bytes.getBytes32(_blob, 0));
 
-    lastAccDepletedTime = (uint128(Bytes.getBytes16(_blob, 32)));
+    lastDepletedTime = (uint128(Bytes.getBytes16(_blob, 32)));
   }
 
   /**
@@ -265,7 +263,7 @@ library BedPlayer {
     EncodedLengths,
     bytes memory
   ) internal pure returns (BedPlayerData memory _table) {
-    (_table.playerEntityId, _table.lastAccDepletedTime) = decodeStatic(_staticData);
+    (_table.playerEntityId, _table.lastDepletedTime) = decodeStatic(_staticData);
   }
 
   /**
@@ -292,8 +290,8 @@ library BedPlayer {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(EntityId playerEntityId, uint128 lastAccDepletedTime) internal pure returns (bytes memory) {
-    return abi.encodePacked(playerEntityId, lastAccDepletedTime);
+  function encodeStatic(EntityId playerEntityId, uint128 lastDepletedTime) internal pure returns (bytes memory) {
+    return abi.encodePacked(playerEntityId, lastDepletedTime);
   }
 
   /**
@@ -304,9 +302,9 @@ library BedPlayer {
    */
   function encode(
     EntityId playerEntityId,
-    uint128 lastAccDepletedTime
+    uint128 lastDepletedTime
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(playerEntityId, lastAccDepletedTime);
+    bytes memory _staticData = encodeStatic(playerEntityId, lastDepletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

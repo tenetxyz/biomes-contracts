@@ -41,9 +41,9 @@ library BedLib {
     EntityId bedEntityId,
     Vec3 bedCoord
   ) public returns (EnergyData memory machineData, EnergyData memory playerData) {
-    uint128 accDepletedTime;
-    (machineData, accDepletedTime) = updateMachineEnergy(forceFieldEntityId);
-    playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, accDepletedTime, bedCoord);
+    uint128 depletedTime;
+    (machineData, depletedTime) = updateMachineEnergy(forceFieldEntityId);
+    playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, depletedTime, bedCoord);
     return (machineData, playerData);
   }
 }
@@ -87,11 +87,11 @@ contract BedSystem is System {
 
     (EntityId forceFieldEntityId, ) = getForceField(Position._get(bedEntityId));
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
-    (EnergyData memory machineData, uint128 accDepletedTime) = updateMachineEnergy(forceFieldEntityId);
+    (EnergyData memory machineData, uint128 depletedTime) = updateMachineEnergy(forceFieldEntityId);
     require(machineData.energy > 0, "Forcefield has no energy");
 
     PlayerStatus._setBedEntityId(playerEntityId, bedEntityId);
-    BedPlayer._set(bedEntityId, playerEntityId, accDepletedTime);
+    BedPlayer._set(bedEntityId, playerEntityId, depletedTime);
 
     // Increase forcefield's drain rate
     Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + PLAYER_ENERGY_DRAIN_RATE);

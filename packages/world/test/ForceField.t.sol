@@ -351,7 +351,7 @@ contract ForceFieldTest is BiomesTest {
     setupForceField(
       forceFieldCoord,
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 }),
-      100 // accDepletedTime
+      100 // depletedTime
     );
 
     (, EntityId fragmentEntityId) = TestForceFieldUtils.getForceField(forceFieldCoord);
@@ -892,7 +892,7 @@ contract ForceFieldTest is BiomesTest {
     // Check energy level (should be 0)
     currentEnergy = Energy.get(forceFieldEntityId);
     assertEq(currentEnergy.energy, 0, "Energy should be completely depleted");
-    assertEq(Machine.getAccDepletedTime(forceFieldEntityId), 10, "Accumulated depleted time should be tracked");
+    assertEq(Machine.getDepletedTime(forceFieldEntityId), 10, "Accumulated depleted time should be tracked");
   }
 
   function testExpandAndContractForceFieldComplex() public {

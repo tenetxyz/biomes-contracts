@@ -254,11 +254,11 @@ library MineLib {
     EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(bedEntityId);
     if (sleepingPlayerId.exists()) {
       (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
-      (, uint128 accDepletedTime) = updateMachineEnergy(forceFieldEntityId);
+      (, uint128 depletedTime) = updateMachineEnergy(forceFieldEntityId);
       EnergyData memory playerData = updateSleepingPlayerEnergy(
         sleepingPlayerId,
         bedEntityId,
-        accDepletedTime,
+        depletedTime,
         bedCoord
       );
       PlayerUtils.removePlayerFromBed(sleepingPlayerId, bedEntityId, forceFieldEntityId);

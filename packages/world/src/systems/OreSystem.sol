@@ -22,7 +22,6 @@ import { CHUNK_COMMIT_EXPIRY_BLOCKS, CHUNK_COMMIT_HALF_WIDTH, RESPAWN_ORE_BLOCK_
 
 contract OreSystem is System {
   function oreChunkCommit(Vec3 chunkCoord) public {
-    require(TerrainLib._isChunkExplored(chunkCoord, _world()), "Unexplored chunk");
     (, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
     Vec3 playerChunkCoord = playerCoord.toChunkCoord();
 

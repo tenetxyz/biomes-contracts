@@ -279,14 +279,10 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     return forceFieldEntityId;
   }
 
-  function setupForceField(
-    Vec3 coord,
-    EnergyData memory energyData,
-    uint128 accDepletedTime
-  ) internal returns (EntityId) {
+  function setupForceField(Vec3 coord, EnergyData memory energyData, uint128 depletedTime) internal returns (EntityId) {
     // Set forcefield with no energy
     EntityId forceFieldEntityId = setupForceField(coord, energyData);
-    Machine.setAccDepletedTime(forceFieldEntityId, accDepletedTime);
+    Machine.setDepletedTime(forceFieldEntityId, depletedTime);
     return forceFieldEntityId;
   }
 }
