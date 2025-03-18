@@ -9,7 +9,6 @@ import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
 import { BiomesTest, console } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 
@@ -17,7 +16,7 @@ import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
-import { ExploredChunk, ExploredChunkByIndex, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
+import { LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
 import { ISpawnTileChip } from "../src/prototypes/ISpawnTileChip.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -121,7 +120,7 @@ contract SpawnTest is BiomesTest {
     // Attach chip with test player
     (address bob, ) = createTestPlayer(spawnTileCoord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachChip(spawnTileEntityId, chipSystemId);
+    world.attachChip(spawnTileEntityId, chipSystemId, "");
 
     // Spawn alice
     vm.prank(alice);

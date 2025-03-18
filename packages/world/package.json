@@ -21,22 +21,23 @@
     "test": "./runTests.bash"
   },
   "dependencies": {
-    "@latticexyz/cli": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/config": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/schema-type": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/store": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/world": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/world-consumer": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/world-modules": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "@latticexyz/gas-report": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "solhint-config-mud": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d",
-    "solhint-plugin-mud": "2.2.21-a1b22c2778fe67a4457042f68a7240465c07183d"
+    "@latticexyz/cli": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/config": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/schema-type": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/store": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/world": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/world-consumer": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/world-modules": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "@latticexyz/gas-report": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "solhint-config-mud": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
+    "solhint-plugin-mud": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9"
   },
   "devDependencies": {
     "@openzeppelin/contracts": "^4.9.6",
     "forge-std": "https://github.com/foundry-rs/forge-std.git#3b20d60d14b343ee4f908cb8079495c07f5e8981",
     "prettier": "3.2.5",
     "prettier-plugin-solidity": "1.1.3",
+    "solady": "^0.1.12",
     "solhint": "^3.4.1",
     "tsup": "8.3.0",
     "tsx": "^4.7.2"

@@ -10,7 +10,6 @@ import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
-import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
@@ -23,7 +22,7 @@ import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
-import { MinedOrePosition, ExploredChunk, ExploredChunkByIndex, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -51,7 +50,7 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine with single block fall");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
     endGasReport();
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
@@ -91,7 +90,7 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine with three block fall");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
     endGasReport();
 
     Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
@@ -146,7 +145,7 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine with three block fall with a stacked player");
-    world.mine(mineCoord);
+    world.mine(mineCoord, "");
     endGasReport();
 
     Vec3 finalAliceCoord = PlayerPosition.get(aliceEntityId);

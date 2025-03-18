@@ -88,8 +88,8 @@ library TestInventoryUtils {
     _removeToolFromInventory(ownerEntityId, toolEntityId, ObjectType.get(toolEntityId));
   }
 
-  function useEquipped(EntityId entityId) public asWorld {
-    _useEquipped(entityId);
+  function useEquipped(EntityId entityId, uint128 useMassMax) public asWorld {
+    _useEquipped(entityId, useMassMax);
   }
 
   function removeEntityIdFromReverseInventoryEntity(

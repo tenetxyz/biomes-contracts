@@ -60,7 +60,7 @@ library BuildLib {
     EntityId baseEntityId,
     ObjectTypeId objectTypeId,
     Vec3[] memory coords,
-    bytes memory extraData
+    bytes calldata extraData
   ) public {
     for (uint256 i = 0; i < coords.length; i++) {
       Vec3 coord = coords[i];
@@ -96,11 +96,11 @@ library BuildLib {
 contract BuildSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
-  function buildWithExtraData(
+  function buildWithDirection(
     ObjectTypeId buildObjectTypeId,
     Vec3 baseCoord,
     Direction direction,
-    bytes memory extraData
+    bytes calldata extraData
   ) public payable returns (EntityId) {
     require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
@@ -147,10 +147,18 @@ contract BuildSystem is System {
     return baseEntityId;
   }
 
-  function jumpBuildWithExtraData(
+  function build(
+    ObjectTypeId buildObjectTypeId,
+    Vec3 baseCoord,
+    bytes calldata extraData
+  ) public payable returns (EntityId) {
+    return buildWithDirection(buildObjectTypeId, baseCoord, Direction.PositiveZ, extraData);
+  }
+
+  function jumpBuildWithDirection(
     ObjectTypeId buildObjectTypeId,
     Direction direction,
-    bytes memory extraData
+    bytes calldata extraData
   ) public payable {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
 
@@ -161,26 +169,10 @@ contract BuildSystem is System {
 
     require(!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId), "Cannot jump build on a pass-through block");
 
-    buildWithExtraData(buildObjectTypeId, playerCoord, direction, extraData);
+    buildWithDirection(buildObjectTypeId, playerCoord, direction, extraData);
   }
 
-  function jumpBuildWithDirection(ObjectTypeId buildObjectTypeId, Direction direction) public payable {
-    jumpBuildWithExtraData(buildObjectTypeId, direction, new bytes(0));
-  }
-
-  function jumpBuild(ObjectTypeId buildObjectTypeId) public payable {
-    jumpBuildWithExtraData(buildObjectTypeId, Direction.PositiveZ, new bytes(0));
-  }
-
-  function buildWithDirection(
-    ObjectTypeId buildObjectTypeId,
-    Vec3 baseCoord,
-    Direction direction
-  ) public payable returns (EntityId) {
-    return buildWithExtraData(buildObjectTypeId, baseCoord, direction, new bytes(0));
-  }
-
-  function build(ObjectTypeId buildObjectTypeId, Vec3 baseCoord) public payable returns (EntityId) {
-    return buildWithExtraData(buildObjectTypeId, baseCoord, Direction.PositiveZ, new bytes(0));
+  function jumpBuild(ObjectTypeId buildObjectTypeId, bytes calldata extraData) public payable {
+    jumpBuildWithDirection(buildObjectTypeId, Direction.PositiveZ, extraData);
   }
 }

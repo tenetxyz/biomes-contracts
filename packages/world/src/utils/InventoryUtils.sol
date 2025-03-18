@@ -117,19 +117,30 @@ function removeAnyFromInventory(EntityId playerEntityId, ObjectTypeId objectType
   require(remaining == 0, "Not enough objects in the inventory");
 }
 
-function useEquipped(EntityId entityId) returns (uint128 massUsed, ObjectTypeId inventoryObjectTypeId) {
+function useEquipped(
+  EntityId entityId,
+  uint128 useMassMax
+) returns (uint128 toolMassUsed, ObjectTypeId inventoryObjectTypeId) {
   EntityId inventoryEntityId = Equipped._get(entityId);
   if (inventoryEntityId.exists()) {
     inventoryObjectTypeId = ObjectType._get(inventoryEntityId);
     require(inventoryObjectTypeId.isTool(), "Inventory item is not a tool");
-    uint128 massLeft = Mass._getMass(inventoryEntityId);
-    require(massLeft > 0, "Tool is already broken");
+    uint128 toolMassLeft = Mass._getMass(inventoryEntityId);
+    require(toolMassLeft > 0, "Tool is already broken");
 
     // TODO: separate mine and hit?
-    // use 10% of the mass if it's greater than 10
-    massUsed = massLeft > 10 ? massLeft / 10 : massLeft;
+    if (toolMassLeft >= useMassMax) {
+      toolMassUsed = useMassMax;
+    } else {
+      // use 10% of the mass if it's greater than 10
+      if (toolMassLeft > 10) {
+        toolMassUsed = toolMassLeft / 10;
+      } else {
+        toolMassUsed = toolMassLeft;
+      }
+    }
 
-    if (massLeft <= massUsed) {
+    if (toolMassLeft <= toolMassUsed) {
       // Destroy equipped item
       removeToolFromInventory(entityId, inventoryEntityId, inventoryObjectTypeId);
       Equipped._deleteRecord(entityId);
@@ -139,7 +150,7 @@ function useEquipped(EntityId entityId) returns (uint128 massUsed, ObjectTypeId 
 
       // TODO: return energy to local pool
     } else {
-      Mass._setMass(inventoryEntityId, massLeft - massUsed);
+      Mass._setMass(inventoryEntityId, toolMassLeft - toolMassUsed);
     }
   }
 }

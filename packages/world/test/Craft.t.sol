@@ -9,9 +9,6 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
-import { ExploredChunk } from "../src/codegen/tables/ExploredChunk.sol";
-import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
-import { ExploredChunkByIndex } from "../src/codegen/tables/ExploredChunkByIndex.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
@@ -402,7 +399,7 @@ contract CraftTest is BiomesTest {
     vm.expectRevert("Invalid station");
     world.craftWithStation(recipeId, stationEntityId);
 
-    stationCoord = playerCoord + vec3(MAX_PLAYER_INFLUENCE_HALF_WIDTH + 1, 0, 0);
+    stationCoord = playerCoord + vec3(int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, 0);
     stationEntityId = setObjectAtCoord(stationCoord, ObjectTypes.Thermoblaster);
 
     vm.prank(alice);

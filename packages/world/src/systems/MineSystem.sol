@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+import { LibPRNG } from "solady/utils/LibPRNG.sol";
 
 import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
 import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
@@ -25,10 +26,9 @@ import { getUniqueEntity } from "../Utils.sol";
 import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel, energyToMass, transferEnergyToPool, addEnergyToLocalPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
-import { mulDiv } from "../utils/MathUtils.sol";
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
-import { getOrCreateEntityAt, getObjectTypeIdAt, getPlayer } from "../utils/EntityUtils.sol";
+import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, getPlayer } from "../utils/EntityUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -44,13 +44,14 @@ import { PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.
 import { Vec3, vec3 } from "../Vec3.sol";
 
 library MineLib {
-  function _mineRandomOre(Vec3 coord) public returns (ObjectTypeId) {
+  using LibPRNG for LibPRNG.PRNG;
+
+  function _mineRandomOre(EntityId entityId, Vec3 coord) public returns (ObjectTypeId) {
     Vec3 chunkCoord = coord.toChunkCoord();
     uint256 commitment = OreCommitment._get(chunkCoord);
     // We can't get blockhash of current block
     require(block.number > commitment, "Not within commitment blocks");
     require(block.number <= commitment + CHUNK_COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
-    uint256 rand = uint256(keccak256(abi.encode(blockhash(commitment), coord)));
 
     // Set total mined ore and add position
     // We do this here to avoid stack too deep issues
@@ -91,8 +92,10 @@ library MineLib {
 
     uint256 oreIndex = 0;
     {
-      // Scale random number to total remaining
-      uint256 scaledRand = mulDiv(rand, totalRemaining, type(uint256).max);
+      // Get pseudo random number between 0 and totalRemaining
+      LibPRNG.PRNG memory prng;
+      prng.seed(uint256(keccak256(abi.encodePacked(blockhash(commitment), coord))));
+      uint256 scaledRand = prng.uniform(totalRemaining);
 
       uint256 acc;
       for (; oreIndex < remaining.length - 1; oreIndex++) {
@@ -103,15 +106,22 @@ library MineLib {
 
     ObjectTypeId ore = ores[oreIndex];
     MinedOreCount._set(ore, max[oreIndex] - remaining[oreIndex] + 1);
+    ObjectType._set(entityId, ore);
+    Mass._setMass(entityId, ObjectTypeMetadata._getMass(ore));
 
     return ore;
   }
 
   function _processMassReduction(EntityId playerEntityId, EntityId minedEntityId) public returns (uint128) {
-    (uint128 toolMassReduction, ) = useEquipped(playerEntityId);
-    uint128 totalMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST) + toolMassReduction;
+    // TODO: balancing, what should the proper mass and energy cost be?
     uint128 massLeft = Mass._getMass(minedEntityId);
-    return massLeft <= totalMassReduction ? 0 : massLeft - totalMassReduction;
+    uint128 baseMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST);
+    if (massLeft <= baseMassReduction) {
+      return 0;
+    }
+    massLeft -= baseMassReduction;
+    (uint128 toolMassReduction, ) = useEquipped(playerEntityId, massLeft);
+    return massLeft <= toolMassReduction ? 0 : massLeft - toolMassReduction;
   }
 
   function _mineBed(EntityId bedEntityId, Vec3 bedCoord) public {
@@ -131,7 +141,7 @@ library MineLib {
     EntityId playerEntityId,
     ObjectTypeId objectTypeId,
     Vec3[] memory coords,
-    bytes memory extraData
+    bytes calldata extraData
   ) public {
     for (uint256 i = 0; i < coords.length; i++) {
       Vec3 coord = coords[i];
@@ -184,7 +194,7 @@ contract MineSystem is System {
     require(SeedGrowth._getFullyGrownAt(entityId) > block.timestamp, "Cannot mine fully grown seed");
   }
 
-  function mineWithExtraData(Vec3 coord, bytes memory extraData) public payable returns (EntityId) {
+  function mine(Vec3 coord, bytes calldata extraData) public payable returns (EntityId) {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
     requireInPlayerInfluence(playerCoord, coord);
 
@@ -202,6 +212,8 @@ contract MineSystem is System {
       require(updateEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
     } else if (mineObjectTypeId.isSeed()) {
       _requireSeedNotFullyGrown(baseEntityId);
+    } else if (mineObjectTypeId == ObjectTypes.AnyOre) {
+      mineObjectTypeId = MineLib._mineRandomOre(baseEntityId, coord);
     }
 
     // First coord will be the base coord, the rest is relative schema coords
@@ -211,9 +223,7 @@ contract MineSystem is System {
     {
       finalMass = MineLib._processMassReduction(playerEntityId, baseEntityId);
       if (finalMass == 0) {
-        if (mineObjectTypeId == ObjectTypes.AnyOre) {
-          mineObjectTypeId = MineLib._mineRandomOre(coord);
-        } else if (mineObjectTypeId == ObjectTypes.Bed) {
+        if (mineObjectTypeId == ObjectTypes.Bed) {
           // If mining a bed with a sleeping player, kill the player
           MineLib._mineBed(baseEntityId, baseCoord);
         }
@@ -227,9 +237,12 @@ contract MineSystem is System {
         {
           // Remove seeds placed on top of this block
           Vec3 aboveCoord = baseCoord + vec3(0, 1, 0);
-          (EntityId aboveEntityId, ObjectTypeId aboveTypeId) = getOrCreateEntityAt(aboveCoord);
+          (EntityId aboveEntityId, ObjectTypeId aboveTypeId) = getEntityAt(aboveCoord);
           if (aboveTypeId.isSeed()) {
             _requireSeedNotFullyGrown(baseEntityId);
+            if (!aboveEntityId.exists()) {
+              aboveEntityId = createEntityAt(aboveCoord, aboveTypeId);
+            }
             _removeBlock(aboveEntityId, aboveCoord);
             _handleDrop(playerEntityId, aboveTypeId);
             addEnergyToLocalPool(coord, ObjectTypeMetadata._getEnergy(aboveTypeId));
@@ -246,7 +259,7 @@ contract MineSystem is System {
         // Only iterate through relative schema coords
         for (uint256 i = 1; i < coords.length; i++) {
           Vec3 relativeCoord = coords[i];
-          (EntityId relativeEntityId, ) = getOrCreateEntityAt(relativeCoord);
+          (EntityId relativeEntityId, ) = getEntityAt(relativeCoord);
           BaseEntity._deleteRecord(relativeEntityId);
           _removeBlock(relativeEntityId, relativeCoord);
         }
@@ -269,20 +282,12 @@ contract MineSystem is System {
     return baseEntityId;
   }
 
-  function mineUntilDestroyedWithExtraData(Vec3 coord, bytes memory extraData) public payable {
+  function mineUntilDestroyed(Vec3 coord, bytes calldata extraData) public payable {
     uint128 massLeft = 0;
     do {
       // TODO: factor out the mass reduction logic so it's cheaper to call
-      EntityId entityId = mineWithExtraData(coord, extraData);
+      EntityId entityId = mine(coord, extraData);
       massLeft = Mass._getMass(entityId);
     } while (massLeft > 0);
-  }
-
-  function mine(Vec3 coord) public payable {
-    mineWithExtraData(coord, new bytes(0));
-  }
-
-  function mineUntilDestroyed(Vec3 coord) public payable {
-    mineUntilDestroyedWithExtraData(coord, new bytes(0));
   }
 }

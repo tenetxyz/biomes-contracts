@@ -21,8 +21,8 @@ struct TreeData {
   uint32 canopyStart;
   uint32 canopyEnd;
   uint32 canopyWidth;
+  uint32 stretchFactor;
   int32 centerOffset;
-  int32 stretchFactor;
 }
 
 library ObjectTypeLib {
@@ -125,6 +125,10 @@ library ObjectTypeLib {
     return objectTypeId == ObjectTypes.SmartTextSign;
   }
 
+  function isFood(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return objectTypeId.isCrop();
+  }
+
   function isSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
     return isCropSeed(objectTypeId) || isTreeSeed(objectTypeId);
   }
@@ -167,8 +171,8 @@ library ObjectTypeLib {
           canopyStart: 3,
           canopyEnd: 7,
           canopyWidth: 2,
-          centerOffset: -2,
-          stretchFactor: 2
+          stretchFactor: 2,
+          centerOffset: -2
         });
     } else if (seedTypeId == ObjectTypes.BirchSeed) {} else if (seedTypeId == ObjectTypes.JungleSeed) {} else if (
       seedTypeId == ObjectTypes.SakuraSeed
@@ -181,8 +185,8 @@ library ObjectTypeLib {
           canopyStart: 2,
           canopyEnd: 10,
           canopyWidth: 2,
-          centerOffset: -5,
-          stretchFactor: 3
+          stretchFactor: 3,
+          centerOffset: -5
         });
     } else if (seedTypeId == ObjectTypes.AcaciaSeed) {} else if (seedTypeId == ObjectTypes.DarkOakSeed) {}
 

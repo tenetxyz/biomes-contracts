@@ -3,7 +3,6 @@ pragma solidity >=0.8.24;
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
@@ -13,7 +12,7 @@ import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
-import { OreCommitment, MinedOrePosition, ExploredChunk, ExploredChunkByIndex, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
+import { OreCommitment, MinedOrePosition, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -34,11 +33,6 @@ contract OreTest is BiomesTest {
     // Set chunk's code to non zero
     bytes memory chunkData = hex"00";
     vm.etch(chunkPtr, chunkData);
-
-    ExploredChunk.set(chunkCoord, address(0));
-    uint256 exploredChunkCount = ExploredChunkCount.get();
-    ExploredChunkByIndex.set(exploredChunkCount, chunkCoord);
-    ExploredChunkCount.set(exploredChunkCount + 1);
   }
 
   function addMinedOre(Vec3 coord) internal {

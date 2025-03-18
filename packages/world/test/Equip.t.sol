@@ -9,7 +9,6 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { Chip } from "../src/codegen/tables/Chip.sol";
-import { ExploredChunkCount } from "../src/codegen/tables/ExploredChunkCount.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { ForceField } from "../src/codegen/tables/ForceField.sol";
@@ -27,7 +26,7 @@ import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { ExploredChunk, ExploredChunkByIndex, MinedOrePosition, PlayerPosition, Position, ReversePosition, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, PlayerPosition, Position, ReversePosition, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
@@ -182,7 +181,7 @@ contract EquipTest is BiomesTest {
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
     vm.prank(alice);
-    world.transferTool(chestEntityId, true, toolEntityId);
+    world.transferTool(chestEntityId, true, toolEntityId, "");
 
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
@@ -201,7 +200,8 @@ contract EquipTest is BiomesTest {
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
 
     ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    uint128 expectedMassReductionFromTool = 100;
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction + expectedMassReductionFromTool));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
@@ -219,12 +219,15 @@ contract EquipTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine terrain with tool, entirely mined");
-    world.mine(mineCoord);
+    world.mineUntilDestroyed(mineCoord, "");
     endGasReport();
 
     uint128 toolMassAfter = Mass.getMass(toolEntityId);
-    assertLt(toolMassAfter, toolMassBefore, "Tool mass is not less");
-
+    assertEq(
+      toolMassAfter,
+      toolMassBefore - expectedMassReductionFromTool,
+      "Tool mass is not reduced by expected amount"
+    );
     mineEntityId = ReversePosition.get(mineCoord);
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);

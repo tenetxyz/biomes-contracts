@@ -14,6 +14,7 @@ import { IDisplaySystem } from "./IDisplaySystem.sol";
 import { IDropSystem } from "./IDropSystem.sol";
 import { IEquipSystem } from "./IEquipSystem.sol";
 import { IFarmingSystem } from "./IFarmingSystem.sol";
+import { IFoodSystem } from "./IFoodSystem.sol";
 import { IForceFieldSystem } from "./IForceFieldSystem.sol";
 import { IHitMachineSystem } from "./IHitMachineSystem.sol";
 import { IMachineSystem } from "./IMachineSystem.sol";
@@ -27,7 +28,6 @@ import { ITransferSystem } from "./ITransferSystem.sol";
 import { IUnequipSystem } from "./IUnequipSystem.sol";
 import { IAdminSystem } from "./IAdminSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
-import { IReadTwoSystem } from "./IReadTwoSystem.sol";
 
 /**
  * @title IWorld
@@ -48,6 +48,7 @@ interface IWorld is
   IDropSystem,
   IEquipSystem,
   IFarmingSystem,
+  IFoodSystem,
   IForceFieldSystem,
   IHitMachineSystem,
   IMachineSystem,
@@ -60,6 +61,5 @@ interface IWorld is
   ITransferSystem,
   IUnequipSystem,
   IAdminSystem,
-  IReadSystem,
-  IReadTwoSystem
+  IReadSystem
 {}

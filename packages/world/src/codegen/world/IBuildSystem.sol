@@ -14,28 +14,24 @@ import { EntityId } from "../../EntityId.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IBuildSystem {
-  function buildWithExtraData(
-    ObjectTypeId buildObjectTypeId,
-    Vec3 baseCoord,
-    Direction direction,
-    bytes memory extraData
-  ) external payable returns (EntityId);
-
-  function jumpBuildWithExtraData(
-    ObjectTypeId buildObjectTypeId,
-    Direction direction,
-    bytes memory extraData
-  ) external payable;
-
-  function jumpBuildWithDirection(ObjectTypeId buildObjectTypeId, Direction direction) external payable;
-
-  function jumpBuild(ObjectTypeId buildObjectTypeId) external payable;
-
   function buildWithDirection(
     ObjectTypeId buildObjectTypeId,
     Vec3 baseCoord,
-    Direction direction
+    Direction direction,
+    bytes calldata extraData
   ) external payable returns (EntityId);
 
-  function build(ObjectTypeId buildObjectTypeId, Vec3 baseCoord) external payable returns (EntityId);
+  function build(
+    ObjectTypeId buildObjectTypeId,
+    Vec3 baseCoord,
+    bytes calldata extraData
+  ) external payable returns (EntityId);
+
+  function jumpBuildWithDirection(
+    ObjectTypeId buildObjectTypeId,
+    Direction direction,
+    bytes calldata extraData
+  ) external payable;
+
+  function jumpBuild(ObjectTypeId buildObjectTypeId, bytes calldata extraData) external payable;
 }

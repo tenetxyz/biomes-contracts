@@ -12,36 +12,25 @@ import { ObjectTypeId } from "../../ObjectTypeId.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface ITransferSystem {
-  function transferWithExtraData(
-    EntityId chestEntityId,
-    bool isDeposit,
-    ObjectTypeId transferObjectTypeId,
-    uint16 numToTransfer,
-    bytes memory extraData
-  ) external payable;
-
-  function transferToolWithExtraData(
-    EntityId chestEntityId,
-    bool isDeposit,
-    EntityId toolEntityId,
-    bytes memory extraData
-  ) external payable;
-
-  function transferToolsWithExtraData(
-    EntityId chestEntityId,
-    bool isDeposit,
-    EntityId[] memory toolEntityIds,
-    bytes memory extraData
-  ) external payable;
-
   function transfer(
     EntityId chestEntityId,
     bool isDeposit,
     ObjectTypeId transferObjectTypeId,
-    uint16 numToTransfer
+    uint16 numToTransfer,
+    bytes calldata extraData
   ) external payable;
 
-  function transferTool(EntityId chestEntityId, bool isDeposit, EntityId toolEntityId) external payable;
+  function transferTool(
+    EntityId chestEntityId,
+    bool isDeposit,
+    EntityId toolEntityId,
+    bytes calldata extraData
+  ) external payable;
 
-  function transferTools(EntityId chestEntityId, bool isDeposit, EntityId[] memory toolEntityIds) external payable;
+  function transferTools(
+    EntityId chestEntityId,
+    bool isDeposit,
+    EntityId[] memory toolEntityIds,
+    bytes calldata extraData
+  ) external payable;
 }

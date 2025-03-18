@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { FixedPointMathLib } from "solady/utils/FixedPointMathLib.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
@@ -11,7 +12,6 @@ import { useEquipped } from "../utils/InventoryUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { massToEnergy, transferEnergyToPool, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
-import { abs } from "../utils/MathUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeLib, TreeData } from "../ObjectTypeLib.sol";
@@ -30,15 +30,15 @@ library FarmingLib {
     }
 
     // Define canopy parameters
-    int32 size = int32(treeData.canopyWidth);
-    int32 start = int32(treeData.canopyStart); // Bottom of the canopy
-    int32 end = int32(treeData.canopyEnd); // Top of the canopy
+    uint32 size = treeData.canopyWidth;
+    uint32 start = treeData.canopyStart; // Bottom of the canopy
+    uint32 end = treeData.canopyEnd; // Top of the canopy
+    uint32 stretch = treeData.stretchFactor; // How many times to repeat each sphere layer
     int32 center = int32(trunkHeight) + treeData.centerOffset; // Center of the sphere
-    int32 stretch = int32(treeData.stretchFactor); // How many times to repeat each sphere layer
 
     // Adjust if the tree is blocked
     if (trunkHeight < treeData.trunkHeight) {
-      end = int32(trunkHeight) + 1; // Still allow one layer above the trunk
+      end = trunkHeight + 1; // Still allow one layer above the trunk
     }
 
     uint32 leaves;
@@ -51,13 +51,15 @@ library FarmingLib {
     // Avoid stack too deep issues
     Vec3 coord = baseCoord;
 
-    for (int32 y = start; y < end; ++y) {
+    for (int32 y = int32(start); y < int32(end); ++y) {
       // Calculate distance from sphere center
-      int32 dy = abs(y - center);
-      int32 radius = size - dy / stretch;
-      if (radius < 0) {
+      uint32 dy = uint32(FixedPointMathLib.dist(y, center));
+      if (size < dy / stretch) {
         continue;
       }
+
+      // We know this is not negative, but we use int32 to simplify operations
+      int32 radius = int32(size - dy / stretch);
 
       // Create the canopy
       for (int32 x = -radius; x <= radius; ++x) {
@@ -68,7 +70,7 @@ library FarmingLib {
           }
 
           // If it is a corner
-          if (radius != 0 && abs(x) == radius && abs(z) == radius) {
+          if (radius != 0 && int256(FixedPointMathLib.abs(x)) == radius && int256(FixedPointMathLib.abs(z)) == radius) {
             if ((dy + 1) % stretch == 0) {
               continue;
             }
@@ -121,7 +123,7 @@ contract FarmingSystem is System {
 
     (EntityId farmlandEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(objectTypeId == ObjectTypes.Dirt || objectTypeId == ObjectTypes.Grass, "Not dirt or grass");
-    (uint128 massUsed, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId);
+    (uint128 massUsed, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId, type(uint128).max);
     require(toolObjectTypeId.isHoe(), "Must equip a hoe");
 
     uint128 energyCost = PLAYER_TILL_ENERGY_COST + massToEnergy(massUsed);

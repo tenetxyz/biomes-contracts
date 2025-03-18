@@ -126,24 +126,6 @@ declare const abi: [
         "name": "chipSystemId",
         "type": "bytes32",
         "internalType": "ResourceId"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "attachChipWithExtraData",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "chipSystemId",
-        "type": "bytes32",
-        "internalType": "ResourceId"
       },
       {
         "name": "extraData",
@@ -234,6 +216,11 @@ declare const abi: [
         "name": "baseCoord",
         "type": "uint96",
         "internalType": "Vec3"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [
@@ -248,35 +235,6 @@ declare const abi: [
   {
     "type": "function",
     "name": "buildWithDirection",
-    "inputs": [
-      {
-        "name": "buildObjectTypeId",
-        "type": "uint16",
-        "internalType": "ObjectTypeId"
-      },
-      {
-        "name": "baseCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "direction",
-        "type": "uint8",
-        "internalType": "enum Direction"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      }
-    ],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "buildWithExtraData",
     "inputs": [
       {
         "name": "buildObjectTypeId",
@@ -418,34 +376,6 @@ declare const abi: [
         "name": "parents",
         "type": "uint256[]",
         "internalType": "uint256[]"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "contractForceFieldWithExtraData",
-    "inputs": [
-      {
-        "name": "forceFieldEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "fromFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "toFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "parents",
-        "type": "uint256[]",
-        "internalType": "uint256[]"
       },
       {
         "name": "extraData",
@@ -526,19 +456,6 @@ declare const abi: [
         "name": "entityId",
         "type": "bytes32",
         "internalType": "EntityId"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "detachChipWithExtraData",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
       },
       {
         "name": "extraData",
@@ -610,6 +527,24 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "eat",
+    "inputs": [
+      {
+        "name": "objectTypeId",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "numToEat",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "equip",
     "inputs": [
       {
@@ -624,34 +559,6 @@ declare const abi: [
   {
     "type": "function",
     "name": "expandForceField",
-    "inputs": [
-      {
-        "name": "forceFieldEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "refFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "fromFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "toFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "expandForceFieldWithExtraData",
     "inputs": [
       {
         "name": "forceFieldEntityId",
@@ -761,185 +668,6 @@ declare const abi: [
         "name": "blockNumbers",
         "type": "uint256[]",
         "internalType": "uint256[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getBlockEntityData",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct BlockEntityData",
-        "components": [
-          {
-            "name": "entityId",
-            "type": "bytes32",
-            "internalType": "EntityId"
-          },
-          {
-            "name": "baseEntityId",
-            "type": "bytes32",
-            "internalType": "EntityId"
-          },
-          {
-            "name": "objectTypeId",
-            "type": "uint16",
-            "internalType": "ObjectTypeId"
-          },
-          {
-            "name": "position",
-            "type": "uint96",
-            "internalType": "Vec3"
-          },
-          {
-            "name": "inventory",
-            "type": "tuple[]",
-            "internalType": "struct InventoryObject[]",
-            "components": [
-              {
-                "name": "objectTypeId",
-                "type": "uint16",
-                "internalType": "ObjectTypeId"
-              },
-              {
-                "name": "numObjects",
-                "type": "uint16",
-                "internalType": "uint16"
-              },
-              {
-                "name": "inventoryEntities",
-                "type": "tuple[]",
-                "internalType": "struct InventoryEntity[]",
-                "components": [
-                  {
-                    "name": "entityId",
-                    "type": "bytes32",
-                    "internalType": "EntityId"
-                  },
-                  {
-                    "name": "mass",
-                    "type": "uint128",
-                    "internalType": "uint128"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "name": "chipAddress",
-            "type": "address",
-            "internalType": "address"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getBlocksEntityData",
-    "inputs": [
-      {
-        "name": "entityIds",
-        "type": "bytes32[]",
-        "internalType": "EntityId[]"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple[]",
-        "internalType": "struct BlockEntityData[]",
-        "components": [
-          {
-            "name": "entityId",
-            "type": "bytes32",
-            "internalType": "EntityId"
-          },
-          {
-            "name": "baseEntityId",
-            "type": "bytes32",
-            "internalType": "EntityId"
-          },
-          {
-            "name": "objectTypeId",
-            "type": "uint16",
-            "internalType": "ObjectTypeId"
-          },
-          {
-            "name": "position",
-            "type": "uint96",
-            "internalType": "Vec3"
-          },
-          {
-            "name": "inventory",
-            "type": "tuple[]",
-            "internalType": "struct InventoryObject[]",
-            "components": [
-              {
-                "name": "objectTypeId",
-                "type": "uint16",
-                "internalType": "ObjectTypeId"
-              },
-              {
-                "name": "numObjects",
-                "type": "uint16",
-                "internalType": "uint16"
-              },
-              {
-                "name": "inventoryEntities",
-                "type": "tuple[]",
-                "internalType": "struct InventoryEntity[]",
-                "components": [
-                  {
-                    "name": "entityId",
-                    "type": "bytes32",
-                    "internalType": "EntityId"
-                  },
-                  {
-                    "name": "mass",
-                    "type": "uint128",
-                    "internalType": "uint128"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "name": "chipAddress",
-            "type": "address",
-            "internalType": "address"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getCoordForEntityId",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint96",
-        "internalType": "Vec3"
       }
     ],
     "stateMutability": "view"
@@ -1089,11 +817,6 @@ declare const abi: [
         "internalType": "struct EntityData",
         "components": [
           {
-            "name": "objectTypeId",
-            "type": "uint16",
-            "internalType": "ObjectTypeId"
-          },
-          {
             "name": "entityId",
             "type": "bytes32",
             "internalType": "EntityId"
@@ -1102,6 +825,21 @@ declare const abi: [
             "name": "baseEntityId",
             "type": "bytes32",
             "internalType": "EntityId"
+          },
+          {
+            "name": "objectTypeId",
+            "type": "uint16",
+            "internalType": "ObjectTypeId"
+          },
+          {
+            "name": "position",
+            "type": "uint96",
+            "internalType": "Vec3"
+          },
+          {
+            "name": "orientation",
+            "type": "uint8",
+            "internalType": "enum Direction"
           },
           {
             "name": "inventory",
@@ -1138,9 +876,41 @@ declare const abi: [
             ]
           },
           {
-            "name": "position",
-            "type": "uint96",
-            "internalType": "Vec3"
+            "name": "chipSystemId",
+            "type": "bytes32",
+            "internalType": "ResourceId"
+          },
+          {
+            "name": "mass",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "energy",
+            "type": "tuple",
+            "internalType": "struct EnergyData",
+            "components": [
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "energy",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "drainRate",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "accDepletedTime",
+                "type": "uint128",
+                "internalType": "uint128"
+              }
+            ]
           }
         ]
       }
@@ -1164,11 +934,6 @@ declare const abi: [
         "internalType": "struct EntityData",
         "components": [
           {
-            "name": "objectTypeId",
-            "type": "uint16",
-            "internalType": "ObjectTypeId"
-          },
-          {
             "name": "entityId",
             "type": "bytes32",
             "internalType": "EntityId"
@@ -1177,6 +942,21 @@ declare const abi: [
             "name": "baseEntityId",
             "type": "bytes32",
             "internalType": "EntityId"
+          },
+          {
+            "name": "objectTypeId",
+            "type": "uint16",
+            "internalType": "ObjectTypeId"
+          },
+          {
+            "name": "position",
+            "type": "uint96",
+            "internalType": "Vec3"
+          },
+          {
+            "name": "orientation",
+            "type": "uint8",
+            "internalType": "enum Direction"
           },
           {
             "name": "inventory",
@@ -1213,30 +993,43 @@ declare const abi: [
             ]
           },
           {
-            "name": "position",
-            "type": "uint96",
-            "internalType": "Vec3"
+            "name": "chipSystemId",
+            "type": "bytes32",
+            "internalType": "ResourceId"
+          },
+          {
+            "name": "mass",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "energy",
+            "type": "tuple",
+            "internalType": "struct EnergyData",
+            "components": [
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "energy",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "drainRate",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "accDepletedTime",
+                "type": "uint128",
+                "internalType": "uint128"
+              }
+            ]
           }
         ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getEntityIdAtCoord",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32",
-        "internalType": "EntityId"
       }
     ],
     "stateMutability": "view"
@@ -1388,102 +1181,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "getInventory",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple[]",
-        "internalType": "struct InventoryObject[]",
-        "components": [
-          {
-            "name": "objectTypeId",
-            "type": "uint16",
-            "internalType": "ObjectTypeId"
-          },
-          {
-            "name": "numObjects",
-            "type": "uint16",
-            "internalType": "uint16"
-          },
-          {
-            "name": "inventoryEntities",
-            "type": "tuple[]",
-            "internalType": "struct InventoryEntity[]",
-            "components": [
-              {
-                "name": "entityId",
-                "type": "bytes32",
-                "internalType": "EntityId"
-              },
-              {
-                "name": "mass",
-                "type": "uint128",
-                "internalType": "uint128"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getInventory",
-    "inputs": [
-      {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple[]",
-        "internalType": "struct InventoryObject[]",
-        "components": [
-          {
-            "name": "objectTypeId",
-            "type": "uint16",
-            "internalType": "ObjectTypeId"
-          },
-          {
-            "name": "numObjects",
-            "type": "uint16",
-            "internalType": "uint16"
-          },
-          {
-            "name": "inventoryEntities",
-            "type": "tuple[]",
-            "internalType": "struct InventoryEntity[]",
-            "components": [
-              {
-                "name": "entityId",
-                "type": "bytes32",
-                "internalType": "EntityId"
-              },
-              {
-                "name": "mass",
-                "type": "uint128",
-                "internalType": "uint128"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
     "name": "getKeySchema",
     "inputs": [
       {
@@ -1503,31 +1200,12 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "getLastActivityTime",
+    "name": "getMultipleEntityData",
     "inputs": [
       {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getMultipleEntityDataAtCoord",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "uint96[]",
-        "internalType": "Vec3[]"
+        "name": "entityIds",
+        "type": "bytes32[]",
+        "internalType": "EntityId[]"
       }
     ],
     "outputs": [
@@ -1536,11 +1214,6 @@ declare const abi: [
         "type": "tuple[]",
         "internalType": "struct EntityData[]",
         "components": [
-          {
-            "name": "objectTypeId",
-            "type": "uint16",
-            "internalType": "ObjectTypeId"
-          },
           {
             "name": "entityId",
             "type": "bytes32",
@@ -1552,6 +1225,21 @@ declare const abi: [
             "internalType": "EntityId"
           },
           {
+            "name": "objectTypeId",
+            "type": "uint16",
+            "internalType": "ObjectTypeId"
+          },
+          {
+            "name": "position",
+            "type": "uint96",
+            "internalType": "Vec3"
+          },
+          {
+            "name": "orientation",
+            "type": "uint8",
+            "internalType": "enum Direction"
+          },
+          {
             "name": "inventory",
             "type": "tuple[]",
             "internalType": "struct InventoryObject[]",
@@ -1586,108 +1274,9 @@ declare const abi: [
             ]
           },
           {
-            "name": "position",
-            "type": "uint96",
-            "internalType": "Vec3"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getPlayerCoord",
-    "inputs": [
-      {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint96",
-        "internalType": "Vec3"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getPlayerEntityData",
-    "inputs": [
-      {
-        "name": "player",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct PlayerEntityData",
-        "components": [
-          {
-            "name": "playerAddress",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "entityId",
+            "name": "chipSystemId",
             "type": "bytes32",
-            "internalType": "EntityId"
-          },
-          {
-            "name": "position",
-            "type": "uint96",
-            "internalType": "Vec3"
-          },
-          {
-            "name": "bedEntityId",
-            "type": "bytes32",
-            "internalType": "EntityId"
-          },
-          {
-            "name": "equippedEntityId",
-            "type": "bytes32",
-            "internalType": "EntityId"
-          },
-          {
-            "name": "inventory",
-            "type": "tuple[]",
-            "internalType": "struct InventoryObject[]",
-            "components": [
-              {
-                "name": "objectTypeId",
-                "type": "uint16",
-                "internalType": "ObjectTypeId"
-              },
-              {
-                "name": "numObjects",
-                "type": "uint16",
-                "internalType": "uint16"
-              },
-              {
-                "name": "inventoryEntities",
-                "type": "tuple[]",
-                "internalType": "struct InventoryEntity[]",
-                "components": [
-                  {
-                    "name": "entityId",
-                    "type": "bytes32",
-                    "internalType": "EntityId"
-                  },
-                  {
-                    "name": "mass",
-                    "type": "uint128",
-                    "internalType": "uint128"
-                  }
-                ]
-              }
-            ]
+            "internalType": "ResourceId"
           },
           {
             "name": "mass",
@@ -1720,11 +1309,267 @@ declare const abi: [
                 "internalType": "uint128"
               }
             ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMultipleEntityDataAtCoord",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "uint96[]",
+        "internalType": "Vec3[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "internalType": "struct EntityData[]",
+        "components": [
+          {
+            "name": "entityId",
+            "type": "bytes32",
+            "internalType": "EntityId"
+          },
+          {
+            "name": "baseEntityId",
+            "type": "bytes32",
+            "internalType": "EntityId"
+          },
+          {
+            "name": "objectTypeId",
+            "type": "uint16",
+            "internalType": "ObjectTypeId"
+          },
+          {
+            "name": "position",
+            "type": "uint96",
+            "internalType": "Vec3"
+          },
+          {
+            "name": "orientation",
+            "type": "uint8",
+            "internalType": "enum Direction"
+          },
+          {
+            "name": "inventory",
+            "type": "tuple[]",
+            "internalType": "struct InventoryObject[]",
+            "components": [
+              {
+                "name": "objectTypeId",
+                "type": "uint16",
+                "internalType": "ObjectTypeId"
+              },
+              {
+                "name": "numObjects",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "inventoryEntities",
+                "type": "tuple[]",
+                "internalType": "struct InventoryEntity[]",
+                "components": [
+                  {
+                    "name": "entityId",
+                    "type": "bytes32",
+                    "internalType": "EntityId"
+                  },
+                  {
+                    "name": "mass",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "chipSystemId",
+            "type": "bytes32",
+            "internalType": "ResourceId"
+          },
+          {
+            "name": "mass",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "energy",
+            "type": "tuple",
+            "internalType": "struct EnergyData",
+            "components": [
+              {
+                "name": "lastUpdatedTime",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "energy",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "drainRate",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "accDepletedTime",
+                "type": "uint128",
+                "internalType": "uint128"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPlayerEntityData",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct PlayerEntityData",
+        "components": [
+          {
+            "name": "playerAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "bedEntityId",
+            "type": "bytes32",
+            "internalType": "EntityId"
+          },
+          {
+            "name": "equippedEntityId",
+            "type": "bytes32",
+            "internalType": "EntityId"
           },
           {
             "name": "lastActionTime",
             "type": "uint256",
             "internalType": "uint256"
+          },
+          {
+            "name": "entityData",
+            "type": "tuple",
+            "internalType": "struct EntityData",
+            "components": [
+              {
+                "name": "entityId",
+                "type": "bytes32",
+                "internalType": "EntityId"
+              },
+              {
+                "name": "baseEntityId",
+                "type": "bytes32",
+                "internalType": "EntityId"
+              },
+              {
+                "name": "objectTypeId",
+                "type": "uint16",
+                "internalType": "ObjectTypeId"
+              },
+              {
+                "name": "position",
+                "type": "uint96",
+                "internalType": "Vec3"
+              },
+              {
+                "name": "orientation",
+                "type": "uint8",
+                "internalType": "enum Direction"
+              },
+              {
+                "name": "inventory",
+                "type": "tuple[]",
+                "internalType": "struct InventoryObject[]",
+                "components": [
+                  {
+                    "name": "objectTypeId",
+                    "type": "uint16",
+                    "internalType": "ObjectTypeId"
+                  },
+                  {
+                    "name": "numObjects",
+                    "type": "uint16",
+                    "internalType": "uint16"
+                  },
+                  {
+                    "name": "inventoryEntities",
+                    "type": "tuple[]",
+                    "internalType": "struct InventoryEntity[]",
+                    "components": [
+                      {
+                        "name": "entityId",
+                        "type": "bytes32",
+                        "internalType": "EntityId"
+                      },
+                      {
+                        "name": "mass",
+                        "type": "uint128",
+                        "internalType": "uint128"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "chipSystemId",
+                "type": "bytes32",
+                "internalType": "ResourceId"
+              },
+              {
+                "name": "mass",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "energy",
+                "type": "tuple",
+                "internalType": "struct EnergyData",
+                "components": [
+                  {
+                    "name": "lastUpdatedTime",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "energy",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "drainRate",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "accDepletedTime",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -1753,16 +1598,6 @@ declare const abi: [
             "internalType": "address"
           },
           {
-            "name": "entityId",
-            "type": "bytes32",
-            "internalType": "EntityId"
-          },
-          {
-            "name": "position",
-            "type": "uint96",
-            "internalType": "Vec3"
-          },
-          {
             "name": "bedEntityId",
             "type": "bytes32",
             "internalType": "EntityId"
@@ -1773,75 +1608,112 @@ declare const abi: [
             "internalType": "EntityId"
           },
           {
-            "name": "inventory",
-            "type": "tuple[]",
-            "internalType": "struct InventoryObject[]",
+            "name": "lastActionTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "entityData",
+            "type": "tuple",
+            "internalType": "struct EntityData",
             "components": [
+              {
+                "name": "entityId",
+                "type": "bytes32",
+                "internalType": "EntityId"
+              },
+              {
+                "name": "baseEntityId",
+                "type": "bytes32",
+                "internalType": "EntityId"
+              },
               {
                 "name": "objectTypeId",
                 "type": "uint16",
                 "internalType": "ObjectTypeId"
               },
               {
-                "name": "numObjects",
-                "type": "uint16",
-                "internalType": "uint16"
+                "name": "position",
+                "type": "uint96",
+                "internalType": "Vec3"
               },
               {
-                "name": "inventoryEntities",
+                "name": "orientation",
+                "type": "uint8",
+                "internalType": "enum Direction"
+              },
+              {
+                "name": "inventory",
                 "type": "tuple[]",
-                "internalType": "struct InventoryEntity[]",
+                "internalType": "struct InventoryObject[]",
                 "components": [
                   {
-                    "name": "entityId",
-                    "type": "bytes32",
-                    "internalType": "EntityId"
+                    "name": "objectTypeId",
+                    "type": "uint16",
+                    "internalType": "ObjectTypeId"
                   },
                   {
-                    "name": "mass",
+                    "name": "numObjects",
+                    "type": "uint16",
+                    "internalType": "uint16"
+                  },
+                  {
+                    "name": "inventoryEntities",
+                    "type": "tuple[]",
+                    "internalType": "struct InventoryEntity[]",
+                    "components": [
+                      {
+                        "name": "entityId",
+                        "type": "bytes32",
+                        "internalType": "EntityId"
+                      },
+                      {
+                        "name": "mass",
+                        "type": "uint128",
+                        "internalType": "uint128"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "chipSystemId",
+                "type": "bytes32",
+                "internalType": "ResourceId"
+              },
+              {
+                "name": "mass",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "energy",
+                "type": "tuple",
+                "internalType": "struct EnergyData",
+                "components": [
+                  {
+                    "name": "lastUpdatedTime",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "energy",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "drainRate",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "accDepletedTime",
                     "type": "uint128",
                     "internalType": "uint128"
                   }
                 ]
               }
             ]
-          },
-          {
-            "name": "mass",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "energy",
-            "type": "tuple",
-            "internalType": "struct EnergyData",
-            "components": [
-              {
-                "name": "lastUpdatedTime",
-                "type": "uint128",
-                "internalType": "uint128"
-              },
-              {
-                "name": "energy",
-                "type": "uint128",
-                "internalType": "uint128"
-              },
-              {
-                "name": "drainRate",
-                "type": "uint128",
-                "internalType": "uint128"
-              },
-              {
-                "name": "accDepletedTime",
-                "type": "uint128",
-                "internalType": "uint128"
-              }
-            ]
-          },
-          {
-            "name": "lastActionTime",
-            "type": "uint256",
-            "internalType": "uint256"
           }
         ]
       }
@@ -2137,6 +2009,11 @@ declare const abi: [
         "name": "buildObjectTypeId",
         "type": "uint16",
         "internalType": "ObjectTypeId"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -2145,24 +2022,6 @@ declare const abi: [
   {
     "type": "function",
     "name": "jumpBuildWithDirection",
-    "inputs": [
-      {
-        "name": "buildObjectTypeId",
-        "type": "uint16",
-        "internalType": "ObjectTypeId"
-      },
-      {
-        "name": "direction",
-        "type": "uint8",
-        "internalType": "enum Direction"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "jumpBuildWithExtraData",
     "inputs": [
       {
         "name": "buildObjectTypeId",
@@ -2191,50 +2050,6 @@ declare const abi: [
         "name": "coord",
         "type": "uint96",
         "internalType": "Vec3"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "mineUntilDestroyed",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "mineUntilDestroyedWithExtraData",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "mineWithExtraData",
-    "inputs": [
-      {
-        "name": "coord",
-        "type": "uint96",
-        "internalType": "Vec3"
       },
       {
         "name": "extraData",
@@ -2249,6 +2064,24 @@ declare const abi: [
         "internalType": "EntityId"
       }
     ],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "mineUntilDestroyed",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
     "stateMutability": "payable"
   },
   {
@@ -2951,19 +2784,6 @@ declare const abi: [
         "name": "bedEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "sleepWithExtraData",
-    "inputs": [
-      {
-        "name": "bedEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
       },
       {
         "name": "extraData",
@@ -3118,6 +2938,11 @@ declare const abi: [
         "name": "numToTransfer",
         "type": "uint16",
         "internalType": "uint16"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -3205,29 +3030,6 @@ declare const abi: [
         "name": "toolEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "transferToolWithExtraData",
-    "inputs": [
-      {
-        "name": "chestEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "isDeposit",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "toolEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
       },
       {
         "name": "extraData",
@@ -3256,62 +3058,6 @@ declare const abi: [
         "name": "toolEntityIds",
         "type": "bytes32[]",
         "internalType": "EntityId[]"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "transferToolsWithExtraData",
-    "inputs": [
-      {
-        "name": "chestEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "isDeposit",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "toolEntityIds",
-        "type": "bytes32[]",
-        "internalType": "EntityId[]"
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "transferWithExtraData",
-    "inputs": [
-      {
-        "name": "chestEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "isDeposit",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "transferObjectTypeId",
-        "type": "uint16",
-        "internalType": "ObjectTypeId"
-      },
-      {
-        "name": "numToTransfer",
-        "type": "uint16",
-        "internalType": "uint16"
       },
       {
         "name": "extraData",
@@ -3423,19 +3169,6 @@ declare const abi: [
   {
     "type": "function",
     "name": "wakeup",
-    "inputs": [
-      {
-        "name": "spawnCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "wakeupWithExtraData",
     "inputs": [
       {
         "name": "spawnCoord",

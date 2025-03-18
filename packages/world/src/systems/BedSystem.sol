@@ -17,7 +17,6 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol";
-import { mod } from "../utils/MathUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
@@ -75,7 +74,7 @@ contract BedSystem is System {
     // TODO: Should we safecall the chip?
   }
 
-  function sleepWithExtraData(EntityId bedEntityId, bytes memory extraData) public {
+  function sleep(EntityId bedEntityId, bytes calldata extraData) public {
     (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
 
     require(ObjectType._get(bedEntityId) == ObjectTypes.Bed, "Not a bed");
@@ -107,7 +106,7 @@ contract BedSystem is System {
     callChipOrRevert(bedEntityId.getChip(), onSleepCall);
   }
 
-  function wakeupWithExtraData(Vec3 spawnCoord, bytes memory extraData) public {
+  function wakeup(Vec3 spawnCoord, bytes calldata extraData) public {
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     EntityId playerEntityId = Player._get(_msgSender());
@@ -140,13 +139,5 @@ contract BedSystem is System {
       bytes memory onWakeupCall = abi.encodeCall(IBedChip.onWakeup, (playerEntityId, bedEntityId, extraData));
       callChipOrRevert(bedEntityId.getChip(), onWakeupCall);
     }
-  }
-
-  function sleep(EntityId bedEntityId) external {
-    sleepWithExtraData(bedEntityId, "");
-  }
-
-  function wakeup(Vec3 spawnCoord) external {
-    wakeupWithExtraData(spawnCoord, "");
   }
 }

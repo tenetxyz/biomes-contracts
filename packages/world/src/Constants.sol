@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-int32 constant MAX_PLAYER_INFLUENCE_HALF_WIDTH = 10;
-int32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
+uint32 constant MAX_PLAYER_INFLUENCE_HALF_WIDTH = 10;
+uint32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
 
 uint16 constant MAX_PLAYER_JUMPS = 3;
 uint16 constant MAX_PLAYER_GLIDES = 10;
@@ -17,7 +17,7 @@ int32 constant REGION_SIZE = 512; // 512x512 (2D)
 uint256 constant SAFE_CHIP_GAS = 1_000_000;
 
 uint256 constant CHUNK_COMMIT_EXPIRY_BLOCKS = 256;
-int32 constant CHUNK_COMMIT_HALF_WIDTH = 2;
+uint256 constant CHUNK_COMMIT_HALF_WIDTH = 2;
 uint256 constant RESPAWN_ORE_BLOCK_RANGE = 10;
 
 // ------------------------------------------------------------

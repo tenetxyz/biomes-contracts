@@ -164,4 +164,12 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
   function assertEq(ObjectTypeId a, ObjectTypeId b) internal pure {
     assertTrue(a == b, "");
   }
+
+  function assertNeq(ObjectTypeId a, ObjectTypeId b, string memory err) internal pure {
+    assertTrue(a != b, err);
+  }
+
+  function assertNeq(ObjectTypeId a, ObjectTypeId b) internal pure {
+    assertTrue(a != b, "");
+  }
 }
