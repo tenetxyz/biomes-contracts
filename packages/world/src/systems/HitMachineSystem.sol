@@ -7,7 +7,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { Chip } from "../codegen/tables/Chip.sol";
+import { Program } from "../codegen/tables/Program.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { ForceField } from "../codegen/tables/ForceField.sol";
@@ -19,9 +19,9 @@ import { useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { updateEnergyLevel, massToEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { safeCallChip } from "../utils/callChip.sol";
+import { safeCallProgram } from "../utils/callProgram.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
-import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+import { IForceFieldProgram } from "../prototypes/IForceFieldProgram.sol";
 import { PLAYER_HIT_ENERGY_COST } from "../Constants.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
@@ -56,10 +56,10 @@ contract HitMachineSystem is System {
 
     notify(playerEntityId, HitMachineNotifData({ machineEntityId: machineEntityId, machineCoord: machineCoord }));
 
-    // Use safeCallChip to use a fixed amount of gas as we don't want the chip to prevent hitting the machine
-    safeCallChip(
-      machineEntityId.getChip(),
-      abi.encodeCall(IForceFieldChip.onForceFieldHit, (playerEntityId, machineEntityId))
+    // Use safeCallProgram to use a fixed amount of gas as we don't want the program to prevent hitting the machine
+    safeCallProgram(
+      machineEntityId.getProgram(),
+      abi.encodeCall(IForceFieldProgram.onForceFieldHit, (playerEntityId, machineEntityId))
     );
   }
 

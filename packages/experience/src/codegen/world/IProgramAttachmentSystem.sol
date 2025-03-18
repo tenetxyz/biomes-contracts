@@ -6,12 +6,12 @@ pragma solidity >=0.8.24;
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 
 /**
- * @title IChipAdminSystem
+ * @title IProgramAttachmentSystem
  * @author MUD (https://mud.dev) by Lattice (https://lattice.xyz)
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
-interface IChipAdminSystem {
-  function experience__setChipAdmin(EntityId entityId, address admin) external;
+interface IProgramAttachmentSystem {
+  function experience__setProgramAttacher(EntityId entityId, address attacher) external;
 
-  function experience__deleteChipAdmin(EntityId entityId) external;
+  function experience__deleteProgramAttacher(EntityId entityId) external;
 }

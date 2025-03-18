@@ -5,17 +5,17 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 
-import { ExchangeNotif, ExchangeNotifData } from "../codegen/tables/ExchangeNotif.sol";
+import { ProgramAdmin } from "../codegen/tables/ProgramAdmin.sol";
 import { requireProgramOwner, requireProgramOwnerOrNoOwner } from "../Utils.sol";
 
-contract ExchangeNotifSystem is System {
-  function emitExchangeNotif(EntityId entityId, ExchangeNotifData memory notifData) public {
+contract ProgramAdminSystem is System {
+  function setProgramAdmin(EntityId entityId, address admin) public {
     requireProgramOwner(entityId);
-    ExchangeNotif.set(entityId, notifData);
+    ProgramAdmin.setAdmin(entityId, admin);
   }
 
-  function deleteExchangeNotif(EntityId entityId) public {
+  function deleteProgramAdmin(EntityId entityId) public {
     requireProgramOwnerOrNoOwner(entityId);
-    ExchangeNotif.deleteRecord(entityId);
+    ProgramAdmin.deleteRecord(entityId);
   }
 }

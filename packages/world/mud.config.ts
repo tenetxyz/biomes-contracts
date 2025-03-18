@@ -21,8 +21,8 @@ export default defineWorld({
       "Wakeup",
       "PowerMachine",
       "HitMachine",
-      "AttachChip",
-      "DetachChip",
+      "AttachProgram",
+      "DetachProgram",
       "InitiateOreReveal",
       "RevealOre",
       "ExpandForceField",
@@ -211,7 +211,7 @@ export default defineWorld({
         z: "int32",
         root: "bytes32",
       },
-      key: ["x", "z"]
+      key: ["x", "z"],
     },
     // ------------------------------------------------------------
     // Inventory
@@ -302,10 +302,10 @@ export default defineWorld({
     // ------------------------------------------------------------
     // Smart Items
     // ------------------------------------------------------------
-    Chip: {
+    Program: {
       schema: {
         entityId: "EntityId",
-        chipSystemId: "ResourceId",
+        programSystemId: "ResourceId",
       },
       key: ["entityId"],
     },

@@ -24,9 +24,9 @@ import { transferEnergyToPool, removeEnergyFromLocalPool, updateEnergyLevel } fr
 import { getPlayer } from "../utils/EntityUtils.sol";
 import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
-import { callChipOrRevert } from "../utils/callChip.sol";
+import { callProgramOrRevert } from "../utils/callProgram.sol";
 
-import { IForceFieldFragmentChip } from "../prototypes/IForceFieldChip.sol";
+import { IForceFieldFragmentProgram } from "../prototypes/IForceFieldProgram.sol";
 
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -76,16 +76,16 @@ library BuildLib {
         EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onBuildCall = abi.encodeCall(
-            IForceFieldFragmentChip.onBuild,
+            IForceFieldFragmentProgram.onBuild,
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
-          // We know fragment is active because its forcefield exists, so we can use its chip
-          ResourceId fragmentChip = fragmentEntityId.getChip();
-          if (fragmentChip.unwrap() != 0) {
-            callChipOrRevert(fragmentChip, onBuildCall);
+          // We know fragment is active because its forcefield exists, so we can use its program
+          ResourceId fragmentProgram = fragmentEntityId.getProgram();
+          if (fragmentProgram.unwrap() != 0) {
+            callProgramOrRevert(fragmentProgram, onBuildCall);
           } else {
-            callChipOrRevert(forceFieldEntityId.getChip(), onBuildCall);
+            callProgramOrRevert(forceFieldEntityId.getProgram(), onBuildCall);
           }
         }
       }

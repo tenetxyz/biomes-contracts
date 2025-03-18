@@ -7,12 +7,12 @@ import { EntityId } from "../../EntityId.sol";
 import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 
 /**
- * @title IChipSystem
+ * @title IProgramSystem
  * @author MUD (https://mud.dev) by Lattice (https://lattice.xyz)
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
-interface IChipSystem {
-  function attachChip(EntityId entityId, ResourceId chipSystemId, bytes calldata extraData) external payable;
+interface IProgramSystem {
+  function attachProgram(EntityId entityId, ResourceId programSystemId, bytes calldata extraData) external payable;
 
-  function detachChip(EntityId entityId, bytes calldata extraData) external payable;
+  function detachProgram(EntityId entityId, bytes calldata extraData) external payable;
 }

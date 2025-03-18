@@ -8,26 +8,26 @@ import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 
-import { ChipMetadataData } from "../codegen/tables/ChipMetadata.sol";
+import { ProgramMetadataData } from "../codegen/tables/ProgramMetadata.sol";
 import { SmartItemMetadataData } from "../codegen/tables/SmartItemMetadata.sol";
 import { GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
 import { ExchangeInfoData } from "../codegen/tables/ExchangeInfo.sol";
 import { ExchangeNotifData } from "../codegen/tables/ExchangeNotif.sol";
 
-function setChipMetadata(ChipMetadataData memory metadata) {
-  IWorld(WorldContextConsumerLib._world()).experience__setChipMetadata(metadata);
+function setProgramMetadata(ProgramMetadataData memory metadata) {
+  IWorld(WorldContextConsumerLib._world()).experience__setProgramMetadata(metadata);
 }
 
-function deleteChipMetadata() {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteChipMetadata();
+function deleteProgramMetadata() {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteProgramMetadata();
 }
 
-function setChipAttacher(EntityId entityId, address attacher) {
-  IWorld(WorldContextConsumerLib._world()).experience__setChipAttacher(entityId, attacher);
+function setProgramAttacher(EntityId entityId, address attacher) {
+  IWorld(WorldContextConsumerLib._world()).experience__setProgramAttacher(entityId, attacher);
 }
 
-function deleteChipAttacher(EntityId entityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteChipAttacher(entityId);
+function deleteProgramAttacher(EntityId entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteProgramAttacher(entityId);
 }
 
 function setGateApprovals(EntityId entityId, GateApprovalsData memory approvals) {
@@ -70,12 +70,12 @@ function updateGateApprovedNFT(EntityId entityId, uint256 index, address nft) {
   IWorld(WorldContextConsumerLib._world()).experience__updateGateApprovedNFT(entityId, index, nft);
 }
 
-function setChipAdmin(EntityId entityId, address admin) {
-  IWorld(WorldContextConsumerLib._world()).experience__setChipAdmin(entityId, admin);
+function setProgramAdmin(EntityId entityId, address admin) {
+  IWorld(WorldContextConsumerLib._world()).experience__setProgramAdmin(entityId, admin);
 }
 
-function deleteChipAdmin(EntityId entityId) {
-  IWorld(WorldContextConsumerLib._world()).experience__deleteChipAdmin(entityId);
+function deleteProgramAdmin(EntityId entityId) {
+  IWorld(WorldContextConsumerLib._world()).experience__deleteProgramAdmin(entityId);
 }
 
 function setSmartItemMetadata(EntityId entityId, SmartItemMetadataData memory metadata) {
