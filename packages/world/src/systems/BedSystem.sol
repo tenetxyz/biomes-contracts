@@ -33,7 +33,9 @@ import { EntityId } from "../EntityId.sol";
 
 // To avoid reaching bytecode size limit
 library BedLib {
-  function transferInventory(EntityId playerEntityId, EntityId bedEntityId, ObjectTypeId objectTypeId) public {}
+  function transferInventory(EntityId playerEntityId, EntityId bedEntityId, ObjectTypeId objectTypeId) public {
+    transferAllInventoryEntities(playerEntityId, bedEntityId, objectTypeId);
+  }
 
   function updateEntities(
     EntityId forceFieldEntityId,

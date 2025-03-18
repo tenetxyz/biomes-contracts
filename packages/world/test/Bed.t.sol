@@ -401,14 +401,14 @@ contract BedTest is BiomesTest {
   }
 
   function testTransfersInventoryToBed() public {
-    vm.skip("TODO");
+    vm.skip(true, "TODO");
   }
 
   function testTransfersInventoryToPlayer() public {
-    vm.skip("TODO");
+    vm.skip(true, "TODO");
   }
 
   function testTransfersInventoryToAirOnMined() public {
-    vm.skip("TODO");
+    vm.skip(true, "TODO");
   }
 }
