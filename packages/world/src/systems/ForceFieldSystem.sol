@@ -9,7 +9,7 @@ import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
@@ -125,8 +125,8 @@ contract ForceFieldSystem is System {
     Vec3 toFragmentCoord,
     bytes calldata extraData
   ) public {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, forceFieldEntityId);
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
+    PlayerUtils.requireInPlayerInfluence(playerCoord, forceFieldEntityId);
 
     ObjectTypeId objectTypeId = ObjectType._get(forceFieldEntityId);
     require(objectTypeId == ObjectTypes.ForceField, "Invalid object type");
@@ -190,11 +190,11 @@ contract ForceFieldSystem is System {
   ) public {
     require(fromFragmentCoord <= toFragmentCoord, "Invalid coordinates");
 
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
 
     Vec3 forceFieldFragmentCoord;
     {
-      Vec3 forceFieldCoord = requireInPlayerInfluence(playerCoord, forceFieldEntityId);
+      Vec3 forceFieldCoord = PlayerUtils.requireInPlayerInfluence(playerCoord, forceFieldEntityId);
       forceFieldFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
     }
 

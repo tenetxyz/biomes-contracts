@@ -18,7 +18,7 @@ import { PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol"
 
 import { getUniqueEntity } from "../Utils.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
 import { transferEnergyToPool, removeEnergyFromLocalPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getPlayer } from "../utils/EntityUtils.sol";
@@ -103,8 +103,8 @@ contract BuildSystem is System {
     bytes calldata extraData
   ) public payable returns (EntityId) {
     require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, baseCoord);
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
+    PlayerUtils.requireInPlayerInfluence(playerCoord, baseCoord);
 
     EntityId baseEntityId = BuildLib._addBlock(buildObjectTypeId, baseCoord);
     Orientation._set(baseEntityId, direction);
@@ -154,7 +154,7 @@ contract BuildSystem is System {
     Direction direction,
     bytes calldata extraData
   ) public payable {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
 
     Vec3[] memory moveCoords = new Vec3[](1);
     moveCoords[0] = playerCoord + vec3(0, 1, 0);

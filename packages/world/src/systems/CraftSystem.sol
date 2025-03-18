@@ -17,7 +17,7 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { addToInventory, removeFromInventory, removeAnyFromInventory, addToolToInventory } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { notify, CraftNotifData } from "../utils/NotifUtils.sol";
 import { energyToMass, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { EntityId } from "../EntityId.sol";
@@ -31,11 +31,11 @@ contract CraftSystem is System {
     RecipesData memory recipeData = Recipes._get(recipeId);
     require(recipeData.inputTypes.length > 0, "Recipe not found");
 
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
     if (!recipeData.stationTypeId.isNull()) {
       require(stationEntityId.exists(), "This recipe requires a station");
       require(ObjectType._get(stationEntityId) == recipeData.stationTypeId, "Invalid station");
-      requireInPlayerInfluence(playerCoord, stationEntityId);
+      PlayerUtils.requireInPlayerInfluence(playerCoord, stationEntityId);
     }
 
     // Require that the player has all the ingredients in its inventory

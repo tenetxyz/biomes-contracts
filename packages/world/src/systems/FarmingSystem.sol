@@ -8,7 +8,7 @@ import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
 
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { massToEnergy, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -22,8 +22,8 @@ contract FarmingSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
   function till(Vec3 coord) external {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, coord);
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
+    PlayerUtils.requireInPlayerInfluence(playerCoord, coord);
 
     (EntityId farmlandEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(objectTypeId == ObjectTypes.Dirt || objectTypeId == ObjectTypes.Grass, "Not dirt or grass");
@@ -37,7 +37,7 @@ contract FarmingSystem is System {
   }
 
   function growSeed(Vec3 coord) external {
-    requireValidPlayer(_msgSender());
+    PlayerUtils.requireValidPlayer(_msgSender());
 
     (EntityId seedEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(objectTypeId.isSeed(), "Not a seed");

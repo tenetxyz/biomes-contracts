@@ -12,7 +12,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
 
-import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePlayerFromGrid, removePlayerFromBed } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { PLAYER_ENERGY_DRAIN_RATE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
@@ -68,19 +68,19 @@ contract BedSystem is System {
 
     require(playerData.energy == 0, "Player is not dead");
 
-    removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
+    PlayerUtils.removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
 
     BedLib.transferInventory(bedEntityId, dropEntityId, ObjectTypes.Air);
     // TODO: Should we safecall the chip?
   }
 
   function sleep(EntityId bedEntityId, bytes calldata extraData) public {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
 
     require(ObjectType._get(bedEntityId) == ObjectTypes.Bed, "Not a bed");
 
     Vec3 bedCoord = Position._get(bedEntityId);
-    requireInPlayerInfluence(playerCoord, bedCoord);
+    PlayerUtils.requireInPlayerInfluence(playerCoord, bedCoord);
 
     bedEntityId = bedEntityId.baseEntityId();
     require(!BedPlayer._getPlayerEntityId(bedEntityId).exists(), "Bed full");
@@ -98,7 +98,7 @@ contract BedSystem is System {
 
     BedLib.transferInventory(playerEntityId, bedEntityId, ObjectTypes.Bed);
 
-    removePlayerFromGrid(playerEntityId, playerCoord);
+    PlayerUtils.removePlayerFromGrid(playerEntityId, playerCoord);
 
     notify(playerEntityId, SleepNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
 
@@ -127,9 +127,9 @@ contract BedSystem is System {
 
     require(playerData.energy > 0, "Player died while sleeping");
 
-    removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
+    PlayerUtils.removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
 
-    addPlayerToGrid(playerEntityId, spawnCoord);
+    PlayerUtils.addPlayerToGrid(playerEntityId, spawnCoord);
 
     BedLib.transferInventory(bedEntityId, playerEntityId, ObjectTypes.Player);
 

@@ -8,7 +8,7 @@ import { Machine } from "../codegen/tables/Machine.sol";
 import { LocalEnergyPool, Position } from "../utils/Vec3Storage.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { getEntityAt } from "../utils/EntityUtils.sol";
-import { removePlayerFromGrid } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
@@ -85,7 +85,7 @@ function updatePlayerEnergy(EntityId entityId) returns (EnergyData memory) {
     if (energyData.energy == 0) {
       (EntityId toEntityId, ObjectTypeId objectTypeId) = getEntityAt(coord);
       transferAllInventoryEntities(entityId, toEntityId, objectTypeId);
-      removePlayerFromGrid(entityId, coord);
+      PlayerUtils.removePlayerFromGrid(entityId, coord);
     }
   }
 

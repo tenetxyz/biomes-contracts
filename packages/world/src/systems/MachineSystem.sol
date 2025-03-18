@@ -11,7 +11,7 @@ import { Chip } from "../codegen/tables/Chip.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
@@ -25,8 +25,8 @@ import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 
 contract MachineSystem is System {
   function powerMachine(EntityId entityId, uint16 numBattery) public {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    Vec3 entityCoord = requireInPlayerInfluence(playerCoord, entityId);
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
+    Vec3 entityCoord = PlayerUtils.requireInPlayerInfluence(playerCoord, entityId);
 
     EntityId baseEntityId = entityId.baseEntityId();
 
@@ -38,7 +38,7 @@ contract MachineSystem is System {
 
     uint128 newEnergyLevel = machineData.energy + (uint128(numBattery) * 10);
 
-    baseEntityId.setEnergy(newEnergyLevel);
+    Energy._setEnergy(baseEntityId, newEnergyLevel);
 
     notify(
       playerEntityId,

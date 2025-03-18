@@ -9,12 +9,12 @@ import { EnergyData } from "../codegen/tables/Energy.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
-import { requireValidPlayer } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { notify, MoveNotifData } from "../utils/NotifUtils.sol";
 
 contract MoveSystem is System {
   function move(Vec3[] memory newCoords) public {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
 
     MoveLib.movePlayerWithGravity(playerEntityId, playerCoord, newCoords);
 
@@ -22,7 +22,7 @@ contract MoveSystem is System {
   }
 
   function moveDirections(Direction[] memory directions) public {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
 
     Vec3[] memory newCoords = new Vec3[](directions.length);
     for (uint256 i = 0; i < directions.length; i++) {
