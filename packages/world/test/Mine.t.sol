@@ -21,7 +21,6 @@ import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
-import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
 import { MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
@@ -340,10 +339,7 @@ contract MineTest is BiomesTest {
     ObjectTypeId mineObjectTypeId = ObjectTypes.Dirt;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
-    Energy.set(
-      aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1, drainRate: 0, accDepletedTime: 0 })
-    );
+    Energy.set(aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1, drainRate: 0 }));
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");
@@ -405,10 +401,7 @@ contract MineTest is BiomesTest {
     Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
     ObjectTypeId mineObjectTypeId = ObjectTypes.ForceField;
     EntityId mineEntityId = setObjectAtCoord(mineCoord, mineObjectTypeId);
-    Energy.set(
-      mineEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: 0, accDepletedTime: 0 })
-    );
+    Energy.set(mineEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: 0 }));
 
     vm.prank(alice);
     vm.expectRevert("Cannot mine a machine that has energy");

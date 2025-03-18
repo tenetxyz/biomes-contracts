@@ -180,12 +180,7 @@ contract FarmingTest is BiomesTest {
     uint128 energyCost = PLAYER_TILL_ENERGY_COST + massToEnergy(toolMass);
     Energy.set(
       aliceEntityId,
-      EnergyData({
-        lastUpdatedTime: uint128(block.timestamp),
-        energy: energyCost - 1,
-        drainRate: 0,
-        accDepletedTime: 0
-      })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: energyCost - 1, drainRate: 0 })
     );
 
     vm.prank(alice);

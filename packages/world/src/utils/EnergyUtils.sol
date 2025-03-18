@@ -3,12 +3,12 @@ pragma solidity >=0.8.24;
 
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
-import { ForceField } from "../codegen/tables/ForceField.sol";
+import { Machine } from "../codegen/tables/Machine.sol";
 
 import { LocalEnergyPool, Position } from "../utils/Vec3Storage.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { getEntityAt } from "../utils/EntityUtils.sol";
-// import { } from "../utils/PlayerUtils.sol";
+import { removePlayerFromGrid } from "../utils/PlayerUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
@@ -58,19 +58,21 @@ function getLatestEnergyData(EntityId entityId) view returns (EnergyData memory,
   return (energyData, energyDrained, depletedTime);
 }
 
-function updateForceFieldEnergy(EntityId entityId) returns (EnergyData memory) {
+function updateMachineEnergy(EntityId entityId) returns (EnergyData memory, uint128) {
   (EnergyData memory energyData, uint128 energyDrained, uint128 depletedTime) = getLatestEnergyData(entityId);
   if (energyDrained > 0) {
     Vec3 coord = Position._get(entityId);
     addEnergyToLocalPool(coord, energyDrained);
   }
 
+  uint128 accDepletedTime = Machine._getAccDepletedTime(entityId);
   if (depletedTime > 0) {
-    ForceField._setAccDepletedTime(entityId, ForceField._getAccDepletedTime(entityId) + depletedTime);
+    accDepletedTime += depletedTime;
+    Machine._setAccDepletedTime(entityId, accDepletedTime);
   }
 
   Energy._set(entityId, energyData);
-  return energyData;
+  return (energyData, accDepletedTime);
 }
 
 function updatePlayerEnergy(EntityId entityId) returns (EnergyData memory) {
@@ -83,6 +85,7 @@ function updatePlayerEnergy(EntityId entityId) returns (EnergyData memory) {
     if (energyData.energy == 0) {
       (EntityId toEntityId, ObjectTypeId objectTypeId) = getEntityAt(coord);
       transferAllInventoryEntities(entityId, toEntityId, objectTypeId);
+      removePlayerFromGrid(entityId, coord);
     }
   }
 
@@ -116,10 +119,10 @@ function transferEnergyToPool(EntityId from, Vec3 poolCoord, uint128 amount) {
 function updateSleepingPlayerEnergy(
   EntityId playerEntityId,
   EntityId bedEntityId,
-  EnergyData memory machineData,
+  uint128 accDepletedTime,
   Vec3 bedCoord
 ) returns (EnergyData memory) {
-  uint128 timeWithoutEnergy = machineData.accDepletedTime - BedPlayer._getLastAccDepletedTime(bedEntityId);
+  uint128 timeWithoutEnergy = accDepletedTime - BedPlayer._getLastAccDepletedTime(bedEntityId);
   EnergyData memory playerEnergyData = Energy._get(playerEntityId);
 
   if (timeWithoutEnergy > 0) {
@@ -136,6 +139,6 @@ function updateSleepingPlayerEnergy(
   // Set last updated so next time updatePlayerEnergyLevel is called it will drain from here
   playerEnergyData.lastUpdatedTime = uint128(block.timestamp);
   Energy._set(playerEntityId, playerEnergyData);
-  BedPlayer._setLastAccDepletedTime(bedEntityId, machineData.accDepletedTime);
+  BedPlayer._setLastAccDepletedTime(bedEntityId, accDepletedTime);
   return playerEnergyData;
 }

@@ -329,7 +329,7 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    ForceField: {
+    Machine: {
       schema: {
         entityId: "EntityId",
         createdAt: "uint128",

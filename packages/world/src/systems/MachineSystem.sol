@@ -12,7 +12,7 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
 import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
 
@@ -34,7 +34,7 @@ contract MachineSystem is System {
 
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
     require(ObjectTypeLib.isMachine(objectTypeId), "Can only power machines");
-    EnergyData memory machineData = updateEnergyLevel(baseEntityId);
+    (EnergyData memory machineData, ) = updateMachineEnergy(baseEntityId);
 
     uint128 newEnergyLevel = machineData.energy + (uint128(numBattery) * 10);
 

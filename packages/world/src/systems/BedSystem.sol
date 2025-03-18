@@ -5,6 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
+import { Machine } from "../codegen/tables/Machine.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
@@ -20,7 +21,7 @@ import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
-import { massToEnergy, updateEnergyLevel, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+import { massToEnergy, updateMachineEnergy, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { IBedChip } from "../prototypes/IBedChip.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -32,9 +33,7 @@ import { EntityId } from "../EntityId.sol";
 
 // To avoid reaching bytecode size limit
 library BedLib {
-  function transferInventory(EntityId playerEntityId, EntityId bedEntityId, ObjectTypeId objectTypeId) public {
-    transferAllInventoryEntities(playerEntityId, bedEntityId, objectTypeId);
-  }
+  function transferInventory(EntityId playerEntityId, EntityId bedEntityId, ObjectTypeId objectTypeId) public {}
 
   function updateEntities(
     EntityId forceFieldEntityId,
@@ -42,8 +41,9 @@ library BedLib {
     EntityId bedEntityId,
     Vec3 bedCoord
   ) public returns (EnergyData memory machineData, EnergyData memory playerData) {
-    machineData = updateEnergyLevel(forceFieldEntityId);
-    playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, machineData, bedCoord);
+    uint128 accDepletedTime;
+    (machineData, accDepletedTime) = updateMachineEnergy(forceFieldEntityId);
+    playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, accDepletedTime, bedCoord);
     return (machineData, playerData);
   }
 }
@@ -87,11 +87,11 @@ contract BedSystem is System {
 
     (EntityId forceFieldEntityId, ) = getForceField(Position._get(bedEntityId));
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
-    EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+    (EnergyData memory machineData, uint128 accDepletedTime) = updateMachineEnergy(forceFieldEntityId);
     require(machineData.energy > 0, "Forcefield has no energy");
 
     PlayerStatus._setBedEntityId(playerEntityId, bedEntityId);
-    BedPlayer._set(bedEntityId, playerEntityId, machineData.accDepletedTime);
+    BedPlayer._set(bedEntityId, playerEntityId, accDepletedTime);
 
     // Increase forcefield's drain rate
     Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + PLAYER_ENERGY_DRAIN_RATE);

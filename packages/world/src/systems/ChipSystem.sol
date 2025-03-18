@@ -17,7 +17,7 @@ import { ActionType } from "../codegen/common.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { requireValidPlayer, requireInPlayerInfluence, requireFragmentInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField, isForceFieldFragmentActive } from "../utils/ForceFieldUtils.sol";
 import { notify, AttachChipNotifData, DetachChipNotifData } from "../utils/NotifUtils.sol";
 
@@ -97,7 +97,7 @@ contract ChipSystem is System {
     if (objectTypeId != ObjectTypes.ForceField) {
       (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(entityCoord);
       if (forceFieldEntityId.exists()) {
-        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onChipAttachedCall = abi.encodeCall(
             IForceFieldFragmentChip.onChipAttached,
@@ -145,7 +145,7 @@ contract ChipSystem is System {
 
     (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(entityCoord);
 
-    EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+    (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
 
     // If forcefield is active, call its hook
     bytes memory onDetachedCall = abi.encodeCall(IChip.onDetached, (playerEntityId, baseEntityId, extraData));

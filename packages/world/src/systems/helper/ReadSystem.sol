@@ -57,7 +57,7 @@ contract ReadSystem is System {
           orientation: Direction.PositiveX,
           chipSystemId: ResourceId.wrap(0),
           mass: 0,
-          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0, accDepletedTime: 0 })
+          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0 })
         });
     }
 
@@ -91,7 +91,7 @@ contract ReadSystem is System {
           orientation: Direction.PositiveX,
           chipSystemId: ResourceId.wrap(0),
           mass: 0,
-          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0, accDepletedTime: 0 })
+          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0 })
         });
     }
 

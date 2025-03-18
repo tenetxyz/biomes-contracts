@@ -20,14 +20,14 @@ import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLA
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
+import { checkWorldStatus } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callChipOrRevert } from "../utils/callChip.sol";
-import { removeEnergyFromLocalPool, updateEnergyLevel, massToEnergy } from "../utils/EnergyUtils.sol";
+import { removeEnergyFromLocalPool, updateMachineEnergy, updatePlayerEnergy, massToEnergy } from "../utils/EnergyUtils.sol";
 import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
-import { createPlayer } from "../utils/PlayerUtils.sol";
+import { getOrCreatePlayer, addPlayerToGrid } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { getObjectTypeIdAt, getPlayer } from "../utils/EntityUtils.sol";
@@ -162,7 +162,7 @@ contract SpawnSystem is System {
     require(forceFieldEntityId.exists(), "Spawn tile is not inside a forcefield");
     uint32 playerMass = ObjectTypeMetadata._getMass(ObjectTypes.Player);
     uint128 energyRequired = getEnergyCostToSpawn(playerMass);
-    EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+    (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
     require(machineData.energy >= energyRequired, "Not enough energy in spawn tile forcefield");
     forceFieldEntityId.setEnergy(machineData.energy - energyRequired);
 
@@ -177,32 +177,24 @@ contract SpawnSystem is System {
   function _spawnPlayer(uint32 playerMass, Vec3 spawnCoord) internal returns (EntityId) {
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
-    address playerAddress = _msgSender();
-    EntityId playerEntityId = Player._get(playerAddress);
-    if (!playerEntityId.exists()) {
-      playerEntityId = getUniqueEntity();
-      createPlayer(playerEntityId, spawnCoord);
-      Mass._set(playerEntityId, playerMass);
-    } else {
-      require(updateEnergyLevel(playerEntityId).energy == 0, "Player already spawned");
-    }
+    EntityId playerEntityId = getOrCreatePlayer(playerMass);
+    require(updatePlayerEnergy(playerEntityId).energy == 0, "Player already spawned");
 
-    Player._set(playerAddress, playerEntityId);
-    ReversePlayer._set(playerEntityId, playerAddress);
+    // Position the player at the given coordinates
+    addPlayerToGrid(playerEntityId, spawnCoord);
 
     Energy._set(
       playerEntityId,
       EnergyData({
         energy: MAX_PLAYER_ENERGY,
         lastUpdatedTime: uint128(block.timestamp),
-        drainRate: PLAYER_ENERGY_DRAIN_RATE,
-        accDepletedTime: 0
+        drainRate: PLAYER_ENERGY_DRAIN_RATE
       })
     );
 
     PlayerActivity._set(playerEntityId, uint128(block.timestamp));
 
-    notify(playerEntityId, SpawnNotifData({ playerAddress: playerAddress, spawnCoord: spawnCoord }));
+    notify(playerEntityId, SpawnNotifData({ spawnCoord: spawnCoord }));
 
     return playerEntityId;
   }

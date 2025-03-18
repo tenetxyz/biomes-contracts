@@ -904,11 +904,6 @@
                 "name": "drainRate",
                 "type": "uint128",
                 "internalType": "uint128"
-              },
-              {
-                "name": "accDepletedTime",
-                "type": "uint128",
-                "internalType": "uint128"
               }
             ]
           }
@@ -1019,11 +1014,6 @@
               },
               {
                 "name": "drainRate",
-                "type": "uint128",
-                "internalType": "uint128"
-              },
-              {
-                "name": "accDepletedTime",
                 "type": "uint128",
                 "internalType": "uint128"
               }
@@ -1302,11 +1292,6 @@
                 "name": "drainRate",
                 "type": "uint128",
                 "internalType": "uint128"
-              },
-              {
-                "name": "accDepletedTime",
-                "type": "uint128",
-                "internalType": "uint128"
               }
             ]
           }
@@ -1417,11 +1402,6 @@
               },
               {
                 "name": "drainRate",
-                "type": "uint128",
-                "internalType": "uint128"
-              },
-              {
-                "name": "accDepletedTime",
                 "type": "uint128",
                 "internalType": "uint128"
               }
@@ -1561,11 +1541,6 @@
                     "name": "drainRate",
                     "type": "uint128",
                     "internalType": "uint128"
-                  },
-                  {
-                    "name": "accDepletedTime",
-                    "type": "uint128",
-                    "internalType": "uint128"
                   }
                 ]
               }
@@ -1703,11 +1678,6 @@
                   },
                   {
                     "name": "drainRate",
-                    "type": "uint128",
-                    "internalType": "uint128"
-                  },
-                  {
-                    "name": "accDepletedTime",
                     "type": "uint128",
                     "internalType": "uint128"
                   }

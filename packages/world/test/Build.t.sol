@@ -374,10 +374,7 @@ contract BuildTest is BiomesTest {
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
-    Energy.set(
-      aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1, drainRate: 0, accDepletedTime: 0 })
-    );
+    Energy.set(aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1, drainRate: 0 }));
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");

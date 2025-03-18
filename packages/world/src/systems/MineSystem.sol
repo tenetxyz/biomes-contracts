@@ -25,7 +25,7 @@ import { OreCommitment } from "../utils/Vec3Storage.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence, removePlayerFromBed } from "../utils/PlayerUtils.sol";
-import { updateEnergyLevel, energyToMass, transferEnergyToPool, addEnergyToLocalPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergy, energyToMass, transferEnergyToPool, addEnergyToLocalPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, getPlayer } from "../utils/EntityUtils.sol";
@@ -128,8 +128,13 @@ library MineLib {
     EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(bedEntityId);
     if (sleepingPlayerId.exists()) {
       (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
-      EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
-      EnergyData memory playerData = updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, machineData, bedCoord);
+      (, uint128 accDepletedTime) = updateMachineEnergy(forceFieldEntityId);
+      EnergyData memory playerData = updateSleepingPlayerEnergy(
+        sleepingPlayerId,
+        bedEntityId,
+        accDepletedTime,
+        bedCoord
+      );
       removePlayerFromBed(sleepingPlayerId, bedEntityId, forceFieldEntityId);
 
       // This kills the player
@@ -147,7 +152,7 @@ library MineLib {
       Vec3 coord = coords[i];
       (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(coord);
       if (forceFieldEntityId.exists()) {
-        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onMineCall = abi.encodeCall(
             IForceFieldFragmentChip.onMine,
@@ -213,7 +218,8 @@ contract MineSystem is System {
     // Chip needs to be detached first
     require(baseEntityId.getChip().unwrap() == 0, "Cannot mine a chipped block");
     if (mineObjectTypeId.isMachine()) {
-      require(updateEnergyLevel(baseEntityId).energy == 0, "Cannot mine a machine that has energy");
+      (EnergyData memory machineData, ) = updateMachineEnergy(baseEntityId);
+      require(machineData.energy == 0, "Cannot mine a machine that has energy");
     } else if (mineObjectTypeId.isSeed()) {
       _requireSeedNotFullyGrown(baseEntityId);
     } else if (mineObjectTypeId == ObjectTypes.AnyOre) {

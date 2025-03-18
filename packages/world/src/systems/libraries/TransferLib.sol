@@ -10,7 +10,7 @@ import { Position } from "../../utils/Vec3Storage.sol";
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_TRANSFER_ENERGY_COST, SMART_CHEST_ENERGY_COST } from "../../Constants.sol";
-import { updateEnergyLevel, addEnergyToLocalPool } from "../../utils/EnergyUtils.sol";
+import { updateMachineEnergy, addEnergyToLocalPool } from "../../utils/EnergyUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
 import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { TransferCommonContext } from "../../Types.sol";
@@ -38,7 +38,7 @@ library TransferLib {
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
       energyCost += SMART_CHEST_ENERGY_COST;
-      EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+      (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
       require(machineData.energy >= SMART_CHEST_ENERGY_COST, "Not enough energy");
       forceFieldEntityId.setEnergy(machineData.energy - SMART_CHEST_ENERGY_COST);

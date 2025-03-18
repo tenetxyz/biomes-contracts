@@ -14,7 +14,6 @@ import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
 import { LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
@@ -98,8 +97,7 @@ contract SpawnTest is BiomesTest {
       EnergyData({
         energy: spawnEnergy(),
         lastUpdatedTime: uint128(block.timestamp),
-        drainRate: MACHINE_ENERGY_DRAIN_RATE,
-        accDepletedTime: 0
+        drainRate: MACHINE_ENERGY_DRAIN_RATE
       })
     );
 

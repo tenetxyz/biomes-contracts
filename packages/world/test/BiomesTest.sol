@@ -10,10 +10,10 @@ import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResou
 
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
+import { Machine } from "../src/codegen/tables/Machine.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerActivity } from "../src/codegen/tables/PlayerActivity.sol";
@@ -90,8 +90,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
       EnergyData({
         lastUpdatedTime: uint128(block.timestamp),
         energy: MAX_PLAYER_ENERGY,
-        drainRate: PLAYER_ENERGY_DRAIN_RATE,
-        accDepletedTime: 0
+        drainRate: PLAYER_ENERGY_DRAIN_RATE
       })
     );
 
@@ -280,6 +279,17 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     // Set forcefield with no energy
     EntityId forceFieldEntityId = setupForceField(coord);
     Energy.set(forceFieldEntityId, energyData);
+    return forceFieldEntityId;
+  }
+
+  function setupForceField(
+    Vec3 coord,
+    EnergyData memory energyData,
+    uint128 accDepletedTime
+  ) internal returns (EntityId) {
+    // Set forcefield with no energy
+    EntityId forceFieldEntityId = setupForceField(coord, energyData);
+    Machine.setAccDepletedTime(forceFieldEntityId, accDepletedTime);
     return forceFieldEntityId;
   }
 }

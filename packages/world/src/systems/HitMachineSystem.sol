@@ -10,14 +10,13 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Chip } from "../codegen/tables/Chip.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
-import { ForceField } from "../codegen/tables/ForceField.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
 
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateEnergyLevel, massToEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergy, massToEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { safeCallChip } from "../utils/callChip.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
@@ -38,7 +37,7 @@ contract HitMachineSystem is System {
     EntityId machineEntityId,
     Vec3 machineCoord
   ) internal {
-    EnergyData memory machineData = updateEnergyLevel(machineEntityId);
+    (EnergyData memory machineData, ) = updateMachineEnergy(machineEntityId);
     if (machineData.energy == 0) {
       return;
     }

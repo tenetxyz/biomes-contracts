@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
+
 import { Player } from "../codegen/tables/Player.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
@@ -78,12 +80,21 @@ function requireFragmentInPlayerInfluence(Vec3 playerCoord, EntityId fragmentEnt
   return closest;
 }
 
-function createPlayer(EntityId playerEntityId, Vec3 playerCoord) {
-  // Set the player object type first
-  ObjectType._set(playerEntityId, ObjectTypes.Player);
+function getOrCreatePlayer(uint32 playerMass) returns (EntityId) {
+  address playerAddress = WorldContextConsumerLib._msgSender();
+  EntityId playerEntityId = Player._get(playerAddress);
+  if (!playerEntityId.exists()) {
+    playerEntityId = getUniqueEntity();
 
-  // Position the player at the given coordinates
-  addPlayerToGrid(playerEntityId, playerCoord);
+    Mass._set(playerEntityId, playerMass);
+    Player._set(playerAddress, playerEntityId);
+    ReversePlayer._set(playerEntityId, playerAddress);
+
+    // Set the player object type first
+    ObjectType._set(playerEntityId, ObjectTypes.Player);
+  }
+
+  return playerEntityId;
 }
 
 function addPlayerToGrid(EntityId playerEntityId, Vec3 playerCoord) {

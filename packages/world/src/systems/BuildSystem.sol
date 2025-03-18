@@ -20,7 +20,7 @@ import { getUniqueEntity } from "../Utils.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
 import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
-import { transferEnergyToPool, removeEnergyFromLocalPool, updateEnergyLevel } from "../utils/EnergyUtils.sol";
+import { transferEnergyToPool, removeEnergyFromLocalPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getPlayer } from "../utils/EntityUtils.sol";
 import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
@@ -73,7 +73,7 @@ library BuildLib {
       }
 
       if (forceFieldEntityId.exists()) {
-        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onBuildCall = abi.encodeCall(
             IForceFieldFragmentChip.onBuild,

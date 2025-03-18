@@ -19,14 +19,14 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { EntityId } from "../../EntityId.sol";
 
-struct ForceFieldData {
+struct MachineData {
   uint128 createdAt;
   uint128 accDepletedTime;
 }
 
-library ForceField {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ForceField", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000466f7263654669656c64000000000000);
+library Machine {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Machine", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004d616368696e65000000000000000000);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020020010100000000000000000000000000000000000000000000000000000);
@@ -156,7 +156,7 @@ library ForceField {
   /**
    * @notice Get the full data.
    */
-  function get(EntityId entityId) internal view returns (ForceFieldData memory _table) {
+  function get(EntityId entityId) internal view returns (MachineData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -171,7 +171,7 @@ library ForceField {
   /**
    * @notice Get the full data.
    */
-  function _get(EntityId entityId) internal view returns (ForceFieldData memory _table) {
+  function _get(EntityId entityId) internal view returns (MachineData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -216,7 +216,7 @@ library ForceField {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(EntityId entityId, ForceFieldData memory _table) internal {
+  function set(EntityId entityId, MachineData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.createdAt, _table.accDepletedTime);
 
     EncodedLengths _encodedLengths;
@@ -231,7 +231,7 @@ library ForceField {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(EntityId entityId, ForceFieldData memory _table) internal {
+  function _set(EntityId entityId, MachineData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.createdAt, _table.accDepletedTime);
 
     EncodedLengths _encodedLengths;
@@ -262,7 +262,7 @@ library ForceField {
     bytes memory _staticData,
     EncodedLengths,
     bytes memory
-  ) internal pure returns (ForceFieldData memory _table) {
+  ) internal pure returns (MachineData memory _table) {
     (_table.createdAt, _table.accDepletedTime) = decodeStatic(_staticData);
   }
 

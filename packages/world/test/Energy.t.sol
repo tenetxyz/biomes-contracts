@@ -19,7 +19,6 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
-import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
 import { MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
@@ -57,12 +56,7 @@ contract EnergyTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(0, 0, 1);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({
-        lastUpdatedTime: uint128(block.timestamp),
-        energy: 10000,
-        drainRate: MACHINE_ENERGY_DRAIN_RATE,
-        accDepletedTime: 0
-      })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: MACHINE_ENERGY_DRAIN_RATE })
     );
 
     uint128 forceFieldEnergyBefore = Energy.getEnergy(forceFieldEntityId);

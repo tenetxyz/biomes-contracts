@@ -10,7 +10,6 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
-import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
 import { OreCommitment, MinedOrePosition, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
