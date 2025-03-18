@@ -46,7 +46,7 @@ library TransferLib {
       Energy._setEnergy(forceFieldEntityId, machineData.energy - SMART_CHEST_ENERGY_COST);
     }
 
-    require(playerEnergyData.energy > PLAYER_TRANSFER_ENERGY_COST, "Not enough energy");
+    require(playerEnergyData.energy >= PLAYER_TRANSFER_ENERGY_COST, "Not enough energy");
     Energy._setEnergy(playerEntityId, playerEnergyData.energy - PLAYER_TRANSFER_ENERGY_COST);
     addEnergyToLocalPool(chestCoord, energyCost);
 

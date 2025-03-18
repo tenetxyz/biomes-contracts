@@ -76,21 +76,22 @@ function updateMachineEnergy(EntityId entityId) returns (EnergyData memory, uint
   return (energyData, accDepletedTime);
 }
 
-function updatePlayerEnergy(EntityId entityId) returns (EnergyData memory) {
-  (EnergyData memory energyData, uint128 energyDrained, ) = getLatestEnergyData(entityId);
-  if (energyDrained > 0) {
-    Vec3 coord = PlayerPosition._get(entityId);
-    addEnergyToLocalPool(coord, energyDrained);
+/// @dev Used within systems before performing an action
+function updatePlayerEnergy(EntityId playerEntityId) returns (EnergyData memory) {
+  (EnergyData memory energyData, uint128 energyDrained, ) = getLatestEnergyData(playerEntityId);
 
-    // Player died
-    if (energyData.energy == 0) {
-      (EntityId toEntityId, ObjectTypeId objectTypeId) = getEntityAt(coord);
-      transferAllInventoryEntities(entityId, toEntityId, objectTypeId);
-      PlayerUtils.removePlayerFromGrid(entityId, coord);
-    }
+  Vec3 coord = PlayerPosition._get(playerEntityId);
+
+  if (energyDrained > 0) {
+    addEnergyToLocalPool(coord, energyDrained);
   }
 
-  Energy._set(entityId, energyData);
+  // Player is dead
+  if (energyData.energy == 0) {
+    PlayerUtils.killPlayer(playerEntityId, coord);
+  }
+
+  Energy._set(playerEntityId, energyData);
   return energyData;
 }
 

@@ -22,7 +22,7 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 import { updatePlayerEnergy } from "./EnergyUtils.sol";
 import { getForceField } from "./ForceFieldUtils.sol";
 import { transferAllInventoryEntities } from "./InventoryUtils.sol";
-import { safeGetObjectTypeIdAt, getPlayer, setPlayer } from "./EntityUtils.sol";
+import { safeGetObjectTypeIdAt, getEntityAt, getPlayer, setPlayer } from "./EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
@@ -147,5 +147,16 @@ library PlayerUtils {
 
     // Decrease forcefield's drain rate
     Energy._setDrainRate(forceFieldEntityId, Energy._getDrainRate(forceFieldEntityId) - PLAYER_ENERGY_DRAIN_RATE);
+  }
+
+  function killPlayer(EntityId playerEntityId, Vec3 coord) internal {
+    // If the player was already killed, return early
+    if (ReversePlayerPosition._get(coord) != playerEntityId) {
+      return;
+    }
+
+    (EntityId toEntityId, ObjectTypeId objectTypeId) = getEntityAt(coord);
+    transferAllInventoryEntities(playerEntityId, toEntityId, objectTypeId);
+    removePlayerFromGrid(playerEntityId, coord);
   }
 }
