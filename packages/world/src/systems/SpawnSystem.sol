@@ -23,10 +23,10 @@ import { checkWorldStatus } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
-import { callChipOrRevert } from "../utils/callChip.sol";
 import { removeEnergyFromLocalPool, updateMachineEnergy, updatePlayerEnergy, massToEnergy } from "../utils/EnergyUtils.sol";
-import { ISpawnTileChip } from "../prototypes/ISpawnTileChip.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
+import { callProgramOrRevert } from "../utils/callProgram.sol";
+import { ISpawnTileProgram } from "../prototypes/ISpawnTileProgram.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { getObjectTypeIdAt, getPlayer } from "../utils/EntityUtils.sol";
@@ -167,8 +167,11 @@ contract SpawnSystem is System {
 
     EntityId playerEntityId = _spawnPlayer(playerMass, spawnCoord);
 
-    bytes memory onSpawnCall = abi.encodeCall(ISpawnTileChip.onSpawn, (playerEntityId, spawnTileEntityId, extraData));
-    callChipOrRevert(spawnTileEntityId.getChip(), onSpawnCall);
+    bytes memory onSpawnCall = abi.encodeCall(
+      ISpawnTileProgram.onSpawn,
+      (playerEntityId, spawnTileEntityId, extraData)
+    );
+    callProgramOrRevert(spawnTileEntityId.getProgram(), onSpawnCall);
 
     return playerEntityId;
   }

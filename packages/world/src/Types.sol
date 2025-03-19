@@ -33,7 +33,7 @@ struct EntityData {
   Vec3 position;
   Direction orientation;
   InventoryObject[] inventory;
-  ResourceId chipSystemId;
+  ResourceId programSystemId;
   uint256 mass;
   EnergyData energy;
 }
@@ -49,8 +49,8 @@ struct TransferData {
   EntityId[] toolEntityIds;
 }
 
-struct ChipOnTransferData {
-  EntityId targetEntityId; // The entity whose chip is being called
+struct ProgramOnTransferData {
+  EntityId targetEntityId; // The entity whose program is being called
   EntityId callerEntityId; // The entity initiating the transfer
   bool isDeposit; // true = caller->target, false = target->caller
   TransferData transferData;

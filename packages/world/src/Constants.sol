@@ -14,7 +14,7 @@ int32 constant FRAGMENT_SIZE = 8; // 8x8x8 (3D)
 int32 constant CHUNK_SIZE = 16; // 16x16x16 (3D)
 int32 constant REGION_SIZE = 512; // 512x512 (2D)
 
-uint256 constant SAFE_CHIP_GAS = 1_000_000;
+uint256 constant SAFE_PROGRAM_GAS = 1_000_000;
 
 uint256 constant CHUNK_COMMIT_EXPIRY_BLOCKS = 256;
 uint256 constant CHUNK_COMMIT_HALF_WIDTH = 2;

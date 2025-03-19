@@ -29,7 +29,7 @@ contract ActivateSystem is System {
     if (objectTypeId == ObjectTypes.Player) {
       updatePlayerEnergy(baseEntityId);
     } else {
-      // if there's no chip, it'll just do nothing
+      // if there's no program, it'll just do nothing
       updateMachineEnergy(baseEntityId);
     }
   }

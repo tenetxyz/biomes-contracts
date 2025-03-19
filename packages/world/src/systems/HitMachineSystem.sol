@@ -7,7 +7,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { Chip } from "../codegen/tables/Chip.sol";
+import { Program } from "../codegen/tables/Program.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { ActionType } from "../codegen/common.sol";
@@ -18,9 +18,9 @@ import { useEquipped } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy, massToEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { safeCallChip } from "../utils/callChip.sol";
+import { safeCallProgram } from "../utils/callProgram.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
-import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+import { IForceFieldProgram } from "../prototypes/IForceFieldProgram.sol";
 import { PLAYER_HIT_ENERGY_COST } from "../Constants.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
@@ -56,10 +56,10 @@ contract HitMachineSystem is System {
 
     notify(playerEntityId, HitMachineNotifData({ machineEntityId: forceFieldEntityId, machineCoord: forceFieldCoord }));
 
-    // Use safeCallChip to use a fixed amount of gas as we don't want the chip to prevent hitting the machine
-    safeCallChip(
-      forceFieldEntityId.getChip(),
-      abi.encodeCall(IForceFieldChip.onForceFieldHit, (playerEntityId, forceFieldEntityId))
+    // Use safeCallProgram to use a fixed amount of gas as we don't want the program to prevent hitting the machine
+    safeCallProgram(
+      forceFieldEntityId.getProgram(),
+      abi.encodeCall(IForceFieldProgram.onForceFieldHit, (playerEntityId, forceFieldEntityId))
     );
   }
 }

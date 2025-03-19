@@ -655,13 +655,10 @@ function initObjects() {
     ObjectTypes.WaterBucket,
     ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
   );
+  // TODO: update in client
   ObjectTypeMetadata.set(
-    ObjectTypes.ChipBattery,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
-  );
-  ObjectTypeMetadata.set(
-    ObjectTypes.Chip,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
+    ObjectTypes.Fuel,
+    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 100, canPassThrough: false })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Player,

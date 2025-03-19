@@ -115,7 +115,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "attachChip",
+    "name": "attachProgram",
     "inputs": [
       {
         "name": "entityId",
@@ -123,7 +123,7 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "chipSystemId",
+        "name": "programSystemId",
         "type": "bytes32",
         "internalType": "ResourceId"
       },
@@ -450,7 +450,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "detachChip",
+    "name": "detachProgram",
     "inputs": [
       {
         "name": "entityId",
@@ -876,7 +876,7 @@ declare const abi: [
             ]
           },
           {
-            "name": "chipSystemId",
+            "name": "programSystemId",
             "type": "bytes32",
             "internalType": "ResourceId"
           },
@@ -988,7 +988,7 @@ declare const abi: [
             ]
           },
           {
-            "name": "chipSystemId",
+            "name": "programSystemId",
             "type": "bytes32",
             "internalType": "ResourceId"
           },
@@ -1264,7 +1264,7 @@ declare const abi: [
             ]
           },
           {
-            "name": "chipSystemId",
+            "name": "programSystemId",
             "type": "bytes32",
             "internalType": "ResourceId"
           },
@@ -1376,7 +1376,7 @@ declare const abi: [
             ]
           },
           {
-            "name": "chipSystemId",
+            "name": "programSystemId",
             "type": "bytes32",
             "internalType": "ResourceId"
           },
@@ -1508,7 +1508,7 @@ declare const abi: [
                 ]
               },
               {
-                "name": "chipSystemId",
+                "name": "programSystemId",
                 "type": "bytes32",
                 "internalType": "ResourceId"
               },
@@ -1642,7 +1642,7 @@ declare const abi: [
                 ]
               },
               {
-                "name": "chipSystemId",
+                "name": "programSystemId",
                 "type": "bytes32",
                 "internalType": "ResourceId"
               },
@@ -2210,7 +2210,7 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "numBattery",
+        "name": "fuelAmount",
         "type": "uint16",
         "internalType": "uint16"
       }

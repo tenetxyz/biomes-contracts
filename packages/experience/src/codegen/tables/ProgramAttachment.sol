@@ -19,9 +19,9 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 
-library ChipAdmin {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "ChipAdmin", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e6365000000004368697041646d696e00000000000000);
+library ProgramAttachment {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "ProgramAttachmen", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e63650000000050726f6772616d4174746163686d656e);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0014010014000000000000000000000000000000000000000000000000000000);
@@ -46,7 +46,7 @@ library ChipAdmin {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "admin";
+    fieldNames[0] = "attacher";
   }
 
   /**
@@ -71,9 +71,9 @@ library ChipAdmin {
   }
 
   /**
-   * @notice Get admin.
+   * @notice Get attacher.
    */
-  function getAdmin(EntityId entityId) internal view returns (address admin) {
+  function getAttacher(EntityId entityId) internal view returns (address attacher) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -82,9 +82,9 @@ library ChipAdmin {
   }
 
   /**
-   * @notice Get admin.
+   * @notice Get attacher.
    */
-  function _getAdmin(EntityId entityId) internal view returns (address admin) {
+  function _getAttacher(EntityId entityId) internal view returns (address attacher) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -93,9 +93,9 @@ library ChipAdmin {
   }
 
   /**
-   * @notice Get admin (using the specified store).
+   * @notice Get attacher (using the specified store).
    */
-  function getAdmin(IStore _store, EntityId entityId) internal view returns (address admin) {
+  function getAttacher(IStore _store, EntityId entityId) internal view returns (address attacher) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -104,9 +104,9 @@ library ChipAdmin {
   }
 
   /**
-   * @notice Get admin.
+   * @notice Get attacher.
    */
-  function get(EntityId entityId) internal view returns (address admin) {
+  function get(EntityId entityId) internal view returns (address attacher) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -115,9 +115,9 @@ library ChipAdmin {
   }
 
   /**
-   * @notice Get admin.
+   * @notice Get attacher.
    */
-  function _get(EntityId entityId) internal view returns (address admin) {
+  function _get(EntityId entityId) internal view returns (address attacher) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -126,9 +126,9 @@ library ChipAdmin {
   }
 
   /**
-   * @notice Get admin (using the specified store).
+   * @notice Get attacher (using the specified store).
    */
-  function get(IStore _store, EntityId entityId) internal view returns (address admin) {
+  function get(IStore _store, EntityId entityId) internal view returns (address attacher) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -137,63 +137,63 @@ library ChipAdmin {
   }
 
   /**
-   * @notice Set admin.
+   * @notice Set attacher.
    */
-  function setAdmin(EntityId entityId, address admin) internal {
+  function setAttacher(EntityId entityId, address attacher) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((attacher)), _fieldLayout);
   }
 
   /**
-   * @notice Set admin.
+   * @notice Set attacher.
    */
-  function _setAdmin(EntityId entityId, address admin) internal {
+  function _setAttacher(EntityId entityId, address attacher) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((attacher)), _fieldLayout);
   }
 
   /**
-   * @notice Set admin (using the specified store).
+   * @notice Set attacher (using the specified store).
    */
-  function setAdmin(IStore _store, EntityId entityId, address admin) internal {
+  function setAttacher(IStore _store, EntityId entityId, address attacher) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((attacher)), _fieldLayout);
   }
 
   /**
-   * @notice Set admin.
+   * @notice Set attacher.
    */
-  function set(EntityId entityId, address admin) internal {
+  function set(EntityId entityId, address attacher) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((attacher)), _fieldLayout);
   }
 
   /**
-   * @notice Set admin.
+   * @notice Set attacher.
    */
-  function _set(EntityId entityId, address admin) internal {
+  function _set(EntityId entityId, address attacher) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((attacher)), _fieldLayout);
   }
 
   /**
-   * @notice Set admin (using the specified store).
+   * @notice Set attacher (using the specified store).
    */
-  function set(IStore _store, EntityId entityId, address admin) internal {
+  function set(IStore _store, EntityId entityId, address attacher) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
+    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((attacher)), _fieldLayout);
   }
 
   /**
@@ -230,8 +230,8 @@ library ChipAdmin {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(address admin) internal pure returns (bytes memory) {
-    return abi.encodePacked(admin);
+  function encodeStatic(address attacher) internal pure returns (bytes memory) {
+    return abi.encodePacked(attacher);
   }
 
   /**
@@ -240,8 +240,8 @@ library ChipAdmin {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(address admin) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(admin);
+  function encode(address attacher) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(attacher);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

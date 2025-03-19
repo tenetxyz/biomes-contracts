@@ -29,11 +29,11 @@ import { updateMachineEnergy, energyToMass, transferEnergyToPool, addEnergyToLoc
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, getPlayer } from "../utils/EntityUtils.sol";
-import { callChipOrRevert } from "../utils/callChip.sol";
+import { callProgramOrRevert } from "../utils/callProgram.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
 
-import { IForceFieldFragmentChip } from "../prototypes/IForceFieldChip.sol";
+import { IForceFieldFragmentProgram } from "../prototypes/IForceFieldProgram.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
@@ -86,8 +86,8 @@ contract MineSystem is System {
     EntityId baseEntityId = entityId.baseEntityId();
     Vec3 baseCoord = Position._get(baseEntityId);
 
-    // Chip needs to be detached first
-    require(baseEntityId.getChip().unwrap() == 0, "Cannot mine a chipped block");
+    // Program needs to be detached first
+    require(baseEntityId.getProgram().unwrap() == 0, "Cannot mine a programped block");
     if (mineObjectTypeId.isMachine()) {
       (EnergyData memory machineData, ) = updateMachineEnergy(baseEntityId);
       require(machineData.energy == 0, "Cannot mine a machine that has energy");
@@ -255,12 +255,7 @@ library MineLib {
     if (sleepingPlayerId.exists()) {
       (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
       (, uint128 depletedTime) = updateMachineEnergy(forceFieldEntityId);
-      EnergyData memory playerData = updateSleepingPlayerEnergy(
-        sleepingPlayerId,
-        bedEntityId,
-        depletedTime,
-        bedCoord
-      );
+      EnergyData memory playerData = updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, depletedTime, bedCoord);
       PlayerUtils.removePlayerFromBed(sleepingPlayerId, bedEntityId, forceFieldEntityId);
 
       // This kills the player
@@ -281,16 +276,16 @@ library MineLib {
         (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onMineCall = abi.encodeCall(
-            IForceFieldFragmentChip.onMine,
+            IForceFieldFragmentProgram.onMine,
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
-          // We know fragment is active because its forcefield exists, so we can use its chip
-          ResourceId fragmentChip = fragmentEntityId.getChip();
-          if (fragmentChip.unwrap() != 0) {
-            callChipOrRevert(fragmentChip, onMineCall);
+          // We know fragment is active because its forcefield exists, so we can use its program
+          ResourceId fragmentProgram = fragmentEntityId.getProgram();
+          if (fragmentProgram.unwrap() != 0) {
+            callProgramOrRevert(fragmentProgram, onMineCall);
           } else {
-            callChipOrRevert(forceFieldEntityId.getChip(), onMineCall);
+            callProgramOrRevert(forceFieldEntityId.getProgram(), onMineCall);
           }
         }
       }

@@ -5,8 +5,8 @@ import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
 
 import { EntityId } from "../EntityId.sol";
 
-// Interface for a chip
-interface IChip is IERC165 {
+// Interface for a program
+interface IProgram is IERC165 {
   function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable;
 
   function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable;

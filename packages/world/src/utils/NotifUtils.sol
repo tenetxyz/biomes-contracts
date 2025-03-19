@@ -63,7 +63,7 @@ struct SpawnNotifData {
 struct PowerMachineNotifData {
   EntityId machineEntityId;
   Vec3 machineCoord;
-  uint16 numBattery;
+  uint16 fuelAmount;
 }
 
 struct HitMachineNotifData {
@@ -71,16 +71,16 @@ struct HitMachineNotifData {
   Vec3 machineCoord;
 }
 
-struct AttachChipNotifData {
+struct AttachProgramNotifData {
   EntityId attachEntityId;
   Vec3 attachCoord;
-  address chipAddress;
+  address programAddress;
 }
 
-struct DetachChipNotifData {
+struct DetachProgramNotifData {
   EntityId detachEntityId;
   Vec3 detachCoord;
-  address chipAddress;
+  address programAddress;
 }
 
 struct InitiateOreRevealNotifData {
@@ -194,17 +194,17 @@ function notify(EntityId playerEntityId, HitMachineNotifData memory hitMachineNo
   );
 }
 
-function notify(EntityId playerEntityId, AttachChipNotifData memory attachChipNotifData) {
+function notify(EntityId playerEntityId, AttachProgramNotifData memory attachProgramNotifData) {
   PlayerActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({ actionType: ActionType.AttachChip, actionData: abi.encode(attachChipNotifData) })
+    PlayerActionNotifData({ actionType: ActionType.AttachProgram, actionData: abi.encode(attachProgramNotifData) })
   );
 }
 
-function notify(EntityId playerEntityId, DetachChipNotifData memory detachChipNotifData) {
+function notify(EntityId playerEntityId, DetachProgramNotifData memory detachProgramNotifData) {
   PlayerActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({ actionType: ActionType.DetachChip, actionData: abi.encode(detachChipNotifData) })
+    PlayerActionNotifData({ actionType: ActionType.DetachProgram, actionData: abi.encode(detachProgramNotifData) })
   );
 }
 

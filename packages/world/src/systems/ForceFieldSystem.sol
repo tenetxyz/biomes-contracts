@@ -7,17 +7,17 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { Chip } from "../codegen/tables/Chip.sol";
+import { Program } from "../codegen/tables/Program.sol";
 
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getUniqueEntity } from "../Utils.sol";
-import { callChipOrRevert } from "../utils/callChip.sol";
+import { callProgramOrRevert } from "../utils/callProgram.sol";
 import { notify, ExpandForceFieldNotifData, ContractForceFieldNotifData } from "../utils/NotifUtils.sol";
 import { isForceFieldFragment, isForceFieldFragmentActive, setupForceFieldFragment, removeForceFieldFragment } from "../utils/ForceFieldUtils.sol";
 import { ForceFieldFragment } from "../utils/Vec3Storage.sol";
 
-import { IForceFieldChip } from "../prototypes/IForceFieldChip.sol";
+import { IForceFieldProgram } from "../prototypes/IForceFieldProgram.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
@@ -165,10 +165,10 @@ contract ForceFieldSystem is System {
 
     notify(playerEntityId, ExpandForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
 
-    callChipOrRevert(
-      forceFieldEntityId.getChip(),
+    callProgramOrRevert(
+      forceFieldEntityId.getProgram(),
       abi.encodeCall(
-        IForceFieldChip.onExpand,
+        IForceFieldProgram.onExpand,
         (playerEntityId, forceFieldEntityId, fromFragmentCoord, toFragmentCoord, extraData)
       )
     );
@@ -242,11 +242,11 @@ contract ForceFieldSystem is System {
 
     notify(playerEntityId, ContractForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
 
-    // Call the chip if it exists
-    callChipOrRevert(
-      forceFieldEntityId.getChip(),
+    // Call the program if it exists
+    callProgramOrRevert(
+      forceFieldEntityId.getProgram(),
       abi.encodeCall(
-        IForceFieldChip.onContract,
+        IForceFieldProgram.onContract,
         (playerEntityId, forceFieldEntityId, fromFragmentCoord, toFragmentCoord, extraData)
       )
     );

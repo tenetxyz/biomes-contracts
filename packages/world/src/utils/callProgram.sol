@@ -6,42 +6,42 @@ import { WorldContextConsumerLib, WorldContextProviderLib } from "@latticexyz/wo
 import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
-import { Chip } from "../codegen/tables/Chip.sol";
+import { Program } from "../codegen/tables/Program.sol";
 import { EntityId } from "../EntityId.sol";
-import { SAFE_CHIP_GAS } from "../Constants.sol";
+import { SAFE_PROGRAM_GAS } from "../Constants.sol";
 
-function callChip(ResourceId chipSystemId, bytes memory callData) returns (bool, bytes memory) {
+function callProgram(ResourceId programSystemId, bytes memory callData) returns (bool, bytes memory) {
   address msgSender = WorldContextConsumerLib._msgSender();
   uint256 msgValue = WorldContextConsumerLib._msgValue();
 
-  (address chipAddress, ) = Systems._get(chipSystemId);
-  if (chipAddress == address(0)) {
+  (address programAddress, ) = Systems._get(programSystemId);
+  if (programAddress == address(0)) {
     return (true, "");
   }
 
   return
-    chipAddress.call{ value: 0 }(
+    programAddress.call{ value: 0 }(
       WorldContextProviderLib.appendContext({ callData: callData, msgSender: msgSender, msgValue: msgValue })
     );
 }
 
-function safeCallChip(ResourceId chipSystemId, bytes memory callData) returns (bool, bytes memory) {
+function safeCallProgram(ResourceId programSystemId, bytes memory callData) returns (bool, bytes memory) {
   address msgSender = WorldContextConsumerLib._msgSender();
   uint256 msgValue = WorldContextConsumerLib._msgValue();
 
-  (address chipAddress, ) = Systems._get(chipSystemId);
-  if (chipAddress == address(0)) {
+  (address programAddress, ) = Systems._get(programSystemId);
+  if (programAddress == address(0)) {
     return (true, "");
   }
 
   return
-    chipAddress.call{ value: 0, gas: SAFE_CHIP_GAS }(
+    programAddress.call{ value: 0, gas: SAFE_PROGRAM_GAS }(
       WorldContextProviderLib.appendContext({ callData: callData, msgSender: msgSender, msgValue: msgValue })
     );
 }
 
-function callChipOrRevert(ResourceId chipSystemId, bytes memory callData) returns (bytes memory) {
-  (bool success, bytes memory returnData) = callChip(chipSystemId, callData);
+function callProgramOrRevert(ResourceId programSystemId, bytes memory callData) returns (bytes memory) {
+  (bool success, bytes memory returnData) = callProgram(programSystemId, callData);
   if (!success) {
     revertWithBytes(returnData);
   }

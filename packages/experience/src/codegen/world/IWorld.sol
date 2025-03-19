@@ -5,9 +5,6 @@ pragma solidity >=0.8.24;
 
 import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.sol";
 import { IAssetsSystem } from "./IAssetsSystem.sol";
-import { IChipAdminSystem } from "./IChipAdminSystem.sol";
-import { IChipAttachmentSystem } from "./IChipAttachmentSystem.sol";
-import { IChipMetadataSystem } from "./IChipMetadataSystem.sol";
 import { IExchangeNotifSystem } from "./IExchangeNotifSystem.sol";
 import { IExchangeSystem } from "./IExchangeSystem.sol";
 import { IGateSystem } from "./IGateSystem.sol";
@@ -15,6 +12,9 @@ import { INFTMetadataSystem } from "./INFTMetadataSystem.sol";
 import { INamespaceIdSystem } from "./INamespaceIdSystem.sol";
 import { INotificationSystem } from "./INotificationSystem.sol";
 import { IPipeSystem } from "./IPipeSystem.sol";
+import { IProgramAdminSystem } from "./IProgramAdminSystem.sol";
+import { IProgramAttachmentSystem } from "./IProgramAttachmentSystem.sol";
+import { IProgramMetadataSystem } from "./IProgramMetadataSystem.sol";
 import { IReadSystem } from "./IReadSystem.sol";
 import { ISmartItemMetadataSystem } from "./ISmartItemMetadataSystem.sol";
 import { ITokenMetadataSystem } from "./ITokenMetadataSystem.sol";
@@ -29,9 +29,6 @@ import { ITokenMetadataSystem } from "./ITokenMetadataSystem.sol";
 interface IWorld is
   IBaseWorld,
   IAssetsSystem,
-  IChipAdminSystem,
-  IChipAttachmentSystem,
-  IChipMetadataSystem,
   IExchangeNotifSystem,
   IExchangeSystem,
   IGateSystem,
@@ -39,6 +36,9 @@ interface IWorld is
   INamespaceIdSystem,
   INotificationSystem,
   IPipeSystem,
+  IProgramAdminSystem,
+  IProgramAttachmentSystem,
+  IProgramMetadataSystem,
   IReadSystem,
   ISmartItemMetadataSystem,
   ITokenMetadataSystem
