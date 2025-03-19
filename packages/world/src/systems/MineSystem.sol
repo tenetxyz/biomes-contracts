@@ -70,6 +70,11 @@ contract MineSystem is System {
     require(SeedGrowth._getFullyGrownAt(entityId) > block.timestamp, "Cannot mine fully grown seed");
   }
 
+  function getRandomOreType(Vec3 coord) external view returns (ObjectTypeId) {
+    (ObjectTypeId ore, ) = MineLib._getRandomOreType(coord);
+    return ore;
+  }
+
   function mine(Vec3 coord, bytes calldata extraData) public payable returns (EntityId) {
     (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
     PlayerUtils.requireInPlayerInfluence(playerCoord, coord);
@@ -173,18 +178,12 @@ contract MineSystem is System {
 library MineLib {
   using LibPRNG for LibPRNG.PRNG;
 
-  function _mineRandomOre(EntityId entityId, Vec3 coord) public returns (ObjectTypeId) {
+  function _getRandomOreType(Vec3 coord) public view returns (ObjectTypeId, uint256) {
     Vec3 chunkCoord = coord.toChunkCoord();
     uint256 commitment = OreCommitment._get(chunkCoord);
     // We can't get blockhash of current block
     require(block.number > commitment, "Not within commitment blocks");
     require(block.number <= commitment + CHUNK_COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
-
-    // Set total mined ore and add position
-    // We do this here to avoid stack too deep issues
-    uint256 totalMinedOre = TotalMinedOreCount._get();
-    MinedOrePosition._set(totalMinedOre, coord);
-    TotalMinedOreCount._set(totalMinedOre + 1);
 
     // TODO: can optimize by not storing these in memory and returning the type depending on for loop index
     ObjectTypeId[5] memory ores = [
@@ -231,8 +230,18 @@ library MineLib {
       }
     }
 
-    ObjectTypeId ore = ores[oreIndex];
-    MinedOreCount._set(ore, max[oreIndex] - remaining[oreIndex] + 1);
+    // Return ore type and mined ore count
+    return (ores[oreIndex], max[oreIndex] - remaining[oreIndex] + 1);
+  }
+
+  function _mineRandomOre(EntityId entityId, Vec3 coord) public returns (ObjectTypeId) {
+    (ObjectTypeId ore, uint256 minedOreCount) = _getRandomOreType(coord);
+    // Set total mined ore and add position
+    uint256 totalMinedOre = TotalMinedOreCount._get();
+    MinedOrePosition._set(totalMinedOre, coord);
+    TotalMinedOreCount._set(totalMinedOre + 1);
+
+    MinedOreCount._set(ore, minedOreCount);
     ObjectType._set(entityId, ore);
     Mass._setMass(entityId, ObjectTypeMetadata._getMass(ore));
 
