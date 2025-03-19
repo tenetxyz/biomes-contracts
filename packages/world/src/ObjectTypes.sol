@@ -64,7 +64,6 @@ library ObjectTypes {
   ObjectTypeId constant Farmland = ObjectTypeId.wrap(Block | 53);
   ObjectTypeId constant Mud = ObjectTypeId.wrap(Block | 54);
   ObjectTypeId constant PackedMud = ObjectTypeId.wrap(Block | 55);
-  ObjectTypeId constant WetFarmland = ObjectTypeId.wrap(Block | 56);
 
   // Sand
   ObjectTypeId constant Gravel = ObjectTypeId.wrap(Block | 64);
@@ -186,6 +185,7 @@ library ObjectTypes {
   ObjectTypeId constant GoldOre = ObjectTypeId.wrap(Block | 269);
   ObjectTypeId constant DiamondOre = ObjectTypeId.wrap(Block | 270);
   ObjectTypeId constant NeptuniumOre = ObjectTypeId.wrap(Block | 271);
+  ObjectTypeId constant WetFarmland = ObjectTypeId.wrap(Block | 272);
   ObjectTypeId constant WheatSeeds = ObjectTypeId.wrap(Block | 273);
   ObjectTypeId constant OakSeed = ObjectTypeId.wrap(Block | 274);
   ObjectTypeId constant SpruceSeed = ObjectTypeId.wrap(Block | 275);
