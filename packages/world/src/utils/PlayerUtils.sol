@@ -22,7 +22,7 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 import { updatePlayerEnergy } from "./EnergyUtils.sol";
 import { getForceField } from "./ForceFieldUtils.sol";
 import { transferAllInventoryEntities } from "./InventoryUtils.sol";
-import { safeGetObjectTypeIdAt, getEntityAt, getPlayer, setPlayer } from "./EntityUtils.sol";
+import { safeGetObjectTypeIdAt, getOrCreateEntityAt, getPlayer, setPlayer } from "./EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
@@ -156,7 +156,7 @@ library PlayerUtils {
       return;
     }
 
-    (EntityId toEntityId, ObjectTypeId objectTypeId) = getEntityAt(coord);
+    (EntityId toEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     transferAllInventoryEntities(playerEntityId, toEntityId, objectTypeId);
     removePlayerFromGrid(playerEntityId, coord);
     notify(playerEntityId, DeathNotifData({ deathCoord: coord }));

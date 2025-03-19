@@ -25,6 +25,7 @@ function addToInventory(
   ObjectTypeId objectTypeId,
   uint16 numObjectsToAdd
 ) {
+  require(ownerEntityId.exists(), "Owner entity does not exist");
   uint16 stackable = ObjectTypeMetadata._getStackable(objectTypeId);
   require(stackable > 0, "This object type cannot be added to the inventory");
 
