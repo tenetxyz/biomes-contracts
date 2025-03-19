@@ -393,6 +393,7 @@ export default defineWorld({
     PlayerActionNotif: {
       schema: {
         playerEntityId: "EntityId",
+        timestamp: "uint128",
         actionType: "ActionType",
         actionData: "bytes",
       },
