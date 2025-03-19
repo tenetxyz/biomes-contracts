@@ -23,10 +23,9 @@ export default defineWorld({
       "HitMachine",
       "AttachProgram",
       "DetachProgram",
-      "InitiateOreReveal",
-      "RevealOre",
       "ExpandForceField",
       "ContractForceField",
+      "Death",
     ],
     DisplayContentType: ["None", "Text", "Image"],
     Direction: [
@@ -394,6 +393,7 @@ export default defineWorld({
     PlayerActionNotif: {
       schema: {
         playerEntityId: "EntityId",
+        timestamp: "uint128",
         actionType: "ActionType",
         actionData: "bytes",
       },
