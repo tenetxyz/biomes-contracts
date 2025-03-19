@@ -14,7 +14,7 @@ import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";
 import { ObjectTypeId } from "../../src/ObjectTypeId.sol";
 import { addToInventory as _addToInventory, removeFromInventory as _removeFromInventory, addToolToInventory as _addToolToInventory, removeToolFromInventory as _removeToolFromInventory, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
 import { ObjectTypeLib, ObjectAmount, getOreObjectTypes } from "../../src/ObjectTypeLib.sol";
-import { updateEnergyLevel as _updateEnergyLevel } from "../../src/utils/EnergyUtils.sol";
+import { updateMachineEnergy as _updateMachineEnergy, updatePlayerEnergy as _updatePlayerEnergy } from "../../src/utils/EnergyUtils.sol";
 import { isForceFieldFragment as _isForceFieldFragment, isForceFieldActive as _isForceFieldActive, getForceField as _getForceField, setupForceField as _setupForceField, destroyForceField as _destroyForceField } from "../../src/utils/ForceFieldUtils.sol";
 
 Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
@@ -147,8 +147,12 @@ library TestEnergyUtils {
     TestUtils.init(LIB_ADDRESS_SLOT, libAddress);
   }
 
-  function updateEnergyLevel(EntityId entityId) public asWorld returns (EnergyData memory) {
-    return _updateEnergyLevel(entityId);
+  function updateMachineEnergy(EntityId entityId) public asWorld returns (EnergyData memory, uint128) {
+    return _updateMachineEnergy(entityId);
+  }
+
+  function updatePlayerEnergy(EntityId entityId) public asWorld returns (EnergyData memory) {
+    return _updatePlayerEnergy(entityId);
   }
 }
 

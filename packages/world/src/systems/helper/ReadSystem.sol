@@ -13,7 +13,6 @@ import { Mass } from "../../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { Program } from "../../codegen/tables/Program.sol";
 import { Equipped } from "../../codegen/tables/Equipped.sol";
-import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
@@ -57,7 +56,7 @@ contract ReadSystem is System {
           orientation: Direction.PositiveX,
           programSystemId: ResourceId.wrap(0),
           mass: 0,
-          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0, accDepletedTime: 0 })
+          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0 })
         });
     }
 
@@ -91,7 +90,7 @@ contract ReadSystem is System {
           orientation: Direction.PositiveX,
           programSystemId: ResourceId.wrap(0),
           mass: 0,
-          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0, accDepletedTime: 0 })
+          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0 })
         });
     }
 
@@ -136,7 +135,6 @@ contract ReadSystem is System {
           playerAddress: player,
           bedEntityId: EntityId.wrap(0),
           equippedEntityId: EntityId.wrap(0),
-          lastActionTime: 0,
           entityData: getEntityData(entityId)
         });
     }
@@ -146,7 +144,6 @@ contract ReadSystem is System {
         playerAddress: player,
         bedEntityId: PlayerStatus._getBedEntityId(entityId),
         equippedEntityId: Equipped._get(entityId),
-        lastActionTime: PlayerActivity._get(entityId),
         entityData: getEntityData(entityId)
       });
   }

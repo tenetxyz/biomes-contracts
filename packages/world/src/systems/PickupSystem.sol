@@ -12,7 +12,7 @@ import { ReversePosition } from "../utils/Vec3Storage.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { transferInventoryNonEntity, transferInventoryEntity, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { notify, PickupNotifData } from "../utils/NotifUtils.sol";
 import { PickupData } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
@@ -22,8 +22,8 @@ import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
 
 contract PickupSystem is System {
   function pickupCommon(Vec3 coord) internal returns (EntityId, EntityId) {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, coord);
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
+    PlayerUtils.requireInPlayerInfluence(playerCoord, coord);
 
     EntityId entityId = ReversePosition._get(coord);
     require(entityId.exists(), "No entity at pickup location");

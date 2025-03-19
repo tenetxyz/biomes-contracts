@@ -7,7 +7,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
-import { requireValidPlayer } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
@@ -20,7 +20,9 @@ contract FoodSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
   function eat(ObjectTypeId objectTypeId, uint16 numToEat) public {
-    (EntityId playerEntityId, Vec3 playerCoord, EnergyData memory energyData) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, EnergyData memory energyData) = PlayerUtils.requireValidPlayer(
+      _msgSender()
+    );
 
     require(objectTypeId.isFood(), "Object is not food");
 

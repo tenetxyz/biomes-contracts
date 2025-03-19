@@ -11,6 +11,7 @@ import { BiomesTest, console } from "./BiomesTest.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+import { Machine } from "../src/codegen/tables/Machine.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
@@ -192,7 +193,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 })
     );
 
     TestForceFieldProgram program = new TestForceFieldProgram();
@@ -223,7 +224,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     TestForceFieldProgram program = new TestForceFieldProgram();
@@ -251,7 +252,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     (, EntityId fragmentEntityId) = TestForceFieldUtils.getForceField(forceFieldCoord);
@@ -281,7 +282,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 })
     );
 
     TestForceFieldProgram program = new TestForceFieldProgram();
@@ -316,12 +317,8 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({
-        lastUpdatedTime: uint128(block.timestamp),
-        energy: 1000,
-        drainRate: 1,
-        accDepletedTime: 100 // Depleted
-      })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 }),
+      100 // Depleted time
     );
 
     TestForceFieldProgram program = new TestForceFieldProgram();
@@ -353,12 +350,8 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     setupForceField(
       forceFieldCoord,
-      EnergyData({
-        lastUpdatedTime: uint128(block.timestamp),
-        energy: 1000,
-        drainRate: 1,
-        accDepletedTime: 100 // Depleted
-      })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 }),
+      100 // depletedTime
     );
 
     (, EntityId fragmentEntityId) = TestForceFieldUtils.getForceField(forceFieldCoord);
@@ -419,7 +412,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 })
     );
 
     // Get the fragment entity ID
@@ -454,7 +447,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Get the fragment entity ID
@@ -491,8 +484,7 @@ contract ForceFieldTest is BiomesTest {
     EnergyData memory initialEnergyData = EnergyData({
       lastUpdatedTime: uint128(block.timestamp),
       energy: 1000,
-      drainRate: 1,
-      accDepletedTime: 0
+      drainRate: 1
     });
 
     // Set up a force field with energy
@@ -542,7 +534,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
@@ -617,7 +609,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Reference fragment coordinate
@@ -641,7 +633,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Reference fragment coordinate
@@ -665,7 +657,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Invalid reference fragment coordinate (not part of the force field)
@@ -689,7 +681,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // First expand the force field to create a larger area
@@ -720,7 +712,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Try to contract an area that has no fragments or boundaries
@@ -742,7 +734,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // First expand the force field to create a larger area
@@ -791,7 +783,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Expand the force field to create a 3x3x3 cube
@@ -848,14 +840,14 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceField1Coord = playerCoord + vec3(2, 0, 0);
     EntityId forceField1EntityId = setupForceField(
       forceField1Coord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Create second force field
     Vec3 forceField2Coord = forceField1Coord + vec3(FRAGMENT_SIZE, 0, 0);
     setupForceField(
       forceField2Coord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Try to expand first force field into second force field's area (should fail)
@@ -879,14 +871,14 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 100, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 100, drainRate: 1 })
     );
 
     // Fast forward time
     uint256 timeToAdvance = 50; // seconds
     vm.warp(vm.getBlockTimestamp() + timeToAdvance);
 
-    TestEnergyUtils.updateEnergyLevel(forceFieldEntityId);
+    TestEnergyUtils.updateMachineEnergy(forceFieldEntityId);
 
     // Check energy level (should be reduced)
     EnergyData memory currentEnergy = Energy.get(forceFieldEntityId);
@@ -895,12 +887,12 @@ contract ForceFieldTest is BiomesTest {
     // Fast forward enough time to deplete all energy
     vm.warp(vm.getBlockTimestamp() + 60);
 
-    TestEnergyUtils.updateEnergyLevel(forceFieldEntityId);
+    TestEnergyUtils.updateMachineEnergy(forceFieldEntityId);
 
     // Check energy level (should be 0)
     currentEnergy = Energy.get(forceFieldEntityId);
     assertEq(currentEnergy.energy, 0, "Energy should be completely depleted");
-    assertEq(currentEnergy.accDepletedTime, 10, "Accumulated depleted time should be tracked");
+    assertEq(Machine.getDepletedTime(forceFieldEntityId), 10, "Accumulated depleted time should be tracked");
   }
 
   function testExpandAndContractForceFieldComplex() public {
@@ -911,7 +903,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
@@ -1007,7 +999,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Create and attach a test program
@@ -1100,14 +1092,14 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceField1Coord = playerCoord - vec3(10, 0, 0);
     EntityId forceField1EntityId = setupForceField(
       forceField1Coord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Create second force field
     Vec3 forceField2Coord = playerCoord + vec3(10, 0, 0);
     EntityId forceField2EntityId = setupForceField(
       forceField2Coord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Expand first force field towards second
@@ -1165,7 +1157,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: 1 })
     );
 
     Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
@@ -1249,7 +1241,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Create forcefield program and attach it
@@ -1292,7 +1284,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Create forcefield program, attach it, and configure it to disallow program attachments
@@ -1322,13 +1314,13 @@ contract ForceFieldTest is BiomesTest {
 
   function testAttachProgramToObjectWithNoForceFieldEnergy() public {
     // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with NO energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 })
     );
 
     // Create forcefield program and attach it
@@ -1351,7 +1343,7 @@ contract ForceFieldTest is BiomesTest {
     assertEq(Program.get(chestEntityId).unwrap(), chestProgramSystemId.unwrap(), "Program not atached to chest");
   }
 
-  function testValidateSpanningTree() public {
+  function testValidateSpanningTree() public view {
     // Test case 1: Empty array (trivial case)
     {
       Vec3[] memory fragments = new Vec3[](0);

@@ -57,7 +57,6 @@ struct UnequipNotifData {
 }
 
 struct SpawnNotifData {
-  address playerAddress;
   Vec3 spawnCoord;
 }
 

@@ -13,8 +13,8 @@ import { Program } from "../codegen/tables/Program.sol";
 import { IForceFieldProgram } from "../prototypes/IForceFieldProgram.sol";
 
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
+import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { callProgramOrRevert } from "../utils/callProgram.sol";
 import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
 
@@ -27,8 +27,8 @@ import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 contract MachineSystem is System {
   function powerMachine(EntityId entityId, uint16 fuelAmount) public {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    Vec3 entityCoord = requireInPlayerInfluence(playerCoord, entityId);
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
+    Vec3 entityCoord = PlayerUtils.requireInPlayerInfluence(playerCoord, entityId);
 
     EntityId baseEntityId = entityId.baseEntityId();
 
@@ -36,11 +36,11 @@ contract MachineSystem is System {
 
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
     require(ObjectTypeLib.isMachine(objectTypeId), "Can only power machines");
-    EnergyData memory machineData = updateEnergyLevel(baseEntityId);
+    (EnergyData memory machineData, ) = updateMachineEnergy(baseEntityId);
 
     uint128 newEnergyLevel = machineData.energy + uint128(fuelAmount) * ObjectTypeMetadata._getEnergy(ObjectTypes.Fuel);
 
-    baseEntityId.setEnergy(newEnergyLevel);
+    Energy._setEnergy(baseEntityId, newEnergyLevel);
 
     notify(
       playerEntityId,

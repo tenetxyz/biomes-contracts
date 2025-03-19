@@ -10,9 +10,9 @@ import { Position } from "../../utils/Vec3Storage.sol";
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_TRANSFER_ENERGY_COST, SMART_CHEST_ENERGY_COST } from "../../Constants.sol";
-import { updateEnergyLevel, addEnergyToLocalPool } from "../../utils/EnergyUtils.sol";
+import { updateMachineEnergy, addEnergyToLocalPool } from "../../utils/EnergyUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
-import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../../utils/PlayerUtils.sol";
 import { TransferCommonContext } from "../../Types.sol";
 
 import { EntityId } from "../../EntityId.sol";
@@ -24,7 +24,9 @@ library TransferLib {
     EntityId chestEntityId,
     bool isDeposit
   ) public returns (TransferCommonContext memory) {
-    (EntityId playerEntityId, Vec3 playerCoord, EnergyData memory playerEnergyData) = requireValidPlayer(msgSender);
+    (EntityId playerEntityId, Vec3 playerCoord, EnergyData memory playerEnergyData) = PlayerUtils.requireValidPlayer(
+      msgSender
+    );
 
     Vec3 chestCoord = Position._get(chestEntityId);
     require(playerCoord.inSurroundingCube(chestCoord, MAX_PLAYER_INFLUENCE_HALF_WIDTH), "Destination too far");
@@ -38,14 +40,14 @@ library TransferLib {
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
       energyCost += SMART_CHEST_ENERGY_COST;
-      EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+      (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
       require(machineData.energy >= SMART_CHEST_ENERGY_COST, "Not enough energy");
-      forceFieldEntityId.setEnergy(machineData.energy - SMART_CHEST_ENERGY_COST);
+      Energy._setEnergy(forceFieldEntityId, machineData.energy - SMART_CHEST_ENERGY_COST);
     }
 
-    require(playerEnergyData.energy > PLAYER_TRANSFER_ENERGY_COST, "Not enough energy");
-    playerEntityId.setEnergy(playerEnergyData.energy - PLAYER_TRANSFER_ENERGY_COST);
+    require(playerEnergyData.energy >= PLAYER_TRANSFER_ENERGY_COST, "Not enough energy");
+    Energy._setEnergy(playerEntityId, playerEnergyData.energy - PLAYER_TRANSFER_ENERGY_COST);
     addEnergyToLocalPool(chestCoord, energyCost);
 
     return

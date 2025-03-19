@@ -19,23 +19,22 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { EntityId } from "../../EntityId.sol";
 
-struct EnergyData {
-  uint128 lastUpdatedTime;
-  uint128 energy;
-  uint128 drainRate;
+struct MachineData {
+  uint128 createdAt;
+  uint128 depletedTime;
 }
 
-library Energy {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Energy", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000456e6572677900000000000000000000);
+library Machine {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Machine", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004d616368696e65000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0030030010101000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0020020010100000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint128, uint128, uint128)
-  Schema constant _valueSchema = Schema.wrap(0x003003000f0f0f00000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint128, uint128)
+  Schema constant _valueSchema = Schema.wrap(0x002002000f0f0000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -51,10 +50,9 @@ library Energy {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](3);
-    fieldNames[0] = "lastUpdatedTime";
-    fieldNames[1] = "energy";
-    fieldNames[2] = "drainRate";
+    fieldNames = new string[](2);
+    fieldNames[0] = "createdAt";
+    fieldNames[1] = "depletedTime";
   }
 
   /**
@@ -72,9 +70,9 @@ library Energy {
   }
 
   /**
-   * @notice Get lastUpdatedTime.
+   * @notice Get createdAt.
    */
-  function getLastUpdatedTime(EntityId entityId) internal view returns (uint128 lastUpdatedTime) {
+  function getCreatedAt(EntityId entityId) internal view returns (uint128 createdAt) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -83,9 +81,9 @@ library Energy {
   }
 
   /**
-   * @notice Get lastUpdatedTime.
+   * @notice Get createdAt.
    */
-  function _getLastUpdatedTime(EntityId entityId) internal view returns (uint128 lastUpdatedTime) {
+  function _getCreatedAt(EntityId entityId) internal view returns (uint128 createdAt) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -94,29 +92,29 @@ library Energy {
   }
 
   /**
-   * @notice Set lastUpdatedTime.
+   * @notice Set createdAt.
    */
-  function setLastUpdatedTime(EntityId entityId, uint128 lastUpdatedTime) internal {
+  function setCreatedAt(EntityId entityId, uint128 createdAt) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastUpdatedTime)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((createdAt)), _fieldLayout);
   }
 
   /**
-   * @notice Set lastUpdatedTime.
+   * @notice Set createdAt.
    */
-  function _setLastUpdatedTime(EntityId entityId, uint128 lastUpdatedTime) internal {
+  function _setCreatedAt(EntityId entityId, uint128 createdAt) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((lastUpdatedTime)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((createdAt)), _fieldLayout);
   }
 
   /**
-   * @notice Get energy.
+   * @notice Get depletedTime.
    */
-  function getEnergy(EntityId entityId) internal view returns (uint128 energy) {
+  function getDepletedTime(EntityId entityId) internal view returns (uint128 depletedTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -125,9 +123,9 @@ library Energy {
   }
 
   /**
-   * @notice Get energy.
+   * @notice Get depletedTime.
    */
-  function _getEnergy(EntityId entityId) internal view returns (uint128 energy) {
+  function _getDepletedTime(EntityId entityId) internal view returns (uint128 depletedTime) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -136,71 +134,29 @@ library Energy {
   }
 
   /**
-   * @notice Set energy.
+   * @notice Set depletedTime.
    */
-  function setEnergy(EntityId entityId, uint128 energy) internal {
+  function setDepletedTime(EntityId entityId, uint128 depletedTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((energy)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((depletedTime)), _fieldLayout);
   }
 
   /**
-   * @notice Set energy.
+   * @notice Set depletedTime.
    */
-  function _setEnergy(EntityId entityId, uint128 energy) internal {
+  function _setDepletedTime(EntityId entityId, uint128 depletedTime) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((energy)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get drainRate.
-   */
-  function getDrainRate(EntityId entityId) internal view returns (uint128 drainRate) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (uint128(bytes16(_blob)));
-  }
-
-  /**
-   * @notice Get drainRate.
-   */
-  function _getDrainRate(EntityId entityId) internal view returns (uint128 drainRate) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (uint128(bytes16(_blob)));
-  }
-
-  /**
-   * @notice Set drainRate.
-   */
-  function setDrainRate(EntityId entityId, uint128 drainRate) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((drainRate)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set drainRate.
-   */
-  function _setDrainRate(EntityId entityId, uint128 drainRate) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((drainRate)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((depletedTime)), _fieldLayout);
   }
 
   /**
    * @notice Get the full data.
    */
-  function get(EntityId entityId) internal view returns (EnergyData memory _table) {
+  function get(EntityId entityId) internal view returns (MachineData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -215,7 +171,7 @@ library Energy {
   /**
    * @notice Get the full data.
    */
-  function _get(EntityId entityId) internal view returns (EnergyData memory _table) {
+  function _get(EntityId entityId) internal view returns (MachineData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -230,8 +186,8 @@ library Energy {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(EntityId entityId, uint128 lastUpdatedTime, uint128 energy, uint128 drainRate) internal {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy, drainRate);
+  function set(EntityId entityId, uint128 createdAt, uint128 depletedTime) internal {
+    bytes memory _staticData = encodeStatic(createdAt, depletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -245,8 +201,8 @@ library Energy {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(EntityId entityId, uint128 lastUpdatedTime, uint128 energy, uint128 drainRate) internal {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy, drainRate);
+  function _set(EntityId entityId, uint128 createdAt, uint128 depletedTime) internal {
+    bytes memory _staticData = encodeStatic(createdAt, depletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -260,8 +216,8 @@ library Energy {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(EntityId entityId, EnergyData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.energy, _table.drainRate);
+  function set(EntityId entityId, MachineData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.createdAt, _table.depletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -275,8 +231,8 @@ library Energy {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(EntityId entityId, EnergyData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.lastUpdatedTime, _table.energy, _table.drainRate);
+  function _set(EntityId entityId, MachineData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.createdAt, _table.depletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -290,14 +246,10 @@ library Energy {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(
-    bytes memory _blob
-  ) internal pure returns (uint128 lastUpdatedTime, uint128 energy, uint128 drainRate) {
-    lastUpdatedTime = (uint128(Bytes.getBytes16(_blob, 0)));
+  function decodeStatic(bytes memory _blob) internal pure returns (uint128 createdAt, uint128 depletedTime) {
+    createdAt = (uint128(Bytes.getBytes16(_blob, 0)));
 
-    energy = (uint128(Bytes.getBytes16(_blob, 16)));
-
-    drainRate = (uint128(Bytes.getBytes16(_blob, 32)));
+    depletedTime = (uint128(Bytes.getBytes16(_blob, 16)));
   }
 
   /**
@@ -310,8 +262,8 @@ library Energy {
     bytes memory _staticData,
     EncodedLengths,
     bytes memory
-  ) internal pure returns (EnergyData memory _table) {
-    (_table.lastUpdatedTime, _table.energy, _table.drainRate) = decodeStatic(_staticData);
+  ) internal pure returns (MachineData memory _table) {
+    (_table.createdAt, _table.depletedTime) = decodeStatic(_staticData);
   }
 
   /**
@@ -338,12 +290,8 @@ library Energy {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(
-    uint128 lastUpdatedTime,
-    uint128 energy,
-    uint128 drainRate
-  ) internal pure returns (bytes memory) {
-    return abi.encodePacked(lastUpdatedTime, energy, drainRate);
+  function encodeStatic(uint128 createdAt, uint128 depletedTime) internal pure returns (bytes memory) {
+    return abi.encodePacked(createdAt, depletedTime);
   }
 
   /**
@@ -353,11 +301,10 @@ library Energy {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
-    uint128 lastUpdatedTime,
-    uint128 energy,
-    uint128 drainRate
+    uint128 createdAt,
+    uint128 depletedTime
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(lastUpdatedTime, energy, drainRate);
+    bytes memory _staticData = encodeStatic(createdAt, depletedTime);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

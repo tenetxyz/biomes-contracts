@@ -16,8 +16,8 @@ import { ActionType } from "../codegen/common.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { requireValidPlayer, requireInPlayerInfluence, requireFragmentInPlayerInfluence } from "../utils/PlayerUtils.sol";
-import { updateEnergyLevel } from "../utils/EnergyUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
+import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField, isForceFieldFragmentActive } from "../utils/ForceFieldUtils.sol";
 import { notify, AttachProgramNotifData, DetachProgramNotifData } from "../utils/NotifUtils.sol";
 
@@ -53,7 +53,7 @@ contract ProgramSystem is System {
   }
 
   function attachProgram(EntityId entityId, ResourceId programSystemId, bytes calldata extraData) public payable {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
 
     EntityId baseEntityId = entityId.baseEntityId();
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
@@ -64,9 +64,9 @@ contract ProgramSystem is System {
     // ForceField fragments don't have a position on the grid, so we need to handle them differently
     if (objectTypeId == ObjectTypes.ForceFieldFragment) {
       // TODO: figure out proximity checks for fragments
-      entityCoord = requireFragmentInPlayerInfluence(playerCoord, baseEntityId);
+      entityCoord = PlayerUtils.requireFragmentInPlayerInfluence(playerCoord, baseEntityId);
     } else {
-      entityCoord = requireInPlayerInfluence(playerCoord, entityId);
+      entityCoord = PlayerUtils.requireInPlayerInfluence(playerCoord, entityId);
     }
 
     (address programAddress, bool publicAccess) = Systems._get(programSystemId);
@@ -97,7 +97,7 @@ contract ProgramSystem is System {
     if (objectTypeId != ObjectTypes.ForceField) {
       (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(entityCoord);
       if (forceFieldEntityId.exists()) {
-        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onProgramAttachedCall = abi.encodeCall(
             IForceFieldFragmentProgram.onProgramAttached,
@@ -118,16 +118,16 @@ contract ProgramSystem is System {
   }
 
   function detachProgram(EntityId entityId, bytes calldata extraData) public payable {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
     EntityId baseEntityId = entityId.baseEntityId();
 
     Vec3 entityCoord;
     // ForceField fragments don't have a position on the grid, so we need to handle them differently
     if (ObjectType._get(baseEntityId) == ObjectTypes.ForceFieldFragment) {
       // TODO: figure out proximity checks for fragments
-      entityCoord = requireFragmentInPlayerInfluence(playerCoord, baseEntityId);
+      entityCoord = PlayerUtils.requireFragmentInPlayerInfluence(playerCoord, baseEntityId);
     } else {
-      entityCoord = requireInPlayerInfluence(playerCoord, entityId);
+      entityCoord = PlayerUtils.requireInPlayerInfluence(playerCoord, entityId);
     }
 
     ResourceId programSystemId = baseEntityId.getProgram();
@@ -145,7 +145,7 @@ contract ProgramSystem is System {
 
     (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(entityCoord);
 
-    EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+    (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
 
     // If forcefield is active, call its hook
     bytes memory onDetachedCall = abi.encodeCall(IProgram.onDetached, (playerEntityId, baseEntityId, extraData));

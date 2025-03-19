@@ -5,13 +5,14 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
+import { Machine } from "../codegen/tables/Machine.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
 
-import { requireValidPlayer, requireInPlayerInfluence, addPlayerToGrid, removePlayerFromGrid, removePlayerFromBed } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { PLAYER_ENERGY_DRAIN_RATE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
@@ -20,7 +21,7 @@ import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { callProgramOrRevert } from "../utils/callProgram.sol";
-import { massToEnergy, updateEnergyLevel, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+import { massToEnergy, updateMachineEnergy, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { IBedProgram } from "../prototypes/IBedProgram.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -42,8 +43,9 @@ library BedLib {
     EntityId bedEntityId,
     Vec3 bedCoord
   ) public returns (EnergyData memory machineData, EnergyData memory playerData) {
-    machineData = updateEnergyLevel(forceFieldEntityId);
-    playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, machineData, bedCoord);
+    uint128 depletedTime;
+    (machineData, depletedTime) = updateMachineEnergy(forceFieldEntityId);
+    playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, depletedTime, bedCoord);
     return (machineData, playerData);
   }
 }
@@ -68,37 +70,37 @@ contract BedSystem is System {
 
     require(playerData.energy == 0, "Player is not dead");
 
-    removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
+    PlayerUtils.removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
 
     BedLib.transferInventory(bedEntityId, dropEntityId, ObjectTypes.Air);
     // TODO: Should we safecall the program?
   }
 
   function sleep(EntityId bedEntityId, bytes calldata extraData) public {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
 
     require(ObjectType._get(bedEntityId) == ObjectTypes.Bed, "Not a bed");
 
     Vec3 bedCoord = Position._get(bedEntityId);
-    requireInPlayerInfluence(playerCoord, bedCoord);
+    PlayerUtils.requireInPlayerInfluence(playerCoord, bedCoord);
 
     bedEntityId = bedEntityId.baseEntityId();
     require(!BedPlayer._getPlayerEntityId(bedEntityId).exists(), "Bed full");
 
     (EntityId forceFieldEntityId, ) = getForceField(Position._get(bedEntityId));
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
-    EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+    (EnergyData memory machineData, uint128 depletedTime) = updateMachineEnergy(forceFieldEntityId);
     require(machineData.energy > 0, "Forcefield has no energy");
 
     PlayerStatus._setBedEntityId(playerEntityId, bedEntityId);
-    BedPlayer._set(bedEntityId, playerEntityId, machineData.accDepletedTime);
+    BedPlayer._set(bedEntityId, playerEntityId, depletedTime);
 
     // Increase forcefield's drain rate
     Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + PLAYER_ENERGY_DRAIN_RATE);
 
     BedLib.transferInventory(playerEntityId, bedEntityId, ObjectTypes.Bed);
 
-    removePlayerFromGrid(playerEntityId, playerCoord);
+    PlayerUtils.removePlayerFromGrid(playerEntityId, playerCoord);
 
     notify(playerEntityId, SleepNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
 
@@ -127,9 +129,9 @@ contract BedSystem is System {
 
     require(playerData.energy > 0, "Player died while sleeping");
 
-    removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
+    PlayerUtils.removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
 
-    addPlayerToGrid(playerEntityId, spawnCoord);
+    PlayerUtils.addPlayerToGrid(playerEntityId, spawnCoord);
 
     BedLib.transferInventory(bedEntityId, playerEntityId, ObjectTypes.Player);
 

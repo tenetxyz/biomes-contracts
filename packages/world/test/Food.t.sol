@@ -25,7 +25,7 @@ contract FoodTest is BiomesTest {
     uint128 initialEnergy = MAX_PLAYER_ENERGY / 2;
     Energy.set(
       aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: initialEnergy, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: initialEnergy, drainRate: 1 })
     );
 
     // Add some wheat to player inventory
@@ -67,7 +67,7 @@ contract FoodTest is BiomesTest {
     uint128 initialEnergy = MAX_PLAYER_ENERGY - 10; // Just below max
     Energy.set(
       aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: initialEnergy, drainRate: 1, accDepletedTime: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: initialEnergy, drainRate: 1 })
     );
 
     // Add food to player inventory
@@ -128,4 +128,3 @@ contract FoodTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, foodType, initialFoodAmount - amountToEat);
   }
 }
-

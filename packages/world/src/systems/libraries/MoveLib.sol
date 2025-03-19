@@ -17,7 +17,6 @@ import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
 import { Vec3, vec3 } from "../../Vec3.sol";
 import { transferEnergyToPool } from "../../utils/EnergyUtils.sol";
-import { requireValidPlayer } from "../../utils/PlayerUtils.sol";
 import { safeGetObjectTypeIdAt, getPlayer, setPlayer } from "../../utils/EntityUtils.sol";
 
 library MoveLib {

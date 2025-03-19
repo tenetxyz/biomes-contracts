@@ -168,7 +168,6 @@ export default defineWorld({
         lastUpdatedTime: "uint128",
         energy: "uint128",
         drainRate: "uint128",
-        accDepletedTime: "uint128",
       },
       key: ["entityId"],
     },
@@ -280,7 +279,7 @@ export default defineWorld({
       schema: {
         bedEntityId: "EntityId",
         playerEntityId: "EntityId",
-        lastAccDepletedTime: "uint128",
+        lastDepletedTime: "uint128",
       },
       key: ["bedEntityId"],
     },
@@ -289,13 +288,6 @@ export default defineWorld({
         entityId: "EntityId",
         // TODO: maybe move this to another table?
         bedEntityId: "EntityId",
-      },
-      key: ["entityId"],
-    },
-    PlayerActivity: {
-      schema: {
-        entityId: "EntityId",
-        lastActionTime: "uint128",
       },
       key: ["entityId"],
     },
@@ -330,10 +322,11 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    ForceField: {
+    Machine: {
       schema: {
         entityId: "EntityId",
         createdAt: "uint128",
+        depletedTime: "uint128",
       },
       key: ["entityId"],
     },

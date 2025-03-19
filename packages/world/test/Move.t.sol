@@ -22,7 +22,6 @@ import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
-import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
 import { MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
@@ -480,7 +479,40 @@ contract MoveTest is BiomesTest {
   }
 
   function testMoveFatal() public {
-    // TODO: implement
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+
+    // Set player energy to exactly enough for one move
+    uint128 exactEnergy = PLAYER_MOVE_ENERGY_COST;
+    Energy.set(
+      aliceEntityId,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: exactEnergy, drainRate: 0 })
+    );
+
+    Vec3[] memory newCoords = new Vec3[](1);
+    newCoords[0] = playerCoord + vec3(0, 0, 1);
+    setObjectAtCoord(newCoords[0], ObjectTypes.Air);
+    setObjectAtCoord(newCoords[0] + vec3(0, 1, 0), ObjectTypes.Air);
+    setObjectAtCoord(newCoords[0] - vec3(0, 1, 0), ObjectTypes.Dirt);
+
+    vm.prank(alice);
+    world.move(newCoords);
+
+    // Check energy is zero
+    assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy is not 0");
+
+    // Call activate to trigger player removal from grid
+    vm.prank(alice);
+    world.activate(aliceEntityId);
+
+    // Verify the player entity is still registered to the address, but removed from the grid
+    assertEq(Player.get(alice), aliceEntityId, "Player entity was deleted");
+    assertEq(PlayerPosition.get(aliceEntityId), vec3(0, 0, 0), "Player position was not deleted");
+    assertEq(ReversePlayerPosition.get(playerCoord), EntityId.wrap(0), "Player reverse position was not deleted");
+    assertEq(
+      ReversePlayerPosition.get(playerCoord + vec3(0, 1, 0)),
+      EntityId.wrap(0),
+      "Player reverse position at head was not deleted"
+    );
   }
 
   function testMoveFailsIfNoPlayer() public {

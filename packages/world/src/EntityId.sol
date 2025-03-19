@@ -37,11 +37,6 @@ library EntityIdLib {
   function unwrap(EntityId self) internal pure returns (bytes32) {
     return EntityId.unwrap(self);
   }
-
-  function setEnergy(EntityId self, uint128 energy) internal {
-    Energy._setLastUpdatedTime(self, uint128(block.timestamp));
-    Energy._setEnergy(self, energy);
-  }
 }
 
 function eq(EntityId self, EntityId other) pure returns (bool) {
