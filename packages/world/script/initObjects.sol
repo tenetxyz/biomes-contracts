@@ -539,6 +539,15 @@ function initObjects() {
     ObjectTypes.WheatSeeds,
     ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 100, canPassThrough: true })
   );
+  // TODO: tree seeds must match the total energy of its components
+  ObjectTypeMetadata.set(
+    ObjectTypes.OakSeed,
+    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 1000, canPassThrough: true })
+  );
+  ObjectTypeMetadata.set(
+    ObjectTypes.SpruceSeed,
+    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 1000, canPassThrough: true })
+  );
   ObjectTypeMetadata.set(
     ObjectTypes.ForceField,
     ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })

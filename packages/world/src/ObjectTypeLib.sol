@@ -14,6 +14,17 @@ struct ObjectAmount {
   uint16 amount;
 }
 
+struct TreeData {
+  ObjectTypeId logType;
+  ObjectTypeId leafType;
+  uint32 trunkHeight;
+  uint32 canopyStart;
+  uint32 canopyEnd;
+  uint32 canopyWidth;
+  uint32 stretchFactor;
+  int32 centerOffset;
+}
+
 library ObjectTypeLib {
   function unwrap(ObjectTypeId self) internal pure returns (uint16) {
     return ObjectTypeId.unwrap(self);
@@ -119,7 +130,15 @@ library ObjectTypeLib {
   }
 
   function isSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return isCropSeed(objectTypeId) || isTreeSeed(objectTypeId);
+  }
+
+  function isCropSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
     return objectTypeId == ObjectTypes.WheatSeeds;
+  }
+
+  function isTreeSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
+    return objectTypeId == ObjectTypes.OakSeed || objectTypeId == ObjectTypes.SpruceSeed;
   }
 
   function isCrop(ObjectTypeId objectTypeId) internal pure returns (bool) {
@@ -132,11 +151,41 @@ library ObjectTypeLib {
       return ObjectTypes.Wheat;
     }
 
-    return ObjectTypes.Null;
+    revert("Invalid crop seed type");
+  }
+
+  function getTreeData(ObjectTypeId seedTypeId) internal pure returns (TreeData memory) {
+    if (seedTypeId == ObjectTypes.OakSeed) {
+      return
+        TreeData({
+          logType: ObjectTypes.OakLog,
+          leafType: ObjectTypes.OakLeaf,
+          trunkHeight: 5,
+          canopyStart: 3,
+          canopyEnd: 7,
+          canopyWidth: 2,
+          stretchFactor: 2,
+          centerOffset: -2
+        });
+    } else if (seedTypeId == ObjectTypes.SpruceSeed) {
+      return
+        TreeData({
+          logType: ObjectTypes.SpruceLog,
+          leafType: ObjectTypes.SpruceLeaf,
+          trunkHeight: 7,
+          canopyStart: 2,
+          canopyEnd: 10,
+          canopyWidth: 2,
+          stretchFactor: 3,
+          centerOffset: -5
+        });
+    }
+
+    revert("Invalid tree seed type");
   }
 
   // TODO: one possible way to optimize is to follow some kind of schema for crops and their seeds
-  function getSeed(ObjectTypeId objectTypeId) internal pure returns (ObjectTypeId) {
+  function getSeedDrop(ObjectTypeId objectTypeId) internal pure returns (ObjectTypeId) {
     if (objectTypeId == ObjectTypes.Wheat) {
       return ObjectTypes.WheatSeeds;
     }
@@ -151,17 +200,20 @@ library ObjectTypeLib {
       amounts = new ObjectAmount[](1);
       amounts[0] = ObjectAmount(ObjectTypes.WheatSeeds, 1);
       return amounts;
-    } else if (objectTypeId == ObjectTypes.Farmland || objectTypeId == ObjectTypes.WetFarmland) {
+    }
+
+    if (objectTypeId == ObjectTypes.Farmland || objectTypeId == ObjectTypes.WetFarmland) {
       amounts = new ObjectAmount[](1);
       amounts[0] = ObjectAmount(ObjectTypes.Dirt, 1);
-    } else {
-      ObjectTypeId seedTypeId = objectTypeId.getSeed();
-      if (seedTypeId != ObjectTypes.Null) {
-        amounts = new ObjectAmount[](2);
-        amounts[0] = ObjectAmount(objectTypeId, 1);
-        amounts[1] = ObjectAmount(seedTypeId, 1);
-        return amounts;
-      }
+      return amounts;
+    }
+
+    ObjectTypeId seedTypeId = objectTypeId.getSeedDrop();
+    if (seedTypeId != ObjectTypes.Null) {
+      amounts = new ObjectAmount[](2);
+      amounts[0] = ObjectAmount(objectTypeId, 1);
+      amounts[1] = ObjectAmount(seedTypeId, 1);
+      return amounts;
     }
 
     amounts = new ObjectAmount[](1);
