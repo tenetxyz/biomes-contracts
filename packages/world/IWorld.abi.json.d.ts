@@ -1697,7 +1697,7 @@ declare const abi: [
         "internalType": "ObjectTypeId"
       }
     ],
-    "stateMutability": "nonpayable"
+    "stateMutability": "view"
   },
   {
     "type": "function",

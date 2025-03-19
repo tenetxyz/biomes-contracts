@@ -1697,7 +1697,7 @@
         "internalType": "ObjectTypeId"
       }
     ],
-    "stateMutability": "nonpayable"
+    "stateMutability": "view"
   },
   {
     "type": "function",
