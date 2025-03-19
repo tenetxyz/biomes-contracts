@@ -186,7 +186,7 @@ library ObjectTypes {
   ObjectTypeId constant DiamondOre = ObjectTypeId.wrap(Block | 270);
   ObjectTypeId constant NeptuniumOre = ObjectTypeId.wrap(Block | 271);
   ObjectTypeId constant WetFarmland = ObjectTypeId.wrap(Block | 272);
-  ObjectTypeId constant WheatSeeds = ObjectTypeId.wrap(Block | 273);
+  ObjectTypeId constant WheatSeed = ObjectTypeId.wrap(Block | 273);
   ObjectTypeId constant OakSeed = ObjectTypeId.wrap(Block | 274);
   ObjectTypeId constant SpruceSeed = ObjectTypeId.wrap(Block | 275);
   ObjectTypeId constant ForceField = ObjectTypeId.wrap(Block | 600);

@@ -58,6 +58,10 @@ contract AdminScript is Script {
     world.adminAddToInventory(playerEntityId, ObjectTypes.Bed, 1);
     world.adminAddToInventory(playerEntityId, ObjectTypes.Bucket, 1);
     world.adminAddToInventory(playerEntityId, ObjectTypes.WaterBucket, 1);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.OakSeed, 10);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.SpruceSeed, 10);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.Fuel, 10);
+    world.adminAddToInventory(playerEntityId, ObjectTypes.Wheat, 10);
     world.adminAddToolToInventory(playerEntityId, ObjectTypes.WoodenHoe);
     world.adminAddToolToInventory(playerEntityId, ObjectTypes.SilverPick);
 

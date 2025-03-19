@@ -134,7 +134,7 @@ library ObjectTypeLib {
   }
 
   function isCropSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return objectTypeId == ObjectTypes.WheatSeeds;
+    return objectTypeId == ObjectTypes.WheatSeed;
   }
 
   function isTreeSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
@@ -147,7 +147,7 @@ library ObjectTypeLib {
 
   // TODO: one possible way to optimize is to follow some kind of schema for crops and their seeds
   function getCrop(ObjectTypeId objectTypeId) internal pure returns (ObjectTypeId) {
-    if (objectTypeId == ObjectTypes.WheatSeeds) {
+    if (objectTypeId == ObjectTypes.WheatSeed) {
       return ObjectTypes.Wheat;
     }
 
@@ -187,7 +187,7 @@ library ObjectTypeLib {
   // TODO: one possible way to optimize is to follow some kind of schema for crops and their seeds
   function getSeedDrop(ObjectTypeId objectTypeId) internal pure returns (ObjectTypeId) {
     if (objectTypeId == ObjectTypes.Wheat) {
-      return ObjectTypes.WheatSeeds;
+      return ObjectTypes.WheatSeed;
     }
 
     return ObjectTypes.Null;
@@ -198,7 +198,7 @@ library ObjectTypeLib {
     if (objectTypeId == ObjectTypes.FescueGrass) {
       // TODO: add randomness?
       amounts = new ObjectAmount[](1);
-      amounts[0] = ObjectAmount(ObjectTypes.WheatSeeds, 1);
+      amounts[0] = ObjectAmount(ObjectTypes.WheatSeed, 1);
       return amounts;
     }
 

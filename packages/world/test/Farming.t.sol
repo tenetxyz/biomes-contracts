@@ -194,20 +194,20 @@ contract FarmingTest is BiomesTest {
     setObjectAtCoord(farmlandCoord, ObjectTypes.WetFarmland);
 
     // Add wheat seeds to inventory
-    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeeds, 1);
+    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeed, 1);
 
     // Check initial local energy pool
     uint128 initialLocalEnergy = LocalEnergyPool.get(farmlandCoord.toLocalEnergyPoolShardCoord());
-    uint128 seedEnergy = ObjectTypeMetadata.getEnergy(ObjectTypes.WheatSeeds);
+    uint128 seedEnergy = ObjectTypeMetadata.getEnergy(ObjectTypes.WheatSeed);
 
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, farmlandCoord + vec3(0, 1, 0), "");
+    world.build(ObjectTypes.WheatSeed, farmlandCoord + vec3(0, 1, 0), "");
 
     // Verify seeds were planted
     EntityId cropEntityId = ReversePosition.get(farmlandCoord + vec3(0, 1, 0));
     assertTrue(cropEntityId.exists(), "Crop entity doesn't exist after planting");
-    assertEq(ObjectType.get(cropEntityId), ObjectTypes.WheatSeeds, "Wheat seeds were not planted correctly");
+    assertEq(ObjectType.get(cropEntityId), ObjectTypes.WheatSeed, "Wheat seeds were not planted correctly");
 
     // Verify energy was taken from local pool
     assertEq(
@@ -219,21 +219,17 @@ contract FarmingTest is BiomesTest {
     // Verify build time was set
     uint128 fullyGrownAt = SeedGrowth.getFullyGrownAt(cropEntityId);
     assertTrue(fullyGrownAt > 0, "FullyGrownAt not set correctly");
-    assertEq(
-      fullyGrownAt,
-      uint128(block.timestamp) + ObjectTypes.WheatSeeds.timeToGrow(),
-      "Incorrect fullyGrownAt set"
-    );
+    assertEq(fullyGrownAt, uint128(block.timestamp) + ObjectTypes.WheatSeed.timeToGrow(), "Incorrect fullyGrownAt set");
 
     // Verify seeds were removed from inventory
-    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 0);
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 0);
   }
 
   function testPlantSeedsFailsIfNotOnWetFarmland() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     // Add wheat seeds to inventory
-    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeeds, 1);
+    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeed, 1);
 
     // Try to plant on dirt (not farmland)
     Vec3 dirtCoord = vec3(playerCoord.x() + 1, 0, playerCoord.z());
@@ -241,7 +237,7 @@ contract FarmingTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Crop seeds need wet farmland");
-    world.build(ObjectTypes.WheatSeeds, dirtCoord + vec3(0, 1, 0), "");
+    world.build(ObjectTypes.WheatSeed, dirtCoord + vec3(0, 1, 0), "");
 
     // Try to plant on farmland (not wet)
     Vec3 farmlandCoord = vec3(playerCoord.x() + 2, 0, playerCoord.z());
@@ -249,7 +245,7 @@ contract FarmingTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Crop seeds need wet farmland");
-    world.build(ObjectTypes.WheatSeeds, farmlandCoord + vec3(0, 1, 0), "");
+    world.build(ObjectTypes.WheatSeed, farmlandCoord + vec3(0, 1, 0), "");
   }
 
   function testHarvestMatureWheatCrop() public {
@@ -258,13 +254,13 @@ contract FarmingTest is BiomesTest {
     setObjectAtCoord(farmlandCoord, ObjectTypes.WetFarmland);
 
     // Add wheat seeds to inventory
-    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeeds, 1);
+    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeed, 1);
 
     Vec3 cropCoord = farmlandCoord + vec3(0, 1, 0);
 
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, cropCoord, "");
+    world.build(ObjectTypes.WheatSeed, cropCoord, "");
 
     // Verify seeds were planted
     EntityId cropEntityId = ReversePosition.get(cropCoord);
@@ -287,7 +283,7 @@ contract FarmingTest is BiomesTest {
 
     // Verify wheat and seeds were obtained
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Wheat, 1);
-    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 1);
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 1);
 
     // Verify crop no longer exists
     assertEq(ObjectType.get(cropEntityId), ObjectTypes.Air, "Crop wasn't removed after harvesting");
@@ -306,16 +302,16 @@ contract FarmingTest is BiomesTest {
     setObjectAtCoord(farmlandCoord, ObjectTypes.WetFarmland);
 
     // Add wheat seeds to inventory
-    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeeds, 1);
+    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeed, 1);
 
     Vec3 cropCoord = farmlandCoord + vec3(0, 1, 0);
 
     // Get initial energy
-    uint128 seedEnergy = ObjectTypeMetadata.getEnergy(ObjectTypes.WheatSeeds);
+    uint128 seedEnergy = ObjectTypeMetadata.getEnergy(ObjectTypes.WheatSeed);
 
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, cropCoord, "");
+    world.build(ObjectTypes.WheatSeed, cropCoord, "");
 
     // Verify seeds were planted
     EntityId cropEntityId = ReversePosition.get(cropCoord);
@@ -338,7 +334,7 @@ contract FarmingTest is BiomesTest {
     world.mineUntilDestroyed(cropCoord, "");
 
     // Verify original seeds were returned (not wheat)
-    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 1);
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 1);
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Wheat, 0);
 
     // Verify crop no longer exists
@@ -360,14 +356,14 @@ contract FarmingTest is BiomesTest {
     setTerrainAtCoord(grassCoord, ObjectTypes.FescueGrass);
 
     // Verify no wheat seeds in inventory
-    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 0);
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 0);
 
     // Harvest the FescueGrass
     vm.prank(alice);
     world.mineUntilDestroyed(grassCoord, "");
 
     // Verify wheat seeds were obtained
-    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 1);
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 1);
   }
 
   function testCropGrowthLifecycle() public {
@@ -376,12 +372,12 @@ contract FarmingTest is BiomesTest {
     setObjectAtCoord(farmlandCoord, ObjectTypes.WetFarmland);
 
     // Add wheat seeds to inventory
-    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeeds, 1);
+    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeed, 1);
 
     Vec3 cropCoord = farmlandCoord + vec3(0, 1, 0);
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, cropCoord, "");
+    world.build(ObjectTypes.WheatSeed, cropCoord, "");
 
     // Verify seeds were planted
     EntityId cropEntityId = ReversePosition.get(cropCoord);
@@ -399,12 +395,12 @@ contract FarmingTest is BiomesTest {
     world.mineUntilDestroyed(cropCoord, "");
 
     // We get seeds back, not wheat
-    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 1);
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 1);
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Wheat, 0);
 
     // Reset test by planting again
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeeds, cropCoord, "");
+    world.build(ObjectTypes.WheatSeed, cropCoord, "");
 
     cropEntityId = ReversePosition.get(cropCoord);
     fullyGrownAt = SeedGrowth.getFullyGrownAt(cropEntityId);
@@ -419,7 +415,7 @@ contract FarmingTest is BiomesTest {
     world.mineUntilDestroyed(cropCoord, "");
 
     // Now we get wheat and seeds
-    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeeds, 1);
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 1);
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Wheat, 1);
   }
 }

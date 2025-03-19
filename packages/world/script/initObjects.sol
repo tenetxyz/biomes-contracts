@@ -536,10 +536,9 @@ function initObjects() {
     ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
   );
   ObjectTypeMetadata.set(
-    ObjectTypes.WheatSeeds,
+    ObjectTypes.WheatSeed,
     ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 100, canPassThrough: true })
   );
-  // TODO: tree seeds must match the total energy of its components
   ObjectTypeMetadata.set(
     ObjectTypes.OakSeed,
     ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 1000, canPassThrough: true })
@@ -664,7 +663,6 @@ function initObjects() {
     ObjectTypes.WaterBucket,
     ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: false })
   );
-  // TODO: update in client
   ObjectTypeMetadata.set(
     ObjectTypes.Fuel,
     ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 100, canPassThrough: false })
