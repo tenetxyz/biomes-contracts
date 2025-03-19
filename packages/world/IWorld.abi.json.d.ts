@@ -1682,6 +1682,25 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "getRandomOreType",
+    "inputs": [
+      {
+        "name": "coord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getRandomSpawnCoord",
     "inputs": [
       {
