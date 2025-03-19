@@ -21,10 +21,9 @@ enum ActionType {
   HitMachine,
   AttachProgram,
   DetachProgram,
-  InitiateOreReveal,
-  RevealOre,
   ExpandForceField,
-  ContractForceField
+  ContractForceField,
+  Death
 }
 
 enum DisplayContentType {

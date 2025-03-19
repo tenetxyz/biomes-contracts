@@ -28,6 +28,7 @@ import { EntityId } from "../EntityId.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE, FRAGMENT_SIZE } from "../Constants.sol";
+import { notify, DeathNotifData } from "./NotifUtils.sol";
 
 using ObjectTypeLib for ObjectTypeId;
 
@@ -158,5 +159,6 @@ library PlayerUtils {
     (EntityId toEntityId, ObjectTypeId objectTypeId) = getEntityAt(coord);
     transferAllInventoryEntities(playerEntityId, toEntityId, objectTypeId);
     removePlayerFromGrid(playerEntityId, coord);
+    notify(playerEntityId, DeathNotifData({ deathCoord: coord }));
   }
 }

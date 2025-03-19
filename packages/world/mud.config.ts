@@ -23,10 +23,9 @@ export default defineWorld({
       "HitMachine",
       "AttachProgram",
       "DetachProgram",
-      "InitiateOreReveal",
-      "RevealOre",
       "ExpandForceField",
       "ContractForceField",
+      "Death",
     ],
     DisplayContentType: ["None", "Text", "Image"],
     Direction: [

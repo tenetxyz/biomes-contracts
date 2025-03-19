@@ -83,15 +83,6 @@ struct DetachProgramNotifData {
   address programAddress;
 }
 
-struct InitiateOreRevealNotifData {
-  Vec3 oreCoord;
-}
-
-struct RevealOreNotifData {
-  Vec3 oreCoord;
-  ObjectTypeId oreObjectTypeId;
-}
-
 struct SleepNotifData {
   EntityId bedEntityId;
   Vec3 bedCoord;
@@ -108,6 +99,10 @@ struct ExpandForceFieldNotifData {
 
 struct ContractForceFieldNotifData {
   EntityId forceFieldEntityId;
+}
+
+struct DeathNotifData {
+  Vec3 deathCoord;
 }
 
 function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {
@@ -208,23 +203,6 @@ function notify(EntityId playerEntityId, DetachProgramNotifData memory detachPro
   );
 }
 
-function notify(EntityId playerEntityId, InitiateOreRevealNotifData memory initiateOreRevealNotifData) {
-  PlayerActionNotif._set(
-    playerEntityId,
-    PlayerActionNotifData({
-      actionType: ActionType.InitiateOreReveal,
-      actionData: abi.encode(initiateOreRevealNotifData)
-    })
-  );
-}
-
-function notify(EntityId playerEntityId, RevealOreNotifData memory revealOreNotifData) {
-  PlayerActionNotif._set(
-    playerEntityId,
-    PlayerActionNotifData({ actionType: ActionType.RevealOre, actionData: abi.encode(revealOreNotifData) })
-  );
-}
-
 function notify(EntityId playerEntityId, SleepNotifData memory sleepNotifData) {
   PlayerActionNotif._set(
     playerEntityId,
@@ -256,5 +234,12 @@ function notify(EntityId playerEntityId, ContractForceFieldNotifData memory cont
       actionType: ActionType.ContractForceField,
       actionData: abi.encode(contractForceFieldNotifData)
     })
+  );
+}
+
+function notify(EntityId playerEntityId, DeathNotifData memory deathNotifData) {
+  PlayerActionNotif._set(
+    playerEntityId,
+    PlayerActionNotifData({ actionType: ActionType.Death, actionData: abi.encode(deathNotifData) })
   );
 }
