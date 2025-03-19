@@ -13,7 +13,7 @@ import { EntityId } from "../../EntityId.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IMineSystem {
-  function getRandomOreType(Vec3 coord) external returns (ObjectTypeId);
+  function getRandomOreType(Vec3 coord) external view returns (ObjectTypeId);
 
   function mine(Vec3 coord, bytes calldata extraData) external payable returns (EntityId);
 
