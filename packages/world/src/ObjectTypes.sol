@@ -64,6 +64,7 @@ library ObjectTypes {
   ObjectTypeId constant Farmland = ObjectTypeId.wrap(Block | 53);
   ObjectTypeId constant Mud = ObjectTypeId.wrap(Block | 54);
   ObjectTypeId constant PackedMud = ObjectTypeId.wrap(Block | 55);
+  ObjectTypeId constant WetFarmland = ObjectTypeId.wrap(Block | 56);
 
   // Sand
   ObjectTypeId constant Gravel = ObjectTypeId.wrap(Block | 64);
@@ -185,17 +186,9 @@ library ObjectTypes {
   ObjectTypeId constant GoldOre = ObjectTypeId.wrap(Block | 269);
   ObjectTypeId constant DiamondOre = ObjectTypeId.wrap(Block | 270);
   ObjectTypeId constant NeptuniumOre = ObjectTypeId.wrap(Block | 271);
-  ObjectTypeId constant WetFarmland = ObjectTypeId.wrap(Block | 272);
-  // TODO: rename WheatSeeds to WheatSeed (client)
   ObjectTypeId constant WheatSeeds = ObjectTypeId.wrap(Block | 273);
   ObjectTypeId constant OakSeed = ObjectTypeId.wrap(Block | 274);
-  ObjectTypeId constant BirchSeed = ObjectTypeId.wrap(Block | 275);
-  ObjectTypeId constant JungleSeed = ObjectTypeId.wrap(Block | 276);
-  ObjectTypeId constant SakuraSeed = ObjectTypeId.wrap(Block | 277);
-  ObjectTypeId constant SpruceSeed = ObjectTypeId.wrap(Block | 278);
-  ObjectTypeId constant AcaciaSeed = ObjectTypeId.wrap(Block | 279);
-  ObjectTypeId constant DarkOakSeed = ObjectTypeId.wrap(Block | 280);
-
+  ObjectTypeId constant SpruceSeed = ObjectTypeId.wrap(Block | 275);
   ObjectTypeId constant ForceField = ObjectTypeId.wrap(Block | 600);
   ObjectTypeId constant Chest = ObjectTypeId.wrap(Block | 601);
   ObjectTypeId constant SmartChest = ObjectTypeId.wrap(Block | 602);
@@ -233,8 +226,7 @@ library ObjectTypes {
   ObjectTypeId constant NeptuniumBar = ObjectTypeId.wrap(Item | 3);
   ObjectTypeId constant Bucket = ObjectTypeId.wrap(Item | 4);
   ObjectTypeId constant WaterBucket = ObjectTypeId.wrap(Item | 5);
-  ObjectTypeId constant ChipBattery = ObjectTypeId.wrap(Item | 6);
-  ObjectTypeId constant Chip = ObjectTypeId.wrap(Item | 7);
+  ObjectTypeId constant Fuel = ObjectTypeId.wrap(Item | 6);
 
   // ------------------------------------------------------------
   // Misc

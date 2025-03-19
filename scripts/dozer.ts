@@ -12,9 +12,9 @@ async function main() {
   const query = [
     {
       address: worldAddress,
-      query: `SELECT ${indexer?.type === "sqlite" ? "*" : '"entityId", "chipAddress"'} FROM "${constructTableNameForQuery(
+      query: `SELECT ${indexer?.type === "sqlite" ? "*" : '"entityId", "programAddress"'} FROM "${constructTableNameForQuery(
         "",
-        "Chip",
+        "Program",
         worldAddress as Hex,
         indexer,
       )}";`,

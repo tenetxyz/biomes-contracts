@@ -11,9 +11,8 @@ import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Player } from "../../codegen/tables/Player.sol";
 import { Mass } from "../../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
-import { Chip } from "../../codegen/tables/Chip.sol";
+import { Program } from "../../codegen/tables/Program.sol";
 import { Equipped } from "../../codegen/tables/Equipped.sol";
-import { PlayerActivity } from "../../codegen/tables/PlayerActivity.sol";
 import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
@@ -55,9 +54,9 @@ contract ReadSystem is System {
           inventory: new InventoryObject[](0),
           position: vec3(0, 0, 0),
           orientation: Direction.PositiveX,
-          chipSystemId: ResourceId.wrap(0),
+          programSystemId: ResourceId.wrap(0),
           mass: 0,
-          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0, accDepletedTime: 0 })
+          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0 })
         });
     }
 
@@ -72,7 +71,7 @@ contract ReadSystem is System {
         position: getCoordForEntityId(entityId),
         orientation: Orientation._get(baseEntityId),
         inventory: getEntityInventory(baseEntityId),
-        chipSystemId: Chip._get(baseEntityId),
+        programSystemId: Program._get(baseEntityId),
         mass: Mass._get(baseEntityId),
         energy: Energy._get(baseEntityId)
       });
@@ -89,9 +88,9 @@ contract ReadSystem is System {
           inventory: new InventoryObject[](0),
           position: coord,
           orientation: Direction.PositiveX,
-          chipSystemId: ResourceId.wrap(0),
+          programSystemId: ResourceId.wrap(0),
           mass: 0,
-          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0, accDepletedTime: 0 })
+          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0 })
         });
     }
 
@@ -106,7 +105,7 @@ contract ReadSystem is System {
         position: coord,
         orientation: Orientation._get(baseEntityId),
         inventory: getEntityInventory(baseEntityId),
-        chipSystemId: Chip._get(baseEntityId),
+        programSystemId: Program._get(baseEntityId),
         mass: Mass._get(baseEntityId),
         energy: Energy._get(baseEntityId)
       });
@@ -136,7 +135,6 @@ contract ReadSystem is System {
           playerAddress: player,
           bedEntityId: EntityId.wrap(0),
           equippedEntityId: EntityId.wrap(0),
-          lastActionTime: 0,
           entityData: getEntityData(entityId)
         });
     }
@@ -146,7 +144,6 @@ contract ReadSystem is System {
         playerAddress: player,
         bedEntityId: PlayerStatus._getBedEntityId(entityId),
         equippedEntityId: Equipped._get(entityId),
-        lastActionTime: PlayerActivity._get(entityId),
         entityData: getEntityData(entityId)
       });
   }

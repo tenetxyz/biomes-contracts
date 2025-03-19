@@ -8,7 +8,7 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { Chip } from "../src/codegen/tables/Chip.sol";
+import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
@@ -29,7 +29,7 @@ import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_BUILD_ENERGY_COST } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
@@ -374,14 +374,54 @@ contract BuildTest is BiomesTest {
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
-    Energy.set(
-      aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1, drainRate: 0, accDepletedTime: 0 })
-    );
+    Energy.set(aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1, drainRate: 0 }));
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");
     world.build(buildObjectTypeId, buildCoord, "");
+  }
+
+  function testBuildFatal() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+
+    Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
+    setObjectAtCoord(buildCoord, ObjectTypes.Air);
+    ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
+    TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
+    EntityId buildEntityId = ReversePosition.get(buildCoord);
+    assertTrue(buildEntityId.exists(), "Build entity does not exist");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
+
+    // Set player energy to exactly enough for one build operation
+    uint128 exactEnergy = PLAYER_BUILD_ENERGY_COST;
+    Energy.set(
+      aliceEntityId,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: exactEnergy, drainRate: 0 })
+    );
+
+    vm.prank(alice);
+    world.build(buildObjectTypeId, buildCoord, "");
+
+    // Check energy is zero
+    assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy is not 0");
+
+    // Call activate to trigger player removal from grid
+    vm.prank(alice);
+    world.activate(aliceEntityId);
+
+    // Verify the player entity is still registered to the address, but removed from the grid
+    assertEq(Player.get(alice), aliceEntityId, "Player entity was deleted");
+    assertEq(PlayerPosition.get(aliceEntityId), vec3(0, 0, 0), "Player position was not deleted");
+    assertEq(ReversePlayerPosition.get(playerCoord), EntityId.wrap(0), "Player reverse position was not deleted");
+    assertEq(
+      ReversePlayerPosition.get(playerCoord + vec3(0, 1, 0)),
+      EntityId.wrap(0),
+      "Player reverse position at head was not deleted"
+    );
+
+    // Verify the block was built successfully
+    assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
+    assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
   }
 
   function testBuildFailsIfDoesntHaveBlock() public {

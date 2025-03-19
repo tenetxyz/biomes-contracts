@@ -8,7 +8,7 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { Chip } from "../src/codegen/tables/Chip.sol";
+import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
@@ -21,9 +21,8 @@ import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
-import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
-import { MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { massToEnergy, energyToMass } from "../src/utils/EnergyUtils.sol";
@@ -340,14 +339,47 @@ contract MineTest is BiomesTest {
     ObjectTypeId mineObjectTypeId = ObjectTypes.Dirt;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
-    Energy.set(
-      aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1, drainRate: 0, accDepletedTime: 0 })
-    );
+    Energy.set(aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1, drainRate: 0 }));
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");
     world.mine(mineCoord, "");
+  }
+
+  function testMineFatal() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+
+    Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
+    ObjectTypeId mineObjectTypeId = ObjectTypes.Dirt;
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    setObjectAtCoord(mineCoord, mineObjectTypeId);
+
+    // Set player energy to exactly enough for one mine operation
+    uint128 exactEnergy = PLAYER_MINE_ENERGY_COST;
+    Energy.set(
+      aliceEntityId,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: exactEnergy, drainRate: 0 })
+    );
+
+    vm.prank(alice);
+    world.mine(mineCoord, "");
+
+    // Check energy is zero
+    assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy is not 0");
+
+    // Call activate to trigger player removal from grid
+    vm.prank(alice);
+    world.activate(aliceEntityId);
+
+    // Verify the player entity is still registered to the address, but removed from the grid
+    assertEq(Player.get(alice), aliceEntityId, "Player entity was deleted");
+    assertEq(PlayerPosition.get(aliceEntityId), vec3(0, 0, 0), "Player position was not deleted");
+    assertEq(ReversePlayerPosition.get(playerCoord), EntityId.wrap(0), "Player reverse position was not deleted");
+    assertEq(
+      ReversePlayerPosition.get(playerCoord + vec3(0, 1, 0)),
+      EntityId.wrap(0),
+      "Player reverse position at head was not deleted"
+    );
   }
 
   function testMineFailsIfInventoryFull() public {
@@ -405,10 +437,7 @@ contract MineTest is BiomesTest {
     Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
     ObjectTypeId mineObjectTypeId = ObjectTypes.ForceField;
     EntityId mineEntityId = setObjectAtCoord(mineCoord, mineObjectTypeId);
-    Energy.set(
-      mineEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: 0, accDepletedTime: 0 })
-    );
+    Energy.set(mineEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: 0 }));
 
     vm.prank(alice);
     vm.expectRevert("Cannot mine a machine that has energy");

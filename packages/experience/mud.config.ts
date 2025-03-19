@@ -6,7 +6,7 @@ export default defineWorld({
     upgradeableWorldImplementation: true,
   },
   enums: {
-    ChipType: ["None", "Chest", "ForceField", "Display"],
+    ProgramType: ["None", "Chest", "ForceField", "Display"],
     ResourceType: ["None", "Object", "NativeCurrency", "ERC20", "ERC721"],
   },
   userTypes: {
@@ -25,19 +25,19 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    ChipMetadata: {
+    ProgramMetadata: {
       schema: {
-        chipAddress: "address",
-        chipType: "ChipType",
+        programAddress: "address",
+        programType: "ProgramType",
         name: "string",
         description: "string",
       },
-      key: ["chipAddress"],
+      key: ["programAddress"],
       codegen: {
         storeArgument: true,
       },
     },
-    ChipAttachment: {
+    ProgramAttachment: {
       schema: {
         entityId: "EntityId",
         attacher: "address",
@@ -47,7 +47,7 @@ export default defineWorld({
         storeArgument: true,
       },
     },
-    ChipAdmin: {
+    ProgramAdmin: {
       schema: {
         entityId: "EntityId",
         admin: "address",

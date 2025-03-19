@@ -138,14 +138,7 @@ library ObjectTypeLib {
   }
 
   function isTreeSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return
-      objectTypeId == ObjectTypes.OakSeed ||
-      objectTypeId == ObjectTypes.BirchSeed ||
-      objectTypeId == ObjectTypes.JungleSeed ||
-      objectTypeId == ObjectTypes.SakuraSeed ||
-      objectTypeId == ObjectTypes.SpruceSeed ||
-      objectTypeId == ObjectTypes.AcaciaSeed ||
-      objectTypeId == ObjectTypes.DarkOakSeed;
+    return objectTypeId == ObjectTypes.OakSeed || objectTypeId == ObjectTypes.SpruceSeed;
   }
 
   function isCrop(ObjectTypeId objectTypeId) internal pure returns (bool) {
@@ -174,9 +167,7 @@ library ObjectTypeLib {
           stretchFactor: 2,
           centerOffset: -2
         });
-    } else if (seedTypeId == ObjectTypes.BirchSeed) {} else if (seedTypeId == ObjectTypes.JungleSeed) {} else if (
-      seedTypeId == ObjectTypes.SakuraSeed
-    ) {} else if (seedTypeId == ObjectTypes.SpruceSeed) {
+    } else if (seedTypeId == ObjectTypes.SpruceSeed) {
       return
         TreeData({
           logType: ObjectTypes.SpruceLog,
@@ -188,7 +179,7 @@ library ObjectTypeLib {
           stretchFactor: 3,
           centerOffset: -5
         });
-    } else if (seedTypeId == ObjectTypes.AcaciaSeed) {} else if (seedTypeId == ObjectTypes.DarkOakSeed) {}
+    }
 
     revert("Invalid tree seed type");
   }

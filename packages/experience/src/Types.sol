@@ -21,8 +21,8 @@ struct PipeAccessDataWithEntityId {
 
 struct ExperienceEntityData {
   EntityData worldEntityData;
-  address chipAttacher;
-  address chipAdmin;
+  address programAttacher;
+  address programAdmin;
   SmartItemMetadataData smartItemMetadata;
   GateApprovalsData gateApprovalsData;
   ExchangeInfoDataWithExchangeId[] exchanges;

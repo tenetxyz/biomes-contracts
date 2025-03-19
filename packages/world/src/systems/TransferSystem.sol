@@ -3,17 +3,17 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { Chip } from "../codegen/tables/Chip.sol";
+import { Program } from "../codegen/tables/Program.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
-import { IChestChip } from "../prototypes/IChestChip.sol";
-import { ChipOnTransferData, TransferData, TransferCommonContext } from "../Types.sol";
+import { IChestProgram } from "../prototypes/IChestProgram.sol";
+import { ProgramOnTransferData, TransferData, TransferCommonContext } from "../Types.sol";
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
 import { TransferLib } from "./libraries/TransferLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { callChipOrRevert } from "../utils/callChip.sol";
+import { callProgramOrRevert } from "../utils/callProgram.sol";
 
 contract TransferSystem is System {
   function requireAllowed(
@@ -26,11 +26,11 @@ contract TransferSystem is System {
   ) internal {
     if (machineEnergyLevel > 0) {
       // Forward any ether sent with the transaction to the hook
-      // Don't safe call here as we want to revert if the chip doesn't allow the transfer
+      // Don't safe call here as we want to revert if the program doesn't allow the transfer
       bytes memory onTransferCall = abi.encodeCall(
-        IChestChip.onTransfer,
+        IChestProgram.onTransfer,
         (
-          ChipOnTransferData({
+          ProgramOnTransferData({
             targetEntityId: chestEntityId,
             callerEntityId: playerEntityId,
             isDeposit: isDeposit,
@@ -39,7 +39,7 @@ contract TransferSystem is System {
           })
         )
       );
-      callChipOrRevert(chestEntityId.getChip(), onTransferCall);
+      callProgramOrRevert(chestEntityId.getProgram(), onTransferCall);
     }
   }
 

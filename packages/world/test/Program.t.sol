@@ -8,10 +8,9 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { Chip } from "../src/codegen/tables/Chip.sol";
+import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { ForceField } from "../src/codegen/tables/ForceField.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
@@ -36,18 +35,18 @@ import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.so
 import { Vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
-contract ChipTest is BiomesTest {
+contract ProgramTest is BiomesTest {
   using ObjectTypeLib for ObjectTypeId;
 
-  function testMineFailsIfChipAttached() public {
+  function testMineFailsIfProgramAttached() public {
     // TODO: implement
   }
 
-  function testTransferWithChip() public {
+  function testTransferWithProgram() public {
     // TODO: implement
   }
 
-  function testTransferFailsIfNotAllowedByChip() public {
+  function testTransferFailsIfNotAllowedByProgram() public {
     // TODO: implement
   }
 

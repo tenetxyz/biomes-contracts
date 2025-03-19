@@ -6,26 +6,26 @@ import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { SmartItemMetadata, SmartItemMetadataData } from "../codegen/tables/SmartItemMetadata.sol";
-import { requireChipOwner, requireChipOwnerOrNoOwner } from "../Utils.sol";
+import { requireProgramOwner, requireProgramOwnerOrNoOwner } from "../Utils.sol";
 
 contract SmartItemMetadataSystem is System {
   function setSmartItemMetadata(EntityId entityId, SmartItemMetadataData memory metadata) public {
-    requireChipOwner(entityId);
+    requireProgramOwner(entityId);
     SmartItemMetadata.set(entityId, metadata);
   }
 
   function setSmartItemName(EntityId entityId, string memory name) public {
-    requireChipOwner(entityId);
+    requireProgramOwner(entityId);
     SmartItemMetadata.setName(entityId, name);
   }
 
   function setSmartItemDescription(EntityId entityId, string memory description) public {
-    requireChipOwner(entityId);
+    requireProgramOwner(entityId);
     SmartItemMetadata.setDescription(entityId, description);
   }
 
   function deleteSmartItemMetadata(EntityId entityId) public {
-    requireChipOwnerOrNoOwner(entityId);
+    requireProgramOwnerOrNoOwner(entityId);
     SmartItemMetadata.deleteRecord(entityId);
   }
 }

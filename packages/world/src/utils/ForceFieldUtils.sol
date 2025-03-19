@@ -3,9 +3,9 @@ pragma solidity >=0.8.24;
 
 import { Vec3 } from "../Vec3.sol";
 
-import { ForceField } from "../codegen/tables/ForceField.sol";
+import { Machine } from "../codegen/tables/Machine.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Chip } from "../codegen/tables/Chip.sol";
+import { Program } from "../codegen/tables/Program.sol";
 
 import { getUniqueEntity } from "../Utils.sol";
 
@@ -24,7 +24,7 @@ function _isFragmentActive(ForceFieldFragmentData memory fragmentData, EntityId 
   }
 
   // Only perform the storage read if the previous checks pass
-  return fragmentData.forceFieldCreatedAt == ForceField._getCreatedAt(forceFieldId);
+  return fragmentData.forceFieldCreatedAt == Machine._getCreatedAt(forceFieldId);
 }
 
 /**
@@ -70,7 +70,7 @@ function isForceFieldFragmentActive(EntityId fragmentEntityId) view returns (boo
  * @dev Check if the forcefield is active (exists and hasn't been destroyed
  */
 function isForceFieldActive(EntityId forceFieldEntityId) view returns (bool) {
-  return forceFieldEntityId.exists() && ForceField._getCreatedAt(forceFieldEntityId) > 0;
+  return forceFieldEntityId.exists() && Machine._getCreatedAt(forceFieldEntityId) > 0;
 }
 
 /**
@@ -78,7 +78,7 @@ function isForceFieldActive(EntityId forceFieldEntityId) view returns (bool) {
  */
 function setupForceField(EntityId forceFieldEntityId, Vec3 coord) {
   // Set up the forcefield first
-  ForceField._setCreatedAt(forceFieldEntityId, uint128(block.timestamp));
+  Machine._setCreatedAt(forceFieldEntityId, uint128(block.timestamp));
 
   Vec3 fragmentCoord = coord.toForceFieldFragmentCoord();
   setupForceFieldFragment(forceFieldEntityId, fragmentCoord);
@@ -99,10 +99,10 @@ function setupForceFieldFragment(EntityId forceFieldEntityId, Vec3 fragmentCoord
 
   // Update the fragment data to associate it with the forcefield
   fragmentData.forceFieldId = forceFieldEntityId;
-  fragmentData.forceFieldCreatedAt = ForceField._getCreatedAt(forceFieldEntityId);
+  fragmentData.forceFieldCreatedAt = Machine._getCreatedAt(forceFieldEntityId);
 
-  require(fragmentData.entityId.getChip().unwrap() == 0, "Can't expand into a fragment with a chip");
-  Chip._deleteRecord(fragmentData.entityId);
+  require(fragmentData.entityId.getProgram().unwrap() == 0, "Can't expand into a fragment with a program");
+  Program._deleteRecord(fragmentData.entityId);
 
   ForceFieldFragment._set(fragmentCoord, fragmentData);
   return fragmentData.entityId;
@@ -114,8 +114,8 @@ function setupForceFieldFragment(EntityId forceFieldEntityId, Vec3 fragmentCoord
 function removeForceFieldFragment(Vec3 fragmentCoord) returns (EntityId) {
   ForceFieldFragmentData memory fragmentData = ForceFieldFragment._get(fragmentCoord);
 
-  require(fragmentData.entityId.getChip().unwrap() == 0, "Can't remove a fragment with a chip");
-  Chip._deleteRecord(fragmentData.entityId);
+  require(fragmentData.entityId.getProgram().unwrap() == 0, "Can't remove a fragment with a program");
+  Program._deleteRecord(fragmentData.entityId);
 
   // Disassociate the fragment from the forcefield
   ForceFieldFragment._deleteRecord(fragmentCoord);
@@ -126,6 +126,6 @@ function removeForceFieldFragment(Vec3 fragmentCoord) returns (EntityId) {
  * @dev Destroys a forcefield, without cleaning up its shards
  */
 function destroyForceField(EntityId forceFieldEntityId) {
-  Chip._deleteRecord(forceFieldEntityId);
-  ForceField._deleteRecord(forceFieldEntityId);
+  Program._deleteRecord(forceFieldEntityId);
+  Machine._deleteRecord(forceFieldEntityId);
 }

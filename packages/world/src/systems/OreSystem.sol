@@ -11,7 +11,7 @@ import { Player } from "../codegen/tables/Player.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Position, ReversePosition, OreCommitment, MinedOrePosition } from "../utils/Vec3Storage.sol";
 
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { notify, InitiateOreRevealNotifData, RevealOreNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
@@ -22,8 +22,7 @@ import { CHUNK_COMMIT_EXPIRY_BLOCKS, CHUNK_COMMIT_HALF_WIDTH, RESPAWN_ORE_BLOCK_
 
 contract OreSystem is System {
   function oreChunkCommit(Vec3 chunkCoord) public {
-    require(TerrainLib._isChunkExplored(chunkCoord, _world()), "Unexplored chunk");
-    (, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    (, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
     Vec3 playerChunkCoord = playerCoord.toChunkCoord();
 
     require(playerChunkCoord.inSurroundingCube(chunkCoord, CHUNK_COMMIT_HALF_WIDTH), "Not in commit range");

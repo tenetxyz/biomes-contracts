@@ -6,56 +6,56 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
 
 import { GateApprovals, GateApprovalsData } from "../codegen/tables/GateApprovals.sol";
-import { requireChipOwner, requireChipOwnerOrNoOwner } from "../Utils.sol";
+import { requireProgramOwner, requireProgramOwnerOrNoOwner } from "../Utils.sol";
 
 contract GateSystem is System {
   function setGateApprovals(EntityId entityId, GateApprovalsData memory approvals) public {
-    requireChipOwner(entityId);
+    requireProgramOwner(entityId);
     GateApprovals.set(entityId, approvals);
   }
 
   function deleteGateApprovals(EntityId entityId) public {
-    requireChipOwnerOrNoOwner(entityId);
+    requireProgramOwnerOrNoOwner(entityId);
     GateApprovals.deleteRecord(entityId);
   }
 
   function setGateApprovedPlayers(EntityId entityId, address[] memory players) public {
-    requireChipOwner(entityId);
+    requireProgramOwner(entityId);
     GateApprovals.setPlayers(entityId, players);
   }
 
   function pushGateApprovedPlayer(EntityId entityId, address player) public {
-    requireChipOwner(entityId);
+    requireProgramOwner(entityId);
     GateApprovals.pushPlayers(entityId, player);
   }
 
   function popGateApprovedPlayer(EntityId entityId) public {
-    requireChipOwner(entityId);
+    requireProgramOwner(entityId);
     GateApprovals.popPlayers(entityId);
   }
 
   function updateGateApprovedPlayer(EntityId entityId, uint256 index, address player) public {
-    requireChipOwner(entityId);
+    requireProgramOwner(entityId);
     GateApprovals.updatePlayers(entityId, index, player);
   }
 
   function setGateApprovedNFT(EntityId entityId, address[] memory nfts) public {
-    requireChipOwner(entityId);
+    requireProgramOwner(entityId);
     GateApprovals.setNfts(entityId, nfts);
   }
 
   function pushGateApprovedNFT(EntityId entityId, address nft) public {
-    requireChipOwner(entityId);
+    requireProgramOwner(entityId);
     GateApprovals.pushNfts(entityId, nft);
   }
 
   function popGateApprovedNFT(EntityId entityId) public {
-    requireChipOwner(entityId);
+    requireProgramOwner(entityId);
     GateApprovals.popNfts(entityId);
   }
 
   function updateGateApprovedNFT(EntityId entityId, uint256 index, address nft) public {
-    requireChipOwner(entityId);
+    requireProgramOwner(entityId);
     GateApprovals.updateNfts(entityId, index, nft);
   }
 }

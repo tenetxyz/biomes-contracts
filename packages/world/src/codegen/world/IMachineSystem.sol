@@ -11,5 +11,5 @@ import { EntityId } from "../../EntityId.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IMachineSystem {
-  function powerMachine(EntityId entityId, uint16 numBattery) external;
+  function powerMachine(EntityId entityId, uint16 fuelAmount) external;
 }

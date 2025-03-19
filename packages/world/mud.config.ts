@@ -21,8 +21,8 @@ export default defineWorld({
       "Wakeup",
       "PowerMachine",
       "HitMachine",
-      "AttachChip",
-      "DetachChip",
+      "AttachProgram",
+      "DetachProgram",
       "InitiateOreReveal",
       "RevealOre",
       "ExpandForceField",
@@ -168,7 +168,6 @@ export default defineWorld({
         lastUpdatedTime: "uint128",
         energy: "uint128",
         drainRate: "uint128",
-        accDepletedTime: "uint128",
       },
       key: ["entityId"],
     },
@@ -211,7 +210,7 @@ export default defineWorld({
         z: "int32",
         root: "bytes32",
       },
-      key: ["x", "z"]
+      key: ["x", "z"],
     },
     // ------------------------------------------------------------
     // Inventory
@@ -280,7 +279,7 @@ export default defineWorld({
       schema: {
         bedEntityId: "EntityId",
         playerEntityId: "EntityId",
-        lastAccDepletedTime: "uint128",
+        lastDepletedTime: "uint128",
       },
       key: ["bedEntityId"],
     },
@@ -292,20 +291,13 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    PlayerActivity: {
-      schema: {
-        entityId: "EntityId",
-        lastActionTime: "uint128",
-      },
-      key: ["entityId"],
-    },
     // ------------------------------------------------------------
     // Smart Items
     // ------------------------------------------------------------
-    Chip: {
+    Program: {
       schema: {
         entityId: "EntityId",
-        chipSystemId: "ResourceId",
+        programSystemId: "ResourceId",
       },
       key: ["entityId"],
     },
@@ -330,10 +322,11 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    ForceField: {
+    Machine: {
       schema: {
         entityId: "EntityId",
         createdAt: "uint128",
+        depletedTime: "uint128",
       },
       key: ["entityId"],
     },

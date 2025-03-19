@@ -2,13 +2,13 @@
 pragma solidity >=0.8.24;
 
 import { Vec3 } from "../Vec3.sol";
-import { IChip } from "./IChip.sol";
+import { IProgram } from "./IProgram.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 
-// Interface for a force field chip
-interface IForceFieldFragmentChip is IChip {
+// Interface for a force field program
+interface IForceFieldFragmentProgram is IProgram {
   function onBuild(
     EntityId targetEntityId,
     EntityId callerEntityId,
@@ -25,14 +25,14 @@ interface IForceFieldFragmentChip is IChip {
     bytes memory extraData
   ) external payable;
 
-  function onChipAttached(
+  function onProgramAttached(
     EntityId callerEntityId,
     EntityId targetEntityId,
     EntityId attachedToEntityId,
     bytes memory extraData
   ) external;
 
-  function onChipDetached(
+  function onProgramDetached(
     EntityId callerEntityId,
     EntityId targetEntityId,
     EntityId detachedFromEntityId,

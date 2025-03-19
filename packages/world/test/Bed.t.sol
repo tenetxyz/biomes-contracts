@@ -13,14 +13,14 @@ import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
+import { Machine } from "../src/codegen/tables/Machine.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { BedPlayer, BedPlayerData } from "../src/codegen/tables/BedPlayer.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { ForceField } from "../src/codegen/tables/ForceField.sol";
 
 import { LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
-import { IBedChip } from "../src/prototypes/IBedChip.sol";
+import { IBedProgram } from "../src/prototypes/IBedProgram.sol";
 import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
@@ -29,7 +29,7 @@ import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MACHINE_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { TestEnergyUtils } from "./utils/TestUtils.sol";
 
-contract TestBedChip is IBedChip, System {
+contract TestBedProgram is IBedProgram, System {
   function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
 
   function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
@@ -39,7 +39,7 @@ contract TestBedChip is IBedChip, System {
   function onWakeup(EntityId callerEntityId, EntityId bedEntityId, bytes memory extraData) external payable {}
 
   function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
-    return interfaceId == type(IBedChip).interfaceId || super.supportsInterface(interfaceId);
+    return interfaceId == type(IBedProgram).interfaceId || super.supportsInterface(interfaceId);
   }
 }
 
@@ -55,21 +55,21 @@ contract BedTest is BiomesTest {
     return bedEntityId;
   }
 
-  function attachTestChip(EntityId bedEntityId) internal {
-    TestBedChip chip = new TestBedChip();
-    bytes14 namespace = "chipNamespace";
+  function attachTestProgram(EntityId bedEntityId) internal {
+    TestBedProgram program = new TestBedProgram();
+    bytes14 namespace = "programNS";
     ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);
-    ResourceId chipSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "chipName");
+    ResourceId programSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "programName");
     world.registerNamespace(namespaceId);
-    world.registerSystem(chipSystemId, chip, false);
+    world.registerSystem(programSystemId, program, false);
     world.transferOwnership(namespaceId, address(0));
 
     Vec3 bedCoord = Position.get(bedEntityId);
 
-    // Attach chip with test player
+    // Attach program with test player
     (address bob, ) = createTestPlayer(bedCoord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachChip(bedEntityId, chipSystemId, "");
+    world.attachProgram(bedEntityId, programSystemId, "");
   }
 
   function testSleep() public {
@@ -83,14 +83,13 @@ contract BedTest is BiomesTest {
       EnergyData({
         energy: 1000,
         lastUpdatedTime: uint128(vm.getBlockTimestamp()),
-        drainRate: MACHINE_ENERGY_DRAIN_RATE,
-        accDepletedTime: 0
+        drainRate: MACHINE_ENERGY_DRAIN_RATE
       })
     );
 
     EntityId bedEntityId = createBed(bedCoord);
 
-    attachTestChip(bedEntityId);
+    attachTestProgram(bedEntityId);
 
     vm.prank(alice);
     world.sleep(bedEntityId, "");
@@ -98,7 +97,7 @@ contract BedTest is BiomesTest {
     // Checks
     BedPlayerData memory bedPlayerData = BedPlayer.get(bedEntityId);
     assertEq(bedPlayerData.playerEntityId.unwrap(), aliceEntityId.unwrap(), "Bed's player entity is not alice");
-    assertEq(bedPlayerData.lastAccDepletedTime, 0, "Wrong lastAccDepletedTime");
+    assertEq(bedPlayerData.lastDepletedTime, 0, "Wrong lastDepletedTime");
     assertEq(
       PlayerStatus.getBedEntityId(aliceEntityId).unwrap(),
       bedEntityId.unwrap(),
@@ -164,14 +163,13 @@ contract BedTest is BiomesTest {
       EnergyData({
         energy: initialForcefieldEnergy,
         lastUpdatedTime: uint128(vm.getBlockTimestamp()),
-        drainRate: MACHINE_ENERGY_DRAIN_RATE,
-        accDepletedTime: 0
+        drainRate: MACHINE_ENERGY_DRAIN_RATE
       })
     );
 
     EntityId bedEntityId = createBed(bedCoord);
 
-    attachTestChip(bedEntityId);
+    attachTestProgram(bedEntityId);
 
     vm.prank(alice);
     world.sleep(bedEntityId, "");
@@ -211,14 +209,13 @@ contract BedTest is BiomesTest {
       EnergyData({
         energy: initialForcefieldEnergy,
         lastUpdatedTime: uint128(vm.getBlockTimestamp()),
-        drainRate: MACHINE_ENERGY_DRAIN_RATE,
-        accDepletedTime: 0
+        drainRate: MACHINE_ENERGY_DRAIN_RATE
       })
     );
 
     EntityId bedEntityId = createBed(bedCoord);
 
-    attachTestChip(bedEntityId);
+    attachTestProgram(bedEntityId);
 
     vm.prank(alice);
     world.sleep(bedEntityId, "");
@@ -233,10 +230,11 @@ contract BedTest is BiomesTest {
     world.wakeup(coord, "");
 
     EnergyData memory ffEnergyData = Energy.get(forcefieldEntityId);
+    uint128 depletedTime = Machine.getDepletedTime(forcefieldEntityId);
     assertEq(ffEnergyData.energy, 0, "Forcefield energy wasn't drained correctly");
     assertEq(ffEnergyData.drainRate, MACHINE_ENERGY_DRAIN_RATE, "Forcefield drain rate was not restored");
     // The forcefield had 0 energy for 500 seconds
-    assertEq(ffEnergyData.accDepletedTime, 500, "Forcefield accDepletedTime was not computed correctly");
+    assertEq(depletedTime, 500, "Forcefield depletedTime was not computed correctly");
 
     // Check that the player energy was drained during the 1000 seconds that the forcefield was off
     assertEq(
@@ -262,14 +260,13 @@ contract BedTest is BiomesTest {
       EnergyData({
         energy: initialForcefieldEnergy,
         lastUpdatedTime: uint128(vm.getBlockTimestamp()),
-        drainRate: MACHINE_ENERGY_DRAIN_RATE,
-        accDepletedTime: 0
+        drainRate: MACHINE_ENERGY_DRAIN_RATE
       })
     );
 
     EntityId bedEntityId = createBed(bedCoord);
 
-    attachTestChip(bedEntityId);
+    attachTestProgram(bedEntityId);
 
     vm.prank(alice);
     world.sleep(bedEntityId, "");
@@ -279,7 +276,7 @@ contract BedTest is BiomesTest {
     vm.warp(vm.getBlockTimestamp() + 1000 seconds + 500 seconds);
 
     // Then we charge it again with the initial charge
-    TestEnergyUtils.updateEnergyLevel(forcefieldEntityId);
+    TestEnergyUtils.updateMachineEnergy(forcefieldEntityId);
     Energy.setEnergy(forcefieldEntityId, initialForcefieldEnergy);
 
     // Then we wait for another 1000 seconds so the forcefield is fully depleted again
@@ -290,10 +287,11 @@ contract BedTest is BiomesTest {
     world.wakeup(coord, "");
 
     EnergyData memory ffEnergyData = Energy.get(forcefieldEntityId);
+    uint128 depletedTime = Machine.getDepletedTime(forcefieldEntityId);
     assertEq(ffEnergyData.energy, 0, "Forcefield energy wasn't drained correctly");
     assertEq(ffEnergyData.drainRate, MACHINE_ENERGY_DRAIN_RATE, "Forcefield drain rate was not restored");
     // The forcefield had 0 energy for 500 seconds
-    assertEq(ffEnergyData.accDepletedTime, 500, "Forcefield accDepletedTime was not computed correctly");
+    assertEq(depletedTime, 500, "Forcefield depletedTime was not computed correctly");
 
     // Check that the player energy was drained during the 1000 seconds that the forcefield was off,
     // but not after recharging
@@ -320,14 +318,13 @@ contract BedTest is BiomesTest {
       EnergyData({
         energy: initialForcefieldEnergy,
         lastUpdatedTime: uint128(vm.getBlockTimestamp()),
-        drainRate: MACHINE_ENERGY_DRAIN_RATE,
-        accDepletedTime: 0
+        drainRate: MACHINE_ENERGY_DRAIN_RATE
       })
     );
 
     EntityId bedEntityId = createBed(bedCoord);
 
-    attachTestChip(bedEntityId);
+    attachTestProgram(bedEntityId);
 
     vm.prank(alice);
     world.sleep(bedEntityId, "");
@@ -342,9 +339,10 @@ contract BedTest is BiomesTest {
     vm.expectRevert("Player died while sleeping");
     world.wakeup(coord, "");
 
-    TestEnergyUtils.updateEnergyLevel(forcefieldEntityId);
+    TestEnergyUtils.updateMachineEnergy(forcefieldEntityId);
 
     EnergyData memory ffEnergyData = Energy.get(forcefieldEntityId);
+    uint128 depletedTime = Machine.getDepletedTime(forcefieldEntityId);
     assertEq(ffEnergyData.energy, 0, "Forcefield energy wasn't drained correctly");
     assertEq(
       ffEnergyData.drainRate,
@@ -352,7 +350,7 @@ contract BedTest is BiomesTest {
       "Forcefield drain rate does not include player"
     );
     // The forcefield had 0 energy for 500 seconds
-    assertEq(ffEnergyData.accDepletedTime, playerDrainTime, "Forcefield accDepletedTime was not computed correctly");
+    assertEq(depletedTime, playerDrainTime, "Forcefield depletedTime was not computed correctly");
   }
 
   function testRemoveDeadPlayerFromBed() public {
@@ -371,14 +369,13 @@ contract BedTest is BiomesTest {
       EnergyData({
         energy: initialForcefieldEnergy,
         lastUpdatedTime: uint128(vm.getBlockTimestamp()),
-        drainRate: MACHINE_ENERGY_DRAIN_RATE,
-        accDepletedTime: 0
+        drainRate: MACHINE_ENERGY_DRAIN_RATE
       })
     );
 
     EntityId bedEntityId = createBed(bedCoord);
 
-    attachTestChip(bedEntityId);
+    attachTestProgram(bedEntityId);
 
     vm.prank(alice);
     world.sleep(bedEntityId, "");
@@ -393,12 +390,25 @@ contract BedTest is BiomesTest {
     world.removeDeadPlayerFromBed(aliceEntityId, coord);
 
     EnergyData memory ffEnergyData = Energy.get(forcefieldEntityId);
+    uint128 depletedTime = Machine.getDepletedTime(forcefieldEntityId);
     assertEq(ffEnergyData.energy, 0, "Forcefield energy wasn't drained correctly");
     assertEq(ffEnergyData.drainRate, MACHINE_ENERGY_DRAIN_RATE, "Forcefield drain rate was not restored");
     // The forcefield had 0 energy for playerDrainTime seconds
-    assertEq(ffEnergyData.accDepletedTime, playerDrainTime, "Forcefield accDepletedTime was not computed correctly");
+    assertEq(depletedTime, playerDrainTime, "Forcefield depletedTime was not computed correctly");
 
     // Check that the player energy was drained during the playerDrainTime seconds that the forcefield was off
     assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy was not drained");
+  }
+
+  function testTransfersInventoryToBed() public {
+    vm.skip(true, "TODO");
+  }
+
+  function testTransfersInventoryToPlayer() public {
+    vm.skip(true, "TODO");
+  }
+
+  function testTransfersInventoryToAirOnMined() public {
+    vm.skip(true, "TODO");
   }
 }

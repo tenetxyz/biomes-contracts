@@ -230,39 +230,6 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "experience__deleteChipAdmin",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "experience__deleteChipAttacher",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "experience__deleteChipMetadata",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "experience__deleteExchange",
     "inputs": [
       {
@@ -367,6 +334,39 @@ declare const abi: [
         "internalType": "EntityId"
       }
     ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteProgramAdmin",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteProgramAttacher",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__deleteProgramMetadata",
+    "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
@@ -526,7 +526,7 @@ declare const abi: [
                 ]
               },
               {
-                "name": "chipSystemId",
+                "name": "programSystemId",
                 "type": "bytes32",
                 "internalType": "ResourceId"
               },
@@ -554,23 +554,18 @@ declare const abi: [
                     "name": "drainRate",
                     "type": "uint128",
                     "internalType": "uint128"
-                  },
-                  {
-                    "name": "accDepletedTime",
-                    "type": "uint128",
-                    "internalType": "uint128"
                   }
                 ]
               }
             ]
           },
           {
-            "name": "chipAttacher",
+            "name": "programAttacher",
             "type": "address",
             "internalType": "address"
           },
           {
-            "name": "chipAdmin",
+            "name": "programAdmin",
             "type": "address",
             "internalType": "address"
           },
@@ -782,7 +777,7 @@ declare const abi: [
                 ]
               },
               {
-                "name": "chipSystemId",
+                "name": "programSystemId",
                 "type": "bytes32",
                 "internalType": "ResourceId"
               },
@@ -810,23 +805,18 @@ declare const abi: [
                     "name": "drainRate",
                     "type": "uint128",
                     "internalType": "uint128"
-                  },
-                  {
-                    "name": "accDepletedTime",
-                    "type": "uint128",
-                    "internalType": "uint128"
                   }
                 ]
               }
             ]
           },
           {
-            "name": "chipAttacher",
+            "name": "programAttacher",
             "type": "address",
             "internalType": "address"
           },
           {
-            "name": "chipAdmin",
+            "name": "programAdmin",
             "type": "address",
             "internalType": "address"
           },
@@ -1032,72 +1022,6 @@ declare const abi: [
         "name": "assetType",
         "type": "uint8",
         "internalType": "enum ResourceType"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "experience__setChipAdmin",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "admin",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "experience__setChipAttacher",
-    "inputs": [
-      {
-        "name": "entityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "attacher",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "experience__setChipMetadata",
-    "inputs": [
-      {
-        "name": "metadata",
-        "type": "tuple",
-        "internalType": "struct ChipMetadataData",
-        "components": [
-          {
-            "name": "chipType",
-            "type": "uint8",
-            "internalType": "enum ChipType"
-          },
-          {
-            "name": "name",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "description",
-            "type": "string",
-            "internalType": "string"
-          }
-        ]
       }
     ],
     "outputs": [],
@@ -1530,6 +1454,72 @@ declare const abi: [
         "name": "withdrawAllowed",
         "type": "bool",
         "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setProgramAdmin",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "admin",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setProgramAttacher",
+    "inputs": [
+      {
+        "name": "entityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "attacher",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "experience__setProgramMetadata",
+    "inputs": [
+      {
+        "name": "metadata",
+        "type": "tuple",
+        "internalType": "struct ProgramMetadataData",
+        "components": [
+          {
+            "name": "programType",
+            "type": "uint8",
+            "internalType": "enum ProgramType"
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
       }
     ],
     "outputs": [],

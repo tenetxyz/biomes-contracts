@@ -17,19 +17,20 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
-import { EntityId } from "@biomesaw/world/src/EntityId.sol";
+import { EntityId } from "../../EntityId.sol";
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-library ChipAdmin {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "experience", name: "ChipAdmin", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x7462657870657269656e6365000000004368697041646d696e00000000000000);
+library Program {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Program", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000050726f6772616d000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0014010014000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (address)
-  Schema constant _valueSchema = Schema.wrap(0x0014010061000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32)
+  Schema constant _valueSchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -46,7 +47,7 @@ library ChipAdmin {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "admin";
+    fieldNames[0] = "programSystemId";
   }
 
   /**
@@ -64,136 +65,111 @@ library ChipAdmin {
   }
 
   /**
-   * @notice Register the table with its config (using the specified store).
+   * @notice Get programSystemId.
    */
-  function register(IStore _store) internal {
-    _store.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
-   * @notice Get admin.
-   */
-  function getAdmin(EntityId entityId) internal view returns (address admin) {
+  function getProgramSystemId(EntityId entityId) internal view returns (ResourceId programSystemId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
+    return ResourceId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get admin.
+   * @notice Get programSystemId.
    */
-  function _getAdmin(EntityId entityId) internal view returns (address admin) {
+  function _getProgramSystemId(EntityId entityId) internal view returns (ResourceId programSystemId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
+    return ResourceId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get admin (using the specified store).
+   * @notice Get programSystemId.
    */
-  function getAdmin(IStore _store, EntityId entityId) internal view returns (address admin) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
-  }
-
-  /**
-   * @notice Get admin.
-   */
-  function get(EntityId entityId) internal view returns (address admin) {
+  function get(EntityId entityId) internal view returns (ResourceId programSystemId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
+    return ResourceId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get admin.
+   * @notice Get programSystemId.
    */
-  function _get(EntityId entityId) internal view returns (address admin) {
+  function _get(EntityId entityId) internal view returns (ResourceId programSystemId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
+    return ResourceId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get admin (using the specified store).
+   * @notice Set programSystemId.
    */
-  function get(IStore _store, EntityId entityId) internal view returns (address admin) {
+  function setProgramSystemId(EntityId entityId, ResourceId programSystemId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    bytes32 _blob = _store.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
+    StoreSwitch.setStaticField(
+      _tableId,
+      _keyTuple,
+      0,
+      abi.encodePacked(ResourceId.unwrap(programSystemId)),
+      _fieldLayout
+    );
   }
 
   /**
-   * @notice Set admin.
+   * @notice Set programSystemId.
    */
-  function setAdmin(EntityId entityId, address admin) internal {
+  function _setProgramSystemId(EntityId entityId, ResourceId programSystemId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
+    StoreCore.setStaticField(
+      _tableId,
+      _keyTuple,
+      0,
+      abi.encodePacked(ResourceId.unwrap(programSystemId)),
+      _fieldLayout
+    );
   }
 
   /**
-   * @notice Set admin.
+   * @notice Set programSystemId.
    */
-  function _setAdmin(EntityId entityId, address admin) internal {
+  function set(EntityId entityId, ResourceId programSystemId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
+    StoreSwitch.setStaticField(
+      _tableId,
+      _keyTuple,
+      0,
+      abi.encodePacked(ResourceId.unwrap(programSystemId)),
+      _fieldLayout
+    );
   }
 
   /**
-   * @notice Set admin (using the specified store).
+   * @notice Set programSystemId.
    */
-  function setAdmin(IStore _store, EntityId entityId, address admin) internal {
+  function _set(EntityId entityId, ResourceId programSystemId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set admin.
-   */
-  function set(EntityId entityId, address admin) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set admin.
-   */
-  function _set(EntityId entityId, address admin) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set admin (using the specified store).
-   */
-  function set(IStore _store, EntityId entityId, address admin) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    _store.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((admin)), _fieldLayout);
+    StoreCore.setStaticField(
+      _tableId,
+      _keyTuple,
+      0,
+      abi.encodePacked(ResourceId.unwrap(programSystemId)),
+      _fieldLayout
+    );
   }
 
   /**
@@ -217,21 +193,11 @@ library ChipAdmin {
   }
 
   /**
-   * @notice Delete all data for given keys (using the specified store).
-   */
-  function deleteRecord(IStore _store, EntityId entityId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = EntityId.unwrap(entityId);
-
-    _store.deleteRecord(_tableId, _keyTuple);
-  }
-
-  /**
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(address admin) internal pure returns (bytes memory) {
-    return abi.encodePacked(admin);
+  function encodeStatic(ResourceId programSystemId) internal pure returns (bytes memory) {
+    return abi.encodePacked(programSystemId);
   }
 
   /**
@@ -240,8 +206,8 @@ library ChipAdmin {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(address admin) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(admin);
+  function encode(ResourceId programSystemId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(programSystemId);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

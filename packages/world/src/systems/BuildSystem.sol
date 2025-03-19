@@ -18,15 +18,15 @@ import { PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol"
 
 import { getUniqueEntity } from "../Utils.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
-import { requireValidPlayer, requireInPlayerInfluence } from "../utils/PlayerUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
-import { transferEnergyToPool, removeEnergyFromLocalPool, updateEnergyLevel } from "../utils/EnergyUtils.sol";
+import { transferEnergyToPool, removeEnergyFromLocalPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getPlayer } from "../utils/EntityUtils.sol";
 import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
-import { callChipOrRevert } from "../utils/callChip.sol";
+import { callProgramOrRevert } from "../utils/callProgram.sol";
 
-import { IForceFieldFragmentChip } from "../prototypes/IForceFieldChip.sol";
+import { IForceFieldFragmentProgram } from "../prototypes/IForceFieldProgram.sol";
 
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -73,19 +73,19 @@ library BuildLib {
       }
 
       if (forceFieldEntityId.exists()) {
-        EnergyData memory machineData = updateEnergyLevel(forceFieldEntityId);
+        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onBuildCall = abi.encodeCall(
-            IForceFieldFragmentChip.onBuild,
+            IForceFieldFragmentProgram.onBuild,
             (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
           );
 
-          // We know fragment is active because its forcefield exists, so we can use its chip
-          ResourceId fragmentChip = fragmentEntityId.getChip();
-          if (fragmentChip.unwrap() != 0) {
-            callChipOrRevert(fragmentChip, onBuildCall);
+          // We know fragment is active because its forcefield exists, so we can use its program
+          ResourceId fragmentProgram = fragmentEntityId.getProgram();
+          if (fragmentProgram.unwrap() != 0) {
+            callProgramOrRevert(fragmentProgram, onBuildCall);
           } else {
-            callChipOrRevert(forceFieldEntityId.getChip(), onBuildCall);
+            callProgramOrRevert(forceFieldEntityId.getProgram(), onBuildCall);
           }
         }
       }
@@ -103,8 +103,8 @@ contract BuildSystem is System {
     bytes calldata extraData
   ) public payable returns (EntityId) {
     require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
-    requireInPlayerInfluence(playerCoord, baseCoord);
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
+    PlayerUtils.requireInPlayerInfluence(playerCoord, baseCoord);
 
     EntityId baseEntityId = BuildLib._addBlock(buildObjectTypeId, baseCoord);
     Orientation._set(baseEntityId, direction);
@@ -160,7 +160,7 @@ contract BuildSystem is System {
     Direction direction,
     bytes calldata extraData
   ) public payable {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = requireValidPlayer(_msgSender());
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
 
     Vec3[] memory moveCoords = new Vec3[](1);
     moveCoords[0] = playerCoord + vec3(0, 1, 0);

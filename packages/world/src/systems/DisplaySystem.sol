@@ -6,7 +6,7 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { Chip } from "../codegen/tables/Chip.sol";
+import { Program } from "../codegen/tables/Program.sol";
 import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
@@ -14,7 +14,7 @@ import { DisplayContentType } from "../codegen/common.sol";
 
 import { Position, ReversePosition } from "../utils/Vec3Storage.sol";
 
-import { IDisplayChip } from "../prototypes/IDisplayChip.sol";
+import { IDisplayProgram } from "../prototypes/IDisplayProgram.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { getLatestEnergyData } from "../utils/EnergyUtils.sol";
@@ -38,12 +38,12 @@ contract DisplaySystem is System {
     (EntityId forceFieldEntityId, ) = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
     if (forceFieldEntityId.exists()) {
-      (EnergyData memory machineData, ) = getLatestEnergyData(forceFieldEntityId);
+      (EnergyData memory machineData, , ) = getLatestEnergyData(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
     }
     if (machineEnergyLevel > 0) {
-      // We can call the chip directly as we are a root system
-      return IDisplayChip(baseEntityId.getChipAddress()).getDisplayContent(baseEntityId);
+      // We can call the program directly as we are a root system
+      return IDisplayProgram(baseEntityId.getProgramAddress()).getDisplayContent(baseEntityId);
     }
 
     return DisplayContentData({ contentType: DisplayContentType.None, content: bytes("") });

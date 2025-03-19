@@ -115,7 +115,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "attachChip",
+    "name": "attachProgram",
     "inputs": [
       {
         "name": "entityId",
@@ -123,7 +123,7 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "chipSystemId",
+        "name": "programSystemId",
         "type": "bytes32",
         "internalType": "ResourceId"
       },
@@ -450,7 +450,7 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "detachChip",
+    "name": "detachProgram",
     "inputs": [
       {
         "name": "entityId",
@@ -876,7 +876,7 @@ declare const abi: [
             ]
           },
           {
-            "name": "chipSystemId",
+            "name": "programSystemId",
             "type": "bytes32",
             "internalType": "ResourceId"
           },
@@ -902,11 +902,6 @@ declare const abi: [
               },
               {
                 "name": "drainRate",
-                "type": "uint128",
-                "internalType": "uint128"
-              },
-              {
-                "name": "accDepletedTime",
                 "type": "uint128",
                 "internalType": "uint128"
               }
@@ -993,7 +988,7 @@ declare const abi: [
             ]
           },
           {
-            "name": "chipSystemId",
+            "name": "programSystemId",
             "type": "bytes32",
             "internalType": "ResourceId"
           },
@@ -1019,11 +1014,6 @@ declare const abi: [
               },
               {
                 "name": "drainRate",
-                "type": "uint128",
-                "internalType": "uint128"
-              },
-              {
-                "name": "accDepletedTime",
                 "type": "uint128",
                 "internalType": "uint128"
               }
@@ -1274,7 +1264,7 @@ declare const abi: [
             ]
           },
           {
-            "name": "chipSystemId",
+            "name": "programSystemId",
             "type": "bytes32",
             "internalType": "ResourceId"
           },
@@ -1300,11 +1290,6 @@ declare const abi: [
               },
               {
                 "name": "drainRate",
-                "type": "uint128",
-                "internalType": "uint128"
-              },
-              {
-                "name": "accDepletedTime",
                 "type": "uint128",
                 "internalType": "uint128"
               }
@@ -1391,7 +1376,7 @@ declare const abi: [
             ]
           },
           {
-            "name": "chipSystemId",
+            "name": "programSystemId",
             "type": "bytes32",
             "internalType": "ResourceId"
           },
@@ -1417,11 +1402,6 @@ declare const abi: [
               },
               {
                 "name": "drainRate",
-                "type": "uint128",
-                "internalType": "uint128"
-              },
-              {
-                "name": "accDepletedTime",
                 "type": "uint128",
                 "internalType": "uint128"
               }
@@ -1462,11 +1442,6 @@ declare const abi: [
             "name": "equippedEntityId",
             "type": "bytes32",
             "internalType": "EntityId"
-          },
-          {
-            "name": "lastActionTime",
-            "type": "uint256",
-            "internalType": "uint256"
           },
           {
             "name": "entityData",
@@ -1533,7 +1508,7 @@ declare const abi: [
                 ]
               },
               {
-                "name": "chipSystemId",
+                "name": "programSystemId",
                 "type": "bytes32",
                 "internalType": "ResourceId"
               },
@@ -1559,11 +1534,6 @@ declare const abi: [
                   },
                   {
                     "name": "drainRate",
-                    "type": "uint128",
-                    "internalType": "uint128"
-                  },
-                  {
-                    "name": "accDepletedTime",
                     "type": "uint128",
                     "internalType": "uint128"
                   }
@@ -1608,11 +1578,6 @@ declare const abi: [
             "internalType": "EntityId"
           },
           {
-            "name": "lastActionTime",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
             "name": "entityData",
             "type": "tuple",
             "internalType": "struct EntityData",
@@ -1677,7 +1642,7 @@ declare const abi: [
                 ]
               },
               {
-                "name": "chipSystemId",
+                "name": "programSystemId",
                 "type": "bytes32",
                 "internalType": "ResourceId"
               },
@@ -1703,11 +1668,6 @@ declare const abi: [
                   },
                   {
                     "name": "drainRate",
-                    "type": "uint128",
-                    "internalType": "uint128"
-                  },
-                  {
-                    "name": "accDepletedTime",
                     "type": "uint128",
                     "internalType": "uint128"
                   }
@@ -2250,7 +2210,7 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "numBattery",
+        "name": "fuelAmount",
         "type": "uint16",
         "internalType": "uint16"
       }

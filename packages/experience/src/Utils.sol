@@ -2,20 +2,20 @@
 pragma solidity >=0.8.24;
 
 import { EntityId } from "@biomesaw/world/src/EntityId.sol";
-import { Chip } from "@biomesaw/world/src/codegen/tables/Chip.sol";
+import { Program } from "@biomesaw/world/src/codegen/tables/Program.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
-function requireChipOwner(EntityId entityId) view {
+function requireProgramOwner(EntityId entityId) view {
   require(
-    entityId.getChipAddress() == WorldContextConsumerLib._msgSender(),
-    "Only the chip address can perform this action."
+    entityId.getProgramAddress() == WorldContextConsumerLib._msgSender(),
+    "Only the program address can perform this action."
   );
 }
 
-function requireChipOwnerOrNoOwner(EntityId entityId) view {
-  address chipAddress = entityId.getChipAddress();
+function requireProgramOwnerOrNoOwner(EntityId entityId) view {
+  address programAddress = entityId.getProgramAddress();
   require(
-    chipAddress == WorldContextConsumerLib._msgSender() || chipAddress == address(0),
-    "Only the chip address can perform this action."
+    programAddress == WorldContextConsumerLib._msgSender() || programAddress == address(0),
+    "Only the program address can perform this action."
   );
 }
