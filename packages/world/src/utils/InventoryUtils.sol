@@ -135,6 +135,7 @@ function useEquipped(
     } else {
       // use 10% of the mass if it's greater than 10
       if (toolMassLeft > 10) {
+        // TODO: shouldn't it be a percentage of the max mass?
         toolMassUsed = toolMassLeft / 10;
       } else {
         toolMassUsed = toolMassLeft;

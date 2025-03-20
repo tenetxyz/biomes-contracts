@@ -149,8 +149,7 @@ library PlayerUtils {
     Energy._setDrainRate(forceFieldEntityId, Energy._getDrainRate(forceFieldEntityId) - PLAYER_ENERGY_DRAIN_RATE);
   }
 
-  // TODO: maybe also have a _killPlayer that is internal?
-  /// @dev Kill player, it assumes the player has not been killed before
+  /// @dev Kills the player, it assumes the player has not been killed before and that it is not sleeping
   function killPlayer(EntityId playerEntityId, Vec3 coord) internal {
     (EntityId toEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     transferAllInventoryEntities(playerEntityId, toEntityId, objectTypeId);
