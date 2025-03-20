@@ -7,7 +7,7 @@ import { SurfaceChunkCount } from "../codegen/tables/SurfaceChunkCount.sol";
 import { SurfaceChunkByIndex, ExploredChunk, InitialEnergyPool, LocalEnergyPool } from "../utils/Vec3Storage.sol";
 import { RegionMerkleRoot } from "../codegen/tables/RegionMerkleRoot.sol";
 import { SSTORE2 } from "../utils/SSTORE2.sol";
-import { INITIAL_ENERGY_PER_VEGETATION, REGION_SIZE, CHUNK_SIZE } from "../Constants.sol";
+import { INITIAL_ENERGY_PER_VEGETATION, REGION_SIZE, CHUNK_SIZE, INITIAL_LOCAL_ENERGY_BUFFER } from "../Constants.sol";
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 import { TerrainLib } from "./libraries/TerrainLib.sol";
@@ -44,8 +44,8 @@ contract TerrainSystem is System {
     require(MerkleProof.verify(merkleProof, regionRoot, leaf), "Invalid merkle proof");
 
     // Add +1 to be able to distinguish between unexplored and empty region
-    uint128 energy = vegetationCount * INITIAL_ENERGY_PER_VEGETATION + 1;
-    InitialEnergyPool._set(regionCoord, energy);
-    LocalEnergyPool._set(regionCoord, energy);
+    InitialEnergyPool._set(regionCoord, vegetationCount * INITIAL_ENERGY_PER_VEGETATION + 1);
+
+    LocalEnergyPool._set(regionCoord, INITIAL_LOCAL_ENERGY_BUFFER);
   }
 }
