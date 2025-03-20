@@ -30,7 +30,6 @@ import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, REGION_SIZE } from "../src/Constants.sol";
 
 import { LocalEnergyPool, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../src/utils/Vec3Storage.sol";
-import { energyToMass } from "../src/utils/EnergyUtils.sol";
 import { TestInventoryUtils, TestForceFieldUtils, TestEnergyUtils } from "./utils/TestUtils.sol";
 import { BiomesAssertions } from "./BiomesAssertions.sol";
 
@@ -41,7 +40,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
 
   IWorld internal world;
   int32 constant FLAT_CHUNK_GRASS_LEVEL = 4;
-  uint128 playerHandMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST);
+  uint128 playerHandMassReduction = PLAYER_MINE_ENERGY_COST;
 
   function setUp() public virtual override {
     super.setUp();

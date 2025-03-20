@@ -25,7 +25,7 @@ import { OreCommitment } from "../utils/Vec3Storage.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergy, energyToMass, transferEnergyToPool, addEnergyToLocalPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergy, transferEnergyToPool, addEnergyToLocalPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData } from "../utils/NotifUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, getPlayer } from "../utils/EntityUtils.sol";
@@ -251,7 +251,7 @@ library MineLib {
   function _processMassReduction(EntityId playerEntityId, EntityId minedEntityId) public returns (uint128) {
     // TODO: balancing, what should the proper mass and energy cost be?
     uint128 massLeft = Mass._getMass(minedEntityId);
-    uint128 baseMassReduction = energyToMass(PLAYER_MINE_ENERGY_COST);
+    uint128 baseMassReduction = PLAYER_MINE_ENERGY_COST;
     if (massLeft <= baseMassReduction) {
       return 0;
     }

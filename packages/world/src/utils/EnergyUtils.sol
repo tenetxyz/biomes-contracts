@@ -14,15 +14,7 @@ import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { MASS_TO_ENERGY_MULTIPLIER, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
-
-function massToEnergy(uint128 mass) pure returns (uint128) {
-  return uint128(mass * MASS_TO_ENERGY_MULTIPLIER);
-}
-
-function energyToMass(uint128 energy) pure returns (uint128) {
-  return uint128(energy / MASS_TO_ENERGY_MULTIPLIER);
-}
+import { PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 function getLatestEnergyData(EntityId entityId) view returns (EnergyData memory, uint128, uint128) {
   EnergyData memory energyData = Energy._get(entityId);

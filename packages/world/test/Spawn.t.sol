@@ -18,7 +18,6 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
 import { ISpawnTileProgram } from "../src/prototypes/ISpawnTileProgram.sol";
-import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
@@ -43,7 +42,7 @@ contract SpawnTest is BiomesTest {
 
   function spawnEnergy() internal view returns (uint128) {
     uint32 playerMass = ObjectTypeMetadata.getMass(ObjectTypes.Player);
-    return MAX_PLAYER_ENERGY + massToEnergy(playerMass);
+    return MAX_PLAYER_ENERGY + playerMass;
   }
 
   function testRandomSpawn() public {

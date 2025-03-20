@@ -25,7 +25,6 @@ import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
-import { massToEnergy, energyToMass } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
@@ -193,7 +192,7 @@ contract MineTest is BiomesTest {
 
     // Verify mass has been set to the ore's
     uint128 mass = Mass.getMass(mineEntityId);
-    uint128 expectedMass = ObjectTypeMetadata.getMass(oreType) - energyToMass(PLAYER_MINE_ENERGY_COST);
+    uint128 expectedMass = ObjectTypeMetadata.getMass(oreType) - PLAYER_MINE_ENERGY_COST;
     assertEq(mass, expectedMass, "Mass was not set correctly");
 
     // Roll forward many blocks to ensure the commitment expires
@@ -210,7 +209,7 @@ contract MineTest is BiomesTest {
 
     // Verify mass has been set to the ore's
     mass = Mass.getMass(mineEntityId);
-    expectedMass -= energyToMass(PLAYER_MINE_ENERGY_COST);
+    expectedMass -= PLAYER_MINE_ENERGY_COST;
     assertEq(mass, expectedMass, "Mass should decrease after another mining attempt");
   }
 

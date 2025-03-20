@@ -23,7 +23,7 @@ import { checkWorldStatus } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
-import { removeEnergyFromLocalPool, updateMachineEnergy, updatePlayerEnergy, massToEnergy } from "../utils/EnergyUtils.sol";
+import { removeEnergyFromLocalPool, updateMachineEnergy, updatePlayerEnergy } from "../utils/EnergyUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { callProgramOrRevert } from "../utils/callProgram.sol";
 import { ISpawnTileProgram } from "../prototypes/ISpawnTileProgram.sol";
@@ -38,7 +38,7 @@ contract SpawnSystem is System {
   using LibPRNG for LibPRNG.PRNG;
 
   function getEnergyCostToSpawn(uint32 playerMass) internal pure returns (uint128) {
-    uint128 energyRequired = MAX_PLAYER_ENERGY + massToEnergy(playerMass);
+    uint128 energyRequired = MAX_PLAYER_ENERGY + playerMass;
     return energyRequired;
   }
 
