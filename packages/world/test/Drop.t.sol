@@ -12,7 +12,6 @@ import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
-import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
@@ -23,11 +22,10 @@ import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
@@ -51,8 +49,6 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = ReversePosition.get(dropCoord);
     assertFalse(airEntityId.exists(), "Drop entity already exists");
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("drop terrain");
     world.drop(transferObjectTypeId, numToTransfer, dropCoord);
@@ -64,8 +60,6 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToTransfer);
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testDropNonTerrain() public {
@@ -80,8 +74,6 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity doesn't exist");
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("drop non-terrain");
     world.drop(transferObjectTypeId, numToTransfer, dropCoord);
@@ -91,8 +83,6 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToTransfer);
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testDropToolTerrain() public {
@@ -106,8 +96,6 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = ReversePosition.get(dropCoord);
     assertFalse(airEntityId.exists(), "Drop entity already exists");
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("drop tool terrain");
     world.dropTool(toolEntityId, dropCoord);
@@ -120,8 +108,6 @@ contract DropTest is BiomesTest {
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
     assertEq(InventoryEntity.get(toolEntityId), airEntityId, "Inventory entity is not air");
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testDropToolNonTerrain() public {
@@ -135,8 +121,6 @@ contract DropTest is BiomesTest {
     EntityId airEntityId = ReversePosition.get(dropCoord);
     assertTrue(airEntityId.exists(), "Drop entity already exists");
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("drop tool non-terrain");
     world.dropTool(toolEntityId, dropCoord);
@@ -147,8 +131,6 @@ contract DropTest is BiomesTest {
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
     assertEq(InventoryEntity.get(toolEntityId), airEntityId, "Inventory entity is not air");
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testPickup() public {
@@ -162,8 +144,6 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToPickup);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("pickup");
     world.pickup(transferObjectTypeId, numToPickup, pickupCoord);
@@ -173,8 +153,6 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 0);
     assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testPickupTool() public {
@@ -187,8 +165,6 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("pickup tool");
     world.pickupTool(toolEntityId, pickupCoord);
@@ -198,8 +174,6 @@ contract DropTest is BiomesTest {
     assertInventoryHasTool(airEntityId, toolEntityId, 0);
     assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testPickupMultiple() public {
@@ -216,8 +190,6 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, toolObjectTypeId, 0);
     assertInventoryHasObject(airEntityId, objectObjectTypeId, numToPickup);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("pickup multiple");
     PickupData[] memory pickupObjects = new PickupData[](1);
@@ -232,9 +204,6 @@ contract DropTest is BiomesTest {
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
     assertEq(InventorySlots.get(aliceEntityId), 2, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
-
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testPickupAll() public {
@@ -253,8 +222,6 @@ contract DropTest is BiomesTest {
     assertInventoryHasTool(airEntityId, toolEntityId2, 1);
     assertInventoryHasObject(airEntityId, objectObjectTypeId, numToPickup);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("pickup all");
     world.pickupAll(pickupCoord);
@@ -268,9 +235,6 @@ contract DropTest is BiomesTest {
     assertInventoryHasTool(airEntityId, toolEntityId2, 0);
     assertEq(InventorySlots.get(aliceEntityId), 3, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
-
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testPickupMinedChestDrops() public {
@@ -293,8 +257,6 @@ contract DropTest is BiomesTest {
     assertEq(ObjectType.get(airEntityId), ObjectTypes.Air, "Drop entity is not air");
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToPickup);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     world.pickupAll(chestCoord);
 
@@ -302,8 +264,6 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 0);
     assertEq(InventorySlots.get(aliceEntityId), 2, "Inventory slots is not 0");
     assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testPickupFailsIfInventoryFull() public {
@@ -334,11 +294,10 @@ contract DropTest is BiomesTest {
   }
 
   function testDropFailsIfDoesntHaveBlock() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 dropCoord = playerCoord + vec3(0, 0, 1);
-    EntityId airEntityId = setObjectAtCoord(dropCoord, ObjectTypes.Air);
-    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
+    setObjectAtCoord(dropCoord, ObjectTypes.Air);
 
     EntityId toolEntityId = randomEntityId();
 
@@ -485,39 +444,6 @@ contract DropTest is BiomesTest {
     toolEntityIds[1] = toolEntityId2;
     vm.expectRevert("All tools must be of the same type");
     world.dropTools(toolEntityIds, dropCoord);
-  }
-
-  function testPickupFailsIfNotEnoughEnergy() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
-
-    Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
-    EntityId airEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.Air);
-    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(airEntityId, transferObjectTypeId, 1);
-    assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
-    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
-
-    Energy.setEnergy(aliceEntityId, 1);
-
-    vm.prank(alice);
-    vm.expectRevert("Not enough energy");
-    world.pickup(transferObjectTypeId, 1, pickupCoord);
-  }
-
-  function testDropFailsIfNotEnoughEnergy() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
-
-    Vec3 dropCoord = playerCoord + vec3(0, 1, 1);
-    setObjectAtCoord(dropCoord, ObjectTypes.Air);
-    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
-    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
-
-    Energy.setEnergy(aliceEntityId, 1);
-
-    vm.prank(alice);
-    vm.expectRevert("Not enough energy");
-    world.drop(transferObjectTypeId, 1, dropCoord);
   }
 
   function testPickupFailsIfNoPlayer() public {

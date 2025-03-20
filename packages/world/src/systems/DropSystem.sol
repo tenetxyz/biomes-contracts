@@ -7,7 +7,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
-import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
@@ -18,8 +17,6 @@ import { notify, DropNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
-import { PLAYER_DROP_ENERGY_COST } from "../Constants.sol";
-import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 
 // TODO: combine the tool and non-tool drop functions
@@ -30,8 +27,6 @@ contract DropSystem is System {
 
     (EntityId entityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(objectTypeId == ObjectTypes.Air, "Cannot drop on a non-air block");
-
-    transferEnergyToPool(playerEntityId, playerCoord, PLAYER_DROP_ENERGY_COST);
 
     return (playerEntityId, entityId);
   }

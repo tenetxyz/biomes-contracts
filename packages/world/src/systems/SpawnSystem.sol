@@ -23,7 +23,7 @@ import { checkWorldStatus } from "../Utils.sol";
 import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
-import { removeEnergyFromLocalPool, updateMachineEnergy, updatePlayerEnergy, massToEnergy } from "../utils/EnergyUtils.sol";
+import { removeEnergyFromLocalPool, updateMachineEnergy, updatePlayerEnergy } from "../utils/EnergyUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { callProgramOrRevert } from "../utils/callProgram.sol";
 import { ISpawnTileProgram } from "../prototypes/ISpawnTileProgram.sol";
@@ -36,11 +36,6 @@ import { EntityId } from "../EntityId.sol";
 contract SpawnSystem is System {
   using ObjectTypeLib for ObjectTypeId;
   using LibPRNG for LibPRNG.PRNG;
-
-  function getEnergyCostToSpawn(uint32 playerMass) internal pure returns (uint128) {
-    uint128 energyRequired = MAX_PLAYER_ENERGY + massToEnergy(playerMass);
-    return energyRequired;
-  }
 
   function getAllRandomSpawnCoords(
     address sender
@@ -142,11 +137,9 @@ contract SpawnSystem is System {
     require(!forceFieldEntityId.exists(), "Cannot spawn in force field");
 
     // Extract energy from local pool
-    uint32 playerMass = ObjectTypeMetadata._getMass(ObjectTypes.Player);
-    uint128 energyRequired = getEnergyCostToSpawn(playerMass);
-    removeEnergyFromLocalPool(spawnCoord, energyRequired);
+    removeEnergyFromLocalPool(spawnCoord, MAX_PLAYER_ENERGY);
 
-    return _spawnPlayer(playerMass, spawnCoord);
+    return _spawnPlayer(spawnCoord);
   }
 
   function spawn(EntityId spawnTileEntityId, Vec3 spawnCoord, bytes memory extraData) public returns (EntityId) {
@@ -159,13 +152,12 @@ contract SpawnSystem is System {
 
     (EntityId forceFieldEntityId, ) = getForceField(spawnTileCoord);
     require(forceFieldEntityId.exists(), "Spawn tile is not inside a forcefield");
-    uint32 playerMass = ObjectTypeMetadata._getMass(ObjectTypes.Player);
-    uint128 energyRequired = getEnergyCostToSpawn(playerMass);
     (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
+    uint128 energyRequired = MAX_PLAYER_ENERGY;
     require(machineData.energy >= energyRequired, "Not enough energy in spawn tile forcefield");
     Energy._setEnergy(forceFieldEntityId, machineData.energy - energyRequired);
 
-    EntityId playerEntityId = _spawnPlayer(playerMass, spawnCoord);
+    EntityId playerEntityId = _spawnPlayer(spawnCoord);
 
     bytes memory onSpawnCall = abi.encodeCall(
       ISpawnTileProgram.onSpawn,
@@ -176,10 +168,10 @@ contract SpawnSystem is System {
     return playerEntityId;
   }
 
-  function _spawnPlayer(uint32 playerMass, Vec3 spawnCoord) internal returns (EntityId) {
+  function _spawnPlayer(Vec3 spawnCoord) internal returns (EntityId) {
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
-    EntityId playerEntityId = PlayerUtils.getOrCreatePlayer(playerMass);
+    EntityId playerEntityId = PlayerUtils.getOrCreatePlayer();
     SpawnLib._requirePlayerDead(playerEntityId);
 
     // Position the player at the given coordinates

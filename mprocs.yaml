@@ -1,6 +1,6 @@
 procs:
   contracts:
-    shell: pnpm run deploy:local
+    shell: pnpm run deploy:dev
   explorer:
     cwd: packages/world
     shell: pnpm explorer --pi 3008

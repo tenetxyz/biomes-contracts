@@ -16,7 +16,7 @@ import { Position } from "../utils/Vec3Storage.sol";
 
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergy, massToEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { safeCallProgram } from "../utils/callProgram.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
@@ -46,7 +46,7 @@ contract HitMachineSystem is System {
     (uint128 toolMassReduction, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId, type(uint128).max);
     require(toolObjectTypeId.isWhacker(), "You must use a whacker to hit machines");
 
-    uint128 energyReduction = PLAYER_HIT_ENERGY_COST + massToEnergy(toolMassReduction);
+    uint128 energyReduction = PLAYER_HIT_ENERGY_COST + toolMassReduction;
     uint128 newMachineEnergy = energyReduction <= machineData.energy ? machineData.energy - energyReduction : 0;
 
     require(playerEnergyData.energy >= PLAYER_HIT_ENERGY_COST, "Not enough energy");

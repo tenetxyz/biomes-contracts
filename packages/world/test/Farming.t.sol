@@ -19,7 +19,6 @@ import { SeedGrowth } from "../src/codegen/tables/SeedGrowth.sol";
 import { ReversePosition, PlayerPosition } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
-import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
@@ -177,7 +176,7 @@ contract FarmingTest is BiomesTest {
 
     // Set player energy to less than required
     uint128 toolMass = 0; // Assuming tool mass is 0 for simplicity
-    uint128 energyCost = PLAYER_TILL_ENERGY_COST + massToEnergy(toolMass);
+    uint128 energyCost = PLAYER_TILL_ENERGY_COST + toolMass;
     Energy.set(
       aliceEntityId,
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: energyCost - 1, drainRate: 0 })

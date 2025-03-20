@@ -14,15 +14,7 @@ import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { MASS_TO_ENERGY_MULTIPLIER, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
-
-function massToEnergy(uint128 mass) pure returns (uint128) {
-  return uint128(mass * MASS_TO_ENERGY_MULTIPLIER);
-}
-
-function energyToMass(uint128 energy) pure returns (uint128) {
-  return uint128(energy / MASS_TO_ENERGY_MULTIPLIER);
-}
+import { PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 function getLatestEnergyData(EntityId entityId) view returns (EnergyData memory, uint128, uint128) {
   EnergyData memory energyData = Energy._get(entityId);
@@ -111,11 +103,11 @@ function removeEnergyFromLocalPool(Vec3 coord, uint128 numToRemove) returns (uin
   return newLocalEnergy;
 }
 
-function transferEnergyToPool(EntityId from, Vec3 poolCoord, uint128 amount) {
+function transferEnergyToPool(EntityId from, Vec3 coord, uint128 amount) {
   uint128 current = Energy._getEnergy(from);
   require(current >= amount, "Not enough energy");
   Energy._setEnergy(from, current - amount);
-  addEnergyToLocalPool(poolCoord, amount);
+  addEnergyToLocalPool(coord, amount);
 }
 
 function updateSleepingPlayerEnergy(

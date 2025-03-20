@@ -5,20 +5,17 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ActionType } from "../codegen/common.sol";
-import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { ReversePosition } from "../utils/Vec3Storage.sol";
-
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
 import { transferInventoryNonEntity, transferInventoryEntity, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { notify, PickupNotifData } from "../utils/NotifUtils.sol";
+
 import { PickupData } from "../Types.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
-import { PLAYER_PICKUP_ENERGY_COST } from "../Constants.sol";
-import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
 
 contract PickupSystem is System {
   function pickupCommon(Vec3 coord) internal returns (EntityId, EntityId) {
@@ -30,8 +27,6 @@ contract PickupSystem is System {
 
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
     require(objectTypeId == ObjectTypes.Air, "Cannot pickup from a non-air block");
-
-    transferEnergyToPool(playerEntityId, playerCoord, PLAYER_PICKUP_ENERGY_COST);
 
     return (playerEntityId, entityId);
   }
