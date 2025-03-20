@@ -1,9 +1,0 @@
-{
-  "31337": {
-<<<<<<< HEAD
-    "address": "0xDa545E0Ccf672380E2bF88BB61e0bC1f80dAd288"
-=======
-    "address": "0xFcD3f156C544F1eC7f7AaD16455041Ce30D14264"
->>>>>>> 42039b8 (Move player utils into a library, make requireValidPlayer a public function)
-  }
-}
