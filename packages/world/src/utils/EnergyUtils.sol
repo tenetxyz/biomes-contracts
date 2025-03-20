@@ -111,11 +111,11 @@ function removeEnergyFromLocalPool(Vec3 coord, uint128 numToRemove) returns (uin
   return newLocalEnergy;
 }
 
-function transferEnergyToPool(EntityId from, Vec3 poolCoord, uint128 amount) {
+function transferEnergyToPool(EntityId from, Vec3 coord, uint128 amount) {
   uint128 current = Energy._getEnergy(from);
   require(current >= amount, "Not enough energy");
   Energy._setEnergy(from, current - amount);
-  addEnergyToLocalPool(poolCoord, amount);
+  addEnergyToLocalPool(coord, amount);
 }
 
 function updateSleepingPlayerEnergy(

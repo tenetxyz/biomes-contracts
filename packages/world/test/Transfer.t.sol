@@ -12,14 +12,12 @@ import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
 import { ReversePlayerPosition } from "../src/codegen/tables/ReversePlayerPosition.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
-import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
@@ -31,7 +29,6 @@ import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
-import { massToEnergy } from "../src/utils/EnergyUtils.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
@@ -53,8 +50,6 @@ contract TransferTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("transfer to chest");
     world.transfer(chestEntityId, true, transferObjectTypeId, numToTransfer, "");
@@ -64,8 +59,6 @@ contract TransferTest is BiomesTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
     assertEq(InventorySlots.get(chestEntityId), 1, "Inventory slots is not 0");
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testTransferToolToChest() public {
@@ -79,8 +72,6 @@ contract TransferTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("transfer tool to chest");
     world.transferTool(chestEntityId, true, toolEntityId, "");
@@ -90,9 +81,6 @@ contract TransferTest is BiomesTest {
     assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
     assertEq(InventorySlots.get(chestEntityId), 1, "Inventory slots is not 0");
     assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
-
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testTransferFromChest() public {
@@ -106,8 +94,6 @@ contract TransferTest is BiomesTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("transfer from chest");
     world.transfer(chestEntityId, false, transferObjectTypeId, numToTransfer, "");
@@ -117,8 +103,6 @@ contract TransferTest is BiomesTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
     assertEq(InventorySlots.get(aliceEntityId), numToTransfer, "Inventory slots is not 0");
     assertEq(InventorySlots.get(chestEntityId), 0, "Inventory slots is not 0");
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testTransferToolFromChest() public {
@@ -132,8 +116,6 @@ contract TransferTest is BiomesTest {
     EntityId toolEntityId2 = TestInventoryUtils.addToolToInventory(chestEntityId, transferObjectTypeId);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 2);
-
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("transfer tools from chest");
@@ -149,9 +131,6 @@ contract TransferTest is BiomesTest {
     assertInventoryHasTool(chestEntityId, toolEntityId2, 0);
     assertEq(InventorySlots.get(aliceEntityId), 2, "Inventory slots is not 0");
     assertEq(InventorySlots.get(chestEntityId), 0, "Inventory slots is not 0");
-
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testTransferToChestFailsIfChestFull() public {
@@ -295,24 +274,6 @@ contract TransferTest is BiomesTest {
     world.transferTools(chestEntityId, true, toolEntityIds, "");
   }
 
-  function testTransferFailsIfNotEnoughEnergy() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
-
-    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
-    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
-    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
-
-    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
-    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
-
-    Energy.setEnergy(aliceEntityId, 1);
-
-    vm.prank(alice);
-    vm.expectRevert("Not enough energy");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 1, "");
-  }
-
   function testTransferFailsIfTooFar() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
@@ -334,7 +295,7 @@ contract TransferTest is BiomesTest {
   }
 
   function testTransferFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);

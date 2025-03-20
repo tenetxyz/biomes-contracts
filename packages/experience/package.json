@@ -12,7 +12,7 @@
     "build:js": "tsup",
     "clean": "forge clean && shx rm -rf src/**/codegen",
     "deploy": "pnpm run build && ./deployToWorld.bash",
-    "dev": "mud dev-contracts",
+    "dev": "pnpm run build && pnpm mud dev-contracts --rpc http://127.0.0.1:8545",
     "lint": "pnpm run prettier && pnpm run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
