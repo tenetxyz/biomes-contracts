@@ -241,6 +241,7 @@ contract TerrainTest is BiomesTest {
     Vec3 regionCoord = vec3(x, 0, z);
     uint32 vegetationCount = MockVegetation.vegetationCount;
     bytes32[] memory merkleProof = MockVegetation.getProof();
+    RegionMerkleRoot.set(x, z, MockVegetation.regionRoot);
 
     assertEq(InitialEnergyPool.get(regionCoord), 0);
     assertEq(LocalEnergyPool.get(regionCoord), 0);
