@@ -226,7 +226,6 @@ library MassReductionLib {
     EntityId minedEntityId,
     Vec3 playerCoord
   ) public returns (uint128) {
-    // TODO: balancing, what should the proper mass and energy cost be?
     uint128 massLeft = Mass._getMass(minedEntityId);
     if (massLeft == 0) {
       return massLeft;
