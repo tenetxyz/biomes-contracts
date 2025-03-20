@@ -81,13 +81,12 @@ library PlayerUtils {
     return closest;
   }
 
-  function getOrCreatePlayer(uint32 playerMass) internal returns (EntityId) {
+  function getOrCreatePlayer() internal returns (EntityId) {
     address playerAddress = WorldContextConsumerLib._msgSender();
     EntityId playerEntityId = Player._get(playerAddress);
     if (!playerEntityId.exists()) {
       playerEntityId = getUniqueEntity();
 
-      Mass._set(playerEntityId, playerMass);
       Player._set(playerAddress, playerEntityId);
       ReversePlayer._set(playerEntityId, playerAddress);
 
