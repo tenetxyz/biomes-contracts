@@ -10,7 +10,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
-import { transferEnergyToPool, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
+import { decreasePlayerEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -127,7 +127,8 @@ contract FarmingSystem is System {
     require(toolObjectTypeId.isHoe(), "Must equip a hoe");
 
     uint128 energyCost = PLAYER_TILL_ENERGY_COST + massUsed;
-    transferEnergyToPool(playerEntityId, playerCoord, energyCost);
+    decreasePlayerEnergy(playerEntityId, playerCoord, energyCost);
+    addEnergyToLocalPool(playerCoord, energyCost);
 
     ObjectType._set(farmlandEntityId, ObjectTypes.Farmland);
   }

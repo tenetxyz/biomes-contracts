@@ -189,7 +189,7 @@ contract EquipTest is BiomesTest {
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
 
     ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
-    uint128 expectedMassReductionFromTool = 100;
+    uint128 expectedMassReductionFromTool = 50;
     ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction + expectedMassReductionFromTool));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");

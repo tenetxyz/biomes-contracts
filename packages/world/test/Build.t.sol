@@ -404,10 +404,6 @@ contract BuildTest is BiomesTest {
     // Check energy is zero
     assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy is not 0");
 
-    // Call activate to trigger player removal from grid
-    vm.prank(alice);
-    world.activate(aliceEntityId);
-
     // Verify the player entity is still registered to the address, but removed from the grid
     assertEq(Player.get(alice), aliceEntityId, "Player entity was deleted");
     assertEq(PlayerPosition.get(aliceEntityId), vec3(0, 0, 0), "Player position was not deleted");

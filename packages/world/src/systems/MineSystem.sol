@@ -25,9 +25,9 @@ import { OreCommitment } from "../utils/Vec3Storage.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergy, transferEnergyToPool, addEnergyToLocalPool, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergy, updatePlayerEnergy, addEnergyToLocalPool, updateSleepingPlayerEnergy, decreasePlayerEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
-import { notify, MineNotifData } from "../utils/NotifUtils.sol";
+import { notify, MineNotifData, DeathNotifData } from "../utils/NotifUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, getPlayer } from "../utils/EntityUtils.sol";
 import { callProgramOrRevert } from "../utils/callProgram.sol";
 
@@ -71,7 +71,7 @@ contract MineSystem is System {
   }
 
   function getRandomOreType(Vec3 coord) external view returns (ObjectTypeId) {
-    (ObjectTypeId ore, ) = MineLib._getRandomOreType(coord);
+    (ObjectTypeId ore, ) = RandomOreLib._getRandomOreType(coord);
     return ore;
   }
 
@@ -81,8 +81,6 @@ contract MineSystem is System {
 
     (EntityId entityId, ObjectTypeId mineObjectTypeId) = getOrCreateEntityAt(coord);
     require(mineObjectTypeId.isMineable(), "Object is not mineable");
-
-    transferEnergyToPool(playerEntityId, playerCoord, PLAYER_MINE_ENERGY_COST);
 
     EntityId baseEntityId = entityId.baseEntityId();
     Vec3 baseCoord = Position._get(baseEntityId);
@@ -95,7 +93,7 @@ contract MineSystem is System {
     } else if (mineObjectTypeId.isSeed()) {
       _requireSeedNotFullyGrown(baseEntityId);
     } else if (mineObjectTypeId == ObjectTypes.AnyOre) {
-      mineObjectTypeId = MineLib._mineRandomOre(baseEntityId, coord);
+      mineObjectTypeId = RandomOreLib._mineRandomOre(baseEntityId, coord);
     }
 
     // First coord will be the base coord, the rest is relative schema coords
@@ -103,7 +101,7 @@ contract MineSystem is System {
 
     uint128 finalMass;
     {
-      finalMass = MineLib._processMassReduction(playerEntityId, baseEntityId);
+      finalMass = MassReductionLib._processMassReduction(playerEntityId, baseEntityId, playerCoord);
       if (finalMass == 0) {
         if (mineObjectTypeId == ObjectTypes.Bed) {
           // If mining a bed with a sleeping player, kill the player
@@ -176,6 +174,83 @@ contract MineSystem is System {
 }
 
 library MineLib {
+  function _mineBed(EntityId bedEntityId, Vec3 bedCoord) public {
+    EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(bedEntityId);
+    if (sleepingPlayerId.exists()) {
+      (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
+      (, uint128 depletedTime) = updateMachineEnergy(forceFieldEntityId);
+      EnergyData memory playerData = updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, depletedTime, bedCoord);
+      PlayerUtils.removePlayerFromBed(sleepingPlayerId, bedEntityId, forceFieldEntityId);
+
+      // Kill the player
+      // The player is not on the grid so no need to call killPlayer
+      Energy._setEnergy(sleepingPlayerId, 0);
+      addEnergyToLocalPool(bedCoord, playerData.energy);
+      notify(sleepingPlayerId, DeathNotifData({ deathCoord: bedCoord }));
+    }
+  }
+
+  function _requireMinesAllowed(
+    EntityId playerEntityId,
+    ObjectTypeId objectTypeId,
+    Vec3[] memory coords,
+    bytes calldata extraData
+  ) public {
+    for (uint256 i = 0; i < coords.length; i++) {
+      Vec3 coord = coords[i];
+      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(coord);
+      if (forceFieldEntityId.exists()) {
+        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
+        if (machineData.energy > 0) {
+          bytes memory onMineCall = abi.encodeCall(
+            IForceFieldFragmentProgram.onMine,
+            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
+          );
+
+          // We know fragment is active because its forcefield exists, so we can use its program
+          ResourceId fragmentProgram = fragmentEntityId.getProgram();
+          if (fragmentProgram.unwrap() != 0) {
+            callProgramOrRevert(fragmentProgram, onMineCall);
+          } else {
+            callProgramOrRevert(forceFieldEntityId.getProgram(), onMineCall);
+          }
+        }
+      }
+    }
+  }
+}
+
+library MassReductionLib {
+  function _processMassReduction(
+    EntityId playerEntityId,
+    EntityId minedEntityId,
+    Vec3 playerCoord
+  ) public returns (uint128) {
+    // TODO: balancing, what should the proper mass and energy cost be?
+    uint128 massLeft = Mass._getMass(minedEntityId);
+    if (massLeft == 0) {
+      return massLeft;
+    }
+
+    (uint128 toolMassReduction, ) = useEquipped(playerEntityId, massLeft);
+
+    uint128 playerEnergyReduction = 0;
+
+    // if tool mass reduction is not enough, consume energy from player up to mine energy cost
+    if (toolMassReduction < massLeft) {
+      uint128 remaining = massLeft - toolMassReduction;
+      playerEnergyReduction = PLAYER_MINE_ENERGY_COST <= remaining ? PLAYER_MINE_ENERGY_COST : remaining;
+      decreasePlayerEnergy(playerEntityId, playerCoord, playerEnergyReduction);
+    }
+
+    uint128 totalEnergyReduction = playerEnergyReduction + toolMassReduction;
+    addEnergyToLocalPool(playerCoord, totalEnergyReduction);
+
+    return massLeft - totalEnergyReduction;
+  }
+}
+
+library RandomOreLib {
   using LibPRNG for LibPRNG.PRNG;
 
   function _getRandomOreType(Vec3 coord) public view returns (ObjectTypeId, uint256) {
@@ -246,59 +321,5 @@ library MineLib {
     Mass._setMass(entityId, ObjectTypeMetadata._getMass(ore));
 
     return ore;
-  }
-
-  function _processMassReduction(EntityId playerEntityId, EntityId minedEntityId) public returns (uint128) {
-    // TODO: balancing, what should the proper mass and energy cost be?
-    uint128 massLeft = Mass._getMass(minedEntityId);
-    uint128 baseMassReduction = PLAYER_MINE_ENERGY_COST;
-    if (massLeft <= baseMassReduction) {
-      return 0;
-    }
-    massLeft -= baseMassReduction;
-    (uint128 toolMassReduction, ) = useEquipped(playerEntityId, massLeft);
-    return massLeft <= toolMassReduction ? 0 : massLeft - toolMassReduction;
-  }
-
-  function _mineBed(EntityId bedEntityId, Vec3 bedCoord) public {
-    EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(bedEntityId);
-    if (sleepingPlayerId.exists()) {
-      (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
-      (, uint128 depletedTime) = updateMachineEnergy(forceFieldEntityId);
-      EnergyData memory playerData = updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, depletedTime, bedCoord);
-      PlayerUtils.removePlayerFromBed(sleepingPlayerId, bedEntityId, forceFieldEntityId);
-
-      // This kills the player
-      transferEnergyToPool(sleepingPlayerId, bedCoord, playerData.energy);
-    }
-  }
-
-  function _requireMinesAllowed(
-    EntityId playerEntityId,
-    ObjectTypeId objectTypeId,
-    Vec3[] memory coords,
-    bytes calldata extraData
-  ) public {
-    for (uint256 i = 0; i < coords.length; i++) {
-      Vec3 coord = coords[i];
-      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(coord);
-      if (forceFieldEntityId.exists()) {
-        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
-        if (machineData.energy > 0) {
-          bytes memory onMineCall = abi.encodeCall(
-            IForceFieldFragmentProgram.onMine,
-            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
-          );
-
-          // We know fragment is active because its forcefield exists, so we can use its program
-          ResourceId fragmentProgram = fragmentEntityId.getProgram();
-          if (fragmentProgram.unwrap() != 0) {
-            callProgramOrRevert(fragmentProgram, onMineCall);
-          } else {
-            callProgramOrRevert(forceFieldEntityId.getProgram(), onMineCall);
-          }
-        }
-      }
-    }
   }
 }

@@ -16,7 +16,7 @@ import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
 import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
 import { Vec3, vec3 } from "../../Vec3.sol";
-import { transferEnergyToPool } from "../../utils/EnergyUtils.sol";
+import { addEnergyToLocalPool, decreasePlayerEnergy } from "../../utils/EnergyUtils.sol";
 import { safeGetObjectTypeIdAt, getPlayer, setPlayer } from "../../utils/EntityUtils.sol";
 
 library MoveLib {
@@ -118,11 +118,16 @@ library MoveLib {
       setPlayer(newPlayerCoords[i], playerEntityIds[i]);
     }
 
+    uint128 currentEnergy = Energy._getEnergy(playerEntityId);
     uint128 energyCost = (PLAYER_MOVE_ENERGY_COST * uint128(newBaseCoords.length - numFalls)) +
       (PLAYER_FALL_ENERGY_COST * numFalls);
-    uint128 currentEnergy = Energy._getEnergy(playerEntityId);
-    transferEnergyToPool(playerEntityId, playerCoord, energyCost > currentEnergy ? currentEnergy : energyCost);
-    // TODO: drop inventory items
+    energyCost = energyCost > currentEnergy ? currentEnergy : energyCost;
+
+    // TODO: figure out how to run gravity and only kill AFTER that
+    if (energyCost > 0) {
+      decreasePlayerEnergy(playerEntityId, playerCoord, energyCost);
+      addEnergyToLocalPool(playerCoord, energyCost);
+    }
 
     return gravityAppliesForMove;
   }
