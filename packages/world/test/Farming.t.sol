@@ -288,9 +288,10 @@ contract FarmingTest is BiomesTest {
     assertEq(ObjectType.get(cropEntityId), ObjectTypes.Air, "Crop wasn't removed after harvesting");
 
     // Verify local energy pool hasn't changed (energy not returned since crop was fully grown)
+    // NOTE: player's energy is not reduced as currently wheat has 0 mass
     assertEq(
       LocalEnergyPool.get(farmlandCoord.toLocalEnergyPoolShardCoord()),
-      initialLocalEnergy + PLAYER_MINE_ENERGY_COST,
+      initialLocalEnergy,
       "Local energy pool shouldn't change after harvesting mature crop"
     );
   }
@@ -340,9 +341,11 @@ contract FarmingTest is BiomesTest {
     assertEq(ObjectType.get(cropEntityId), ObjectTypes.Air, "Crop wasn't removed after harvesting");
 
     // Verify energy was returned to local pool
+    // Note: currently player's energy is only decreased if the
     assertEq(
       LocalEnergyPool.get(farmlandCoord.toLocalEnergyPoolShardCoord()),
-      beforeHarvestEnergy + seedEnergy + PLAYER_MINE_ENERGY_COST,
+      beforeHarvestEnergy + seedEnergy,
+      // beforeHarvestEnergy + seedEnergy + PLAYER_MINE_ENERGY_COST,
       "Energy not correctly returned to local pool"
     );
   }

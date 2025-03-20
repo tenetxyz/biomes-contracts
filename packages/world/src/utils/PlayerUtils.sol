@@ -149,12 +149,8 @@ library PlayerUtils {
     Energy._setDrainRate(forceFieldEntityId, Energy._getDrainRate(forceFieldEntityId) - PLAYER_ENERGY_DRAIN_RATE);
   }
 
+  /// @dev Kills the player, it assumes the player has not been killed before and that it is not sleeping
   function killPlayer(EntityId playerEntityId, Vec3 coord) internal {
-    // If the player was already killed, return early
-    if (ReversePlayerPosition._get(coord) != playerEntityId) {
-      return;
-    }
-
     (EntityId toEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     transferAllInventoryEntities(playerEntityId, toEntityId, objectTypeId);
     removePlayerFromGrid(playerEntityId, coord);

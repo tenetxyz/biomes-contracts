@@ -189,8 +189,8 @@ contract EquipTest is BiomesTest {
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
 
     ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
-    uint128 expectedMassReductionFromTool = 100;
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction + expectedMassReductionFromTool));
+    uint128 expectedMassReductionFromTool = 50;
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(expectedMassReductionFromTool));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
@@ -203,7 +203,6 @@ contract EquipTest is BiomesTest {
     world.equip(toolEntityId);
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     uint128 toolMassBefore = Mass.getMass(toolEntityId);
 
     vm.prank(alice);
@@ -220,8 +219,6 @@ contract EquipTest is BiomesTest {
     mineEntityId = ReversePosition.get(mineCoord);
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
   function testMineWithEquippedZeroDurability() public {

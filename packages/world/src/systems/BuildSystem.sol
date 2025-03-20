@@ -20,7 +20,7 @@ import { getUniqueEntity } from "../Utils.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
-import { transferEnergyToPool, removeEnergyFromLocalPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
+import { decreasePlayerEnergy, addEnergyToLocalPool, removeEnergyFromLocalPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getPlayer } from "../utils/EntityUtils.sol";
 import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
@@ -119,8 +119,6 @@ contract BuildSystem is System {
       BaseEntity._set(relativeEntityId, baseEntityId);
     }
 
-    transferEnergyToPool(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
-
     removeFromInventory(playerEntityId, buildObjectTypeId, 1);
 
     if (buildObjectTypeId.isSeed()) {
@@ -135,6 +133,9 @@ contract BuildSystem is System {
 
       SeedGrowth._setFullyGrownAt(baseEntityId, uint128(block.timestamp) + buildObjectTypeId.timeToGrow());
     }
+
+    decreasePlayerEnergy(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
+    addEnergyToLocalPool(playerCoord, PLAYER_BUILD_ENERGY_COST);
 
     notify(
       playerEntityId,

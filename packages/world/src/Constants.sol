@@ -23,8 +23,6 @@ uint256 constant RESPAWN_ORE_BLOCK_RANGE = 10;
 // ------------------------------------------------------------
 // Values To Tune
 // ------------------------------------------------------------
-uint128 constant MASS_TO_ENERGY_MULTIPLIER = 50;
-
 uint128 constant MAX_PLAYER_ENERGY = 1_000_000;
 uint128 constant PLAYER_ENERGY_DRAIN_RATE = 10;
 

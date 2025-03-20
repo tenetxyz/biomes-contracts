@@ -19,7 +19,7 @@ import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { addToInventory, removeFromInventory, removeAnyFromInventory, addToolToInventory } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { notify, CraftNotifData } from "../utils/NotifUtils.sol";
-import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
+import { decreasePlayerEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 import { PLAYER_CRAFT_ENERGY_COST } from "../Constants.sol";
@@ -68,7 +68,8 @@ contract CraftSystem is System {
 
     // TODO: handle dyes
 
-    transferEnergyToPool(playerEntityId, playerCoord, PLAYER_CRAFT_ENERGY_COST);
+    decreasePlayerEnergy(playerEntityId, playerCoord, PLAYER_CRAFT_ENERGY_COST);
+    addEnergyToLocalPool(playerCoord, PLAYER_CRAFT_ENERGY_COST);
 
     notify(playerEntityId, CraftNotifData({ recipeId: recipeId, stationEntityId: stationEntityId }));
   }

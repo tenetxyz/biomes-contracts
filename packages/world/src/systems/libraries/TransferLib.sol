@@ -10,7 +10,7 @@ import { Position } from "../../utils/Vec3Storage.sol";
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 import { MAX_PLAYER_INFLUENCE_HALF_WIDTH, SMART_CHEST_ENERGY_COST } from "../../Constants.sol";
-import { updateMachineEnergy, transferEnergyToPool } from "../../utils/EnergyUtils.sol";
+import { updateMachineEnergy, decreaseMachineEnergy, addEnergyToLocalPool } from "../../utils/EnergyUtils.sol";
 import { getForceField } from "../../utils/ForceFieldUtils.sol";
 import { PlayerUtils } from "../../utils/PlayerUtils.sol";
 import { TransferCommonContext } from "../../Types.sol";
@@ -37,7 +37,8 @@ library TransferLib {
     if (forceFieldEntityId.exists()) {
       (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
       machineEnergyLevel = machineData.energy;
-      transferEnergyToPool(forceFieldEntityId, chestCoord, SMART_CHEST_ENERGY_COST);
+      decreaseMachineEnergy(forceFieldEntityId, SMART_CHEST_ENERGY_COST);
+      addEnergyToLocalPool(chestCoord, SMART_CHEST_ENERGY_COST);
     }
 
     return

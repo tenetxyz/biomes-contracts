@@ -109,7 +109,7 @@ contract BedSystem is System {
   }
 
   function wakeup(Vec3 spawnCoord, bytes calldata extraData) public {
-    require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
+    checkWorldStatus();
 
     EntityId playerEntityId = Player._get(_msgSender());
     require(playerEntityId.exists(), "Player does not exist");
@@ -118,6 +118,8 @@ contract BedSystem is System {
 
     Vec3 bedCoord = Position._get(bedEntityId);
     require(bedCoord.inSurroundingCube(spawnCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH), "Bed is too far away");
+
+    require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
     (EnergyData memory machineData, EnergyData memory playerData) = BedLib.updateEntities(

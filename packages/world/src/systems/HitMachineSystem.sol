@@ -16,7 +16,7 @@ import { Position } from "../utils/Vec3Storage.sol";
 
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
+import { updateMachineEnergy, addEnergyToLocalPool, decreasePlayerEnergy, decreaseMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { safeCallProgram } from "../utils/callProgram.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
@@ -32,27 +32,14 @@ contract HitMachineSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
   function hitForceField(Vec3 entityCoord) public {
-    (EntityId playerEntityId, Vec3 playerCoord, EnergyData memory playerEnergyData) = PlayerUtils.requireValidPlayer(
-      _msgSender()
-    );
+    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
 
     PlayerUtils.requireInPlayerInfluence(playerCoord, entityCoord);
     (EntityId forceFieldEntityId, ) = getForceField(entityCoord);
     require(forceFieldEntityId.exists(), "No force field at this location");
     Vec3 forceFieldCoord = Position._get(forceFieldEntityId);
-    (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
-    require(machineData.energy > 0, "Cannot hit depleted forcefield");
 
-    (uint128 toolMassReduction, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId, type(uint128).max);
-    require(toolObjectTypeId.isWhacker(), "You must use a whacker to hit machines");
-
-    uint128 energyReduction = PLAYER_HIT_ENERGY_COST + toolMassReduction;
-    uint128 newMachineEnergy = energyReduction <= machineData.energy ? machineData.energy - energyReduction : 0;
-
-    require(playerEnergyData.energy >= PLAYER_HIT_ENERGY_COST, "Not enough energy");
-    Energy._setEnergy(playerEntityId, playerEnergyData.energy - PLAYER_HIT_ENERGY_COST);
-    Energy._setEnergy(forceFieldEntityId, newMachineEnergy);
-    addEnergyToLocalPool(forceFieldCoord, PLAYER_HIT_ENERGY_COST + energyReduction);
+    HitMachineLib._processEnergyReduction(playerEntityId, forceFieldEntityId, playerCoord, forceFieldCoord);
 
     notify(playerEntityId, HitMachineNotifData({ machineEntityId: forceFieldEntityId, machineCoord: forceFieldCoord }));
 
@@ -61,5 +48,32 @@ contract HitMachineSystem is System {
       forceFieldEntityId.getProgram(),
       abi.encodeCall(IForceFieldProgram.onForceFieldHit, (playerEntityId, forceFieldEntityId))
     );
+  }
+}
+
+library HitMachineLib {
+  function _processEnergyReduction(
+    EntityId playerEntityId,
+    EntityId forceFieldEntityId,
+    Vec3 playerCoord,
+    Vec3 forceFieldCoord
+  ) public {
+    (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
+    require(machineData.energy > 0, "Cannot hit depleted forcefield");
+    (uint128 toolMassReduction, ) = useEquipped(playerEntityId, machineData.energy);
+
+    uint128 playerEnergyReduction = 0;
+
+    // if tool mass reduction is not enough, consume energy from player up to hit energy cost
+    if (toolMassReduction < machineData.energy) {
+      uint128 remaining = machineData.energy - toolMassReduction;
+      playerEnergyReduction = PLAYER_HIT_ENERGY_COST <= remaining ? PLAYER_HIT_ENERGY_COST : remaining;
+      // TODO: currently, if player doesn't have enough energy it reverts, should it instead just use whatever is left?
+      decreasePlayerEnergy(playerEntityId, playerCoord, playerEnergyReduction);
+    }
+
+    uint128 machineEnergyReduction = playerEnergyReduction + toolMassReduction;
+    decreaseMachineEnergy(forceFieldEntityId, machineEnergyReduction);
+    addEnergyToLocalPool(forceFieldCoord, machineEnergyReduction + playerEnergyReduction);
   }
 }

@@ -350,7 +350,7 @@ contract MineTest is BiomesTest {
 
     Vec3 mineCoord = playerCoord + vec3(1, 0, 0);
     ObjectTypeId mineObjectTypeId = ObjectTypes.Dirt;
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction));
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
     // Set player energy to exactly enough for one mine operation
@@ -365,10 +365,6 @@ contract MineTest is BiomesTest {
 
     // Check energy is zero
     assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy is not 0");
-
-    // Call activate to trigger player removal from grid
-    vm.prank(alice);
-    world.activate(aliceEntityId);
 
     // Verify the player entity is still registered to the address, but removed from the grid
     assertEq(Player.get(alice), aliceEntityId, "Player entity was deleted");
