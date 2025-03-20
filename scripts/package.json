@@ -16,7 +16,6 @@
     "parseStats": "npx tsx parseStats.ts"
   },
   "dependencies": {
-    "@biomesaw/experience": "link:../experience",
     "@biomesaw/world": "link:../world",
     "@latticexyz/common": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
     "@latticexyz/store": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",
