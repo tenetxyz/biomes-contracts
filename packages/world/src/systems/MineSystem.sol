@@ -234,19 +234,16 @@ library MassReductionLib {
 
     (uint128 toolMassReduction, ) = useEquipped(playerEntityId, massLeft);
 
-    uint128 playerEnergyReduction = 0;
-
     // if tool mass reduction is not enough, consume energy from player up to mine energy cost
     if (toolMassReduction < massLeft) {
       uint128 remaining = massLeft - toolMassReduction;
-      playerEnergyReduction = PLAYER_MINE_ENERGY_COST <= remaining ? PLAYER_MINE_ENERGY_COST : remaining;
+      uint128 playerEnergyReduction = PLAYER_MINE_ENERGY_COST <= remaining ? PLAYER_MINE_ENERGY_COST : remaining;
       decreasePlayerEnergy(playerEntityId, playerCoord, playerEnergyReduction);
+      addEnergyToLocalPool(playerCoord, playerEnergyReduction);
+      massLeft -= playerEnergyReduction;
     }
 
-    uint128 totalEnergyReduction = playerEnergyReduction + toolMassReduction;
-    addEnergyToLocalPool(playerCoord, totalEnergyReduction);
-
-    return massLeft - totalEnergyReduction;
+    return massLeft - toolMassReduction;
   }
 }
 

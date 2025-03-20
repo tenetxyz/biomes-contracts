@@ -68,11 +68,12 @@ library HitMachineLib {
     if (toolMassReduction < machineData.energy) {
       uint128 remaining = machineData.energy - toolMassReduction;
       playerEnergyReduction = PLAYER_HIT_ENERGY_COST <= remaining ? PLAYER_HIT_ENERGY_COST : remaining;
+      // TODO: currently, if player doesn't have enough energy it reverts, should it instead just use whatever is left?
       decreasePlayerEnergy(playerEntityId, playerCoord, playerEnergyReduction);
     }
 
-    uint128 totalEnergyReduction = playerEnergyReduction + toolMassReduction;
-    decreaseMachineEnergy(forceFieldEntityId, totalEnergyReduction);
-    addEnergyToLocalPool(forceFieldCoord, totalEnergyReduction * 2);
+    uint128 machineEnergyReduction = playerEnergyReduction + toolMassReduction;
+    decreaseMachineEnergy(forceFieldEntityId, machineEnergyReduction);
+    addEnergyToLocalPool(forceFieldCoord, machineEnergyReduction + playerEnergyReduction);
   }
 }

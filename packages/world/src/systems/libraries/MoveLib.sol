@@ -123,10 +123,14 @@ library MoveLib {
       (PLAYER_FALL_ENERGY_COST * numFalls);
     energyCost = energyCost > currentEnergy ? currentEnergy : energyCost;
 
-    // TODO: figure out how to run gravity and only kill AFTER that
     if (energyCost > 0) {
       decreasePlayerEnergy(playerEntityId, playerCoord, energyCost);
       addEnergyToLocalPool(playerCoord, energyCost);
+    }
+
+    // If the player died then stop falling
+    if (energyCost == currentEnergy) {
+      return false;
     }
 
     return gravityAppliesForMove;
