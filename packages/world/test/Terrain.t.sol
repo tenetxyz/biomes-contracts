@@ -7,11 +7,10 @@ import { TerrainLib, VERSION_PADDING, BIOME_PADDING, SURFACE_PADDING } from "../
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { CHUNK_SIZE, REGION_SIZE } from "../src/Constants.sol";
+import { CHUNK_SIZE, REGION_SIZE, INITIAL_ENERGY_PER_VEGETATION, INITIAL_LOCAL_ENERGY_BUFFER } from "../src/Constants.sol";
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { InitialEnergyPool, LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
-import { INITIAL_ENERGY_PER_VEGETATION } from "../src/Constants.sol";
 import { RegionMerkleRoot } from "../src/codegen/tables/RegionMerkleRoot.sol";
 import { MockChunk, MockVegetation } from "./mockData.sol";
 
@@ -243,13 +242,16 @@ contract TerrainTest is BiomesTest {
     uint32 vegetationCount = MockVegetation.vegetationCount;
     bytes32[] memory merkleProof = MockVegetation.getProof();
 
+    assertEq(InitialEnergyPool.get(regionCoord), 0);
+    assertEq(LocalEnergyPool.get(regionCoord), 0);
+
     IWorld(worldAddress).exploreRegionEnergy(regionCoord, vegetationCount, merkleProof);
 
     uint128 energy = InitialEnergyPool.get(regionCoord);
     assertEq(energy, vegetationCount * INITIAL_ENERGY_PER_VEGETATION + 1);
 
     energy = LocalEnergyPool.get(regionCoord);
-    assertEq(energy, vegetationCount * INITIAL_ENERGY_PER_VEGETATION + 1);
+    assertEq(energy, INITIAL_LOCAL_ENERGY_BUFFER);
   }
 
   function testExploreRegionEnergy_Fail_RegionNotSeeded() public {
