@@ -194,7 +194,7 @@ contract GravityTest is BiomesTest {
     setObjectAtCoord(newCoords[newCoords.length - 1], ObjectTypes.Air);
     setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), ObjectTypes.Dirt);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, expectedFinalCoord);
 
     vm.prank(alice);
     startGasReport("move with single block fall");
@@ -209,7 +209,7 @@ contract GravityTest is BiomesTest {
       aliceEntityId,
       "Above coord is not the player"
     );
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, expectedFinalCoord);
     uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
       beforeEnergyDataSnapshot,
       afterEnergyDataSnapshot
@@ -232,7 +232,7 @@ contract GravityTest is BiomesTest {
     setObjectAtCoord(newCoords[newCoords.length - 1], ObjectTypes.Air);
     setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), ObjectTypes.Dirt);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, expectedFinalCoord);
 
     vm.prank(alice);
     startGasReport("move with three block fall");
@@ -247,7 +247,7 @@ contract GravityTest is BiomesTest {
       aliceEntityId,
       "Above coord is not the player"
     );
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, expectedFinalCoord);
     uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
       beforeEnergyDataSnapshot,
       afterEnergyDataSnapshot
@@ -280,7 +280,7 @@ contract GravityTest is BiomesTest {
 
     uint128 bobEnergyBefore = Energy.getEnergy(bobEntityId);
     uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    Vec3 shardCoord = aliceCoord.toLocalEnergyPoolShardCoord();
+    Vec3 shardCoord = expectedFinalAliceCoord.toLocalEnergyPoolShardCoord();
     uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     vm.prank(alice);

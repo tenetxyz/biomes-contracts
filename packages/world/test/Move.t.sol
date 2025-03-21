@@ -31,7 +31,7 @@ import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, PLAYER_FALL_DAMAGE_THRESHOLD } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { TestUtils } from "./utils/TestUtils.sol";
+import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
 contract MoveTest is BiomesTest {
   using ObjectTypeLib for ObjectTypeId;
@@ -56,7 +56,10 @@ contract MoveTest is BiomesTest {
       }
     }
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(playerEntityId, startingCoord);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(
+      playerEntityId,
+      newCoords[numBlocksToMove - 1]
+    );
 
     vm.prank(player);
     startGasReport(
@@ -80,7 +83,10 @@ contract MoveTest is BiomesTest {
       "Above starting coord is not the player"
     );
 
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(playerEntityId, startingCoord);
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(
+      playerEntityId,
+      newCoords[numBlocksToMove - 1]
+    );
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
@@ -513,6 +519,156 @@ contract MoveTest is BiomesTest {
       EntityId.wrap(0),
       "Player reverse position at head was not deleted"
     );
+  }
+
+  function testDeathFromLongFall() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+
+    // Add items to player's inventory to test transfer
+    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.Stone, 10);
+    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.SilverOre, 5);
+
+    // Setup a fall path with a specific death point
+    uint32 fallHeight = 10; // Well above the PLAYER_FALL_DAMAGE_THRESHOLD
+    Vec3[] memory newCoords = new Vec3[](fallHeight + 1);
+
+    // Create a high column of air blocks
+    for (uint32 i = 0; i < fallHeight; i++) {
+      Vec3 airCoord = playerCoord + vec3(0, -int32(i + 1), 1);
+      setObjectAtCoord(airCoord, ObjectTypes.Air);
+      newCoords[i] = airCoord + vec3(0, 1, 0);
+    }
+
+    // Set the last coordinate
+    Vec3 landingCoord = playerCoord + vec3(0, -int32(fallHeight + 1), 1);
+    newCoords[fallHeight] = landingCoord + vec3(0, 1, 0);
+    setObjectAtCoord(landingCoord, ObjectTypes.Grass);
+
+    // Calculate energy costs for the fall
+    // First PLAYER_FALL_DAMAGE_THRESHOLD blocks cost PLAYER_MOVE_ENERGY_COST each
+    // Remaining blocks cost PLAYER_FALL_ENERGY_COST each
+    uint32 deathIndex = 5; // We want the player to die at the 5th step (index 4)
+
+    // Calculate energy needed to die exactly at deathIndex
+    // Energy for moves before death point + 1 energy unit to die at exact position
+    uint128 energyForInitialMoves = PLAYER_MOVE_ENERGY_COST * PLAYER_FALL_DAMAGE_THRESHOLD;
+    uint128 energyForFallsBeforeDeath = PLAYER_FALL_ENERGY_COST * (deathIndex - PLAYER_FALL_DAMAGE_THRESHOLD - 1);
+    uint128 preciseEnergy = energyForInitialMoves + energyForFallsBeforeDeath;
+
+    Energy.set(
+      aliceEntityId,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: preciseEnergy, drainRate: 0 })
+    );
+
+    // Verify inventory before move
+    assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.Stone), 10, "Wrong initial stone count");
+    assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.SilverOre), 5, "Wrong initial silver ore count");
+
+    // Identify the exact death location
+    Vec3 expectedDeathCoord = newCoords[deathIndex];
+
+    // Get entity at the expected death location
+    EntityId entityAtDeathLocation = ReversePosition.get(expectedDeathCoord);
+
+    vm.prank(alice);
+    world.move(newCoords);
+
+    // Verify player died (energy went to zero)
+    assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy should be 0 after fatal fall");
+
+    // Verify player position was cleared
+    assertEq(PlayerPosition.get(aliceEntityId), vec3(0, 0, 0), "Player position should be cleared after death");
+
+    // Verify inventory was transferred to the entity at death location
+    assertEq(
+      InventoryCount.get(entityAtDeathLocation, ObjectTypes.Stone),
+      10,
+      "Stone inventory not correctly transferred to death location"
+    );
+    assertEq(
+      InventoryCount.get(entityAtDeathLocation, ObjectTypes.SilverOre),
+      5,
+      "SilverOre inventory not correctly transferred to death location"
+    );
+
+    // Player's inventory should be empty
+    assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.Stone), 0, "Player should not have stone after death");
+    assertEq(
+      InventoryCount.get(aliceEntityId, ObjectTypes.SilverOre),
+      0,
+      "Player should not have silver ore after death"
+    );
+  }
+
+  function testDeathMidAirFromEnergyDepletion() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+
+    // Add items to player's inventory to test transfer
+    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.SilverOre, 8);
+    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.Diamond, 3);
+
+    // Create a horizontal path where player will run out of energy at a specific point
+    uint32 pathLength = 10;
+    uint32 deathIndex = 5; // We want the player to die at the 6th step (index 5)
+
+    // Calculate energy needed to die exactly at deathIndex
+    // Energy for moves before death point + 1 energy unit to die at exact position
+    uint128 preciseEnergy = PLAYER_MOVE_ENERGY_COST * deathIndex + 1;
+
+    Energy.set(
+      aliceEntityId,
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: preciseEnergy, drainRate: 0 })
+    );
+
+    // Create a horizontal path
+    Vec3[] memory newCoords = new Vec3[](pathLength);
+    for (uint32 i = 0; i < pathLength; i++) {
+      newCoords[i] = playerCoord + vec3(0, 0, int32(i) + 1);
+      setObjectAtCoord(newCoords[i], ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] - vec3(0, 1, 0), ObjectTypes.Air);
+    }
+
+    // Identify the exact death location
+    Vec3 expectedDeathCoord = newCoords[deathIndex];
+
+    // Get or create entity at the expected death location
+    EntityId entityAtDeathLocation = ReversePosition.get(expectedDeathCoord);
+    bool entityExistedBefore = entityAtDeathLocation.exists();
+    if (!entityExistedBefore) {
+      // Create an air entity at the death location to ensure we have a consistent target
+      setObjectAtCoord(expectedDeathCoord, ObjectTypes.Air);
+      entityAtDeathLocation = ReversePosition.get(expectedDeathCoord);
+    }
+
+    vm.prank(alice);
+    world.move(newCoords);
+
+    // Verify player died (energy went to zero)
+    assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy should be 0 after energy depletion");
+
+    // Verify player position was cleared
+    assertEq(PlayerPosition.get(aliceEntityId), vec3(0, 0, 0), "Player position should be cleared after death");
+
+    // Verify inventory was transferred to the entity at death location
+    assertEq(
+      InventoryCount.get(entityAtDeathLocation, ObjectTypes.SilverOre),
+      8,
+      "SilverOre inventory not correctly transferred to death location"
+    );
+    assertEq(
+      InventoryCount.get(entityAtDeathLocation, ObjectTypes.Diamond),
+      3,
+      "Diamond inventory not correctly transferred to death location"
+    );
+
+    // Player's inventory should be empty
+    assertEq(
+      InventoryCount.get(aliceEntityId, ObjectTypes.SilverOre),
+      0,
+      "Player should not have silver ore after death"
+    );
+    assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.Diamond), 0, "Player should not have diamond after death");
   }
 
   function testMoveFailsIfNoPlayer() public {
