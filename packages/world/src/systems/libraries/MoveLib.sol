@@ -1,20 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { console } from "forge-std/console.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
-import { ObjectType } from "../../codegen/tables/ObjectType.sol";
-import { ActionType } from "../../codegen/common.sol";
-import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
+import { Energy } from "../../codegen/tables/Energy.sol";
 
-import { Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../../utils/Vec3Storage.sol";
+import { ReversePlayerPosition } from "../../utils/Vec3Storage.sol";
 
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 import { ObjectTypeLib } from "../../ObjectTypeLib.sol";
 import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, PLAYER_FALL_DAMAGE_THRESHOLD } from "../../Constants.sol";
-import { notify, MoveNotifData } from "../../utils/NotifUtils.sol";
-import { TerrainLib } from "./TerrainLib.sol";
 import { EntityId } from "../../EntityId.sol";
 import { Vec3, vec3 } from "../../Vec3.sol";
 import { addEnergyToLocalPool, decreasePlayerEnergy } from "../../utils/EnergyUtils.sol";

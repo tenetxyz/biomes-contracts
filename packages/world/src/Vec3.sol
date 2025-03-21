@@ -86,17 +86,17 @@ library Vec3Lib {
 
   function x(Vec3 a) internal pure returns (int32) {
     // Extract z component (leftmost 32 bits)
-    return int32(uint32((Vec3.unwrap(a) >> 64) & 0xFFFFFFFF));
+    return int32(uint32(Vec3.unwrap(a) >> 64));
   }
 
   function y(Vec3 a) internal pure returns (int32) {
     // Extract y component (middle 32 bits)
-    return int32(uint32((Vec3.unwrap(a) >> 32) & 0xFFFFFFFF));
+    return int32(uint32(Vec3.unwrap(a) >> 32));
   }
 
   function z(Vec3 a) internal pure returns (int32) {
     // Extract x component (rightmost 32 bits)
-    return int32(uint32(Vec3.unwrap(a) & 0xFFFFFFFF));
+    return int32(uint32(Vec3.unwrap(a)));
   }
 
   function xyz(Vec3 self) internal pure returns (int32, int32, int32) {
