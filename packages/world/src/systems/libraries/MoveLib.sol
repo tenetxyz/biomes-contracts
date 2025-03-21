@@ -24,20 +24,17 @@ library MoveLib {
   using ObjectTypeLib for ObjectTypeId;
 
   function _requireValidMove(Vec3 baseOldCoord, Vec3 baseNewCoord) internal view {
-    Vec3[] memory oldPlayerCoords = ObjectTypes.Player.getRelativeCoords(baseOldCoord);
+    require(baseOldCoord.inSurroundingCube(baseNewCoord, 1), "New coord is too far from old coord");
+
     Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(baseNewCoord);
 
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
-      Vec3 oldCoord = oldPlayerCoords[i];
       Vec3 newCoord = newPlayerCoords[i];
-
-      require(oldCoord.inSurroundingCube(newCoord, 1), "New coord is too far from old coord");
 
       ObjectTypeId newObjectTypeId = safeGetObjectTypeIdAt(newCoord);
       require(ObjectTypeMetadata._getCanPassThrough(newObjectTypeId), "Cannot move through a non-passable block");
 
-      EntityId playerEntityIdAtCoord = getPlayer(newCoord);
-      require(!playerEntityIdAtCoord.exists(), "Cannot move through a player");
+      require(!getPlayer(newCoord).exists(), "Cannot move through a player");
     }
   }
 
@@ -62,11 +59,8 @@ library MoveLib {
     if (belowObjectTypeId == ObjectTypes.Water || !ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)) {
       return false;
     }
-    if (getPlayer(belowCoord).exists()) {
-      return false;
-    }
 
-    return true;
+    return !getPlayer(belowCoord).exists();
   }
 
   function _computeGravityResult(Vec3 coord, uint16 initialFallHeight) private view returns (Vec3, uint128) {
