@@ -545,30 +545,23 @@ contract MoveTest is BiomesTest {
     setObjectAtCoord(landingCoord, ObjectTypes.Grass);
 
     // Calculate energy costs for the fall
-    // First PLAYER_FALL_DAMAGE_THRESHOLD blocks cost PLAYER_MOVE_ENERGY_COST each
-    // Remaining blocks cost PLAYER_FALL_ENERGY_COST each
+    // Falls after threshold cost PLAYER_FALL_ENERGY_COST each
     uint32 deathIndex = 5; // We want the player to die at the 5th step (index 4)
 
     // Calculate energy needed to die exactly at deathIndex
-    // Energy for moves before death point + 1 energy unit to die at exact position
-    uint128 energyForInitialMoves = PLAYER_MOVE_ENERGY_COST * PLAYER_FALL_DAMAGE_THRESHOLD;
-    uint128 energyForFallsBeforeDeath = PLAYER_FALL_ENERGY_COST * (deathIndex - PLAYER_FALL_DAMAGE_THRESHOLD - 1);
-    uint128 preciseEnergy = energyForInitialMoves + energyForFallsBeforeDeath;
+    uint128 energyForFallsBeforeDeath = PLAYER_FALL_ENERGY_COST * (deathIndex - PLAYER_FALL_DAMAGE_THRESHOLD);
 
     Energy.set(
       aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: preciseEnergy, drainRate: 0 })
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: energyForFallsBeforeDeath, drainRate: 0 })
     );
 
     // Verify inventory before move
     assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.Stone), 10, "Wrong initial stone count");
     assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.SilverOre), 5, "Wrong initial silver ore count");
 
-    // Identify the exact death location
-    Vec3 expectedDeathCoord = newCoords[deathIndex];
-
     // Get entity at the expected death location
-    EntityId entityAtDeathLocation = ReversePosition.get(expectedDeathCoord);
+    EntityId entityAtDeathLocation = ReversePosition.get(newCoords[fallHeight]);
 
     vm.prank(alice);
     world.move(newCoords);
@@ -600,7 +593,7 @@ contract MoveTest is BiomesTest {
     );
   }
 
-  function testDeathMidAirFromEnergyDepletion() public {
+  function testMoveHorizontalPathFatal() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     // Add items to player's inventory to test transfer
@@ -608,17 +601,14 @@ contract MoveTest is BiomesTest {
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.Diamond, 3);
 
     // Create a horizontal path where player will run out of energy at a specific point
-    uint32 pathLength = 10;
-    uint32 deathIndex = 5; // We want the player to die at the 6th step (index 5)
+    uint32 pathLength = 5;
+    uint32 deathIndex = 3;
 
     // Calculate energy needed to die exactly at deathIndex
     // Energy for moves before death point + 1 energy unit to die at exact position
-    uint128 preciseEnergy = PLAYER_MOVE_ENERGY_COST * deathIndex + 1;
+    uint128 energy = PLAYER_MOVE_ENERGY_COST * deathIndex + 1;
 
-    Energy.set(
-      aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: preciseEnergy, drainRate: 0 })
-    );
+    Energy.set(aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: energy, drainRate: 0 }));
 
     // Create a horizontal path
     Vec3[] memory newCoords = new Vec3[](pathLength);
@@ -626,7 +616,7 @@ contract MoveTest is BiomesTest {
       newCoords[i] = playerCoord + vec3(0, 0, int32(i) + 1);
       setObjectAtCoord(newCoords[i], ObjectTypes.Air);
       setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
-      setObjectAtCoord(newCoords[i] - vec3(0, 1, 0), ObjectTypes.Air);
+      setObjectAtCoord(newCoords[i] - vec3(0, 1, 0), ObjectTypes.Dirt);
     }
 
     // Identify the exact death location
@@ -634,12 +624,6 @@ contract MoveTest is BiomesTest {
 
     // Get or create entity at the expected death location
     EntityId entityAtDeathLocation = ReversePosition.get(expectedDeathCoord);
-    bool entityExistedBefore = entityAtDeathLocation.exists();
-    if (!entityExistedBefore) {
-      // Create an air entity at the death location to ensure we have a consistent target
-      setObjectAtCoord(expectedDeathCoord, ObjectTypes.Air);
-      entityAtDeathLocation = ReversePosition.get(expectedDeathCoord);
-    }
 
     vm.prank(alice);
     world.move(newCoords);

@@ -69,20 +69,27 @@ library MoveLib {
     return true;
   }
 
-  function _computeGravityResult(Vec3 coord) private view returns (Vec3, uint128) {
-    uint16 len = 0;
+  function _computeGravityResult(Vec3 coord, uint16 initialFallHeight) private view returns (Vec3, uint128) {
+    uint16 currentFallHeight = 0;
     Vec3 current = coord;
     while (_gravityApplies(current)) {
       current = current - vec3(0, 1, 0);
-      len++;
+      currentFallHeight++;
     }
 
-    return (
-      current,
-      len < PLAYER_FALL_DAMAGE_THRESHOLD
-        ? uint128(0)
-        : PLAYER_FALL_ENERGY_COST * (PLAYER_FALL_DAMAGE_THRESHOLD + 1 - len)
-    );
+    uint16 totalFallHeight = initialFallHeight + currentFallHeight;
+
+    uint128 cost = 0;
+    if (totalFallHeight >= PLAYER_FALL_DAMAGE_THRESHOLD) {
+      // If the player was already over the threshold, apply cost for each new fall
+      if (initialFallHeight >= PLAYER_FALL_DAMAGE_THRESHOLD) {
+        cost = PLAYER_FALL_ENERGY_COST * currentFallHeight;
+      } else {
+        cost = PLAYER_FALL_ENERGY_COST * (totalFallHeight - PLAYER_FALL_DAMAGE_THRESHOLD + 1);
+      }
+    }
+
+    return (current, cost);
   }
 
   /** Calculate total energy cost and final path coordinate */
@@ -90,8 +97,8 @@ library MoveLib {
     Vec3 currentBaseCoord,
     Vec3[] memory newBaseCoords,
     uint128 currentEnergy
-  ) internal view returns (Vec3 finalCoord, uint128 totalCost, bool) {
-    totalCost = 0;
+  ) internal view returns (Vec3, uint128, uint16, bool) {
+    uint128 totalCost = 0;
     uint16 numJumps = 0;
     uint16 numGlides = 0;
     uint16 currentFallHeight = 0;
@@ -108,15 +115,16 @@ library MoveLib {
       if (gravityApplies) {
         if (nextBaseCoord.y() > oldBaseCoord.y()) {
           numJumps++;
-          require(numJumps <= MAX_PLAYER_JUMPS, "Exceeded max jumps");
+          require(numJumps <= MAX_PLAYER_JUMPS, "Cannot jump more than 3 blocks");
         } else if (nextBaseCoord.y() < oldBaseCoord.y()) {
+          currentFallHeight++;
           if (currentFallHeight >= PLAYER_FALL_DAMAGE_THRESHOLD) {
             stepCost = PLAYER_FALL_ENERGY_COST;
           }
           numGlides = 0;
         } else {
           numGlides++;
-          require(numGlides <= MAX_PLAYER_GLIDES, "Exceeded max glides");
+          require(numGlides <= MAX_PLAYER_GLIDES, "Cannot glide more than 10 blocks");
         }
       } else {
         numJumps = 0;
@@ -126,15 +134,14 @@ library MoveLib {
 
       totalCost += stepCost;
 
-      if (totalCost > currentEnergy) {
-        finalCoord = nextBaseCoord; // Stop at the last valid position
-        return (finalCoord, totalCost, gravityApplies);
-      }
-
       oldBaseCoord = nextBaseCoord;
+
+      if (totalCost >= currentEnergy) {
+        break;
+      }
     }
 
-    return (oldBaseCoord, totalCost, gravityApplies);
+    return (oldBaseCoord, totalCost, currentFallHeight, gravityApplies);
   }
 
   function movePlayerWithoutGravity(EntityId playerEntityId, Vec3 playerCoord, Vec3[] memory newBaseCoords) public {
@@ -148,7 +155,11 @@ library MoveLib {
 
     uint128 currentEnergy = Energy._getEnergy(playerEntityId);
 
-    (Vec3 finalCoord, uint128 totalCost, ) = _computePathResult(playerCoord, newBaseCoords, currentEnergy);
+    (Vec3 finalCoord, uint128 totalCost, , ) = _computePathResult(playerCoord, newBaseCoords, currentEnergy);
+
+    if (totalCost > currentEnergy) {
+      totalCost = currentEnergy;
+    }
 
     Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(finalCoord);
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
@@ -172,7 +183,7 @@ library MoveLib {
 
     uint128 currentEnergy = Energy._getEnergy(playerEntityId);
 
-    (Vec3 finalCoord, uint128 cost, bool gravityApplies) = _computePathResult(
+    (Vec3 finalCoord, uint128 cost, uint16 currentFallHeight, bool gravityApplies) = _computePathResult(
       playerCoord,
       newBaseCoords,
       currentEnergy
@@ -180,12 +191,13 @@ library MoveLib {
 
     uint128 totalCost = cost;
     if (gravityApplies) {
-      (finalCoord, cost) = _computeGravityResult(finalCoord);
+      (finalCoord, cost) = _computeGravityResult(finalCoord, currentFallHeight);
       totalCost += cost;
     }
 
-    console.log("gravityApplies");
-    console.log(gravityApplies);
+    if (totalCost > currentEnergy) {
+      totalCost = currentEnergy;
+    }
 
     Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(finalCoord);
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
@@ -219,7 +231,12 @@ library MoveLib {
       ReversePlayerPosition._deleteRecord(playerCoords[i]);
     }
 
-    (Vec3 finalCoord, uint128 totalCost) = _computeGravityResult(playerCoord);
+    (Vec3 finalCoord, uint128 totalCost) = _computeGravityResult(playerCoord, 0);
+
+    uint128 currentEnergy = Energy._getEnergy(playerEntityId);
+    if (totalCost > currentEnergy) {
+      totalCost = currentEnergy;
+    }
 
     Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(finalCoord);
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
