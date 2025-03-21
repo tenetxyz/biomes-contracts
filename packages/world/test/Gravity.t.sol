@@ -27,7 +27,7 @@ import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_FALL_ENERGY_COST } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_FALL_ENERGY_COST, PLAYER_MINE_ENERGY_COST, PLAYER_MOVE_ENERGY_COST } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
@@ -39,7 +39,7 @@ contract GravityTest is BiomesTest {
 
     Vec3 mineCoord = playerCoord - vec3(0, 1, 0);
     ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
@@ -68,7 +68,11 @@ contract GravityTest is BiomesTest {
       beforeEnergyDataSnapshot,
       afterEnergyDataSnapshot
     );
-    assertLt(playerEnergyLost, PLAYER_FALL_ENERGY_COST, "Player energy lost is not less than the move energy cost");
+    assertEq(
+      playerEnergyLost,
+      playerHandMassReduction,
+      "Player shouldn't have lost energy from falling a safe distance"
+    );
   }
 
   function testMineFallMultipleBlocks() public {
@@ -76,7 +80,7 @@ contract GravityTest is BiomesTest {
 
     Vec3 mineCoord = playerCoord - vec3(0, 1, 0);
     ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
@@ -108,7 +112,11 @@ contract GravityTest is BiomesTest {
       beforeEnergyDataSnapshot,
       afterEnergyDataSnapshot
     );
-    assertGt(playerEnergyLost, PLAYER_FALL_ENERGY_COST, "Player energy lost is not greater than the move energy cost");
+    assertEq(
+      playerEnergyLost,
+      playerHandMassReduction + PLAYER_FALL_ENERGY_COST,
+      "Player should have lost energy from mining and a single fall"
+    );
   }
 
   function testMineFallFatal() public {
@@ -128,7 +136,7 @@ contract GravityTest is BiomesTest {
 
     Vec3 mineCoord = aliceCoord - vec3(0, 1, 0);
     ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction));
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
@@ -177,11 +185,15 @@ contract GravityTest is BiomesTest {
       (aliceEnergyBefore - aliceEnergyAfter) + (bobEnergyBefore - bobEnergyAfter),
       "Alice and Bob did not lose energy"
     );
-    assertGt(aliceEnergyBefore - aliceEnergyAfter, PLAYER_FALL_ENERGY_COST, "Alice did not lose energy");
-    assertGt(bobEnergyBefore - bobEnergyAfter, PLAYER_FALL_ENERGY_COST, "Bob did not lose energy");
+    assertEq(
+      aliceEnergyBefore - aliceEnergyAfter,
+      playerHandMassReduction + PLAYER_FALL_ENERGY_COST,
+      "Alice did not lose energy"
+    );
+    assertEq(bobEnergyBefore - bobEnergyAfter, PLAYER_FALL_ENERGY_COST, "Bob did not lose energy");
   }
 
-  function testMoveFallSingleBlocok() public {
+  function testMoveFallSingleBlock() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](1);
@@ -194,7 +206,7 @@ contract GravityTest is BiomesTest {
     setObjectAtCoord(newCoords[newCoords.length - 1], ObjectTypes.Air);
     setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), ObjectTypes.Dirt);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, expectedFinalCoord);
 
     vm.prank(alice);
     startGasReport("move with single block fall");
@@ -209,12 +221,12 @@ contract GravityTest is BiomesTest {
       aliceEntityId,
       "Above coord is not the player"
     );
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, expectedFinalCoord);
     uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
       beforeEnergyDataSnapshot,
       afterEnergyDataSnapshot
     );
-    assertGt(playerEnergyLost, PLAYER_FALL_ENERGY_COST, "Player energy lost is not greater than the move energy cost");
+    assertEq(playerEnergyLost, PLAYER_MOVE_ENERGY_COST, "Player should only lose energy from the initial move");
   }
 
   function testMoveFallMultipleBlocks() public {
@@ -228,11 +240,11 @@ contract GravityTest is BiomesTest {
     }
     setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 1, 0), ObjectTypes.Air);
     setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 2, 0), ObjectTypes.Air);
+    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 3, 0), ObjectTypes.Air);
     Vec3 expectedFinalCoord = newCoords[newCoords.length - 1] - vec3(0, 3, 0);
-    setObjectAtCoord(newCoords[newCoords.length - 1], ObjectTypes.Air);
     setObjectAtCoord(expectedFinalCoord - vec3(0, 1, 0), ObjectTypes.Dirt);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, expectedFinalCoord);
 
     vm.prank(alice);
     startGasReport("move with three block fall");
@@ -247,12 +259,16 @@ contract GravityTest is BiomesTest {
       aliceEntityId,
       "Above coord is not the player"
     );
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
+    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, expectedFinalCoord);
     uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
       beforeEnergyDataSnapshot,
       afterEnergyDataSnapshot
     );
-    assertGt(playerEnergyLost, PLAYER_FALL_ENERGY_COST, "Player energy lost is not greater than the move energy cost");
+    assertEq(
+      playerEnergyLost,
+      PLAYER_MOVE_ENERGY_COST + PLAYER_FALL_ENERGY_COST,
+      "Player energy lost should equal one move and one fall"
+    );
   }
 
   function testMoveStackedPlayers() public {
@@ -274,13 +290,13 @@ contract GravityTest is BiomesTest {
     }
     setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 1, 0), ObjectTypes.Air);
     setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 2, 0), ObjectTypes.Air);
+    setObjectAtCoord(newCoords[newCoords.length - 1] - vec3(0, 3, 0), ObjectTypes.Air);
     Vec3 expectedFinalAliceCoord = newCoords[newCoords.length - 1] - vec3(0, 3, 0);
-    setObjectAtCoord(newCoords[newCoords.length - 1], ObjectTypes.Air);
     setObjectAtCoord(expectedFinalAliceCoord - vec3(0, 1, 0), ObjectTypes.Dirt);
 
     uint128 bobEnergyBefore = Energy.getEnergy(bobEntityId);
     uint128 aliceEnergyBefore = Energy.getEnergy(aliceEntityId);
-    Vec3 shardCoord = aliceCoord.toLocalEnergyPoolShardCoord();
+    Vec3 shardCoord = expectedFinalAliceCoord.toLocalEnergyPoolShardCoord();
     uint128 localEnergyPoolBefore = LocalEnergyPool.get(shardCoord);
 
     vm.prank(alice);
@@ -308,13 +324,9 @@ contract GravityTest is BiomesTest {
     assertGt(energyGainedInPool, 0, "Local energy pool did not gain energy");
     uint128 aliceEnergyAfter = Energy.getEnergy(aliceEntityId);
     uint128 bobEnergyAfter = Energy.getEnergy(bobEntityId);
-    assertEq(
-      energyGainedInPool,
-      (aliceEnergyBefore - aliceEnergyAfter) + (bobEnergyBefore - bobEnergyAfter),
-      "Alice and Bob did not lose energy"
-    );
+    assertEq(energyGainedInPool, aliceEnergyBefore - aliceEnergyAfter, "Energy was not transferred to pool from alice");
     assertGt(aliceEnergyBefore - aliceEnergyAfter, PLAYER_FALL_ENERGY_COST, "Alice did not lose energy");
-    assertGt(bobEnergyBefore - bobEnergyAfter, PLAYER_FALL_ENERGY_COST, "Bob did not lose energy");
+    assertEq(bobEnergyBefore, bobEnergyAfter, "Bob lost energy");
   }
 
   function testMoveFallFatal() public {

@@ -16,7 +16,7 @@ contract MoveSystem is System {
   function move(Vec3[] memory newCoords) public {
     (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
 
-    MoveLib.movePlayerWithGravity(playerEntityId, playerCoord, newCoords);
+    MoveLib.movePlayer(playerEntityId, playerCoord, newCoords);
 
     notify(playerEntityId, MoveNotifData({ moveCoords: newCoords }));
   }
@@ -29,7 +29,7 @@ contract MoveSystem is System {
       newCoords[i] = (i == 0 ? playerCoord : newCoords[i - 1]).transform(directions[i]);
     }
 
-    MoveLib.movePlayerWithGravity(playerEntityId, playerCoord, newCoords);
+    MoveLib.movePlayer(playerEntityId, playerCoord, newCoords);
 
     notify(playerEntityId, MoveNotifData({ moveCoords: newCoords }));
   }

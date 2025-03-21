@@ -165,7 +165,7 @@ contract BuildSystem is System {
 
     Vec3[] memory moveCoords = new Vec3[](1);
     moveCoords[0] = playerCoord + vec3(0, 1, 0);
-    MoveLib.movePlayer(playerEntityId, playerCoord, moveCoords);
+    MoveLib.movePlayerWithoutGravity(playerEntityId, playerCoord, moveCoords);
     notify(playerEntityId, MoveNotifData({ moveCoords: moveCoords }));
 
     require(!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId), "Cannot jump build on a pass-through block");
