@@ -18,7 +18,8 @@
     "lint": "pnpm run prettier && pnpm run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
-    "test": "./runTests.bash"
+    "test": "./runTests.bash",
+    "script:admin": "forge script script/AdminScript.s.sol --rpc-url http://127.0.0.1:8545 --broadcast -vvv -s \"run(address,address)\" $(cat deploys/31337/latest.json | jq -r \".worldAddress\")"
   },
   "dependencies": {
     "@latticexyz/cli": "2.2.21-303714d89811a01be2802c32f4f6876fa81e5df9",

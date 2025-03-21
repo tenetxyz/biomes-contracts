@@ -29,10 +29,11 @@ import { TestUtils } from "../test/utils/TestUtils.sol";
 import { AdminSystem } from "../src/systems/admin/AdminSystem.sol";
 
 contract AdminScript is Script {
-  function run(address worldAddress) external {
+  function run(address worldAddress, address playerAddress) external {
     // Specify a store so that you can use tables directly in PostDeploy
     StoreSwitch.setStoreAddress(worldAddress);
     IWorld world = IWorld(worldAddress);
+    require(isContract(worldAddress), "Invalid world address provided");
 
     // Load the private key from the `PRIVATE_KEY` environment variable (in .env)
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -42,7 +43,7 @@ contract AdminScript is Script {
 
     ensureAdminSystem(world);
 
-    EntityId playerEntityId = Player.get(0xE0ae70caBb529336e25FA7a1f036b77ad0089d2a);
+    EntityId playerEntityId = Player.get(playerAddress);
     require(playerEntityId.exists(), "Player entity not found");
     Energy.setEnergy(playerEntityId, MAX_PLAYER_ENERGY);
     Energy.setLastUpdatedTime(playerEntityId, uint128(block.timestamp));
@@ -101,5 +102,13 @@ contract AdminScript is Script {
       "adminRemoveToolFromInventory(bytes32,bytes32)",
       "adminRemoveToolFromInventory(bytes32,bytes32)"
     );
+  }
+
+  function isContract(address addr) internal returns (bool) {
+    uint256 size;
+    assembly {
+      size := extcodesize(addr)
+    }
+    return size > 0;
   }
 }
