@@ -12,7 +12,7 @@ import { ObjectTypeLib } from "../../ObjectTypeLib.sol";
 import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, PLAYER_FALL_DAMAGE_THRESHOLD } from "../../Constants.sol";
 import { EntityId } from "../../EntityId.sol";
 import { Vec3, vec3 } from "../../Vec3.sol";
-import { addEnergyToLocalPool, decreasePlayerEnergy } from "../../utils/EnergyUtils.sol";
+import { addEnergyToLocalPool, decreasePlayerEnergy, updatePlayerEnergy } from "../../utils/EnergyUtils.sol";
 import { safeGetObjectTypeIdAt, getPlayer, setPlayer } from "../../utils/EntityUtils.sol";
 
 library MoveLib {
@@ -222,7 +222,7 @@ library MoveLib {
 
     (Vec3 finalCoord, uint128 totalCost) = _computeGravityResult(playerCoord, 0);
 
-    uint128 currentEnergy = Energy._getEnergy(playerEntityId);
+    uint128 currentEnergy = updatePlayerEnergy(playerEntityId).energy;
     if (totalCost > currentEnergy) {
       totalCost = currentEnergy;
     }
