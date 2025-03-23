@@ -303,7 +303,7 @@ contract CraftTest is BiomesTest {
   }
 
   function testCraftMultipleOutputs() public {
-    // TODO: implement
+    vm.skip(true, "TODO");
   }
 
   function testCraftFailsIfNotEnoughInputs() public {

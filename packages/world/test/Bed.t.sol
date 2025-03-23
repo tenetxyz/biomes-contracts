@@ -145,7 +145,7 @@ contract BedTest is BiomesTest {
   }
 
   function testSleepFailsIfNotEnoughForceFieldEnergy() public {
-    // TODO: should we implement this check?
+    vm.skip(true, "TODO");
   }
 
   function testWakeup() public {

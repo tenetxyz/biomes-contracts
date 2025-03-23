@@ -222,15 +222,15 @@ contract EquipTest is BiomesTest {
   }
 
   function testMineWithEquippedZeroDurability() public {
-    // TODO: implement
+    vm.skip(true, "TODO");
   }
 
   function testHitWithEquipped() public {
-    // TODO: implement
+    vm.skip(true, "TODO");
   }
 
   function testHitWithEquippedZeroDurability() public {
-    // TODO: implement
+    vm.skip(true, "TODO");
   }
 
   function testEquipFailsIfNotOwned() public {

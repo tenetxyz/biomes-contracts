@@ -112,7 +112,7 @@ contract GravityTest is BiomesTest {
   }
 
   function testMineFallFatal() public {
-    // TODO: implement
+    vm.skip(true, "TODO");
   }
 
   function testMineStackedPlayers() public {
@@ -318,7 +318,7 @@ contract GravityTest is BiomesTest {
   }
 
   function testMoveFallFatal() public {
-    // TODO: implement
+    vm.skip(true, "TODO");
   }
 
   function testMoveFailsIfGravityOutsideExploredChunk() public {

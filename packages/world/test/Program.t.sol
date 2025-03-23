@@ -38,18 +38,18 @@ contract ProgramTest is BiomesTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function testMineFailsIfProgramAttached() public {
-    // TODO: implement
+    vm.skip(true, "TODO");
   }
 
   function testTransferWithProgram() public {
-    // TODO: implement
+    vm.skip(true, "TODO");
   }
 
   function testTransferFailsIfNotAllowedByProgram() public {
-    // TODO: implement
+    vm.skip(true, "TODO");
   }
 
   function testTransferFailsIfForceFieldNotEnoughEnergy() public {
-    // TODO: implement
+    vm.skip(true, "TODO");
   }
 }
