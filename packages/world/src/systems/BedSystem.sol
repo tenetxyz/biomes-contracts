@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { Machine } from "../codegen/tables/Machine.sol";
@@ -63,7 +64,7 @@ contract BedSystem is System {
     require(bedCoord.inSurroundingCube(dropCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH), "Drop location is too far from bed");
 
     (EntityId dropEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(dropCoord);
-    require(objectTypeId == ObjectTypes.Air, "Cannot drop items on a non-air block");
+    require(ObjectTypeMetadata.getCanPassThrough(objectTypeId), "Cannot drop items on a non-passable block");
 
     (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
     (, EnergyData memory playerData) = BedLib.updateEntities(forceFieldEntityId, playerEntityId, bedEntityId, bedCoord);
@@ -72,7 +73,7 @@ contract BedSystem is System {
 
     PlayerUtils.removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
 
-    BedLib.transferInventory(bedEntityId, dropEntityId, ObjectTypes.Air);
+    BedLib.transferInventory(bedEntityId, dropEntityId, objectTypeId);
     // TODO: Should we safecall the program?
   }
 

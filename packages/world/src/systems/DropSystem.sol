@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Position } from "../codegen/tables/Position.sol";
 import { ReversePosition } from "../codegen/tables/ReversePosition.sol";
 import { ActionType } from "../codegen/common.sol";
@@ -26,7 +27,7 @@ contract DropSystem is System {
     PlayerUtils.requireInPlayerInfluence(playerCoord, coord);
 
     (EntityId entityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
-    require(objectTypeId == ObjectTypes.Air, "Cannot drop on a non-air block");
+    require(ObjectTypeMetadata.getCanPassThrough(objectTypeId), "Cannot drop on a non-passable block");
 
     return (playerEntityId, entityId);
   }
