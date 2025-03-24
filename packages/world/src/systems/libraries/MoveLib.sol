@@ -222,14 +222,15 @@ library MoveLib {
 
     (Vec3 finalCoord, uint128 totalCost) = _computeGravityResult(playerCoord, 0);
 
-    uint128 currentEnergy = updatePlayerEnergy(playerEntityId).energy;
-    if (totalCost > currentEnergy) {
-      totalCost = currentEnergy;
-    }
-
     Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(finalCoord);
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
       setPlayer(newPlayerCoords[i], playerEntityIds[i]);
+    }
+
+    uint128 currentEnergy = updatePlayerEnergy(playerEntityId).energy;
+
+    if (totalCost > currentEnergy) {
+      totalCost = currentEnergy;
     }
 
     if (totalCost > 0) {
