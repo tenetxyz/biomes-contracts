@@ -77,10 +77,10 @@ function updatePlayerEnergy(EntityId playerEntityId) returns (EnergyData memory)
 
   if (energyDrained > 0) {
     addEnergyToLocalPool(coord, energyDrained);
+  }
 
-    if (energyData.energy == 0) {
-      PlayerUtils.killPlayer(playerEntityId, coord);
-    }
+  if (energyData.energy == 0) {
+    PlayerUtils.killPlayer(playerEntityId, coord);
   }
 
   Energy._set(playerEntityId, energyData);
