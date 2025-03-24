@@ -17,7 +17,7 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { Energy } from "../src/codegen/tables/Energy.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
+import { ReverseEntityAddress } from "../src/codegen/tables/ReverseEntityAddress.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 
 import { ObjectTypes } from "../src/ObjectTypes.sol";
@@ -43,7 +43,7 @@ contract AdminScript is Script {
 
     ensureAdminSystem(world);
 
-    EntityId playerEntityId = Player.get(playerAddress);
+    EntityId playerEntityId = ReverseEntityAddress.get(playerAddress);
     require(playerEntityId.exists(), "Player entity not found");
     Energy.setEnergy(playerEntityId, MAX_PLAYER_ENERGY);
     Energy.setLastUpdatedTime(playerEntityId, uint128(block.timestamp));

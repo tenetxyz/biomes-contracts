@@ -3,8 +3,8 @@ pragma solidity >=0.8.24;
 
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
-import { Player } from "../codegen/tables/Player.sol";
-import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
+import { EntityAddress } from "../codegen/tables/EntityAddress.sol";
+import { ReverseEntityAddress } from "../codegen/tables/ReverseEntityAddress.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
@@ -36,7 +36,7 @@ library PlayerUtils {
   // TODO: currently a public lib function due to contract size limit, should ideally figure out a better workaround
   function requireValidPlayer(address player) public returns (EntityId, Vec3, EnergyData memory) {
     checkWorldStatus();
-    EntityId playerEntityId = Player._get(player);
+    EntityId playerEntityId = ReverseEntityAddress._get(player);
     require(playerEntityId.exists(), "Player does not exist");
     require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
     Vec3 playerCoord = PlayerPosition._get(playerEntityId);
@@ -83,12 +83,12 @@ library PlayerUtils {
 
   function getOrCreatePlayer() internal returns (EntityId) {
     address playerAddress = WorldContextConsumerLib._msgSender();
-    EntityId playerEntityId = Player._get(playerAddress);
+    EntityId playerEntityId = ReverseEntityAddress._get(playerAddress);
     if (!playerEntityId.exists()) {
       playerEntityId = getUniqueEntity();
 
-      Player._set(playerAddress, playerEntityId);
-      ReversePlayer._set(playerEntityId, playerAddress);
+      EntityAddress._set(playerEntityId, playerAddress);
+      ReverseEntityAddress._set(playerAddress, playerEntityId);
 
       // Set the player object type first
       ObjectType._set(playerEntityId, ObjectTypes.Player);

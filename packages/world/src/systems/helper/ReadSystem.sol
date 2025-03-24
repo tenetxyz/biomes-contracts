@@ -8,7 +8,7 @@ import { ObjectTypeId } from "../../ObjectTypeId.sol";
 
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
-import { Player } from "../../codegen/tables/Player.sol";
+import { ReverseEntityAddress } from "../../codegen/tables/ReverseEntityAddress.sol";
 import { Mass } from "../../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { Program } from "../../codegen/tables/Program.sol";
@@ -128,7 +128,7 @@ contract ReadSystem is System {
   }
 
   function getPlayerEntityData(address player) public view returns (PlayerEntityData memory) {
-    EntityId entityId = Player._get(player);
+    EntityId entityId = ReverseEntityAddress._get(player);
     if (!entityId.exists()) {
       return
         PlayerEntityData({

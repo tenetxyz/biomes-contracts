@@ -5,7 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { Player } from "../codegen/tables/Player.sol";
+import { ReverseEntityAddress } from "../codegen/tables/ReverseEntityAddress.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
@@ -35,7 +35,7 @@ contract ActivateSystem is System {
   }
 
   function activatePlayer(address player) public {
-    EntityId playerEntityId = Player._get(player);
+    EntityId playerEntityId = ReverseEntityAddress._get(player);
     playerEntityId = playerEntityId.baseEntityId();
     require(playerEntityId.exists(), "Entity does not exist");
     ObjectTypeId objectTypeId = ObjectType._get(playerEntityId);

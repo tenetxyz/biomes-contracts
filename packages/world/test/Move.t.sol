@@ -17,11 +17,11 @@ import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ReverseEntityAddress } from "../src/codegen/tables/ReverseEntityAddress.sol";
 import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
 
 import { MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
@@ -37,7 +37,7 @@ contract MoveTest is BiomesTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function _testMoveMultipleBlocks(address player, uint8 numBlocksToMove, bool overTerrain) internal {
-    EntityId playerEntityId = Player.get(player);
+    EntityId playerEntityId = ReverseEntityAddress.get(player);
     Vec3 startingCoord = PlayerPosition.get(playerEntityId);
     Vec3[] memory newCoords = new Vec3[](numBlocksToMove);
     for (uint32 i = 0; i < numBlocksToMove; i++) {
@@ -511,7 +511,7 @@ contract MoveTest is BiomesTest {
     world.activate(aliceEntityId);
 
     // Verify the player entity is still registered to the address, but removed from the grid
-    assertEq(Player.get(alice), aliceEntityId, "Player entity was deleted");
+    assertEq(ReverseEntityAddress.get(alice), aliceEntityId, "Player entity was deleted");
     assertEq(PlayerPosition.get(aliceEntityId), vec3(0, 0, 0), "Player position was not deleted");
     assertEq(ReversePlayerPosition.get(playerCoord), EntityId.wrap(0), "Player reverse position was not deleted");
     assertEq(

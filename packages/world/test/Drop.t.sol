@@ -11,7 +11,6 @@ import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";

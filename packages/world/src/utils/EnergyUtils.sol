@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { Machine } from "../codegen/tables/Machine.sol";
-import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 
 import { LocalEnergyPool, Position, PlayerPosition } from "../utils/Vec3Storage.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";

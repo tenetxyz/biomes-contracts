@@ -6,14 +6,12 @@ import { LibPRNG } from "solady/utils/LibPRNG.sol";
 
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { Player } from "../codegen/tables/Player.sol";
-import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { SurfaceChunkCount } from "../codegen/tables/SurfaceChunkCount.sol";
 
-import { SurfaceChunkByIndex, ExploredChunk, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
+import { SurfaceChunkByIndex, ExploredChunk, Position, ReversePosition, PlayerPosition } from "../utils/Vec3Storage.sol";
 
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";

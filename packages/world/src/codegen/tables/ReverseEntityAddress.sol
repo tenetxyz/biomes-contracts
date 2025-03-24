@@ -19,9 +19,9 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { EntityId } from "../../EntityId.sol";
 
-library Player {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Player", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000506c6179657200000000000000000000);
+library ReverseEntityAddress {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ReverseEntityAdd", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000052657665727365456e74697479416464);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
@@ -37,7 +37,7 @@ library Player {
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
     keyNames = new string[](1);
-    keyNames[0] = "player";
+    keyNames[0] = "entityAddress";
   }
 
   /**
@@ -66,9 +66,9 @@ library Player {
   /**
    * @notice Get entityId.
    */
-  function getEntityId(address player) internal view returns (EntityId entityId) {
+  function getEntityId(address entityAddress) internal view returns (EntityId entityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(uint160(player)));
+    _keyTuple[0] = bytes32(uint256(uint160(entityAddress)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return EntityId.wrap(bytes32(_blob));
@@ -77,9 +77,9 @@ library Player {
   /**
    * @notice Get entityId.
    */
-  function _getEntityId(address player) internal view returns (EntityId entityId) {
+  function _getEntityId(address entityAddress) internal view returns (EntityId entityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(uint160(player)));
+    _keyTuple[0] = bytes32(uint256(uint160(entityAddress)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return EntityId.wrap(bytes32(_blob));
@@ -88,9 +88,9 @@ library Player {
   /**
    * @notice Get entityId.
    */
-  function get(address player) internal view returns (EntityId entityId) {
+  function get(address entityAddress) internal view returns (EntityId entityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(uint160(player)));
+    _keyTuple[0] = bytes32(uint256(uint160(entityAddress)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return EntityId.wrap(bytes32(_blob));
@@ -99,9 +99,9 @@ library Player {
   /**
    * @notice Get entityId.
    */
-  function _get(address player) internal view returns (EntityId entityId) {
+  function _get(address entityAddress) internal view returns (EntityId entityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(uint160(player)));
+    _keyTuple[0] = bytes32(uint256(uint160(entityAddress)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return EntityId.wrap(bytes32(_blob));
@@ -110,9 +110,9 @@ library Player {
   /**
    * @notice Set entityId.
    */
-  function setEntityId(address player, EntityId entityId) internal {
+  function setEntityId(address entityAddress, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(uint160(player)));
+    _keyTuple[0] = bytes32(uint256(uint160(entityAddress)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
@@ -120,9 +120,9 @@ library Player {
   /**
    * @notice Set entityId.
    */
-  function _setEntityId(address player, EntityId entityId) internal {
+  function _setEntityId(address entityAddress, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(uint160(player)));
+    _keyTuple[0] = bytes32(uint256(uint160(entityAddress)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
@@ -130,9 +130,9 @@ library Player {
   /**
    * @notice Set entityId.
    */
-  function set(address player, EntityId entityId) internal {
+  function set(address entityAddress, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(uint160(player)));
+    _keyTuple[0] = bytes32(uint256(uint160(entityAddress)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
@@ -140,9 +140,9 @@ library Player {
   /**
    * @notice Set entityId.
    */
-  function _set(address player, EntityId entityId) internal {
+  function _set(address entityAddress, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(uint160(player)));
+    _keyTuple[0] = bytes32(uint256(uint160(entityAddress)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
@@ -150,9 +150,9 @@ library Player {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(address player) internal {
+  function deleteRecord(address entityAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(uint160(player)));
+    _keyTuple[0] = bytes32(uint256(uint160(entityAddress)));
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -160,9 +160,9 @@ library Player {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(address player) internal {
+  function _deleteRecord(address entityAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(uint160(player)));
+    _keyTuple[0] = bytes32(uint256(uint160(entityAddress)));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -193,9 +193,9 @@ library Player {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(address player) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(address entityAddress) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(uint256(uint160(player)));
+    _keyTuple[0] = bytes32(uint256(uint160(entityAddress)));
 
     return _keyTuple;
   }

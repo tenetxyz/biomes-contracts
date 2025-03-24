@@ -102,6 +102,23 @@ export default defineWorld({
       key: ["x", "y", "z"],
     },
     // ------------------------------------------------------------
+    // Entities
+    // ------------------------------------------------------------
+    EntityAddress: {
+      schema: {
+        entityId: "EntityId",
+        entityAddress: "address",
+      },
+      key: ["entityId"],
+    },
+    ReverseEntityAddress: {
+      schema: {
+        entityAddress: "address",
+        entityId: "EntityId",
+      },
+      key: ["entityAddress"],
+    },
+    // ------------------------------------------------------------
     // Grid
     // ------------------------------------------------------------
     ObjectType: {
@@ -260,20 +277,6 @@ export default defineWorld({
     // ------------------------------------------------------------
     // Player
     // ------------------------------------------------------------
-    Player: {
-      schema: {
-        player: "address",
-        entityId: "EntityId",
-      },
-      key: ["player"],
-    },
-    ReversePlayer: {
-      schema: {
-        entityId: "EntityId",
-        player: "address",
-      },
-      key: ["entityId"],
-    },
     BedPlayer: {
       schema: {
         bedEntityId: "EntityId",

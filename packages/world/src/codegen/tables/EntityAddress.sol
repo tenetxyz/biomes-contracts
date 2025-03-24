@@ -19,9 +19,9 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { EntityId } from "../../EntityId.sol";
 
-library ReversePlayer {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ReversePlayer", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000052657665727365506c61796572000000);
+library EntityAddress {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "EntityAddress", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000456e7469747941646472657373000000);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0014010014000000000000000000000000000000000000000000000000000000);
@@ -46,7 +46,7 @@ library ReversePlayer {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "player";
+    fieldNames[0] = "entityAddress";
   }
 
   /**
@@ -64,9 +64,9 @@ library ReversePlayer {
   }
 
   /**
-   * @notice Get player.
+   * @notice Get entityAddress.
    */
-  function getPlayer(EntityId entityId) internal view returns (address player) {
+  function getEntityAddress(EntityId entityId) internal view returns (address entityAddress) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -75,9 +75,9 @@ library ReversePlayer {
   }
 
   /**
-   * @notice Get player.
+   * @notice Get entityAddress.
    */
-  function _getPlayer(EntityId entityId) internal view returns (address player) {
+  function _getEntityAddress(EntityId entityId) internal view returns (address entityAddress) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -86,9 +86,9 @@ library ReversePlayer {
   }
 
   /**
-   * @notice Get player.
+   * @notice Get entityAddress.
    */
-  function get(EntityId entityId) internal view returns (address player) {
+  function get(EntityId entityId) internal view returns (address entityAddress) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -97,9 +97,9 @@ library ReversePlayer {
   }
 
   /**
-   * @notice Get player.
+   * @notice Get entityAddress.
    */
-  function _get(EntityId entityId) internal view returns (address player) {
+  function _get(EntityId entityId) internal view returns (address entityAddress) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -108,43 +108,43 @@ library ReversePlayer {
   }
 
   /**
-   * @notice Set player.
+   * @notice Set entityAddress.
    */
-  function setPlayer(EntityId entityId, address player) internal {
+  function setEntityAddress(EntityId entityId, address entityAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((player)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityAddress)), _fieldLayout);
   }
 
   /**
-   * @notice Set player.
+   * @notice Set entityAddress.
    */
-  function _setPlayer(EntityId entityId, address player) internal {
+  function _setEntityAddress(EntityId entityId, address entityAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((player)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityAddress)), _fieldLayout);
   }
 
   /**
-   * @notice Set player.
+   * @notice Set entityAddress.
    */
-  function set(EntityId entityId, address player) internal {
+  function set(EntityId entityId, address entityAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((player)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityAddress)), _fieldLayout);
   }
 
   /**
-   * @notice Set player.
+   * @notice Set entityAddress.
    */
-  function _set(EntityId entityId, address player) internal {
+  function _set(EntityId entityId, address entityAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((player)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((entityAddress)), _fieldLayout);
   }
 
   /**
@@ -171,8 +171,8 @@ library ReversePlayer {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(address player) internal pure returns (bytes memory) {
-    return abi.encodePacked(player);
+  function encodeStatic(address entityAddress) internal pure returns (bytes memory) {
+    return abi.encodePacked(entityAddress);
   }
 
   /**
@@ -181,8 +181,8 @@ library ReversePlayer {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(address player) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(player);
+  function encode(address entityAddress) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(entityAddress);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

@@ -11,12 +11,12 @@ import { EntityId } from "../src/EntityId.sol";
 import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ReverseEntityAddress } from "../src/codegen/tables/ReverseEntityAddress.sol";
 import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
@@ -367,7 +367,7 @@ contract MineTest is BiomesTest {
     assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy is not 0");
 
     // Verify the player entity is still registered to the address, but removed from the grid
-    assertEq(Player.get(alice), aliceEntityId, "Player entity was deleted");
+    assertEq(ReverseEntityAddress.get(alice), aliceEntityId, "Player entity was deleted");
     assertEq(PlayerPosition.get(aliceEntityId), vec3(0, 0, 0), "Player position was not deleted");
     assertEq(ReversePlayerPosition.get(playerCoord), EntityId.wrap(0), "Player reverse position was not deleted");
     assertEq(

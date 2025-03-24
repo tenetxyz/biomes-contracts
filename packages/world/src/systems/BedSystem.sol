@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { Player } from "../codegen/tables/Player.sol";
+import { ReverseEntityAddress } from "../codegen/tables/ReverseEntityAddress.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
 import { Machine } from "../codegen/tables/Machine.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
@@ -111,7 +111,7 @@ contract BedSystem is System {
   function wakeup(Vec3 spawnCoord, bytes calldata extraData) public {
     checkWorldStatus();
 
-    EntityId playerEntityId = Player._get(_msgSender());
+    EntityId playerEntityId = ReverseEntityAddress._get(_msgSender());
     require(playerEntityId.exists(), "Player does not exist");
     EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
     require(bedEntityId.exists(), "Player is not sleeping");

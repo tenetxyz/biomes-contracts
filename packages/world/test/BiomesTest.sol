@@ -12,10 +12,10 @@ import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol
 import { Mass } from "../src/codegen/tables/Mass.sol";
 import { Machine } from "../src/codegen/tables/Machine.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
-import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { EntityAddress } from "../src/codegen/tables/EntityAddress.sol";
+import { ReverseEntityAddress } from "../src/codegen/tables/ReverseEntityAddress.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
 import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
@@ -79,8 +79,8 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
       BaseEntity.set(relativePlayerEntityId, playerEntityId);
     }
 
-    Player.set(playerAddress, playerEntityId);
-    ReversePlayer.set(playerEntityId, playerAddress);
+    EntityAddress.set(playerEntityId, playerAddress);
+    ReverseEntityAddress.set(playerAddress, playerEntityId);
 
     Mass.set(playerEntityId, ObjectTypeMetadata.getMass(ObjectTypes.Player));
     Energy.set(
