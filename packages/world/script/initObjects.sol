@@ -21,7 +21,13 @@ function initObjects() {
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Water,
-    ObjectTypeMetadataData({ stackable: 0, maxInventorySlots: 0, mass: 0, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 0,
+      maxInventorySlots: type(uint16).max,
+      mass: 0,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Lava,
@@ -293,67 +299,163 @@ function initObjects() {
   );
   ObjectTypeMetadata.set(
     ObjectTypes.AzaleaFlower,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.BellFlower,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.DandelionFlower,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.DaylilyFlower,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.LilacFlower,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.RoseFlower,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.FireFlower,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.MarigoldFlower,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.MorninggloryFlower,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.PeonyFlower,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Ultraviolet,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.SunFlower,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.FlyTrap,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.FescueGrass,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.SwitchGrass,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.CottonBush,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.BambooBush,
@@ -361,35 +463,83 @@ function initObjects() {
   );
   ObjectTypeMetadata.set(
     ObjectTypes.VinesBush,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.IvyVine,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.HempBush,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.GoldenMushroom,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.RedMushroom,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.CoffeeBush,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.StrawberryBush,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.RaspberryBush,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Cactus,
@@ -417,19 +567,43 @@ function initObjects() {
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Wheat,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 100, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 0,
+      energy: 100,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Coral,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.SeaAnemone,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Algae,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.HornCoralBlock,
@@ -461,7 +635,13 @@ function initObjects() {
   );
   ObjectTypeMetadata.set(
     ObjectTypes.SpiderWeb,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 1, energy: 0, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 1,
+      energy: 0,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Bone,
@@ -537,15 +717,33 @@ function initObjects() {
   );
   ObjectTypeMetadata.set(
     ObjectTypes.WheatSeed,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 100, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 0,
+      energy: 100,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.OakSeed,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 1000, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 0,
+      energy: 1000,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.SpruceSeed,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 0, energy: 1000, canPassThrough: true })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: type(uint16).max,
+      mass: 0,
+      energy: 1000,
+      canPassThrough: true
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.ForceField,

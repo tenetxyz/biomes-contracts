@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { ReversePosition } from "../utils/Vec3Storage.sol";
@@ -26,7 +27,7 @@ contract PickupSystem is System {
     require(entityId.exists(), "No entity at pickup location");
 
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
-    require(objectTypeId == ObjectTypes.Air, "Cannot pickup from a non-air block");
+    require(ObjectTypeMetadata.getCanPassThrough(objectTypeId), "Cannot pickup from a non-passable block");
 
     return (playerEntityId, entityId);
   }

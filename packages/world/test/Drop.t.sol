@@ -133,6 +133,27 @@ contract DropTest is BiomesTest {
     assertEq(InventoryEntity.get(toolEntityId), airEntityId, "Inventory entity is not air");
   }
 
+  function testDropNonAirButPassable() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+
+    Vec3 dropCoord = playerCoord + vec3(0, 1, 0);
+    setObjectAtCoord(dropCoord, ObjectTypes.FescueGrass);
+    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
+    uint16 numToTransfer = 10;
+    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
+    EntityId airEntityId = ReversePosition.get(dropCoord);
+    assertTrue(airEntityId.exists(), "Drop entity doesn't exist");
+
+    vm.prank(alice);
+    world.drop(transferObjectTypeId, numToTransfer, dropCoord);
+
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, numToTransfer);
+    assertEq(InventorySlots.get(aliceEntityId), 0, "Inventory slots is not 0");
+    assertEq(InventorySlots.get(airEntityId), 1, "Inventory slots is not 0");
+  }
+
   function testPickup() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
@@ -266,6 +287,26 @@ contract DropTest is BiomesTest {
     assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
   }
 
+  function testPickupFromNonAirButPassable() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+
+    Vec3 pickupCoord = playerCoord + vec3(0, 1, 0);
+    EntityId airEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.FescueGrass);
+    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
+    uint16 numToPickup = 10;
+    TestInventoryUtils.addToInventory(airEntityId, transferObjectTypeId, numToPickup);
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, numToPickup);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
+
+    vm.prank(alice);
+    world.pickup(transferObjectTypeId, numToPickup, pickupCoord);
+
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToPickup);
+    assertInventoryHasObject(airEntityId, transferObjectTypeId, 0);
+    assertEq(InventorySlots.get(aliceEntityId), 1, "Inventory slots is not 0");
+    assertEq(InventorySlots.get(airEntityId), 0, "Inventory slots is not 0");
+  }
+
   function testPickupFailsIfInventoryFull() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
@@ -372,7 +413,7 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
-    vm.expectRevert("Cannot drop on a non-air block");
+    vm.expectRevert("Cannot drop on a non-passable block");
     world.drop(transferObjectTypeId, 1, dropCoord);
   }
 
@@ -392,7 +433,7 @@ contract DropTest is BiomesTest {
     TestInventoryUtils.addToInventory(chestEntityId, ObjectTypes.Grass, 1);
 
     vm.prank(alice);
-    vm.expectRevert("Cannot pickup from a non-air block");
+    vm.expectRevert("Cannot pickup from a non-passable block");
     world.pickup(ObjectTypes.Grass, 1, pickupCoord);
   }
 
