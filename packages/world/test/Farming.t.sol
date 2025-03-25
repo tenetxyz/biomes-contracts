@@ -16,13 +16,13 @@ import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
 import { SeedGrowth } from "../src/codegen/tables/SeedGrowth.sol";
 
-import { ReversePosition, PlayerPosition } from "../src/utils/Vec3Storage.sol";
+import { ReversePosition, MovablePosition } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { PLAYER_TILL_ENERGY_COST, PLAYER_BUILD_ENERGY_COST, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
+import { TILL_ENERGY_COST, BUILD_ENERGY_COST, MINE_ENERGY_COST, MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { EntityId } from "../src/EntityId.sol";
 
@@ -176,7 +176,7 @@ contract FarmingTest is BiomesTest {
 
     // Set player energy to less than required
     uint128 toolMass = 0; // Assuming tool mass is 0 for simplicity
-    uint128 energyCost = PLAYER_TILL_ENERGY_COST + toolMass;
+    uint128 energyCost = TILL_ENERGY_COST + toolMass;
     Energy.set(
       aliceEntityId,
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: energyCost - 1, drainRate: 0 })
@@ -201,7 +201,7 @@ contract FarmingTest is BiomesTest {
 
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeed, farmlandCoord + vec3(0, 1, 0), "");
+    world.build(aliceEntityId, ObjectTypes.WheatSeed, farmlandCoord + vec3(0, 1, 0), "");
 
     // Verify seeds were planted
     EntityId cropEntityId = ReversePosition.get(farmlandCoord + vec3(0, 1, 0));
@@ -211,7 +211,7 @@ contract FarmingTest is BiomesTest {
     // Verify energy was taken from local pool
     assertEq(
       LocalEnergyPool.get(farmlandCoord.toLocalEnergyPoolShardCoord()),
-      initialLocalEnergy + PLAYER_BUILD_ENERGY_COST - seedEnergy,
+      initialLocalEnergy + BUILD_ENERGY_COST - seedEnergy,
       "Energy not correctly taken from local pool"
     );
 
@@ -236,7 +236,7 @@ contract FarmingTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Crop seeds need wet farmland");
-    world.build(ObjectTypes.WheatSeed, dirtCoord + vec3(0, 1, 0), "");
+    world.build(aliceEntityId, ObjectTypes.WheatSeed, dirtCoord + vec3(0, 1, 0), "");
 
     // Try to plant on farmland (not wet)
     Vec3 farmlandCoord = vec3(playerCoord.x() + 2, 0, playerCoord.z());
@@ -244,7 +244,7 @@ contract FarmingTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Crop seeds need wet farmland");
-    world.build(ObjectTypes.WheatSeed, farmlandCoord + vec3(0, 1, 0), "");
+    world.build(aliceEntityId, ObjectTypes.WheatSeed, farmlandCoord + vec3(0, 1, 0), "");
   }
 
   function testHarvestMatureWheatCrop() public {
@@ -259,7 +259,7 @@ contract FarmingTest is BiomesTest {
 
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeed, cropCoord, "");
+    world.build(aliceEntityId, ObjectTypes.WheatSeed, cropCoord, "");
 
     // Verify seeds were planted
     EntityId cropEntityId = ReversePosition.get(cropCoord);
@@ -278,7 +278,7 @@ contract FarmingTest is BiomesTest {
 
     // Harvest the crop
     vm.prank(alice);
-    world.mineUntilDestroyed(farmlandCoord + vec3(0, 1, 0), "");
+    world.mineUntilDestroyed(aliceEntityId, farmlandCoord + vec3(0, 1, 0), "");
 
     // Verify wheat and seeds were obtained
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Wheat, 1);
@@ -311,7 +311,7 @@ contract FarmingTest is BiomesTest {
 
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeed, cropCoord, "");
+    world.build(aliceEntityId, ObjectTypes.WheatSeed, cropCoord, "");
 
     // Verify seeds were planted
     EntityId cropEntityId = ReversePosition.get(cropCoord);
@@ -331,7 +331,7 @@ contract FarmingTest is BiomesTest {
 
     // Harvest the crop
     vm.prank(alice);
-    world.mineUntilDestroyed(cropCoord, "");
+    world.mineUntilDestroyed(aliceEntityId, cropCoord, "");
 
     // Verify original seeds were returned (not wheat)
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 1);
@@ -345,7 +345,7 @@ contract FarmingTest is BiomesTest {
     assertEq(
       LocalEnergyPool.get(farmlandCoord.toLocalEnergyPoolShardCoord()),
       beforeHarvestEnergy + seedEnergy,
-      // beforeHarvestEnergy + seedEnergy + PLAYER_MINE_ENERGY_COST,
+      // beforeHarvestEnergy + seedEnergy + MINE_ENERGY_COST,
       "Energy not correctly returned to local pool"
     );
   }
@@ -362,7 +362,7 @@ contract FarmingTest is BiomesTest {
 
     // Harvest the FescueGrass
     vm.prank(alice);
-    world.mineUntilDestroyed(grassCoord, "");
+    world.mineUntilDestroyed(aliceEntityId, grassCoord, "");
 
     // Verify wheat seeds were obtained
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 1);
@@ -379,7 +379,7 @@ contract FarmingTest is BiomesTest {
     Vec3 cropCoord = farmlandCoord + vec3(0, 1, 0);
     // Plant wheat seeds
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeed, cropCoord, "");
+    world.build(aliceEntityId, ObjectTypes.WheatSeed, cropCoord, "");
 
     // Verify seeds were planted
     EntityId cropEntityId = ReversePosition.get(cropCoord);
@@ -394,7 +394,7 @@ contract FarmingTest is BiomesTest {
 
     // Mine the crop
     vm.prank(alice);
-    world.mineUntilDestroyed(cropCoord, "");
+    world.mineUntilDestroyed(aliceEntityId, cropCoord, "");
 
     // We get seeds back, not wheat
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 1);
@@ -402,7 +402,7 @@ contract FarmingTest is BiomesTest {
 
     // Reset test by planting again
     vm.prank(alice);
-    world.build(ObjectTypes.WheatSeed, cropCoord, "");
+    world.build(aliceEntityId, ObjectTypes.WheatSeed, cropCoord, "");
 
     cropEntityId = ReversePosition.get(cropCoord);
     fullyGrownAt = SeedGrowth.getFullyGrownAt(cropEntityId);
@@ -414,7 +414,7 @@ contract FarmingTest is BiomesTest {
 
     // Mine the crop
     vm.prank(alice);
-    world.mineUntilDestroyed(cropCoord, "");
+    world.mineUntilDestroyed(aliceEntityId, cropCoord, "");
 
     // Now we get wheat and seeds
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 1);

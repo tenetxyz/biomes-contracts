@@ -20,7 +20,7 @@ import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
 import { Orientation } from "../../codegen/tables/Orientation.sol";
 import { Direction } from "../../codegen/common.sol";
 
-import { Position, PlayerPosition, ReversePosition, ReversePlayerPosition } from "../../utils/Vec3Storage.sol";
+import { Position, MovablePosition, ReversePosition, ReverseMovablePosition } from "../../utils/Vec3Storage.sol";
 
 import { getEntityInventory } from "../../utils/ReadUtils.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
@@ -37,7 +37,7 @@ contract ReadSystem is System {
       if (bedEntityId.exists()) {
         return Position._get(bedEntityId);
       } else {
-        return PlayerPosition._get(entityId);
+        return MovablePosition._get(entityId);
       }
     } else {
       return Position._get(entityId);

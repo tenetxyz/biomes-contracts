@@ -5,13 +5,14 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
+import { PlayerStatus } from "./codegen/tables/PlayerStatus.sol";
 import { ReversePlayer } from "./codegen/tables/ReversePlayer.sol";
 import { Program } from "./codegen/tables/Program.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
 import { BaseEntity } from "./codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "./codegen/tables/Energy.sol";
 
-import { Position } from "./utils/Vec3Storage.sol";
+import { MovablePosition } from "./utils/Vec3Storage.sol";
 import { updatePlayerEnergy } from "./utils/EnergyUtils.sol";
 
 import { checkWorldStatus } from "./Utils.sol";
@@ -32,11 +33,13 @@ library EntityIdLib {
     // TODO: do we want to support chips for players?
     EnergyData memory energyData;
     if (objectTypeId == ObjectTypes.Player) {
-      require(msgSender == ReversePlayer._get(self));
+      require(msgSender == ReversePlayer._get(self), "Not allowed");
+      require(!PlayerStatus._getBedEntityId(self).exists(), "Player is sleeping");
       energyData = updatePlayerEnergy(self);
     } else {
+      // TODO: update forcefield or machine energy
       address programAddress = self.getProgramAddress();
-      require(msgSender == programAddress, "Invalid caller");
+      require(msgSender == programAddress, "Not allowed");
     }
 
     require(energyData.energy > 0, "Entity has no energy");
@@ -50,8 +53,13 @@ library EntityIdLib {
   // TODO: add pipe connections
   // TODO: should non-player entities have a range > 1?
   function requireConnected(EntityId self, EntityId other) internal view {
-    Vec3 selfCoord = Position.get(self);
-    Vec3 otherCoord = Position.get(other);
+    Vec3 selfCoord = MovablePosition.get(self);
+    Vec3 otherCoord = MovablePosition.get(other);
+    require(selfCoord.inSurroundingCube(otherCoord, MAX_ENTITY_INFLUENCE_HALF_WIDTH), "Entities are not connected");
+  }
+
+  function requireConnected(EntityId self, Vec3 otherCoord) internal view {
+    Vec3 selfCoord = MovablePosition.get(self);
     require(selfCoord.inSurroundingCube(otherCoord, MAX_ENTITY_INFLUENCE_HALF_WIDTH), "Entities are not connected");
   }
 

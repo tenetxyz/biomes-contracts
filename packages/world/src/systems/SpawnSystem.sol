@@ -13,7 +13,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { SurfaceChunkCount } from "../codegen/tables/SurfaceChunkCount.sol";
 
-import { SurfaceChunkByIndex, ExploredChunk, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
+import { SurfaceChunkByIndex, ExploredChunk, Position, ReversePosition, MovablePosition, ReverseMovablePosition } from "../utils/Vec3Storage.sol";
 
 import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
@@ -29,7 +29,7 @@ import { callProgramOrRevert } from "../utils/callProgram.sol";
 import { ISpawnTileProgram } from "../prototypes/ISpawnTileProgram.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
-import { getObjectTypeIdAt, getPlayer } from "../utils/EntityUtils.sol";
+import { getObjectTypeIdAt, getMovableEntityAt } from "../utils/EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 
@@ -81,7 +81,7 @@ contract SpawnSystem is System {
     if (
       spawnObjectTypeId.isNull() ||
       !ObjectTypeMetadata._getCanPassThrough(spawnObjectTypeId) ||
-      getPlayer(spawnCoord).exists()
+      getMovableEntityAt(spawnCoord).exists()
     ) {
       return false;
     }
@@ -90,7 +90,7 @@ contract SpawnSystem is System {
     if (
       topObjectTypeId.isNull() ||
       !ObjectTypeMetadata._getCanPassThrough(topObjectTypeId) ||
-      getPlayer(topCoord).exists()
+      getMovableEntityAt(topCoord).exists()
     ) {
       return false;
     }
@@ -100,7 +100,7 @@ contract SpawnSystem is System {
       belowObjectTypeId.isNull() ||
       (belowObjectTypeId != ObjectTypes.Water &&
         ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId) &&
-        !getPlayer(belowCoord).exists())
+        !getMovableEntityAt(belowCoord).exists())
     ) {
       return false;
     }

@@ -27,9 +27,9 @@ import { encodeChunk } from "./utils/encodeChunk.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, REGION_SIZE } from "../src/Constants.sol";
+import { CHUNK_SIZE, MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, REGION_SIZE } from "../src/Constants.sol";
 
-import { LocalEnergyPool, Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../src/utils/Vec3Storage.sol";
+import { LocalEnergyPool, Position, ReversePosition, MovablePosition, ReverseMovablePosition } from "../src/utils/Vec3Storage.sol";
 import { TestInventoryUtils, TestForceFieldUtils, TestEnergyUtils } from "./utils/TestUtils.sol";
 import { BiomesAssertions } from "./BiomesAssertions.sol";
 
@@ -40,7 +40,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
 
   IWorld internal world;
   int32 constant FLAT_CHUNK_GRASS_LEVEL = 4;
-  uint128 playerHandMassReduction = PLAYER_MINE_ENERGY_COST;
+  uint128 playerHandMassReduction = MINE_ENERGY_COST;
 
   function setUp() public virtual override {
     super.setUp();
@@ -66,16 +66,16 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     address playerAddress = vm.randomAddress();
     EntityId playerEntityId = randomEntityId();
     ObjectType.set(playerEntityId, ObjectTypes.Player);
-    PlayerPosition.set(playerEntityId, coord);
-    ReversePlayerPosition.set(coord, playerEntityId);
+    MovablePosition.set(playerEntityId, coord);
+    ReverseMovablePosition.set(coord, playerEntityId);
 
     Vec3[] memory relativePositions = ObjectTypes.Player.getObjectTypeSchema();
     for (uint256 i = 0; i < relativePositions.length; i++) {
       Vec3 relativeCoord = coord + relativePositions[i];
       EntityId relativePlayerEntityId = randomEntityId();
       ObjectType.set(relativePlayerEntityId, ObjectTypes.Player);
-      PlayerPosition.set(relativePlayerEntityId, relativeCoord);
-      ReversePlayerPosition.set(relativeCoord, relativePlayerEntityId);
+      MovablePosition.set(relativePlayerEntityId, relativeCoord);
+      ReverseMovablePosition.set(relativeCoord, relativePlayerEntityId);
       BaseEntity.set(relativePlayerEntityId, playerEntityId);
     }
 
@@ -144,7 +144,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     vm.prank(alice);
     EntityId aliceEntityId = world.randomSpawn(blockNumber, y);
 
-    Vec3 playerCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 playerCoord = MovablePosition.get(aliceEntityId);
 
     return (alice, aliceEntityId, playerCoord);
   }
@@ -259,7 +259,7 @@ abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
     setTerrainAtCoord(belowCoord, ObjectTypes.Dirt);
 
     (address alice, EntityId aliceEntityId) = createTestPlayer(spawnCoord);
-    Vec3 playerCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 playerCoord = MovablePosition.get(aliceEntityId);
 
     return (alice, aliceEntityId, playerCoord);
   }

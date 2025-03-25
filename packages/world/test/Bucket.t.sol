@@ -15,7 +15,7 @@ import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { ReversePosition, PlayerPosition } from "../src/utils/Vec3Storage.sol";
+import { ReversePosition, MovablePosition } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
@@ -44,7 +44,7 @@ contract BucketTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("fill bucket");
-    world.fillBucket(waterCoord);
+    world.fillBucket(aliceEntityId, waterCoord);
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Bucket, 0);
@@ -65,7 +65,7 @@ contract BucketTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("wet farmland");
-    world.wetFarmland(farmlandCoord);
+    world.wetFarmland(aliceEntityId, farmlandCoord);
     endGasReport();
 
     assertEq(ObjectType.get(farmlandEntityId), ObjectTypes.WetFarmland, "Farmland was not converted to wet farmland");
@@ -84,7 +84,7 @@ contract BucketTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not water");
-    world.fillBucket(nonWaterCoord);
+    world.fillBucket(aliceEntityId, nonWaterCoord);
   }
 
   function testFillBucketFailsIfNoBucket() public {
@@ -97,7 +97,7 @@ contract BucketTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.fillBucket(waterCoord);
+    world.fillBucket(aliceEntityId, waterCoord);
   }
 
   function testFillBucketFailsIfTooFar() public {
@@ -109,7 +109,7 @@ contract BucketTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is too far");
-    world.fillBucket(waterCoord);
+    world.fillBucket(aliceEntityId, waterCoord);
   }
 
   function testWetFarmlandFailsIfNotFarmland() public {
@@ -122,7 +122,7 @@ contract BucketTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not farmland");
-    world.wetFarmland(nonFarmlandCoord);
+    world.wetFarmland(aliceEntityId, nonFarmlandCoord);
   }
 
   function testWetFarmlandFailsIfNoWaterBucket() public {
@@ -135,7 +135,7 @@ contract BucketTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.wetFarmland(farmlandCoord);
+    world.wetFarmland(aliceEntityId, farmlandCoord);
   }
 
   function testWetFarmlandFailsIfTooFar() public {
@@ -148,6 +148,6 @@ contract BucketTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is too far");
-    world.wetFarmland(farmlandCoord);
+    world.wetFarmland(aliceEntityId, farmlandCoord);
   }
 }

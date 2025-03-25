@@ -226,6 +226,11 @@ declare const abi: [
     "name": "build",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "buildObjectTypeId",
         "type": "uint16",
         "internalType": "ObjectTypeId"
@@ -254,6 +259,11 @@ declare const abi: [
     "type": "function",
     "name": "buildWithDirection",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "buildObjectTypeId",
         "type": "uint16",
@@ -409,6 +419,11 @@ declare const abi: [
     "name": "craft",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "recipeId",
         "type": "bytes32",
         "internalType": "bytes32"
@@ -421,6 +436,11 @@ declare const abi: [
     "type": "function",
     "name": "craftWithStation",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "recipeId",
         "type": "bytes32",
@@ -489,6 +509,11 @@ declare const abi: [
     "name": "drop",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "dropObjectTypeId",
         "type": "uint16",
         "internalType": "ObjectTypeId"
@@ -512,6 +537,11 @@ declare const abi: [
     "name": "dropTool",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "toolEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
@@ -529,6 +559,11 @@ declare const abi: [
     "type": "function",
     "name": "dropTools",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "toolEntityIds",
         "type": "bytes32[]",
@@ -657,6 +692,11 @@ declare const abi: [
     "type": "function",
     "name": "fillBucket",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "waterCoord",
         "type": "uint96",
@@ -1922,7 +1962,12 @@ declare const abi: [
     "name": "hitForceField",
     "inputs": [
       {
-        "name": "entityCoord",
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "coord",
         "type": "uint96",
         "internalType": "Vec3"
       }
@@ -2003,6 +2048,11 @@ declare const abi: [
     "name": "jumpBuild",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "buildObjectTypeId",
         "type": "uint16",
         "internalType": "ObjectTypeId"
@@ -2020,6 +2070,11 @@ declare const abi: [
     "type": "function",
     "name": "jumpBuildWithDirection",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "buildObjectTypeId",
         "type": "uint16",
@@ -2043,6 +2098,11 @@ declare const abi: [
     "type": "function",
     "name": "mine",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "coord",
         "type": "uint96",
@@ -2068,6 +2128,11 @@ declare const abi: [
     "name": "mineUntilDestroyed",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "coord",
         "type": "uint96",
         "internalType": "Vec3"
@@ -2086,6 +2151,11 @@ declare const abi: [
     "name": "move",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "newCoords",
         "type": "uint96[]",
         "internalType": "Vec3[]"
@@ -2098,6 +2168,11 @@ declare const abi: [
     "type": "function",
     "name": "moveDirections",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "directions",
         "type": "uint8[]",
@@ -2242,7 +2317,12 @@ declare const abi: [
     "name": "powerMachine",
     "inputs": [
       {
-        "name": "entityId",
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "machineEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2917,14 +2997,19 @@ declare const abi: [
     "name": "transfer",
     "inputs": [
       {
-        "name": "chestEntityId",
+        "name": "callerEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "isDeposit",
-        "type": "bool",
-        "internalType": "bool"
+        "name": "fromEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "toEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
       },
       {
         "name": "transferObjectTypeId",
@@ -3014,14 +3099,19 @@ declare const abi: [
     "name": "transferTool",
     "inputs": [
       {
-        "name": "chestEntityId",
+        "name": "callerEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "isDeposit",
-        "type": "bool",
-        "internalType": "bool"
+        "name": "fromEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "toEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
       },
       {
         "name": "toolEntityId",
@@ -3042,14 +3132,19 @@ declare const abi: [
     "name": "transferTools",
     "inputs": [
       {
-        "name": "chestEntityId",
+        "name": "callerEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "isDeposit",
-        "type": "bool",
-        "internalType": "bool"
+        "name": "fromEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "toEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
       },
       {
         "name": "toolEntityIds",
@@ -3185,6 +3280,11 @@ declare const abi: [
     "type": "function",
     "name": "wetFarmland",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "coord",
         "type": "uint96",

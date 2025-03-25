@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { Position, ReversePosition, PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
+import { Position, ReversePosition, MovablePosition, ReverseMovablePosition } from "../utils/Vec3Storage.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
@@ -71,11 +71,11 @@ function createEntityAt(Vec3 coord, ObjectTypeId objectTypeId) returns (EntityId
   return entityId;
 }
 
-function getPlayer(Vec3 coord) view returns (EntityId) {
-  return ReversePlayerPosition._get(coord);
+function getMovableEntityAt(Vec3 coord) view returns (EntityId) {
+  return ReverseMovablePosition._get(coord);
 }
 
-function setPlayer(Vec3 coord, EntityId playerEntityId) {
-  PlayerPosition._set(playerEntityId, coord);
-  ReversePlayerPosition._set(coord, playerEntityId);
+function setMovableEntityAt(Vec3 coord, EntityId entityId) {
+  MovablePosition._set(entityId, coord);
+  ReverseMovablePosition._set(coord, entityId);
 }

@@ -23,13 +23,13 @@ import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.s
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 
-import { MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, LocalEnergyPool, ReversePosition, MovablePosition, ReverseMovablePosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, PLAYER_FALL_DAMAGE_THRESHOLD } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, PLAYER_FALL_DAMAGE_THRESHOLD } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
@@ -38,7 +38,7 @@ contract MoveTest is BiomesTest {
 
   function _testMoveMultipleBlocks(address player, uint8 numBlocksToMove, bool overTerrain) internal {
     EntityId playerEntityId = Player.get(player);
-    Vec3 startingCoord = PlayerPosition.get(playerEntityId);
+    Vec3 startingCoord = MovablePosition.get(playerEntityId);
     Vec3[] memory newCoords = new Vec3[](numBlocksToMove);
     for (uint32 i = 0; i < numBlocksToMove; i++) {
       newCoords[i] = startingCoord + vec3(0, 0, int32(i) + 1);
@@ -65,20 +65,20 @@ contract MoveTest is BiomesTest {
     startGasReport(
       string.concat("move ", Strings.toString(numBlocksToMove), " blocks ", overTerrain ? "terrain" : "non-terrain")
     );
-    world.move(newCoords);
+    world.move(playerEntityId, newCoords);
     endGasReport();
 
-    Vec3 finalCoord = PlayerPosition.get(playerEntityId);
+    Vec3 finalCoord = MovablePosition.get(playerEntityId);
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(finalCoord, newCoords[numBlocksToMove - 1], "Player did not move to the correct coord");
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
       playerEntityId,
       "Above coord is not the player"
     );
-    assertEq(EntityId.unwrap(ReversePlayerPosition.get(startingCoord)), bytes32(0), "Player position was not deleted");
+    assertEq(EntityId.unwrap(ReverseMovablePosition.get(startingCoord)), bytes32(0), "Player position was not deleted");
     assertEq(
-      EntityId.unwrap(ReversePlayerPosition.get(startingCoord)),
+      EntityId.unwrap(ReverseMovablePosition.get(startingCoord)),
       bytes32(0),
       "Above starting coord is not the player"
     );
@@ -155,15 +155,15 @@ contract MoveTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("move single jump");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
     endGasReport();
 
     // Expect the player to fall down back to the original coord
-    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 finalCoord = MovablePosition.get(aliceEntityId);
     assertEq(finalCoord, playerCoord, "Player did not fall back to the original coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
       aliceEntityId,
       "Above coord is not the player"
     );
@@ -187,14 +187,14 @@ contract MoveTest is BiomesTest {
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
 
     // Expect the player to fall down back after the last block
-    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 finalCoord = MovablePosition.get(aliceEntityId);
     assertEq(finalCoord, expectedFinalCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
       aliceEntityId,
       "Above coord is not the player"
     );
@@ -219,14 +219,14 @@ contract MoveTest is BiomesTest {
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
 
     // Expect the player to be above the grass
-    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 finalCoord = MovablePosition.get(aliceEntityId);
     assertEq(finalCoord, grassCoord + vec3(0, 1, 0), "Player did not move to the grass coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
       aliceEntityId,
       "Above coord is not the player"
     );
@@ -236,14 +236,10 @@ contract MoveTest is BiomesTest {
       afterEnergyDataSnapshot
     );
     // Fall damage is greater than the move energy cost
-    assertGt(
-      PLAYER_FALL_ENERGY_COST,
-      PLAYER_MOVE_ENERGY_COST,
-      "Fall energy cost is not greater than the move energy cost"
-    );
+    assertGt(PLAYER_FALL_ENERGY_COST, MOVE_ENERGY_COST, "Fall energy cost is not greater than the move energy cost");
     assertEq(
       playerEnergyLost,
-      PLAYER_MOVE_ENERGY_COST * newCoords.length,
+      MOVE_ENERGY_COST * newCoords.length,
       "Player energy lost is not greater than the move energy cost"
     );
   }
@@ -265,14 +261,14 @@ contract MoveTest is BiomesTest {
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
 
     // Expect the player to be above the grass
-    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 finalCoord = MovablePosition.get(aliceEntityId);
     assertEq(finalCoord, grassCoord + vec3(0, 1, 0), "Player did not move to the grass coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
       aliceEntityId,
       "Above coord is not the player"
     );
@@ -282,14 +278,10 @@ contract MoveTest is BiomesTest {
       afterEnergyDataSnapshot
     );
     // Fall damage is greater than the move energy cost
-    assertGt(
-      PLAYER_FALL_ENERGY_COST,
-      PLAYER_MOVE_ENERGY_COST,
-      "Fall energy cost is not greater than the move energy cost"
-    );
+    assertGt(PLAYER_FALL_ENERGY_COST, MOVE_ENERGY_COST, "Fall energy cost is not greater than the move energy cost");
     assertGt(
       playerEnergyLost,
-      PLAYER_MOVE_ENERGY_COST * newCoords.length,
+      MOVE_ENERGY_COST * newCoords.length,
       "Player energy lost is not greater than the move energy cost"
     );
   }
@@ -305,13 +297,13 @@ contract MoveTest is BiomesTest {
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
 
-    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 finalCoord = MovablePosition.get(aliceEntityId);
     assertEq(finalCoord, newCoords[newCoords.length - 1], "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
       aliceEntityId,
       "Above coord is not the player"
     );
@@ -335,13 +327,13 @@ contract MoveTest is BiomesTest {
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
 
-    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 finalCoord = MovablePosition.get(aliceEntityId);
     assertEq(finalCoord, playerCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
       aliceEntityId,
       "Above coord is not the player"
     );
@@ -369,13 +361,13 @@ contract MoveTest is BiomesTest {
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
 
-    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 finalCoord = MovablePosition.get(aliceEntityId);
     assertEq(finalCoord, expectedFinalCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
       aliceEntityId,
       "Above coord is not the player"
     );
@@ -396,7 +388,7 @@ contract MoveTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot jump more than 3 blocks");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
   }
 
   function testMoveFailsIfInvalidGlide() public {
@@ -412,7 +404,7 @@ contract MoveTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot glide more than 10 blocks");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
   }
 
   function testMoveFailsIfNonPassable() public {
@@ -430,13 +422,13 @@ contract MoveTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a non-passable block");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
 
     setObjectAtCoord(newCoords[0] + vec3(0, 1, 0), ObjectTypes.Dirt);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a non-passable block");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
   }
 
   function testMoveFailsIfPlayer() public {
@@ -452,17 +444,17 @@ contract MoveTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a player");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
 
     newCoords[1] = bobCoord + vec3(0, 1, 0);
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a player");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
   }
 
   function testMoveFailsIfInvalidCoord() public {
-    (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](2);
     newCoords[0] = playerCoord + vec3(0, 0, 1);
@@ -470,7 +462,7 @@ contract MoveTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("New coord is too far from old coord");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
 
     uint256 pathLength = uint256(int256(playerCoord.x()));
     newCoords = new Vec3[](pathLength);
@@ -481,14 +473,14 @@ contract MoveTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Chunk not explored yet");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
   }
 
   function testMoveFatal() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     // Set player energy to exactly enough for one move
-    uint128 exactEnergy = PLAYER_MOVE_ENERGY_COST;
+    uint128 exactEnergy = MOVE_ENERGY_COST;
     Energy.set(
       aliceEntityId,
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: exactEnergy, drainRate: 0 })
@@ -501,7 +493,7 @@ contract MoveTest is BiomesTest {
     setObjectAtCoord(newCoords[0] - vec3(0, 1, 0), ObjectTypes.Dirt);
 
     vm.prank(alice);
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
 
     // Check energy is zero
     assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy is not 0");
@@ -512,10 +504,10 @@ contract MoveTest is BiomesTest {
 
     // Verify the player entity is still registered to the address, but removed from the grid
     assertEq(Player.get(alice), aliceEntityId, "Player entity was deleted");
-    assertEq(PlayerPosition.get(aliceEntityId), vec3(0, 0, 0), "Player position was not deleted");
-    assertEq(ReversePlayerPosition.get(playerCoord), EntityId.wrap(0), "Player reverse position was not deleted");
+    assertEq(MovablePosition.get(aliceEntityId), vec3(0, 0, 0), "Player position was not deleted");
+    assertEq(ReverseMovablePosition.get(playerCoord), EntityId.wrap(0), "Player reverse position was not deleted");
     assertEq(
-      ReversePlayerPosition.get(playerCoord + vec3(0, 1, 0)),
+      ReverseMovablePosition.get(playerCoord + vec3(0, 1, 0)),
       EntityId.wrap(0),
       "Player reverse position at head was not deleted"
     );
@@ -564,13 +556,13 @@ contract MoveTest is BiomesTest {
     EntityId entityAtDeathLocation = ReversePosition.get(newCoords[fallHeight]);
 
     vm.prank(alice);
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
 
     // Verify player died (energy went to zero)
     assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy should be 0 after fatal fall");
 
     // Verify player position was cleared
-    assertEq(PlayerPosition.get(aliceEntityId), vec3(0, 0, 0), "Player position should be cleared after death");
+    assertEq(MovablePosition.get(aliceEntityId), vec3(0, 0, 0), "Player position should be cleared after death");
 
     // Verify inventory was transferred to the entity at death location
     assertEq(
@@ -606,7 +598,7 @@ contract MoveTest is BiomesTest {
 
     // Calculate energy needed to die exactly at deathIndex
     // Energy for moves before death point + 1 energy unit to die at exact position
-    uint128 energy = PLAYER_MOVE_ENERGY_COST * deathIndex + 1;
+    uint128 energy = MOVE_ENERGY_COST * deathIndex + 1;
 
     Energy.set(aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: energy, drainRate: 0 }));
 
@@ -626,13 +618,13 @@ contract MoveTest is BiomesTest {
     EntityId entityAtDeathLocation = ReversePosition.get(expectedDeathCoord);
 
     vm.prank(alice);
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
 
     // Verify player died (energy went to zero)
     assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy should be 0 after energy depletion");
 
     // Verify player position was cleared
-    assertEq(PlayerPosition.get(aliceEntityId), vec3(0, 0, 0), "Player position should be cleared after death");
+    assertEq(MovablePosition.get(aliceEntityId), vec3(0, 0, 0), "Player position should be cleared after death");
 
     // Verify inventory was transferred to the entity at death location
     assertEq(
@@ -656,14 +648,14 @@ contract MoveTest is BiomesTest {
   }
 
   function testMoveFailsIfNoPlayer() public {
-    (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3[] memory newCoords = new Vec3[](2);
     newCoords[0] = playerCoord + vec3(0, 0, 1);
     newCoords[1] = playerCoord + vec3(0, 0, 2);
 
     vm.expectRevert("Player does not exist");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
   }
 
   function testMoveFailsIfSleeping() public {
@@ -677,6 +669,6 @@ contract MoveTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
   }
 }

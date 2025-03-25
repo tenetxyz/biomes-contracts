@@ -14,8 +14,8 @@ import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
-import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
-import { ReversePlayerPosition } from "../src/codegen/tables/ReversePlayerPosition.sol";
+import { MovablePosition } from "../src/codegen/tables/MovablePosition.sol";
+import { ReverseMovablePosition } from "../src/codegen/tables/ReverseMovablePosition.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
@@ -52,7 +52,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("transfer to chest");
-    world.transfer(chestEntityId, true, transferObjectTypeId, numToTransfer, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, numToTransfer, "");
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
@@ -74,7 +74,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("transfer tool to chest");
-    world.transferTool(chestEntityId, true, toolEntityId, "");
+    world.transferTool(aliceEntityId, aliceEntityId, chestEntityId, toolEntityId, "");
     endGasReport();
 
     assertInventoryHasTool(chestEntityId, toolEntityId, 1);
@@ -96,7 +96,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("transfer from chest");
-    world.transfer(chestEntityId, false, transferObjectTypeId, numToTransfer, "");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, numToTransfer, "");
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
@@ -122,7 +122,7 @@ contract TransferTest is BiomesTest {
     EntityId[] memory toolEntityIds = new EntityId[](2);
     toolEntityIds[0] = toolEntityId1;
     toolEntityIds[1] = toolEntityId2;
-    world.transferTools(chestEntityId, false, toolEntityIds, "");
+    world.transferTools(aliceEntityId, chestEntityId, aliceEntityId, toolEntityIds, "");
     endGasReport();
 
     assertInventoryHasTool(aliceEntityId, toolEntityId1, 2);
@@ -152,7 +152,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Inventory is full");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
   }
 
   function testTransferFromChestFailsIfPlayerFull() public {
@@ -174,7 +174,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Inventory is full");
-    world.transfer(chestEntityId, false, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 1, "");
   }
 
   function testTransferFailsIfInvalidObject() public {
@@ -191,7 +191,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Inventory is full");
-    world.transfer(nonChestEntityId, true, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, nonChestEntityId, transferObjectTypeId, 1, "");
   }
 
   function testTransferFailsIfDoesntHaveBlock() public {
@@ -207,19 +207,19 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 2, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 2, "");
 
     vm.prank(alice);
-    world.transfer(chestEntityId, true, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.transfer(chestEntityId, false, transferObjectTypeId, 2, "");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 2, "");
 
     vm.prank(alice);
-    world.transfer(chestEntityId, false, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 1, "");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
@@ -230,16 +230,16 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Entity does not own inventory item");
-    world.transferTool(chestEntityId, true, toolEntityId, "");
+    world.transferTool(aliceEntityId, aliceEntityId, chestEntityId, toolEntityId, "");
 
     vm.prank(alice);
-    world.transferTool(chestEntityId, false, toolEntityId, "");
+    world.transferTool(aliceEntityId, chestEntityId, aliceEntityId, toolEntityId, "");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
     vm.expectRevert("Entity does not own inventory item");
-    world.transferTool(chestEntityId, false, toolEntityId, "");
+    world.transferTool(aliceEntityId, chestEntityId, aliceEntityId, toolEntityId, "");
   }
 
   function testTransferFailsIfInvalidArgs() public {
@@ -255,15 +255,15 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Object type is not a block or item");
-    world.transfer(chestEntityId, true, ObjectTypes.WoodenPick, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, ObjectTypes.WoodenPick, 1, "");
 
     vm.prank(alice);
     vm.expectRevert("Amount must be greater than 0");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 0, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 0, "");
 
     vm.prank(alice);
     vm.expectRevert("Must transfer at least one tool");
-    world.transferTools(chestEntityId, true, new EntityId[](0), "");
+    world.transferTools(aliceEntityId, aliceEntityId, chestEntityId, new EntityId[](0), "");
 
     EntityId[] memory toolEntityIds = new EntityId[](2);
     toolEntityIds[0] = toolEntityId1;
@@ -271,7 +271,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("All tools must be of the same type");
-    world.transferTools(chestEntityId, true, toolEntityIds, "");
+    world.transferTools(aliceEntityId, aliceEntityId, chestEntityId, toolEntityIds, "");
   }
 
   function testTransferFailsIfTooFar() public {
@@ -287,11 +287,11 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Destination too far");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
 
     vm.prank(alice);
     vm.expectRevert("Destination too far");
-    world.transfer(chestEntityId, false, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 1, "");
   }
 
   function testTransferFailsIfNoPlayer() public {
@@ -306,7 +306,7 @@ contract TransferTest is BiomesTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     vm.expectRevert("Player does not exist");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
   }
 
   function testTransferFailsIfSleeping() public {
@@ -324,6 +324,6 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
   }
 }

@@ -83,12 +83,7 @@ contract TransferSystem is System {
     ObjectTypeId toObjectTypeId = ObjectType._get(toEntityId);
 
     for (uint i = 0; i < toolEntityIds.length; i++) {
-      ObjectTypeId currentToolObjectTypeId = transferInventoryEntity(
-        fromEntityId,
-        toEntityId,
-        toObjectTypeId,
-        toolEntityIds[i]
-      );
+      transferInventoryEntity(fromEntityId, toEntityId, toObjectTypeId, toolEntityIds[i]);
     }
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks

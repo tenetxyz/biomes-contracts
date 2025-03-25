@@ -25,7 +25,7 @@ import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { MinedOrePosition, PlayerPosition, Position, ReversePosition, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, MovablePosition, Position, ReversePosition, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
@@ -143,7 +143,7 @@ contract EquipTest is BiomesTest {
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
     vm.prank(alice);
-    world.dropTool(toolEntityId, dropCoord);
+    world.dropTool(aliceEntityId, toolEntityId, dropCoord);
 
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
@@ -173,7 +173,7 @@ contract EquipTest is BiomesTest {
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
     vm.prank(alice);
-    world.transferTool(chestEntityId, true, toolEntityId, "");
+    world.transferTool(aliceEntityId, aliceEntityId, chestEntityId, toolEntityId, "");
 
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
@@ -207,7 +207,7 @@ contract EquipTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine terrain with tool, entirely mined");
-    world.mineUntilDestroyed(mineCoord, "");
+    world.mineUntilDestroyed(aliceEntityId, mineCoord, "");
     endGasReport();
 
     uint128 toolMassAfter = Mass.getMass(toolEntityId);

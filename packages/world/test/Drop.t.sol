@@ -22,7 +22,7 @@ import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { MinedOrePosition, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, ReversePosition, MovablePosition, ReverseMovablePosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
@@ -51,7 +51,7 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("drop terrain");
-    world.drop(transferObjectTypeId, numToTransfer, dropCoord);
+    world.drop(aliceEntityId, transferObjectTypeId, numToTransfer, dropCoord);
     endGasReport();
 
     airEntityId = ReversePosition.get(dropCoord);
@@ -76,7 +76,7 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("drop non-terrain");
-    world.drop(transferObjectTypeId, numToTransfer, dropCoord);
+    world.drop(aliceEntityId, transferObjectTypeId, numToTransfer, dropCoord);
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
@@ -98,7 +98,7 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("drop tool terrain");
-    world.dropTool(toolEntityId, dropCoord);
+    world.dropTool(aliceEntityId, toolEntityId, dropCoord);
     endGasReport();
 
     airEntityId = ReversePosition.get(dropCoord);
@@ -123,7 +123,7 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("drop tool non-terrain");
-    world.dropTool(toolEntityId, dropCoord);
+    world.dropTool(aliceEntityId, toolEntityId, dropCoord);
     endGasReport();
 
     assertInventoryHasTool(aliceEntityId, toolEntityId, 0);
@@ -146,7 +146,7 @@ contract DropTest is BiomesTest {
     assertTrue(airEntityId.exists(), "Drop entity doesn't exist");
 
     vm.prank(alice);
-    world.drop(transferObjectTypeId, numToTransfer, dropCoord);
+    world.drop(aliceEntityId, transferObjectTypeId, numToTransfer, dropCoord);
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToTransfer);
@@ -271,7 +271,7 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
-    world.mine(chestCoord, "");
+    world.mine(aliceEntityId, chestCoord, "");
 
     EntityId airEntityId = ReversePosition.get(chestCoord);
     assertEq(airEntityId.exists(), true, "Drop entity does not exist");
@@ -335,7 +335,7 @@ contract DropTest is BiomesTest {
   }
 
   function testDropFailsIfDoesntHaveBlock() public {
-    (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 dropCoord = playerCoord + vec3(0, 0, 1);
     setObjectAtCoord(dropCoord, ObjectTypes.Air);
@@ -344,11 +344,11 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.drop(ObjectTypes.Grass, 1, dropCoord);
+    world.drop(aliceEntityId, ObjectTypes.Grass, 1, dropCoord);
 
     vm.prank(alice);
     vm.expectRevert("Entity does not own inventory item");
-    world.dropTool(toolEntityId, dropCoord);
+    world.dropTool(aliceEntityId, toolEntityId, dropCoord);
   }
 
   function testPickupFailsIfDoesntHaveBlock() public {
@@ -394,13 +394,13 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is too far");
-    world.drop(transferObjectTypeId, 1, dropCoord);
+    world.drop(aliceEntityId, transferObjectTypeId, 1, dropCoord);
 
     dropCoord = playerCoord - vec3(CHUNK_SIZE / 2 + 1, 1, 0);
 
     vm.prank(alice);
     vm.expectRevert("Chunk not explored yet");
-    world.drop(transferObjectTypeId, 1, dropCoord);
+    world.drop(aliceEntityId, transferObjectTypeId, 1, dropCoord);
   }
 
   function testDropFailsIfNonAirBlock() public {
@@ -414,7 +414,7 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot drop on a non-passable block");
-    world.drop(transferObjectTypeId, 1, dropCoord);
+    world.drop(aliceEntityId, transferObjectTypeId, 1, dropCoord);
   }
 
   function testPickupFailsIfNonAirBlock() public {
@@ -469,22 +469,22 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Object type is not a block or item");
-    world.drop(ObjectTypes.WoodenPick, 1, dropCoord);
+    world.drop(aliceEntityId, ObjectTypes.WoodenPick, 1, dropCoord);
 
     vm.prank(alice);
     vm.expectRevert("Amount must be greater than 0");
-    world.drop(transferObjectTypeId, 0, dropCoord);
+    world.drop(aliceEntityId, transferObjectTypeId, 0, dropCoord);
 
     vm.prank(alice);
     vm.expectRevert("Must drop at least one tool");
-    world.dropTools(new EntityId[](0), dropCoord);
+    world.dropTools(aliceEntityId, new EntityId[](0), dropCoord);
 
     vm.prank(alice);
     EntityId[] memory toolEntityIds = new EntityId[](2);
     toolEntityIds[0] = toolEntityId1;
     toolEntityIds[1] = toolEntityId2;
     vm.expectRevert("All tools must be of the same type");
-    world.dropTools(toolEntityIds, dropCoord);
+    world.dropTools(aliceEntityId, toolEntityIds, dropCoord);
   }
 
   function testPickupFailsIfNoPlayer() public {
@@ -511,7 +511,7 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     vm.expectRevert("Player does not exist");
-    world.drop(transferObjectTypeId, 1, dropCoord);
+    world.drop(aliceEntityId, transferObjectTypeId, 1, dropCoord);
   }
 
   function testPickupFailsIfSleeping() public {
@@ -544,6 +544,6 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
-    world.drop(transferObjectTypeId, 1, dropCoord);
+    world.drop(aliceEntityId, transferObjectTypeId, 1, dropCoord);
   }
 }

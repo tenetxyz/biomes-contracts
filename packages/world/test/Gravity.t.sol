@@ -21,13 +21,13 @@ import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 
-import { MinedOrePosition, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, LocalEnergyPool, ReversePosition, MovablePosition, ReverseMovablePosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_FALL_ENERGY_COST, PLAYER_MINE_ENERGY_COST, PLAYER_MOVE_ENERGY_COST } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_FALL_ENERGY_COST, MINE_ENERGY_COST, MOVE_ENERGY_COST } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
@@ -48,14 +48,14 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine with single block fall");
-    world.mine(mineCoord, "");
+    world.mine(aliceEntityId, mineCoord, "");
     endGasReport();
 
-    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 finalCoord = MovablePosition.get(aliceEntityId);
     assertEq(finalCoord, mineCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
       aliceEntityId,
       "Above coord is not the player"
     );
@@ -92,14 +92,14 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine with three block fall");
-    world.mine(mineCoord, "");
+    world.mine(aliceEntityId, mineCoord, "");
     endGasReport();
 
-    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 finalCoord = MovablePosition.get(aliceEntityId);
     assertEq(finalCoord, mineCoord - vec3(0, 2, 0), "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
       aliceEntityId,
       "Above coord is not the player"
     );
@@ -151,23 +151,23 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("mine with three block fall with a stacked player");
-    world.mine(mineCoord, "");
+    world.mine(aliceEntityId, mineCoord, "");
     endGasReport();
 
-    Vec3 finalAliceCoord = PlayerPosition.get(aliceEntityId);
-    Vec3 finalBobCoord = PlayerPosition.get(bobEntityId);
+    Vec3 finalAliceCoord = MovablePosition.get(aliceEntityId);
+    Vec3 finalBobCoord = MovablePosition.get(bobEntityId);
     assertEq(finalAliceCoord, mineCoord - vec3(0, 2, 0), "Player alice did not move to new coords");
     assertEq(finalBobCoord, mineCoord, "Player bob did not move to new coords");
     {
       Vec3 aboveFinalAliceCoord = finalAliceCoord + vec3(0, 1, 0);
       assertEq(
-        BaseEntity.get(ReversePlayerPosition.get(aboveFinalAliceCoord)),
+        BaseEntity.get(ReverseMovablePosition.get(aboveFinalAliceCoord)),
         aliceEntityId,
         "Above coord is not the player alice"
       );
       Vec3 aboveFinalBobCoord = finalBobCoord + vec3(0, 1, 0);
       assertEq(
-        BaseEntity.get(ReversePlayerPosition.get(aboveFinalBobCoord)),
+        BaseEntity.get(ReverseMovablePosition.get(aboveFinalBobCoord)),
         bobEntityId,
         "Above coord is not the player bob"
       );
@@ -210,14 +210,14 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("move with single block fall");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
     endGasReport();
 
-    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 finalCoord = MovablePosition.get(aliceEntityId);
     assertEq(finalCoord, expectedFinalCoord, "Player did not fall back to the original coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
       aliceEntityId,
       "Above coord is not the player"
     );
@@ -226,7 +226,7 @@ contract GravityTest is BiomesTest {
       beforeEnergyDataSnapshot,
       afterEnergyDataSnapshot
     );
-    assertEq(playerEnergyLost, PLAYER_MOVE_ENERGY_COST, "Player should only lose energy from the initial move");
+    assertEq(playerEnergyLost, MOVE_ENERGY_COST, "Player should only lose energy from the initial move");
   }
 
   function testMoveFallMultipleBlocks() public {
@@ -248,14 +248,14 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("move with three block fall");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
     endGasReport();
 
-    Vec3 finalCoord = PlayerPosition.get(aliceEntityId);
+    Vec3 finalCoord = MovablePosition.get(aliceEntityId);
     assertEq(finalCoord, expectedFinalCoord, "Player did not fall back to the original coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
       aliceEntityId,
       "Above coord is not the player"
     );
@@ -266,7 +266,7 @@ contract GravityTest is BiomesTest {
     );
     assertEq(
       playerEnergyLost,
-      PLAYER_MOVE_ENERGY_COST + PLAYER_FALL_ENERGY_COST,
+      MOVE_ENERGY_COST + PLAYER_FALL_ENERGY_COST,
       "Player energy lost should equal one move and one fall"
     );
   }
@@ -301,22 +301,22 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("move with three block fall with a stacked player");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
     endGasReport();
 
-    Vec3 finalAliceCoord = PlayerPosition.get(aliceEntityId);
-    Vec3 finalBobCoord = PlayerPosition.get(bobEntityId);
+    Vec3 finalAliceCoord = MovablePosition.get(aliceEntityId);
+    Vec3 finalBobCoord = MovablePosition.get(bobEntityId);
     assertEq(finalAliceCoord, expectedFinalAliceCoord, "Player alice did not move to new coords");
     assertEq(finalBobCoord, aliceCoord, "Player bob did not move to new coords");
     Vec3 aboveFinalAliceCoord = finalAliceCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalAliceCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalAliceCoord)),
       aliceEntityId,
       "Above coord is not the player alice"
     );
     Vec3 aboveFinalBobCoord = finalBobCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReversePlayerPosition.get(aboveFinalBobCoord)),
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalBobCoord)),
       bobEntityId,
       "Above coord is not the player bob"
     );
@@ -345,6 +345,6 @@ contract GravityTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Chunk not explored yet");
-    world.move(newCoords);
+    world.move(aliceEntityId, newCoords);
   }
 }

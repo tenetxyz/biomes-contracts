@@ -18,7 +18,7 @@ import { ObjectTypeLib, TreeData } from "../ObjectTypeLib.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
-import { PLAYER_TILL_ENERGY_COST } from "../Constants.sol";
+import { TILL_ENERGY_COST } from "../Constants.sol";
 
 library FarmingLib {
   function _growTree(EntityId seedEntityId, Vec3 baseCoord, TreeData memory treeData) public returns (uint32, uint32) {
@@ -126,7 +126,7 @@ contract FarmingSystem is System {
     (uint128 massUsed, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId, type(uint128).max);
     require(toolObjectTypeId.isHoe(), "Must equip a hoe");
 
-    uint128 energyCost = PLAYER_TILL_ENERGY_COST + massUsed;
+    uint128 energyCost = TILL_ENERGY_COST + massUsed;
     decreasePlayerEnergy(playerEntityId, playerCoord, energyCost);
     addEnergyToLocalPool(playerCoord, energyCost);
 

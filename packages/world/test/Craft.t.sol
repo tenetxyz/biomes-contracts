@@ -14,7 +14,7 @@ import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
-import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
+import { MovablePosition } from "../src/codegen/tables/MovablePosition.sol";
 import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
@@ -73,7 +73,7 @@ contract CraftTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("handcraft single input");
-    world.craft(recipeId);
+    world.craft(aliceEntityId, recipeId);
     endGasReport();
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
@@ -111,7 +111,7 @@ contract CraftTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("handcraft multiple inputs");
-    world.craft(recipeId);
+    world.craft(aliceEntityId, recipeId);
     endGasReport();
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
@@ -150,7 +150,7 @@ contract CraftTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("craft with station");
-    world.craftWithStation(recipeId, stationEntityId);
+    world.craftWithStation(aliceEntityId, recipeId, stationEntityId);
     endGasReport();
 
     for (uint256 i = 0; i < inputTypes.length; i++) {
@@ -193,7 +193,7 @@ contract CraftTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("craft with any input");
-    world.craftWithStation(recipeId, stationEntityId);
+    world.craftWithStation(aliceEntityId, recipeId, stationEntityId);
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId1, 0);
@@ -228,7 +228,7 @@ contract CraftTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("craft tool");
-    world.craft(recipeId);
+    world.craft(aliceEntityId, recipeId);
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 0);
@@ -265,7 +265,7 @@ contract CraftTest is BiomesTest {
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
-    world.craft(recipeId);
+    world.craft(aliceEntityId, recipeId);
 
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 4);
     bytes32[] memory toolEntityIds = ReverseInventoryEntity.get(aliceEntityId);
@@ -286,7 +286,7 @@ contract CraftTest is BiomesTest {
     beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
-    world.craft(recipeId);
+    world.craft(aliceEntityId, recipeId);
 
     assertInventoryHasObject(aliceEntityId, inputObjectTypeId, 0);
     toolEntityIds = ReverseInventoryEntity.get(aliceEntityId);
@@ -321,7 +321,7 @@ contract CraftTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.craft(recipeId);
+    world.craft(aliceEntityId, recipeId);
 
     inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = ObjectTypes.AnyPlanks;
@@ -347,11 +347,11 @@ contract CraftTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.craftWithStation(recipeId, stationEntityId);
+    world.craftWithStation(aliceEntityId, recipeId, stationEntityId);
   }
 
   function testCraftFailsIfInvalidRecipe() public {
-    (address alice, , ) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = ObjectTypes.OakLog;
@@ -365,7 +365,7 @@ contract CraftTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Recipe not found");
-    world.craft(recipeId);
+    world.craft(aliceEntityId, recipeId);
   }
 
   function testCraftFailsIfInvalidStation() public {
@@ -391,18 +391,18 @@ contract CraftTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("This recipe requires a station");
-    world.craft(recipeId);
+    world.craft(aliceEntityId, recipeId);
 
     vm.prank(alice);
     vm.expectRevert("Invalid station");
-    world.craftWithStation(recipeId, stationEntityId);
+    world.craftWithStation(aliceEntityId, recipeId, stationEntityId);
 
     stationCoord = playerCoord + vec3(int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, 0);
     stationEntityId = setObjectAtCoord(stationCoord, ObjectTypes.Thermoblaster);
 
     vm.prank(alice);
     vm.expectRevert("Player is too far");
-    world.craftWithStation(recipeId, stationEntityId);
+    world.craftWithStation(aliceEntityId, recipeId, stationEntityId);
   }
 
   function testCraftFailsIfFullInventory() public {
@@ -431,7 +431,7 @@ contract CraftTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Inventory is full");
-    world.craft(recipeId);
+    world.craft(aliceEntityId, recipeId);
   }
 
   function testCraftFailsIfNotEnoughEnergy() public {
@@ -456,7 +456,7 @@ contract CraftTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");
-    world.craft(recipeId);
+    world.craft(aliceEntityId, recipeId);
   }
 
   function testCraftFailsIfNoPlayer() public {
@@ -478,7 +478,7 @@ contract CraftTest is BiomesTest {
     }
 
     vm.expectRevert("Player does not exist");
-    world.craft(recipeId);
+    world.craft(aliceEntityId, recipeId);
   }
 
   function testCraftFailsIfSleeping() public {
@@ -503,6 +503,6 @@ contract CraftTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
-    world.craft(recipeId);
+    world.craft(aliceEntityId, recipeId);
   }
 }

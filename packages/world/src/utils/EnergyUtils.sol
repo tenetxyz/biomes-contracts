@@ -7,7 +7,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Machine } from "../codegen/tables/Machine.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 
-import { LocalEnergyPool, Position, PlayerPosition } from "../utils/Vec3Storage.sol";
+import { LocalEnergyPool, Position, MovablePosition } from "../utils/Vec3Storage.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { getEntityAt } from "../utils/EntityUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
@@ -75,7 +75,7 @@ function updateMachineEnergy(EntityId entityId) returns (EnergyData memory, uint
 function updatePlayerEnergy(EntityId playerEntityId) returns (EnergyData memory) {
   (EnergyData memory energyData, uint128 energyDrained, ) = getLatestEnergyData(playerEntityId);
 
-  Vec3 coord = PlayerPosition._get(playerEntityId);
+  Vec3 coord = MovablePosition._get(playerEntityId);
 
   if (energyDrained > 0) {
     addEnergyToLocalPool(coord, energyDrained);
@@ -117,7 +117,7 @@ function decreasePlayerEnergy(EntityId playerEntityId, Vec3 playerCoord, uint128
 
 function decreaseEnergy(EntityId entityId, uint128 amount) {
   if (ObjectType._get(entityId) == ObjectTypes.Player) {
-    decreasePlayerEnergy(entityId, PlayerPosition._get(entityId), amount);
+    decreasePlayerEnergy(entityId, MovablePosition._get(entityId), amount);
   } else {
     decreaseMachineEnergy(entityId, amount);
   }
@@ -133,7 +133,7 @@ function addEnergyToLocalPool(Vec3 coord, uint128 numToAdd) returns (uint128) {
 function transferEnergyToPool(EntityId entityId, uint128 amount) {
   Vec3 coord;
   if (ObjectType._get(entityId) == ObjectTypes.Player) {
-    coord = PlayerPosition._get(entityId);
+    coord = MovablePosition._get(entityId);
     decreasePlayerEnergy(entityId, coord, amount);
   } else {
     coord = Position._get(entityId);

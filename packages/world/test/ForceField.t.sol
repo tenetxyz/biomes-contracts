@@ -15,7 +15,7 @@ import { Machine } from "../src/codegen/tables/Machine.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { ReversePosition, PlayerPosition, Position } from "../src/utils/Vec3Storage.sol";
+import { ReversePosition, MovablePosition, Position } from "../src/utils/Vec3Storage.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
@@ -187,7 +187,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testMineWithForceFieldWithNoEnergy() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -209,7 +209,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Prank as the player to mine the block
     vm.prank(alice);
-    world.mine(mineCoord, "");
+    world.mine(aliceEntityId, mineCoord, "");
 
     // Verify that the block was successfully mined (should be replaced with Air)
     EntityId mineEntityId = ReversePosition.get(mineCoord);
@@ -218,7 +218,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testMineFailsIfNotAllowedByForceField() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -241,12 +241,12 @@ contract ForceFieldTest is BiomesTest {
     // Prank as the player to mine the block
     vm.prank(alice);
     vm.expectRevert("Not allowed by forcefield");
-    world.mine(mineCoord, "");
+    world.mine(aliceEntityId, mineCoord, "");
   }
 
   function testMineFailsIfNotAllowedByForceFieldFragment() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -271,7 +271,7 @@ contract ForceFieldTest is BiomesTest {
     // Prank as the player to mine the block
     vm.prank(alice);
     vm.expectRevert("Not allowed by forcefield fragment");
-    world.mine(mineCoord, "");
+    world.mine(aliceEntityId, mineCoord, "");
   }
 
   function testBuildWithForceFieldWithNoEnergy() public {
@@ -302,7 +302,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Build the block
     vm.prank(alice);
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
 
     // Verify that the block was successfully built
     EntityId buildEntityId = ReversePosition.get(buildCoord);
@@ -339,7 +339,7 @@ contract ForceFieldTest is BiomesTest {
     // Try to build the block, should fail
     vm.prank(alice);
     vm.expectRevert("Not allowed by forcefield");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfNotAllowedByForceFieldFragment() public {
@@ -374,7 +374,7 @@ contract ForceFieldTest is BiomesTest {
     // Try to build the block, should fail
     vm.prank(alice);
     vm.expectRevert("Not allowed by forcefield fragment");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
   }
 
   function testSetupForceField() public {
@@ -406,7 +406,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testFragmentProgramIsNotUsedIfNoEnergy() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with NO energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -432,7 +432,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Prank as the player to mine the block, should not revert since forcefield has no energy
     vm.prank(alice);
-    world.mine(mineCoord, "");
+    world.mine(aliceEntityId, mineCoord, "");
 
     // Verify that the block was successfully mined (should be replaced with Air)
     EntityId mineEntityId = ReversePosition.get(mineCoord);
@@ -441,7 +441,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testFragmentProgramIsNotUsedIfNotActive() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -470,7 +470,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Prank as the player to mine the block, should not revert since forcefield is destroyed
     vm.prank(alice);
-    world.mine(mineCoord, "");
+    world.mine(aliceEntityId, mineCoord, "");
 
     // Verify that the block was successfully mined (should be replaced with Air)
     EntityId mineEntityId = ReversePosition.get(mineCoord);
@@ -1024,7 +1024,7 @@ contract ForceFieldTest is BiomesTest {
 
       // Build should succeed
       vm.prank(alice);
-      world.build(buildObjectTypeId, buildCoord, "");
+      world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
 
       // Verify build succeeded
       EntityId buildEntityId = ReversePosition.get(buildCoord);
@@ -1046,7 +1046,7 @@ contract ForceFieldTest is BiomesTest {
       // Build should fail
       vm.prank(alice);
       vm.expectRevert("Not allowed by forcefield");
-      world.build(buildObjectTypeId, buildCoord2, "");
+      world.build(aliceEntityId, buildObjectTypeId, buildCoord2, "");
     }
 
     // Test onMine hook
@@ -1063,7 +1063,7 @@ contract ForceFieldTest is BiomesTest {
 
       // Mining should succeed
       vm.prank(alice);
-      world.mine(mineCoord, "");
+      world.mine(aliceEntityId, mineCoord, "");
 
       // Verify mining succeeded
       EntityId mineEntityId = ReversePosition.get(mineCoord);
@@ -1080,7 +1080,7 @@ contract ForceFieldTest is BiomesTest {
       // Mining should fail
       vm.prank(alice);
       vm.expectRevert("Not allowed by forcefield");
-      world.mine(mineCoord2, "");
+      world.mine(aliceEntityId, mineCoord2, "");
     }
   }
 
