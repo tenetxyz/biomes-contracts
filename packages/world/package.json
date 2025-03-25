@@ -19,7 +19,8 @@
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
     "test": "./runTests.bash",
-    "script:admin": "forge script script/AdminScript.s.sol --rpc-url http://127.0.0.1:8545 --broadcast -vvv -s \"run(address,address)\" $(cat deploys/31337/latest.json | jq -r \".worldAddress\")"
+    "script:give": "./runForgeScript.bash script/admin/GiveScript.s.sol",
+    "script:teleport": "./runForgeScript.bash script/admin/TeleportScript.s.sol"
   },
   "dependencies": {
     "@latticexyz/cli": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
