@@ -43,4 +43,9 @@ function ensureAdminSystem(IWorld world) {
     "adminRemoveToolFromInventory(bytes32,bytes32)",
     "adminRemoveToolFromInventory(bytes32,bytes32)"
   );
+  world.registerRootFunctionSelector(
+    adminSystemId,
+    "adminTeleportPlayer(address,uint96)",
+    "adminTeleportPlayer(address,uint96)"
+  );
 }

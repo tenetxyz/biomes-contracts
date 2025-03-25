@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
-  echo "Usage: $0 <filename> [--verbose] [--sig 'customSignature(args)'] [arg1 arg2 ...]"
+  echo "Usage: $0 <filename> [--verbose] [--sig 'customSignature(args)'] [arg1 arg2 ...] [-- forge_args]"
   exit 1
 fi
 
@@ -39,6 +39,7 @@ shift  # Remove the first argument (script filename)
 verbose=false
 customSig=""
 args=()
+forge_args=""
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -51,6 +52,11 @@ while [[ $# -gt 0 ]]; do
       customSig=$2
       shift 2
       ;;
+    --)
+      shift
+      forge_args="$@"
+      break
+      ;;
     *)
       args+=("$1")
       shift
@@ -60,7 +66,6 @@ done
 
 # Determine the signature and arguments
 if [ -z "$customSig" ]; then
-  # Check if it's MoveScript.s.sol
   if [[ $scriptFile == *"GiveScript"* ]]; then
     if [ ${#args[@]} -ne 1 ]; then
       echo "GiveScript requires 1 argument: <playerAddress>"
@@ -74,23 +79,36 @@ if [ -z "$customSig" ]; then
       exit 1
     fi
     signature="run(address,address,int32,int32,int32)"
-    scriptArgs="'${worldAddress}' '${args[0]}' ${args[1]} ${args[2]} ${args[3]}"
+    # Quote each argument individually
+    scriptArgs="'${worldAddress}' '${args[0]}' '${args[1]}' '${args[2]}' '${args[3]}'"
   else
-    # Default to simple run(address) signature
     signature="run(address)"
     scriptArgs="'${worldAddress}'"
   fi
 else
+  # Quote each argument for custom signatures too
+  quoted_args=()
+  for arg in "${args[@]}"; do
+    quoted_args+=("'$arg'")
+  done
   signature=$customSig
-  scriptArgs="${worldAddress} ${args[@]}"
+  scriptArgs="'${worldAddress}' ${quoted_args[@]}"
 fi
 
 # Build the command
-command="forge script $scriptFile --sig '$signature' $scriptArgs --broadcast --legacy --rpc-url ${rpcUrl}"
+command="forge script $scriptFile --sig '$signature' --broadcast --legacy --rpc-url ${rpcUrl}"
 
 # Add verbose flag if specified
 if [ "$verbose" = true ]; then
   command="${command} -vvvv"
+fi
+
+# Add script arguments after -- to handle negative numbers
+command="${command} -- ${scriptArgs}"
+
+# Add any additional forge arguments
+if [ ! -z "$forge_args" ]; then
+  command="$command $forge_args"
 fi
 
 echo "Running script: $command"
