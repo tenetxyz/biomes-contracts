@@ -115,6 +115,24 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "adminTeleportPlayer",
+    "inputs": [
+      {
+        "name": "player",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "finalCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "attachProgram",
     "inputs": [
       {

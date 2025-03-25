@@ -5,6 +5,7 @@ pragma solidity >=0.8.24;
 
 import { EntityId } from "../../EntityId.sol";
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
+import { Vec3 } from "../../Vec3.sol";
 
 /**
  * @title IAdminSystem
@@ -23,4 +24,6 @@ interface IAdminSystem {
   ) external;
 
   function adminRemoveToolFromInventory(EntityId ownerEntityId, EntityId toolEntityId) external;
+
+  function adminTeleportPlayer(address player, Vec3 finalCoord) external;
 }
