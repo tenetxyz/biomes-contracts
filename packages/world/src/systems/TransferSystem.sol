@@ -4,142 +4,135 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { Program } from "../codegen/tables/Program.sol";
-import { ActionType } from "../codegen/common.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
+
+import { IChestProgram } from "../prototypes/IChestProgram.sol";
 
 import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
-import { IChestProgram } from "../prototypes/IChestProgram.sol";
-import { ProgramOnTransferData, TransferData, TransferCommonContext } from "../Types.sol";
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
-import { TransferLib } from "./libraries/TransferLib.sol";
+import { callProgramOrRevert } from "../utils/callProgram.sol";
+import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
+
+import { ProgramOnTransferData, TransferData, TransferCommonContext } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { callProgramOrRevert } from "../utils/callProgram.sol";
+import { Vec3 } from "../Vec3.sol";
+import { SMART_CHEST_ENERGY_COST } from "../Constants.sol";
 
 contract TransferSystem is System {
-  function requireAllowed(
-    uint256 machineEnergyLevel,
-    bool isDeposit,
-    EntityId playerEntityId,
-    EntityId chestEntityId,
-    TransferData memory transferData,
-    bytes calldata extraData
-  ) internal {
-    if (machineEnergyLevel > 0) {
-      // Forward any ether sent with the transaction to the hook
-      // Don't safe call here as we want to revert if the program doesn't allow the transfer
-      bytes memory onTransferCall = abi.encodeCall(
-        IChestProgram.onTransfer,
-        (
-          ProgramOnTransferData({
-            targetEntityId: chestEntityId,
-            callerEntityId: playerEntityId,
-            isDeposit: isDeposit,
-            transferData: transferData,
-            extraData: extraData
-          })
-        )
-      );
-      callProgramOrRevert(chestEntityId.getProgram(), onTransferCall);
-    }
-  }
-
   function transfer(
-    EntityId chestEntityId,
-    bool isDeposit,
+    EntityId callerEntityId,
+    EntityId fromEntityId,
+    EntityId toEntityId,
     ObjectTypeId transferObjectTypeId,
     uint16 numToTransfer,
     bytes calldata extraData
   ) public payable {
-    TransferCommonContext memory ctx = TransferLib.transferCommon(_msgSender(), chestEntityId, isDeposit);
-    transferInventoryNonEntity(
-      ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
-      ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
-      ctx.dstObjectTypeId,
-      transferObjectTypeId,
-      numToTransfer
-    );
+    callerEntityId.activate();
 
-    notify(
-      ctx.playerEntityId,
-      TransferNotifData({
-        transferEntityId: ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
-        transferCoord: ctx.chestCoord,
-        transferObjectTypeId: transferObjectTypeId,
-        transferAmount: numToTransfer
-      })
-    );
+    if (callerEntityId != fromEntityId) {
+      callerEntityId.requireConnected(fromEntityId);
+    }
+    fromEntityId.requireConnected(toEntityId);
+
+    transferEnergyToPool(callerEntityId, SMART_CHEST_ENERGY_COST);
+
+    ObjectTypeId toObjectTypeId = ObjectType._get(toEntityId);
+
+    transferInventoryNonEntity(fromEntityId, toEntityId, toObjectTypeId, transferObjectTypeId, numToTransfer);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    requireAllowed(
-      ctx.machineEnergyLevel,
-      ctx.isDeposit,
-      ctx.playerEntityId,
-      ctx.chestEntityId,
-      TransferData({
-        objectTypeId: transferObjectTypeId,
-        numToTransfer: numToTransfer,
-        toolEntityIds: new EntityId[](0)
-      }),
-      extraData
-    );
+    // _callChestOnTransfer(
+    //   callerEntityId,
+    //   targetEntityId,
+    //   TransferData({
+    //     objectTypeId: transferObjectTypeId,
+    //     numToTransfer: numToTransfer,
+    //     toolEntityIds: new EntityId[](0)
+    //   }),
+    //   extraData
+    // );
   }
 
   function transferTool(
-    EntityId chestEntityId,
-    bool isDeposit,
+    EntityId callerEntityId,
+    EntityId fromEntityId,
+    EntityId toEntityId,
     EntityId toolEntityId,
     bytes calldata extraData
   ) public payable {
     EntityId[] memory toolEntityIds = new EntityId[](1);
     toolEntityIds[0] = toolEntityId;
-    transferTools(chestEntityId, isDeposit, toolEntityIds, extraData);
+    transferTools(callerEntityId, fromEntityId, toEntityId, toolEntityIds, extraData);
   }
 
   function transferTools(
-    EntityId chestEntityId,
-    bool isDeposit,
+    EntityId callerEntityId,
+    EntityId fromEntityId,
+    EntityId toEntityId,
     EntityId[] memory toolEntityIds,
     bytes calldata extraData
   ) public payable {
     require(toolEntityIds.length > 0, "Must transfer at least one tool");
-    TransferCommonContext memory ctx = TransferLib.transferCommon(_msgSender(), chestEntityId, isDeposit);
-    ObjectTypeId toolObjectTypeId;
+
+    callerEntityId.activate();
+    callerEntityId.requireConnected(toEntityId);
+
+    transferEnergyToPool(callerEntityId, SMART_CHEST_ENERGY_COST);
+
+    ObjectTypeId toObjectTypeId = ObjectType._get(toEntityId);
+
     for (uint i = 0; i < toolEntityIds.length; i++) {
       ObjectTypeId currentToolObjectTypeId = transferInventoryEntity(
-        ctx.isDeposit ? ctx.playerEntityId : ctx.chestEntityId,
-        ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
-        ctx.dstObjectTypeId,
+        fromEntityId,
+        toEntityId,
+        toObjectTypeId,
         toolEntityIds[i]
       );
-      if (i > 0) {
-        require(toolObjectTypeId == currentToolObjectTypeId, "All tools must be of the same type");
-      } else {
-        toolObjectTypeId = currentToolObjectTypeId;
-      }
     }
 
-    notify(
-      ctx.playerEntityId,
-      TransferNotifData({
-        transferEntityId: ctx.isDeposit ? ctx.chestEntityId : ctx.playerEntityId,
-        transferCoord: ctx.chestCoord,
-        transferObjectTypeId: toolObjectTypeId,
-        transferAmount: uint16(toolEntityIds.length)
-      })
-    );
-
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    requireAllowed(
-      ctx.machineEnergyLevel,
-      ctx.isDeposit,
-      ctx.playerEntityId,
-      ctx.chestEntityId,
-      TransferData({
-        objectTypeId: toolObjectTypeId,
-        numToTransfer: uint16(toolEntityIds.length),
-        toolEntityIds: toolEntityIds
-      }),
-      extraData
-    );
+    // _callChestOnTransfer(
+    //   callerEntityId,
+    //   targetEntityId,
+    //   ctx.playerEntityId,
+    //   ctx.chestEntityId,
+    //   TransferData({
+    //     objectTypeId: toolObjectTypeId,
+    //     numToTransfer: uint16(toolEntityIds.length),
+    //     toolEntityIds: toolEntityIds
+    //   }),
+    //   extraData
+    // );
+  }
+
+  function _getTargetEntityId(
+    EntityId callerEntityId,
+    EntityId fromEntityId,
+    EntityId toEntityId
+  ) internal returns (EntityId) {
+    if (callerEntityId == fromEntityId) {
+      return toEntityId;
+    } else if (callerEntityId == toEntityId) {
+      return fromEntityId;
+    } else {
+      revert("Caller is not involved in transfer");
+    }
+  }
+
+  function _callChestOnTransfer(
+    EntityId callerEntityId,
+    EntityId targetEntityId,
+    EntityId fromEntityId,
+    EntityId toEntityId,
+    TransferData memory transferData,
+    bytes calldata extraData
+  ) internal {
+    // Don't safe call here as we want to revert if the program doesn't allow the transfer
+    // bytes memory onTransferCall = abi.encodeCall(
+    //   IChestProgram.onTransfer,
+    //   (callerEntityId, targetEntityId, fromEntityId, toEntityId, transferData, extraData)
+    // );
+    // callProgramOrRevert(targetEntityId.getProgram(), onTransferCall);
   }
 }
