@@ -113,7 +113,7 @@ contract BedSystem is System {
     checkWorldStatus();
 
     EntityId playerEntityId = Player._get(_msgSender());
-    require(playerEntityId.exists(), "Player does not exist");
+    require(playerEntityId.exists(), "Caller not allowed");
     EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
     require(bedEntityId.exists(), "Player is not sleeping");
 

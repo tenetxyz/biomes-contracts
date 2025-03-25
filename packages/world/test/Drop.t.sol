@@ -379,7 +379,7 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
-    vm.expectRevert("Player is too far");
+    vm.expectRevert("Entity is too far");
     world.pickup(transferObjectTypeId, 1, pickupCoord);
   }
 
@@ -393,7 +393,7 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
-    vm.expectRevert("Player is too far");
+    vm.expectRevert("Entity is too far");
     world.drop(aliceEntityId, transferObjectTypeId, 1, dropCoord);
 
     dropCoord = playerCoord - vec3(CHUNK_SIZE / 2 + 1, 1, 0);
@@ -497,7 +497,7 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
-    vm.expectRevert("Player does not exist");
+    vm.expectRevert("Caller not allowed");
     world.pickup(transferObjectTypeId, 1, pickupCoord);
   }
 
@@ -510,7 +510,7 @@ contract DropTest is BiomesTest {
     TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
 
-    vm.expectRevert("Player does not exist");
+    vm.expectRevert("Caller not allowed");
     world.drop(aliceEntityId, transferObjectTypeId, 1, dropCoord);
   }
 

@@ -127,7 +127,7 @@ contract BedTest is BiomesTest {
     EntityId bedEntityId = createBed(bedCoord);
 
     vm.prank(alice);
-    vm.expectRevert("Player is too far");
+    vm.expectRevert("Entity is too far");
     world.sleep(bedEntityId, "");
   }
 

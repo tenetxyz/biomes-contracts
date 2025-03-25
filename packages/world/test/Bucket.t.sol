@@ -108,7 +108,7 @@ contract BucketTest is BiomesTest {
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.Bucket, 1);
 
     vm.prank(alice);
-    vm.expectRevert("Player is too far");
+    vm.expectRevert("Entity is too far");
     world.fillBucket(aliceEntityId, waterCoord);
   }
 
@@ -147,7 +147,7 @@ contract BucketTest is BiomesTest {
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WaterBucket, 1);
 
     vm.prank(alice);
-    vm.expectRevert("Player is too far");
+    vm.expectRevert("Entity is too far");
     world.wetFarmland(aliceEntityId, farmlandCoord);
   }
 }

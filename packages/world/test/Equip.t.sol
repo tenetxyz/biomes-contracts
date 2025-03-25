@@ -264,7 +264,7 @@ contract EquipTest is BiomesTest {
 
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
-    vm.expectRevert("Player does not exist");
+    vm.expectRevert("Caller not allowed");
     world.equip(toolEntityId);
   }
 
@@ -298,7 +298,7 @@ contract EquipTest is BiomesTest {
 
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
-    vm.expectRevert("Player does not exist");
+    vm.expectRevert("Caller not allowed");
     world.unequip();
   }
 

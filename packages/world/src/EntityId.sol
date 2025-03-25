@@ -12,34 +12,48 @@ import { ObjectType } from "./codegen/tables/ObjectType.sol";
 import { BaseEntity } from "./codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "./codegen/tables/Energy.sol";
 
-import { MovablePosition } from "./utils/Vec3Storage.sol";
-import { updatePlayerEnergy } from "./utils/EnergyUtils.sol";
+import { MovablePosition, Position } from "./utils/Vec3Storage.sol";
+import { updatePlayerEnergy, updateMachineEnergy } from "./utils/EnergyUtils.sol";
+import { getForceField } from "./utils/ForceFieldUtils.sol";
 
 import { checkWorldStatus } from "./Utils.sol";
 import { ObjectTypeId } from "./ObjectTypeId.sol";
 import { ObjectTypes } from "./ObjectTypes.sol";
+import { ObjectTypeLib } from "./ObjectTypeLib.sol";
 import { Vec3 } from "./Vec3.sol";
 import { MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "./Constants.sol";
 
 type EntityId is bytes32;
 
 library EntityIdLib {
+  using ObjectTypeLib for ObjectTypeId;
+
   function activate(EntityId self) public {
     checkWorldStatus();
     ObjectTypeId objectTypeId = ObjectType.get(self);
+    require(objectTypeId.isActionAllowed(), "Action not allowed");
 
     address msgSender = WorldContextConsumerLib._msgSender();
 
     // TODO: do we want to support chips for players?
     EnergyData memory energyData;
     if (objectTypeId == ObjectTypes.Player) {
-      require(msgSender == ReversePlayer._get(self), "Not allowed");
+      require(msgSender == ReversePlayer._get(self), "Caller not allowed");
       require(!PlayerStatus._getBedEntityId(self).exists(), "Player is sleeping");
       energyData = updatePlayerEnergy(self);
     } else {
-      // TODO: update forcefield or machine energy
       address programAddress = self.getProgramAddress();
-      require(msgSender == programAddress, "Not allowed");
+      require(msgSender == programAddress, "Caller not allowed");
+
+      EntityId forceFieldEntityId;
+      if (objectTypeId == ObjectTypes.ForceField) {
+        forceFieldEntityId = self;
+      } else {
+        // TODO: when we support other movable entities we must check the type and use MovablePosition
+        (forceFieldEntityId, ) = getForceField(Position._get(self));
+      }
+
+      (energyData, ) = updateMachineEnergy(forceFieldEntityId);
     }
 
     require(energyData.energy > 0, "Entity has no energy");
@@ -53,14 +67,13 @@ library EntityIdLib {
   // TODO: add pipe connections
   // TODO: should non-player entities have a range > 1?
   function requireConnected(EntityId self, EntityId other) internal view {
-    Vec3 selfCoord = MovablePosition.get(self);
     Vec3 otherCoord = MovablePosition.get(other);
-    require(selfCoord.inSurroundingCube(otherCoord, MAX_ENTITY_INFLUENCE_HALF_WIDTH), "Entities are not connected");
+    requireConnected(self, otherCoord);
   }
 
   function requireConnected(EntityId self, Vec3 otherCoord) internal view {
     Vec3 selfCoord = MovablePosition.get(self);
-    require(selfCoord.inSurroundingCube(otherCoord, MAX_ENTITY_INFLUENCE_HALF_WIDTH), "Entities are not connected");
+    require(selfCoord.inSurroundingCube(otherCoord, MAX_ENTITY_INFLUENCE_HALF_WIDTH), "Entity is too far");
   }
 
   function getProgramAddress(EntityId entityId) internal view returns (address) {

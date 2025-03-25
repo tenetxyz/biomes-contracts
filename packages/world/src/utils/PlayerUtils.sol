@@ -37,7 +37,7 @@ library PlayerUtils {
   function requireValidPlayer(address player) public returns (EntityId, Vec3, EnergyData memory) {
     checkWorldStatus();
     EntityId playerEntityId = Player._get(player);
-    require(playerEntityId.exists(), "Player does not exist");
+    require(playerEntityId.exists(), "Caller not allowed");
     require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
     Vec3 playerCoord = MovablePosition._get(playerEntityId);
 
@@ -48,7 +48,7 @@ library PlayerUtils {
   }
 
   function requireInPlayerInfluence(Vec3 playerCoord, Vec3 coord) internal pure {
-    require(playerCoord.inSurroundingCube(coord, MAX_PLAYER_INFLUENCE_HALF_WIDTH), "Player is too far");
+    require(playerCoord.inSurroundingCube(coord, MAX_PLAYER_INFLUENCE_HALF_WIDTH), "Entity is too far");
   }
 
   function requireInPlayerInfluence(Vec3 playerCoord, EntityId entityId) internal view returns (Vec3) {

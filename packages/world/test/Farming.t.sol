@@ -160,7 +160,7 @@ contract FarmingTest is BiomesTest {
     world.equip(hoeEntityId);
 
     vm.prank(alice);
-    vm.expectRevert("Player is too far");
+    vm.expectRevert("Entity is too far");
     world.till(dirtCoord);
   }
 

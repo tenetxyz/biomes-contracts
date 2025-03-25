@@ -654,7 +654,7 @@ contract MoveTest is BiomesTest {
     newCoords[0] = playerCoord + vec3(0, 0, 1);
     newCoords[1] = playerCoord + vec3(0, 0, 2);
 
-    vm.expectRevert("Player does not exist");
+    vm.expectRevert("Caller not allowed");
     world.move(aliceEntityId, newCoords);
   }
 

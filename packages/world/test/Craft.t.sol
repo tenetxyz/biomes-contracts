@@ -401,7 +401,7 @@ contract CraftTest is BiomesTest {
     stationEntityId = setObjectAtCoord(stationCoord, ObjectTypes.Thermoblaster);
 
     vm.prank(alice);
-    vm.expectRevert("Player is too far");
+    vm.expectRevert("Entity is too far");
     world.craftWithStation(aliceEntityId, recipeId, stationEntityId);
   }
 
@@ -477,7 +477,7 @@ contract CraftTest is BiomesTest {
       assertInventoryHasObject(aliceEntityId, inputTypes[i], inputAmounts[i]);
     }
 
-    vm.expectRevert("Player does not exist");
+    vm.expectRevert("Caller not allowed");
     world.craft(aliceEntityId, recipeId);
   }
 

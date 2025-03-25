@@ -305,7 +305,7 @@ contract TransferTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    vm.expectRevert("Player does not exist");
+    vm.expectRevert("Caller not allowed");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
   }
 

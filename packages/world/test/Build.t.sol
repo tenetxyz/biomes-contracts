@@ -291,22 +291,22 @@ contract BuildTest is BiomesTest {
   function testBuildFailsIfPlayer() public {
     (address alice, EntityId aliceEntityId, Vec3 aliceCoord) = setupAirChunkWithPlayer();
 
-    (address bob, EntityId bobEntityId, Vec3 bobCoord) = spawnPlayerOnAirChunk(aliceCoord + vec3(0, 0, 1));
+    (, , Vec3 bobCoord) = spawnPlayerOnAirChunk(aliceCoord + vec3(0, 0, 1));
 
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     vm.prank(alice);
-    vm.expectRevert("Cannot build on a player");
+    vm.expectRevert("Cannot build on a movable entity");
     world.build(aliceEntityId, buildObjectTypeId, bobCoord, "");
 
     vm.prank(alice);
-    vm.expectRevert("Cannot build on a player");
+    vm.expectRevert("Cannot build on a movable entity");
     world.build(aliceEntityId, buildObjectTypeId, bobCoord + vec3(0, 1, 0), "");
 
     vm.prank(alice);
-    vm.expectRevert("Cannot build on a player");
+    vm.expectRevert("Cannot build on a movable entity");
     world.build(aliceEntityId, buildObjectTypeId, aliceCoord, "");
   }
 
@@ -352,7 +352,7 @@ contract BuildTest is BiomesTest {
     TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
 
     vm.prank(alice);
-    vm.expectRevert("Player is too far");
+    vm.expectRevert("Entity is too far");
     world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
 
     buildCoord = playerCoord - vec3(CHUNK_SIZE / 2 + 1, 0, 0);
@@ -435,16 +435,16 @@ contract BuildTest is BiomesTest {
   }
 
   function testBuildFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
-    EntityId airEntityId = setObjectAtCoord(buildCoord, ObjectTypes.Air);
+    setObjectAtCoord(buildCoord, ObjectTypes.Air);
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
 
-    vm.expectRevert("Player does not exist");
+    vm.expectRevert("Caller not allowed");
     world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
   }
 

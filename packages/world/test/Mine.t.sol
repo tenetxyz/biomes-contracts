@@ -321,7 +321,7 @@ contract MineTest is BiomesTest {
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
     vm.prank(alice);
-    vm.expectRevert("Player is too far");
+    vm.expectRevert("Entity is too far");
     world.mine(aliceEntityId, mineCoord, "");
 
     mineCoord = playerCoord - vec3(CHUNK_SIZE / 2 + 1, 0, 0);
@@ -408,7 +408,7 @@ contract MineTest is BiomesTest {
     ObjectTypeId mineObjectTypeId = ObjectTypes.Dirt;
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
-    vm.expectRevert("Player does not exist");
+    vm.expectRevert("Caller not allowed");
     world.mine(aliceEntityId, mineCoord, "");
   }
 
