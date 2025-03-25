@@ -12,7 +12,12 @@ import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IProgramSystem {
-  function attachProgram(EntityId entityId, ResourceId programSystemId, bytes calldata extraData) external payable;
+  function attachProgram(
+    EntityId callerEntityId,
+    EntityId targetEntityId,
+    ResourceId programSystemId,
+    bytes calldata extraData
+  ) external payable;
 
-  function detachProgram(EntityId entityId, bytes calldata extraData) external payable;
+  function detachProgram(EntityId callerEntityId, EntityId targetEntityId, bytes calldata extraData) external payable;
 }

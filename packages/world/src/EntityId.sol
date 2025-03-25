@@ -66,14 +66,15 @@ library EntityIdLib {
 
   // TODO: add pipe connections
   // TODO: should non-player entities have a range > 1?
-  function requireConnected(EntityId self, EntityId other) internal view {
+  function requireConnected(EntityId self, EntityId other) internal view returns (Vec3, Vec3) {
     Vec3 otherCoord = MovablePosition.get(other);
-    requireConnected(self, otherCoord);
+    return requireConnected(self, otherCoord);
   }
 
-  function requireConnected(EntityId self, Vec3 otherCoord) internal view {
+  function requireConnected(EntityId self, Vec3 otherCoord) internal view returns (Vec3, Vec3) {
     Vec3 selfCoord = MovablePosition.get(self);
     require(selfCoord.inSurroundingCube(otherCoord, MAX_ENTITY_INFLUENCE_HALF_WIDTH), "Entity is too far");
+    return (selfCoord, otherCoord);
   }
 
   function getProgramAddress(EntityId entityId) internal view returns (address) {
