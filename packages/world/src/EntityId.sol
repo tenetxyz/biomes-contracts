@@ -54,7 +54,7 @@ library EntityIdLib {
   }
 
   // TODO: add pipe connections
-  // TODO: should non-player entities have a range > 1?
+  // TODO: should non-player entities have a range != to players?
   function requireConnected(EntityId self, EntityId other) internal view returns (Vec3, Vec3) {
     Vec3 otherCoord = other.getPosition();
     return requireConnected(self, otherCoord);
