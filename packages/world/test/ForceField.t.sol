@@ -147,20 +147,11 @@ contract TestForceFieldFragmentProgram is IForceFieldFragmentProgram, System {
 }
 
 contract TestChestProgram is IChestProgram, System {
-  // Control revert behavior
-  bool revertOnTransfer;
-
   function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
 
   function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
 
-  function onTransfer(ProgramOnTransferData memory) external payable {
-    require(!revertOnTransfer, "Transfer not allowed by chest");
-  }
-
-  function setRevertOnTransfer(bool _revertOnTransfer) external {
-    revertOnTransfer = _revertOnTransfer;
-  }
+  function onTransfer(ProgramOnTransferData memory) external payable {}
 
   function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
     return interfaceId == type(IChestProgram).interfaceId || super.supportsInterface(interfaceId);

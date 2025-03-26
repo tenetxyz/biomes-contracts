@@ -2,21 +2,24 @@
 pragma solidity >=0.8.24;
 
 import { console } from "forge-std/console.sol";
+
+import { System } from "@latticexyz/world/src/System.sol";
+import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
 import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
+import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
+import { EnergyData } from "../src/codegen/tables/Energy.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 import { MovablePosition } from "../src/codegen/tables/MovablePosition.sol";
 import { ReverseMovablePosition } from "../src/codegen/tables/ReverseMovablePosition.sol";
-import { Position } from "../src/codegen/tables/Position.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
@@ -28,16 +31,57 @@ import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.s
 import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
+import { IChestProgram } from "../src/prototypes/IChestProgram.sol";
+
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
+import { Position } from "../src/utils/Vec3Storage.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
+import { ProgramOnTransferData } from "../src/Types.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
+
+contract TestChestProgram is IChestProgram, System {
+  // Control revert behavior
+  bool revertOnTransfer;
+
+  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
+
+  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
+
+  function onTransfer(ProgramOnTransferData memory) external payable {
+    require(!revertOnTransfer, "Transfer not allowed by chest");
+  }
+
+  function setRevertOnTransfer(bool _revertOnTransfer) external {
+    revertOnTransfer = _revertOnTransfer;
+  }
+
+  function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
+    return interfaceId == type(IChestProgram).interfaceId || super.supportsInterface(interfaceId);
+  }
+}
 
 contract TransferTest is BiomesTest {
   using ObjectTypeLib for ObjectTypeId;
+
+  function attachTestProgram(EntityId entityId, System program, bytes14 namespace) internal returns (ResourceId) {
+    ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);
+    ResourceId programSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "programName");
+    world.registerNamespace(namespaceId);
+    world.registerSystem(programSystemId, program, false);
+    world.transferOwnership(namespaceId, address(0));
+
+    Vec3 coord = Position.get(entityId);
+
+    // Attach program with test player
+    (address bob, EntityId bobEntityId) = createTestPlayer(coord - vec3(1, 0, 0));
+    vm.prank(bob);
+    world.attachProgram(bobEntityId, entityId, programSystemId, "");
+    return programSystemId;
+  }
 
   function testTransferToChest() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
@@ -317,5 +361,27 @@ contract TransferTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
+  }
+
+  function testTransferFailsIfProgramReverts() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
+    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
+    uint16 numToTransfer = 10;
+    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
+
+    setupForceField(chestCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 }));
+
+    TestChestProgram program = new TestChestProgram();
+    attachTestProgram(chestEntityId, program, "namespace");
+    program.setRevertOnTransfer(true);
+
+    vm.prank(alice);
+    vm.expectRevert("Transfer not allowed by chest");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, numToTransfer, "");
   }
 }

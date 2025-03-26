@@ -75,7 +75,7 @@ library BuildLib {
         if (machineData.energy > 0) {
           bytes memory onBuildCall = abi.encodeCall(
             IForceFieldFragmentProgram.onBuild,
-            (forceFieldEntityId, callerEntityId, objectTypeId, coord, extraData)
+            (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
           );
 
           // We know fragment is active because its forcefield exists, so we can use its program

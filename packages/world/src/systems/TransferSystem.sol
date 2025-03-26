@@ -5,17 +5,20 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { Program } from "../codegen/tables/Program.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { EnergyData } from "../codegen/tables/Energy.sol";
 
 import { IChestProgram } from "../prototypes/IChestProgram.sol";
 
 import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
 import { callProgramOrRevert } from "../utils/callProgram.sol";
-import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { updateMachineEnergy, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 
-import { ProgramOnTransferData, TransferData, TransferCommonContext } from "../Types.sol";
+import { ProgramOnTransferData } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectAmount } from "../ObjectTypeLib.sol";
 import { Vec3 } from "../Vec3.sol";
 import { SMART_CHEST_ENERGY_COST } from "../Constants.sol";
 
@@ -41,17 +44,21 @@ contract TransferSystem is System {
 
     transferInventoryNonEntity(fromEntityId, toEntityId, toObjectTypeId, transferObjectTypeId, numToTransfer);
 
+    ObjectAmount[] memory objectAmounts = new ObjectAmount[](1);
+    objectAmounts[0] = ObjectAmount(transferObjectTypeId, numToTransfer);
+
+    EntityId targetEntityId = _getTargetEntityId(callerEntityId, fromEntityId, toEntityId);
+
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    // _callChestOnTransfer(
-    //   callerEntityId,
-    //   targetEntityId,
-    //   TransferData({
-    //     objectTypeId: transferObjectTypeId,
-    //     numToTransfer: numToTransfer,
-    //     toolEntityIds: new EntityId[](0)
-    //   }),
-    //   extraData
-    // );
+    TransferLib._callOnTransfer(
+      callerEntityId,
+      targetEntityId,
+      fromEntityId,
+      toEntityId,
+      new EntityId[](0),
+      objectAmounts,
+      extraData
+    );
   }
 
   function transferTool(
@@ -86,26 +93,25 @@ contract TransferSystem is System {
       transferInventoryEntity(fromEntityId, toEntityId, toObjectTypeId, toolEntityIds[i]);
     }
 
+    EntityId targetEntityId = _getTargetEntityId(callerEntityId, fromEntityId, toEntityId);
+
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    // _callChestOnTransfer(
-    //   callerEntityId,
-    //   targetEntityId,
-    //   ctx.playerEntityId,
-    //   ctx.chestEntityId,
-    //   TransferData({
-    //     objectTypeId: toolObjectTypeId,
-    //     numToTransfer: uint16(toolEntityIds.length),
-    //     toolEntityIds: toolEntityIds
-    //   }),
-    //   extraData
-    // );
+    TransferLib._callOnTransfer(
+      callerEntityId,
+      targetEntityId,
+      fromEntityId,
+      toEntityId,
+      toolEntityIds,
+      new ObjectAmount[](0),
+      extraData
+    );
   }
 
   function _getTargetEntityId(
     EntityId callerEntityId,
     EntityId fromEntityId,
     EntityId toEntityId
-  ) internal returns (EntityId) {
+  ) internal pure returns (EntityId) {
     if (callerEntityId == fromEntityId) {
       return toEntityId;
     } else if (callerEntityId == toEntityId) {
@@ -114,20 +120,37 @@ contract TransferSystem is System {
       revert("Caller is not involved in transfer");
     }
   }
+}
 
-  function _callChestOnTransfer(
+library TransferLib {
+  function _callOnTransfer(
     EntityId callerEntityId,
     EntityId targetEntityId,
     EntityId fromEntityId,
     EntityId toEntityId,
-    TransferData memory transferData,
+    EntityId[] memory toolEntityIds,
+    ObjectAmount[] memory transferObjects,
     bytes calldata extraData
-  ) internal {
-    // Don't safe call here as we want to revert if the program doesn't allow the transfer
-    // bytes memory onTransferCall = abi.encodeCall(
-    //   IChestProgram.onTransfer,
-    //   (callerEntityId, targetEntityId, fromEntityId, toEntityId, transferData, extraData)
-    // );
-    // callProgramOrRevert(targetEntityId.getProgram(), onTransferCall);
+  ) public {
+    (EntityId forceFieldEntityId, ) = getForceField(targetEntityId.getPosition());
+    (EnergyData memory energyData, ) = updateMachineEnergy(forceFieldEntityId);
+    if (energyData.energy > 0) {
+      // Don't safe call here as we want to revert if the program doesn't allow the transfer
+      bytes memory onTransferCall = abi.encodeCall(
+        IChestProgram.onTransfer,
+        (
+          ProgramOnTransferData(
+            callerEntityId,
+            targetEntityId,
+            fromEntityId,
+            toEntityId,
+            toolEntityIds,
+            transferObjects,
+            extraData
+          )
+        )
+      );
+      callProgramOrRevert(targetEntityId.getProgram(), onTransferCall);
+    }
   }
 }
