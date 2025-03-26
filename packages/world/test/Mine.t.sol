@@ -139,7 +139,7 @@ contract MineTest is BiomesTest {
     assertEq(TotalMinedOreCount.get(), 0, "Mined ore count is not 0");
 
     vm.prank(alice);
-    world.oreChunkCommit(mineCoord.toChunkCoord());
+    world.oreChunkCommit(aliceEntityId, mineCoord.toChunkCoord());
 
     vm.roll(vm.getBlockNumber() + 2);
 
@@ -175,7 +175,7 @@ contract MineTest is BiomesTest {
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
 
     vm.prank(alice);
-    world.oreChunkCommit(mineCoord.toChunkCoord());
+    world.oreChunkCommit(aliceEntityId, mineCoord.toChunkCoord());
 
     vm.roll(vm.getBlockNumber() + 2);
 

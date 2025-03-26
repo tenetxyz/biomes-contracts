@@ -479,7 +479,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testExpandForceField() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     EnergyData memory initialEnergyData = EnergyData({
       lastUpdatedTime: uint128(block.timestamp),
@@ -499,7 +499,7 @@ contract ForceFieldTest is BiomesTest {
     // Expand the force field
     vm.prank(alice);
     startGasReport("Expand forcefield 2x2");
-    world.expandForceField(forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
+    world.expandForceField(aliceEntityId, forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
     endGasReport();
 
     // Calculate expected number of added fragments (2x1x2 = 4 new fragments)
@@ -528,7 +528,7 @@ contract ForceFieldTest is BiomesTest {
   }
 
   function testContractForceField() public {
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -543,6 +543,7 @@ contract ForceFieldTest is BiomesTest {
     vm.prank(alice);
     startGasReport("Expand forcefield 3x3");
     world.expandForceField(
+      aliceEntityId,
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
@@ -568,7 +569,7 @@ contract ForceFieldTest is BiomesTest {
 
       vm.prank(alice);
       startGasReport("Contract forcefield 2x2");
-      world.contractForceField(forceFieldEntityId, contractFrom, contractTo, parents, "");
+      world.contractForceField(aliceEntityId, forceFieldEntityId, contractFrom, contractTo, parents, "");
       endGasReport();
     }
 
@@ -603,7 +604,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testExpandForceFieldFailsIfInvalidCoordinates() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -622,12 +623,12 @@ contract ForceFieldTest is BiomesTest {
     // Expand should fail with these invalid coordinates
     vm.prank(alice);
     vm.expectRevert("Invalid coordinates");
-    world.expandForceField(forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
+    world.expandForceField(aliceEntityId, forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
   }
 
   function testExpandForceFieldFailsIfRefFragmentNotAdjacent() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -646,12 +647,12 @@ contract ForceFieldTest is BiomesTest {
     // Expand should fail because new fragments not adjacent to reference fragment
     vm.prank(alice);
     vm.expectRevert("Reference fragment is not adjacent to new fragments");
-    world.expandForceField(forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
+    world.expandForceField(aliceEntityId, forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
   }
 
   function testExpandForceFieldFailsIfRefFragmentNotInForceField() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -670,12 +671,19 @@ contract ForceFieldTest is BiomesTest {
     // Expand should fail because reference fragment is not part of the force field
     vm.prank(alice);
     vm.expectRevert("Reference fragment is not part of forcefield");
-    world.expandForceField(forceFieldEntityId, invalidRefFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
+    world.expandForceField(
+      aliceEntityId,
+      forceFieldEntityId,
+      invalidRefFragmentCoord,
+      fromFragmentCoord,
+      toFragmentCoord,
+      ""
+    );
   }
 
   function testContractForceFieldFailsIfInvalidCoordinates() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -691,7 +699,14 @@ contract ForceFieldTest is BiomesTest {
 
     // Expand the force field
     vm.prank(alice);
-    world.expandForceField(forceFieldEntityId, refFragmentCoord, expandFromFragmentCoord, expandToFragmentCoord, "");
+    world.expandForceField(
+      aliceEntityId,
+      forceFieldEntityId,
+      refFragmentCoord,
+      expandFromFragmentCoord,
+      expandToFragmentCoord,
+      ""
+    );
 
     // Try to contract with invalid coordinates (from > to)
     Vec3 contractFromFragmentCoord = refFragmentCoord + vec3(3, 0, 0);
@@ -701,12 +716,19 @@ contract ForceFieldTest is BiomesTest {
     // Contract should fail with invalid coordinates
     vm.prank(alice);
     vm.expectRevert("Invalid coordinates");
-    world.contractForceField(forceFieldEntityId, contractFromFragmentCoord, contractToFragmentCoord, parents, "");
+    world.contractForceField(
+      aliceEntityId,
+      forceFieldEntityId,
+      contractFromFragmentCoord,
+      contractToFragmentCoord,
+      parents,
+      ""
+    );
   }
 
   function testContractForceFieldFailsIfNoBoundaryFragments() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -723,12 +745,19 @@ contract ForceFieldTest is BiomesTest {
     // Contract should fail because there are no boundary fragments
     vm.prank(alice);
     vm.expectRevert("No boundary fragments found");
-    world.contractForceField(forceFieldEntityId, contractFromFragmentCoord, contractToFragmentCoord, parents, "");
+    world.contractForceField(
+      aliceEntityId,
+      forceFieldEntityId,
+      contractFromFragmentCoord,
+      contractToFragmentCoord,
+      parents,
+      ""
+    );
   }
 
   function testContractForceFieldFailsIfInvalidSpanningTree() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -744,7 +773,14 @@ contract ForceFieldTest is BiomesTest {
 
     // Expand the force field
     vm.prank(alice);
-    world.expandForceField(forceFieldEntityId, refFragmentCoord, expandFromFragmentCoord, expandToFragmentCoord, "");
+    world.expandForceField(
+      aliceEntityId,
+      forceFieldEntityId,
+      refFragmentCoord,
+      expandFromFragmentCoord,
+      expandToFragmentCoord,
+      ""
+    );
 
     // Try to contract with valid coordinates but invalid parent array
     Vec3 contractFromFragmentCoord = refFragmentCoord + vec3(2, 0, 0);
@@ -767,6 +803,7 @@ contract ForceFieldTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Invalid spanning tree");
     world.contractForceField(
+      aliceEntityId,
       forceFieldEntityId,
       contractFromFragmentCoord,
       contractToFragmentCoord,
@@ -777,7 +814,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testComputeBoundaryFragments() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Create a 3x3x3 force field
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -792,7 +829,14 @@ contract ForceFieldTest is BiomesTest {
     Vec3 expandToFragmentCoord = expandFromFragmentCoord + vec3(2, 2, 2);
 
     vm.prank(alice);
-    world.expandForceField(forceFieldEntityId, refFragmentCoord, expandFromFragmentCoord, expandToFragmentCoord, "");
+    world.expandForceField(
+      aliceEntityId,
+      forceFieldEntityId,
+      refFragmentCoord,
+      expandFromFragmentCoord,
+      expandToFragmentCoord,
+      ""
+    );
 
     // Define a 1x1x1 cuboid in the center to remove
     Vec3 contractFromFragmentCoord = expandFromFragmentCoord + vec3(1, 1, 1);
@@ -834,7 +878,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testExpandIntoExistingForceField() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Create first force field
     Vec3 forceField1Coord = playerCoord + vec3(2, 0, 0);
@@ -855,6 +899,7 @@ contract ForceFieldTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Can't expand to existing forcefield");
     world.expandForceField(
+      aliceEntityId,
       forceField1EntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
@@ -897,7 +942,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testExpandAndContractForceFieldComplex() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Create a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -913,6 +958,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Expand in the X direction
     world.expandForceField(
+      aliceEntityId,
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
@@ -922,6 +968,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Expand in the Y direction
     world.expandForceField(
+      aliceEntityId,
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(0, 1, 0),
@@ -931,6 +978,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Expand in the Z direction
     world.expandForceField(
+      aliceEntityId,
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(0, 0, 1),
@@ -940,6 +988,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Expand diagonally from a different reference point
     world.expandForceField(
+      aliceEntityId,
       forceFieldEntityId,
       refFragmentCoord + vec3(2, 0, 0),
       refFragmentCoord + vec3(3, 0, 0),
@@ -964,7 +1013,7 @@ contract ForceFieldTest is BiomesTest {
     parents[0] = 0; // Root
 
     vm.prank(alice);
-    world.contractForceField(forceFieldEntityId, contractFrom, contractTo, parents, "");
+    world.contractForceField(aliceEntityId, forceFieldEntityId, contractFrom, contractTo, parents, "");
 
     uint256 remainingFragments = 0;
 
@@ -1086,7 +1135,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testOverlappingForceFieldBoundaries() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Create first force field
     Vec3 forceField1Coord = playerCoord - vec3(10, 0, 0);
@@ -1106,6 +1155,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 refFragmentCoord1 = forceField1Coord.toForceFieldFragmentCoord();
     vm.prank(alice);
     world.expandForceField(
+      aliceEntityId,
       forceField1EntityId,
       refFragmentCoord1,
       refFragmentCoord1 + vec3(1, 0, 0),
@@ -1117,6 +1167,7 @@ contract ForceFieldTest is BiomesTest {
     Vec3 refFragmentCoord2 = forceField2Coord.toForceFieldFragmentCoord();
     vm.prank(alice);
     world.expandForceField(
+      aliceEntityId,
       forceField2EntityId,
       refFragmentCoord2,
       refFragmentCoord2 - vec3(1, 0, 0),
@@ -1129,6 +1180,7 @@ contract ForceFieldTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Can't expand to existing forcefield");
     world.expandForceField(
+      aliceEntityId,
       forceField1EntityId,
       refFragmentCoord1 + vec3(1, 0, 0),
       refFragmentCoord1 + vec3(2, 0, 0),
@@ -1141,6 +1193,7 @@ contract ForceFieldTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Can't expand to existing forcefield");
     world.expandForceField(
+      aliceEntityId,
       forceField2EntityId,
       refFragmentCoord2 - vec3(1, 0, 0),
       refFragmentCoord2 - vec3(2, 0, 0),
@@ -1151,7 +1204,7 @@ contract ForceFieldTest is BiomesTest {
 
   function testForceFieldExpandGasUsage() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Create a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -1170,6 +1223,7 @@ contract ForceFieldTest is BiomesTest {
     // 1x1x1 expansion (single fragment)
     startGasReport("Expand forcefield 1x1x1");
     world.expandForceField(
+      aliceEntityId,
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
@@ -1183,6 +1237,7 @@ contract ForceFieldTest is BiomesTest {
     // 2x2x1 expansion (4 fragments)
     startGasReport("Expand forcefield 2x2x1 = 4");
     world.expandForceField(
+      aliceEntityId,
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
@@ -1196,6 +1251,7 @@ contract ForceFieldTest is BiomesTest {
     // 2x2x2 expansion (8 fragments)
     startGasReport("Expand forcefield 2x2x2 = 8");
     world.expandForceField(
+      aliceEntityId,
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
@@ -1209,6 +1265,7 @@ contract ForceFieldTest is BiomesTest {
     // 3x3x1 expansion (9 fragments)
     startGasReport("Expand forcefield 3x3x1 = 9");
     world.expandForceField(
+      aliceEntityId,
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),
@@ -1222,6 +1279,7 @@ contract ForceFieldTest is BiomesTest {
     // 3x3x3 expansion (27 fragments)
     startGasReport("Expand forcefield 3x3x3 = 27");
     world.expandForceField(
+      aliceEntityId,
       forceFieldEntityId,
       refFragmentCoord,
       refFragmentCoord + vec3(1, 0, 0),

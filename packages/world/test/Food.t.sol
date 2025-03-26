@@ -39,7 +39,7 @@ contract FoodTest is BiomesTest {
     // Eat food
     uint16 amountToEat = 2;
     vm.prank(alice);
-    world.eat(foodType, amountToEat);
+    world.eat(aliceEntityId, foodType, amountToEat);
 
     // Check if energy was added correctly
     uint128 expectedEnergy = initialEnergy + (foodEnergyValue * amountToEat);
@@ -58,7 +58,7 @@ contract FoodTest is BiomesTest {
     // Try to eat non-food item
     vm.prank(alice);
     vm.expectRevert("Object is not food");
-    world.eat(nonFoodType, 1);
+    world.eat(aliceEntityId, nonFoodType, 1);
   }
 
   function testEatFoodOverMaxEnergy() public {
@@ -84,7 +84,7 @@ contract FoodTest is BiomesTest {
 
     // Eat food
     vm.prank(alice);
-    world.eat(foodType, 1);
+    world.eat(aliceEntityId, foodType, 1);
 
     // Check if energy was capped at max
     assertEq(Energy.getEnergy(aliceEntityId), MAX_PLAYER_ENERGY, "Player energy not capped at max");
@@ -107,7 +107,7 @@ contract FoodTest is BiomesTest {
     // Try to eat more than available
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.eat(foodType, foodAmount + 1);
+    world.eat(aliceEntityId, foodType, foodAmount + 1);
   }
 
   function testEatReducesInventory() public {
@@ -122,7 +122,7 @@ contract FoodTest is BiomesTest {
     // Eat some food
     uint16 amountToEat = 3;
     vm.prank(alice);
-    world.eat(foodType, amountToEat);
+    world.eat(aliceEntityId, foodType, amountToEat);
 
     // Check inventory was reduced correctly
     assertInventoryHasObject(aliceEntityId, foodType, initialFoodAmount - amountToEat);

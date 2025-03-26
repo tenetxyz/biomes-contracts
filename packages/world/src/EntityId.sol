@@ -28,7 +28,7 @@ type EntityId is bytes32;
 library EntityIdLib {
   using ObjectTypeLib for ObjectTypeId;
 
-  function activate(EntityId self) public {
+  function activate(EntityId self) public returns (EnergyData memory) {
     checkWorldStatus();
 
     ObjectTypeId objectTypeId = ObjectType.get(self);
@@ -53,6 +53,8 @@ library EntityIdLib {
     }
 
     require(energyData.energy > 0, "Entity has no energy");
+
+    return energyData;
   }
 
   function requireCallerAllowed(EntityId self, ObjectTypeId objectTypeId) internal view {

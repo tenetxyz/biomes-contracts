@@ -391,6 +391,11 @@ declare const abi: [
     "name": "contractForceField",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "forceFieldEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
@@ -593,6 +598,11 @@ declare const abi: [
     "name": "eat",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "objectTypeId",
         "type": "uint16",
         "internalType": "ObjectTypeId"
@@ -628,6 +638,11 @@ declare const abi: [
     "type": "function",
     "name": "expandForceField",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "forceFieldEntityId",
         "type": "bytes32",
@@ -2206,6 +2221,11 @@ declare const abi: [
     "type": "function",
     "name": "oreChunkCommit",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "chunkCoord",
         "type": "uint96",

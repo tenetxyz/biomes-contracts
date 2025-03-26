@@ -44,10 +44,10 @@ contract OreTest is BiomesTest {
     Vec3 chunkCoord = coord.toChunkCoord();
     exploreChunk(coord);
 
-    (address alice, ) = createTestPlayer(coord);
+    (address alice, EntityId aliceEntityId) = createTestPlayer(coord);
 
     vm.prank(alice);
-    world.oreChunkCommit(chunkCoord);
+    world.oreChunkCommit(aliceEntityId, chunkCoord);
 
     assertEq(OreCommitment.get(chunkCoord), block.number + 1);
   }
@@ -57,21 +57,21 @@ contract OreTest is BiomesTest {
     Vec3 chunkCoord = coord.toChunkCoord();
     exploreChunk(coord);
 
-    (address alice, ) = createTestPlayer(coord);
+    (address alice, EntityId aliceEntityId) = createTestPlayer(coord);
 
     vm.prank(alice);
-    world.oreChunkCommit(chunkCoord);
+    world.oreChunkCommit(aliceEntityId, chunkCoord);
 
     vm.roll(block.number + 1 + CHUNK_COMMIT_EXPIRY_BLOCKS);
 
     vm.prank(alice);
     vm.expectRevert("Existing ore commitment");
-    world.oreChunkCommit(chunkCoord);
+    world.oreChunkCommit(aliceEntityId, chunkCoord);
 
     // Next block it should be possible to commit
     vm.roll(block.number + 1);
     vm.prank(alice);
-    world.oreChunkCommit(chunkCoord);
+    world.oreChunkCommit(aliceEntityId, chunkCoord);
 
     assertEq(OreCommitment.get(chunkCoord), block.number + 1);
   }
