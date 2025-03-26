@@ -424,4 +424,33 @@ contract TransferTest is BiomesTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(otherChestEntityId, transferObjectTypeId, numToTransfer);
   }
+
+  function testTransferBetweenChestsFailIfTooFar() public {
+    Vec3 chestCoord = vec3(0, 0, 0);
+    Vec3 otherChestCoord = chestCoord + vec3(int32(MAX_ENTITY_INFLUENCE_HALF_WIDTH) + 1, 0, 0);
+
+    setupAirChunk(chestCoord);
+
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
+    EntityId otherChestEntityId = setObjectAtCoord(otherChestCoord, ObjectTypes.SmartChest);
+    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
+    uint16 numToTransfer = 10;
+    TestInventoryUtils.addToInventory(chestEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(otherChestEntityId, transferObjectTypeId, 0);
+
+    setupForceField(chestCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 }));
+
+    TestChestProgram program = new TestChestProgram();
+    attachTestProgram(chestEntityId, program, "namespace");
+
+    vm.expectRevert("Entity is too far");
+    program.call(
+      world,
+      abi.encodeCall(
+        world.transfer,
+        (chestEntityId, chestEntityId, otherChestEntityId, transferObjectTypeId, numToTransfer, "")
+      )
+    );
+  }
 }
