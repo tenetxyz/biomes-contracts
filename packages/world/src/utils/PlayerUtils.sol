@@ -33,44 +33,6 @@ import { notify, DeathNotifData } from "./NotifUtils.sol";
 using ObjectTypeLib for ObjectTypeId;
 
 library PlayerUtils {
-  // TODO: currently a public lib function due to contract size limit, should ideally figure out a better workaround
-  function requireValidPlayer(address player) public returns (EntityId, Vec3, EnergyData memory) {
-    checkWorldStatus();
-    EntityId playerEntityId = Player._get(player);
-    require(playerEntityId.exists(), "Caller not allowed");
-    require(!PlayerStatus._getBedEntityId(playerEntityId).exists(), "Player is sleeping");
-    Vec3 playerCoord = MovablePosition._get(playerEntityId);
-
-    EnergyData memory playerEnergyData = updatePlayerEnergy(playerEntityId);
-    require(playerEnergyData.energy > 0, "Player is dead");
-
-    return (playerEntityId, playerCoord, playerEnergyData);
-  }
-
-  function requireInPlayerInfluence(Vec3 playerCoord, Vec3 coord) internal pure {
-    require(playerCoord.inSurroundingCube(coord, MAX_PLAYER_INFLUENCE_HALF_WIDTH), "Entity is too far");
-  }
-
-  function requireInPlayerInfluence(Vec3 playerCoord, EntityId entityId) internal view returns (Vec3) {
-    Vec3 coord = Position._get(entityId);
-    requireInPlayerInfluence(playerCoord, coord);
-    return coord;
-  }
-
-  // Checks if the player is in range of the fragment (8x8x8 cube)
-  function requireFragmentInPlayerInfluence(Vec3 playerCoord, EntityId fragmentEntityId) internal view returns (Vec3) {
-    Vec3 fragmentCoord = ForceFieldFragmentPosition._get(fragmentEntityId);
-    // Calculate the closest point in the fragment to the player
-    // For each dimension, clamp the player's position to the fragment's bounds
-    Vec3 fragmentGridCoord = fragmentCoord.mul(FRAGMENT_SIZE);
-
-    int32 range = FRAGMENT_SIZE - 1;
-    Vec3 closest = playerCoord.clamp(fragmentGridCoord, fragmentGridCoord + vec3(range, range, range));
-
-    requireInPlayerInfluence(playerCoord, closest);
-    return closest;
-  }
-
   function getOrCreatePlayer() internal returns (EntityId) {
     address playerAddress = WorldContextConsumerLib._msgSender();
     EntityId playerEntityId = Player._get(playerAddress);
