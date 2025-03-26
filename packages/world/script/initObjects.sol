@@ -751,11 +751,11 @@ function initObjects() {
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Chest,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 24, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 27, mass: 100, energy: 0, canPassThrough: false })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.SmartChest,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 24, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 27, mass: 100, energy: 0, canPassThrough: false })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.TextSign,
