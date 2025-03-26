@@ -2898,6 +2898,11 @@ declare const abi: [
     "name": "sleep",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "bedEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
@@ -3313,6 +3318,11 @@ declare const abi: [
     "type": "function",
     "name": "wakeup",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "spawnCoord",
         "type": "uint96",

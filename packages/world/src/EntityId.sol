@@ -30,21 +30,18 @@ library EntityIdLib {
 
   function activate(EntityId self) public {
     checkWorldStatus();
+
     ObjectTypeId objectTypeId = ObjectType.get(self);
     require(objectTypeId.isActionAllowed(), "Action not allowed");
 
-    address msgSender = WorldContextConsumerLib._msgSender();
+    requireCallerAllowed(self, objectTypeId);
 
     // TODO: do we want to support chips for players?
     EnergyData memory energyData;
     if (objectTypeId == ObjectTypes.Player) {
-      require(msgSender == ReversePlayer._get(self), "Caller not allowed");
       require(!PlayerStatus._getBedEntityId(self).exists(), "Player is sleeping");
       energyData = updatePlayerEnergy(self);
     } else {
-      address programAddress = self.getProgramAddress();
-      require(msgSender == programAddress, "Caller not allowed");
-
       EntityId forceFieldEntityId;
       if (objectTypeId == ObjectTypes.ForceField) {
         forceFieldEntityId = self;
@@ -56,6 +53,22 @@ library EntityIdLib {
     }
 
     require(energyData.energy > 0, "Entity has no energy");
+  }
+
+  function requireCallerAllowed(EntityId self, ObjectTypeId objectTypeId) internal view {
+    address msgSender = WorldContextConsumerLib._msgSender();
+
+    if (objectTypeId == ObjectTypes.Player) {
+      require(msgSender == ReversePlayer._get(self), "Caller not allowed");
+    } else {
+      address programAddress = self.getProgramAddress();
+      require(msgSender == programAddress, "Caller not allowed");
+    }
+  }
+
+  function requireCallerAllowed(EntityId self) internal view {
+    ObjectTypeId objectTypeId = ObjectType.get(self);
+    requireCallerAllowed(self, objectTypeId);
   }
 
   function baseEntityId(EntityId self) internal view returns (EntityId) {

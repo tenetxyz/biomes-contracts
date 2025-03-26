@@ -15,7 +15,7 @@ import { SurfaceChunkCount } from "../codegen/tables/SurfaceChunkCount.sol";
 
 import { SurfaceChunkByIndex, ExploredChunk, Position, ReversePosition, MovablePosition, ReverseMovablePosition } from "../utils/Vec3Storage.sol";
 
-import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_PLAYER_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
+import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
@@ -148,7 +148,7 @@ contract SpawnSystem is System {
     require(objectTypeId == ObjectTypes.SpawnTile, "Not a spawn tile");
 
     Vec3 spawnTileCoord = Position._get(spawnTileEntityId);
-    require(spawnTileCoord.inSurroundingCube(spawnCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH), "Spawn tile is too far away");
+    require(spawnTileCoord.inSurroundingCube(spawnCoord, MAX_RESPAWN_HALF_WIDTH), "Spawn tile is too far away");
 
     (EntityId forceFieldEntityId, ) = getForceField(spawnTileCoord);
     require(forceFieldEntityId.exists(), "Spawn tile is not inside a forcefield");

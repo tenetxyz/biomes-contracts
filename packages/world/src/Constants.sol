@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 uint32 constant MAX_ENTITY_INFLUENCE_HALF_WIDTH = 10;
 
 uint32 constant MAX_PLAYER_INFLUENCE_HALF_WIDTH = 10;
-uint32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
+uint32 constant MAX_RESPAWN_HALF_WIDTH = 10;
 
 uint16 constant MAX_PLAYER_JUMPS = 3;
 uint16 constant MAX_PLAYER_GLIDES = 10;

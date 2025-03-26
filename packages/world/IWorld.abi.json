@@ -2898,6 +2898,11 @@
     "name": "sleep",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "bedEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
@@ -3313,6 +3318,11 @@
     "type": "function",
     "name": "wakeup",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "spawnCoord",
         "type": "uint96",

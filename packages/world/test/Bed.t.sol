@@ -91,7 +91,7 @@ contract BedTest is BiomesTest {
     attachTestProgram(bedEntityId);
 
     vm.prank(alice);
-    world.sleep(bedEntityId, "");
+    world.sleep(aliceEntityId, bedEntityId, "");
 
     // Checks
     BedPlayerData memory bedPlayerData = BedPlayer.get(bedEntityId);
@@ -105,18 +105,18 @@ contract BedTest is BiomesTest {
   }
 
   function testSleepFailsIfNoBed() public {
-    (address alice, , ) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
 
     // Use a random entity for (non) bed
     EntityId bedEntityId = randomEntityId();
 
     vm.prank(alice);
     vm.expectRevert("Not a bed");
-    world.sleep(bedEntityId, "");
+    world.sleep(aliceEntityId, bedEntityId, "");
   }
 
   function testSleepFailsIfNotInPlayerInfluence() public {
-    (address alice, , Vec3 coord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 coord) = setupAirChunkWithPlayer();
 
     Vec3 bedCoord = coord + vec3(500, 0, 0);
 
@@ -128,11 +128,11 @@ contract BedTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Entity is too far");
-    world.sleep(bedEntityId, "");
+    world.sleep(aliceEntityId, bedEntityId, "");
   }
 
   function testSleepFailsIfNoForceField() public {
-    (address alice, , Vec3 coord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 coord) = setupAirChunkWithPlayer();
 
     Vec3 bedCoord = coord - vec3(2, 0, 0);
 
@@ -141,7 +141,7 @@ contract BedTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Bed is not inside a forcefield");
-    world.sleep(bedEntityId, "");
+    world.sleep(aliceEntityId, bedEntityId, "");
   }
 
   function testSleepFailsIfNotEnoughForceFieldEnergy() public {
@@ -171,14 +171,14 @@ contract BedTest is BiomesTest {
     attachTestProgram(bedEntityId);
 
     vm.prank(alice);
-    world.sleep(bedEntityId, "");
+    world.sleep(aliceEntityId, bedEntityId, "");
 
     uint128 timeDelta = 1000 seconds;
     vm.warp(vm.getBlockTimestamp() + timeDelta);
 
     // Wakeup in the original coord
     vm.prank(alice);
-    world.wakeup(coord, "");
+    world.wakeup(aliceEntityId, coord, "");
 
     EnergyData memory ffEnergyData = Energy.get(forcefieldEntityId);
     assertEq(
@@ -217,7 +217,7 @@ contract BedTest is BiomesTest {
     attachTestProgram(bedEntityId);
 
     vm.prank(alice);
-    world.sleep(bedEntityId, "");
+    world.sleep(aliceEntityId, bedEntityId, "");
 
     // After 1000 seconds, the forcefield should be depleted
     // We wait for 500 more seconds so the player's energy is also depleted in this period
@@ -226,7 +226,7 @@ contract BedTest is BiomesTest {
 
     // Wakeup in the original coord
     vm.prank(alice);
-    world.wakeup(coord, "");
+    world.wakeup(aliceEntityId, coord, "");
 
     EnergyData memory ffEnergyData = Energy.get(forcefieldEntityId);
     uint128 depletedTime = Machine.getDepletedTime(forcefieldEntityId);
@@ -268,7 +268,7 @@ contract BedTest is BiomesTest {
     attachTestProgram(bedEntityId);
 
     vm.prank(alice);
-    world.sleep(bedEntityId, "");
+    world.sleep(aliceEntityId, bedEntityId, "");
 
     // After 1000 seconds, the forcefield should be depleted
     // We wait for 500 more seconds so the player's energy is also depleted in this period
@@ -283,7 +283,7 @@ contract BedTest is BiomesTest {
 
     // Wakeup in the original coord
     vm.prank(alice);
-    world.wakeup(coord, "");
+    world.wakeup(aliceEntityId, coord, "");
 
     EnergyData memory ffEnergyData = Energy.get(forcefieldEntityId);
     uint128 depletedTime = Machine.getDepletedTime(forcefieldEntityId);
@@ -326,7 +326,7 @@ contract BedTest is BiomesTest {
     attachTestProgram(bedEntityId);
 
     vm.prank(alice);
-    world.sleep(bedEntityId, "");
+    world.sleep(aliceEntityId, bedEntityId, "");
 
     // After 1000 seconds, the forcefield should be depleted
     // We wait for the player to also get fully depleted
@@ -336,7 +336,7 @@ contract BedTest is BiomesTest {
     // Wakeup in the original coord
     vm.prank(alice);
     vm.expectRevert("Player died while sleeping");
-    world.wakeup(coord, "");
+    world.wakeup(aliceEntityId, coord, "");
 
     TestEnergyUtils.updateMachineEnergy(forcefieldEntityId);
 
@@ -377,7 +377,7 @@ contract BedTest is BiomesTest {
     attachTestProgram(bedEntityId);
 
     vm.prank(alice);
-    world.sleep(bedEntityId, "");
+    world.sleep(aliceEntityId, bedEntityId, "");
 
     // After 1000 seconds, the forcefield should be depleted
     // We wait more time so the player's energy is FULLY depleted in this period
