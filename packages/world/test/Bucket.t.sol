@@ -22,7 +22,7 @@ import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
+import { MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
@@ -39,8 +39,6 @@ contract BucketTest is BiomesTest {
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.Bucket, 1);
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Bucket, 1);
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WaterBucket, 0);
-
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("fill bucket");
@@ -60,8 +58,6 @@ contract BucketTest is BiomesTest {
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WaterBucket, 1);
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WaterBucket, 1);
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Bucket, 0);
-
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("wet farmland");
@@ -103,7 +99,7 @@ contract BucketTest is BiomesTest {
   function testFillBucketFailsIfTooFar() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupWaterChunkWithPlayer();
 
-    Vec3 waterCoord = vec3(playerCoord.x() + int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, playerCoord.z());
+    Vec3 waterCoord = vec3(playerCoord.x() + int32(MAX_ENTITY_INFLUENCE_HALF_WIDTH) + 1, 0, playerCoord.z());
 
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.Bucket, 1);
 
@@ -141,7 +137,7 @@ contract BucketTest is BiomesTest {
   function testWetFarmlandFailsIfTooFar() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 farmlandCoord = vec3(playerCoord.x() + int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, playerCoord.z());
+    Vec3 farmlandCoord = vec3(playerCoord.x() + int32(MAX_ENTITY_INFLUENCE_HALF_WIDTH) + 1, 0, playerCoord.z());
     setObjectAtCoord(farmlandCoord, ObjectTypes.Farmland);
 
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WaterBucket, 1);
