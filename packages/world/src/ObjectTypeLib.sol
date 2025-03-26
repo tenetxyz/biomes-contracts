@@ -7,6 +7,7 @@ import { Direction } from "./codegen/common.sol";
 
 import { ObjectTypeId } from "./ObjectTypeId.sol";
 import { ObjectTypes, Block, Tool, Item, Misc, CATEGORY_MASK } from "./ObjectTypes.sol";
+import { timeToGrow as _timeToGrow } from "./timeToGrow.sol";
 import { Vec3, vec3 } from "./Vec3.sol";
 
 struct ObjectAmount {
@@ -222,12 +223,7 @@ library ObjectTypeLib {
   }
 
   function timeToGrow(ObjectTypeId objectTypeId) internal pure returns (uint128) {
-    // TODO: different times for different seeds
-    if (objectTypeId.isSeed()) {
-      return 15 minutes;
-    }
-
-    return 0;
+    return _timeToGrow(objectTypeId);
   }
 
   function getObjectTypes(ObjectTypeId self) internal pure returns (ObjectTypeId[] memory) {
