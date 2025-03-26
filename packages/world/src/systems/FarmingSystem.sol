@@ -10,7 +10,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
-import { decreasePlayerEnergy, addEnergyToLocalPool, transferEnergyToPool } from "../utils/EnergyUtils.sol";
+import { addEnergyToLocalPool, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -29,11 +29,10 @@ contract FarmingSystem is System {
 
     (EntityId farmlandEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(objectTypeId == ObjectTypes.Dirt || objectTypeId == ObjectTypes.Grass, "Not dirt or grass");
-    (uint128 massUsed, ObjectTypeId toolObjectTypeId) = useEquipped(callerEntityId, type(uint128).max);
+    (, ObjectTypeId toolObjectTypeId) = useEquipped(callerEntityId, type(uint128).max);
     require(toolObjectTypeId.isHoe(), "Must equip a hoe");
 
-    uint128 energyCost = TILL_ENERGY_COST + massUsed;
-    transferEnergyToPool(callerEntityId, energyCost);
+    FarmingLib._processEnergyReduction(callerEntityId);
 
     ObjectType._set(farmlandEntityId, ObjectTypes.Farmland);
   }
@@ -77,6 +76,10 @@ contract FarmingSystem is System {
 }
 
 library FarmingLib {
+  function _processEnergyReduction(EntityId callerEntityId) public {
+    transferEnergyToPool(callerEntityId, TILL_ENERGY_COST);
+  }
+
   function _growTree(EntityId seedEntityId, Vec3 baseCoord, TreeData memory treeData) public returns (uint32, uint32) {
     uint32 trunkHeight = _growTreeTrunk(seedEntityId, baseCoord, treeData);
 

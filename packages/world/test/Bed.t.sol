@@ -66,9 +66,9 @@ contract BedTest is BiomesTest {
     Vec3 bedCoord = Position.get(bedEntityId);
 
     // Attach program with test player
-    (address bob, ) = createTestPlayer(bedCoord - vec3(1, 0, 0));
+    (address bob, EntityId bobEntityId) = createTestPlayer(bedCoord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachProgram(bedEntityId, programSystemId, "");
+    world.attachProgram(bobEntityId, bedEntityId, programSystemId, "");
   }
 
   function testSleep() public {

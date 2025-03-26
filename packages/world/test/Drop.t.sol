@@ -167,7 +167,7 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("pickup");
-    world.pickup(transferObjectTypeId, numToPickup, pickupCoord);
+    world.pickup(aliceEntityId, transferObjectTypeId, numToPickup, pickupCoord);
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToPickup);
@@ -188,7 +188,7 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("pickup tool");
-    world.pickupTool(toolEntityId, pickupCoord);
+    world.pickupTool(aliceEntityId, toolEntityId, pickupCoord);
     endGasReport();
 
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
@@ -217,7 +217,7 @@ contract DropTest is BiomesTest {
     pickupObjects[0] = PickupData({ objectTypeId: objectObjectTypeId, numToPickup: numToPickup });
     EntityId[] memory pickupTools = new EntityId[](1);
     pickupTools[0] = toolEntityId;
-    world.pickupMultiple(pickupObjects, pickupTools, pickupCoord);
+    world.pickupMultiple(aliceEntityId, pickupObjects, pickupTools, pickupCoord);
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, objectObjectTypeId, numToPickup);
@@ -245,7 +245,7 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("pickup all");
-    world.pickupAll(pickupCoord);
+    world.pickupAll(aliceEntityId, pickupCoord);
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, objectObjectTypeId, numToPickup);
@@ -279,7 +279,7 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(airEntityId, transferObjectTypeId, numToPickup);
 
     vm.prank(alice);
-    world.pickupAll(chestCoord);
+    world.pickupAll(aliceEntityId, chestCoord);
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToPickup);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 0);
@@ -299,7 +299,7 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
-    world.pickup(transferObjectTypeId, numToPickup, pickupCoord);
+    world.pickup(aliceEntityId, transferObjectTypeId, numToPickup, pickupCoord);
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToPickup);
     assertInventoryHasObject(airEntityId, transferObjectTypeId, 0);
@@ -331,7 +331,7 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Inventory is full");
-    world.pickup(transferObjectTypeId, 1, pickupCoord);
+    world.pickup(aliceEntityId, transferObjectTypeId, 1, pickupCoord);
   }
 
   function testDropFailsIfDoesntHaveBlock() public {
@@ -352,7 +352,7 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfDoesntHaveBlock() public {
-    (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 dropCoord = playerCoord + vec3(0, 0, 1);
     setObjectAtCoord(dropCoord, ObjectTypes.Air);
@@ -361,11 +361,11 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.pickup(ObjectTypes.Grass, 1, dropCoord);
+    world.pickup(aliceEntityId, ObjectTypes.Grass, 1, dropCoord);
 
     vm.prank(alice);
     vm.expectRevert("Entity does not own inventory item");
-    world.pickupTool(toolEntityId, dropCoord);
+    world.pickupTool(aliceEntityId, toolEntityId, dropCoord);
   }
 
   function testPickupFailsIfInvalidCoord() public {
@@ -380,7 +380,7 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Entity is too far");
-    world.pickup(transferObjectTypeId, 1, pickupCoord);
+    world.pickup(aliceEntityId, transferObjectTypeId, 1, pickupCoord);
   }
 
   function testDropFailsIfInvalidCoord() public {
@@ -418,7 +418,7 @@ contract DropTest is BiomesTest {
   }
 
   function testPickupFailsIfNonAirBlock() public {
-    (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 pickupCoord = playerCoord + vec3(0, 1, 1);
     setTerrainAtCoord(pickupCoord, ObjectTypes.Air);
@@ -427,14 +427,14 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("No entity at pickup location");
-    world.pickup(ObjectTypes.Grass, 1, pickupCoord);
+    world.pickup(aliceEntityId, ObjectTypes.Grass, 1, pickupCoord);
 
     EntityId chestEntityId = setObjectAtCoord(pickupCoord, ObjectTypes.Chest);
     TestInventoryUtils.addToInventory(chestEntityId, ObjectTypes.Grass, 1);
 
     vm.prank(alice);
     vm.expectRevert("Cannot pickup from a non-passable block");
-    world.pickup(ObjectTypes.Grass, 1, pickupCoord);
+    world.pickup(aliceEntityId, ObjectTypes.Grass, 1, pickupCoord);
   }
 
   function testPickupFailsIfInvalidArgs() public {
@@ -449,11 +449,11 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Object type is not a block or item");
-    world.pickup(ObjectTypes.WoodenPick, 1, pickupCoord);
+    world.pickup(aliceEntityId, ObjectTypes.WoodenPick, 1, pickupCoord);
 
     vm.prank(alice);
     vm.expectRevert("Amount must be greater than 0");
-    world.pickup(transferObjectTypeId, 0, pickupCoord);
+    world.pickup(aliceEntityId, transferObjectTypeId, 0, pickupCoord);
   }
 
   function testDropFailsIfInvalidArgs() public {
@@ -498,7 +498,7 @@ contract DropTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
 
     vm.expectRevert("Caller not allowed");
-    world.pickup(transferObjectTypeId, 1, pickupCoord);
+    world.pickup(aliceEntityId, transferObjectTypeId, 1, pickupCoord);
   }
 
   function testDropFailsIfNoPlayer() public {
@@ -528,7 +528,7 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
-    world.pickup(transferObjectTypeId, 1, pickupCoord);
+    world.pickup(aliceEntityId, transferObjectTypeId, 1, pickupCoord);
   }
 
   function testDropFailsIfSleeping() public {

@@ -131,12 +131,10 @@ function addEnergyToLocalPool(Vec3 coord, uint128 numToAdd) returns (uint128) {
 }
 
 function transferEnergyToPool(EntityId entityId, uint128 amount) {
-  Vec3 coord;
+  Vec3 coord = entityId.getPosition();
   if (ObjectType._get(entityId) == ObjectTypes.Player) {
-    coord = MovablePosition._get(entityId);
     decreasePlayerEnergy(entityId, coord, amount);
   } else {
-    coord = Position._get(entityId);
     decreaseMachineEnergy(entityId, amount);
   }
 

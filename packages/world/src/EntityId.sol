@@ -49,8 +49,7 @@ library EntityIdLib {
       if (objectTypeId == ObjectTypes.ForceField) {
         forceFieldEntityId = self;
       } else {
-        // TODO: when we support other movable entities we must check the type and use MovablePosition
-        (forceFieldEntityId, ) = getForceField(Position._get(self));
+        (forceFieldEntityId, ) = getForceField(self.getPosition());
       }
 
       (energyData, ) = updateMachineEnergy(forceFieldEntityId);
@@ -67,14 +66,18 @@ library EntityIdLib {
   // TODO: add pipe connections
   // TODO: should non-player entities have a range > 1?
   function requireConnected(EntityId self, EntityId other) internal view returns (Vec3, Vec3) {
-    Vec3 otherCoord = MovablePosition.get(other);
+    Vec3 otherCoord = other.getPosition();
     return requireConnected(self, otherCoord);
   }
 
   function requireConnected(EntityId self, Vec3 otherCoord) internal view returns (Vec3, Vec3) {
-    Vec3 selfCoord = MovablePosition.get(self);
+    Vec3 selfCoord = self.getPosition();
     require(selfCoord.inSurroundingCube(otherCoord, MAX_ENTITY_INFLUENCE_HALF_WIDTH), "Entity is too far");
     return (selfCoord, otherCoord);
+  }
+
+  function getPosition(EntityId self) internal view returns (Vec3) {
+    return ObjectType._get(self).isMovable() ? MovablePosition._get(self) : Position._get(self);
   }
 
   function getProgramAddress(EntityId entityId) internal view returns (address) {

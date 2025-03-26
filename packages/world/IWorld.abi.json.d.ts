@@ -136,7 +136,12 @@ declare const abi: [
     "name": "attachProgram",
     "inputs": [
       {
-        "name": "entityId",
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "targetEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -491,7 +496,12 @@ declare const abi: [
     "name": "detachProgram",
     "inputs": [
       {
-        "name": "entityId",
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "targetEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -600,6 +610,11 @@ declare const abi: [
     "type": "function",
     "name": "equip",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "inventoryEntityId",
         "type": "bytes32",
@@ -1949,6 +1964,11 @@ declare const abi: [
     "name": "growSeed",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "coord",
         "type": "uint96",
         "internalType": "Vec3"
@@ -2200,6 +2220,11 @@ declare const abi: [
     "name": "pickup",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "pickupObjectTypeId",
         "type": "uint16",
         "internalType": "ObjectTypeId"
@@ -2223,6 +2248,11 @@ declare const abi: [
     "name": "pickupAll",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "coord",
         "type": "uint96",
         "internalType": "Vec3"
@@ -2235,6 +2265,11 @@ declare const abi: [
     "type": "function",
     "name": "pickupMultiple",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "pickupObjects",
         "type": "tuple[]",
@@ -2270,6 +2305,11 @@ declare const abi: [
     "type": "function",
     "name": "pickupTool",
     "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "toolEntityId",
         "type": "bytes32",
@@ -2984,6 +3024,11 @@ declare const abi: [
     "name": "till",
     "inputs": [
       {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
         "name": "coord",
         "type": "uint96",
         "internalType": "Vec3"
@@ -3163,7 +3208,13 @@ declare const abi: [
   {
     "type": "function",
     "name": "unequip",
-    "inputs": [],
+    "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      }
+    ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },

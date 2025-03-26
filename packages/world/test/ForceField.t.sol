@@ -179,9 +179,9 @@ contract ForceFieldTest is BiomesTest {
     Vec3 coord = Position.get(entityId);
 
     // Attach program with test player
-    (address bob, ) = createTestPlayer(coord - vec3(1, 0, 0));
+    (address bob, EntityId bobEntityId) = createTestPlayer(coord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachProgram(entityId, programSystemId, "");
+    world.attachProgram(bobEntityId, entityId, programSystemId, "");
     return programSystemId;
   }
 
@@ -1273,12 +1273,12 @@ contract ForceFieldTest is BiomesTest {
 
     // Attach program with test player
     vm.prank(alice);
-    world.attachProgram(chestEntityId, programSystemId, "");
+    world.attachProgram(aliceEntityId, chestEntityId, programSystemId, "");
   }
 
   function testAttachProgramToObjectInForceFieldFailsWhenDisallowed() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -1309,7 +1309,7 @@ contract ForceFieldTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Not allowed by forcefield");
     // Attempt to attach program with test player, should fail
-    world.attachProgram(chestEntityId, programSystemId, "");
+    world.attachProgram(aliceEntityId, chestEntityId, programSystemId, "");
   }
 
   function testAttachProgramToObjectWithNoForceFieldEnergy() public {

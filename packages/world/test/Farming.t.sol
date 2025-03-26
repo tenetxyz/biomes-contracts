@@ -42,13 +42,13 @@ contract FarmingTest is BiomesTest {
 
     EntityId hoeEntityId = TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenHoe);
     vm.prank(alice);
-    world.equip(hoeEntityId);
+    world.equip(aliceEntityId, hoeEntityId);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("till dirt");
-    world.till(dirtCoord);
+    world.till(aliceEntityId, dirtCoord);
     endGasReport();
 
     dirtEntityId = ReversePosition.get(dirtCoord);
@@ -69,13 +69,13 @@ contract FarmingTest is BiomesTest {
 
     EntityId hoeEntityId = TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenHoe);
     vm.prank(alice);
-    world.equip(hoeEntityId);
+    world.equip(aliceEntityId, hoeEntityId);
 
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
 
     vm.prank(alice);
     startGasReport("till grass");
-    world.till(grassCoord);
+    world.till(aliceEntityId, grassCoord);
     endGasReport();
 
     grassEntityId = ReversePosition.get(grassCoord);
@@ -101,10 +101,10 @@ contract FarmingTest is BiomesTest {
 
       EntityId hoeEntityId = TestInventoryUtils.addToolToInventory(aliceEntityId, hoeTypes[i]);
       vm.prank(alice);
-      world.equip(hoeEntityId);
+      world.equip(aliceEntityId, hoeEntityId);
 
       vm.prank(alice);
-      world.till(testCoord);
+      world.till(aliceEntityId, testCoord);
 
       EntityId farmlandEntityId = ReversePosition.get(testCoord);
       assertTrue(farmlandEntityId.exists(), "Farmland entity doesn't exist after tilling");
@@ -120,11 +120,11 @@ contract FarmingTest is BiomesTest {
 
     EntityId hoeEntityId = TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenHoe);
     vm.prank(alice);
-    world.equip(hoeEntityId);
+    world.equip(aliceEntityId, hoeEntityId);
 
     vm.prank(alice);
     vm.expectRevert("Not dirt or grass");
-    world.till(nonDirtCoord);
+    world.till(aliceEntityId, nonDirtCoord);
   }
 
   function testTillFailsIfNoHoeEquipped() public {
@@ -137,16 +137,16 @@ contract FarmingTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Must equip a hoe");
-    world.till(dirtCoord);
+    world.till(aliceEntityId, dirtCoord);
 
     // Equipped but not a hoe
     EntityId hoeEntityId = TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.SilverPick);
     vm.prank(alice);
-    world.equip(hoeEntityId);
+    world.equip(aliceEntityId, hoeEntityId);
 
     vm.prank(alice);
     vm.expectRevert("Must equip a hoe");
-    world.till(dirtCoord);
+    world.till(aliceEntityId, dirtCoord);
   }
 
   function testTillFailsIfTooFar() public {
@@ -157,11 +157,11 @@ contract FarmingTest is BiomesTest {
 
     EntityId hoeEntityId = TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenHoe);
     vm.prank(alice);
-    world.equip(hoeEntityId);
+    world.equip(aliceEntityId, hoeEntityId);
 
     vm.prank(alice);
     vm.expectRevert("Entity is too far");
-    world.till(dirtCoord);
+    world.till(aliceEntityId, dirtCoord);
   }
 
   function testTillFailsIfNotEnoughEnergy() public {
@@ -172,7 +172,7 @@ contract FarmingTest is BiomesTest {
 
     EntityId hoeEntityId = TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenHoe);
     vm.prank(alice);
-    world.equip(hoeEntityId);
+    world.equip(aliceEntityId, hoeEntityId);
 
     // Set player energy to less than required
     uint128 toolMass = 0; // Assuming tool mass is 0 for simplicity
@@ -184,7 +184,7 @@ contract FarmingTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");
-    world.till(dirtCoord);
+    world.till(aliceEntityId, dirtCoord);
   }
 
   function testPlantWheatSeeds() public {
@@ -271,7 +271,7 @@ contract FarmingTest is BiomesTest {
     // Advance time beyond the growth period
     vm.warp(fullyGrownAt);
     vm.prank(alice);
-    world.growSeed(cropCoord);
+    world.growSeed(aliceEntityId, cropCoord);
 
     // Check local energy pool before harvesting
     uint128 initialLocalEnergy = LocalEnergyPool.get(farmlandCoord.toLocalEnergyPoolShardCoord());
@@ -390,7 +390,7 @@ contract FarmingTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Seed cannot be grown yet");
-    world.growSeed(cropCoord);
+    world.growSeed(aliceEntityId, cropCoord);
 
     // Mine the crop
     vm.prank(alice);
@@ -410,7 +410,7 @@ contract FarmingTest is BiomesTest {
     // Full growth - Warp past the full growth time
     vm.warp(fullyGrownAt + 1);
     vm.prank(alice);
-    world.growSeed(cropCoord);
+    world.growSeed(aliceEntityId, cropCoord);
 
     // Mine the crop
     vm.prank(alice);

@@ -287,6 +287,15 @@ library ObjectTypeLib {
     }
   }
 
+  function isMovable(ObjectTypeId self) internal pure returns (bool) {
+    if (self == ObjectTypes.Player) {
+      return true;
+    }
+
+    // TODO: support other movable entities
+    return false;
+  }
+
   function isActionAllowed(ObjectTypeId self) internal pure returns (bool) {
     if (self == ObjectTypes.Player) {
       return true;

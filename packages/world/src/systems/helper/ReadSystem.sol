@@ -40,7 +40,7 @@ contract ReadSystem is System {
         return MovablePosition._get(entityId);
       }
     } else {
-      return Position._get(entityId);
+      return entityId.getPosition();
     }
   }
 

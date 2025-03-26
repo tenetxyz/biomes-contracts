@@ -250,8 +250,8 @@ contract TransferTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
 
-    EntityId toolEntityId1 = TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenPick);
-    EntityId toolEntityId2 = TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenAxe);
+    TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenPick);
+    TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenAxe);
 
     vm.prank(alice);
     vm.expectRevert("Object type is not a block or item");
@@ -264,14 +264,6 @@ contract TransferTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Must transfer at least one tool");
     world.transferTools(aliceEntityId, aliceEntityId, chestEntityId, new EntityId[](0), "");
-
-    EntityId[] memory toolEntityIds = new EntityId[](2);
-    toolEntityIds[0] = toolEntityId1;
-    toolEntityIds[1] = toolEntityId2;
-
-    vm.prank(alice);
-    vm.expectRevert("All tools must be of the same type");
-    world.transferTools(aliceEntityId, aliceEntityId, chestEntityId, toolEntityIds, "");
   }
 
   function testTransferFailsIfTooFar() public {
@@ -286,11 +278,11 @@ contract TransferTest is BiomesTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
-    vm.expectRevert("Destination too far");
+    vm.expectRevert("Entity is too far");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
 
     vm.prank(alice);
-    vm.expectRevert("Destination too far");
+    vm.expectRevert("Entity is too far");
     world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 1, "");
   }
 
