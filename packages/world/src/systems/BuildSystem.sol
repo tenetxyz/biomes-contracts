@@ -74,6 +74,19 @@ library BuildLib {
     return (baseEntityId, coords);
   }
 
+  function _handleSeed(EntityId baseEntityId, ObjectTypeId buildObjectTypeId, Vec3 baseCoord) public {
+    ObjectTypeId belowTypeId = getObjectTypeIdAt(baseCoord - vec3(0, 1, 0));
+    if (buildObjectTypeId.isCropSeed()) {
+      require(belowTypeId == ObjectTypes.WetFarmland, "Crop seeds need wet farmland");
+    } else if (buildObjectTypeId.isTreeSeed()) {
+      require(belowTypeId == ObjectTypes.Dirt || belowTypeId == ObjectTypes.Grass, "Tree seeds need dirt or grass");
+    }
+
+    removeEnergyFromLocalPool(baseCoord, ObjectTypeMetadata._getEnergy(buildObjectTypeId));
+
+    SeedGrowth._setFullyGrownAt(baseEntityId, uint128(block.timestamp) + buildObjectTypeId.timeToGrow());
+  }
+
   function _requireBuildsAllowed(
     EntityId callerEntityId,
     EntityId baseEntityId,
@@ -126,26 +139,17 @@ contract BuildSystem is System {
 
     (EntityId baseEntityId, Vec3[] memory coords) = BuildLib._addBlocks(baseCoord, buildObjectTypeId, direction);
 
-    removeFromInventory(callerEntityId, buildObjectTypeId, 1);
-
     if (buildObjectTypeId.isSeed()) {
-      ObjectTypeId belowTypeId = getObjectTypeIdAt(baseCoord - vec3(0, 1, 0));
-      if (buildObjectTypeId.isCropSeed()) {
-        require(belowTypeId == ObjectTypes.WetFarmland, "Crop seeds need wet farmland");
-      } else if (buildObjectTypeId.isTreeSeed()) {
-        require(belowTypeId == ObjectTypes.Dirt || belowTypeId == ObjectTypes.Grass, "Tree seeds need dirt or grass");
-      }
-
-      removeEnergyFromLocalPool(baseCoord, ObjectTypeMetadata._getEnergy(buildObjectTypeId));
-
-      SeedGrowth._setFullyGrownAt(baseEntityId, uint128(block.timestamp) + buildObjectTypeId.timeToGrow());
+      BuildLib._handleSeed(baseEntityId, buildObjectTypeId, baseCoord);
     }
+
+    removeFromInventory(callerEntityId, buildObjectTypeId, 1);
 
     transferEnergyToPool(callerEntityId, BUILD_ENERGY_COST);
 
     notify(
       callerEntityId,
-      BuildNotifData({ buildEntityId: baseEntityId, buildCoord: baseCoord, buildObjectTypeId: buildObjectTypeId })
+      BuildNotifData({ buildEntityId: baseEntityId, buildCoord: coords[0], buildObjectTypeId: buildObjectTypeId })
     );
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
