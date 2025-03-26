@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { console } from "forge-std/console.sol";
 import { MinedOreCount } from "./codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "./codegen/tables/TotalBurnedOreCount.sol";
 import { Direction } from "./codegen/common.sol";
@@ -301,9 +300,6 @@ library ObjectTypeLib {
     if (self == ObjectTypes.Player) {
       return true;
     }
-
-    console.logBytes4(sig);
-    console.logBytes4(ITransferSystem.transfer.selector);
 
     if (self == ObjectTypes.SmartChest) {
       return
