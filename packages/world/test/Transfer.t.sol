@@ -3,6 +3,7 @@ pragma solidity >=0.8.24;
 
 import { console } from "forge-std/console.sol";
 
+import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
 import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
@@ -12,6 +13,7 @@ import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
+import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { EnergyData } from "../src/codegen/tables/Energy.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Program } from "../src/codegen/tables/Program.sol";
@@ -57,6 +59,14 @@ contract TestChestProgram is IChestProgram, System {
 
   function setRevertOnTransfer(bool _revertOnTransfer) external {
     revertOnTransfer = _revertOnTransfer;
+  }
+
+  // Function to test calling the world from an entity
+  function call(IWorld world, bytes memory data) external {
+    (bool success, bytes memory returnData) = address(world).call(data);
+    if (!success) {
+      revertWithBytes(returnData);
+    }
   }
 
   function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
@@ -383,5 +393,35 @@ contract TransferTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Transfer not allowed by chest");
     world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, numToTransfer, "");
+  }
+
+  function testTransferBetweenChests() public {
+    Vec3 chestCoord = vec3(0, 0, 0);
+
+    setupAirChunk(chestCoord);
+
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
+    EntityId otherChestEntityId = setObjectAtCoord(chestCoord + vec3(1, 0, 0), ObjectTypes.SmartChest);
+    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
+    uint16 numToTransfer = 10;
+    TestInventoryUtils.addToInventory(chestEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(otherChestEntityId, transferObjectTypeId, 0);
+
+    setupForceField(chestCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 }));
+
+    TestChestProgram program = new TestChestProgram();
+    attachTestProgram(chestEntityId, program, "namespace");
+
+    program.call(
+      world,
+      abi.encodeCall(
+        world.transfer,
+        (chestEntityId, chestEntityId, otherChestEntityId, transferObjectTypeId, numToTransfer, "")
+      )
+    );
+
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
+    assertInventoryHasObject(otherChestEntityId, transferObjectTypeId, numToTransfer);
   }
 }

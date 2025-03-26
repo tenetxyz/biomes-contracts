@@ -36,8 +36,10 @@ import { EntityId } from "../EntityId.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { BUILD_ENERGY_COST } from "../Constants.sol";
 
+using ObjectTypeLib for ObjectTypeId;
+
 library BuildLib {
-  function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) public returns (EntityId) {
+  function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) internal returns (EntityId) {
     (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = getOrCreateEntityAt(coord);
     require(terrainObjectTypeId == ObjectTypes.Air, "Cannot build on a non-air block");
     require(
@@ -51,6 +53,25 @@ library BuildLib {
     ObjectType._set(terrainEntityId, buildObjectTypeId);
 
     return terrainEntityId;
+  }
+
+  function _addBlocks(
+    Vec3 baseCoord,
+    ObjectTypeId buildObjectTypeId,
+    Direction direction
+  ) public returns (EntityId, Vec3[] memory) {
+    Vec3[] memory coords = buildObjectTypeId.getRelativeCoords(baseCoord, direction);
+    EntityId baseEntityId = _addBlock(buildObjectTypeId, baseCoord);
+    Orientation._set(baseEntityId, direction);
+    uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
+    Mass._setMass(baseEntityId, mass);
+    // Only iterate through relative schema coords
+    for (uint256 i = 1; i < coords.length; i++) {
+      Vec3 relativeCoord = coords[i];
+      EntityId relativeEntityId = _addBlock(buildObjectTypeId, relativeCoord);
+      BaseEntity._set(relativeEntityId, baseEntityId);
+    }
+    return (baseEntityId, coords);
   }
 
   function _requireBuildsAllowed(
@@ -92,8 +113,6 @@ library BuildLib {
 }
 
 contract BuildSystem is System {
-  using ObjectTypeLib for ObjectTypeId;
-
   function buildWithDirection(
     EntityId callerEntityId,
     ObjectTypeId buildObjectTypeId,
@@ -105,18 +124,7 @@ contract BuildSystem is System {
     callerEntityId.requireConnected(baseCoord);
     require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
 
-    EntityId baseEntityId = BuildLib._addBlock(buildObjectTypeId, baseCoord);
-    Orientation._set(baseEntityId, direction);
-    uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
-    Mass._setMass(baseEntityId, mass);
-
-    Vec3[] memory coords = buildObjectTypeId.getRelativeCoords(baseCoord, direction);
-    // Only iterate through relative schema coords
-    for (uint256 i = 1; i < coords.length; i++) {
-      Vec3 relativeCoord = coords[i];
-      EntityId relativeEntityId = BuildLib._addBlock(buildObjectTypeId, relativeCoord);
-      BaseEntity._set(relativeEntityId, baseEntityId);
-    }
+    (EntityId baseEntityId, Vec3[] memory coords) = BuildLib._addBlocks(baseCoord, buildObjectTypeId, direction);
 
     removeFromInventory(callerEntityId, buildObjectTypeId, 1);
 

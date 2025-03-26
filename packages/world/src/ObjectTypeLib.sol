@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { console } from "forge-std/console.sol";
 import { MinedOreCount } from "./codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "./codegen/tables/TotalBurnedOreCount.sol";
 import { Direction } from "./codegen/common.sol";
@@ -296,19 +297,20 @@ library ObjectTypeLib {
     return false;
   }
 
-  function isActionAllowed(ObjectTypeId self) internal pure returns (bool) {
+  function isActionAllowed(ObjectTypeId self, bytes4 sig) internal pure returns (bool) {
     if (self == ObjectTypes.Player) {
       return true;
     }
 
-    bytes4 selector = bytes4(msg.data[:4]);
+    console.logBytes4(sig);
+    console.logBytes4(ITransferSystem.transfer.selector);
 
-    if (self == ObjectTypes.Chest) {
+    if (self == ObjectTypes.SmartChest) {
       return
-        selector == ITransferSystem.transfer.selector ||
-        selector == ITransferSystem.transferTool.selector ||
-        selector == ITransferSystem.transferTools.selector ||
-        selector == IMachineSystem.powerMachine.selector;
+        sig == ITransferSystem.transfer.selector ||
+        sig == ITransferSystem.transferTool.selector ||
+        sig == ITransferSystem.transferTools.selector ||
+        sig == IMachineSystem.powerMachine.selector;
     }
 
     return false;

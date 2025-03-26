@@ -11,6 +11,7 @@ import { LocalEnergyPool, Position, MovablePosition } from "../utils/Vec3Storage
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { getEntityAt } from "../utils/EntityUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
@@ -18,6 +19,8 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
+
+using ObjectTypeLib for ObjectTypeId;
 
 function getLatestEnergyData(EntityId entityId) view returns (EnergyData memory, uint128, uint128) {
   EnergyData memory energyData = Energy._get(entityId);
@@ -115,14 +118,6 @@ function decreasePlayerEnergy(EntityId playerEntityId, Vec3 playerCoord, uint128
   }
 }
 
-function decreaseEnergy(EntityId entityId, uint128 amount) {
-  if (ObjectType._get(entityId) == ObjectTypes.Player) {
-    decreasePlayerEnergy(entityId, MovablePosition._get(entityId), amount);
-  } else {
-    decreaseMachineEnergy(entityId, amount);
-  }
-}
-
 function addEnergyToLocalPool(Vec3 coord, uint128 numToAdd) returns (uint128) {
   Vec3 shardCoord = coord.toLocalEnergyPoolShardCoord();
   uint128 newLocalEnergy = LocalEnergyPool._get(shardCoord) + numToAdd;
@@ -132,12 +127,15 @@ function addEnergyToLocalPool(Vec3 coord, uint128 numToAdd) returns (uint128) {
 
 function transferEnergyToPool(EntityId entityId, uint128 amount) {
   Vec3 coord = entityId.getPosition();
-  if (ObjectType._get(entityId) == ObjectTypes.Player) {
+  ObjectTypeId objectTypeId = ObjectType._get(entityId);
+  if (objectTypeId == ObjectTypes.Player) {
     decreasePlayerEnergy(entityId, coord, amount);
   } else {
+    if (!objectTypeId.isMachine()) {
+      (entityId, ) = getForceField(coord);
+    }
     decreaseMachineEnergy(entityId, amount);
   }
-
   addEnergyToLocalPool(coord, amount);
 }
 

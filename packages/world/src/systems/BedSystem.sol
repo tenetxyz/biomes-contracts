@@ -112,7 +112,7 @@ contract BedSystem is System {
   function wakeup(EntityId callerEntityId, Vec3 spawnCoord, bytes calldata extraData) public {
     checkWorldStatus();
 
-    callerEntityId.requireCallerAllowed();
+    callerEntityId.requireCallerAllowed(_msgSender());
 
     EntityId bedEntityId = PlayerStatus._getBedEntityId(callerEntityId);
     require(bedEntityId.exists(), "Player is not sleeping");

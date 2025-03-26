@@ -18,6 +18,7 @@ import { updateMachineEnergy, transferEnergyToPool } from "../utils/EnergyUtils.
 import { ProgramOnTransferData } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectAmount } from "../ObjectTypeLib.sol";
 import { Vec3 } from "../Vec3.sol";
 import { SMART_CHEST_ENERGY_COST } from "../Constants.sol";
@@ -47,18 +48,8 @@ contract TransferSystem is System {
     ObjectAmount[] memory objectAmounts = new ObjectAmount[](1);
     objectAmounts[0] = ObjectAmount(transferObjectTypeId, numToTransfer);
 
-    EntityId targetEntityId = _getTargetEntityId(callerEntityId, fromEntityId, toEntityId);
-
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    TransferLib._callOnTransfer(
-      callerEntityId,
-      targetEntityId,
-      fromEntityId,
-      toEntityId,
-      new EntityId[](0),
-      objectAmounts,
-      extraData
-    );
+    TransferLib._callOnTransfer(callerEntityId, fromEntityId, toEntityId, new EntityId[](0), objectAmounts, extraData);
   }
 
   function transferTool(
@@ -93,12 +84,9 @@ contract TransferSystem is System {
       transferInventoryEntity(fromEntityId, toEntityId, toObjectTypeId, toolEntityIds[i]);
     }
 
-    EntityId targetEntityId = _getTargetEntityId(callerEntityId, fromEntityId, toEntityId);
-
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
     TransferLib._callOnTransfer(
       callerEntityId,
-      targetEntityId,
       fromEntityId,
       toEntityId,
       toolEntityIds,
@@ -106,32 +94,20 @@ contract TransferSystem is System {
       extraData
     );
   }
-
-  function _getTargetEntityId(
-    EntityId callerEntityId,
-    EntityId fromEntityId,
-    EntityId toEntityId
-  ) internal pure returns (EntityId) {
-    if (callerEntityId == fromEntityId) {
-      return toEntityId;
-    } else if (callerEntityId == toEntityId) {
-      return fromEntityId;
-    } else {
-      revert("Caller is not involved in transfer");
-    }
-  }
 }
 
 library TransferLib {
   function _callOnTransfer(
     EntityId callerEntityId,
-    EntityId targetEntityId,
     EntityId fromEntityId,
     EntityId toEntityId,
     EntityId[] memory toolEntityIds,
     ObjectAmount[] memory transferObjects,
     bytes calldata extraData
   ) public {
+    EntityId targetEntityId = _getTargetEntityId(callerEntityId, fromEntityId, toEntityId);
+    require(ObjectType._get(targetEntityId) != ObjectTypes.Player, "Cannot transfer to player");
+
     (EntityId forceFieldEntityId, ) = getForceField(targetEntityId.getPosition());
     (EnergyData memory energyData, ) = updateMachineEnergy(forceFieldEntityId);
     if (energyData.energy > 0) {
@@ -151,6 +127,20 @@ library TransferLib {
         )
       );
       callProgramOrRevert(targetEntityId.getProgram(), onTransferCall);
+    }
+  }
+
+  function _getTargetEntityId(
+    EntityId callerEntityId,
+    EntityId fromEntityId,
+    EntityId toEntityId
+  ) internal pure returns (EntityId) {
+    if (callerEntityId == fromEntityId) {
+      return toEntityId;
+    } else if (callerEntityId == toEntityId) {
+      return fromEntityId;
+    } else {
+      revert("Caller is not involved in transfer");
     }
   }
 }
