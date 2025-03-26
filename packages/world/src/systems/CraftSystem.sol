@@ -69,7 +69,7 @@ contract CraftSystem is System {
 
     transferEnergyToPool(callerEntityId, CRAFT_ENERGY_COST);
 
-    // notify(callerEntityId, CraftNotifData({ recipeId: recipeId, stationEntityId: stationEntityId }));
+    notify(callerEntityId, CraftNotifData({ recipeId: recipeId, stationEntityId: stationEntityId }));
   }
 
   function craft(EntityId callerEntityId, bytes32 recipeId) public {

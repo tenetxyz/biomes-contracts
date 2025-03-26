@@ -89,7 +89,7 @@ contract ProgramSystem is System {
       revert("Cannot attach a program to this object");
     }
 
-    // notify(callerEntityId, AttachProgramNotifData({ attachEntityId: baseEntityId, programAddress: programAddress }));
+    notify(callerEntityId, AttachProgramNotifData({ attachEntityId: baseEntityId, programSystemId: programSystemId }));
 
     // If forcefield is active, call its hook
     if (objectTypeId != ObjectTypes.ForceField) {
@@ -131,12 +131,7 @@ contract ProgramSystem is System {
 
     Program._deleteRecord(baseEntityId);
 
-    // (address programAddress, ) = Systems._get(programSystemId);
-
-    // notify(
-    //   playerEntityId,
-    //   DetachProgramNotifData({ detachEntityId: baseEntityId, detachCoord: entityCoord, programAddress: programAddress })
-    // );
+    notify(callerEntityId, DetachProgramNotifData({ detachEntityId: baseEntityId, programSystemId: programSystemId }));
 
     (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(targetCoord);
 

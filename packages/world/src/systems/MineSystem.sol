@@ -149,10 +149,10 @@ contract MineSystem is System {
       }
     }
 
-    // notify(
-    //   playerEntityId,
-    //   MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
-    // );
+    notify(
+      callerEntityId,
+      MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
+    );
 
     MineLib._requireMinesAllowed(callerEntityId, mineObjectTypeId, coords, extraData);
 

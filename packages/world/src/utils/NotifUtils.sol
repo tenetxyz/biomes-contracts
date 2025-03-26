@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+
 import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { Vec3 } from "../Vec3.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectAmount } from "../ObjectTypeLib.sol";
 
 struct BuildNotifData {
   EntityId buildEntityId;
@@ -43,9 +46,8 @@ struct PickupNotifData {
 
 struct TransferNotifData {
   EntityId transferEntityId;
-  Vec3 transferCoord;
-  ObjectTypeId transferObjectTypeId;
-  uint16 transferAmount;
+  EntityId[] toolEntityIds;
+  ObjectAmount[] objectAmounts;
 }
 
 struct EquipNotifData {
@@ -73,14 +75,12 @@ struct HitMachineNotifData {
 
 struct AttachProgramNotifData {
   EntityId attachEntityId;
-  Vec3 attachCoord;
-  address programAddress;
+  ResourceId programSystemId;
 }
 
 struct DetachProgramNotifData {
   EntityId detachEntityId;
-  Vec3 detachCoord;
-  address programAddress;
+  ResourceId programSystemId;
 }
 
 struct SleepNotifData {

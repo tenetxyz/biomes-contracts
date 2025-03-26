@@ -143,10 +143,10 @@ contract BuildSystem is System {
 
     transferEnergyToPool(callerEntityId, BUILD_ENERGY_COST);
 
-    // notify(
-    //   playerEntityId,
-    //   BuildNotifData({ buildEntityId: baseEntityId, buildCoord: baseCoord, buildObjectTypeId: buildObjectTypeId })
-    // );
+    notify(
+      callerEntityId,
+      BuildNotifData({ buildEntityId: baseEntityId, buildCoord: baseCoord, buildObjectTypeId: buildObjectTypeId })
+    );
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
     BuildLib._requireBuildsAllowed(callerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
@@ -177,7 +177,7 @@ contract BuildSystem is System {
     moveCoords[0] = coord + vec3(0, 1, 0);
     MoveLib.moveWithoutGravity(callerEntityId, coord, moveCoords);
 
-    // notify(playerEntityId, MoveNotifData({ moveCoords: moveCoords }));
+    notify(callerEntityId, MoveNotifData({ moveCoords: moveCoords }));
 
     require(!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId), "Cannot jump build on a pass-through block");
 

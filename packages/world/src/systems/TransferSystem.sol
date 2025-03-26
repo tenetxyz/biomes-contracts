@@ -49,7 +49,7 @@ contract TransferSystem is System {
     objectAmounts[0] = ObjectAmount(transferObjectTypeId, numToTransfer);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    TransferLib._callOnTransfer(callerEntityId, fromEntityId, toEntityId, new EntityId[](0), objectAmounts, extraData);
+    TransferLib._onTransfer(callerEntityId, fromEntityId, toEntityId, new EntityId[](0), objectAmounts, extraData);
   }
 
   function transferTool(
@@ -85,28 +85,31 @@ contract TransferSystem is System {
     }
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    TransferLib._callOnTransfer(
-      callerEntityId,
-      fromEntityId,
-      toEntityId,
-      toolEntityIds,
-      new ObjectAmount[](0),
-      extraData
-    );
+    TransferLib._onTransfer(callerEntityId, fromEntityId, toEntityId, toolEntityIds, new ObjectAmount[](0), extraData);
   }
 }
 
 library TransferLib {
-  function _callOnTransfer(
+  function _onTransfer(
     EntityId callerEntityId,
     EntityId fromEntityId,
     EntityId toEntityId,
     EntityId[] memory toolEntityIds,
-    ObjectAmount[] memory transferObjects,
+    ObjectAmount[] memory objectAmounts,
     bytes calldata extraData
   ) public {
     EntityId targetEntityId = _getTargetEntityId(callerEntityId, fromEntityId, toEntityId);
+
     require(ObjectType._get(targetEntityId) != ObjectTypes.Player, "Cannot transfer to player");
+
+    notify(
+      callerEntityId,
+      TransferNotifData({
+        transferEntityId: targetEntityId,
+        toolEntityIds: toolEntityIds,
+        objectAmounts: objectAmounts
+      })
+    );
 
     (EntityId forceFieldEntityId, ) = getForceField(targetEntityId.getPosition());
     (EnergyData memory energyData, ) = updateMachineEnergy(forceFieldEntityId);
@@ -121,7 +124,7 @@ library TransferLib {
             fromEntityId,
             toEntityId,
             toolEntityIds,
-            transferObjects,
+            objectAmounts,
             extraData
           )
         )
