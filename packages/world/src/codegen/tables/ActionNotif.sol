@@ -20,15 +20,15 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { EntityId } from "../../EntityId.sol";
 import { ActionType } from "../common.sol";
 
-struct PlayerActionNotifData {
+struct ActionNotifData {
   uint128 timestamp;
   ActionType actionType;
   bytes actionData;
 }
 
-library PlayerActionNotif {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "PlayerActionNoti", typeId: RESOURCE_OFFCHAIN_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x6f740000000000000000000000000000506c61796572416374696f6e4e6f7469);
+library ActionNotif {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ActionNotif", typeId: RESOURCE_OFFCHAIN_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x6f740000000000000000000000000000416374696f6e4e6f7469660000000000);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0011020110010000000000000000000000000000000000000000000000000000);
@@ -145,7 +145,7 @@ library PlayerActionNotif {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(EntityId playerEntityId, PlayerActionNotifData memory _table) internal {
+  function set(EntityId playerEntityId, ActionNotifData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.timestamp, _table.actionType);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.actionData);
@@ -160,7 +160,7 @@ library PlayerActionNotif {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(EntityId playerEntityId, PlayerActionNotifData memory _table) internal {
+  function _set(EntityId playerEntityId, ActionNotifData memory _table) internal {
     bytes memory _staticData = encodeStatic(_table.timestamp, _table.actionType);
 
     EncodedLengths _encodedLengths = encodeLengths(_table.actionData);
@@ -206,7 +206,7 @@ library PlayerActionNotif {
     bytes memory _staticData,
     EncodedLengths _encodedLengths,
     bytes memory _dynamicData
-  ) internal pure returns (PlayerActionNotifData memory _table) {
+  ) internal pure returns (ActionNotifData memory _table) {
     (_table.timestamp, _table.actionType) = decodeStatic(_staticData);
 
     (_table.actionData) = decodeDynamic(_encodedLengths, _dynamicData);

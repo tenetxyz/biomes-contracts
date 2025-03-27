@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-import { PlayerActionNotif, PlayerActionNotifData } from "../codegen/tables/PlayerActionNotif.sol";
+import { ActionNotif, ActionNotifData } from "../codegen/tables/ActionNotif.sol";
 import { ActionType } from "../codegen/common.sol";
 
 import { Vec3 } from "../Vec3.sol";
@@ -106,9 +106,9 @@ struct DeathNotifData {
 }
 
 function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Build,
       actionData: abi.encode(buildNotifData)
@@ -117,9 +117,9 @@ function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {
 }
 
 function notify(EntityId playerEntityId, MineNotifData memory mineNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Mine,
       actionData: abi.encode(mineNotifData)
@@ -128,9 +128,9 @@ function notify(EntityId playerEntityId, MineNotifData memory mineNotifData) {
 }
 
 function notify(EntityId playerEntityId, MoveNotifData memory moveNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Move,
       actionData: abi.encode(moveNotifData)
@@ -139,9 +139,9 @@ function notify(EntityId playerEntityId, MoveNotifData memory moveNotifData) {
 }
 
 function notify(EntityId playerEntityId, CraftNotifData memory craftNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Craft,
       actionData: abi.encode(craftNotifData)
@@ -150,9 +150,9 @@ function notify(EntityId playerEntityId, CraftNotifData memory craftNotifData) {
 }
 
 function notify(EntityId playerEntityId, DropNotifData memory dropNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Drop,
       actionData: abi.encode(dropNotifData)
@@ -161,9 +161,9 @@ function notify(EntityId playerEntityId, DropNotifData memory dropNotifData) {
 }
 
 function notify(EntityId playerEntityId, PickupNotifData memory pickupNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Pickup,
       actionData: abi.encode(pickupNotifData)
@@ -172,9 +172,9 @@ function notify(EntityId playerEntityId, PickupNotifData memory pickupNotifData)
 }
 
 function notify(EntityId playerEntityId, TransferNotifData memory transferNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Transfer,
       actionData: abi.encode(transferNotifData)
@@ -183,9 +183,9 @@ function notify(EntityId playerEntityId, TransferNotifData memory transferNotifD
 }
 
 function notify(EntityId playerEntityId, EquipNotifData memory equipNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Equip,
       actionData: abi.encode(equipNotifData)
@@ -194,9 +194,9 @@ function notify(EntityId playerEntityId, EquipNotifData memory equipNotifData) {
 }
 
 function notify(EntityId playerEntityId, UnequipNotifData memory unequipNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Unequip,
       actionData: abi.encode(unequipNotifData)
@@ -205,9 +205,9 @@ function notify(EntityId playerEntityId, UnequipNotifData memory unequipNotifDat
 }
 
 function notify(EntityId playerEntityId, SpawnNotifData memory spawnNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Spawn,
       actionData: abi.encode(spawnNotifData)
@@ -216,9 +216,9 @@ function notify(EntityId playerEntityId, SpawnNotifData memory spawnNotifData) {
 }
 
 function notify(EntityId playerEntityId, PowerMachineNotifData memory powerMachineNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.PowerMachine,
       actionData: abi.encode(powerMachineNotifData)
@@ -227,9 +227,9 @@ function notify(EntityId playerEntityId, PowerMachineNotifData memory powerMachi
 }
 
 function notify(EntityId playerEntityId, HitMachineNotifData memory hitMachineNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.HitMachine,
       actionData: abi.encode(hitMachineNotifData)
@@ -238,9 +238,9 @@ function notify(EntityId playerEntityId, HitMachineNotifData memory hitMachineNo
 }
 
 function notify(EntityId playerEntityId, AttachProgramNotifData memory attachProgramNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.AttachProgram,
       actionData: abi.encode(attachProgramNotifData)
@@ -249,9 +249,9 @@ function notify(EntityId playerEntityId, AttachProgramNotifData memory attachPro
 }
 
 function notify(EntityId playerEntityId, DetachProgramNotifData memory detachProgramNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.DetachProgram,
       actionData: abi.encode(detachProgramNotifData)
@@ -260,9 +260,9 @@ function notify(EntityId playerEntityId, DetachProgramNotifData memory detachPro
 }
 
 function notify(EntityId playerEntityId, SleepNotifData memory sleepNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Sleep,
       actionData: abi.encode(sleepNotifData)
@@ -271,9 +271,9 @@ function notify(EntityId playerEntityId, SleepNotifData memory sleepNotifData) {
 }
 
 function notify(EntityId playerEntityId, WakeupNotifData memory wakeupNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Wakeup,
       actionData: abi.encode(wakeupNotifData)
@@ -282,9 +282,9 @@ function notify(EntityId playerEntityId, WakeupNotifData memory wakeupNotifData)
 }
 
 function notify(EntityId playerEntityId, ExpandForceFieldNotifData memory expandForceFieldNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.ExpandForceField,
       actionData: abi.encode(expandForceFieldNotifData)
@@ -293,9 +293,9 @@ function notify(EntityId playerEntityId, ExpandForceFieldNotifData memory expand
 }
 
 function notify(EntityId playerEntityId, ContractForceFieldNotifData memory contractForceFieldNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.ContractForceField,
       actionData: abi.encode(contractForceFieldNotifData)
@@ -304,9 +304,9 @@ function notify(EntityId playerEntityId, ContractForceFieldNotifData memory cont
 }
 
 function notify(EntityId playerEntityId, DeathNotifData memory deathNotifData) {
-  PlayerActionNotif._set(
+  ActionNotif._set(
     playerEntityId,
-    PlayerActionNotifData({
+    ActionNotifData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Death,
       actionData: abi.encode(deathNotifData)

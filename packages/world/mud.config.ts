@@ -393,7 +393,7 @@ export default defineWorld({
     // ------------------------------------------------------------
     // Offchain
     // ------------------------------------------------------------
-    PlayerActionNotif: {
+    ActionNotif: {
       schema: {
         playerEntityId: "EntityId",
         timestamp: "uint128",
