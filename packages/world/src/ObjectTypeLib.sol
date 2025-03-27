@@ -4,6 +4,8 @@ pragma solidity >=0.8.24;
 import { MinedOreCount } from "./codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "./codegen/tables/TotalBurnedOreCount.sol";
 import { Direction } from "./codegen/common.sol";
+import { ITransferSystem } from "./codegen/world/ITransferSystem.sol";
+import { IMachineSystem } from "./codegen/world/IMachineSystem.sol";
 
 import { ObjectTypeId } from "./ObjectTypeId.sol";
 import { ObjectTypes, Block, Tool, Item, Misc, CATEGORY_MASK } from "./ObjectTypes.sol";
@@ -283,6 +285,31 @@ library ObjectTypeLib {
       // This allows the same amount of ores to respawn
       TotalBurnedOreCount._set(TotalBurnedOreCount._get() + amount);
     }
+  }
+
+  function isMovable(ObjectTypeId self) internal pure returns (bool) {
+    if (self == ObjectTypes.Player) {
+      return true;
+    }
+
+    // TODO: support other movable entities
+    return false;
+  }
+
+  function isActionAllowed(ObjectTypeId self, bytes4 sig) internal pure returns (bool) {
+    if (self == ObjectTypes.Player) {
+      return true;
+    }
+
+    if (self == ObjectTypes.SmartChest) {
+      return
+        sig == ITransferSystem.transfer.selector ||
+        sig == ITransferSystem.transferTool.selector ||
+        sig == ITransferSystem.transferTools.selector ||
+        sig == IMachineSystem.powerMachine.selector;
+    }
+
+    return false;
   }
 }
 

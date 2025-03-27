@@ -4,16 +4,16 @@ pragma solidity >=0.8.24;
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { Energy } from "../../codegen/tables/Energy.sol";
 
-import { ReversePlayerPosition } from "../../utils/Vec3Storage.sol";
+import { ReverseMovablePosition } from "../../utils/Vec3Storage.sol";
 
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 import { ObjectTypeLib } from "../../ObjectTypeLib.sol";
-import { PLAYER_MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, PLAYER_FALL_DAMAGE_THRESHOLD } from "../../Constants.sol";
+import { MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, PLAYER_FALL_DAMAGE_THRESHOLD } from "../../Constants.sol";
 import { EntityId } from "../../EntityId.sol";
 import { Vec3, vec3 } from "../../Vec3.sol";
 import { addEnergyToLocalPool, decreasePlayerEnergy, updatePlayerEnergy } from "../../utils/EnergyUtils.sol";
-import { safeGetObjectTypeIdAt, getPlayer, setPlayer } from "../../utils/EntityUtils.sol";
+import { safeGetObjectTypeIdAt, getMovableEntityAt, setMovableEntityAt } from "../../utils/EntityUtils.sol";
 
 library MoveLib {
   using ObjectTypeLib for ObjectTypeId;
@@ -29,7 +29,7 @@ library MoveLib {
       ObjectTypeId newObjectTypeId = safeGetObjectTypeIdAt(newCoord);
       require(ObjectTypeMetadata._getCanPassThrough(newObjectTypeId), "Cannot move through a non-passable block");
 
-      require(!getPlayer(newCoord).exists(), "Cannot move through a player");
+      require(!getMovableEntityAt(newCoord).exists(), "Cannot move through a player");
     }
   }
 
@@ -41,7 +41,7 @@ library MoveLib {
     playerEntityIds[0] = basePlayerEntityId;
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < playerCoords.length; i++) {
-      playerEntityIds[i] = getPlayer(playerCoords[i]);
+      playerEntityIds[i] = getMovableEntityAt(playerCoords[i]);
     }
     return playerEntityIds;
   }
@@ -55,7 +55,7 @@ library MoveLib {
       return false;
     }
 
-    return !getPlayer(belowCoord).exists();
+    return !getMovableEntityAt(belowCoord).exists();
   }
 
   function _computeGravityResult(Vec3 coord, uint16 initialFallHeight) private view returns (Vec3, uint128) {
@@ -98,7 +98,7 @@ library MoveLib {
       Vec3 nextBaseCoord = newBaseCoords[i];
       _requireValidMove(oldBaseCoord, nextBaseCoord);
 
-      uint128 stepCost = PLAYER_MOVE_ENERGY_COST;
+      uint128 stepCost = MOVE_ENERGY_COST;
 
       gravityApplies = _gravityApplies(nextBaseCoord);
       if (gravityApplies) {
@@ -133,13 +133,13 @@ library MoveLib {
     return (oldBaseCoord, totalCost, currentFallHeight, gravityApplies);
   }
 
-  function movePlayerWithoutGravity(EntityId playerEntityId, Vec3 playerCoord, Vec3[] memory newBaseCoords) public {
+  function moveWithoutGravity(EntityId playerEntityId, Vec3 playerCoord, Vec3[] memory newBaseCoords) public {
     Vec3[] memory playerCoords = ObjectTypes.Player.getRelativeCoords(playerCoord);
     EntityId[] memory playerEntityIds = _getPlayerEntityIds(playerEntityId, playerCoords);
 
     // Remove the current player from the grid
     for (uint256 i = 0; i < playerCoords.length; i++) {
-      ReversePlayerPosition._deleteRecord(playerCoords[i]);
+      ReverseMovablePosition._deleteRecord(playerCoords[i]);
     }
 
     uint128 currentEnergy = Energy._getEnergy(playerEntityId);
@@ -152,7 +152,7 @@ library MoveLib {
 
     Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(finalCoord);
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
-      setPlayer(newPlayerCoords[i], playerEntityIds[i]);
+      setMovableEntityAt(newPlayerCoords[i], playerEntityIds[i]);
     }
 
     if (totalCost > 0) {
@@ -161,13 +161,13 @@ library MoveLib {
     }
   }
 
-  function movePlayer(EntityId playerEntityId, Vec3 playerCoord, Vec3[] memory newBaseCoords) public {
+  function move(EntityId playerEntityId, Vec3 playerCoord, Vec3[] memory newBaseCoords) public {
     Vec3[] memory playerCoords = ObjectTypes.Player.getRelativeCoords(playerCoord);
     EntityId[] memory playerEntityIds = _getPlayerEntityIds(playerEntityId, playerCoords);
 
     // Remove the current player from the grid
     for (uint256 i = 0; i < playerCoords.length; i++) {
-      ReversePlayerPosition._deleteRecord(playerCoords[i]);
+      ReverseMovablePosition._deleteRecord(playerCoords[i]);
     }
 
     uint128 currentEnergy = Energy._getEnergy(playerEntityId);
@@ -190,7 +190,7 @@ library MoveLib {
 
     Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(finalCoord);
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
-      setPlayer(newPlayerCoords[i], playerEntityIds[i]);
+      setMovableEntityAt(newPlayerCoords[i], playerEntityIds[i]);
     }
 
     if (totalCost > 0) {
@@ -199,7 +199,7 @@ library MoveLib {
     }
 
     Vec3 aboveCoord = playerCoord + vec3(0, 2, 0);
-    EntityId aboveEntityId = getPlayer(aboveCoord);
+    EntityId aboveEntityId = getMovableEntityAt(aboveCoord);
     // Note: currently it is not possible for the above player to not be the base entity,
     // but if we add other types of movable entities we should check that it is a base entity
     if (aboveEntityId.exists()) {
@@ -217,14 +217,14 @@ library MoveLib {
 
     // Remove the current player from the grid
     for (uint256 i = 0; i < playerCoords.length; i++) {
-      ReversePlayerPosition._deleteRecord(playerCoords[i]);
+      ReverseMovablePosition._deleteRecord(playerCoords[i]);
     }
 
     (Vec3 finalCoord, uint128 totalCost) = _computeGravityResult(playerCoord, 0);
 
     Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(finalCoord);
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
-      setPlayer(newPlayerCoords[i], playerEntityIds[i]);
+      setMovableEntityAt(newPlayerCoords[i], playerEntityIds[i]);
     }
 
     uint128 currentEnergy = updatePlayerEnergy(playerEntityId).energy;
@@ -239,7 +239,7 @@ library MoveLib {
     }
 
     Vec3 aboveCoord = playerCoord + vec3(0, 2, 0);
-    EntityId aboveEntityId = getPlayer(aboveCoord);
+    EntityId aboveEntityId = getMovableEntityAt(aboveCoord);
     // Note: currently it is not possible for the above player to not be the base entity,
     // but if we add other types of movable entities we should check that it is a base entity
     if (aboveEntityId.exists()) {

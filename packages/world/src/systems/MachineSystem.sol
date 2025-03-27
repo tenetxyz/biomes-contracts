@@ -26,30 +26,27 @@ import { Vec3 } from "../Vec3.sol";
 import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 contract MachineSystem is System {
-  function powerMachine(EntityId entityId, uint16 fuelAmount) public {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
-    Vec3 entityCoord = PlayerUtils.requireInPlayerInfluence(playerCoord, entityId);
+  function powerMachine(EntityId callerEntityId, EntityId machineEntityId, uint16 fuelAmount) public {
+    callerEntityId.activate();
 
-    EntityId baseEntityId = entityId.baseEntityId();
+    callerEntityId.requireConnected(machineEntityId);
 
-    removeFromInventory(playerEntityId, ObjectTypes.Fuel, fuelAmount);
+    EntityId baseEntityId = machineEntityId.baseEntityId();
 
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
     require(ObjectTypeLib.isMachine(objectTypeId), "Can only power machines");
+
+    removeFromInventory(callerEntityId, ObjectTypes.Fuel, fuelAmount);
+
     (EnergyData memory machineData, ) = updateMachineEnergy(baseEntityId);
 
     uint128 newEnergyLevel = machineData.energy + uint128(fuelAmount) * ObjectTypeMetadata._getEnergy(ObjectTypes.Fuel);
 
     Energy._setEnergy(baseEntityId, newEnergyLevel);
 
-    notify(
-      playerEntityId,
-      PowerMachineNotifData({ machineEntityId: baseEntityId, machineCoord: entityCoord, fuelAmount: fuelAmount })
-    );
-
     callProgramOrRevert(
       baseEntityId.getProgram(),
-      abi.encodeCall(IForceFieldProgram.onPowered, (playerEntityId, baseEntityId, fuelAmount))
+      abi.encodeCall(IForceFieldProgram.onPowered, (callerEntityId, baseEntityId, fuelAmount))
     );
   }
 }

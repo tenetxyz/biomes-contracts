@@ -25,10 +25,10 @@ import { OreCommitment } from "../utils/Vec3Storage.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergy, updatePlayerEnergy, addEnergyToLocalPool, updateSleepingPlayerEnergy, decreasePlayerEnergy } from "../utils/EnergyUtils.sol";
+import { transferEnergyToPool, updateMachineEnergy, updatePlayerEnergy, addEnergyToLocalPool, updateSleepingPlayerEnergy, decreasePlayerEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData, DeathNotifData } from "../utils/NotifUtils.sol";
-import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, getPlayer } from "../utils/EntityUtils.sol";
+import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, getMovableEntityAt } from "../utils/EntityUtils.sol";
 import { callProgramOrRevert } from "../utils/callProgram.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -40,7 +40,7 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib, ObjectAmount } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
-import { PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
+import { MINE_ENERGY_COST } from "../Constants.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 
 contract MineSystem is System {
@@ -50,7 +50,7 @@ contract MineSystem is System {
     ObjectType._set(entityId, ObjectTypes.Air);
 
     Vec3 aboveCoord = coord + vec3(0, 1, 0);
-    EntityId aboveEntityId = getPlayer(aboveCoord);
+    EntityId aboveEntityId = getMovableEntityAt(aboveCoord);
     // Note: currently it is not possible for the above player to not be the base entity,
     // but if we add other types of movable entities we should check that it is a base entity
     if (aboveEntityId.exists()) {
@@ -58,11 +58,11 @@ contract MineSystem is System {
     }
   }
 
-  function _handleDrop(EntityId playerEntityId, ObjectTypeId mineObjectTypeId) internal {
+  function _handleDrop(EntityId callerEntityId, ObjectTypeId mineObjectTypeId) internal {
     ObjectAmount[] memory amounts = mineObjectTypeId.getMineDrop();
 
     for (uint256 i = 0; i < amounts.length; i++) {
-      addToInventory(playerEntityId, ObjectTypes.Player, amounts[i].objectTypeId, amounts[i].amount);
+      addToInventory(callerEntityId, ObjectType._get(callerEntityId), amounts[i].objectTypeId, amounts[i].amount);
     }
   }
 
@@ -75,9 +75,9 @@ contract MineSystem is System {
     return ore;
   }
 
-  function mine(Vec3 coord, bytes calldata extraData) public payable returns (EntityId) {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
-    PlayerUtils.requireInPlayerInfluence(playerCoord, coord);
+  function mine(EntityId callerEntityId, Vec3 coord, bytes calldata extraData) public payable returns (EntityId) {
+    callerEntityId.activate();
+    callerEntityId.requireConnected(coord);
 
     (EntityId entityId, ObjectTypeId mineObjectTypeId) = getOrCreateEntityAt(coord);
     require(mineObjectTypeId.isMineable(), "Object is not mineable");
@@ -101,7 +101,7 @@ contract MineSystem is System {
 
     uint128 finalMass;
     {
-      finalMass = MassReductionLib._processMassReduction(playerEntityId, baseEntityId, playerCoord);
+      finalMass = MassReductionLib._processMassReduction(callerEntityId, baseEntityId);
       if (finalMass == 0) {
         if (mineObjectTypeId == ObjectTypes.Bed) {
           // If mining a bed with a sleeping player, kill the player
@@ -124,12 +124,12 @@ contract MineSystem is System {
               aboveEntityId = createEntityAt(aboveCoord, aboveTypeId);
             }
             _removeBlock(aboveEntityId, aboveCoord);
-            _handleDrop(playerEntityId, aboveTypeId);
+            _handleDrop(callerEntityId, aboveTypeId);
           }
         }
 
         _removeBlock(baseEntityId, baseCoord);
-        _handleDrop(playerEntityId, mineObjectTypeId);
+        _handleDrop(callerEntityId, mineObjectTypeId);
 
         // If object being mined is a seed, return its energy to local pool
         if (mineObjectTypeId.isSeed()) {
@@ -150,11 +150,11 @@ contract MineSystem is System {
     }
 
     notify(
-      playerEntityId,
+      callerEntityId,
       MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
     );
 
-    MineLib._requireMinesAllowed(playerEntityId, mineObjectTypeId, coords, extraData);
+    MineLib._requireMinesAllowed(callerEntityId, mineObjectTypeId, coords, extraData);
 
     if (mineObjectTypeId == ObjectTypes.ForceField && finalMass == 0) {
       destroyForceField(baseEntityId);
@@ -163,11 +163,11 @@ contract MineSystem is System {
     return baseEntityId;
   }
 
-  function mineUntilDestroyed(Vec3 coord, bytes calldata extraData) public payable {
+  function mineUntilDestroyed(EntityId callerEntityId, Vec3 coord, bytes calldata extraData) public payable {
     uint128 massLeft = 0;
     do {
       // TODO: factor out the mass reduction logic so it's cheaper to call
-      EntityId entityId = mine(coord, extraData);
+      EntityId entityId = mine(callerEntityId, coord, extraData);
       massLeft = Mass._getMass(entityId);
     } while (massLeft > 0);
   }
@@ -191,7 +191,7 @@ library MineLib {
   }
 
   function _requireMinesAllowed(
-    EntityId playerEntityId,
+    EntityId callerEntityId,
     ObjectTypeId objectTypeId,
     Vec3[] memory coords,
     bytes calldata extraData
@@ -204,7 +204,7 @@ library MineLib {
         if (machineData.energy > 0) {
           bytes memory onMineCall = abi.encodeCall(
             IForceFieldFragmentProgram.onMine,
-            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
+            (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
           );
 
           // We know fragment is active because its forcefield exists, so we can use its program
@@ -221,25 +221,20 @@ library MineLib {
 }
 
 library MassReductionLib {
-  function _processMassReduction(
-    EntityId playerEntityId,
-    EntityId minedEntityId,
-    Vec3 playerCoord
-  ) public returns (uint128) {
+  function _processMassReduction(EntityId callerEntityId, EntityId minedEntityId) public returns (uint128) {
     uint128 massLeft = Mass._getMass(minedEntityId);
     if (massLeft == 0) {
       return massLeft;
     }
 
-    (uint128 toolMassReduction, ) = useEquipped(playerEntityId, massLeft);
+    (uint128 toolMassReduction, ) = useEquipped(callerEntityId, massLeft);
 
     // if tool mass reduction is not enough, consume energy from player up to mine energy cost
     if (toolMassReduction < massLeft) {
       uint128 remaining = massLeft - toolMassReduction;
-      uint128 playerEnergyReduction = PLAYER_MINE_ENERGY_COST <= remaining ? PLAYER_MINE_ENERGY_COST : remaining;
-      decreasePlayerEnergy(playerEntityId, playerCoord, playerEnergyReduction);
-      addEnergyToLocalPool(playerCoord, playerEnergyReduction);
-      massLeft -= playerEnergyReduction;
+      uint128 energyReduction = MINE_ENERGY_COST <= remaining ? MINE_ENERGY_COST : remaining;
+      transferEnergyToPool(callerEntityId, energyReduction);
+      massLeft -= energyReduction;
     }
 
     return massLeft - toolMassReduction;

@@ -119,14 +119,15 @@ contract ForceFieldSystem is System {
   }
 
   function expandForceField(
+    EntityId callerEntityId,
     EntityId forceFieldEntityId,
     Vec3 refFragmentCoord,
     Vec3 fromFragmentCoord,
     Vec3 toFragmentCoord,
     bytes calldata extraData
   ) public {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
-    PlayerUtils.requireInPlayerInfluence(playerCoord, forceFieldEntityId);
+    callerEntityId.activate();
+    callerEntityId.requireConnected(forceFieldEntityId);
 
     ObjectTypeId objectTypeId = ObjectType._get(forceFieldEntityId);
     require(objectTypeId == ObjectTypes.ForceField, "Invalid object type");
@@ -163,13 +164,13 @@ contract ForceFieldSystem is System {
     // Increase drain rate per new fragment
     Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + MACHINE_ENERGY_DRAIN_RATE * addedFragments);
 
-    notify(playerEntityId, ExpandForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
+    notify(callerEntityId, ExpandForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
 
     callProgramOrRevert(
       forceFieldEntityId.getProgram(),
       abi.encodeCall(
         IForceFieldProgram.onExpand,
-        (playerEntityId, forceFieldEntityId, fromFragmentCoord, toFragmentCoord, extraData)
+        (callerEntityId, forceFieldEntityId, fromFragmentCoord, toFragmentCoord, extraData)
       )
     );
   }
@@ -182,6 +183,7 @@ contract ForceFieldSystem is System {
    * @param parents Indicates the parent of each boundary fragment in the spanning tree, parents must be ordered (each parent comes before its children)
    */
   function contractForceField(
+    EntityId callerEntityId,
     EntityId forceFieldEntityId,
     Vec3 fromFragmentCoord,
     Vec3 toFragmentCoord,
@@ -190,11 +192,11 @@ contract ForceFieldSystem is System {
   ) public {
     require(fromFragmentCoord <= toFragmentCoord, "Invalid coordinates");
 
-    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
+    callerEntityId.activate();
 
     Vec3 forceFieldFragmentCoord;
     {
-      Vec3 forceFieldCoord = PlayerUtils.requireInPlayerInfluence(playerCoord, forceFieldEntityId);
+      (, Vec3 forceFieldCoord) = callerEntityId.requireConnected(forceFieldEntityId);
       forceFieldFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
     }
 
@@ -240,14 +242,14 @@ contract ForceFieldSystem is System {
       Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - MACHINE_ENERGY_DRAIN_RATE * removedFragments);
     }
 
-    notify(playerEntityId, ContractForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
+    notify(callerEntityId, ContractForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
 
     // Call the program if it exists
     callProgramOrRevert(
       forceFieldEntityId.getProgram(),
       abi.encodeCall(
         IForceFieldProgram.onContract,
-        (playerEntityId, forceFieldEntityId, fromFragmentCoord, toFragmentCoord, extraData)
+        (callerEntityId, forceFieldEntityId, fromFragmentCoord, toFragmentCoord, extraData)
       )
     );
   }

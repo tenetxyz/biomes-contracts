@@ -10,7 +10,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { useEquipped } from "../utils/InventoryUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
-import { decreasePlayerEnergy, addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
+import { addEnergyToLocalPool, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -18,9 +18,68 @@ import { ObjectTypeLib, TreeData } from "../ObjectTypeLib.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
-import { PLAYER_TILL_ENERGY_COST } from "../Constants.sol";
+import { TILL_ENERGY_COST } from "../Constants.sol";
+
+contract FarmingSystem is System {
+  using ObjectTypeLib for ObjectTypeId;
+
+  function till(EntityId callerEntityId, Vec3 coord) external {
+    callerEntityId.activate();
+    callerEntityId.requireConnected(coord);
+
+    (EntityId farmlandEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
+    require(objectTypeId == ObjectTypes.Dirt || objectTypeId == ObjectTypes.Grass, "Not dirt or grass");
+    (, ObjectTypeId toolObjectTypeId) = useEquipped(callerEntityId, type(uint128).max);
+    require(toolObjectTypeId.isHoe(), "Must equip a hoe");
+
+    FarmingLib._processEnergyReduction(callerEntityId);
+
+    ObjectType._set(farmlandEntityId, ObjectTypes.Farmland);
+  }
+
+  function growSeed(EntityId callerEntityId, Vec3 coord) external {
+    callerEntityId.activate();
+    // TODO: should we do proximity checks?
+
+    (EntityId seedEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
+    require(objectTypeId.isSeed(), "Not a seed");
+
+    require(SeedGrowth._getFullyGrownAt(seedEntityId) <= block.timestamp, "Seed cannot be grown yet");
+
+    if (objectTypeId.isCropSeed()) {
+      // Turn wet farmland to regular farmland if mining a seed or crop
+      (EntityId belowEntityId, ObjectTypeId belowTypeId) = getOrCreateEntityAt(coord - vec3(0, 1, 0));
+      // Sanity check
+      if (belowTypeId == ObjectTypes.WetFarmland) {
+        ObjectType._set(belowEntityId, ObjectTypes.Farmland);
+      }
+
+      ObjectType._set(seedEntityId, objectTypeId.getCrop());
+    } else if (objectTypeId.isTreeSeed()) {
+      TreeData memory treeData = objectTypeId.getTreeData();
+
+      // Grow the tree (replace the seed with the trunk and add blocks)
+      (uint32 trunkHeight, uint32 leaves) = FarmingLib._growTree(seedEntityId, coord, treeData);
+
+      // Seed energy is the sum of the energy of all the blocks of the tree
+      uint32 seedEnergy = ObjectTypeMetadata._getEnergy(objectTypeId);
+
+      uint32 trunkEnergy = trunkHeight * ObjectTypeMetadata._getEnergy(treeData.logType);
+      uint32 leafEnergy = leaves * ObjectTypeMetadata._getEnergy(treeData.leafType);
+
+      uint32 energyToReturn = seedEnergy - trunkEnergy - leafEnergy;
+      if (energyToReturn > 0) {
+        addEnergyToLocalPool(coord, energyToReturn);
+      }
+    }
+  }
+}
 
 library FarmingLib {
+  function _processEnergyReduction(EntityId callerEntityId) public {
+    transferEnergyToPool(callerEntityId, TILL_ENERGY_COST);
+  }
+
   function _growTree(EntityId seedEntityId, Vec3 baseCoord, TreeData memory treeData) public returns (uint32, uint32) {
     uint32 trunkHeight = _growTreeTrunk(seedEntityId, baseCoord, treeData);
 
@@ -111,61 +170,5 @@ library FarmingLib {
     }
 
     return treeData.trunkHeight;
-  }
-}
-
-contract FarmingSystem is System {
-  using ObjectTypeLib for ObjectTypeId;
-
-  function till(Vec3 coord) external {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
-    PlayerUtils.requireInPlayerInfluence(playerCoord, coord);
-
-    (EntityId farmlandEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
-    require(objectTypeId == ObjectTypes.Dirt || objectTypeId == ObjectTypes.Grass, "Not dirt or grass");
-    (uint128 massUsed, ObjectTypeId toolObjectTypeId) = useEquipped(playerEntityId, type(uint128).max);
-    require(toolObjectTypeId.isHoe(), "Must equip a hoe");
-
-    uint128 energyCost = PLAYER_TILL_ENERGY_COST + massUsed;
-    decreasePlayerEnergy(playerEntityId, playerCoord, energyCost);
-    addEnergyToLocalPool(playerCoord, energyCost);
-
-    ObjectType._set(farmlandEntityId, ObjectTypes.Farmland);
-  }
-
-  function growSeed(Vec3 coord) external {
-    PlayerUtils.requireValidPlayer(_msgSender());
-
-    (EntityId seedEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
-    require(objectTypeId.isSeed(), "Not a seed");
-
-    require(SeedGrowth._getFullyGrownAt(seedEntityId) <= block.timestamp, "Seed cannot be grown yet");
-
-    if (objectTypeId.isCropSeed()) {
-      // Turn wet farmland to regular farmland if mining a seed or crop
-      (EntityId belowEntityId, ObjectTypeId belowTypeId) = getOrCreateEntityAt(coord - vec3(0, 1, 0));
-      // Sanity check
-      if (belowTypeId == ObjectTypes.WetFarmland) {
-        ObjectType._set(belowEntityId, ObjectTypes.Farmland);
-      }
-
-      ObjectType._set(seedEntityId, objectTypeId.getCrop());
-    } else if (objectTypeId.isTreeSeed()) {
-      TreeData memory treeData = objectTypeId.getTreeData();
-
-      // Grow the tree (replace the seed with the trunk and add blocks)
-      (uint32 trunkHeight, uint32 leaves) = FarmingLib._growTree(seedEntityId, coord, treeData);
-
-      // Seed energy is the sum of the energy of all the blocks of the tree
-      uint32 seedEnergy = ObjectTypeMetadata._getEnergy(objectTypeId);
-
-      uint32 trunkEnergy = trunkHeight * ObjectTypeMetadata._getEnergy(treeData.logType);
-      uint32 leafEnergy = leaves * ObjectTypeMetadata._getEnergy(treeData.leafType);
-
-      uint32 energyToReturn = seedEnergy - trunkEnergy - leafEnergy;
-      if (energyToReturn > 0) {
-        addEnergyToLocalPool(coord, energyToReturn);
-      }
-    }
   }
 }

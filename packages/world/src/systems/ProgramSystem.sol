@@ -5,7 +5,6 @@ import { ResourceId, WorldResourceIdInstance } from "@latticexyz/world/src/World
 import { System } from "@latticexyz/world/src/System.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
-import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -52,21 +51,23 @@ contract ProgramSystem is System {
     }
   }
 
-  function attachProgram(EntityId entityId, ResourceId programSystemId, bytes calldata extraData) public payable {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
+  function attachProgram(
+    EntityId callerEntityId,
+    EntityId targetEntityId,
+    ResourceId programSystemId,
+    bytes calldata extraData
+  ) public payable {
+    callerEntityId.activate();
+    (, Vec3 targetCoord) = callerEntityId.requireConnected(targetEntityId);
 
-    EntityId baseEntityId = entityId.baseEntityId();
+    EntityId baseEntityId = targetEntityId.baseEntityId();
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
 
     require(baseEntityId.getProgram().unwrap() == 0, "Program already attached");
 
-    Vec3 entityCoord;
     // ForceField fragments don't have a position on the grid, so we need to handle them differently
     if (objectTypeId == ObjectTypes.ForceFieldFragment) {
       // TODO: figure out proximity checks for fragments
-      entityCoord = PlayerUtils.requireFragmentInPlayerInfluence(playerCoord, baseEntityId);
-    } else {
-      entityCoord = PlayerUtils.requireInPlayerInfluence(playerCoord, entityId);
     }
 
     (address programAddress, bool publicAccess) = Systems._get(programSystemId);
@@ -88,20 +89,17 @@ contract ProgramSystem is System {
       revert("Cannot attach a program to this object");
     }
 
-    notify(
-      playerEntityId,
-      AttachProgramNotifData({ attachEntityId: baseEntityId, attachCoord: entityCoord, programAddress: programAddress })
-    );
+    notify(callerEntityId, AttachProgramNotifData({ attachEntityId: baseEntityId, programSystemId: programSystemId }));
 
     // If forcefield is active, call its hook
     if (objectTypeId != ObjectTypes.ForceField) {
-      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(entityCoord);
+      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(targetCoord);
       if (forceFieldEntityId.exists()) {
         (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
           bytes memory onProgramAttachedCall = abi.encodeCall(
             IForceFieldFragmentProgram.onProgramAttached,
-            (playerEntityId, forceFieldEntityId, baseEntityId, extraData)
+            (callerEntityId, forceFieldEntityId, baseEntityId, extraData)
           );
 
           _callForceFieldProgram(forceFieldEntityId, fragmentEntityId, onProgramAttachedCall);
@@ -113,21 +111,18 @@ contract ProgramSystem is System {
     // otherwise if it is a fragment it would call itself
     Program._setProgramSystemId(baseEntityId, programSystemId);
 
-    bytes memory onAttachedCall = abi.encodeCall(IProgram.onAttached, (playerEntityId, baseEntityId, extraData));
+    bytes memory onAttachedCall = abi.encodeCall(IProgram.onAttached, (callerEntityId, baseEntityId, extraData));
     callProgramOrRevert(programSystemId, onAttachedCall);
   }
 
-  function detachProgram(EntityId entityId, bytes calldata extraData) public payable {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
-    EntityId baseEntityId = entityId.baseEntityId();
+  function detachProgram(EntityId callerEntityId, EntityId targetEntityId, bytes calldata extraData) public payable {
+    callerEntityId.activate();
+    (, Vec3 targetCoord) = callerEntityId.requireConnected(targetEntityId);
+    EntityId baseEntityId = targetEntityId.baseEntityId();
 
-    Vec3 entityCoord;
     // ForceField fragments don't have a position on the grid, so we need to handle them differently
     if (ObjectType._get(baseEntityId) == ObjectTypes.ForceFieldFragment) {
       // TODO: figure out proximity checks for fragments
-      entityCoord = PlayerUtils.requireFragmentInPlayerInfluence(playerCoord, baseEntityId);
-    } else {
-      entityCoord = PlayerUtils.requireInPlayerInfluence(playerCoord, entityId);
     }
 
     ResourceId programSystemId = baseEntityId.getProgram();
@@ -136,24 +131,19 @@ contract ProgramSystem is System {
 
     Program._deleteRecord(baseEntityId);
 
-    (address programAddress, ) = Systems._get(programSystemId);
+    notify(callerEntityId, DetachProgramNotifData({ detachEntityId: baseEntityId, programSystemId: programSystemId }));
 
-    notify(
-      playerEntityId,
-      DetachProgramNotifData({ detachEntityId: baseEntityId, detachCoord: entityCoord, programAddress: programAddress })
-    );
-
-    (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(entityCoord);
+    (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(targetCoord);
 
     (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
 
     // If forcefield is active, call its hook
-    bytes memory onDetachedCall = abi.encodeCall(IProgram.onDetached, (playerEntityId, baseEntityId, extraData));
+    bytes memory onDetachedCall = abi.encodeCall(IProgram.onDetached, (callerEntityId, baseEntityId, extraData));
     if (machineData.energy > 0) {
       if (forceFieldEntityId.exists() && ObjectType._get(baseEntityId) != ObjectTypes.ForceField) {
         bytes memory onProgramDetachedCall = abi.encodeCall(
           IForceFieldFragmentProgram.onProgramDetached,
-          (playerEntityId, forceFieldEntityId, baseEntityId, extraData)
+          (callerEntityId, forceFieldEntityId, baseEntityId, extraData)
         );
         _callForceFieldProgram(forceFieldEntityId, fragmentEntityId, onProgramDetachedCall);
       }

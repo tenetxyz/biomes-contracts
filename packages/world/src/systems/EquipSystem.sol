@@ -14,11 +14,11 @@ import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 
 contract EquipSystem is System {
-  function equip(EntityId inventoryEntityId) public {
-    (EntityId playerEntityId, , ) = PlayerUtils.requireValidPlayer(_msgSender());
-    require(InventoryEntity._get(inventoryEntityId) == playerEntityId, "Player does not own inventory item");
-    Equipped._set(playerEntityId, inventoryEntityId);
+  function equip(EntityId callerEntityId, EntityId inventoryEntityId) public {
+    callerEntityId.activate();
+    require(InventoryEntity._get(inventoryEntityId) == callerEntityId, "Player does not own inventory item");
+    Equipped._set(callerEntityId, inventoryEntityId);
 
-    notify(playerEntityId, EquipNotifData({ inventoryEntityId: inventoryEntityId }));
+    notify(callerEntityId, EquipNotifData({ inventoryEntityId: inventoryEntityId }));
   }
 }

@@ -20,11 +20,11 @@ import { Vec3 } from "../Vec3.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, CHUNK_COMMIT_HALF_WIDTH, RESPAWN_ORE_BLOCK_RANGE } from "../Constants.sol";
 
 contract OreSystem is System {
-  function oreChunkCommit(Vec3 chunkCoord) public {
-    (, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
-    Vec3 playerChunkCoord = playerCoord.toChunkCoord();
+  function oreChunkCommit(EntityId callerEntityId, Vec3 chunkCoord) public {
+    callerEntityId.activate();
 
-    require(playerChunkCoord.inSurroundingCube(chunkCoord, CHUNK_COMMIT_HALF_WIDTH), "Not in commit range");
+    Vec3 callerChunkCoord = callerEntityId.getPosition().toChunkCoord();
+    require(callerChunkCoord.inSurroundingCube(chunkCoord, CHUNK_COMMIT_HALF_WIDTH), "Not in commit range");
 
     // Check existing commitment
     uint256 commitment = OreCommitment._get(chunkCoord);

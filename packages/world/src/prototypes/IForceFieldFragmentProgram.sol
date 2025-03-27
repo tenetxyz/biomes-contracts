@@ -10,16 +10,16 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 // Interface for a force field program
 interface IForceFieldFragmentProgram is IProgram {
   function onBuild(
-    EntityId targetEntityId,
     EntityId callerEntityId,
+    EntityId targetEntityId,
     ObjectTypeId objectTypeId,
     Vec3 coord,
     bytes memory extraData
   ) external payable;
 
   function onMine(
-    EntityId targetEntityId,
     EntityId callerEntityId,
+    EntityId targetEntityId,
     ObjectTypeId objectTypeId,
     Vec3 coord,
     bytes memory extraData

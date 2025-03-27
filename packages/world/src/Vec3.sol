@@ -4,8 +4,6 @@ pragma solidity >=0.8.24;
 import { LibString } from "solady/utils/LibString.sol";
 import { FixedPointMathLib } from "solady/utils/FixedPointMathLib.sol";
 
-import { Position } from "./codegen/tables/Position.sol";
-import { ReversePosition } from "./codegen/tables/ReversePosition.sol";
 import { Direction } from "./codegen/common.sol";
 import { CHUNK_SIZE, FRAGMENT_SIZE, REGION_SIZE } from "./Constants.sol";
 

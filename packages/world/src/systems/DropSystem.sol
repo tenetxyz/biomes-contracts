@@ -13,7 +13,6 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { getUniqueEntity } from "../Utils.sol";
 import { transferInventoryNonEntity, transferInventoryEntity } from "../utils/InventoryUtils.sol";
-import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { notify, DropNotifData } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { EntityId } from "../EntityId.sol";
@@ -22,42 +21,47 @@ import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 
 // TODO: combine the tool and non-tool drop functions
 contract DropSystem is System {
-  function dropCommon(Vec3 coord) internal returns (EntityId, EntityId) {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
-    PlayerUtils.requireInPlayerInfluence(playerCoord, coord);
+  function dropCommon(EntityId callerEntityId, Vec3 coord) internal returns (EntityId) {
+    callerEntityId.activate();
+    callerEntityId.requireConnected(coord);
 
     (EntityId entityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(ObjectTypeMetadata.getCanPassThrough(objectTypeId), "Cannot drop on a non-passable block");
 
-    return (playerEntityId, entityId);
+    return entityId;
   }
 
-  function drop(ObjectTypeId dropObjectTypeId, uint16 numToDrop, Vec3 coord) public {
-    (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
-    transferInventoryNonEntity(playerEntityId, entityId, ObjectTypes.Air, dropObjectTypeId, numToDrop);
+  function drop(EntityId callerEntityId, ObjectTypeId dropObjectTypeId, uint16 numToDrop, Vec3 coord) public {
+    EntityId entityId = dropCommon(callerEntityId, coord);
+    transferInventoryNonEntity(callerEntityId, entityId, ObjectType._get(entityId), dropObjectTypeId, numToDrop);
 
     notify(
-      playerEntityId,
+      callerEntityId,
       DropNotifData({ dropCoord: coord, dropObjectTypeId: dropObjectTypeId, dropAmount: numToDrop })
     );
   }
 
-  function dropTool(EntityId toolEntityId, Vec3 coord) public {
-    (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
-    ObjectTypeId toolObjectTypeId = transferInventoryEntity(playerEntityId, entityId, ObjectTypes.Air, toolEntityId);
+  function dropTool(EntityId callerEntityId, EntityId toolEntityId, Vec3 coord) public {
+    EntityId entityId = dropCommon(callerEntityId, coord);
+    ObjectTypeId toolObjectTypeId = transferInventoryEntity(
+      callerEntityId,
+      entityId,
+      ObjectType._get(entityId),
+      toolEntityId
+    );
 
-    notify(playerEntityId, DropNotifData({ dropCoord: coord, dropObjectTypeId: toolObjectTypeId, dropAmount: 1 }));
+    notify(callerEntityId, DropNotifData({ dropCoord: coord, dropObjectTypeId: toolObjectTypeId, dropAmount: 1 }));
   }
 
-  function dropTools(EntityId[] memory toolEntityIds, Vec3 coord) public {
+  function dropTools(EntityId callerEntityId, EntityId[] memory toolEntityIds, Vec3 coord) public {
     require(toolEntityIds.length > 0, "Must drop at least one tool");
 
-    (EntityId playerEntityId, EntityId entityId) = dropCommon(coord);
+    EntityId entityId = dropCommon(callerEntityId, coord);
 
     ObjectTypeId toolObjectTypeId;
     for (uint i = 0; i < toolEntityIds.length; i++) {
       ObjectTypeId currentToolObjectTypeId = transferInventoryEntity(
-        playerEntityId,
+        callerEntityId,
         entityId,
         ObjectTypes.Air,
         toolEntityIds[i]
@@ -70,7 +74,7 @@ contract DropSystem is System {
     }
 
     notify(
-      playerEntityId,
+      callerEntityId,
       DropNotifData({ dropCoord: coord, dropObjectTypeId: toolObjectTypeId, dropAmount: uint16(toolEntityIds.length) })
     );
   }

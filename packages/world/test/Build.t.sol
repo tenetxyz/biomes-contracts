@@ -22,13 +22,13 @@ import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { MinedOrePosition, ForceFieldFragment, LocalEnergyPool, ReversePosition, PlayerPosition, ReversePlayerPosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, ForceFieldFragment, LocalEnergyPool, ReversePosition, MovablePosition, ReverseMovablePosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH, PLAYER_BUILD_ENERGY_COST } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_ENTITY_INFLUENCE_HALF_WIDTH, BUILD_ENERGY_COST } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
@@ -50,7 +50,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("build terrain");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
     endGasReport();
 
     buildEntityId = ReversePosition.get(buildCoord);
@@ -82,7 +82,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("build non-terrain");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
     endGasReport();
 
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
@@ -116,7 +116,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("build multi-size");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
     endGasReport();
 
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
@@ -144,10 +144,10 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("jump build");
-    world.jumpBuild(buildObjectTypeId, "");
+    world.jumpBuild(aliceEntityId, buildObjectTypeId, "");
     endGasReport();
 
-    Vec3 playerCoordAfter = PlayerPosition.get(aliceEntityId);
+    Vec3 playerCoordAfter = MovablePosition.get(aliceEntityId);
     assertEq(playerCoordAfter, playerCoord + vec3(0, 1, 0), "Player coord is not correct");
 
     EntityId buildEntityId = ReversePosition.get(playerCoord);
@@ -173,7 +173,7 @@ contract BuildTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 4);
 
     vm.prank(alice);
-    world.build(buildObjectTypeId, bobCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, bobCoord, "");
 
     EntityId buildEntityId = ReversePosition.get(bobCoord);
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
@@ -185,7 +185,7 @@ contract BuildTest is BiomesTest {
 
     Vec3 aboveBobCoord = bobCoord + vec3(0, 1, 0);
     vm.prank(alice);
-    world.build(buildObjectTypeId, aboveBobCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, aboveBobCoord, "");
     buildEntityId = ReversePosition.get(aboveBobCoord);
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertEq(
@@ -195,7 +195,7 @@ contract BuildTest is BiomesTest {
     );
 
     vm.prank(alice);
-    world.build(buildObjectTypeId, aliceCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, aliceCoord, "");
     buildEntityId = ReversePosition.get(aliceCoord);
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertEq(
@@ -206,7 +206,7 @@ contract BuildTest is BiomesTest {
 
     Vec3 aboveAliceCoord = aliceCoord + vec3(0, 1, 0);
     vm.prank(alice);
-    world.build(buildObjectTypeId, aboveAliceCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, aboveAliceCoord, "");
     buildEntityId = ReversePosition.get(aboveAliceCoord);
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertEq(
@@ -226,7 +226,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot jump build on a pass-through block");
-    world.jumpBuild(buildObjectTypeId, "");
+    world.jumpBuild(aliceEntityId, buildObjectTypeId, "");
   }
 
   function testJumpBuildFailsIfNonAir() public {
@@ -240,7 +240,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a non-passable block");
-    world.jumpBuild(buildObjectTypeId, "");
+    world.jumpBuild(aliceEntityId, buildObjectTypeId, "");
   }
 
   function testJumpBuildFailsIfPlayer() public {
@@ -257,7 +257,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot move through a player");
-    world.jumpBuild(buildObjectTypeId, "");
+    world.jumpBuild(aliceEntityId, buildObjectTypeId, "");
   }
 
   function testBuildFailsIfNonAir() public {
@@ -273,7 +273,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot build on a non-air block");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
 
     setObjectAtCoord(buildCoord, ObjectTypes.TextSign);
 
@@ -281,33 +281,33 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot build on a non-air block");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
 
     vm.prank(alice);
     vm.expectRevert("Cannot build on a non-air block");
-    world.build(buildObjectTypeId, topCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, topCoord, "");
   }
 
   function testBuildFailsIfPlayer() public {
     (address alice, EntityId aliceEntityId, Vec3 aliceCoord) = setupAirChunkWithPlayer();
 
-    (address bob, EntityId bobEntityId, Vec3 bobCoord) = spawnPlayerOnAirChunk(aliceCoord + vec3(0, 0, 1));
+    (, , Vec3 bobCoord) = spawnPlayerOnAirChunk(aliceCoord + vec3(0, 0, 1));
 
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     vm.prank(alice);
-    vm.expectRevert("Cannot build on a player");
-    world.build(buildObjectTypeId, bobCoord, "");
+    vm.expectRevert("Cannot build on a movable entity");
+    world.build(aliceEntityId, buildObjectTypeId, bobCoord, "");
 
     vm.prank(alice);
-    vm.expectRevert("Cannot build on a player");
-    world.build(buildObjectTypeId, bobCoord + vec3(0, 1, 0), "");
+    vm.expectRevert("Cannot build on a movable entity");
+    world.build(aliceEntityId, buildObjectTypeId, bobCoord + vec3(0, 1, 0), "");
 
     vm.prank(alice);
-    vm.expectRevert("Cannot build on a player");
-    world.build(buildObjectTypeId, aliceCoord, "");
+    vm.expectRevert("Cannot build on a movable entity");
+    world.build(aliceEntityId, buildObjectTypeId, aliceCoord, "");
   }
 
   function testBuildFailsInvalidBlock() public {
@@ -323,7 +323,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot build non-block object");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfHasDroppedObjects() public {
@@ -341,25 +341,25 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Cannot build where there are dropped objects");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfInvalidCoord() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 buildCoord = playerCoord + vec3(int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, 0);
+    Vec3 buildCoord = playerCoord + vec3(int32(MAX_ENTITY_INFLUENCE_HALF_WIDTH) + 1, 0, 0);
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
 
     vm.prank(alice);
-    vm.expectRevert("Player is too far");
-    world.build(buildObjectTypeId, buildCoord, "");
+    vm.expectRevert("Entity is too far");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
 
     buildCoord = playerCoord - vec3(CHUNK_SIZE / 2 + 1, 0, 0);
 
     vm.prank(alice);
     vm.expectRevert("Chunk not explored yet");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfNotEnoughEnergy() public {
@@ -377,7 +377,7 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough energy");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFatal() public {
@@ -392,24 +392,24 @@ contract BuildTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 1);
 
     // Set player energy to exactly enough for one build operation
-    uint128 exactEnergy = PLAYER_BUILD_ENERGY_COST;
+    uint128 exactEnergy = BUILD_ENERGY_COST;
     Energy.set(
       aliceEntityId,
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: exactEnergy, drainRate: 0 })
     );
 
     vm.prank(alice);
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
 
     // Check energy is zero
     assertEq(Energy.getEnergy(aliceEntityId), 0, "Player energy is not 0");
 
     // Verify the player entity is still registered to the address, but removed from the grid
     assertEq(Player.get(alice), aliceEntityId, "Player entity was deleted");
-    assertEq(PlayerPosition.get(aliceEntityId), vec3(0, 0, 0), "Player position was not deleted");
-    assertEq(ReversePlayerPosition.get(playerCoord), EntityId.wrap(0), "Player reverse position was not deleted");
+    assertEq(MovablePosition.get(aliceEntityId), vec3(0, 0, 0), "Player position was not deleted");
+    assertEq(ReverseMovablePosition.get(playerCoord), EntityId.wrap(0), "Player reverse position was not deleted");
     assertEq(
-      ReversePlayerPosition.get(playerCoord + vec3(0, 1, 0)),
+      ReverseMovablePosition.get(playerCoord + vec3(0, 1, 0)),
       EntityId.wrap(0),
       "Player reverse position at head was not deleted"
     );
@@ -431,21 +431,21 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfNoPlayer() public {
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 buildCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL + 1, playerCoord.z());
-    EntityId airEntityId = setObjectAtCoord(buildCoord, ObjectTypes.Air);
+    setObjectAtCoord(buildCoord, ObjectTypes.Air);
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     EntityId buildEntityId = ReversePosition.get(buildCoord);
     assertTrue(buildEntityId.exists(), "Build entity does not exist");
     assertInventoryHasObject(aliceEntityId, buildObjectTypeId, 0);
 
-    vm.expectRevert("Player does not exist");
-    world.build(buildObjectTypeId, buildCoord, "");
+    vm.expectRevert("Caller not allowed");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
   }
 
   function testBuildFailsIfSleeping() public {
@@ -462,6 +462,6 @@ contract BuildTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
-    world.build(buildObjectTypeId, buildCoord, "");
+    world.build(aliceEntityId, buildObjectTypeId, buildCoord, "");
   }
 }

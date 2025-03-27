@@ -14,14 +14,12 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
 import { ActionType, Direction } from "../codegen/common.sol";
 
-import { PlayerPosition, ReversePlayerPosition } from "../utils/Vec3Storage.sol";
+import { MovablePosition, ReverseMovablePosition } from "../utils/Vec3Storage.sol";
 
 import { getUniqueEntity } from "../Utils.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
-import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { getOrCreateEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
-import { decreasePlayerEnergy, addEnergyToLocalPool, removeEnergyFromLocalPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
-import { getPlayer } from "../utils/EntityUtils.sol";
+import { getOrCreateEntityAt, getObjectTypeIdAt, getMovableEntityAt } from "../utils/EntityUtils.sol";
+import { removeEnergyFromLocalPool, updateMachineEnergy, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 import { callProgramOrRevert } from "../utils/callProgram.sol";
@@ -36,10 +34,12 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
-import { PLAYER_BUILD_ENERGY_COST } from "../Constants.sol";
+import { BUILD_ENERGY_COST } from "../Constants.sol";
+
+using ObjectTypeLib for ObjectTypeId;
 
 library BuildLib {
-  function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) public returns (EntityId) {
+  function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) internal returns (EntityId) {
     (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = getOrCreateEntityAt(coord);
     require(terrainObjectTypeId == ObjectTypes.Air, "Cannot build on a non-air block");
     require(
@@ -47,7 +47,7 @@ library BuildLib {
       "Cannot build where there are dropped objects"
     );
     if (!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId)) {
-      require(!getPlayer(coord).exists(), "Cannot build on a player");
+      require(!getMovableEntityAt(coord).exists(), "Cannot build on a movable entity");
     }
 
     ObjectType._set(terrainEntityId, buildObjectTypeId);
@@ -55,8 +55,40 @@ library BuildLib {
     return terrainEntityId;
   }
 
+  function _addBlocks(
+    Vec3 baseCoord,
+    ObjectTypeId buildObjectTypeId,
+    Direction direction
+  ) public returns (EntityId, Vec3[] memory) {
+    Vec3[] memory coords = buildObjectTypeId.getRelativeCoords(baseCoord, direction);
+    EntityId baseEntityId = _addBlock(buildObjectTypeId, baseCoord);
+    Orientation._set(baseEntityId, direction);
+    uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
+    Mass._setMass(baseEntityId, mass);
+    // Only iterate through relative schema coords
+    for (uint256 i = 1; i < coords.length; i++) {
+      Vec3 relativeCoord = coords[i];
+      EntityId relativeEntityId = _addBlock(buildObjectTypeId, relativeCoord);
+      BaseEntity._set(relativeEntityId, baseEntityId);
+    }
+    return (baseEntityId, coords);
+  }
+
+  function _handleSeed(EntityId baseEntityId, ObjectTypeId buildObjectTypeId, Vec3 baseCoord) public {
+    ObjectTypeId belowTypeId = getObjectTypeIdAt(baseCoord - vec3(0, 1, 0));
+    if (buildObjectTypeId.isCropSeed()) {
+      require(belowTypeId == ObjectTypes.WetFarmland, "Crop seeds need wet farmland");
+    } else if (buildObjectTypeId.isTreeSeed()) {
+      require(belowTypeId == ObjectTypes.Dirt || belowTypeId == ObjectTypes.Grass, "Tree seeds need dirt or grass");
+    }
+
+    removeEnergyFromLocalPool(baseCoord, ObjectTypeMetadata._getEnergy(buildObjectTypeId));
+
+    SeedGrowth._setFullyGrownAt(baseEntityId, uint128(block.timestamp) + buildObjectTypeId.timeToGrow());
+  }
+
   function _requireBuildsAllowed(
-    EntityId playerEntityId,
+    EntityId callerEntityId,
     EntityId baseEntityId,
     ObjectTypeId objectTypeId,
     Vec3[] memory coords,
@@ -77,7 +109,7 @@ library BuildLib {
         if (machineData.energy > 0) {
           bytes memory onBuildCall = abi.encodeCall(
             IForceFieldFragmentProgram.onBuild,
-            (forceFieldEntityId, playerEntityId, objectTypeId, coord, extraData)
+            (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
           );
 
           // We know fragment is active because its forcefield exists, so we can use its program
@@ -94,86 +126,69 @@ library BuildLib {
 }
 
 contract BuildSystem is System {
-  using ObjectTypeLib for ObjectTypeId;
-
   function buildWithDirection(
+    EntityId callerEntityId,
     ObjectTypeId buildObjectTypeId,
     Vec3 baseCoord,
     Direction direction,
     bytes calldata extraData
   ) public payable returns (EntityId) {
+    callerEntityId.activate();
+    callerEntityId.requireConnected(baseCoord);
     require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
-    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
-    PlayerUtils.requireInPlayerInfluence(playerCoord, baseCoord);
 
-    EntityId baseEntityId = BuildLib._addBlock(buildObjectTypeId, baseCoord);
-    Orientation._set(baseEntityId, direction);
-    uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
-    Mass._setMass(baseEntityId, mass);
-
-    Vec3[] memory coords = buildObjectTypeId.getRelativeCoords(baseCoord, direction);
-    // Only iterate through relative schema coords
-    for (uint256 i = 1; i < coords.length; i++) {
-      Vec3 relativeCoord = coords[i];
-      EntityId relativeEntityId = BuildLib._addBlock(buildObjectTypeId, relativeCoord);
-      BaseEntity._set(relativeEntityId, baseEntityId);
-    }
-
-    removeFromInventory(playerEntityId, buildObjectTypeId, 1);
+    (EntityId baseEntityId, Vec3[] memory coords) = BuildLib._addBlocks(baseCoord, buildObjectTypeId, direction);
 
     if (buildObjectTypeId.isSeed()) {
-      ObjectTypeId belowTypeId = getObjectTypeIdAt(baseCoord - vec3(0, 1, 0));
-      if (buildObjectTypeId.isCropSeed()) {
-        require(belowTypeId == ObjectTypes.WetFarmland, "Crop seeds need wet farmland");
-      } else if (buildObjectTypeId.isTreeSeed()) {
-        require(belowTypeId == ObjectTypes.Dirt || belowTypeId == ObjectTypes.Grass, "Tree seeds need dirt or grass");
-      }
-
-      removeEnergyFromLocalPool(baseCoord, ObjectTypeMetadata._getEnergy(buildObjectTypeId));
-
-      SeedGrowth._setFullyGrownAt(baseEntityId, uint128(block.timestamp) + buildObjectTypeId.timeToGrow());
+      BuildLib._handleSeed(baseEntityId, buildObjectTypeId, baseCoord);
     }
 
-    decreasePlayerEnergy(playerEntityId, playerCoord, PLAYER_BUILD_ENERGY_COST);
-    addEnergyToLocalPool(playerCoord, PLAYER_BUILD_ENERGY_COST);
+    removeFromInventory(callerEntityId, buildObjectTypeId, 1);
+
+    transferEnergyToPool(callerEntityId, BUILD_ENERGY_COST);
 
     notify(
-      playerEntityId,
-      BuildNotifData({ buildEntityId: baseEntityId, buildCoord: baseCoord, buildObjectTypeId: buildObjectTypeId })
+      callerEntityId,
+      BuildNotifData({ buildEntityId: baseEntityId, buildCoord: coords[0], buildObjectTypeId: buildObjectTypeId })
     );
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
-    BuildLib._requireBuildsAllowed(playerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
+    BuildLib._requireBuildsAllowed(callerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
 
     return baseEntityId;
   }
 
   function build(
+    EntityId callerEntityId,
     ObjectTypeId buildObjectTypeId,
     Vec3 baseCoord,
     bytes calldata extraData
   ) public payable returns (EntityId) {
-    return buildWithDirection(buildObjectTypeId, baseCoord, Direction.PositiveZ, extraData);
+    return buildWithDirection(callerEntityId, buildObjectTypeId, baseCoord, Direction.PositiveZ, extraData);
   }
 
   function jumpBuildWithDirection(
+    EntityId callerEntityId,
     ObjectTypeId buildObjectTypeId,
     Direction direction,
     bytes calldata extraData
   ) public payable {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
+    callerEntityId.activate();
+
+    Vec3 coord = MovablePosition._get(callerEntityId);
 
     Vec3[] memory moveCoords = new Vec3[](1);
-    moveCoords[0] = playerCoord + vec3(0, 1, 0);
-    MoveLib.movePlayerWithoutGravity(playerEntityId, playerCoord, moveCoords);
-    notify(playerEntityId, MoveNotifData({ moveCoords: moveCoords }));
+    moveCoords[0] = coord + vec3(0, 1, 0);
+    MoveLib.moveWithoutGravity(callerEntityId, coord, moveCoords);
+
+    notify(callerEntityId, MoveNotifData({ moveCoords: moveCoords }));
 
     require(!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId), "Cannot jump build on a pass-through block");
 
-    buildWithDirection(buildObjectTypeId, playerCoord, direction, extraData);
+    buildWithDirection(callerEntityId, buildObjectTypeId, coord, direction, extraData);
   }
 
-  function jumpBuild(ObjectTypeId buildObjectTypeId, bytes calldata extraData) public payable {
-    jumpBuildWithDirection(buildObjectTypeId, Direction.PositiveZ, extraData);
+  function jumpBuild(EntityId callerEntityId, ObjectTypeId buildObjectTypeId, bytes calldata extraData) public payable {
+    jumpBuildWithDirection(callerEntityId, buildObjectTypeId, Direction.PositiveZ, extraData);
   }
 }

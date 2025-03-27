@@ -115,9 +115,9 @@ contract SpawnTest is BiomesTest {
     world.transferOwnership(namespaceId, address(0));
 
     // Attach program with test player
-    (address bob, ) = createTestPlayer(spawnTileCoord - vec3(1, 0, 0));
+    (address bob, EntityId bobEntityId) = createTestPlayer(spawnTileCoord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachProgram(spawnTileEntityId, programSystemId, "");
+    world.attachProgram(bobEntityId, spawnTileEntityId, programSystemId, "");
 
     // Spawn alice
     vm.prank(alice);

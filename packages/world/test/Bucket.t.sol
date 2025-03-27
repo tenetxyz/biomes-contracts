@@ -15,14 +15,14 @@ import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { ReversePosition, PlayerPosition } from "../src/utils/Vec3Storage.sol";
+import { ReversePosition, MovablePosition } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
+import { MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
@@ -40,11 +40,9 @@ contract BucketTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Bucket, 1);
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WaterBucket, 0);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("fill bucket");
-    world.fillBucket(waterCoord);
+    world.fillBucket(aliceEntityId, waterCoord);
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Bucket, 0);
@@ -61,11 +59,9 @@ contract BucketTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WaterBucket, 1);
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Bucket, 0);
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-
     vm.prank(alice);
     startGasReport("wet farmland");
-    world.wetFarmland(farmlandCoord);
+    world.wetFarmland(aliceEntityId, farmlandCoord);
     endGasReport();
 
     assertEq(ObjectType.get(farmlandEntityId), ObjectTypes.WetFarmland, "Farmland was not converted to wet farmland");
@@ -84,7 +80,7 @@ contract BucketTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not water");
-    world.fillBucket(nonWaterCoord);
+    world.fillBucket(aliceEntityId, nonWaterCoord);
   }
 
   function testFillBucketFailsIfNoBucket() public {
@@ -97,19 +93,19 @@ contract BucketTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.fillBucket(waterCoord);
+    world.fillBucket(aliceEntityId, waterCoord);
   }
 
   function testFillBucketFailsIfTooFar() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupWaterChunkWithPlayer();
 
-    Vec3 waterCoord = vec3(playerCoord.x() + int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, playerCoord.z());
+    Vec3 waterCoord = vec3(playerCoord.x() + int32(MAX_ENTITY_INFLUENCE_HALF_WIDTH) + 1, 0, playerCoord.z());
 
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.Bucket, 1);
 
     vm.prank(alice);
-    vm.expectRevert("Player is too far");
-    world.fillBucket(waterCoord);
+    vm.expectRevert("Entity is too far");
+    world.fillBucket(aliceEntityId, waterCoord);
   }
 
   function testWetFarmlandFailsIfNotFarmland() public {
@@ -122,7 +118,7 @@ contract BucketTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not farmland");
-    world.wetFarmland(nonFarmlandCoord);
+    world.wetFarmland(aliceEntityId, nonFarmlandCoord);
   }
 
   function testWetFarmlandFailsIfNoWaterBucket() public {
@@ -135,19 +131,19 @@ contract BucketTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.wetFarmland(farmlandCoord);
+    world.wetFarmland(aliceEntityId, farmlandCoord);
   }
 
   function testWetFarmlandFailsIfTooFar() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 farmlandCoord = vec3(playerCoord.x() + int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, playerCoord.z());
+    Vec3 farmlandCoord = vec3(playerCoord.x() + int32(MAX_ENTITY_INFLUENCE_HALF_WIDTH) + 1, 0, playerCoord.z());
     setObjectAtCoord(farmlandCoord, ObjectTypes.Farmland);
 
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WaterBucket, 1);
 
     vm.prank(alice);
-    vm.expectRevert("Player is too far");
-    world.wetFarmland(farmlandCoord);
+    vm.expectRevert("Entity is too far");
+    world.wetFarmland(aliceEntityId, farmlandCoord);
   }
 }

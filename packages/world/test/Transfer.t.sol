@@ -2,21 +2,26 @@
 pragma solidity >=0.8.24;
 
 import { console } from "forge-std/console.sol";
+
+import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
+import { System } from "@latticexyz/world/src/System.sol";
+import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
 import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
+import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
+import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { EnergyData } from "../src/codegen/tables/Energy.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { ReversePosition } from "../src/codegen/tables/ReversePosition.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
-import { PlayerPosition } from "../src/codegen/tables/PlayerPosition.sol";
-import { ReversePlayerPosition } from "../src/codegen/tables/ReversePlayerPosition.sol";
-import { Position } from "../src/codegen/tables/Position.sol";
+import { MovablePosition } from "../src/codegen/tables/MovablePosition.sol";
+import { ReverseMovablePosition } from "../src/codegen/tables/ReverseMovablePosition.sol";
 import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
@@ -28,16 +33,65 @@ import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.s
 import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
+import { IChestProgram } from "../src/prototypes/IChestProgram.sol";
+
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
+import { Position } from "../src/utils/Vec3Storage.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
+import { CHUNK_SIZE, MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
+import { ProgramOnTransferData } from "../src/Types.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
+
+contract TestChestProgram is IChestProgram, System {
+  // Control revert behavior
+  bool revertOnTransfer;
+
+  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
+
+  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
+
+  function onTransfer(ProgramOnTransferData memory) external payable {
+    require(!revertOnTransfer, "Transfer not allowed by chest");
+  }
+
+  function setRevertOnTransfer(bool _revertOnTransfer) external {
+    revertOnTransfer = _revertOnTransfer;
+  }
+
+  // Function to test calling the world from an entity
+  function call(IWorld world, bytes memory data) external {
+    (bool success, bytes memory returnData) = address(world).call(data);
+    if (!success) {
+      revertWithBytes(returnData);
+    }
+  }
+
+  function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
+    return interfaceId == type(IChestProgram).interfaceId || super.supportsInterface(interfaceId);
+  }
+}
 
 contract TransferTest is BiomesTest {
   using ObjectTypeLib for ObjectTypeId;
+
+  function attachTestProgram(EntityId entityId, System program, bytes14 namespace) internal returns (ResourceId) {
+    ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);
+    ResourceId programSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "programName");
+    world.registerNamespace(namespaceId);
+    world.registerSystem(programSystemId, program, false);
+    world.transferOwnership(namespaceId, address(0));
+
+    Vec3 coord = Position.get(entityId);
+
+    // Attach program with test player
+    (address bob, EntityId bobEntityId) = createTestPlayer(coord - vec3(1, 0, 0));
+    vm.prank(bob);
+    world.attachProgram(bobEntityId, entityId, programSystemId, "");
+    return programSystemId;
+  }
 
   function testTransferToChest() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
@@ -52,7 +106,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("transfer to chest");
-    world.transfer(chestEntityId, true, transferObjectTypeId, numToTransfer, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, numToTransfer, "");
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
@@ -74,7 +128,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("transfer tool to chest");
-    world.transferTool(chestEntityId, true, toolEntityId, "");
+    world.transferTool(aliceEntityId, aliceEntityId, chestEntityId, toolEntityId, "");
     endGasReport();
 
     assertInventoryHasTool(chestEntityId, toolEntityId, 1);
@@ -96,7 +150,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("transfer from chest");
-    world.transfer(chestEntityId, false, transferObjectTypeId, numToTransfer, "");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, numToTransfer, "");
     endGasReport();
 
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
@@ -122,7 +176,7 @@ contract TransferTest is BiomesTest {
     EntityId[] memory toolEntityIds = new EntityId[](2);
     toolEntityIds[0] = toolEntityId1;
     toolEntityIds[1] = toolEntityId2;
-    world.transferTools(chestEntityId, false, toolEntityIds, "");
+    world.transferTools(aliceEntityId, chestEntityId, aliceEntityId, toolEntityIds, "");
     endGasReport();
 
     assertInventoryHasTool(aliceEntityId, toolEntityId1, 2);
@@ -152,7 +206,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Inventory is full");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
   }
 
   function testTransferFromChestFailsIfPlayerFull() public {
@@ -174,7 +228,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Inventory is full");
-    world.transfer(chestEntityId, false, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 1, "");
   }
 
   function testTransferFailsIfInvalidObject() public {
@@ -191,7 +245,7 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Inventory is full");
-    world.transfer(nonChestEntityId, true, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, nonChestEntityId, transferObjectTypeId, 1, "");
   }
 
   function testTransferFailsIfDoesntHaveBlock() public {
@@ -207,19 +261,19 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 2, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 2, "");
 
     vm.prank(alice);
-    world.transfer(chestEntityId, true, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 0);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 1);
 
     vm.prank(alice);
     vm.expectRevert("Not enough objects in the inventory");
-    world.transfer(chestEntityId, false, transferObjectTypeId, 2, "");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 2, "");
 
     vm.prank(alice);
-    world.transfer(chestEntityId, false, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 1, "");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
@@ -230,16 +284,16 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Entity does not own inventory item");
-    world.transferTool(chestEntityId, true, toolEntityId, "");
+    world.transferTool(aliceEntityId, aliceEntityId, chestEntityId, toolEntityId, "");
 
     vm.prank(alice);
-    world.transferTool(chestEntityId, false, toolEntityId, "");
+    world.transferTool(aliceEntityId, chestEntityId, aliceEntityId, toolEntityId, "");
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
     vm.expectRevert("Entity does not own inventory item");
-    world.transferTool(chestEntityId, false, toolEntityId, "");
+    world.transferTool(aliceEntityId, chestEntityId, aliceEntityId, toolEntityId, "");
   }
 
   function testTransferFailsIfInvalidArgs() public {
@@ -250,34 +304,26 @@ contract TransferTest is BiomesTest {
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
 
-    EntityId toolEntityId1 = TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenPick);
-    EntityId toolEntityId2 = TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenAxe);
+    TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenPick);
+    TestInventoryUtils.addToolToInventory(aliceEntityId, ObjectTypes.WoodenAxe);
 
     vm.prank(alice);
     vm.expectRevert("Object type is not a block or item");
-    world.transfer(chestEntityId, true, ObjectTypes.WoodenPick, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, ObjectTypes.WoodenPick, 1, "");
 
     vm.prank(alice);
     vm.expectRevert("Amount must be greater than 0");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 0, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 0, "");
 
     vm.prank(alice);
     vm.expectRevert("Must transfer at least one tool");
-    world.transferTools(chestEntityId, true, new EntityId[](0), "");
-
-    EntityId[] memory toolEntityIds = new EntityId[](2);
-    toolEntityIds[0] = toolEntityId1;
-    toolEntityIds[1] = toolEntityId2;
-
-    vm.prank(alice);
-    vm.expectRevert("All tools must be of the same type");
-    world.transferTools(chestEntityId, true, toolEntityIds, "");
+    world.transferTools(aliceEntityId, aliceEntityId, chestEntityId, new EntityId[](0), "");
   }
 
   function testTransferFailsIfTooFar() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    Vec3 chestCoord = playerCoord + vec3(int32(MAX_PLAYER_INFLUENCE_HALF_WIDTH) + 1, 0, 1);
+    Vec3 chestCoord = playerCoord + vec3(int32(MAX_ENTITY_INFLUENCE_HALF_WIDTH) + 1, 0, 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, 1);
@@ -286,12 +332,12 @@ contract TransferTest is BiomesTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
     vm.prank(alice);
-    vm.expectRevert("Destination too far");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 1, "");
+    vm.expectRevert("Entity is too far");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
 
     vm.prank(alice);
-    vm.expectRevert("Destination too far");
-    world.transfer(chestEntityId, false, transferObjectTypeId, 1, "");
+    vm.expectRevert("Entity is too far");
+    world.transfer(aliceEntityId, chestEntityId, aliceEntityId, transferObjectTypeId, 1, "");
   }
 
   function testTransferFailsIfNoPlayer() public {
@@ -305,8 +351,8 @@ contract TransferTest is BiomesTest {
     assertInventoryHasObject(aliceEntityId, transferObjectTypeId, 1);
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
 
-    vm.expectRevert("Player does not exist");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 1, "");
+    vm.expectRevert("Caller not allowed");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
   }
 
   function testTransferFailsIfSleeping() public {
@@ -324,6 +370,87 @@ contract TransferTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
-    world.transfer(chestEntityId, true, transferObjectTypeId, 1, "");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, 1, "");
+  }
+
+  function testTransferFailsIfProgramReverts() public {
+    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
+
+    Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
+    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
+    uint16 numToTransfer = 10;
+    TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(aliceEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
+
+    setupForceField(chestCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 }));
+
+    TestChestProgram program = new TestChestProgram();
+    attachTestProgram(chestEntityId, program, "namespace");
+    program.setRevertOnTransfer(true);
+
+    vm.prank(alice);
+    vm.expectRevert("Transfer not allowed by chest");
+    world.transfer(aliceEntityId, aliceEntityId, chestEntityId, transferObjectTypeId, numToTransfer, "");
+  }
+
+  function testTransferBetweenChests() public {
+    Vec3 chestCoord = vec3(0, 0, 0);
+
+    setupAirChunk(chestCoord);
+
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
+    EntityId otherChestEntityId = setObjectAtCoord(chestCoord + vec3(1, 0, 0), ObjectTypes.SmartChest);
+    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
+    uint16 numToTransfer = 10;
+    TestInventoryUtils.addToInventory(chestEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(otherChestEntityId, transferObjectTypeId, 0);
+
+    setupForceField(chestCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 }));
+
+    TestChestProgram program = new TestChestProgram();
+    attachTestProgram(chestEntityId, program, "namespace");
+
+    program.call(
+      world,
+      abi.encodeCall(
+        world.transfer,
+        (chestEntityId, chestEntityId, otherChestEntityId, transferObjectTypeId, numToTransfer, "")
+      )
+    );
+
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, 0);
+    assertInventoryHasObject(otherChestEntityId, transferObjectTypeId, numToTransfer);
+  }
+
+  function testTransferBetweenChestsFailIfTooFar() public {
+    Vec3 chestCoord = vec3(0, 0, 0);
+    Vec3 otherChestCoord = chestCoord + vec3(int32(MAX_ENTITY_INFLUENCE_HALF_WIDTH) + 1, 0, 0);
+
+    setupAirChunk(chestCoord);
+
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
+    EntityId otherChestEntityId = setObjectAtCoord(otherChestCoord, ObjectTypes.SmartChest);
+    ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
+    uint16 numToTransfer = 10;
+    TestInventoryUtils.addToInventory(chestEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
+    assertInventoryHasObject(otherChestEntityId, transferObjectTypeId, 0);
+
+    setupForceField(chestCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 }));
+
+    TestChestProgram program = new TestChestProgram();
+    attachTestProgram(chestEntityId, program, "namespace");
+
+    vm.expectRevert("Entity is too far");
+    program.call(
+      world,
+      abi.encodeCall(
+        world.transfer,
+        (chestEntityId, chestEntityId, otherChestEntityId, transferObjectTypeId, numToTransfer, "")
+      )
+    );
   }
 }

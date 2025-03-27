@@ -52,7 +52,7 @@ contract GiveScript is Script {
     vm.stopBroadcast();
   }
 
-  function isContract(address addr) internal returns (bool) {
+  function isContract(address addr) internal view returns (bool) {
     uint256 size;
     assembly {
       size := extcodesize(addr)

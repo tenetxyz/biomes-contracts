@@ -9,8 +9,8 @@ import { EncodedLengths } from "@latticexyz/store/src/EncodedLengths.sol";
 
 import { Position as _Position } from "../codegen/tables/Position.sol";
 import { ReversePosition as _ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { PlayerPosition as _PlayerPosition } from "../codegen/tables/PlayerPosition.sol";
-import { ReversePlayerPosition as _ReversePlayerPosition } from "../codegen/tables/ReversePlayerPosition.sol";
+import { MovablePosition as _MovablePosition } from "../codegen/tables/MovablePosition.sol";
+import { ReverseMovablePosition as _ReverseMovablePosition } from "../codegen/tables/ReverseMovablePosition.sol";
 import { InitialEnergyPool as _InitialEnergyPool } from "../codegen/tables/InitialEnergyPool.sol";
 import { LocalEnergyPool as _LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { ExploredChunk as _ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
@@ -184,47 +184,47 @@ library ReversePosition {
   }
 }
 
-library PlayerPosition {
+library MovablePosition {
   function get(EntityId entityId) internal view returns (Vec3 position) {
-    return Vec3Storage.get(_PlayerPosition._tableId, _PlayerPosition._fieldLayout, entityId.unwrap());
+    return Vec3Storage.get(_MovablePosition._tableId, _MovablePosition._fieldLayout, entityId.unwrap());
   }
 
   function _get(EntityId entityId) internal view returns (Vec3 position) {
-    return Vec3Storage._get(_PlayerPosition._tableId, _PlayerPosition._fieldLayout, entityId.unwrap());
+    return Vec3Storage._get(_MovablePosition._tableId, _MovablePosition._fieldLayout, entityId.unwrap());
   }
 
   function set(EntityId entityId, Vec3 position) internal {
-    Vec3Storage.set(_PlayerPosition._tableId, entityId.unwrap(), position);
+    Vec3Storage.set(_MovablePosition._tableId, entityId.unwrap(), position);
   }
 
   function _set(EntityId entityId, Vec3 position) internal {
-    Vec3Storage._set(_PlayerPosition._tableId, entityId.unwrap(), position);
+    Vec3Storage._set(_MovablePosition._tableId, entityId.unwrap(), position);
   }
 
   function deleteRecord(EntityId entityId) internal {
-    Vec3Storage.deleteRecord(_PlayerPosition._tableId, entityId.unwrap());
+    Vec3Storage.deleteRecord(_MovablePosition._tableId, entityId.unwrap());
   }
 
   function _deleteRecord(EntityId entityId) internal {
-    Vec3Storage._deleteRecord(_PlayerPosition._tableId, entityId.unwrap());
+    Vec3Storage._deleteRecord(_MovablePosition._tableId, entityId.unwrap());
   }
 }
 
-library ReversePlayerPosition {
+library ReverseMovablePosition {
   function get(Vec3 position) internal view returns (EntityId entityId) {
     return
-      EntityId.wrap(Vec3Storage.get(_ReversePlayerPosition._tableId, _ReversePlayerPosition._fieldLayout, position));
+      EntityId.wrap(Vec3Storage.get(_ReverseMovablePosition._tableId, _ReverseMovablePosition._fieldLayout, position));
   }
 
   function _get(Vec3 position) internal view returns (EntityId entityId) {
     return
-      EntityId.wrap(Vec3Storage._get(_ReversePlayerPosition._tableId, _ReversePlayerPosition._fieldLayout, position));
+      EntityId.wrap(Vec3Storage._get(_ReverseMovablePosition._tableId, _ReverseMovablePosition._fieldLayout, position));
   }
 
   function set(Vec3 position, EntityId entityId) internal {
     Vec3Storage.set(
-      _ReversePlayerPosition._tableId,
-      _ReversePlayerPosition._fieldLayout,
+      _ReverseMovablePosition._tableId,
+      _ReverseMovablePosition._fieldLayout,
       position,
       abi.encodePacked(entityId)
     );
@@ -232,19 +232,19 @@ library ReversePlayerPosition {
 
   function _set(Vec3 position, EntityId entityId) internal {
     Vec3Storage._set(
-      _ReversePlayerPosition._tableId,
-      _ReversePlayerPosition._fieldLayout,
+      _ReverseMovablePosition._tableId,
+      _ReverseMovablePosition._fieldLayout,
       position,
       abi.encodePacked(entityId)
     );
   }
 
   function deleteRecord(Vec3 position) internal {
-    Vec3Storage.deleteRecord(_ReversePlayerPosition._tableId, position);
+    Vec3Storage.deleteRecord(_ReverseMovablePosition._tableId, position);
   }
 
   function _deleteRecord(Vec3 position) internal {
-    Vec3Storage._deleteRecord(_ReversePlayerPosition._tableId, position);
+    Vec3Storage._deleteRecord(_ReverseMovablePosition._tableId, position);
   }
 }
 

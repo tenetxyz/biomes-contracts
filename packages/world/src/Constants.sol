@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-uint32 constant MAX_PLAYER_INFLUENCE_HALF_WIDTH = 10;
-uint32 constant MAX_PLAYER_RESPAWN_HALF_WIDTH = 10;
+uint32 constant MAX_ENTITY_INFLUENCE_HALF_WIDTH = 10;
+uint32 constant MAX_RESPAWN_HALF_WIDTH = 10;
 
 uint16 constant MAX_PLAYER_JUMPS = 3;
 uint16 constant MAX_PLAYER_GLIDES = 10;
@@ -30,12 +30,12 @@ uint128 constant MACHINE_ENERGY_DRAIN_RATE = 100;
 
 uint128 constant SMART_CHEST_ENERGY_COST = 100;
 
-uint128 constant PLAYER_BUILD_ENERGY_COST = 50;
-uint128 constant PLAYER_MINE_ENERGY_COST = 50;
-uint128 constant PLAYER_HIT_ENERGY_COST = 50;
-uint128 constant PLAYER_TILL_ENERGY_COST = 50;
-uint128 constant PLAYER_CRAFT_ENERGY_COST = 50;
-uint128 constant PLAYER_MOVE_ENERGY_COST = 5;
+uint128 constant BUILD_ENERGY_COST = 50;
+uint128 constant MINE_ENERGY_COST = 50;
+uint128 constant HIT_ENERGY_COST = 50;
+uint128 constant TILL_ENERGY_COST = 50;
+uint128 constant CRAFT_ENERGY_COST = 50;
+uint128 constant MOVE_ENERGY_COST = 5;
 uint128 constant PLAYER_FALL_ENERGY_COST = MAX_PLAYER_ENERGY / 25; // This makes it so, with full energy, you die from a 25 block fall
 
 uint256 constant MAX_COAL = 10_000_000;

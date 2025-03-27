@@ -25,14 +25,14 @@ import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { MinedOrePosition, PlayerPosition, Position, ReversePosition, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import { MinedOrePosition, MovablePosition, Position, ReversePosition, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { CHUNK_SIZE, MAX_PLAYER_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
+import { CHUNK_SIZE } from "../src/Constants.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
 contract EquipTest is BiomesTest {
@@ -49,7 +49,7 @@ contract EquipTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("equip tool");
-    world.equip(toolEntityId);
+    world.equip(aliceEntityId, toolEntityId);
     endGasReport();
 
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
@@ -66,14 +66,14 @@ contract EquipTest is BiomesTest {
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
-    world.equip(toolEntityId);
+    world.equip(aliceEntityId, toolEntityId);
 
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
     vm.prank(alice);
     startGasReport("unequip tool");
-    world.unequip();
+    world.unequip(aliceEntityId);
     endGasReport();
 
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
@@ -94,14 +94,14 @@ contract EquipTest is BiomesTest {
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
-    world.equip(toolEntityId1);
+    world.equip(aliceEntityId, toolEntityId1);
 
     assertEq(Equipped.get(aliceEntityId), toolEntityId1, "Equipped entity is not tool entity id");
     assertInventoryHasTool(aliceEntityId, toolEntityId1, 1);
     assertInventoryHasTool(aliceEntityId, toolEntityId2, 1);
 
     vm.prank(alice);
-    world.equip(toolEntityId2);
+    world.equip(aliceEntityId, toolEntityId2);
 
     assertEq(Equipped.get(aliceEntityId), toolEntityId2, "Equipped entity is not tool entity id");
     assertInventoryHasTool(aliceEntityId, toolEntityId1, 1);
@@ -118,7 +118,7 @@ contract EquipTest is BiomesTest {
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
-    world.unequip();
+    world.unequip(aliceEntityId);
 
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
@@ -138,12 +138,12 @@ contract EquipTest is BiomesTest {
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
-    world.equip(toolEntityId);
+    world.equip(aliceEntityId, toolEntityId);
 
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
     vm.prank(alice);
-    world.dropTool(toolEntityId, dropCoord);
+    world.dropTool(aliceEntityId, toolEntityId, dropCoord);
 
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
@@ -168,12 +168,12 @@ contract EquipTest is BiomesTest {
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
-    world.equip(toolEntityId);
+    world.equip(aliceEntityId, toolEntityId);
 
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
     vm.prank(alice);
-    world.transferTool(chestEntityId, true, toolEntityId, "");
+    world.transferTool(aliceEntityId, aliceEntityId, chestEntityId, toolEntityId, "");
 
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
@@ -200,14 +200,14 @@ contract EquipTest is BiomesTest {
     assertInventoryHasTool(aliceEntityId, toolEntityId, 1);
 
     vm.prank(alice);
-    world.equip(toolEntityId);
+    world.equip(aliceEntityId, toolEntityId);
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
     uint128 toolMassBefore = Mass.getMass(toolEntityId);
 
     vm.prank(alice);
     startGasReport("mine terrain with tool, entirely mined");
-    world.mineUntilDestroyed(mineCoord, "");
+    world.mineUntilDestroyed(aliceEntityId, mineCoord, "");
     endGasReport();
 
     uint128 toolMassAfter = Mass.getMass(toolEntityId);
@@ -244,7 +244,7 @@ contract EquipTest is BiomesTest {
 
     vm.prank(bob);
     vm.expectRevert("Player does not own inventory item");
-    world.equip(toolEntityId);
+    world.equip(bobEntityId, toolEntityId);
   }
 
   function testEquipFailsIfInvalidTool() public {
@@ -252,7 +252,7 @@ contract EquipTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player does not own inventory item");
-    world.equip(randomEntityId());
+    world.equip(aliceEntityId, randomEntityId());
   }
 
   function testEquipFailsIfNoPlayer() public {
@@ -264,8 +264,8 @@ contract EquipTest is BiomesTest {
 
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
-    vm.expectRevert("Player does not exist");
-    world.equip(toolEntityId);
+    vm.expectRevert("Caller not allowed");
+    world.equip(aliceEntityId, toolEntityId);
   }
 
   function testEquipFailsIfSleeping() public {
@@ -281,7 +281,7 @@ contract EquipTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
-    world.equip(toolEntityId);
+    world.equip(aliceEntityId, toolEntityId);
   }
 
   function testUnequipFailsIfNoPlayer() public {
@@ -294,12 +294,12 @@ contract EquipTest is BiomesTest {
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
-    world.equip(toolEntityId);
+    world.equip(aliceEntityId, toolEntityId);
 
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
-    vm.expectRevert("Player does not exist");
-    world.unequip();
+    vm.expectRevert("Caller not allowed");
+    world.unequip(aliceEntityId);
   }
 
   function testUnequipFailsIfSleeping() public {
@@ -312,7 +312,7 @@ contract EquipTest is BiomesTest {
     assertEq(Equipped.get(aliceEntityId), EntityId.wrap(bytes32(0)), "Equipped entity is not 0");
 
     vm.prank(alice);
-    world.equip(toolEntityId);
+    world.equip(aliceEntityId, toolEntityId);
 
     assertEq(Equipped.get(aliceEntityId), toolEntityId, "Equipped entity is not tool entity id");
 
@@ -320,6 +320,6 @@ contract EquipTest is BiomesTest {
 
     vm.prank(alice);
     vm.expectRevert("Player is sleeping");
-    world.unequip();
+    world.unequip(aliceEntityId);
   }
 }

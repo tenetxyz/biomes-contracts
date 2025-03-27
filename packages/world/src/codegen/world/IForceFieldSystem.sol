@@ -25,6 +25,7 @@ interface IForceFieldSystem {
   ) external view returns (Vec3[] memory, uint256);
 
   function expandForceField(
+    EntityId callerEntityId,
     EntityId forceFieldEntityId,
     Vec3 refFragmentCoord,
     Vec3 fromFragmentCoord,
@@ -33,6 +34,7 @@ interface IForceFieldSystem {
   ) external;
 
   function contractForceField(
+    EntityId callerEntityId,
     EntityId forceFieldEntityId,
     Vec3 fromFragmentCoord,
     Vec3 toFragmentCoord,

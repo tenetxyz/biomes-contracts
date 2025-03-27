@@ -3,19 +3,24 @@ pragma solidity >=0.8.24;
 
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Machine } from "../codegen/tables/Machine.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 
-import { LocalEnergyPool, Position, PlayerPosition } from "../utils/Vec3Storage.sol";
+import { LocalEnergyPool, Position, MovablePosition } from "../utils/Vec3Storage.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { getEntityAt } from "../utils/EntityUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
+
+using ObjectTypeLib for ObjectTypeId;
 
 function getLatestEnergyData(EntityId entityId) view returns (EnergyData memory, uint128, uint128) {
   EnergyData memory energyData = Energy._get(entityId);
@@ -73,7 +78,7 @@ function updateMachineEnergy(EntityId entityId) returns (EnergyData memory, uint
 function updatePlayerEnergy(EntityId playerEntityId) returns (EnergyData memory) {
   (EnergyData memory energyData, uint128 energyDrained, ) = getLatestEnergyData(playerEntityId);
 
-  Vec3 coord = PlayerPosition._get(playerEntityId);
+  Vec3 coord = MovablePosition._get(playerEntityId);
 
   if (energyDrained > 0) {
     addEnergyToLocalPool(coord, energyDrained);
@@ -118,6 +123,20 @@ function addEnergyToLocalPool(Vec3 coord, uint128 numToAdd) returns (uint128) {
   uint128 newLocalEnergy = LocalEnergyPool._get(shardCoord) + numToAdd;
   LocalEnergyPool._set(shardCoord, newLocalEnergy);
   return newLocalEnergy;
+}
+
+function transferEnergyToPool(EntityId entityId, uint128 amount) {
+  Vec3 coord = entityId.getPosition();
+  ObjectTypeId objectTypeId = ObjectType._get(entityId);
+  if (objectTypeId == ObjectTypes.Player) {
+    decreasePlayerEnergy(entityId, coord, amount);
+  } else {
+    if (!objectTypeId.isMachine()) {
+      (entityId, ) = getForceField(coord);
+    }
+    decreaseMachineEnergy(entityId, amount);
+  }
+  addEnergyToLocalPool(coord, amount);
 }
 
 function removeEnergyFromLocalPool(Vec3 coord, uint128 numToRemove) returns (uint128) {

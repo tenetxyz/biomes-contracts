@@ -25,13 +25,12 @@ import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 
-import { Position, ReversePosition, PlayerPosition, ReversePlayerPosition, LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
+import { Position, ReversePosition, MovablePosition, ReverseMovablePosition, LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
 
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
-import { CHUNK_SIZE, PLAYER_MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { TestForceFieldUtils } from "./utils/TestUtils.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";

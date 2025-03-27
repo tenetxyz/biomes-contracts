@@ -14,7 +14,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Position } from "../utils/Vec3Storage.sol";
 
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { PLAYER_ENERGY_DRAIN_RATE, MAX_PLAYER_RESPAWN_HALF_WIDTH } from "../Constants.sol";
+import { PLAYER_ENERGY_DRAIN_RATE, MAX_RESPAWN_HALF_WIDTH } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
@@ -61,7 +61,7 @@ contract BedSystem is System {
     Vec3 bedCoord = Position._get(bedEntityId);
 
     // TODO: use a different constant?
-    require(bedCoord.inSurroundingCube(dropCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH), "Drop location is too far from bed");
+    require(bedCoord.inSurroundingCube(dropCoord, MAX_RESPAWN_HALF_WIDTH), "Drop location is too far from bed");
 
     (EntityId dropEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(dropCoord);
     require(ObjectTypeMetadata.getCanPassThrough(objectTypeId), "Cannot drop items on a non-passable block");
@@ -77,13 +77,12 @@ contract BedSystem is System {
     // TODO: Should we safecall the program?
   }
 
-  function sleep(EntityId bedEntityId, bytes calldata extraData) public {
-    (EntityId playerEntityId, Vec3 playerCoord, ) = PlayerUtils.requireValidPlayer(_msgSender());
+  function sleep(EntityId callerEntityId, EntityId bedEntityId, bytes calldata extraData) public {
+    callerEntityId.activate();
+
+    (Vec3 callerCoord, Vec3 bedCoord) = callerEntityId.requireConnected(bedEntityId);
 
     require(ObjectType._get(bedEntityId) == ObjectTypes.Bed, "Not a bed");
-
-    Vec3 bedCoord = Position._get(bedEntityId);
-    PlayerUtils.requireInPlayerInfluence(playerCoord, bedCoord);
 
     bedEntityId = bedEntityId.baseEntityId();
     require(!BedPlayer._getPlayerEntityId(bedEntityId).exists(), "Bed full");
@@ -93,55 +92,56 @@ contract BedSystem is System {
     (EnergyData memory machineData, uint128 depletedTime) = updateMachineEnergy(forceFieldEntityId);
     require(machineData.energy > 0, "Forcefield has no energy");
 
-    PlayerStatus._setBedEntityId(playerEntityId, bedEntityId);
-    BedPlayer._set(bedEntityId, playerEntityId, depletedTime);
+    PlayerStatus._setBedEntityId(callerEntityId, bedEntityId);
+    BedPlayer._set(bedEntityId, callerEntityId, depletedTime);
 
     // Increase forcefield's drain rate
     Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + PLAYER_ENERGY_DRAIN_RATE);
 
-    BedLib.transferInventory(playerEntityId, bedEntityId, ObjectTypes.Bed);
+    BedLib.transferInventory(callerEntityId, bedEntityId, ObjectTypes.Bed);
 
-    PlayerUtils.removePlayerFromGrid(playerEntityId, playerCoord);
+    PlayerUtils.removePlayerFromGrid(callerEntityId, callerCoord);
 
-    notify(playerEntityId, SleepNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
+    notify(callerEntityId, SleepNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
 
-    bytes memory onSleepCall = abi.encodeCall(IBedProgram.onSleep, (playerEntityId, bedEntityId, extraData));
+    bytes memory onSleepCall = abi.encodeCall(IBedProgram.onSleep, (callerEntityId, bedEntityId, extraData));
     callProgramOrRevert(bedEntityId.getProgram(), onSleepCall);
   }
 
-  function wakeup(Vec3 spawnCoord, bytes calldata extraData) public {
+  // TODO: for now this only supports players, as players are the only entities that can sleep
+  function wakeup(EntityId callerEntityId, Vec3 spawnCoord, bytes calldata extraData) public {
     checkWorldStatus();
 
-    EntityId playerEntityId = Player._get(_msgSender());
-    require(playerEntityId.exists(), "Player does not exist");
-    EntityId bedEntityId = PlayerStatus._getBedEntityId(playerEntityId);
+    callerEntityId.requireCallerAllowed(_msgSender());
+
+    EntityId bedEntityId = PlayerStatus._getBedEntityId(callerEntityId);
     require(bedEntityId.exists(), "Player is not sleeping");
 
     Vec3 bedCoord = Position._get(bedEntityId);
-    require(bedCoord.inSurroundingCube(spawnCoord, MAX_PLAYER_RESPAWN_HALF_WIDTH), "Bed is too far away");
+    require(bedCoord.inSurroundingCube(spawnCoord, MAX_RESPAWN_HALF_WIDTH), "Bed is too far away");
 
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
     (EnergyData memory machineData, EnergyData memory playerData) = BedLib.updateEntities(
       forceFieldEntityId,
-      playerEntityId,
+      callerEntityId,
       bedEntityId,
       bedCoord
     );
 
     require(playerData.energy > 0, "Player died while sleeping");
 
-    PlayerUtils.removePlayerFromBed(playerEntityId, bedEntityId, forceFieldEntityId);
+    PlayerUtils.removePlayerFromBed(callerEntityId, bedEntityId, forceFieldEntityId);
 
-    PlayerUtils.addPlayerToGrid(playerEntityId, spawnCoord);
+    PlayerUtils.addPlayerToGrid(callerEntityId, spawnCoord);
 
-    BedLib.transferInventory(bedEntityId, playerEntityId, ObjectTypes.Player);
+    BedLib.transferInventory(bedEntityId, callerEntityId, ObjectTypes.Player);
 
-    notify(playerEntityId, WakeupNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
+    notify(callerEntityId, WakeupNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
 
     if (machineData.energy > 0) {
-      bytes memory onWakeupCall = abi.encodeCall(IBedProgram.onWakeup, (playerEntityId, bedEntityId, extraData));
+      bytes memory onWakeupCall = abi.encodeCall(IBedProgram.onWakeup, (callerEntityId, bedEntityId, extraData));
       callProgramOrRevert(bedEntityId.getProgram(), onWakeupCall);
     }
   }

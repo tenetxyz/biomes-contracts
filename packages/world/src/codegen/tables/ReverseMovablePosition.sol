@@ -19,9 +19,9 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { EntityId } from "../../EntityId.sol";
 
-library ReversePlayerPosition {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ReversePlayerPos", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000052657665727365506c61796572506f73);
+library ReverseMovablePosition {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ReverseMovablePo", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000526576657273654d6f7661626c65506f);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
@@ -48,7 +48,7 @@ library ReversePlayerPosition {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "playerEntityId";
+    fieldNames[0] = "entityId";
   }
 
   /**
@@ -66,9 +66,9 @@ library ReversePlayerPosition {
   }
 
   /**
-   * @notice Get playerEntityId.
+   * @notice Get entityId.
    */
-  function getPlayerEntityId(int32 x, int32 y, int32 z) internal view returns (EntityId playerEntityId) {
+  function getEntityId(int32 x, int32 y, int32 z) internal view returns (EntityId entityId) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -79,9 +79,9 @@ library ReversePlayerPosition {
   }
 
   /**
-   * @notice Get playerEntityId.
+   * @notice Get entityId.
    */
-  function _getPlayerEntityId(int32 x, int32 y, int32 z) internal view returns (EntityId playerEntityId) {
+  function _getEntityId(int32 x, int32 y, int32 z) internal view returns (EntityId entityId) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -92,9 +92,9 @@ library ReversePlayerPosition {
   }
 
   /**
-   * @notice Get playerEntityId.
+   * @notice Get entityId.
    */
-  function get(int32 x, int32 y, int32 z) internal view returns (EntityId playerEntityId) {
+  function get(int32 x, int32 y, int32 z) internal view returns (EntityId entityId) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -105,9 +105,9 @@ library ReversePlayerPosition {
   }
 
   /**
-   * @notice Get playerEntityId.
+   * @notice Get entityId.
    */
-  function _get(int32 x, int32 y, int32 z) internal view returns (EntityId playerEntityId) {
+  function _get(int32 x, int32 y, int32 z) internal view returns (EntityId entityId) {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
@@ -118,51 +118,51 @@ library ReversePlayerPosition {
   }
 
   /**
-   * @notice Set playerEntityId.
+   * @notice Set entityId.
    */
-  function setPlayerEntityId(int32 x, int32 y, int32 z, EntityId playerEntityId) internal {
+  function setEntityId(int32 x, int32 y, int32 z, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(playerEntityId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
 
   /**
-   * @notice Set playerEntityId.
+   * @notice Set entityId.
    */
-  function _setPlayerEntityId(int32 x, int32 y, int32 z, EntityId playerEntityId) internal {
+  function _setEntityId(int32 x, int32 y, int32 z, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(playerEntityId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
 
   /**
-   * @notice Set playerEntityId.
+   * @notice Set entityId.
    */
-  function set(int32 x, int32 y, int32 z, EntityId playerEntityId) internal {
+  function set(int32 x, int32 y, int32 z, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(playerEntityId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
 
   /**
-   * @notice Set playerEntityId.
+   * @notice Set entityId.
    */
-  function _set(int32 x, int32 y, int32 z, EntityId playerEntityId) internal {
+  function _set(int32 x, int32 y, int32 z, EntityId entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](3);
     _keyTuple[0] = bytes32(uint256(int256(x)));
     _keyTuple[1] = bytes32(uint256(int256(y)));
     _keyTuple[2] = bytes32(uint256(int256(z)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(playerEntityId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(entityId)), _fieldLayout);
   }
 
   /**
@@ -193,8 +193,8 @@ library ReversePlayerPosition {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(EntityId playerEntityId) internal pure returns (bytes memory) {
-    return abi.encodePacked(playerEntityId);
+  function encodeStatic(EntityId entityId) internal pure returns (bytes memory) {
+    return abi.encodePacked(entityId);
   }
 
   /**
@@ -203,8 +203,8 @@ library ReversePlayerPosition {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(EntityId playerEntityId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(playerEntityId);
+  function encode(EntityId entityId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(entityId);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

@@ -14,7 +14,7 @@ import { Vec3 } from "../../Vec3.sol";
 interface IBedSystem {
   function removeDeadPlayerFromBed(EntityId playerEntityId, Vec3 dropCoord) external;
 
-  function sleep(EntityId bedEntityId, bytes calldata extraData) external;
+  function sleep(EntityId callerEntityId, EntityId bedEntityId, bytes calldata extraData) external;
 
-  function wakeup(Vec3 spawnCoord, bytes calldata extraData) external;
+  function wakeup(EntityId callerEntityId, Vec3 spawnCoord, bytes calldata extraData) external;
 }
