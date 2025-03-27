@@ -40,7 +40,7 @@ import { MinedOrePosition, MinedOrePositionData } from "./tables/MinedOrePositio
 import { MinedOreCount } from "./tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "./tables/TotalBurnedOreCount.sol";
 import { SeedGrowth } from "./tables/SeedGrowth.sol";
-import { ActionNotif, ActionNotifData } from "./tables/ActionNotif.sol";
+import { Notification, NotificationData } from "./tables/Notification.sol";
 import { WorldStatus } from "./tables/WorldStatus.sol";
 import { UniqueEntity } from "./tables/UniqueEntity.sol";
 import { BaseEntity } from "./tables/BaseEntity.sol";
