@@ -18,9 +18,7 @@ import { useEquipped } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy, addEnergyToLocalPool, decreasePlayerEnergy, decreaseMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { safeCallProgram } from "../utils/callProgram.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
-import { IForceFieldProgram } from "../prototypes/IForceFieldProgram.sol";
 import { HIT_ENERGY_COST } from "../Constants.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
@@ -39,15 +37,17 @@ contract HitMachineSystem is System {
     require(forceFieldEntityId.exists(), "No force field at this location");
     Vec3 forceFieldCoord = Position._get(forceFieldEntityId);
 
-    HitMachineLib._processEnergyReduction(callerEntityId, forceFieldEntityId, coord, forceFieldCoord);
+    uint128 energyReduction = HitMachineLib._processEnergyReduction(
+      callerEntityId,
+      forceFieldEntityId,
+      coord,
+      forceFieldCoord
+    );
+
+    // TODO: does it make sense to pass extradata to onHit?
+    forceFieldEntityId.getProgram().onHit(callerEntityId, forceFieldEntityId, energyReduction, "");
 
     notify(callerEntityId, HitMachineNotifData({ machineEntityId: forceFieldEntityId, machineCoord: forceFieldCoord }));
-
-    // Use safeCallProgram to use a fixed amount of gas as we don't want the program to prevent hitting the machine
-    safeCallProgram(
-      forceFieldEntityId.getProgram(),
-      abi.encodeCall(IForceFieldProgram.onForceFieldHit, (callerEntityId, forceFieldEntityId))
-    );
   }
 }
 
@@ -57,7 +57,7 @@ library HitMachineLib {
     EntityId forceFieldEntityId,
     Vec3 playerCoord,
     Vec3 forceFieldCoord
-  ) public {
+  ) public returns (uint128) {
     (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
     require(machineData.energy > 0, "Cannot hit depleted forcefield");
     (uint128 toolMassReduction, ) = useEquipped(callerEntityId, machineData.energy);
@@ -74,5 +74,6 @@ library HitMachineLib {
     uint128 machineEnergyReduction = playerEnergyReduction + toolMassReduction;
     decreaseMachineEnergy(forceFieldEntityId, machineEnergyReduction);
     addEnergyToLocalPool(forceFieldCoord, machineEnergyReduction + playerEnergyReduction);
+    return machineEnergyReduction;
   }
 }

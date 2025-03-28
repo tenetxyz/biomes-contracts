@@ -10,12 +10,9 @@ import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Program } from "../codegen/tables/Program.sol";
 
-import { IForceFieldProgram } from "../prototypes/IForceFieldProgram.sol";
-
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
-import { callProgramOrRevert } from "../utils/callProgram.sol";
 import { notify, PowerMachineNotifData } from "../utils/NotifUtils.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
@@ -26,9 +23,8 @@ import { Vec3 } from "../Vec3.sol";
 import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 contract MachineSystem is System {
-  function powerMachine(EntityId callerEntityId, EntityId machineEntityId, uint16 fuelAmount) public {
+  function fuelMachine(EntityId callerEntityId, EntityId machineEntityId, uint16 fuelAmount) public {
     callerEntityId.activate();
-
     callerEntityId.requireConnected(machineEntityId);
 
     EntityId baseEntityId = machineEntityId.baseEntityId();
@@ -44,9 +40,6 @@ contract MachineSystem is System {
 
     Energy._setEnergy(baseEntityId, newEnergyLevel);
 
-    callProgramOrRevert(
-      baseEntityId.getProgram(),
-      abi.encodeCall(IForceFieldProgram.onPowered, (callerEntityId, baseEntityId, fuelAmount))
-    );
+    baseEntityId.getProgram().onFuel(callerEntityId, baseEntityId, fuelAmount);
   }
 }

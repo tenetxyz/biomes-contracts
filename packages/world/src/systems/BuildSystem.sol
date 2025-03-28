@@ -22,7 +22,6 @@ import { getOrCreateEntityAt, getObjectTypeIdAt, getMovableEntityAt } from "../u
 import { removeEnergyFromLocalPool, updateMachineEnergy, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
-import { callProgramOrRevert } from "../utils/callProgram.sol";
 
 import { IForceFieldFragmentProgram } from "../prototypes/IForceFieldProgram.sol";
 
@@ -107,18 +106,13 @@ library BuildLib {
       if (forceFieldEntityId.exists()) {
         (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
-          bytes memory onBuildCall = abi.encodeCall(
-            IForceFieldFragmentProgram.onBuild,
-            (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
-          );
-
           // We know fragment is active because its forcefield exists, so we can use its program
-          ResourceId fragmentProgram = fragmentEntityId.getProgram();
-          if (fragmentProgram.unwrap() != 0) {
-            callProgramOrRevert(fragmentProgram, onBuildCall);
-          } else {
-            callProgramOrRevert(forceFieldEntityId.getProgram(), onBuildCall);
+          ResourceId program = fragmentEntityId.getProgram();
+          if (program.unwrap() != 0) {
+            program = forceFieldEntityId.getProgram();
           }
+
+          program.onBuild(callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData);
         }
       }
     }

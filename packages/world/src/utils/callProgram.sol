@@ -14,11 +14,13 @@ function callProgram(ResourceId programSystemId, bytes memory callData) returns 
   address msgSender = WorldContextConsumerLib._msgSender();
   uint256 msgValue = WorldContextConsumerLib._msgValue();
 
+  // If no program set, allow the call
   (address programAddress, ) = Systems._get(programSystemId);
   if (programAddress == address(0)) {
     return (true, "");
   }
 
+  // If program is set, call it and return the result
   return
     programAddress.call{ value: 0 }(
       WorldContextProviderLib.appendContext({ callData: callData, msgSender: msgSender, msgValue: msgValue })

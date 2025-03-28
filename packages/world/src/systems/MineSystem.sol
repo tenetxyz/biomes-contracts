@@ -15,8 +15,7 @@ import { Orientation } from "../codegen/tables/Orientation.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
-import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
-import { DisplayContentType } from "../codegen/common.sol";
+import { DisplayURI } from "../codegen/tables/DisplayURI.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
 import { MinedOrePosition } from "../utils/Vec3Storage.sol";
@@ -29,7 +28,6 @@ import { transferEnergyToPool, updateMachineEnergy, updatePlayerEnergy, addEnerg
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData, DeathNotifData } from "../utils/NotifUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, getMovableEntityAt } from "../utils/EntityUtils.sol";
-import { callProgramOrRevert } from "../utils/callProgram.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
 
@@ -108,8 +106,8 @@ contract MineSystem is System {
           MineLib._mineBed(baseEntityId, baseCoord);
         }
 
-        if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
-          DisplayContent._deleteRecord(baseEntityId);
+        if (bytes(DisplayURI._get(baseEntityId)).length > 0) {
+          DisplayURI._deleteRecord(baseEntityId);
         }
 
         Mass._deleteRecord(baseEntityId);
@@ -199,21 +197,17 @@ library MineLib {
     for (uint256 i = 0; i < coords.length; i++) {
       Vec3 coord = coords[i];
       (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(coord);
+
       if (forceFieldEntityId.exists()) {
         (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
-          bytes memory onMineCall = abi.encodeCall(
-            IForceFieldFragmentProgram.onMine,
-            (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
-          );
-
           // We know fragment is active because its forcefield exists, so we can use its program
-          ResourceId fragmentProgram = fragmentEntityId.getProgram();
-          if (fragmentProgram.unwrap() != 0) {
-            callProgramOrRevert(fragmentProgram, onMineCall);
-          } else {
-            callProgramOrRevert(forceFieldEntityId.getProgram(), onMineCall);
+          ResourceId program = fragmentEntityId.getProgram();
+          if (program.unwrap() != 0) {
+            program = forceFieldEntityId.getProgram();
           }
+
+          program.onMine(callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData);
         }
       }
     }

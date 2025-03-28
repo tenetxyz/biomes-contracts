@@ -11,11 +11,9 @@ import { IChestProgram } from "../prototypes/IChestProgram.sol";
 
 import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
-import { callProgramOrRevert } from "../utils/callProgram.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { updateMachineEnergy, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 
-import { ProgramOnTransferData } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
@@ -102,6 +100,16 @@ library TransferLib {
 
     require(ObjectType._get(targetEntityId) != ObjectTypes.Player, "Cannot transfer to player");
 
+    targetEntityId.getProgram().onTransfer(
+      callerEntityId,
+      targetEntityId,
+      fromEntityId,
+      toEntityId,
+      toolEntityIds,
+      objectAmounts,
+      extraData
+    );
+
     notify(
       callerEntityId,
       TransferNotifData({
@@ -110,27 +118,6 @@ library TransferLib {
         objectAmounts: objectAmounts
       })
     );
-
-    (EntityId forceFieldEntityId, ) = getForceField(targetEntityId.getPosition());
-    (EnergyData memory energyData, ) = updateMachineEnergy(forceFieldEntityId);
-    if (energyData.energy > 0) {
-      // Don't safe call here as we want to revert if the program doesn't allow the transfer
-      bytes memory onTransferCall = abi.encodeCall(
-        IChestProgram.onTransfer,
-        (
-          ProgramOnTransferData(
-            callerEntityId,
-            targetEntityId,
-            fromEntityId,
-            toEntityId,
-            toolEntityIds,
-            objectAmounts,
-            extraData
-          )
-        )
-      );
-      callProgramOrRevert(targetEntityId.getProgram(), onTransferCall);
-    }
   }
 
   function _getTargetEntityId(

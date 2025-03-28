@@ -21,7 +21,6 @@ import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
-import { callProgramOrRevert } from "../utils/callProgram.sol";
 import { updateMachineEnergy, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
 import { IBedProgram } from "../prototypes/IBedProgram.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
@@ -38,16 +37,15 @@ library BedLib {
     transferAllInventoryEntities(playerEntityId, bedEntityId, objectTypeId);
   }
 
-  function updateEntities(
+  function updateSleepingPlayer(
     EntityId forceFieldEntityId,
     EntityId playerEntityId,
     EntityId bedEntityId,
     Vec3 bedCoord
-  ) public returns (EnergyData memory machineData, EnergyData memory playerData) {
+  ) public returns (EnergyData memory) {
     uint128 depletedTime;
-    (machineData, depletedTime) = updateMachineEnergy(forceFieldEntityId);
-    playerData = updateSleepingPlayerEnergy(playerEntityId, bedEntityId, depletedTime, bedCoord);
-    return (machineData, playerData);
+    (, depletedTime) = updateMachineEnergy(forceFieldEntityId);
+    return updateSleepingPlayerEnergy(playerEntityId, bedEntityId, depletedTime, bedCoord);
   }
 }
 
@@ -67,7 +65,12 @@ contract BedSystem is System {
     require(ObjectTypeMetadata.getCanPassThrough(objectTypeId), "Cannot drop items on a non-passable block");
 
     (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
-    (, EnergyData memory playerData) = BedLib.updateEntities(forceFieldEntityId, playerEntityId, bedEntityId, bedCoord);
+    EnergyData memory playerData = BedLib.updateSleepingPlayer(
+      forceFieldEntityId,
+      playerEntityId,
+      bedEntityId,
+      bedCoord
+    );
 
     require(playerData.energy == 0, "Player is not dead");
 
@@ -87,10 +90,12 @@ contract BedSystem is System {
     bedEntityId = bedEntityId.baseEntityId();
     require(!BedPlayer._getPlayerEntityId(bedEntityId).exists(), "Bed full");
 
+    // TODO: do we need a forcefield for sleeping?
     (EntityId forceFieldEntityId, ) = getForceField(Position._get(bedEntityId));
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
     (EnergyData memory machineData, uint128 depletedTime) = updateMachineEnergy(forceFieldEntityId);
-    require(machineData.energy > 0, "Forcefield has no energy");
+    // TODO: confirm we don't care if the machine has data
+    // require(machineData.energy > 0, "Forcefield has no energy");
 
     PlayerStatus._setBedEntityId(callerEntityId, bedEntityId);
     BedPlayer._set(bedEntityId, callerEntityId, depletedTime);
@@ -102,10 +107,9 @@ contract BedSystem is System {
 
     PlayerUtils.removePlayerFromGrid(callerEntityId, callerCoord);
 
-    notify(callerEntityId, SleepNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
+    bedEntityId.getProgram().onSleep(callerEntityId, bedEntityId, extraData);
 
-    bytes memory onSleepCall = abi.encodeCall(IBedProgram.onSleep, (callerEntityId, bedEntityId, extraData));
-    callProgramOrRevert(bedEntityId.getProgram(), onSleepCall);
+    notify(callerEntityId, SleepNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
   }
 
   // TODO: for now this only supports players, as players are the only entities that can sleep
@@ -123,7 +127,7 @@ contract BedSystem is System {
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
     (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
-    (EnergyData memory machineData, EnergyData memory playerData) = BedLib.updateEntities(
+    EnergyData memory playerData = BedLib.updateSleepingPlayer(
       forceFieldEntityId,
       callerEntityId,
       bedEntityId,
@@ -133,16 +137,12 @@ contract BedSystem is System {
     require(playerData.energy > 0, "Player died while sleeping");
 
     PlayerUtils.removePlayerFromBed(callerEntityId, bedEntityId, forceFieldEntityId);
-
     PlayerUtils.addPlayerToGrid(callerEntityId, spawnCoord);
 
     BedLib.transferInventory(bedEntityId, callerEntityId, ObjectTypes.Player);
 
-    notify(callerEntityId, WakeupNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
+    bedEntityId.getProgram().onWakeup(callerEntityId, bedEntityId, extraData);
 
-    if (machineData.energy > 0) {
-      bytes memory onWakeupCall = abi.encodeCall(IBedProgram.onWakeup, (callerEntityId, bedEntityId, extraData));
-      callProgramOrRevert(bedEntityId.getProgram(), onWakeupCall);
-    }
+    notify(callerEntityId, WakeupNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
   }
 }
