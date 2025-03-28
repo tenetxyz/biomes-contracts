@@ -6,7 +6,7 @@ import { WorldContextConsumerLib, WorldContextProviderLib } from "@latticexyz/wo
 import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
-import { Program } from "../codegen/tables/Program.sol";
+import { EntityProgram } from "../codegen/tables/EntityProgram.sol";
 import { EntityId } from "../EntityId.sol";
 import { SAFE_PROGRAM_GAS } from "../Constants.sol";
 

@@ -2,7 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { LibPRNG } from "solady/utils/LibPRNG.sol";
 
 import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
@@ -31,8 +30,6 @@ import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, ge
 
 import { MoveLib } from "./libraries/MoveLib.sol";
 
-import { IForceFieldFragmentProgram } from "../prototypes/IForceFieldProgram.sol";
-
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib, ObjectAmount } from "../ObjectTypeLib.sol";
@@ -40,6 +37,7 @@ import { EntityId } from "../EntityId.sol";
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
 import { MINE_ENERGY_COST } from "../Constants.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
+import { ProgramId } from "../ProgramId.sol";
 
 contract MineSystem is System {
   using ObjectTypeLib for ObjectTypeId;
@@ -84,7 +82,7 @@ contract MineSystem is System {
     Vec3 baseCoord = Position._get(baseEntityId);
 
     // Program needs to be detached first
-    require(baseEntityId.getProgram().unwrap() == 0, "Cannot mine a programped block");
+    require(!baseEntityId.getProgram().exists(), "Cannot mine a programmed block");
     if (mineObjectTypeId.isMachine()) {
       (EnergyData memory machineData, ) = updateMachineEnergy(baseEntityId);
       require(machineData.energy == 0, "Cannot mine a machine that has energy");
@@ -202,8 +200,8 @@ library MineLib {
         (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
           // We know fragment is active because its forcefield exists, so we can use its program
-          ResourceId program = fragmentEntityId.getProgram();
-          if (program.unwrap() != 0) {
+          ProgramId program = fragmentEntityId.getProgram();
+          if (program.exists()) {
             program = forceFieldEntityId.getProgram();
           }
 

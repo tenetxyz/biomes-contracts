@@ -8,7 +8,6 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";

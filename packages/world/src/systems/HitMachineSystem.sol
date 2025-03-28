@@ -7,7 +7,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { Program } from "../codegen/tables/Program.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { ActionType } from "../codegen/common.sol";

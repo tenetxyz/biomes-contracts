@@ -7,7 +7,7 @@ import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol"
 
 import { PlayerStatus } from "./codegen/tables/PlayerStatus.sol";
 import { ReversePlayer } from "./codegen/tables/ReversePlayer.sol";
-import { Program } from "./codegen/tables/Program.sol";
+import { EntityProgram } from "./codegen/tables/EntityProgram.sol";
 import { ObjectType } from "./codegen/tables/ObjectType.sol";
 import { BaseEntity } from "./codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "./codegen/tables/Energy.sol";
@@ -20,6 +20,7 @@ import { checkWorldStatus } from "./Utils.sol";
 import { ObjectTypeId } from "./ObjectTypeId.sol";
 import { ObjectTypes } from "./ObjectTypes.sol";
 import { ObjectTypeLib } from "./ObjectTypeLib.sol";
+import { ProgramId } from "./ProgramId.sol";
 import { Vec3 } from "./Vec3.sol";
 import { MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "./Constants.sol";
 
@@ -38,7 +39,7 @@ library EntityIdLib {
     if (objectTypeId == ObjectTypes.Player) {
       require(caller == ReversePlayer._get(self), "Caller not allowed");
     } else {
-      address programAddress = self.getProgramAddress();
+      address programAddress = self.getProgram().getAddress();
       require(caller == programAddress, "Caller not allowed");
     }
   }
@@ -70,14 +71,8 @@ library EntityIdLib {
     return ObjectType._get(self).isMovable() ? MovablePosition._get(self) : Position._get(self);
   }
 
-  function getProgramAddress(EntityId entityId) internal view returns (address) {
-    ResourceId programSystemId = entityId.getProgram();
-    (address programAddress, ) = Systems._get(programSystemId);
-    return programAddress;
-  }
-
-  function getProgram(EntityId entityId) internal view returns (ResourceId) {
-    return Program._getProgramSystemId(entityId);
+  function getProgram(EntityId entityId) internal view returns (ProgramId) {
+    return EntityProgram._get(entityId);
   }
 
   function exists(EntityId self) internal pure returns (bool) {

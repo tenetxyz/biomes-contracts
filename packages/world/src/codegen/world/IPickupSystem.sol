@@ -6,7 +6,7 @@ pragma solidity >=0.8.24;
 import { EntityId } from "../../EntityId.sol";
 import { Vec3 } from "../../Vec3.sol";
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
-import { PickupData } from "../../Types.sol";
+import { ObjectAmount } from "../../ObjectTypeLib.sol";
 
 /**
  * @title IPickupSystem
@@ -22,7 +22,7 @@ interface IPickupSystem {
 
   function pickupMultiple(
     EntityId callerEntityId,
-    PickupData[] memory pickupObjects,
+    ObjectAmount[] memory pickupObjects,
     EntityId[] memory pickupTools,
     Vec3 coord
   ) external;

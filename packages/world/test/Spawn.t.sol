@@ -8,33 +8,29 @@ import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResou
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
 import { BiomesTest, console } from "./BiomesTest.sol";
-import { EntityId } from "../src/EntityId.sol";
+import { TestUtils } from "./utils/TestUtils.sol";
+
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 
 import { LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
-import { ISpawnTileProgram } from "../src/prototypes/ISpawnTileProgram.sol";
+import { EntityId } from "../src/EntityId.sol";
+import { ProgramId } from "../src/ProgramId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
-import { TestUtils } from "./utils/TestUtils.sol";
 
-contract TestSpawnProgram is ISpawnTileProgram, System {
+contract TestSpawnProgram is System {
   function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
 
   function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
 
   function onSpawn(EntityId callerEntityId, EntityId spawnTileEntityId, bytes memory extraData) external payable {}
-
-  function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
-    return interfaceId == type(ISpawnTileProgram).interfaceId || super.supportsInterface(interfaceId);
-  }
 }
 
 contract SpawnTest is BiomesTest {
@@ -117,7 +113,7 @@ contract SpawnTest is BiomesTest {
     // Attach program with test player
     (address bob, EntityId bobEntityId) = createTestPlayer(spawnTileCoord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachProgram(bobEntityId, spawnTileEntityId, programSystemId, "");
+    world.attachProgram(bobEntityId, spawnTileEntityId, ProgramId.wrap(programSystemId.unwrap()), "");
 
     // Spawn alice
     vm.prank(alice);

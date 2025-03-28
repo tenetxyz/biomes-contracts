@@ -22,7 +22,6 @@ import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { updateMachineEnergy, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
-import { IBedProgram } from "../prototypes/IBedProgram.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";

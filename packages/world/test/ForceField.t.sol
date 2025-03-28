@@ -8,25 +8,25 @@ import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResou
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
 import { BiomesTest, console } from "./BiomesTest.sol";
-import { Vec3, vec3 } from "../src/Vec3.sol";
-import { EntityId } from "../src/EntityId.sol";
+import { TestForceFieldUtils, TestInventoryUtils, TestEnergyUtils } from "./utils/TestUtils.sol";
+
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Machine } from "../src/codegen/tables/Machine.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
-import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { EntityProgram } from "../src/codegen/tables/EntityProgram.sol";
+
 import { ReversePosition, MovablePosition, Position } from "../src/utils/Vec3Storage.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
+
+import { Vec3, vec3 } from "../src/Vec3.sol";
+import { EntityId } from "../src/EntityId.sol";
+import { ProgramId } from "../src/ProgramId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { MACHINE_ENERGY_DRAIN_RATE, FRAGMENT_SIZE } from "../src/Constants.sol";
-import { IForceFieldProgram } from "../src/prototypes/IForceFieldProgram.sol";
-import { IForceFieldFragmentProgram } from "../src/prototypes/IForceFieldFragmentProgram.sol";
-import { IChestProgram } from "../src/prototypes/IChestProgram.sol";
-import { ProgramOnTransferData } from "../src/Types.sol";
-import { TestForceFieldUtils, TestInventoryUtils, TestEnergyUtils } from "./utils/TestUtils.sol";
 
-contract TestForceFieldProgram is IForceFieldProgram, System {
+contract TestForceFieldProgram is System {
   // Just for testing, real programs should use tables
   bool revertOnProgramAttached;
   bool revertOnProgramDetached;
@@ -90,13 +90,9 @@ contract TestForceFieldProgram is IForceFieldProgram, System {
   function setRevertOnProgramDetached(bool _revertOnProgramDetached) external {
     revertOnProgramDetached = _revertOnProgramDetached;
   }
-
-  function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
-    return interfaceId == type(IForceFieldProgram).interfaceId || super.supportsInterface(interfaceId);
-  }
 }
 
-contract TestForceFieldFragmentProgram is IForceFieldFragmentProgram, System {
+contract TestForceFieldFragmentProgram is System {
   // Just for testing, real programs should use tables
   bool revertOnBuild;
   bool revertOnMine;
@@ -140,22 +136,14 @@ contract TestForceFieldFragmentProgram is IForceFieldFragmentProgram, System {
   function setRevertOnProgramDetached(bool _revertOnProgramDetached) external {
     revertOnProgramDetached = _revertOnProgramDetached;
   }
-
-  function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
-    return interfaceId == type(IForceFieldFragmentProgram).interfaceId || super.supportsInterface(interfaceId);
-  }
 }
 
-contract TestChestProgram is IChestProgram, System {
+contract TestChestProgram is System {
   function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
 
   function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
 
-  function onTransfer(ProgramOnTransferData memory) external payable {}
-
-  function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
-    return interfaceId == type(IChestProgram).interfaceId || super.supportsInterface(interfaceId);
-  }
+  function onTransfer() external payable {}
 }
 
 contract ForceFieldTest is BiomesTest {
@@ -172,7 +160,7 @@ contract ForceFieldTest is BiomesTest {
     // Attach program with test player
     (address bob, EntityId bobEntityId) = createTestPlayer(coord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachProgram(bobEntityId, entityId, programSystemId, "");
+    world.attachProgram(bobEntityId, entityId, ProgramId.wrap(programSystemId.unwrap()), "");
     return programSystemId;
   }
 
@@ -1322,7 +1310,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Attach program with test player
     vm.prank(alice);
-    world.attachProgram(aliceEntityId, chestEntityId, programSystemId, "");
+    world.attachProgram(aliceEntityId, chestEntityId, ProgramId.wrap(programSystemId.unwrap()), "");
   }
 
   function testAttachProgramToObjectInForceFieldFailsWhenDisallowed() public {
@@ -1358,7 +1346,7 @@ contract ForceFieldTest is BiomesTest {
     vm.prank(alice);
     vm.expectRevert("Not allowed by forcefield");
     // Attempt to attach program with test player, should fail
-    world.attachProgram(aliceEntityId, chestEntityId, programSystemId, "");
+    world.attachProgram(aliceEntityId, chestEntityId, ProgramId.wrap(programSystemId.unwrap()), "");
   }
 
   function testAttachProgramToObjectWithNoForceFieldEnergy() public {
@@ -1388,8 +1376,8 @@ contract ForceFieldTest is BiomesTest {
     // the hook is NOT called when there's no energy
 
     // Attach the program
-    ResourceId chestProgramSystemId = attachTestProgram(chestEntityId, chestProgram);
-    assertEq(Program.get(chestEntityId).unwrap(), chestProgramSystemId.unwrap(), "Program not atached to chest");
+    attachTestProgram(chestEntityId, chestProgram);
+    assertEq(EntityProgram.get(chestEntityId).getAddress(), address(chestProgram), "Program not atached to chest");
   }
 
   function testValidateSpanningTree() public view {

@@ -11,8 +11,8 @@ import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Player } from "../../codegen/tables/Player.sol";
 import { Mass } from "../../codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
-import { Program } from "../../codegen/tables/Program.sol";
 import { Equipped } from "../../codegen/tables/Equipped.sol";
+import { EntityProgram } from "../../codegen/tables/EntityProgram.sol";
 import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
@@ -22,9 +22,8 @@ import { Direction } from "../../codegen/common.sol";
 
 import { Position, MovablePosition, ReversePosition, ReverseMovablePosition } from "../../utils/Vec3Storage.sol";
 
-import { getEntityInventory } from "../../utils/ReadUtils.sol";
+import { PlayerEntityData, EntityData, InventoryObject, getEntityInventory } from "../../utils/ReadUtils.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
-import { InventoryObject, EntityData, PlayerEntityData } from "../../Types.sol";
 import { EntityId } from "../../EntityId.sol";
 import { TerrainLib } from "../libraries/TerrainLib.sol";
 
@@ -71,7 +70,7 @@ contract ReadSystem is System {
         position: getCoordForEntityId(entityId),
         orientation: Orientation._get(baseEntityId),
         inventory: getEntityInventory(baseEntityId),
-        programSystemId: Program._get(baseEntityId),
+        programSystemId: EntityProgram._get(baseEntityId).toResourceId(),
         mass: Mass._get(baseEntityId),
         energy: Energy._get(baseEntityId)
       });
@@ -105,7 +104,7 @@ contract ReadSystem is System {
         position: coord,
         orientation: Orientation._get(baseEntityId),
         inventory: getEntityInventory(baseEntityId),
-        programSystemId: Program._get(baseEntityId),
+        programSystemId: EntityProgram._get(baseEntityId).toResourceId(),
         mass: Mass._get(baseEntityId),
         energy: Energy._get(baseEntityId)
       });

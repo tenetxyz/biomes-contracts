@@ -18,11 +18,11 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
 import { EntityId } from "../../EntityId.sol";
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+import { ProgramId } from "../../ProgramId.sol";
 
-library Program {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Program", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x7462000000000000000000000000000050726f6772616d000000000000000000);
+library EntityProgram {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "EntityProgram", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000456e7469747950726f6772616d000000);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
@@ -47,7 +47,7 @@ library Program {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "programSystemId";
+    fieldNames[0] = "program";
   }
 
   /**
@@ -65,111 +65,87 @@ library Program {
   }
 
   /**
-   * @notice Get programSystemId.
+   * @notice Get program.
    */
-  function getProgramSystemId(EntityId entityId) internal view returns (ResourceId programSystemId) {
+  function getProgram(EntityId entityId) internal view returns (ProgramId program) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ResourceId.wrap(bytes32(_blob));
+    return ProgramId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get programSystemId.
+   * @notice Get program.
    */
-  function _getProgramSystemId(EntityId entityId) internal view returns (ResourceId programSystemId) {
+  function _getProgram(EntityId entityId) internal view returns (ProgramId program) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ResourceId.wrap(bytes32(_blob));
+    return ProgramId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get programSystemId.
+   * @notice Get program.
    */
-  function get(EntityId entityId) internal view returns (ResourceId programSystemId) {
+  function get(EntityId entityId) internal view returns (ProgramId program) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ResourceId.wrap(bytes32(_blob));
+    return ProgramId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Get programSystemId.
+   * @notice Get program.
    */
-  function _get(EntityId entityId) internal view returns (ResourceId programSystemId) {
+  function _get(EntityId entityId) internal view returns (ProgramId program) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return ResourceId.wrap(bytes32(_blob));
+    return ProgramId.wrap(bytes32(_blob));
   }
 
   /**
-   * @notice Set programSystemId.
+   * @notice Set program.
    */
-  function setProgramSystemId(EntityId entityId, ResourceId programSystemId) internal {
+  function setProgram(EntityId entityId, ProgramId program) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(
-      _tableId,
-      _keyTuple,
-      0,
-      abi.encodePacked(ResourceId.unwrap(programSystemId)),
-      _fieldLayout
-    );
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ProgramId.unwrap(program)), _fieldLayout);
   }
 
   /**
-   * @notice Set programSystemId.
+   * @notice Set program.
    */
-  function _setProgramSystemId(EntityId entityId, ResourceId programSystemId) internal {
+  function _setProgram(EntityId entityId, ProgramId program) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(
-      _tableId,
-      _keyTuple,
-      0,
-      abi.encodePacked(ResourceId.unwrap(programSystemId)),
-      _fieldLayout
-    );
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ProgramId.unwrap(program)), _fieldLayout);
   }
 
   /**
-   * @notice Set programSystemId.
+   * @notice Set program.
    */
-  function set(EntityId entityId, ResourceId programSystemId) internal {
+  function set(EntityId entityId, ProgramId program) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(
-      _tableId,
-      _keyTuple,
-      0,
-      abi.encodePacked(ResourceId.unwrap(programSystemId)),
-      _fieldLayout
-    );
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ProgramId.unwrap(program)), _fieldLayout);
   }
 
   /**
-   * @notice Set programSystemId.
+   * @notice Set program.
    */
-  function _set(EntityId entityId, ResourceId programSystemId) internal {
+  function _set(EntityId entityId, ProgramId program) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(
-      _tableId,
-      _keyTuple,
-      0,
-      abi.encodePacked(ResourceId.unwrap(programSystemId)),
-      _fieldLayout
-    );
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(ProgramId.unwrap(program)), _fieldLayout);
   }
 
   /**
@@ -196,8 +172,8 @@ library Program {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(ResourceId programSystemId) internal pure returns (bytes memory) {
-    return abi.encodePacked(programSystemId);
+  function encodeStatic(ProgramId program) internal pure returns (bytes memory) {
+    return abi.encodePacked(program);
   }
 
   /**
@@ -206,8 +182,8 @@ library Program {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(ResourceId programSystemId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(programSystemId);
+  function encode(ProgramId program) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(program);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

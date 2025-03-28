@@ -8,7 +8,6 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { Program } from "../codegen/tables/Program.sol";
 
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
@@ -40,6 +39,7 @@ contract MachineSystem is System {
 
     Energy._setEnergy(baseEntityId, newEnergyLevel);
 
-    baseEntityId.getProgram().onFuel(callerEntityId, baseEntityId, fuelAmount);
+    // TODO: pass extradata as argument
+    baseEntityId.getProgram().onFuel(callerEntityId, baseEntityId, fuelAmount, "");
   }
 }

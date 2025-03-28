@@ -136,19 +136,19 @@ declare const abi: [
     "name": "attachProgram",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "targetEntityId",
+        "name": "target",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "programSystemId",
+        "name": "program",
         "type": "bytes32",
-        "internalType": "ResourceId"
+        "internalType": "ProgramId"
       },
       {
         "name": "extraData",
@@ -501,12 +501,12 @@ declare const abi: [
     "name": "detachProgram",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "targetEntityId",
+        "name": "target",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -738,6 +738,29 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "fuelMachine",
+    "inputs": [
+      {
+        "name": "callerEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "machineEntityId",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "fuelAmount",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "getAllRandomSpawnCoords",
     "inputs": [
       {
@@ -762,8 +785,13 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "getDisplayContent",
+    "name": "getDisplayURI",
     "inputs": [
+      {
+        "name": "caller",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "entityId",
         "type": "bytes32",
@@ -773,20 +801,8 @@ declare const abi: [
     "outputs": [
       {
         "name": "",
-        "type": "tuple",
-        "internalType": "struct DisplayContentData",
-        "components": [
-          {
-            "name": "contentType",
-            "type": "uint8",
-            "internalType": "enum DisplayContentType"
-          },
-          {
-            "name": "content",
-            "type": "bytes",
-            "internalType": "bytes"
-          }
-        ]
+        "type": "string",
+        "internalType": "string"
       }
     ],
     "stateMutability": "view"
@@ -2293,7 +2309,7 @@ declare const abi: [
       {
         "name": "pickupObjects",
         "type": "tuple[]",
-        "internalType": "struct PickupData[]",
+        "internalType": "struct ObjectAmount[]",
         "components": [
           {
             "name": "objectTypeId",
@@ -2301,7 +2317,7 @@ declare const abi: [
             "internalType": "ObjectTypeId"
           },
           {
-            "name": "numToPickup",
+            "name": "amount",
             "type": "uint16",
             "internalType": "uint16"
           }
@@ -2367,29 +2383,6 @@ declare const abi: [
         "name": "byteLengthToPop",
         "type": "uint256",
         "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "powerMachine",
-    "inputs": [
-      {
-        "name": "callerEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "machineEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "fuelAmount",
-        "type": "uint16",
-        "internalType": "uint16"
       }
     ],
     "outputs": [],
@@ -2730,29 +2723,22 @@ declare const abi: [
   },
   {
     "type": "function",
-    "name": "setDisplayContent",
+    "name": "setDisplayURI",
     "inputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
       {
         "name": "entityId",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "content",
-        "type": "tuple",
-        "internalType": "struct DisplayContentData",
-        "components": [
-          {
-            "name": "contentType",
-            "type": "uint8",
-            "internalType": "enum DisplayContentType"
-          },
-          {
-            "name": "content",
-            "type": "bytes",
-            "internalType": "bytes"
-          }
-        ]
+        "name": "uri",
+        "type": "string",
+        "internalType": "string"
       }
     ],
     "outputs": [],

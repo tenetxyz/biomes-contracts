@@ -7,7 +7,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ActionType } from "../codegen/common.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { Program } from "../codegen/tables/Program.sol";
 
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
@@ -15,8 +14,6 @@ import { getUniqueEntity } from "../Utils.sol";
 import { notify, ExpandForceFieldNotifData, ContractForceFieldNotifData } from "../utils/NotifUtils.sol";
 import { isForceFieldFragment, isForceFieldFragmentActive, setupForceFieldFragment, removeForceFieldFragment } from "../utils/ForceFieldUtils.sol";
 import { ForceFieldFragment } from "../utils/Vec3Storage.sol";
-
-import { IForceFieldProgram } from "../prototypes/IForceFieldProgram.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
@@ -163,13 +160,8 @@ contract ForceFieldSystem is System {
     // Increase drain rate per new fragment
     Energy._setDrainRate(forceFieldEntityId, machineData.drainRate + MACHINE_ENERGY_DRAIN_RATE * addedFragments);
 
-    forceFieldEntityId.getProgram().onExpand(
-      callerEntityId,
-      forceFieldEntityId,
-      fromFragmentCoord,
-      toFragmentCoord,
-      extraData
-    );
+    // TODO: use the correct fragment id
+    forceFieldEntityId.getProgram().onAddFragment(callerEntityId, forceFieldEntityId, forceFieldEntityId, extraData);
 
     notify(callerEntityId, ExpandForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
   }
@@ -241,13 +233,8 @@ contract ForceFieldSystem is System {
       Energy._setDrainRate(forceFieldEntityId, machineData.drainRate - MACHINE_ENERGY_DRAIN_RATE * removedFragments);
     }
 
-    forceFieldEntityId.getProgram().onContract(
-      callerEntityId,
-      forceFieldEntityId,
-      fromFragmentCoord,
-      toFragmentCoord,
-      extraData
-    );
+    // TODO: use the correct fragment id
+    forceFieldEntityId.getProgram().onRemoveFragment(callerEntityId, forceFieldEntityId, forceFieldEntityId, extraData);
 
     notify(callerEntityId, ContractForceFieldNotifData({ forceFieldEntityId: forceFieldEntityId }));
   }

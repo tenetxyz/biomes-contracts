@@ -3,11 +3,8 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { Program } from "../codegen/tables/Program.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { EnergyData } from "../codegen/tables/Energy.sol";
-
-import { IChestProgram } from "../prototypes/IChestProgram.sol";
 
 import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
@@ -105,8 +102,8 @@ library TransferLib {
       targetEntityId,
       fromEntityId,
       toEntityId,
-      toolEntityIds,
       objectAmounts,
+      toolEntityIds,
       extraData
     );
 
