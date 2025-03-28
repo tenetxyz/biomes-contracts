@@ -107,21 +107,20 @@ library ProgramIdLib {
   function isProgramAllowed(
     ProgramId self,
     EntityId caller,
-    EntityId target, // can be the program or the forcefield
+    EntityId target,
     EntityId programmed,
-    ProgramId program,
+    ProgramId oldProgram,
+    ProgramId newProgram,
     bytes memory extraData
   ) internal view returns (bool) {}
 
   function onAttachProgram(
     ProgramId self,
     EntityId caller,
-    EntityId target, // can be the program or the forcefield
-    EntityId programmed,
-    ProgramId program,
+    EntityId target,
     bytes memory extraData
   ) internal returns (bool) {
-    // bytes memory data = abi.encodeCall(IHooks.onSetProgram, (caller, target, programmed, extraData));
+    // bytes memory data = abi.encodeCall(IHooks.onAttachProgram, (caller, target, extraData));
     // (bool success, bytes memory returnData) = callHook(self, data);
     // if (success) return abi.decode(returnData, (bool));
   }
@@ -129,9 +128,8 @@ library ProgramIdLib {
   function onDetachProgram(
     ProgramId self,
     EntityId caller,
-    EntityId target, // can be the program or the forcefield
-    EntityId programmed,
-    ProgramId program,
+    EntityId target,
+    // TODO: should we include previous contract?
     bytes memory extraData
   ) internal returns (bool) {}
 
