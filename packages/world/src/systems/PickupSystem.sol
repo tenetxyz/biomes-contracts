@@ -12,9 +12,9 @@ import { transferInventoryNonEntity, transferInventoryEntity, transferAllInvento
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { notify, PickupNotifData } from "../utils/NotifUtils.sol";
 
-import { PickupData } from "../Types.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
+import { ObjectAmount } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 
@@ -64,20 +64,20 @@ contract PickupSystem is System {
 
   function pickupMultiple(
     EntityId callerEntityId,
-    PickupData[] memory pickupObjects,
+    ObjectAmount[] memory pickupObjects,
     EntityId[] memory pickupTools,
     Vec3 coord
   ) public {
     EntityId entityId = pickupCommon(callerEntityId, coord);
 
     for (uint256 i = 0; i < pickupObjects.length; i++) {
-      PickupData memory pickupObject = pickupObjects[i];
+      ObjectAmount memory pickupObject = pickupObjects[i];
       transferInventoryNonEntity(
         entityId,
         callerEntityId,
         ObjectTypes.Player,
         pickupObject.objectTypeId,
-        pickupObject.numToPickup
+        pickupObject.amount
       );
 
       notify(
@@ -85,7 +85,7 @@ contract PickupSystem is System {
         PickupNotifData({
           pickupCoord: coord,
           pickupObjectTypeId: pickupObject.objectTypeId,
-          pickupAmount: pickupObject.numToPickup
+          pickupAmount: pickupObject.amount
         })
       );
     }

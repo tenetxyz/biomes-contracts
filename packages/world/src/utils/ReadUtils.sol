@@ -1,19 +1,53 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
+
+import { EnergyData } from "../codegen/tables/Energy.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
+import { Direction } from "../codegen/common.sol";
 
-import { InventoryObject, InventoryEntity } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
+import { Vec3 } from "../Vec3.sol";
 
 using ObjectTypeLib for ObjectTypeId;
+
+struct InventoryEntity {
+  EntityId entityId;
+  uint128 mass;
+}
+
+struct InventoryObject {
+  ObjectTypeId objectTypeId;
+  uint16 numObjects;
+  InventoryEntity[] inventoryEntities;
+}
+
+struct PlayerEntityData {
+  address playerAddress;
+  EntityId bedEntityId;
+  EntityId equippedEntityId;
+  EntityData entityData;
+}
+
+struct EntityData {
+  EntityId entityId;
+  EntityId baseEntityId;
+  ObjectTypeId objectTypeId;
+  Vec3 position;
+  Direction orientation;
+  InventoryObject[] inventory;
+  ResourceId programSystemId;
+  uint256 mass;
+  EnergyData energy;
+}
 
 function getEntityInventory(EntityId entityId) view returns (InventoryObject[] memory) {
   uint16[] memory objectTypeIds = InventoryObjects._get(entityId);

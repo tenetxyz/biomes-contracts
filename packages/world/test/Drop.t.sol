@@ -8,7 +8,6 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
 import { Direction } from "../src/codegen/common.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
-import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
@@ -28,10 +27,9 @@ import { BiomesTest } from "./BiomesTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
-import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
+import { ObjectAmount, ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { PickupData } from "../src/Types.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
 contract DropTest is BiomesTest {
@@ -213,8 +211,8 @@ contract DropTest is BiomesTest {
 
     vm.prank(alice);
     startGasReport("pickup multiple");
-    PickupData[] memory pickupObjects = new PickupData[](1);
-    pickupObjects[0] = PickupData({ objectTypeId: objectObjectTypeId, numToPickup: numToPickup });
+    ObjectAmount[] memory pickupObjects = new ObjectAmount[](1);
+    pickupObjects[0] = ObjectAmount({ objectTypeId: objectObjectTypeId, amount: numToPickup });
     EntityId[] memory pickupTools = new EntityId[](1);
     pickupTools[0] = toolEntityId;
     world.pickupMultiple(aliceEntityId, pickupObjects, pickupTools, pickupCoord);

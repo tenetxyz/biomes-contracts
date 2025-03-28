@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
-
 import { Machine } from "../codegen/tables/Machine.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Program } from "../codegen/tables/Program.sol";
+import { EntityProgram } from "../codegen/tables/EntityProgram.sol";
 
 import { Position, ForceFieldFragment, ForceFieldFragmentData, ForceFieldFragmentPosition } from "../utils/Vec3Storage.sol";
 
@@ -116,8 +114,8 @@ function setupForceFieldFragment(EntityId forceFieldEntityId, Vec3 fragmentCoord
   fragmentData.forceFieldId = forceFieldEntityId;
   fragmentData.forceFieldCreatedAt = Machine._getCreatedAt(forceFieldEntityId);
 
-  require(fragmentData.entityId.getProgram().unwrap() == 0, "Can't expand into a fragment with a program");
-  Program._deleteRecord(fragmentData.entityId);
+  require(!fragmentData.entityId.getProgram().exists(), "Can't expand into a fragment with a program");
+  EntityProgram._deleteRecord(fragmentData.entityId);
 
   ForceFieldFragment._set(fragmentCoord, fragmentData);
   return fragmentData.entityId;
@@ -129,8 +127,8 @@ function setupForceFieldFragment(EntityId forceFieldEntityId, Vec3 fragmentCoord
 function removeForceFieldFragment(Vec3 fragmentCoord) returns (EntityId) {
   ForceFieldFragmentData memory fragmentData = ForceFieldFragment._get(fragmentCoord);
 
-  require(fragmentData.entityId.getProgram().unwrap() == 0, "Can't remove a fragment with a program");
-  Program._deleteRecord(fragmentData.entityId);
+  require(!fragmentData.entityId.getProgram().exists(), "Can't remove a fragment with a program");
+  EntityProgram._deleteRecord(fragmentData.entityId);
 
   // Disassociate the fragment from the forcefield
   ForceFieldFragment._deleteRecord(fragmentCoord);
@@ -141,6 +139,6 @@ function removeForceFieldFragment(Vec3 fragmentCoord) returns (EntityId) {
  * @dev Destroys a forcefield, without cleaning up its shards
  */
 function destroyForceField(EntityId forceFieldEntityId) {
-  Program._deleteRecord(forceFieldEntityId);
+  EntityProgram._deleteRecord(forceFieldEntityId);
   Machine._deleteRecord(forceFieldEntityId);
 }

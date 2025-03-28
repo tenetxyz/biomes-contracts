@@ -306,7 +306,7 @@ library ObjectTypeLib {
         sig == ITransferSystem.transfer.selector ||
         sig == ITransferSystem.transferTool.selector ||
         sig == ITransferSystem.transferTools.selector ||
-        sig == IMachineSystem.powerMachine.selector;
+        sig == IMachineSystem.fuelMachine.selector;
     }
 
     return false;

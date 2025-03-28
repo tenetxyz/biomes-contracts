@@ -6,7 +6,6 @@ import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { Program } from "../codegen/tables/Program.sol";
 import { DisplayURI } from "../codegen/tables/DisplayURI.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";

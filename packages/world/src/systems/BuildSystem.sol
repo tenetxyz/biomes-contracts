@@ -2,7 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -23,8 +22,6 @@ import { removeEnergyFromLocalPool, updateMachineEnergy, transferEnergyToPool } 
 import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
 
-import { IForceFieldFragmentProgram } from "../prototypes/IForceFieldProgram.sol";
-
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 
@@ -32,6 +29,7 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
+import { ProgramId } from "../ProgramId.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { BUILD_ENERGY_COST } from "../Constants.sol";
 
@@ -107,8 +105,8 @@ library BuildLib {
         (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
           // We know fragment is active because its forcefield exists, so we can use its program
-          ResourceId program = fragmentEntityId.getProgram();
-          if (program.unwrap() != 0) {
+          ProgramId program = fragmentEntityId.getProgram();
+          if (program.exists()) {
             program = forceFieldEntityId.getProgram();
           }
 
