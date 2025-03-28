@@ -33,7 +33,7 @@ import { Program } from "./tables/Program.sol";
 import { ForceFieldFragment, ForceFieldFragmentData } from "./tables/ForceFieldFragment.sol";
 import { ForceFieldFragmentPosition, ForceFieldFragmentPositionData } from "./tables/ForceFieldFragmentPosition.sol";
 import { Machine, MachineData } from "./tables/Machine.sol";
-import { DisplayContent, DisplayContentData } from "./tables/DisplayContent.sol";
+import { DisplayURI } from "./tables/DisplayURI.sol";
 import { OreCommitment } from "./tables/OreCommitment.sol";
 import { TotalMinedOreCount } from "./tables/TotalMinedOreCount.sol";
 import { MinedOrePosition, MinedOrePositionData } from "./tables/MinedOrePosition.sol";

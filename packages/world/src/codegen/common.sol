@@ -26,12 +26,6 @@ enum ActionType {
   Death
 }
 
-enum DisplayContentType {
-  None,
-  Text,
-  Image
-}
-
 enum Direction {
   PositiveX,
   NegativeX,

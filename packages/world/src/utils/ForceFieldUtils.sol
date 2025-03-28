@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { Vec3 } from "../Vec3.sol";
+import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 import { Machine } from "../codegen/tables/Machine.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Program } from "../codegen/tables/Program.sol";
 
-import { getUniqueEntity } from "../Utils.sol";
-
 import { Position, ForceFieldFragment, ForceFieldFragmentData, ForceFieldFragmentPosition } from "../utils/Vec3Storage.sol";
 
+import { Vec3 } from "../Vec3.sol";
+import { getUniqueEntity } from "../Utils.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
 
@@ -26,6 +26,21 @@ function _isFragmentActive(ForceFieldFragmentData memory fragmentData, EntityId 
   // Only perform the storage read if the previous checks pass
   return fragmentData.forceFieldCreatedAt == Machine._getCreatedAt(forceFieldId);
 }
+
+// function getForceFieldProgram(Vec3 coord) view returns (ResourceId) {
+//   if (forceFieldEntityId.exists()) {
+//     (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
+//     if (machineData.energy > 0) {
+//       // We know fragment is active because its forcefield exists, so we can use its program
+//       ResourceId program = fragmentEntityId.getProgram();
+//       if (program.unwrap() != 0) {
+//         program = forceFieldEntityId.getProgram();
+//       }
+//
+//       program.onBuild(callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData);
+//     }
+//   }
+// }
 
 /**
  * @dev Get the forcefield and fragment entity IDs for a given coordinate

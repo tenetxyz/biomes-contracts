@@ -8,7 +8,7 @@ import { EntityId } from "./EntityId.sol";
 
 // All entities
 interface IProgram {
-  function setProgramAllowed(
+  function isSetProgramAllowed(
     EntityId caller,
     EntityId target,
     ResourceId program,
@@ -16,13 +16,18 @@ interface IProgram {
   ) external view returns (bool);
 
   // tbd
-  function hookAllowed(EntityId caller, EntityId target, bytes4 selector) external view returns (bool);
+  function isHookAllowed(EntityId caller, EntityId target, bytes4 selector) external view returns (bool);
 }
 
+/**
+ * caller is the entity that called the system and triggered the hook
+ * target is the entity for which the hook is being called
+ */
 interface IHooks {
   function onSetProgram(
     EntityId caller,
-    EntityId target,
+    EntityId target, // can be the program or the forcefield
+    EntityId programmed,
     ResourceId program,
     bytes memory extraData
   ) external returns (bool);
@@ -39,7 +44,7 @@ interface IHooks {
   ) external returns (bool);
 
   // Machines
-  function onHit(EntityId caller, EntityId target, uint128 damage, bytes memory extraData) external returns (bool);
+  function onHit(EntityId caller, EntityId target, uint128 damage, bytes memory extraData) external;
 
   function onFuel(EntityId caller, EntityId target, uint16 fuelAmount, bytes memory extraData) external returns (bool);
 

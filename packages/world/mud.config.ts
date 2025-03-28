@@ -27,7 +27,6 @@ export default defineWorld({
       "ContractForceField",
       "Death",
     ],
-    DisplayContentType: ["None", "Text", "Image"],
     Direction: [
       // Cardinal directions (6)
       "PositiveX",
@@ -332,11 +331,10 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    DisplayContent: {
+    DisplayURI: {
       schema: {
         entityId: "EntityId",
-        contentType: "DisplayContentType",
-        content: "bytes",
+        uri: "string",
       },
       key: ["entityId"],
     },

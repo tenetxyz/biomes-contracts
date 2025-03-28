@@ -17,7 +17,6 @@ import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField, isForceFieldFragmentActive } from "../utils/ForceFieldUtils.sol";
 import { notify, AttachProgramNotifData, DetachProgramNotifData } from "../utils/NotifUtils.sol";
-import { safeCallProgram, callProgramOrRevert } from "../utils/callProgram.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
@@ -28,91 +27,86 @@ contract ProgramSystem is System {
   using WorldResourceIdInstance for ResourceId;
 
   function attachProgram(
-    EntityId callerEntityId,
-    EntityId targetEntityId,
-    ResourceId programSystemId,
+    EntityId caller,
+    EntityId target,
+    ResourceId program,
     bytes calldata extraData
   ) public payable {
-    callerEntityId.activate();
-    (, Vec3 targetCoord) = callerEntityId.requireConnected(targetEntityId);
-
-    EntityId baseEntityId = targetEntityId.baseEntityId();
-    ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
-
-    require(baseEntityId.getProgram().unwrap() == 0, "Program already attached");
+    caller.activate();
+    (, Vec3 targetCoord) = caller.requireConnected(target);
 
     // ForceField fragments don't have a position on the grid, so we need to handle them differently
-    if (objectTypeId == ObjectTypes.ForceFieldFragment) {
-      // TODO: figure out proximity checks for fragments
-    }
+    // if (objectTypeId == ObjectTypes.ForceFieldFragment) {
+    //   // TODO: figure out proximity checks for fragments
+    // }
 
-    (, bool publicAccess) = Systems._get(programSystemId);
+    (, bool publicAccess) = Systems._get(program);
     require(!publicAccess, "Program system must be private");
 
-    notify(callerEntityId, AttachProgramNotifData({ attachEntityId: baseEntityId, programSystemId: programSystemId }));
+    target = target.baseEntityId();
+    EntityId programmed = target;
 
-    // If forcefield is active, call its hook
-    if (objectTypeId != ObjectTypes.ForceField) {
-      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(targetCoord);
-      if (forceFieldEntityId.exists()) {
-        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
-        if (machineData.energy > 0) {
-          bytes memory onProgramAttachedCall = abi.encodeCall(
-            IForceFieldFragmentProgram.onProgramAttached,
-            (callerEntityId, forceFieldEntityId, baseEntityId, extraData)
-          );
+    ObjectTypeId objectTypeId = ObjectType._get(target);
 
-          _callForceFieldProgram(forceFieldEntityId, fragmentEntityId, onProgramAttachedCall);
+    ResourceId existingProgram = target.getProgram();
+
+    // If there is an existing program, either the program or the forcefield program must allow the change
+    if (existingProgram.unwrap() != 0) {
+      bool allowed = existingProgram.onSetProgram(caller, target, programmed, program, extraData);
+
+      if (!allowed && objectTypeId != ObjectTypes.ForceField) {
+        (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(targetCoord);
+        if (forceFieldEntityId.exists()) {
+          (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
+          if (machineData.energy > 0) {
+            // TODO: call forcefield program
+          }
         }
       }
+
+      require(allowed, "Not allowed");
     }
 
     // Program needs to be set after calling the forcefield's hook,
     // otherwise if it is a fragment it would call itself
-    Program._setProgramSystemId(baseEntityId, programSystemId);
+    Program._set(programmed, program);
 
-    bytes memory onAttachedCall = abi.encodeCall(IProgram.onAttached, (callerEntityId, baseEntityId, extraData));
-    callProgramOrRevert(programSystemId, onAttachedCall);
+    program.onSetProgram(caller, target, programmed, program, extraData);
+
+    notify(caller, AttachProgramNotifData({ attachEntityId: programmed, programSystemId: program }));
   }
 
-  function detachProgram(EntityId callerEntityId, EntityId targetEntityId, bytes calldata extraData) public payable {
-    callerEntityId.activate();
-    (, Vec3 targetCoord) = callerEntityId.requireConnected(targetEntityId);
-    EntityId baseEntityId = targetEntityId.baseEntityId();
+  function detachProgram(EntityId caller, EntityId target, bytes calldata extraData) public payable {
+    caller.activate();
+    (, Vec3 targetCoord) = caller.requireConnected(target);
+    target = target.baseEntityId();
 
+    EntityId programmed = target;
     // ForceField fragments don't have a position on the grid, so we need to handle them differently
-    if (ObjectType._get(baseEntityId) == ObjectTypes.ForceFieldFragment) {
-      // TODO: figure out proximity checks for fragments
-    }
+    // if (ObjectType._get(baseEntityId) == ObjectTypes.ForceFieldFragment) {
+    //   // TODO: figure out proximity checks for fragments
+    // }
 
-    ResourceId programSystemId = baseEntityId.getProgram();
+    ResourceId program = target.getProgram();
+    require(program.unwrap() != 0, "No program attached");
 
-    require(programSystemId.unwrap() != 0, "No program attached");
+    Program._deleteRecord(programmed);
 
-    Program._deleteRecord(baseEntityId);
+    bool allowed = program.onDetachProgram(caller, target, programmed, extraData);
 
-    notify(callerEntityId, DetachProgramNotifData({ detachEntityId: baseEntityId, programSystemId: programSystemId }));
+    if (!allowed && objectTypeId != ObjectTypes.ForceField) {
+      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(targetCoord);
+      if (forceFieldEntityId.exists()) {
+        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
 
-    (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(targetCoord);
-
-    (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
-
-    // If forcefield is active, call its hook
-    bytes memory onDetachedCall = abi.encodeCall(IProgram.onDetached, (callerEntityId, baseEntityId, extraData));
-    if (machineData.energy > 0) {
-      if (forceFieldEntityId.exists() && ObjectType._get(baseEntityId) != ObjectTypes.ForceField) {
-        bytes memory onProgramDetachedCall = abi.encodeCall(
-          IForceFieldFragmentProgram.onProgramDetached,
-          (callerEntityId, forceFieldEntityId, baseEntityId, extraData)
-        );
-        _callForceFieldProgram(forceFieldEntityId, fragmentEntityId, onProgramDetachedCall);
+        // If forcefield is active, call its hook
+        if (machineData.energy > 0) {
+          // Don't safe call here because we want to revert if the program doesn't allow the detachment
+        }
       }
-
-      // Don't safe call here because we want to revert if the program doesn't allow the detachment
-      callProgramOrRevert(programSystemId, onDetachedCall);
-    } else {
-      safeCallProgram(programSystemId, onDetachedCall);
     }
+
+    notify(caller, DetachProgramNotifData({ detachEntityId: programmed, programSystemId: program }));
   }
 
   function _requireInterface(address programAddress, bytes4 interfaceId) internal view {
@@ -120,15 +114,5 @@ contract ProgramSystem is System {
       ERC165Checker.supportsInterface(programAddress, interfaceId),
       "Program does not implement the required interface"
     );
-  }
-
-  function _callForceFieldProgram(EntityId forceFieldEntityId, EntityId fragmentEntityId, bytes memory data) internal {
-    // We know fragment is active because its forcefield exists, so we can use its program
-    ResourceId fragmentProgram = fragmentEntityId.getProgram();
-    if (fragmentProgram.unwrap() != 0) {
-      callProgramOrRevert(fragmentProgram, data);
-    } else {
-      callProgramOrRevert(forceFieldEntityId.getProgram(), data);
-    }
   }
 }
