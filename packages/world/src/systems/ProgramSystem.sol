@@ -13,43 +13,19 @@ import { EnergyData } from "../codegen/tables/Energy.sol";
 import { Program } from "../codegen/tables/Program.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField, isForceFieldFragmentActive } from "../utils/ForceFieldUtils.sol";
 import { notify, AttachProgramNotifData, DetachProgramNotifData } from "../utils/NotifUtils.sol";
+import { safeCallProgram, callProgramOrRevert } from "../utils/callProgram.sol";
 
-import { IProgram } from "../prototypes/IProgram.sol";
-import { IChestProgram } from "../prototypes/IChestProgram.sol";
-import { IForceFieldProgram } from "../prototypes/IForceFieldProgram.sol";
-import { IForceFieldFragmentProgram } from "../prototypes/IForceFieldFragmentProgram.sol";
-import { IDisplayProgram } from "../prototypes/IDisplayProgram.sol";
-import { ISpawnTileProgram } from "../prototypes/ISpawnTileProgram.sol";
-import { IBedProgram } from "../prototypes/IBedProgram.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
-import { safeCallProgram, callProgramOrRevert } from "../utils/callProgram.sol";
 
 contract ProgramSystem is System {
   using WorldResourceIdInstance for ResourceId;
-
-  function _requireInterface(address programAddress, bytes4 interfaceId) internal view {
-    require(
-      ERC165Checker.supportsInterface(programAddress, interfaceId),
-      "Program does not implement the required interface"
-    );
-  }
-
-  function _callForceFieldProgram(EntityId forceFieldEntityId, EntityId fragmentEntityId, bytes memory data) internal {
-    // We know fragment is active because its forcefield exists, so we can use its program
-    ResourceId fragmentProgram = fragmentEntityId.getProgram();
-    if (fragmentProgram.unwrap() != 0) {
-      callProgramOrRevert(fragmentProgram, data);
-    } else {
-      callProgramOrRevert(forceFieldEntityId.getProgram(), data);
-    }
-  }
 
   function attachProgram(
     EntityId callerEntityId,
@@ -70,24 +46,8 @@ contract ProgramSystem is System {
       // TODO: figure out proximity checks for fragments
     }
 
-    (address programAddress, bool publicAccess) = Systems._get(programSystemId);
+    (, bool publicAccess) = Systems._get(programSystemId);
     require(!publicAccess, "Program system must be private");
-
-    if (objectTypeId == ObjectTypes.ForceField) {
-      _requireInterface(programAddress, type(IForceFieldProgram).interfaceId);
-    } else if (objectTypeId == ObjectTypes.ForceFieldFragment) {
-      _requireInterface(programAddress, type(IForceFieldFragmentProgram).interfaceId);
-    } else if (objectTypeId == ObjectTypes.SmartChest) {
-      _requireInterface(programAddress, type(IChestProgram).interfaceId);
-    } else if (objectTypeId == ObjectTypes.SmartTextSign) {
-      _requireInterface(programAddress, type(IDisplayProgram).interfaceId);
-    } else if (objectTypeId == ObjectTypes.SpawnTile) {
-      _requireInterface(programAddress, type(ISpawnTileProgram).interfaceId);
-    } else if (objectTypeId == ObjectTypes.Bed) {
-      _requireInterface(programAddress, type(IBedProgram).interfaceId);
-    } else {
-      revert("Cannot attach a program to this object");
-    }
 
     notify(callerEntityId, AttachProgramNotifData({ attachEntityId: baseEntityId, programSystemId: programSystemId }));
 
@@ -152,6 +112,23 @@ contract ProgramSystem is System {
       callProgramOrRevert(programSystemId, onDetachedCall);
     } else {
       safeCallProgram(programSystemId, onDetachedCall);
+    }
+  }
+
+  function _requireInterface(address programAddress, bytes4 interfaceId) internal view {
+    require(
+      ERC165Checker.supportsInterface(programAddress, interfaceId),
+      "Program does not implement the required interface"
+    );
+  }
+
+  function _callForceFieldProgram(EntityId forceFieldEntityId, EntityId fragmentEntityId, bytes memory data) internal {
+    // We know fragment is active because its forcefield exists, so we can use its program
+    ResourceId fragmentProgram = fragmentEntityId.getProgram();
+    if (fragmentProgram.unwrap() != 0) {
+      callProgramOrRevert(fragmentProgram, data);
+    } else {
+      callProgramOrRevert(forceFieldEntityId.getProgram(), data);
     }
   }
 }
