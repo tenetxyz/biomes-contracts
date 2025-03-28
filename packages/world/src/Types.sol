@@ -38,18 +38,3 @@ struct EntityData {
   uint256 mass;
   EnergyData energy;
 }
-
-struct PickupData {
-  ObjectTypeId objectTypeId;
-  uint16 numToPickup;
-}
-
-struct ProgramOnTransferData {
-  EntityId callerEntityId; // The entity initiating the transfer
-  EntityId targetEntityId; // The entity whose program is being called
-  EntityId fromEntityId;
-  EntityId toEntityId;
-  EntityId[] toolEntityIds;
-  ObjectAmount[] objectAmounts;
-  bytes extraData;
-}
