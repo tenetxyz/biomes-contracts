@@ -16,13 +16,17 @@ type ProgramId is bytes32;
  * target is the entity for which the hook is being called
  */
 interface IHooks {
-  function onSetProgram(
+  function isProgramAllowed(
     EntityId caller,
-    EntityId target, // can be the program or the forcefield
+    EntityId target,
     EntityId programmed,
-    ProgramId program,
+    ProgramId newProgram,
     bytes memory extraData
-  ) external returns (bool);
+  ) external view returns (bool);
+
+  function onAttachProgram(EntityId caller, EntityId target, bytes memory extraData) external returns (bool);
+
+  function onDetachProgram(EntityId caller, EntityId target, bytes memory extraData) external returns (bool);
 
   // Entities with inventory
   function onTransfer(
@@ -109,19 +113,17 @@ library ProgramIdLib {
     EntityId caller,
     EntityId target,
     EntityId programmed,
-    ProgramId oldProgram,
     ProgramId newProgram,
     bytes memory extraData
-  ) internal view returns (bool) {}
+  ) internal view returns (bool) {
+    bytes memory data = abi.encodeCall(IHooks.isProgramAllowed, (caller, target, programmed, newProgram, extraData));
+    (bool success, bytes memory returnData) = staticcallHook(self, data);
+  }
 
-  function onAttachProgram(
-    ProgramId self,
-    EntityId caller,
-    EntityId target,
-    bytes memory extraData
-  ) internal returns (bool) {
-    // bytes memory data = abi.encodeCall(IHooks.onAttachProgram, (caller, target, extraData));
-    // (bool success, bytes memory returnData) = callHook(self, data);
+  function onAttachProgram(ProgramId self, EntityId caller, EntityId target, bytes memory extraData) internal {
+    bytes memory data = abi.encodeCall(IHooks.onAttachProgram, (caller, target, extraData));
+    (bool success, bytes memory returnData) = callHook(self, data);
+    require(success && abi.decode(returnData, (bool)));
     // if (success) return abi.decode(returnData, (bool));
   }
 
@@ -131,7 +133,7 @@ library ProgramIdLib {
     EntityId target,
     // TODO: should we include previous contract?
     bytes memory extraData
-  ) internal returns (bool) {}
+  ) internal {}
 
   // Entities with inventory
   function onTransfer(
