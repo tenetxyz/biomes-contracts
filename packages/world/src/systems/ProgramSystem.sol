@@ -32,7 +32,7 @@ contract ProgramSystem is System {
     bytes calldata extraData
   ) public payable {
     caller.activate();
-    caller.requireConnected(target);
+    (, Vec3 targetCoord) = caller.requireConnected(target);
     target = target.baseEntityId();
 
     // ForceField fragments don't have a position on the grid, so we need to handle them differently
@@ -45,9 +45,15 @@ contract ProgramSystem is System {
     (, bool publicAccess) = Systems._get(newProgram.toResourceId());
     require(!publicAccess, "Program system must be private");
 
+    ProgramId forceFieldProgram = _getForceFieldProgram(targetCoord);
+
+    // The validateProgram view function should revert if it is not allowed
+    forceFieldProgram.validateProgram(newProgram);
+
     EntityProgram._set(target, newProgram);
 
     newProgram.callOrRevert(abi.encodeCall(IHooks.onAttachProgram, (caller, target, extraData)));
+
     notify(caller, AttachProgramNotifData({ attachEntityId: target, programSystemId: newProgram.toResourceId() }));
   }
 
@@ -69,6 +75,35 @@ contract ProgramSystem is System {
     oldProgram.safeCall(abi.encodeCall(IHooks.onDetachProgram, (caller, target, extraData)));
 
     notify(caller, DetachProgramNotifData({ detachEntityId: target, programSystemId: oldProgram.toResourceId() }));
+  }
+
+  function _getForceFieldProgram(Vec3 coord) internal returns (ProgramId) {
+    // Check if the forcefield (or fragment) allow the new program
+    (EntityId forceField, EntityId fragment) = getForceField(coord);
+    if (!forceField.exists()) {
+      return ProgramId.wrap(0);
+    }
+
+    // If forcefield doesn't have energy, allow the program
+    (EnergyData memory machineData, ) = updateMachineEnergy(forceField);
+    if (machineData.energy == 0) {
+      return ProgramId.wrap(0);
+    }
+
+    // Try to get program from fragment first, then from force field if needed
+    ProgramId program = fragment.getProgram();
+
+    // If fragment has no program, try the force field
+    if (!program.exists()) {
+      program = forceField.getProgram();
+
+      // If neither has a program, we're done
+      if (!program.exists()) {
+        return ProgramId.wrap(0);
+      }
+    }
+
+    return program;
   }
 
   // function _requireDetachAllowed(

@@ -15,14 +15,8 @@ import { SAFE_PROGRAM_GAS } from "./Constants.sol";
 
 type ProgramId is bytes32;
 
-interface IProgram {
-  function isProgramAllowed(
-    EntityId caller,
-    EntityId target,
-    EntityId programmed,
-    ProgramId newProgram,
-    bytes memory extraData
-  ) external view returns (bool);
+interface IProgramValidator {
+  function validateProgram(ProgramId newProgram) external view returns (bool);
 }
 
 library ProgramIdLib {
@@ -67,14 +61,14 @@ library ProgramIdLib {
     return returnData;
   }
 
-  function safeCall(ProgramId self, bytes memory data) internal view returns (bool, bytes memory) {
+  function safeCall(ProgramId self, bytes memory data) internal returns (bool, bytes memory) {
     address programAddress = self.getAddress();
     if (programAddress == address(0)) {
       return (true, "");
     }
 
     return
-      programAddress.staticcall{ gas: SAFE_PROGRAM_GAS }(
+      programAddress.call{ gas: SAFE_PROGRAM_GAS }(
         WorldContextProviderLib.appendContext({ callData: data, msgSender: address(0), msgValue: 0 })
       );
   }
@@ -95,9 +89,32 @@ library ProgramIdLib {
       });
   }
 
+  function safeStaticcall(ProgramId self, bytes memory callData) internal view returns (bool, bytes memory) {
+    // If no program set, allow the call
+    address programAddress = self.getAddress();
+    if (programAddress == address(0)) {
+      return (true, "");
+    }
+
+    return
+      programAddress.staticcall{ gas: SAFE_PROGRAM_GAS }(
+        WorldContextProviderLib.appendContext({ callData: callData, msgSender: address(0), msgValue: 0 })
+      );
+  }
+
+  function validateProgram(ProgramId self, ProgramId program) internal view {
+    (bool success, bytes memory returnData) = self.safeStaticcall(
+      abi.encodeCall(IProgramValidator.validateProgram, (program))
+    );
+    // If the call fails
+    if (!success) {
+      revertWithBytes(returnData);
+    }
+  }
+
   // Displays
   // TODO: describe format
-  // function getDisplayURI(EntityId caller, EntityId target) external view returns (string memory);
+  function getDisplayURI(EntityId caller, EntityId target) external view returns (string memory) {}
 }
 
 using ProgramIdLib for ProgramId global;
