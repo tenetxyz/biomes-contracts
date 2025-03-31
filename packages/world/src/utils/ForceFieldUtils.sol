@@ -25,21 +25,6 @@ function _isFragmentActive(ForceFieldFragmentData memory fragmentData, EntityId 
   return fragmentData.forceFieldCreatedAt == Machine._getCreatedAt(forceFieldId);
 }
 
-// function getForceFieldProgram(Vec3 coord) view returns (ResourceId) {
-//   if (forceFieldEntityId.exists()) {
-//     (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
-//     if (machineData.energy > 0) {
-//       // We know fragment is active because its forcefield exists, so we can use its program
-//       ResourceId program = fragmentEntityId.getProgram();
-//       if (program.unwrap() != 0) {
-//         program = forceFieldEntityId.getProgram();
-//       }
-//
-//       program.onBuild(callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData);
-//     }
-//   }
-// }
-
 /**
  * @dev Get the forcefield and fragment entity IDs for a given coordinate
  */
