@@ -43,7 +43,7 @@ contract MachineSystem is System {
 
     // TODO: pass extradata as argument
     ProgramId program = baseEntityId.getProgram();
-    program.call(abi.encodeCall(IHooks.onFuel, (callerEntityId, baseEntityId, fuelAmount, "")));
+    program.callOrRevert(abi.encodeCall(IHooks.onFuel, (callerEntityId, baseEntityId, fuelAmount, "")));
 
     // TODO: notify
   }

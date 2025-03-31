@@ -82,7 +82,7 @@ interface IHooks {
 
 Each hook corresponds to a specific action or event within the world, allowing programs to respond accordingly. The hooks receive contextual information about the action, including the caller, target entity, and any additional data relevant to the event.
 
-### 3.4 Program Attachment and Validation
+### 3.3 Program Attachment and Validation
 
 The `ProgramSystem` contract manages the attachment and detachment of programs to entities:
 
@@ -121,7 +121,7 @@ A key aspect of program attachment is the validation process. Before a program c
 
 This multi-layered validation ensures that only appropriate programs can be attached to entities, maintaining the integrity of the world.
 
-### 3.5 Gas Safety Mechanisms
+### 3.4 Gas Safety Mechanisms
 
 To prevent malicious or poorly implemented programs from consuming excessive gas, calls with a fixed amount of gas are used. Safe calls are only used for hooks that correspond to actions that the entity might be incentivized to prevent (e.g. `onHit`).
 
@@ -178,7 +178,7 @@ function fuelMachine(EntityId callerEntityId, EntityId machineEntityId, uint16 f
 
   // Call program hook
   ProgramId program = baseEntityId.getProgram();
-  program.call(abi.encodeCall(IHooks.onFuel, (callerEntityId, baseEntityId, fuelAmount, "")));
+  program.callOrRevert(abi.encodeCall(IHooks.onFuel, (callerEntityId, baseEntityId, fuelAmount, "")));
 
   // Notification logic
   // ...
@@ -218,13 +218,19 @@ Programs can facilitate governance mechanisms:
 
 ## 6. Implementation Guide
 
-### 6.1 Creating a Program
+### 6.1 Creating a Program (WIP)
 
 Example of a simple door program:
 
 ```solidity
-contract DoorProgram is WorldConsumer {
-  constructor(IWorld world) WorldConsumer(world) {}
+contract SimpleDoorProgram is Program {
+  constructor(IWorld world) Program(world) {}
+
+  function onAttach(EntityId caller, EntityId target, bytes memory extraData) external onlyWorld {
+    address[] memory allowedPlayers = abi.decode(extraData, (address[]));
+    // Logic to set the owner and the allowed players for the door
+  }
+
 
   // Only implement the hooks you need
   function onOpen(EntityId caller, EntityId target, bytes memory extraData) external onlyWorld {
@@ -240,9 +246,6 @@ contract DoorProgram is WorldConsumer {
   function onClose(EntityId caller, EntityId target, bytes memory extraData) external onlyWorld {
     // Logic for closing the door
   }
-
-  // All other hooks are allowed
-  fallback() external {}
 
   // Helper function to check permissions
   function _isAllowedToOpen(EntityId caller, EntityId target) internal view returns (bool) {

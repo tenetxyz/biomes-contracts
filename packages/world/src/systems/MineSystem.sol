@@ -82,8 +82,6 @@ contract MineSystem is System {
     EntityId baseEntityId = entityId.baseEntityId();
     Vec3 baseCoord = Position._get(baseEntityId);
 
-    // Program needs to be detached first
-    require(!baseEntityId.getProgram().exists(), "Cannot mine a programmed block");
     if (mineObjectTypeId.isMachine()) {
       (EnergyData memory machineData, ) = updateMachineEnergy(baseEntityId);
       require(machineData.energy == 0, "Cannot mine a machine that has energy");
@@ -146,16 +144,28 @@ contract MineSystem is System {
       }
     }
 
+    MineLib._requireMinesAllowed(callerEntityId, mineObjectTypeId, coord, extraData);
+
+    if (finalMass == 0) {
+      // Detach program if it exists
+      ProgramId program = baseEntityId.getProgram();
+      if (program.exists()) {
+        bytes memory onDetachProgram = abi.encodeCall(
+          IHooks.onDetachProgram,
+          (callerEntityId, baseEntityId, extraData)
+        );
+        program.safeCall(onDetachProgram);
+      }
+
+      if (mineObjectTypeId == ObjectTypes.ForceField) {
+        destroyForceField(baseEntityId);
+      }
+    }
+
     notify(
       callerEntityId,
       MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
     );
-
-    MineLib._requireMinesAllowed(callerEntityId, mineObjectTypeId, coords, extraData);
-
-    if (mineObjectTypeId == ObjectTypes.ForceField && finalMass == 0) {
-      destroyForceField(baseEntityId);
-    }
 
     return baseEntityId;
   }
@@ -190,31 +200,34 @@ library MineLib {
   function _requireMinesAllowed(
     EntityId callerEntityId,
     ObjectTypeId objectTypeId,
-    Vec3[] memory coords,
+    Vec3 coord,
     bytes calldata extraData
   ) public {
-    for (uint256 i = 0; i < coords.length; i++) {
-      Vec3 coord = coords[i];
-      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(coord);
+    (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(coord);
 
-      if (forceFieldEntityId.exists()) {
-        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
-        if (machineData.energy > 0) {
-          // We know fragment is active because its forcefield exists, so we can use its program
-          ProgramId program = fragmentEntityId.getProgram();
-          if (!program.exists()) {
-            program = forceFieldEntityId.getProgram();
-          }
+    if (!forceFieldEntityId.exists()) {
+      return;
+    }
+    (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
+    if (machineData.energy == 0) {
+      return;
+    }
 
-          bytes memory onMine = abi.encodeCall(
-            IHooks.onMine,
-            (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
-          );
-
-          program.call(onMine);
-        }
+    // We know fragment is active because its forcefield exists, so we can use its program
+    ProgramId program = fragmentEntityId.getProgram();
+    if (!program.exists()) {
+      program = forceFieldEntityId.getProgram();
+      if (!program.exists()) {
+        return;
       }
     }
+
+    bytes memory onMine = abi.encodeCall(
+      IHooks.onMine,
+      (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
+    );
+
+    program.callOrRevert(onMine);
   }
 }
 
