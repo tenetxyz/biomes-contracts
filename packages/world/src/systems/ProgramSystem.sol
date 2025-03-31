@@ -25,12 +25,7 @@ import { ProgramId } from "../ProgramId.sol";
 import { IHooks } from "../IHooks.sol";
 
 contract ProgramSystem is System {
-  function attachProgram(
-    EntityId caller,
-    EntityId target,
-    ProgramId newProgram,
-    bytes calldata extraData
-  ) public payable {
+  function attachProgram(EntityId caller, EntityId target, ProgramId program, bytes calldata extraData) public payable {
     caller.activate();
     (, Vec3 targetCoord) = caller.requireConnected(target);
     target = target.baseEntityId();
@@ -42,19 +37,24 @@ contract ProgramSystem is System {
 
     require(!target.getProgram().exists(), "Existing program must be detached");
 
-    (, bool publicAccess) = Systems._get(newProgram.toResourceId());
+    (, bool publicAccess) = Systems._get(program.toResourceId());
     require(!publicAccess, "Program system must be private");
 
-    ProgramId forceFieldProgram = _getForceFieldProgram(targetCoord);
+    (EntityId validator, ProgramId validatorProgram) = _getValidatorProgram(targetCoord);
 
-    // The validateProgram view function should revert if it is not allowed
-    forceFieldProgram.validateProgram(newProgram);
+    bytes memory validateProgram = abi.encodeCall(
+      IHooks.validateProgram,
+      (caller, validator, target, program, extraData)
+    );
 
-    EntityProgram._set(target, newProgram);
+    // The validateProgram view function should revert if the program is not allowed
+    validatorProgram.staticcallOrRevert(validateProgram);
 
-    newProgram.callOrRevert(abi.encodeCall(IHooks.onAttachProgram, (caller, target, extraData)));
+    EntityProgram._set(target, program);
 
-    notify(caller, AttachProgramNotifData({ attachEntityId: target, programSystemId: newProgram.toResourceId() }));
+    program.callOrRevert(abi.encodeCall(IHooks.onAttachProgram, (caller, target, extraData)));
+
+    notify(caller, AttachProgramNotifData({ attachEntityId: target, programSystemId: program.toResourceId() }));
   }
 
   function detachProgram(EntityId caller, EntityId target, bytes calldata extraData) public payable {
@@ -72,38 +72,42 @@ contract ProgramSystem is System {
 
     EntityProgram._deleteRecord(target);
 
-    oldProgram.safeCall(abi.encodeCall(IHooks.onDetachProgram, (caller, target, extraData)));
+    bytes memory onDetachProgram = abi.encodeCall(IHooks.onDetachProgram, (caller, target, extraData));
+
+    oldProgram.callOrRevert(onDetachProgram);
 
     notify(caller, DetachProgramNotifData({ detachEntityId: target, programSystemId: oldProgram.toResourceId() }));
   }
 
-  function _getForceFieldProgram(Vec3 coord) internal returns (ProgramId) {
+  function _getValidatorProgram(Vec3 coord) internal returns (EntityId, ProgramId) {
     // Check if the forcefield (or fragment) allow the new program
     (EntityId forceField, EntityId fragment) = getForceField(coord);
     if (!forceField.exists()) {
-      return ProgramId.wrap(0);
+      return (EntityId.wrap(0), ProgramId.wrap(0));
     }
 
     // If forcefield doesn't have energy, allow the program
     (EnergyData memory machineData, ) = updateMachineEnergy(forceField);
     if (machineData.energy == 0) {
-      return ProgramId.wrap(0);
+      return (EntityId.wrap(0), ProgramId.wrap(0));
     }
 
     // Try to get program from fragment first, then from force field if needed
     ProgramId program = fragment.getProgram();
+    EntityId validator = fragment;
 
     // If fragment has no program, try the force field
     if (!program.exists()) {
       program = forceField.getProgram();
+      validator = forceField;
 
       // If neither has a program, we're done
       if (!program.exists()) {
-        return ProgramId.wrap(0);
+        return (EntityId.wrap(0), ProgramId.wrap(0));
       }
     }
 
-    return program;
+    return (validator, program);
   }
 
   // function _requireDetachAllowed(

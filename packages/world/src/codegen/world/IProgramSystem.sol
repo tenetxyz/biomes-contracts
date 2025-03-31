@@ -15,7 +15,7 @@ interface IProgramSystem {
   function attachProgram(
     EntityId caller,
     EntityId target,
-    ProgramId newProgram,
+    ProgramId program,
     bytes calldata extraData
   ) external payable;
 

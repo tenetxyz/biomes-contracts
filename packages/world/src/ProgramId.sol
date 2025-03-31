@@ -89,6 +89,14 @@ library ProgramIdLib {
       });
   }
 
+  function staticcallOrRevert(ProgramId self, bytes memory callData) internal view returns (bytes memory) {
+    (bool success, bytes memory returnData) = self.staticcall(callData);
+    if (!success) {
+      revertWithBytes(returnData);
+    }
+    return returnData;
+  }
+
   function safeStaticcall(ProgramId self, bytes memory callData) internal view returns (bool, bytes memory) {
     // If no program set, allow the call
     address programAddress = self.getAddress();
@@ -100,16 +108,6 @@ library ProgramIdLib {
       programAddress.staticcall{ gas: SAFE_PROGRAM_GAS }(
         WorldContextProviderLib.appendContext({ callData: callData, msgSender: address(0), msgValue: 0 })
       );
-  }
-
-  function validateProgram(ProgramId self, ProgramId program) internal view {
-    (bool success, bytes memory returnData) = self.safeStaticcall(
-      abi.encodeCall(IProgramValidator.validateProgram, (program))
-    );
-    // If the call fails
-    if (!success) {
-      revertWithBytes(returnData);
-    }
   }
 
   // Displays
