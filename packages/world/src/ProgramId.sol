@@ -101,19 +101,6 @@ library ProgramIdLib {
     return returnData;
   }
 
-  function safeStaticcall(ProgramId self, bytes memory callData) internal view returns (bool, bytes memory) {
-    // If no program set, allow the call
-    address programAddress = self.getAddress();
-    if (programAddress == address(0)) {
-      return (true, "");
-    }
-
-    return
-      programAddress.staticcall{ gas: SAFE_PROGRAM_GAS }(
-        WorldContextProviderLib.appendContext({ callData: callData, msgSender: address(0), msgValue: 0 })
-      );
-  }
-
   // Displays
   // TODO: describe format
   function getDisplayURI(EntityId caller, EntityId target) external view returns (string memory) {}

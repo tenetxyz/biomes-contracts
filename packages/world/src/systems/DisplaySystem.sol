@@ -17,12 +17,17 @@ import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { getLatestEnergyData } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { EntityId } from "../EntityId.sol";
+import { IHooks } from "../IHooks.sol";
 import { Vec3 } from "../Vec3.sol";
 
 contract DisplaySystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
-  function getDisplayURI(EntityId caller, EntityId entityId) public view returns (string memory) {
+  function getDisplayURI(
+    EntityId caller,
+    EntityId entityId,
+    bytes memory extraData
+  ) public view returns (string memory) {
     require(entityId.exists(), "Entity does not exist");
 
     EntityId baseEntityId = entityId.baseEntityId();
@@ -40,9 +45,9 @@ contract DisplaySystem is System {
       machineEnergyLevel = machineData.energy;
     }
     if (machineEnergyLevel > 0) {
-      // We can call the program directly as we are a root system
-      // return baseEntityId.getProgram().getDisplayURI(caller, baseEntityId);
-      return "";
+      bytes memory _getDisplayURI = abi.encodeCall(IHooks.getDisplayURI, (caller, baseEntityId, extraData));
+      bytes memory returnData = baseEntityId.getProgram().staticcallOrRevert(_getDisplayURI);
+      return abi.decode(returnData, (string));
     }
 
     return "";

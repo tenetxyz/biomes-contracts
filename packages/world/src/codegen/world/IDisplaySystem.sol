@@ -11,7 +11,11 @@ import { EntityId } from "../../EntityId.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IDisplaySystem {
-  function getDisplayURI(EntityId caller, EntityId entityId) external view returns (string memory);
+  function getDisplayURI(
+    EntityId caller,
+    EntityId entityId,
+    bytes memory extraData
+  ) external view returns (string memory);
 
   function setDisplayURI(EntityId, EntityId entityId, string memory uri) external;
 }

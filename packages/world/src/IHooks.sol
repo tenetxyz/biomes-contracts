@@ -20,6 +20,9 @@ interface IHooks {
     bytes memory extraData
   ) external;
 
+  // TODO: should we move view functions somewhere else?
+  function getDisplayURI(EntityId caller, EntityId target, bytes memory extraData) external returns (string memory);
+
   function onAttachProgram(EntityId caller, EntityId target, bytes memory extraData) external;
 
   function onDetachProgram(EntityId caller, EntityId target, bytes memory extraData) external;
