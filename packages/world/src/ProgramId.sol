@@ -20,12 +20,16 @@ interface IProgramValidator {
 }
 
 library ProgramIdLib {
+  function unwrap(ProgramId self) internal pure returns (bytes32) {
+    return ProgramId.unwrap(self);
+  }
+
   function exists(ProgramId self) internal pure returns (bool) {
-    return ProgramId.unwrap(self) != 0;
+    return self.unwrap() != 0;
   }
 
   function toResourceId(ProgramId self) internal pure returns (ResourceId) {
-    return ResourceId.wrap(ProgramId.unwrap(self));
+    return ResourceId.wrap(self.unwrap());
   }
 
   function getAddress(ProgramId self) internal view returns (address) {
@@ -115,4 +119,9 @@ library ProgramIdLib {
   function getDisplayURI(EntityId caller, EntityId target) external view returns (string memory) {}
 }
 
+function eq(ProgramId a, ProgramId b) pure returns (bool) {
+  return a.unwrap() == b.unwrap();
+}
+
+using { eq as == } for ProgramId global;
 using ProgramIdLib for ProgramId global;

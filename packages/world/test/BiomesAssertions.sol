@@ -29,6 +29,7 @@ import { Position, ReversePosition, MovablePosition, ReverseMovablePosition, Loc
 
 import { encodeChunk } from "./utils/encodeChunk.sol";
 import { EntityId } from "../src/EntityId.sol";
+import { ProgramId } from "../src/ProgramId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { TestForceFieldUtils } from "./utils/TestUtils.sol";
@@ -142,7 +143,7 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
   }
 
   function assertEq(Vec3 a, Vec3 b) internal pure {
-    assertTrue(a == b, "");
+    assertTrue(a == b);
   }
 
   function assertEq(EntityId a, EntityId b, string memory err) internal pure {
@@ -150,7 +151,15 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
   }
 
   function assertEq(EntityId a, EntityId b) internal pure {
-    assertTrue(a == b, "");
+    assertTrue(a == b);
+  }
+
+  function assertEq(ProgramId a, ProgramId b, string memory err) internal pure {
+    assertTrue(a == b, err);
+  }
+
+  function assertEq(ProgramId a, ProgramId b) internal pure {
+    assertTrue(a == b);
   }
 
   function assertEq(ObjectTypeId a, ObjectTypeId b, string memory err) internal pure {
@@ -158,7 +167,7 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
   }
 
   function assertEq(ObjectTypeId a, ObjectTypeId b) internal pure {
-    assertTrue(a == b, "");
+    assertTrue(a == b);
   }
 
   function assertNeq(ObjectTypeId a, ObjectTypeId b, string memory err) internal pure {
@@ -166,6 +175,6 @@ abstract contract BiomesAssertions is MudTest, GasReporter {
   }
 
   function assertNeq(ObjectTypeId a, ObjectTypeId b) internal pure {
-    assertTrue(a != b, "");
+    assertTrue(a != b);
   }
 }

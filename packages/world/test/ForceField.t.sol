@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
 import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
@@ -99,20 +100,20 @@ contract TestChestProgram is System {
 }
 
 contract ForceFieldTest is BiomesTest {
-  function attachTestProgram(EntityId entityId, System program) internal returns (ResourceId) {
-    bytes14 namespace = bytes14(keccak256(abi.encode(program)));
+  function attachTestProgram(EntityId entityId, System programSystem) internal returns (ProgramId) {
+    bytes14 namespace = bytes14(keccak256(abi.encode(programSystem)));
     ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);
     ResourceId programSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "programName");
     world.registerNamespace(namespaceId);
-    world.registerSystem(programSystemId, program, false);
+    world.registerSystem(programSystemId, programSystem, false);
 
     Vec3 coord = Position.get(entityId);
-
+    ProgramId program = ProgramId.wrap(programSystemId.unwrap());
     // Attach program with test player
     (address bob, EntityId bobEntityId) = createTestPlayer(coord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachProgram(bobEntityId, entityId, ProgramId.wrap(programSystemId.unwrap()), "");
-    return programSystemId;
+    world.attachProgram(bobEntityId, entityId, program, "");
+    return program;
   }
 
   function testMineWithForceFieldWithNoEnergy() public {
@@ -1325,8 +1326,8 @@ contract ForceFieldTest is BiomesTest {
     // the hook is NOT called when there's no energy
 
     // Attach the program
-    attachTestProgram(chestEntityId, chestProgram);
-    assertEq(EntityProgram.get(chestEntityId).getAddress(), address(chestProgram), "Program not atached to chest");
+    ProgramId program = attachTestProgram(chestEntityId, chestProgram);
+    assertEq(EntityProgram.get(chestEntityId), program, "Program not atached to chest");
   }
 
   function testValidateSpanningTree() public view {
