@@ -18,7 +18,9 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
+import { ProgramId } from "../ProgramId.sol";
 import { Vec3 } from "../Vec3.sol";
+import { IHooks } from "../IHooks.sol";
 import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 contract MachineSystem is System {
@@ -40,6 +42,9 @@ contract MachineSystem is System {
     Energy._setEnergy(baseEntityId, newEnergyLevel);
 
     // TODO: pass extradata as argument
-    baseEntityId.getProgram().onFuel(callerEntityId, baseEntityId, fuelAmount, "");
+    ProgramId program = baseEntityId.getProgram();
+    program.call(abi.encodeCall(IHooks.onFuel, (callerEntityId, baseEntityId, fuelAmount, "")));
+
+    // TODO: notify
   }
 }

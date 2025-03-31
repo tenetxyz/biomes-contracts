@@ -16,6 +16,7 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectAmount } from "../ObjectTypeLib.sol";
 import { Vec3 } from "../Vec3.sol";
+import { IHooks } from "../IHooks.sol";
 import { SMART_CHEST_ENERGY_COST } from "../Constants.sol";
 
 contract TransferSystem is System {
@@ -97,15 +98,12 @@ library TransferLib {
 
     require(ObjectType._get(targetEntityId) != ObjectTypes.Player, "Cannot transfer to player");
 
-    targetEntityId.getProgram().onTransfer(
-      callerEntityId,
-      targetEntityId,
-      fromEntityId,
-      toEntityId,
-      objectAmounts,
-      toolEntityIds,
-      extraData
+    bytes memory onTransfer = abi.encodeCall(
+      IHooks.onTransfer,
+      (callerEntityId, targetEntityId, fromEntityId, toEntityId, objectAmounts, toolEntityIds, extraData)
     );
+
+    targetEntityId.getProgram().callOrRevert(onTransfer);
 
     notify(
       callerEntityId,

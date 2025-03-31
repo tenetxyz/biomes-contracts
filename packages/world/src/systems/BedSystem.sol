@@ -27,8 +27,9 @@ import { MoveLib } from "./libraries/MoveLib.sol";
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 
 import { Vec3 } from "../Vec3.sol";
-
 import { EntityId } from "../EntityId.sol";
+import { ProgramId } from "../ProgramId.sol";
+import { IHooks } from "../IHooks.sol";
 
 // To avoid reaching bytecode size limit
 library BedLib {
@@ -106,7 +107,8 @@ contract BedSystem is System {
 
     PlayerUtils.removePlayerFromGrid(callerEntityId, callerCoord);
 
-    bedEntityId.getProgram().onSleep(callerEntityId, bedEntityId, extraData);
+    bytes memory onSleep = abi.encodeCall(IHooks.onSleep, (callerEntityId, bedEntityId, extraData));
+    bedEntityId.getProgram().callOrRevert(onSleep);
 
     notify(callerEntityId, SleepNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
   }
@@ -140,7 +142,8 @@ contract BedSystem is System {
 
     BedLib.transferInventory(bedEntityId, callerEntityId, ObjectTypes.Player);
 
-    bedEntityId.getProgram().onWakeup(callerEntityId, bedEntityId, extraData);
+    bytes memory onWakeup = abi.encodeCall(IHooks.onWakeup, (callerEntityId, bedEntityId, extraData));
+    bedEntityId.getProgram().callOrRevert(onWakeup);
 
     notify(callerEntityId, WakeupNotifData({ bedEntityId: bedEntityId, bedCoord: bedCoord }));
   }

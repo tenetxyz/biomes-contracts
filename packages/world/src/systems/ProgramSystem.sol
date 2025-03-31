@@ -22,6 +22,7 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 import { ProgramId } from "../ProgramId.sol";
+import { IHooks } from "../IHooks.sol";
 
 contract ProgramSystem is System {
   function attachProgram(
@@ -31,35 +32,28 @@ contract ProgramSystem is System {
     bytes calldata extraData
   ) public payable {
     caller.activate();
-    (, Vec3 targetCoord) = caller.requireConnected(target);
+    caller.requireConnected(target);
+    target = target.baseEntityId();
 
     // ForceField fragments don't have a position on the grid, so we need to handle them differently
     // if (objectTypeId == ObjectTypes.ForceFieldFragment) {
     //   // TODO: figure out proximity checks for fragments
     // }
 
+    require(!target.getProgram().exists(), "Existing program must be detached");
+
     (, bool publicAccess) = Systems._get(newProgram.toResourceId());
     require(!publicAccess, "Program system must be private");
 
-    target = target.baseEntityId();
-
-    ObjectTypeId objectTypeId = ObjectType._get(target);
-
-    ProgramId oldProgram = target.getProgram();
-
-    _requireProgramAllowed(caller, target, oldProgram, newProgram, extraData, objectTypeId, targetCoord);
-
     EntityProgram._set(target, newProgram);
 
-    // TODO: should we call onDetach for the old one?
-    newProgram.onAttachProgram(caller, target, extraData);
-
+    newProgram.callOrRevert(abi.encodeCall(IHooks.onAttachProgram, (caller, target, extraData)));
     notify(caller, AttachProgramNotifData({ attachEntityId: target, programSystemId: newProgram.toResourceId() }));
   }
 
   function detachProgram(EntityId caller, EntityId target, bytes calldata extraData) public payable {
     caller.activate();
-    (, Vec3 targetCoord) = caller.requireConnected(target);
+    caller.requireConnected(target);
     target = target.baseEntityId();
 
     // ForceField fragments don't have a position on the grid, so we need to handle them differently
@@ -70,57 +64,56 @@ contract ProgramSystem is System {
     ProgramId oldProgram = target.getProgram();
     require(oldProgram.exists(), "No program attached");
 
-    ObjectTypeId objectTypeId = ObjectType._get(target);
-
-    _requireProgramAllowed(caller, target, oldProgram, ProgramId.wrap(0), extraData, objectTypeId, targetCoord);
-
     EntityProgram._deleteRecord(target);
 
-    oldProgram.onDetachProgram(caller, target, extraData);
+    oldProgram.safeCall(abi.encodeCall(IHooks.onDetachProgram, (caller, target, extraData)));
 
     notify(caller, DetachProgramNotifData({ detachEntityId: target, programSystemId: oldProgram.toResourceId() }));
   }
 
-  function _requireProgramAllowed(
-    EntityId caller,
-    EntityId target,
-    ProgramId oldProgram,
-    ProgramId newProgram,
-    bytes memory extraData,
-    ObjectTypeId objectTypeId,
-    Vec3 targetCoord
-  ) internal {
-    bool allowed = oldProgram.isProgramAllowed(caller, target, target, oldProgram, newProgram, extraData);
-    if (allowed || objectTypeId == ObjectTypes.ForceField) {
-      return;
-    }
-
-    (EntityId forceField, EntityId fragment) = getForceField(targetCoord);
-    if (!forceField.exists()) {
-      return;
-    }
-
-    (EnergyData memory machineData, ) = updateMachineEnergy(forceField);
-    if (machineData.energy == 0) {
-      return;
-    }
-
-    // Try to get program from fragment first, then from force field if needed
-    ProgramId program = fragment.getProgram();
-    EntityId programOwner = fragment;
-
-    // If fragment has no program, try the force field
-    if (!program.exists()) {
-      program = forceField.getProgram();
-      programOwner = forceField;
-
-      // If neither has a program, we're done
-      if (!program.exists()) {
-        return;
-      }
-    }
-
-    // Check if the program allows the operation
-    require(program.isProgramAllowed(caller, programOwner, target, oldProgram, newProgram, extraData), "Not allowed");
-  }
+  // function _requireDetachAllowed(
+  //   EntityId caller,
+  //   EntityId target,
+  //   ProgramId oldProgram,
+  //   bytes memory extraData,
+  //   ObjectTypeId objectTypeId,
+  //   Vec3 targetCoord
+  // ) internal {
+  //   (bool allowed,) = oldProgram.safeCall(IHooks.onDetachProgram, (caller, target, extraData));
+  //   if (allowed) {
+  //     return;
+  //   }
+  //
+  //   // Check if the forcefield (or fragment) allow the new program
+  //   (EntityId forceField, EntityId fragment) = getForceField(targetCoord);
+  //   if (!forceField.exists()) {
+  //     return;
+  //   }
+  //
+  //   // If forcefield doesn't have energy, allow the program
+  //   (EnergyData memory machineData, ) = updateMachineEnergy(forceField);
+  //   if (machineData.energy == 0) {
+  //     return;
+  //   }
+  //
+  //   // Try to get program from fragment first, then from force field if needed
+  //   ProgramId program = fragment.getProgram();
+  //   EntityId programOwner = fragment;
+  //
+  //   // If fragment has no program, try the force field
+  //   if (!program.exists()) {
+  //     program = forceField.getProgram();
+  //     programOwner = forceField;
+  //
+  //     // If neither has a program, we're done
+  //     if (!program.exists()) {
+  //       return;
+  //     }
+  //   }
+  //
+  //   program.callOrRevert(IHooks.onDetachProgram, (caller, target, extraData));
+  //
+  //   // Check if the program allows the operation
+  //   // require(program.isProgramAllowed(caller, programOwner, target, oldProgram, newProgram, extraData), "Not allowed");
+  // }
 }

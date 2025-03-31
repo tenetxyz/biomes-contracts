@@ -38,6 +38,7 @@ import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND
 import { MINE_ENERGY_COST } from "../Constants.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { ProgramId } from "../ProgramId.sol";
+import { IHooks } from "../IHooks.sol";
 
 contract MineSystem is System {
   using ObjectTypeLib for ObjectTypeId;
@@ -201,11 +202,16 @@ library MineLib {
         if (machineData.energy > 0) {
           // We know fragment is active because its forcefield exists, so we can use its program
           ProgramId program = fragmentEntityId.getProgram();
-          if (program.exists()) {
+          if (!program.exists()) {
             program = forceFieldEntityId.getProgram();
           }
 
-          program.onMine(callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData);
+          bytes memory onMine = abi.encodeCall(
+            IHooks.onMine,
+            (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
+          );
+
+          program.call(onMine);
         }
       }
     }

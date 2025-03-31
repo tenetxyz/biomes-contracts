@@ -23,6 +23,8 @@ import { HIT_ENERGY_COST } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
+import { ProgramId } from "../ProgramId.sol";
+import { IHooks } from "../IHooks.sol";
 import { Vec3 } from "../Vec3.sol";
 
 contract HitMachineSystem is System {
@@ -43,8 +45,8 @@ contract HitMachineSystem is System {
       forceFieldCoord
     );
 
-    // TODO: does it make sense to pass extradata to onHit?
-    forceFieldEntityId.getProgram().onHit(callerEntityId, forceFieldEntityId, energyReduction, "");
+    ProgramId program = forceFieldEntityId.getProgram();
+    program.safeCall(abi.encodeCall(IHooks.onHit, (callerEntityId, forceFieldEntityId, energyReduction, "")));
 
     notify(callerEntityId, HitMachineNotifData({ machineEntityId: forceFieldEntityId, machineCoord: forceFieldCoord }));
   }

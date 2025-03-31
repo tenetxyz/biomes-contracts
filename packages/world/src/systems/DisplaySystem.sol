@@ -41,7 +41,8 @@ contract DisplaySystem is System {
     }
     if (machineEnergyLevel > 0) {
       // We can call the program directly as we are a root system
-      return baseEntityId.getProgram().getDisplayURI(caller, baseEntityId);
+      // return baseEntityId.getProgram().getDisplayURI(caller, baseEntityId);
+      return "";
     }
 
     return "";

@@ -146,7 +146,7 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "program",
+        "name": "newProgram",
         "type": "bytes32",
         "internalType": "ProgramId"
       },
