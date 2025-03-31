@@ -29,13 +29,7 @@ import { ProgramId } from "../src/ProgramId.sol";
 import { CHUNK_SIZE, MACHINE_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 
 contract TestBedProgram is System {
-  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
-
-  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
-
-  function onSleep(EntityId callerEntityId, EntityId bedEntityId, bytes memory extraData) external payable {}
-
-  function onWakeup(EntityId callerEntityId, EntityId bedEntityId, bytes memory extraData) external payable {}
+  fallback() external {}
 }
 
 contract BedTest is BiomesTest {
@@ -57,7 +51,6 @@ contract BedTest is BiomesTest {
     ResourceId programSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "programName");
     world.registerNamespace(namespaceId);
     world.registerSystem(programSystemId, program, false);
-    world.transferOwnership(namespaceId, address(0));
 
     Vec3 bedCoord = Position.get(bedEntityId);
 

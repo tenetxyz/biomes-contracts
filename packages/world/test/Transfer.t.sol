@@ -35,7 +35,7 @@ import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { Position } from "../src/utils/Vec3Storage.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
-import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
+import { ObjectAmount, ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { CHUNK_SIZE, MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { ProgramId } from "../src/ProgramId.sol";
@@ -46,11 +46,15 @@ contract TestChestProgram is System {
   // Control revert behavior
   bool revertOnTransfer;
 
-  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
-
-  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
-
-  function onTransfer() external payable {
+  function onTransfer(
+    EntityId,
+    EntityId,
+    EntityId,
+    EntityId,
+    ObjectAmount[] memory,
+    EntityId[] memory,
+    bytes memory
+  ) external view {
     require(!revertOnTransfer, "Transfer not allowed by chest");
   }
 
@@ -65,6 +69,8 @@ contract TestChestProgram is System {
       revertWithBytes(returnData);
     }
   }
+
+  fallback() external {}
 }
 
 contract TransferTest is BiomesTest {

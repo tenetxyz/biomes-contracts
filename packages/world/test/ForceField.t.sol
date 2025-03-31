@@ -28,52 +28,22 @@ import { MACHINE_ENERGY_DRAIN_RATE, FRAGMENT_SIZE } from "../src/Constants.sol";
 
 contract TestForceFieldProgram is System {
   // Just for testing, real programs should use tables
-  bool revertOnProgramAttached;
-  bool revertOnProgramDetached;
+  bool revertOnValidateProgram;
   bool revertOnBuild;
   bool revertOnMine;
 
-  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
-
-  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
-
-  function onProgramAttached(EntityId, EntityId, EntityId, bytes memory) external {
-    require(!revertOnProgramAttached, "Not allowed by forcefield");
+  function validateProgram(EntityId, EntityId, EntityId, ProgramId, bytes memory) external view {
+    require(!revertOnValidateProgram, "Not allowed by forcefield");
     // Function is now empty since we use vm.expectCall to verify it was called with correct parameters
   }
 
-  function onProgramDetached(EntityId, EntityId, EntityId, bytes memory) external {
-    require(!revertOnProgramDetached, "Not allowed by forcefield");
-    // Function is now empty since we use vm.expectCall to verify it was called with correct parameters
-  }
-
-  function onBuild(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external payable {
+  function onBuild(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external view {
     require(!revertOnBuild, "Not allowed by forcefield");
   }
 
-  function onMine(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external payable {
+  function onMine(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external view {
     require(!revertOnMine, "Not allowed by forcefield");
   }
-
-  function onPowered(EntityId callerEntityId, EntityId targetEntityId, uint16 fuelAmount) external {}
-
-  function onForceFieldHit(EntityId callerEntityId, EntityId targetEntityId) external {}
-
-  function onExpand(
-    EntityId callerEntityId,
-    EntityId targetEntityId,
-    Vec3 fromFragmentCoord,
-    Vec3 toFragmentCoord,
-    bytes memory extraData
-  ) external {}
-
-  function onContract(
-    EntityId callerEntityId,
-    EntityId targetEntityId,
-    Vec3 fromFragmentCoord,
-    Vec3 toFragmentCoord,
-    bytes memory extraData
-  ) external {}
 
   function setRevertOnBuild(bool _revertOnBuild) external {
     revertOnBuild = _revertOnBuild;
@@ -83,41 +53,29 @@ contract TestForceFieldProgram is System {
     revertOnMine = _revertOnMine;
   }
 
-  function setRevertOnProgramAttached(bool _revertOnProgramAttached) external {
-    revertOnProgramAttached = _revertOnProgramAttached;
+  function setRevertOnValidateProgram(bool _revert) external {
+    revertOnValidateProgram = _revert;
   }
 
-  function setRevertOnProgramDetached(bool _revertOnProgramDetached) external {
-    revertOnProgramDetached = _revertOnProgramDetached;
-  }
+  fallback() external {}
 }
 
 contract TestForceFieldFragmentProgram is System {
   // Just for testing, real programs should use tables
+  bool revertOnValidateProgram;
   bool revertOnBuild;
   bool revertOnMine;
-  bool revertOnProgramAttached;
-  bool revertOnProgramDetached;
 
-  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
-
-  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
-
-  function onProgramAttached(EntityId, EntityId, EntityId, bytes memory) external {
-    require(!revertOnProgramAttached, "Not allowed by forcefield fragment");
+  function validateProgram(EntityId, EntityId, EntityId, ProgramId, bytes memory) external view {
+    require(!revertOnValidateProgram, "Not allowed by forcefield fragment");
     // Function is now empty since we use vm.expectCall to verify it was called with correct parameters
   }
 
-  function onProgramDetached(EntityId, EntityId, EntityId, bytes memory) external {
-    require(!revertOnProgramDetached, "Not allowed by forcefield fragment");
-    // Function is now empty since we use vm.expectCall to verify it was called with correct parameters
-  }
-
-  function onBuild(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external payable {
+  function onBuild(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external view {
     require(!revertOnBuild, "Not allowed by forcefield fragment");
   }
 
-  function onMine(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external payable {
+  function onMine(EntityId, EntityId, ObjectTypeId, Vec3, bytes memory) external view {
     require(!revertOnMine, "Not allowed by forcefield fragment");
   }
 
@@ -129,31 +87,24 @@ contract TestForceFieldFragmentProgram is System {
     revertOnMine = _revertOnMine;
   }
 
-  function setRevertOnProgramAttached(bool _revertOnProgramAttached) external {
-    revertOnProgramAttached = _revertOnProgramAttached;
+  function setRevertOnValidateProgram(bool _revert) external {
+    revertOnValidateProgram = _revert;
   }
 
-  function setRevertOnProgramDetached(bool _revertOnProgramDetached) external {
-    revertOnProgramDetached = _revertOnProgramDetached;
-  }
+  fallback() external {}
 }
 
 contract TestChestProgram is System {
-  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
-
-  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory) external payable {}
-
-  function onTransfer() external payable {}
+  fallback() external {}
 }
 
 contract ForceFieldTest is BiomesTest {
   function attachTestProgram(EntityId entityId, System program) internal returns (ResourceId) {
-    bytes14 namespace = bytes14(vm.randomBytes(14));
+    bytes14 namespace = bytes14(keccak256(abi.encode(program)));
     ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);
     ResourceId programSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "programName");
     world.registerNamespace(namespaceId);
     world.registerSystem(programSystemId, program, false);
-    world.transferOwnership(namespaceId, address(0));
 
     Vec3 coord = Position.get(entityId);
 
@@ -389,7 +340,7 @@ contract ForceFieldTest is BiomesTest {
 
     // Set up a force field with NO energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
-    EntityId forceFieldEntityId = setupForceField(
+    setupForceField(
       forceFieldCoord,
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 })
     );
@@ -1299,12 +1250,11 @@ contract ForceFieldTest is BiomesTest {
     ResourceId programSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "chestProgram");
     world.registerNamespace(namespaceId);
     world.registerSystem(programSystemId, chestProgram, false);
-    world.transferOwnership(namespaceId, address(0));
 
     // Expect the forcefield program's onProgramAttached to be called with the correct parameters
     bytes memory expectedCallData = abi.encodeCall(
-      TestForceFieldProgram.onProgramAttached,
-      (aliceEntityId, forceFieldEntityId, chestEntityId, bytes(""))
+      TestForceFieldProgram.validateProgram,
+      (aliceEntityId, forceFieldEntityId, chestEntityId, ProgramId.wrap(programSystemId.unwrap()), bytes(""))
     );
     vm.expectCall(address(forceFieldProgram), expectedCallData);
 
@@ -1327,7 +1277,7 @@ contract ForceFieldTest is BiomesTest {
     // Create forcefield program, attach it, and configure it to disallow program attachments
     TestForceFieldProgram forceFieldProgram = new TestForceFieldProgram();
     attachTestProgram(forceFieldEntityId, forceFieldProgram);
-    forceFieldProgram.setRevertOnProgramAttached(true);
+    forceFieldProgram.setRevertOnValidateProgram(true);
 
     // Set up a chest inside the forcefield
     Vec3 chestCoord = forceFieldCoord + vec3(1, 0, 0);
@@ -1340,7 +1290,6 @@ contract ForceFieldTest is BiomesTest {
     ResourceId programSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "programName");
     world.registerNamespace(namespaceId);
     world.registerSystem(programSystemId, chestProgram, false);
-    world.transferOwnership(namespaceId, address(0));
 
     // Attach program with test player
     vm.prank(alice);
@@ -1363,7 +1312,7 @@ contract ForceFieldTest is BiomesTest {
     // Create forcefield program and attach it
     TestForceFieldProgram forceFieldProgram = new TestForceFieldProgram();
     attachTestProgram(forceFieldEntityId, forceFieldProgram);
-    forceFieldProgram.setRevertOnProgramAttached(true); // Should not matter since forcefield has no energy
+    forceFieldProgram.setRevertOnValidateProgram(true); // Should not matter since forcefield has no energy
 
     // Set up a chest inside the forcefield
     Vec3 chestCoord = forceFieldCoord + vec3(1, 0, 0);

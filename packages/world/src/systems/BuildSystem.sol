@@ -107,7 +107,7 @@ library BuildLib {
         if (machineData.energy > 0) {
           // We know fragment is active because its forcefield exists, so we can use its program
           ProgramId program = fragmentEntityId.getProgram();
-          if (program.exists()) {
+          if (!program.exists()) {
             program = forceFieldEntityId.getProgram();
           }
 
@@ -145,13 +145,13 @@ contract BuildSystem is System {
 
     transferEnergyToPool(callerEntityId, BUILD_ENERGY_COST);
 
+    // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
+    BuildLib._requireBuildsAllowed(callerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
+
     notify(
       callerEntityId,
       BuildNotifData({ buildEntityId: baseEntityId, buildCoord: coords[0], buildObjectTypeId: buildObjectTypeId })
     );
-
-    // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
-    BuildLib._requireBuildsAllowed(callerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
 
     return baseEntityId;
   }

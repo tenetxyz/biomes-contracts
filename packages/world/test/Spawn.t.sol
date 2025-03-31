@@ -26,11 +26,7 @@ import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 
 contract TestSpawnProgram is System {
-  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
-
-  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
-
-  function onSpawn(EntityId callerEntityId, EntityId spawnTileEntityId, bytes memory extraData) external payable {}
+  fallback() external {}
 }
 
 contract SpawnTest is BiomesTest {
