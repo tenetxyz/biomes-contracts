@@ -11,7 +11,7 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getUniqueEntity } from "../Utils.sol";
-import { notify, ExpandForceFieldNotifData, ContractForceFieldNotifData } from "../utils/NotifUtils.sol";
+import { notify, AddFragmentNotifData, RemoveFragmentNotifData } from "../utils/NotifUtils.sol";
 import { isForceFieldFragment, isForceFieldFragmentActive, setupForceFieldFragment, removeForceFieldFragment } from "../utils/ForceFieldUtils.sol";
 import { ForceFieldFragment, Position } from "../utils/Vec3Storage.sol";
 
@@ -81,7 +81,7 @@ contract ForceFieldSystem is System {
     // Iterate through the entire boundary
     Vec3[26] memory boundary;
     Vec3[26] memory neighbors = fragmentCoord.neighbors26();
-    for (uint8 i = 0; i <= neighbors.length; i++) {
+    for (uint8 i = 0; i < neighbors.length; i++) {
       // Add to resulting boundary if it's a forcefield fragment
       if (isForceFieldFragment(forceField, neighbors[i])) {
         boundary[count++] = neighbors[i];
@@ -124,7 +124,7 @@ contract ForceFieldSystem is System {
 
     forceField.getProgram().callOrRevert(onAddFragment);
 
-    notify(caller, ExpandForceFieldNotifData({ forceFieldEntityId: forceField }));
+    notify(caller, AddFragmentNotifData({ forceFieldEntityId: forceField }));
   }
 
   /**
@@ -166,12 +166,14 @@ contract ForceFieldSystem is System {
     // Update drain rate
     Energy._setDrainRate(forceField, machineData.drainRate - MACHINE_ENERGY_DRAIN_RATE);
 
-    bytes memory onRemoveFragment = abi.encodeCall(
-      IRemoveFragmentHook.onRemoveFragment,
-      (caller, forceField, fragment, extraData)
-    );
-    forceField.getProgram().callOrRevert(onRemoveFragment);
+    {
+      bytes memory onRemoveFragment = abi.encodeCall(
+        IRemoveFragmentHook.onRemoveFragment,
+        (caller, forceField, fragment, extraData)
+      );
+      forceField.getProgram().callOrRevert(onRemoveFragment);
+    }
 
-    notify(caller, ContractForceFieldNotifData({ forceFieldEntityId: forceField }));
+    notify(caller, RemoveFragmentNotifData({ forceFieldEntityId: forceField }));
   }
 }
