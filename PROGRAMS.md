@@ -1,4 +1,4 @@
-# Programs: A Comprehensive Analysis
+# WIP Programs: A Comprehensive Analysis
 
 ## Abstract
 
@@ -42,42 +42,9 @@ type ProgramId is bytes32;
 
 Programs are registered as systems within the MUD framework, and `ProgramId`s encode the corresponding `ResourceId` of the system.
 
-### 3.2 Program Hooks Interface
+### 3.2 Program Hooks Interfaces
 
-The `IProgram` interface defines the events that programs can respond to:
-
-```solidity
-interface IProgram {
-  function validateProgram(
-    EntityId caller,
-    EntityId target,
-    EntityId programmed,
-    ProgramId program,
-    bytes memory extraData
-  ) external;
-
-  function onAttachProgram(EntityId caller, EntityId target, bytes memory extraData) external;
-  function onDetachProgram(EntityId caller, EntityId target, bytes memory extraData) external;
-
-  // Entity interactions
-  function onTransfer(...) external;
-  function onHit(...) external;
-  function onFuel(...) external;
-
-  // World interactions
-  function onBuild(...) external payable;
-  function onMine(...) external payable;
-
-  // Entity state changes
-  function onSpawn(...) external;
-  function onSleep(...) external;
-  function onWakeup(...) external;
-  function onOpen(...) external;
-  function onClose(...) external;
-
-  // ... additional hooks
-}
-```
+The `ProgramInterfaces.sol` file includes interfaces for all hooks and functions that a program can implement:
 
 Each hook corresponds to a specific action or event within the world, allowing programs to respond accordingly. The hooks receive contextual information about the action, including the caller, target entity, and any additional data relevant to the event.
 
@@ -92,7 +59,7 @@ function attachProgram(EntityId caller, EntityId target, ProgramId program, byte
 
   EntityProgram._set(target, program);
 
-  program.callOrRevert(abi.encodeCall(IProgram.onAttachProgram, (caller, target, extraData)));
+  program.callOrRevert(abi.encodeCall(IAttachHook.onAttachProgram, (caller, target, extraData)));
 
   // Notification logic
   // ...
@@ -102,10 +69,18 @@ function detachProgram(EntityId caller, EntityId target, bytes calldata extraDat
   // Validation logic
   // ...
 
-  ProgramId oldProgram = target.getProgram();
-  EntityProgram._deleteRecord(target);
+  ProgramId program = target.getProgram();
 
-  oldProgram.callOrRevert(abi.encodeCall(IProgram.onDetachProgram, (caller, target, extraData)));
+  bytes memory onDetachProgram = abi.encodeCall(IDetachProgramHook.onDetachProgram, (caller, target, extraData));
+
+  (EnergyData memory machineData, ) = updateMachineEnergy(forceField);
+  if (machineData.energy > 0) {
+    program.callOrRevert(onDetachProgram);
+  } else {
+    program.call({ gas: SAFE_PROGRAM_GAS, hook: onDetachProgram });
+  }
+
+  EntityProgram._deleteRecord(target);
 
   // Notification logic
   // ...
@@ -129,46 +104,9 @@ The `SAFE_PROGRAM_GAS` constant (set to 1,000,000 gas units) limits the gas avai
 
 ## 4. Program Execution in Context
 
-### 4.1 Force Field Validation
+### 4.1 Machine Interactions
 
-A practical example of program usage is the force field validation mechanism. Force fields can have programs attached that validate actions within their area of influence:
-
-```solidity
-function _getValidatorProgram(Vec3 coord) internal returns (EntityId, ProgramId) {
-  // Get force field at coordinate
-  (EntityId forceField, EntityId fragment) = getForceField(coord);
-  if (!forceField.exists()) {
-    return (EntityId.wrap(0), ProgramId.wrap(0));
-  }
-
-  // Check energy levels
-  (EnergyData memory machineData, ) = updateMachineEnergy(forceField);
-  if (machineData.energy == 0) {
-    return (EntityId.wrap(0), ProgramId.wrap(0));
-  }
-
-  // Get program from fragment or force field
-  ProgramId program = fragment.getProgram();
-  EntityId validator = fragment;
-
-  if (!program.exists()) {
-    program = forceField.getProgram();
-    validator = forceField;
-
-    if (!program.exists()) {
-      return (EntityId.wrap(0), ProgramId.wrap(0));
-    }
-  }
-
-  return (validator, program);
-}
-```
-
-This mechanism allows force fields to implement custom validation logic for actions occurring within their boundaries, creating programmable zones with specific rules.
-
-### 4.2 Machine Interactions
-
-Programs can also respond to interactions with machines, such as when a player fuels a machine:
+Programs can respond to interactions with machines, such as when a player fuels a machine:
 
 ```solidity
 function fuelMachine(EntityId callerEntityId, EntityId machineEntityId, uint16 fuelAmount) public {
@@ -177,7 +115,7 @@ function fuelMachine(EntityId callerEntityId, EntityId machineEntityId, uint16 f
 
   // Call program hook
   ProgramId program = baseEntityId.getProgram();
-  program.callOrRevert(abi.encodeCall(IProgram.onFuel, (callerEntityId, baseEntityId, fuelAmount, "")));
+  program.callOrRevert(abi.encodeCall(IFuelHook.onFuel, (callerEntityId, baseEntityId, fuelAmount, "")));
 
   // Notification logic
   // ...
@@ -227,6 +165,7 @@ contract SimpleDoorProgram is Program {
 
   function onAttach(EntityId caller, EntityId target, bytes memory extraData) external onlyWorld {
     address[] memory allowedPlayers = abi.decode(extraData, (address[]));
+
     // Logic to set the owner and the allowed players for the door
   }
 
