@@ -30,7 +30,7 @@ import { Vec3, vec3 } from "../Vec3.sol";
 import { getObjectTypeIdAt, getMovableEntityAt } from "../utils/EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
-import { IHooks } from "../IHooks.sol";
+import { ISpawnHook } from "../ProgramInterfaces.sol";
 
 contract SpawnSystem is System {
   using ObjectTypeLib for ObjectTypeId;
@@ -157,7 +157,7 @@ contract SpawnSystem is System {
 
     EntityId playerEntityId = _spawnPlayer(spawnCoord);
 
-    bytes memory onSpawn = abi.encodeCall(IHooks.onSpawn, (playerEntityId, spawnTileEntityId, extraData));
+    bytes memory onSpawn = abi.encodeCall(ISpawnHook.onSpawn, (playerEntityId, spawnTileEntityId, extraData));
     spawnTileEntityId.getProgram().callOrRevert(onSpawn);
 
     return playerEntityId;

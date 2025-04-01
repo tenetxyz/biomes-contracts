@@ -146,7 +146,7 @@ declare const abi: [
         "internalType": "EntityId"
       },
       {
-        "name": "newProgram",
+        "name": "program",
         "type": "bytes32",
         "internalType": "ProgramId"
       },
@@ -796,6 +796,11 @@ declare const abi: [
         "name": "entityId",
         "type": "bytes32",
         "internalType": "EntityId"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [

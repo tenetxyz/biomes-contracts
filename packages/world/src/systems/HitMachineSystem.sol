@@ -24,7 +24,7 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { ProgramId } from "../ProgramId.sol";
-import { IHooks } from "../IHooks.sol";
+import { IHitHook } from "../ProgramInterfaces.sol";
 import { Vec3 } from "../Vec3.sol";
 
 contract HitMachineSystem is System {
@@ -46,8 +46,8 @@ contract HitMachineSystem is System {
     );
 
     ProgramId program = forceFieldEntityId.getProgram();
-    bytes memory onHit = abi.encodeCall(IHooks.onHit, (callerEntityId, forceFieldEntityId, energyReduction, ""));
-    // Don't revert on hit
+    bytes memory onHit = abi.encodeCall(IHitHook.onHit, (callerEntityId, forceFieldEntityId, energyReduction, ""));
+    // Don't revert and use a fixed amount of gas so the program can't prevent hitting
     program.call({ gas: SAFE_PROGRAM_GAS, hook: onHit });
 
     notify(callerEntityId, HitMachineNotifData({ machineEntityId: forceFieldEntityId, machineCoord: forceFieldCoord }));

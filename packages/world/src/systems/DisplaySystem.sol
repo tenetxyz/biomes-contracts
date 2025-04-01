@@ -17,7 +17,7 @@ import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { getLatestEnergyData } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { EntityId } from "../EntityId.sol";
-import { IHooks } from "../IHooks.sol";
+import { IDisplay } from "../ProgramInterfaces.sol";
 import { Vec3 } from "../Vec3.sol";
 
 contract DisplaySystem is System {
@@ -45,7 +45,7 @@ contract DisplaySystem is System {
       machineEnergyLevel = machineData.energy;
     }
     if (machineEnergyLevel > 0) {
-      bytes memory _getDisplayURI = abi.encodeCall(IHooks.getDisplayURI, (caller, baseEntityId, extraData));
+      bytes memory _getDisplayURI = abi.encodeCall(IDisplay.getDisplayURI, (caller, baseEntityId, extraData));
       bytes memory returnData = baseEntityId.getProgram().staticcallOrRevert(_getDisplayURI);
       return abi.decode(returnData, (string));
     }

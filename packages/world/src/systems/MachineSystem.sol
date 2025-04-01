@@ -20,7 +20,7 @@ import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { ProgramId } from "../ProgramId.sol";
 import { Vec3 } from "../Vec3.sol";
-import { IHooks } from "../IHooks.sol";
+import { IFuelHook } from "../ProgramInterfaces.sol";
 import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 contract MachineSystem is System {
@@ -43,7 +43,7 @@ contract MachineSystem is System {
 
     // TODO: pass extradata as argument
     ProgramId program = baseEntityId.getProgram();
-    program.callOrRevert(abi.encodeCall(IHooks.onFuel, (callerEntityId, baseEntityId, fuelAmount, "")));
+    program.callOrRevert(abi.encodeCall(IFuelHook.onFuel, (callerEntityId, baseEntityId, fuelAmount, "")));
 
     // TODO: notify
   }

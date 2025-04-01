@@ -8,26 +8,38 @@ import { ObjectTypeId } from "./ObjectTypeId.sol";
 import { ObjectAmount } from "./ObjectTypeLib.sol";
 
 /**
- * caller is the entity that called the system and triggered the hook
- * target is the entity for which the hook is being called
+ * Naming convention for all hooks/getters:
+ * - caller is the entity that called the system and triggered the call to the program
+ * - target is the entity for which the function is being called
  */
-interface IHooks {
+
+interface IProgramValidator {
   function validateProgram(
     EntityId caller,
     EntityId target,
     EntityId programmed,
     ProgramId program,
     bytes memory extraData
-  ) external;
+  ) external view;
+}
 
-  // TODO: should we move view functions somewhere else?
-  function getDisplayURI(EntityId caller, EntityId target, bytes memory extraData) external returns (string memory);
+interface IDisplay {
+  function getDisplayURI(
+    EntityId caller,
+    EntityId target,
+    bytes memory extraData
+  ) external view returns (string memory);
+}
 
+interface IAttachProgramHook {
   function onAttachProgram(EntityId caller, EntityId target, bytes memory extraData) external;
+}
 
+interface IDetachProgramHook {
   function onDetachProgram(EntityId caller, EntityId target, bytes memory extraData) external;
+}
 
-  // Entities with inventory
+interface ITransferHook {
   function onTransfer(
     EntityId caller,
     EntityId target,
@@ -37,18 +49,25 @@ interface IHooks {
     EntityId[] memory toolEntities,
     bytes memory extraData
   ) external;
+}
 
-  // Machines
+interface IHitHook {
   function onHit(EntityId caller, EntityId target, uint128 damage, bytes memory extraData) external;
+}
 
+interface IFuelHook {
   function onFuel(EntityId caller, EntityId target, uint16 fuelAmount, bytes memory extraData) external;
+}
 
-  // Forcefield
+interface IAddFragmentHook {
   function onAddFragment(EntityId caller, EntityId target, EntityId added, bytes memory extraData) external;
+}
 
+interface IRemoveFragmentHook {
   function onRemoveFragment(EntityId caller, EntityId target, EntityId removed, bytes memory extraData) external;
+}
 
-  // Forcefield & Fragment
+interface IBuildHook {
   function onBuild(
     EntityId caller,
     EntityId target,
@@ -56,7 +75,9 @@ interface IHooks {
     Vec3 coord,
     bytes memory extraData
   ) external payable;
+}
 
+interface IMineHook {
   function onMine(
     EntityId caller,
     EntityId target,
@@ -64,17 +85,24 @@ interface IHooks {
     Vec3 coord,
     bytes memory extraData
   ) external payable;
+}
 
-  // Spawn tile
+interface ISpawnHook {
   function onSpawn(EntityId caller, EntityId target, bytes memory extraData) external;
+}
 
-  // Bed
+interface ISleepHook {
   function onSleep(EntityId caller, EntityId target, bytes memory extraData) external;
+}
 
+interface IWakeupHook {
   function onWakeup(EntityId caller, EntityId target, bytes memory extraData) external;
+}
 
-  // Door
+interface IOpenHook {
   function onOpen(EntityId caller, EntityId target, bytes memory extraData) external;
+}
 
+interface ICloseHook {
   function onClose(EntityId caller, EntityId target, bytes memory extraData) external;
 }

@@ -17,9 +17,8 @@ Programs function as an extension mechanism that separates an entity's data from
 Programs in this architecture are defined by several key abstractions:
 
 - **ProgramId**: A unique identifier that references a specific program implementation (the underlying value is a MUD's `ResourceId`)
-- **EntityId**: A unique identifier for entities within the world
-- **IHooks**: An interface defining the events a program can respond to
-- **Systems**: Smart contracts that implement world logic and can interact with programs
+- **EntityId**: A unique identifier for entities within the world (ForceFields, Chests, etc)
+- **Program**: Smart contracts (MUD systems) which can be attached to specific entities to define their behavior
 
 The relationship between these components creates a flexible framework where entities can have programmable behaviors that are triggered by in-world events.
 
@@ -27,7 +26,7 @@ The relationship between these components creates a flexible framework where ent
 
 Programs follow an event-driven architecture where system contracts invoke program hooks in response to specific actions. This pattern allows for:
 
-1. **Decoupling**: Systems and programs are loosely coupled, communicating through well-defined interfaces
+1. **Decoupling**: World systems and programs are loosely coupled, communicating through well-defined interfaces
 2. **Extensibility**: New hooks can be added without modifying core systems
 3. **Composability**: A program can be attached to different types of entities, and optionally implement the hooks related to those entity types
 
@@ -45,10 +44,10 @@ Programs are registered as systems within the MUD framework, and `ProgramId`s en
 
 ### 3.2 Program Hooks Interface
 
-The `IHooks` interface defines the events that programs can respond to:
+The `IProgram` interface defines the events that programs can respond to:
 
 ```solidity
-interface IHooks {
+interface IProgram {
   function validateProgram(
     EntityId caller,
     EntityId target,
@@ -93,7 +92,7 @@ function attachProgram(EntityId caller, EntityId target, ProgramId program, byte
 
   EntityProgram._set(target, program);
 
-  program.callOrRevert(abi.encodeCall(IHooks.onAttachProgram, (caller, target, extraData)));
+  program.callOrRevert(abi.encodeCall(IProgram.onAttachProgram, (caller, target, extraData)));
 
   // Notification logic
   // ...
@@ -106,7 +105,7 @@ function detachProgram(EntityId caller, EntityId target, bytes calldata extraDat
   ProgramId oldProgram = target.getProgram();
   EntityProgram._deleteRecord(target);
 
-  oldProgram.callOrRevert(abi.encodeCall(IHooks.onDetachProgram, (caller, target, extraData)));
+  oldProgram.callOrRevert(abi.encodeCall(IProgram.onDetachProgram, (caller, target, extraData)));
 
   // Notification logic
   // ...
@@ -178,7 +177,7 @@ function fuelMachine(EntityId callerEntityId, EntityId machineEntityId, uint16 f
 
   // Call program hook
   ProgramId program = baseEntityId.getProgram();
-  program.callOrRevert(abi.encodeCall(IHooks.onFuel, (callerEntityId, baseEntityId, fuelAmount, "")));
+  program.callOrRevert(abi.encodeCall(IProgram.onFuel, (callerEntityId, baseEntityId, fuelAmount, "")));
 
   // Notification logic
   // ...

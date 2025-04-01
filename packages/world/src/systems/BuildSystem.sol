@@ -30,7 +30,7 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { ProgramId } from "../ProgramId.sol";
-import { IHooks } from "../IHooks.sol";
+import { IBuildHook } from "../ProgramInterfaces.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { BUILD_ENERGY_COST } from "../Constants.sol";
 
@@ -112,7 +112,7 @@ library BuildLib {
           }
 
           bytes memory onBuild = abi.encodeCall(
-            IHooks.onBuild,
+            IBuildHook.onBuild,
             (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
           );
 

@@ -18,7 +18,7 @@ import { ForceFieldFragment } from "../utils/Vec3Storage.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
-import { IHooks } from "../IHooks.sol";
+import { IAddFragmentHook, IRemoveFragmentHook } from "../ProgramInterfaces.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
@@ -163,7 +163,7 @@ contract ForceFieldSystem is System {
 
     // TODO: use the correct fragment id
     bytes memory onAddFragment = abi.encodeCall(
-      IHooks.onAddFragment,
+      IAddFragmentHook.onAddFragment,
       (callerEntityId, forceFieldEntityId, forceFieldEntityId, extraData)
     );
     forceFieldEntityId.getProgram().callOrRevert(onAddFragment);
@@ -240,7 +240,7 @@ contract ForceFieldSystem is System {
 
     // TODO: use the correct fragment id
     bytes memory onRemoveFragment = abi.encodeCall(
-      IHooks.onRemoveFragment,
+      IRemoveFragmentHook.onRemoveFragment,
       (callerEntityId, forceFieldEntityId, forceFieldEntityId, extraData)
     );
     forceFieldEntityId.getProgram().callOrRevert(onRemoveFragment);

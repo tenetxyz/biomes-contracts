@@ -38,7 +38,7 @@ import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND
 import { MINE_ENERGY_COST } from "../Constants.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { ProgramId } from "../ProgramId.sol";
-import { IHooks } from "../IHooks.sol";
+import { IMineHook, IDetachProgramHook } from "../ProgramInterfaces.sol";
 
 contract MineSystem is System {
   using ObjectTypeLib for ObjectTypeId;
@@ -151,7 +151,7 @@ contract MineSystem is System {
       ProgramId program = baseEntityId.getProgram();
       if (program.exists()) {
         bytes memory onDetachProgram = abi.encodeCall(
-          IHooks.onDetachProgram,
+          IDetachProgramHook.onDetachProgram,
           (callerEntityId, baseEntityId, extraData)
         );
         program.call({ gas: SAFE_PROGRAM_GAS, hook: onDetachProgram });
@@ -223,7 +223,7 @@ library MineLib {
     }
 
     bytes memory onMine = abi.encodeCall(
-      IHooks.onMine,
+      IMineHook.onMine,
       (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
     );
 

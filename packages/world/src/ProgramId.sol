@@ -10,7 +10,6 @@ import { ObjectTypeId } from "./ObjectTypeId.sol";
 import { ObjectAmount } from "./ObjectTypeLib.sol";
 import { EntityId } from "./EntityId.sol";
 import { Vec3 } from "./Vec3.sol";
-import { IHooks } from "./IHooks.sol";
 
 type ProgramId is bytes32;
 

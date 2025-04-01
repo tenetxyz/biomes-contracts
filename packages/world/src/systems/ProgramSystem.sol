@@ -22,7 +22,7 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 import { ProgramId } from "../ProgramId.sol";
-import { IHooks } from "../IHooks.sol";
+import { IAttachProgramHook, IDetachProgramHook, IProgramValidator } from "../ProgramInterfaces.sol";
 import { SAFE_PROGRAM_GAS } from "../Constants.sol";
 
 contract ProgramSystem is System {
@@ -44,7 +44,7 @@ contract ProgramSystem is System {
     (EntityId validator, ProgramId validatorProgram) = _getValidatorProgram(targetCoord);
 
     bytes memory validateProgram = abi.encodeCall(
-      IHooks.validateProgram,
+      IProgramValidator.validateProgram,
       (caller, validator, target, program, extraData)
     );
 
@@ -53,7 +53,7 @@ contract ProgramSystem is System {
 
     EntityProgram._set(target, program);
 
-    program.callOrRevert(abi.encodeCall(IHooks.onAttachProgram, (caller, target, extraData)));
+    program.callOrRevert(abi.encodeCall(IAttachProgramHook.onAttachProgram, (caller, target, extraData)));
 
     notify(caller, AttachProgramNotifData({ attachEntityId: target, programSystemId: program.toResourceId() }));
   }
@@ -71,7 +71,7 @@ contract ProgramSystem is System {
     ProgramId program = target.getProgram();
     require(program.exists(), "No program attached");
 
-    bytes memory onDetachProgram = abi.encodeCall(IHooks.onDetachProgram, (caller, target, extraData));
+    bytes memory onDetachProgram = abi.encodeCall(IDetachProgramHook.onDetachProgram, (caller, target, extraData));
 
     (EntityId forceField, ) = getForceField(targetCoord);
     // If forcefield doesn't have energy, allow the program
