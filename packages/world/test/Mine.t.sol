@@ -6,7 +6,7 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { Program } from "../src/codegen/tables/Program.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
@@ -33,7 +33,7 @@ import { CHUNK_SIZE, MAX_ENTITY_INFLUENCE_HALF_WIDTH, MINE_ENERGY_COST } from ".
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
-contract MineTest is BiomesTest {
+contract MineTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function testMineTerrain() public {

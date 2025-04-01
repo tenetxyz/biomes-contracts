@@ -31,11 +31,11 @@ import { CHUNK_SIZE, MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RA
 
 import { LocalEnergyPool, Position, ReversePosition, MovablePosition, ReverseMovablePosition } from "../src/utils/Vec3Storage.sol";
 import { TestInventoryUtils, TestForceFieldUtils, TestEnergyUtils } from "./utils/TestUtils.sol";
-import { BiomesAssertions } from "./BiomesAssertions.sol";
+import { DustAssertions } from "./DustAssertions.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
-abstract contract BiomesTest is MudTest, GasReporter, BiomesAssertions {
+abstract contract DustTest is MudTest, GasReporter, DustAssertions {
   using ObjectTypeLib for ObjectTypeId;
 
   IWorld internal world;

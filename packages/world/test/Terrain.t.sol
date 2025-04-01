@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { DustTest } from "./DustTest.sol";
 
 import { TerrainLib, VERSION_PADDING, BIOME_PADDING, SURFACE_PADDING } from "../src/systems/libraries/TerrainLib.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
@@ -14,7 +14,7 @@ import { InitialEnergyPool, LocalEnergyPool } from "../src/utils/Vec3Storage.sol
 import { RegionMerkleRoot } from "../src/codegen/tables/RegionMerkleRoot.sol";
 import { MockChunk, MockVegetation } from "./mockData.sol";
 
-contract TerrainTest is BiomesTest {
+contract TerrainTest is DustTest {
   function testGetChunkCoord() public pure {
     Vec3 coord = vec3(1, 2, 2);
     Vec3 chunkCoord = coord.toChunkCoord();

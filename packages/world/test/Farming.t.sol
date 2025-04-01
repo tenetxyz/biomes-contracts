@@ -26,10 +26,10 @@ import { TILL_ENERGY_COST, BUILD_ENERGY_COST, MINE_ENERGY_COST, MAX_ENTITY_INFLU
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { EntityId } from "../src/EntityId.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { DustTest } from "./DustTest.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
-contract FarmingTest is BiomesTest {
+contract FarmingTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function testTillDirt() public {

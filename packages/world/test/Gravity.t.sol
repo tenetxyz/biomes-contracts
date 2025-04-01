@@ -6,7 +6,7 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Program } from "../src/codegen/tables/Program.sol";
@@ -31,7 +31,7 @@ import { CHUNK_SIZE, PLAYER_FALL_ENERGY_COST, MINE_ENERGY_COST, MOVE_ENERGY_COST
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
-contract GravityTest is BiomesTest {
+contract GravityTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function testMineFallSingleBlock() public {
