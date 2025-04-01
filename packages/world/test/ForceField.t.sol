@@ -7,7 +7,7 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
-import { BiomesTest, console } from "./BiomesTest.sol";
+import { DustTest, console } from "./DustTest.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
@@ -158,7 +158,7 @@ contract TestChestProgram is IChestProgram, System {
   }
 }
 
-contract ForceFieldTest is BiomesTest {
+contract ForceFieldTest is DustTest {
   function attachTestProgram(EntityId entityId, System program) internal returns (ResourceId) {
     bytes14 namespace = bytes14(vm.randomBytes(14));
     ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);

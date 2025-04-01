@@ -11,7 +11,7 @@ import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResou
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { EnergyData } from "../src/codegen/tables/Energy.sol";
@@ -74,7 +74,7 @@ contract TestChestProgram is IChestProgram, System {
   }
 }
 
-contract TransferTest is BiomesTest {
+contract TransferTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function attachTestProgram(EntityId entityId, System program, bytes14 namespace) internal returns (ResourceId) {

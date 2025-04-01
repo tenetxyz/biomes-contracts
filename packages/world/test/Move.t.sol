@@ -7,7 +7,7 @@ import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResou
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { Program } from "../src/codegen/tables/Program.sol";
@@ -33,7 +33,7 @@ import { CHUNK_SIZE, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, MOVE_ENERGY_COST, PLAY
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
-contract MoveTest is BiomesTest {
+contract MoveTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function _testMoveMultipleBlocks(address player, uint8 numBlocksToMove, bool overTerrain) internal {

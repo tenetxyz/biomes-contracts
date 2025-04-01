@@ -35,7 +35,7 @@ import { TestForceFieldUtils } from "./utils/TestUtils.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
-abstract contract BiomesAssertions is MudTest, GasReporter {
+abstract contract DustAssertions is MudTest, GasReporter {
   struct EnergyDataSnapshot {
     uint128 playerEnergy;
     uint128 localPoolEnergy;
