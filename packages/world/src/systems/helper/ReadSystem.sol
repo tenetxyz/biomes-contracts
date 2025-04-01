@@ -17,6 +17,7 @@ import { PlayerStatus } from "../../codegen/tables/PlayerStatus.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
+import { Machine, MachineData } from "../../codegen/tables/Machine.sol";
 import { Orientation } from "../../codegen/tables/Orientation.sol";
 import { Direction } from "../../codegen/common.sol";
 
@@ -56,7 +57,8 @@ contract ReadSystem is System {
           orientation: Direction.PositiveX,
           programSystemId: ResourceId.wrap(0),
           mass: 0,
-          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0 })
+          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0 }),
+          machine: MachineData({ createdAt: 0, depletedTime: 0 })
         });
     }
 
@@ -73,7 +75,8 @@ contract ReadSystem is System {
         inventory: getEntityInventory(baseEntityId),
         programSystemId: Program._get(baseEntityId),
         mass: Mass._get(baseEntityId),
-        energy: Energy._get(baseEntityId)
+        energy: Energy._get(baseEntityId),
+        machine: Machine._get(baseEntityId)
       });
   }
 
@@ -90,7 +93,8 @@ contract ReadSystem is System {
           orientation: Direction.PositiveX,
           programSystemId: ResourceId.wrap(0),
           mass: 0,
-          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0 })
+          energy: EnergyData({ energy: 0, lastUpdatedTime: 0, drainRate: 0 }),
+          machine: MachineData({ createdAt: 0, depletedTime: 0 })
         });
     }
 
@@ -107,7 +111,8 @@ contract ReadSystem is System {
         inventory: getEntityInventory(baseEntityId),
         programSystemId: Program._get(baseEntityId),
         mass: Mass._get(baseEntityId),
-        energy: Energy._get(baseEntityId)
+        energy: Energy._get(baseEntityId),
+        machine: Machine._get(baseEntityId)
       });
   }
 

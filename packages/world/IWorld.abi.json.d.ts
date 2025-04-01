@@ -994,6 +994,23 @@ declare const abi: [
                 "internalType": "uint128"
               }
             ]
+          },
+          {
+            "name": "machine",
+            "type": "tuple",
+            "internalType": "struct MachineData",
+            "components": [
+              {
+                "name": "createdAt",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "depletedTime",
+                "type": "uint128",
+                "internalType": "uint128"
+              }
+            ]
           }
         ]
       }
@@ -1102,6 +1119,23 @@ declare const abi: [
               },
               {
                 "name": "drainRate",
+                "type": "uint128",
+                "internalType": "uint128"
+              }
+            ]
+          },
+          {
+            "name": "machine",
+            "type": "tuple",
+            "internalType": "struct MachineData",
+            "components": [
+              {
+                "name": "createdAt",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "depletedTime",
                 "type": "uint128",
                 "internalType": "uint128"
               }
@@ -1382,6 +1416,23 @@ declare const abi: [
                 "internalType": "uint128"
               }
             ]
+          },
+          {
+            "name": "machine",
+            "type": "tuple",
+            "internalType": "struct MachineData",
+            "components": [
+              {
+                "name": "createdAt",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "depletedTime",
+                "type": "uint128",
+                "internalType": "uint128"
+              }
+            ]
           }
         ]
       }
@@ -1490,6 +1541,23 @@ declare const abi: [
               },
               {
                 "name": "drainRate",
+                "type": "uint128",
+                "internalType": "uint128"
+              }
+            ]
+          },
+          {
+            "name": "machine",
+            "type": "tuple",
+            "internalType": "struct MachineData",
+            "components": [
+              {
+                "name": "createdAt",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
+              {
+                "name": "depletedTime",
                 "type": "uint128",
                 "internalType": "uint128"
               }
@@ -1626,6 +1694,23 @@ declare const abi: [
                     "internalType": "uint128"
                   }
                 ]
+              },
+              {
+                "name": "machine",
+                "type": "tuple",
+                "internalType": "struct MachineData",
+                "components": [
+                  {
+                    "name": "createdAt",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "depletedTime",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  }
+                ]
               }
             ]
           }
@@ -1756,6 +1841,23 @@ declare const abi: [
                   },
                   {
                     "name": "drainRate",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  }
+                ]
+              },
+              {
+                "name": "machine",
+                "type": "tuple",
+                "internalType": "struct MachineData",
+                "components": [
+                  {
+                    "name": "createdAt",
+                    "type": "uint128",
+                    "internalType": "uint128"
+                  },
+                  {
+                    "name": "depletedTime",
                     "type": "uint128",
                     "internalType": "uint128"
                   }
