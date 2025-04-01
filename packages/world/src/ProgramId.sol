@@ -15,10 +15,6 @@ import { SAFE_PROGRAM_GAS } from "./Constants.sol";
 
 type ProgramId is bytes32;
 
-interface IProgramValidator {
-  function validateProgram(ProgramId newProgram) external view returns (bool);
-}
-
 library ProgramIdLib {
   function unwrap(ProgramId self) internal pure returns (bytes32) {
     return ProgramId.unwrap(self);
@@ -100,10 +96,6 @@ library ProgramIdLib {
     }
     return returnData;
   }
-
-  // Displays
-  // TODO: describe format
-  function getDisplayURI(EntityId caller, EntityId target) external view returns (string memory) {}
 }
 
 function eq(ProgramId a, ProgramId b) pure returns (bool) {
