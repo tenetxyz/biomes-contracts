@@ -583,14 +583,13 @@ contract ForceFieldTest is BiomesTest {
     // Set up a flat chunk with a player
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    // Create a 3x3x3 force field
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
-    // Expand the force field to create a 3x3x3 cube
+    // Expand the force field
     Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
     Vec3 fragment1 = refFragmentCoord + vec3(1, 0, 0);
     Vec3 fragment2 = refFragmentCoord + vec3(0, 1, 0);
