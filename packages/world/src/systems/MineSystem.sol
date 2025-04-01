@@ -34,7 +34,7 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib, ObjectAmount } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
-import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
+import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM, SAFE_PROGRAM_GAS } from "../Constants.sol";
 import { MINE_ENERGY_COST } from "../Constants.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { ProgramId } from "../ProgramId.sol";
@@ -154,7 +154,7 @@ contract MineSystem is System {
           IHooks.onDetachProgram,
           (callerEntityId, baseEntityId, extraData)
         );
-        program.safeCall(onDetachProgram);
+        program.call({ gas: SAFE_PROGRAM_GAS, hook: onDetachProgram });
       }
 
       if (mineObjectTypeId == ObjectTypes.ForceField) {

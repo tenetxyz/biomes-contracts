@@ -11,7 +11,6 @@ import { ObjectAmount } from "./ObjectTypeLib.sol";
 import { EntityId } from "./EntityId.sol";
 import { Vec3 } from "./Vec3.sol";
 import { IHooks } from "./IHooks.sol";
-import { SAFE_PROGRAM_GAS } from "./Constants.sol";
 
 type ProgramId is bytes32;
 
@@ -36,21 +35,23 @@ library ProgramIdLib {
     return programAddress;
   }
 
-  function call(ProgramId self, bytes memory callData) internal returns (bool, bytes memory) {
+  function call(ProgramId self, bytes memory hook, uint256 gas) internal returns (bool, bytes memory) {
     // If no program set, allow the call
     address programAddress = self.getAddress();
     if (programAddress == address(0)) {
       return (true, "");
     }
 
-    // If program is set, call it and return the result
-    return
-      WorldContextProviderLib.callWithContext({
-        msgSender: address(0),
-        msgValue: 0,
-        target: programAddress,
-        callData: callData
-      });
+    return programAddress.call{ gas: gas }(_hookContext(hook));
+  }
+
+  function call(ProgramId self, bytes memory hook) internal returns (bool, bytes memory) {
+    address programAddress = self.getAddress();
+    if (programAddress == address(0)) {
+      return (true, "");
+    }
+
+    return programAddress.call(_hookContext(hook));
   }
 
   function callOrRevert(ProgramId self, bytes memory callData) internal returns (bytes memory) {
@@ -61,19 +62,7 @@ library ProgramIdLib {
     return returnData;
   }
 
-  function safeCall(ProgramId self, bytes memory data) internal returns (bool, bytes memory) {
-    address programAddress = self.getAddress();
-    if (programAddress == address(0)) {
-      return (true, "");
-    }
-
-    return
-      programAddress.call{ gas: SAFE_PROGRAM_GAS }(
-        WorldContextProviderLib.appendContext({ callData: data, msgSender: address(0), msgValue: 0 })
-      );
-  }
-
-  function staticcall(ProgramId self, bytes memory callData) internal view returns (bool, bytes memory) {
+  function staticcall(ProgramId self, bytes memory hook) internal view returns (bool, bytes memory) {
     // If no program set, allow the call
     address programAddress = self.getAddress();
     if (programAddress == address(0)) {
@@ -81,12 +70,7 @@ library ProgramIdLib {
     }
 
     // If program is set, call it and return the result
-    return
-      WorldContextProviderLib.staticcallWithContext({
-        msgSender: address(0),
-        target: programAddress,
-        callData: callData
-      });
+    return programAddress.staticcall(_hookContext(hook));
   }
 
   function staticcallOrRevert(ProgramId self, bytes memory callData) internal view returns (bytes memory) {
@@ -95,6 +79,10 @@ library ProgramIdLib {
       revertWithBytes(returnData);
     }
     return returnData;
+  }
+
+  function _hookContext(bytes memory hook) private pure returns (bytes memory) {
+    return WorldContextProviderLib.appendContext({ callData: hook, msgSender: address(0), msgValue: 0 });
   }
 }
 

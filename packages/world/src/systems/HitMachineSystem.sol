@@ -18,7 +18,7 @@ import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy, addEnergyToLocalPool, decreasePlayerEnergy, decreaseMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
-import { HIT_ENERGY_COST } from "../Constants.sol";
+import { HIT_ENERGY_COST, SAFE_PROGRAM_GAS } from "../Constants.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
@@ -46,7 +46,9 @@ contract HitMachineSystem is System {
     );
 
     ProgramId program = forceFieldEntityId.getProgram();
-    program.safeCall(abi.encodeCall(IHooks.onHit, (callerEntityId, forceFieldEntityId, energyReduction, "")));
+    bytes memory onHit = abi.encodeCall(IHooks.onHit, (callerEntityId, forceFieldEntityId, energyReduction, ""));
+    // Don't revert on hit
+    program.call({ gas: SAFE_PROGRAM_GAS, hook: onHit });
 
     notify(callerEntityId, HitMachineNotifData({ machineEntityId: forceFieldEntityId, machineCoord: forceFieldCoord }));
   }

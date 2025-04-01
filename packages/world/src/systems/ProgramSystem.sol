@@ -23,6 +23,7 @@ import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 import { ProgramId } from "../ProgramId.sol";
 import { IHooks } from "../IHooks.sol";
+import { SAFE_PROGRAM_GAS } from "../Constants.sol";
 
 contract ProgramSystem is System {
   function attachProgram(EntityId caller, EntityId target, ProgramId program, bytes calldata extraData) public payable {
@@ -78,7 +79,7 @@ contract ProgramSystem is System {
     if (machineData.energy > 0) {
       program.callOrRevert(onDetachProgram);
     } else {
-      program.safeCall(onDetachProgram);
+      program.call({ gas: SAFE_PROGRAM_GAS, hook: onDetachProgram });
     }
 
     EntityProgram._deleteRecord(target);
