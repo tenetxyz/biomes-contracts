@@ -23,7 +23,7 @@ import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
 import { MinedOrePosition, ReversePosition, MovablePosition, ReverseMovablePosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
@@ -32,7 +32,7 @@ import { CHUNK_SIZE, MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "../src/Constants.so
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
-contract DropTest is BiomesTest {
+contract DropTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function testDropTerrain() public {

@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { console } from "forge-std/console.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { DustTest } from "./DustTest.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
@@ -16,7 +16,7 @@ import { EntityId } from "../src/EntityId.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 
-contract FoodTest is BiomesTest {
+contract FoodTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function testEatFood() public {

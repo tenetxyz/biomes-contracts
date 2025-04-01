@@ -8,9 +8,9 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
-import { BiomesTest, console } from "./BiomesTest.sol";
 import { TestForceFieldUtils, TestInventoryUtils, TestEnergyUtils } from "./utils/TestUtils.sol";
 
+import { DustTest, console } from "./DustTest.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Machine } from "../src/codegen/tables/Machine.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
@@ -99,7 +99,7 @@ contract TestChestProgram is System {
   fallback() external {}
 }
 
-contract ForceFieldTest is BiomesTest {
+contract ForceFieldTest is DustTest {
   function attachTestProgram(EntityId entityId, System programSystem) internal returns (ProgramId) {
     bytes14 namespace = bytes14(keccak256(abi.encode(programSystem)));
     ResourceId namespaceId = WorldResourceIdLib.encodeNamespace(namespace);

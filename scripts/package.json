@@ -1,5 +1,5 @@
 {
-  "name": "@biomesaw/scripts",
+  "name": "@dust/scripts",
   "version": "0.0.1",
   "private": true,
   "description": "",
@@ -16,7 +16,7 @@
     "parseStats": "npx tsx parseStats.ts"
   },
   "dependencies": {
-    "@biomesaw/world": "link:../world",
+    "@dust/world": "link:../world",
     "@latticexyz/common": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
     "@latticexyz/store": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
     "@latticexyz/store-sync": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",

@@ -4,7 +4,7 @@ pragma solidity >=0.8.24;
 import { console } from "forge-std/console.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
@@ -29,7 +29,7 @@ import { CHUNK_SIZE, MAX_ENTITY_INFLUENCE_HALF_WIDTH, BUILD_ENERGY_COST } from "
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
-contract BuildTest is BiomesTest {
+contract BuildTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function testBuildTerrain() public {

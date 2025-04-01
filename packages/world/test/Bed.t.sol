@@ -7,9 +7,10 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
-import { BiomesTest, console } from "./BiomesTest.sol";
 import { TestEnergyUtils } from "./utils/TestUtils.sol";
 
+import { DustTest, console } from "./DustTest.sol";
+import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
@@ -32,7 +33,7 @@ contract TestBedProgram is System {
   fallback() external {}
 }
 
-contract BedTest is BiomesTest {
+contract BedTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function createBed(Vec3 bedCoord) internal returns (EntityId) {

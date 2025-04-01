@@ -4,6 +4,7 @@ pragma solidity >=0.8.24;
 import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 
 import { EnergyData } from "../codegen/tables/Energy.sol";
+import { MachineData } from "../codegen/tables/Machine.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
@@ -47,6 +48,7 @@ struct EntityData {
   ResourceId programSystemId;
   uint256 mass;
   EnergyData energy;
+  MachineData machine;
 }
 
 function getEntityInventory(EntityId entityId) view returns (InventoryObject[] memory) {

@@ -7,9 +7,10 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
-import { BiomesTest, console } from "./BiomesTest.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
+import { DustTest, console } from "./DustTest.sol";
+import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
@@ -29,7 +30,7 @@ contract TestSpawnProgram is System {
   fallback() external {}
 }
 
-contract SpawnTest is BiomesTest {
+contract SpawnTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function spawnEnergy() internal view returns (uint128) {
@@ -63,7 +64,7 @@ contract SpawnTest is BiomesTest {
 
   function testRandomSpawnInMaintainance() public {
     WorldStatus.setInMaintenance(true);
-    vm.expectRevert("Biomes is in maintenance mode. Try again later");
+    vm.expectRevert("DUST is in maintenance mode. Try again later");
     world.randomSpawn(block.number, 0);
   }
 

@@ -23,10 +23,10 @@ import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { DustTest } from "./DustTest.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
-contract BucketTest is BiomesTest {
+contract BucketTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function testFillBucket() public {

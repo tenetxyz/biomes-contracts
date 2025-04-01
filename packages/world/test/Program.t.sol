@@ -5,7 +5,7 @@ import { console } from "forge-std/console.sol";
 import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
@@ -32,7 +32,7 @@ import { CHUNK_SIZE } from "../src/Constants.sol";
 import { Vec3 } from "../src/Vec3.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
-contract ProgramTest is BiomesTest {
+contract ProgramTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function testMineFailsIfProgramAttached() public {

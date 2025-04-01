@@ -9,7 +9,7 @@ import { WorldStatus } from "./codegen/tables/WorldStatus.sol";
 import { EntityId } from "./EntityId.sol";
 
 function checkWorldStatus() view {
-  require(!WorldStatus._getInMaintenance(), "Biomes is in maintenance mode. Try again later");
+  require(!WorldStatus._getInMaintenance(), "DUST is in maintenance mode. Try again later");
 }
 
 function getUniqueEntity() returns (EntityId) {

@@ -9,10 +9,10 @@ import { Abi, Account, Chain, ContractFunctionName, ContractFunctionArgs } from 
 
 import { privateKeyToAccount } from "viem/accounts";
 
-import IWorldAbi from "@biomesaw/world/IWorld.abi.json";
+import IWorldAbi from "@dust/world/IWorld.abi.json";
 import ERC20SystemAbi from "@latticexyz/world-modules/out/ERC20System.sol/ERC20System.abi.json";
 import ERC721SystemAbi from "@latticexyz/world-modules/out/ERC721System.sol/ERC721System.abi.json";
-import worldsJson from "@biomesaw/world/worlds.json";
+import worldsJson from "@dust/world/worlds.json";
 
 import { supportedChains } from "./supportedChains";
 import { mudFoundry } from "@latticexyz/common/chains";

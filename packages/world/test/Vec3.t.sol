@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { BiomesTest, console } from "./BiomesTest.sol";
+import { DustTest, console } from "./DustTest.sol";
 
 import { LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
 import { EntityId } from "../src/EntityId.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 
-contract Vec3Test is BiomesTest {
+contract Vec3Test is DustTest {
   function testVec3Encoding() public pure {
     Vec3 vec = vec3(1, 2, 3);
     assertEq(vec.x(), 1);

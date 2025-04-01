@@ -5,7 +5,7 @@ import { console } from "forge-std/console.sol";
 import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
-import { BiomesTest } from "./BiomesTest.sol";
+import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
@@ -30,7 +30,7 @@ import { CHUNK_SIZE, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, MOVE_ENERGY_COST, PLAY
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
-contract MoveTest is BiomesTest {
+contract MoveTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function _testMoveMultipleBlocks(address player, uint8 numBlocksToMove, bool overTerrain) internal {
