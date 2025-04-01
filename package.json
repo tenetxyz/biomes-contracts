@@ -1,5 +1,5 @@
 {
-  "name": "biomesaw",
+  "name": "dust",
   "scripts": {
     "build": "pnpm recursive run build",
     "clean": "pnpm recursive run clean",

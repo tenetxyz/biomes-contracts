@@ -71,7 +71,7 @@ contract SpawnTest is BiomesTest {
 
   function testRandomSpawnInMaintainance() public {
     WorldStatus.setInMaintenance(true);
-    vm.expectRevert("Biomes is in maintenance mode. Try again later");
+    vm.expectRevert("DUST is in maintenance mode. Try again later");
     world.randomSpawn(block.number, 0);
   }
 

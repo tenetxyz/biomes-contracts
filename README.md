@@ -1,6 +1,6 @@
-# Biomes AW
+# DUST
 
-A Biome Is a Playful Sandbox. Deploy Smart Contracts to Create Games on Top of It. This repo hosts the contracts for the sandbox.
+This repo hosts the contracts for the DUST world.
 
 ### Running
 

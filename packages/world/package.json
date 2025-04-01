@@ -1,5 +1,5 @@
 {
-  "name": "@biomesaw/world",
+  "name": "@dust/world",
   "version": "0.1.4",
   "exports": {
     "./mud.config": "./dist/mud.config.js",

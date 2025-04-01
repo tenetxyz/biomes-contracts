@@ -102,7 +102,7 @@ importers:
 
   scripts:
     dependencies:
-      '@biomesaw/world':
+      '@dust/world':
         specifier: link:../world
         version: link:../world
       '@latticexyz/common':
