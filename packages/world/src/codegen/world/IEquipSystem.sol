@@ -11,5 +11,5 @@ import { EntityId } from "../../EntityId.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IEquipSystem {
-  function equip(EntityId caller, EntityId inventory) external;
+  function equip(EntityId caller, EntityId inventoryEntityId) external;
 }

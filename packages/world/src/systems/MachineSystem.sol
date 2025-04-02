@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { ActionType } from "../codegen/common.sol";
+import { Action } from "../codegen/common.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -11,7 +11,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
-import { PowerMachineNotification, notify } from "../utils/NotifUtils.sol";
+import { FuelMachineNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
