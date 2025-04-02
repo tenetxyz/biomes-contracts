@@ -47,8 +47,7 @@ import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { RandomResourceLib } from "./libraries/RandomResourceLib.sol";
 
-import { SAFE_PROGRAM_GAS } from "../Constants.sol";
-import { MINE_ENERGY_COST } from "../Constants.sol";
+import { MINE_ENERGY_COST, SAFE_PROGRAM_GAS } from "../Constants.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectAmount, ObjectTypeLib } from "../ObjectTypeLib.sol";

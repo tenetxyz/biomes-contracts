@@ -40,11 +40,7 @@ library MoveLib {
     }
   }
 
-  function _getPlayers(EntityId basePlayer, Vec3[] memory playerCoords)
-    internal
-    view
-    returns (EntityId[] memory)
-  {
+  function _getPlayers(EntityId basePlayer, Vec3[] memory playerCoords) internal view returns (EntityId[] memory) {
     EntityId[] memory players = new EntityId[](playerCoords.length);
     players[0] = basePlayer;
     // Only iterate through relative schema coords

@@ -3,12 +3,12 @@ pragma solidity >=0.8.24;
 
 import { EntityId } from "../src/EntityId.sol";
 
-import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ResourceCategory } from "../src/codegen/common.sol";
+import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 
-import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
 
 import { TotalBurnedResourceCount } from "../src/codegen/tables/TotalBurnedResourceCount.sol";
 import { TotalResourceCount } from "../src/codegen/tables/TotalResourceCount.sol";
@@ -16,7 +16,7 @@ import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { DustTest } from "./DustTest.sol";
 
 import {
-  LocalEnergyPool, ResourcePosition, ChunkCommitment, Position, ReversePosition
+  ChunkCommitment, LocalEnergyPool, Position, ResourcePosition, ReversePosition
 } from "../src/utils/Vec3Storage.sol";
 
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, CHUNK_SIZE } from "../src/Constants.sol";

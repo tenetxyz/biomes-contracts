@@ -15,8 +15,9 @@ import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
 import { ResourceLib } from "../../ResourceLib.sol";
 import { Vec3 } from "../../Vec3.sol";
-import { ObjectType } from "../../codegen/tables/ObjectType.sol";
+
 import { Mass } from "../../codegen/tables/Mass.sol";
+import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
 library RandomResourceLib {
@@ -34,7 +35,7 @@ library RandomResourceLib {
 
   function _mineRandomResource(EntityId entityId, Vec3 coord, ResourceCategory category) public returns (ObjectTypeId) {
     (ObjectTypeId resourceType, uint256 resourceCount) = _getRandomResourceType(coord, category);
-    
+
     // Set total harvested resource and add position
     uint256 totalResources = TotalResourceCount._get(category);
     ResourcePosition._set(category, totalResources, coord);

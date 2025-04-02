@@ -11,16 +11,17 @@ import { Player } from "../codegen/tables/Player.sol";
 import { TotalBurnedResourceCount } from "../codegen/tables/TotalBurnedResourceCount.sol";
 import { TotalResourceCount } from "../codegen/tables/TotalResourceCount.sol";
 
-import { ResourcePosition, ChunkCommitment, Position, ReversePosition } from "../utils/Vec3Storage.sol";
+import { ChunkCommitment, Position, ResourcePosition, ReversePosition } from "../utils/Vec3Storage.sol";
 
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, CHUNK_COMMIT_HALF_WIDTH, RESPAWN_ORE_BLOCK_RANGE } from "../Constants.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
+
+import { ResourceLib } from "../ResourceLib.sol";
 import { Vec3 } from "../Vec3.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
-import { ResourceLib } from "../ResourceLib.sol";
 
 contract NatureSystem is System {
   function chunkCommit(EntityId caller, Vec3 chunkCoord) public {

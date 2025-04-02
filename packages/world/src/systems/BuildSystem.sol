@@ -146,7 +146,9 @@ contract BuildSystem is System {
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
     BuildLib._requireBuildsAllowed(caller, base, buildObjectTypeId, coords, extraData);
 
-    notify(caller, BuildNotification({ buildEntityId: base, buildCoord: coords[0], buildObjectTypeId: buildObjectTypeId }));
+    notify(
+      caller, BuildNotification({ buildEntityId: base, buildCoord: coords[0], buildObjectTypeId: buildObjectTypeId })
+    );
 
     return base;
   }

@@ -279,7 +279,9 @@ library ObjectTypeLib {
       // This increases the availability of the ores being burned
       ResourceCount._set(objectTypeId, ResourceCount._get(objectTypeId) - amount);
       // This allows the same amount of ores to respawn
-      TotalBurnedResourceCount._set(ResourceCategory.Mining, TotalBurnedResourceCount._get(ResourceCategory.Mining) + amount);
+      TotalBurnedResourceCount._set(
+        ResourceCategory.Mining, TotalBurnedResourceCount._get(ResourceCategory.Mining) + amount
+      );
     }
   }
 

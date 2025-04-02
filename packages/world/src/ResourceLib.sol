@@ -217,4 +217,3 @@ library ResourceLib {
     revert("Unknown resource category for object type");
   }
 }
-

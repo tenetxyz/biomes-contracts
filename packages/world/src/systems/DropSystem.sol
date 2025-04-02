@@ -35,15 +35,12 @@ contract DropSystem is System {
     EntityId entityId = dropCommon(caller, coord);
     transferInventoryNonEntity(caller, entityId, ObjectType._get(entityId), dropObjectTypeId, numToDrop);
 
-    notify(
-      caller, DropNotification({ dropCoord: coord, dropObjectTypeId: dropObjectTypeId, dropAmount: numToDrop })
-    );
+    notify(caller, DropNotification({ dropCoord: coord, dropObjectTypeId: dropObjectTypeId, dropAmount: numToDrop }));
   }
 
   function dropTool(EntityId caller, EntityId tool, Vec3 coord) public {
     EntityId entityId = dropCommon(caller, coord);
-    ObjectTypeId toolObjectTypeId =
-      transferInventoryEntity(caller, entityId, ObjectType._get(entityId), tool);
+    ObjectTypeId toolObjectTypeId = transferInventoryEntity(caller, entityId, ObjectType._get(entityId), tool);
 
     notify(caller, DropNotification({ dropCoord: coord, dropObjectTypeId: toolObjectTypeId, dropAmount: 1 }));
   }
@@ -55,8 +52,7 @@ contract DropSystem is System {
 
     ObjectTypeId toolObjectTypeId;
     for (uint256 i = 0; i < tools.length; i++) {
-      ObjectTypeId currentToolObjectTypeId =
-        transferInventoryEntity(caller, entityId, ObjectTypes.Air, tools[i]);
+      ObjectTypeId currentToolObjectTypeId = transferInventoryEntity(caller, entityId, ObjectTypes.Air, tools[i]);
       if (i > 0) {
         require(toolObjectTypeId == currentToolObjectTypeId, "All tools must be of the same type");
       } else {

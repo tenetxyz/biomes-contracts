@@ -10,11 +10,11 @@ import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 
-import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
+import { ResourceCategory } from "../src/codegen/common.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
-import { ResourceCategory } from "../src/codegen/common.sol";
+import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
 
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { TotalBurnedResourceCount } from "../src/codegen/tables/TotalBurnedResourceCount.sol";
@@ -23,11 +23,11 @@ import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { DustTest } from "./DustTest.sol";
 
 import {
-  LocalEnergyPool,
-  ResourcePosition,
-  MovablePosition,
   ChunkCommitment,
+  LocalEnergyPool,
+  MovablePosition,
   Position,
+  ResourcePosition,
   ReverseMovablePosition,
   ReversePosition
 } from "../src/utils/Vec3Storage.sol";
