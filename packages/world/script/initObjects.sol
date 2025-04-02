@@ -5,8 +5,8 @@ pragma solidity >=0.8.24;
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 
-import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 
 function initObjects() {
   ObjectTypeMetadata.set(
@@ -1391,7 +1391,7 @@ function initObjects() {
       stackable: 0,
       maxInventorySlots: 36,
       mass: 0,
-      energy: uint32(MAX_PLAYER_ENERGY),
+      energy: MAX_PLAYER_ENERGY,
       canPassThrough: false
     })
   );
