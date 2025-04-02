@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-import { ActionType } from "../codegen/common.sol";
+import { Action } from "../codegen/common.sol";
 import { Notification, NotificationData } from "../codegen/tables/Notification.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -11,305 +11,305 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectAmount } from "../ObjectTypeLib.sol";
 import { Vec3 } from "../Vec3.sol";
 
-struct BuildNotifData {
+struct BuildNotification {
   EntityId buildEntityId;
   Vec3 buildCoord;
   ObjectTypeId buildObjectTypeId;
 }
 
-struct MineNotifData {
+struct MineNotification {
   EntityId mineEntityId;
   Vec3 mineCoord;
   ObjectTypeId mineObjectTypeId;
 }
 
-struct MoveNotifData {
+struct MoveNotification {
   Vec3[] moveCoords;
 }
 
-struct CraftNotifData {
+struct CraftNotification {
   bytes32 recipeId;
-  EntityId stationEntityId;
+  EntityId station;
 }
 
-struct DropNotifData {
+struct DropNotification {
   Vec3 dropCoord;
   ObjectTypeId dropObjectTypeId;
   uint16 dropAmount;
 }
 
-struct PickupNotifData {
+struct PickupNotification {
   Vec3 pickupCoord;
   ObjectTypeId pickupObjectTypeId;
   uint16 pickupAmount;
 }
 
-struct TransferNotifData {
+struct TransferNotification {
   EntityId transferEntityId;
-  EntityId[] toolEntityIds;
+  EntityId[] tools;
   ObjectAmount[] objectAmounts;
 }
 
-struct EquipNotifData {
+struct EquipNotification {
   EntityId inventoryEntityId;
 }
 
-struct UnequipNotifData {
+struct UnequipNotification {
   EntityId inventoryEntityId;
 }
 
-struct SpawnNotifData {
+struct SpawnNotification {
   Vec3 spawnCoord;
 }
 
-struct PowerMachineNotifData {
-  EntityId machineEntityId;
+struct FuelMachineNotification {
+  EntityId machine;
   Vec3 machineCoord;
   uint16 fuelAmount;
 }
 
-struct HitMachineNotifData {
-  EntityId machineEntityId;
+struct HitMachineNotification {
+  EntityId machine;
   Vec3 machineCoord;
 }
 
-struct AttachProgramNotifData {
-  EntityId attachEntityId;
+struct AttachProgramNotification {
+  EntityId attachedTo;
   ResourceId programSystemId;
 }
 
-struct DetachProgramNotifData {
-  EntityId detachEntityId;
+struct DetachProgramNotification {
+  EntityId detachedFrom;
   ResourceId programSystemId;
 }
 
-struct SleepNotifData {
-  EntityId bedEntityId;
+struct SleepNotification {
+  EntityId bed;
   Vec3 bedCoord;
 }
 
-struct WakeupNotifData {
-  EntityId bedEntityId;
+struct WakeupNotification {
+  EntityId bed;
   Vec3 bedCoord;
 }
 
-struct AddFragmentNotifData {
-  EntityId forceFieldEntityId;
+struct AddFragmentNotification {
+  EntityId forceField;
 }
 
-struct RemoveFragmentNotifData {
-  EntityId forceFieldEntityId;
+struct RemoveFragmentNotification {
+  EntityId forceField;
 }
 
-struct DeathNotifData {
+struct DeathNotification {
   Vec3 deathCoord;
 }
 
-function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {
+function notify(EntityId player, BuildNotification memory buildNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Build,
-      actionData: abi.encode(buildNotifData)
+      action: Action.Build,
+      data: abi.encode(buildNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, MineNotifData memory mineNotifData) {
+function notify(EntityId player, MineNotification memory mineNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Mine,
-      actionData: abi.encode(mineNotifData)
+      action: Action.Mine,
+      data: abi.encode(mineNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, MoveNotifData memory moveNotifData) {
+function notify(EntityId player, MoveNotification memory moveNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Move,
-      actionData: abi.encode(moveNotifData)
+      action: Action.Move,
+      data: abi.encode(moveNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, CraftNotifData memory craftNotifData) {
+function notify(EntityId player, CraftNotification memory craftNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Craft,
-      actionData: abi.encode(craftNotifData)
+      action: Action.Craft,
+      data: abi.encode(craftNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, DropNotifData memory dropNotifData) {
+function notify(EntityId player, DropNotification memory dropNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Drop,
-      actionData: abi.encode(dropNotifData)
+      action: Action.Drop,
+      data: abi.encode(dropNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, PickupNotifData memory pickupNotifData) {
+function notify(EntityId player, PickupNotification memory pickupNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Pickup,
-      actionData: abi.encode(pickupNotifData)
+      action: Action.Pickup,
+      data: abi.encode(pickupNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, TransferNotifData memory transferNotifData) {
+function notify(EntityId player, TransferNotification memory transferNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Transfer,
-      actionData: abi.encode(transferNotifData)
+      action: Action.Transfer,
+      data: abi.encode(transferNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, EquipNotifData memory equipNotifData) {
+function notify(EntityId player, EquipNotification memory equipNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Equip,
-      actionData: abi.encode(equipNotifData)
+      action: Action.Equip,
+      data: abi.encode(equipNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, UnequipNotifData memory unequipNotifData) {
+function notify(EntityId player, UnequipNotification memory unequipNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Unequip,
-      actionData: abi.encode(unequipNotifData)
+      action: Action.Unequip,
+      data: abi.encode(unequipNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, SpawnNotifData memory spawnNotifData) {
+function notify(EntityId player, SpawnNotification memory spawnNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Spawn,
-      actionData: abi.encode(spawnNotifData)
+      action: Action.Spawn,
+      data: abi.encode(spawnNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, PowerMachineNotifData memory powerMachineNotifData) {
+function notify(EntityId player, FuelMachineNotification memory powerMachineNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.PowerMachine,
-      actionData: abi.encode(powerMachineNotifData)
+      action: Action.FuelMachine,
+      data: abi.encode(powerMachineNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, HitMachineNotifData memory hitMachineNotifData) {
+function notify(EntityId player, HitMachineNotification memory hitMachineNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.HitMachine,
-      actionData: abi.encode(hitMachineNotifData)
+      action: Action.HitMachine,
+      data: abi.encode(hitMachineNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, AttachProgramNotifData memory attachProgramNotifData) {
+function notify(EntityId player, AttachProgramNotification memory attachProgramNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.AttachProgram,
-      actionData: abi.encode(attachProgramNotifData)
+      action: Action.AttachProgram,
+      data: abi.encode(attachProgramNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, DetachProgramNotifData memory detachProgramNotifData) {
+function notify(EntityId player, DetachProgramNotification memory detachProgramNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.DetachProgram,
-      actionData: abi.encode(detachProgramNotifData)
+      action: Action.DetachProgram,
+      data: abi.encode(detachProgramNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, SleepNotifData memory sleepNotifData) {
+function notify(EntityId player, SleepNotification memory sleepNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Sleep,
-      actionData: abi.encode(sleepNotifData)
+      action: Action.Sleep,
+      data: abi.encode(sleepNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, WakeupNotifData memory wakeupNotifData) {
+function notify(EntityId player, WakeupNotification memory wakeupNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Wakeup,
-      actionData: abi.encode(wakeupNotifData)
+      action: Action.Wakeup,
+      data: abi.encode(wakeupNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, AddFragmentNotifData memory addFragmentNotifData) {
+function notify(EntityId player, AddFragmentNotification memory addFragmentNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.AddFragment,
-      actionData: abi.encode(addFragmentNotifData)
+      action: Action.AddFragment,
+      data: abi.encode(addFragmentNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, RemoveFragmentNotifData memory removeFragmentNotifData) {
+function notify(EntityId player, RemoveFragmentNotification memory removeFragmentNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.RemoveFragment,
-      actionData: abi.encode(removeFragmentNotifData)
+      action: Action.RemoveFragment,
+      data: abi.encode(removeFragmentNotification)
     })
   );
 }
 
-function notify(EntityId playerEntityId, DeathNotifData memory deathNotifData) {
+function notify(EntityId player, DeathNotification memory deathNotification) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.Death,
-      actionData: abi.encode(deathNotifData)
+      action: Action.Death,
+      data: abi.encode(deathNotification)
     })
   );
 }

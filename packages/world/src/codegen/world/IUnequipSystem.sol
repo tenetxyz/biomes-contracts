@@ -11,5 +11,5 @@ import { EntityId } from "../../EntityId.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IUnequipSystem {
-  function unequip(EntityId callerEntityId) external;
+  function unequip(EntityId caller) external;
 }

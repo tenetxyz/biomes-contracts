@@ -11,31 +11,31 @@ import { MovablePosition } from "../utils/Vec3Storage.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
 
-import { MoveNotifData, notify } from "../utils/NotifUtils.sol";
+import { MoveNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 
 contract MoveSystem is System {
-  function move(EntityId callerEntityId, Vec3[] memory newCoords) public {
-    callerEntityId.activate();
+  function move(EntityId caller, Vec3[] memory newCoords) public {
+    caller.activate();
 
-    MoveLib.move(callerEntityId, MovablePosition._get(callerEntityId), newCoords);
+    MoveLib.move(caller, MovablePosition._get(caller), newCoords);
 
-    notify(callerEntityId, MoveNotifData({ moveCoords: newCoords }));
+    notify(caller, MoveNotification({ moveCoords: newCoords }));
   }
 
-  function moveDirections(EntityId callerEntityId, Direction[] memory directions) public {
-    callerEntityId.activate();
+  function moveDirections(EntityId caller, Direction[] memory directions) public {
+    caller.activate();
 
-    Vec3 coord = MovablePosition._get(callerEntityId);
+    Vec3 coord = MovablePosition._get(caller);
 
     Vec3[] memory newCoords = new Vec3[](directions.length);
     for (uint256 i = 0; i < directions.length; i++) {
       newCoords[i] = (i == 0 ? coord : newCoords[i - 1]).transform(directions[i]);
     }
 
-    MoveLib.move(callerEntityId, coord, newCoords);
+    MoveLib.move(caller, coord, newCoords);
 
-    notify(callerEntityId, MoveNotifData({ moveCoords: newCoords }));
+    notify(caller, MoveNotification({ moveCoords: newCoords }));
   }
 }

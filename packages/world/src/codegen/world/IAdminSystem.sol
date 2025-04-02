@@ -13,17 +13,13 @@ import { Vec3 } from "../../Vec3.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IAdminSystem {
-  function adminAddToInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToAdd) external;
+  function adminAddToInventory(EntityId owner, ObjectTypeId objectTypeId, uint16 numObjectsToAdd) external;
 
-  function adminAddToolToInventory(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId) external returns (EntityId);
+  function adminAddToolToInventory(EntityId owner, ObjectTypeId toolObjectTypeId) external returns (EntityId);
 
-  function adminRemoveFromInventory(
-    EntityId ownerEntityId,
-    ObjectTypeId objectTypeId,
-    uint16 numObjectsToRemove
-  ) external;
+  function adminRemoveFromInventory(EntityId owner, ObjectTypeId objectTypeId, uint16 numObjectsToRemove) external;
 
-  function adminRemoveToolFromInventory(EntityId ownerEntityId, EntityId toolEntityId) external;
+  function adminRemoveToolFromInventory(EntityId owner, EntityId tool) external;
 
   function adminTeleportPlayer(address player, Vec3 finalCoord) external;
 }

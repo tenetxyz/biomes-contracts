@@ -17,7 +17,7 @@ declare const abi: [
     "name": "activatePlayer",
     "inputs": [
       {
-        "name": "player",
+        "name": "playerAddress",
         "type": "address",
         "internalType": "address"
       }
@@ -63,7 +63,7 @@ declare const abi: [
     "name": "adminAddToInventory",
     "inputs": [
       {
-        "name": "ownerEntityId",
+        "name": "owner",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -86,7 +86,7 @@ declare const abi: [
     "name": "adminAddToolToInventory",
     "inputs": [
       {
-        "name": "ownerEntityId",
+        "name": "owner",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -110,7 +110,7 @@ declare const abi: [
     "name": "adminRemoveFromInventory",
     "inputs": [
       {
-        "name": "ownerEntityId",
+        "name": "owner",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -133,12 +133,12 @@ declare const abi: [
     "name": "adminRemoveToolFromInventory",
     "inputs": [
       {
-        "name": "ownerEntityId",
+        "name": "owner",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toolEntityId",
+        "name": "tool",
         "type": "bytes32",
         "internalType": "EntityId"
       }
@@ -264,7 +264,7 @@ declare const abi: [
     "name": "build",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -298,7 +298,7 @@ declare const abi: [
     "name": "buildWithDirection",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -419,7 +419,7 @@ declare const abi: [
     "name": "craft",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -437,7 +437,7 @@ declare const abi: [
     "name": "craftWithStation",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -447,7 +447,7 @@ declare const abi: [
         "internalType": "bytes32"
       },
       {
-        "name": "stationEntityId",
+        "name": "station",
         "type": "bytes32",
         "internalType": "EntityId"
       }
@@ -514,7 +514,7 @@ declare const abi: [
     "name": "drop",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -542,12 +542,12 @@ declare const abi: [
     "name": "dropTool",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toolEntityId",
+        "name": "tool",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -565,12 +565,12 @@ declare const abi: [
     "name": "dropTools",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toolEntityIds",
+        "name": "tools",
         "type": "bytes32[]",
         "internalType": "EntityId[]"
       },
@@ -588,7 +588,7 @@ declare const abi: [
     "name": "eat",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -611,7 +611,7 @@ declare const abi: [
     "name": "equip",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -675,7 +675,7 @@ declare const abi: [
     "name": "fillBucket",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -693,12 +693,12 @@ declare const abi: [
     "name": "fuelMachine",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "machineEntityId",
+        "name": "machine",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -1563,12 +1563,12 @@ declare const abi: [
             "internalType": "address"
           },
           {
-            "name": "bedEntityId",
+            "name": "bed",
             "type": "bytes32",
             "internalType": "EntityId"
           },
           {
-            "name": "equippedEntityId",
+            "name": "equipped",
             "type": "bytes32",
             "internalType": "EntityId"
           },
@@ -1714,12 +1714,12 @@ declare const abi: [
             "internalType": "address"
           },
           {
-            "name": "bedEntityId",
+            "name": "bed",
             "type": "bytes32",
             "internalType": "EntityId"
           },
           {
-            "name": "equippedEntityId",
+            "name": "equipped",
             "type": "bytes32",
             "internalType": "EntityId"
           },
@@ -2054,7 +2054,7 @@ declare const abi: [
     "name": "growSeed",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2072,7 +2072,7 @@ declare const abi: [
     "name": "hitForceField",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2158,7 +2158,7 @@ declare const abi: [
     "name": "jumpBuild",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2181,7 +2181,7 @@ declare const abi: [
     "name": "jumpBuildWithDirection",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2209,7 +2209,7 @@ declare const abi: [
     "name": "mine",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2238,7 +2238,7 @@ declare const abi: [
     "name": "mineUntilDestroyed",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2261,7 +2261,7 @@ declare const abi: [
     "name": "move",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2279,7 +2279,7 @@ declare const abi: [
     "name": "moveDirections",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2297,7 +2297,7 @@ declare const abi: [
     "name": "oreChunkCommit",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2315,7 +2315,7 @@ declare const abi: [
     "name": "pickup",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2343,7 +2343,7 @@ declare const abi: [
     "name": "pickupAll",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2361,7 +2361,7 @@ declare const abi: [
     "name": "pickupMultiple",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2401,12 +2401,12 @@ declare const abi: [
     "name": "pickupTool",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toolEntityId",
+        "name": "tool",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2723,7 +2723,7 @@ declare const abi: [
     "name": "removeDeadPlayerFromBed",
     "inputs": [
       {
-        "name": "playerEntityId",
+        "name": "player",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2996,12 +2996,12 @@ declare const abi: [
     "name": "sleep",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "bedEntityId",
+        "name": "bed",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -3019,7 +3019,7 @@ declare const abi: [
     "name": "spawn",
     "inputs": [
       {
-        "name": "spawnTileEntityId",
+        "name": "spawnTile",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -3127,7 +3127,7 @@ declare const abi: [
     "name": "till",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -3145,17 +3145,17 @@ declare const abi: [
     "name": "transfer",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "fromEntityId",
+        "name": "from",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toEntityId",
+        "name": "to",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -3247,22 +3247,22 @@ declare const abi: [
     "name": "transferTool",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "fromEntityId",
+        "name": "from",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toEntityId",
+        "name": "to",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toolEntityId",
+        "name": "tool",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -3280,22 +3280,22 @@ declare const abi: [
     "name": "transferTools",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "fromEntityId",
+        "name": "from",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toEntityId",
+        "name": "to",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toolEntityIds",
+        "name": "tools",
         "type": "bytes32[]",
         "internalType": "EntityId[]"
       },
@@ -3313,7 +3313,7 @@ declare const abi: [
     "name": "unequip",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       }
@@ -3417,7 +3417,7 @@ declare const abi: [
     "name": "wakeup",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -3440,7 +3440,7 @@ declare const abi: [
     "name": "wetFarmland",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },

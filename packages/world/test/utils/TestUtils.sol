@@ -28,8 +28,8 @@ import {
 import {
   addToInventory as _addToInventory,
   addToolToInventory as _addToolToInventory,
-  removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity,
   removeFromInventory as _removeFromInventory,
+  removeFromReverseInventoryEntity as _removeFromReverseInventoryEntity,
   removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects,
   removeToolFromInventory as _removeToolFromInventory,
   transferAllInventoryEntities as _transferAllInventoryEntities,
@@ -108,11 +108,8 @@ library TestInventoryUtils {
     _useEquipped(entityId, useMassMax);
   }
 
-  function removeEntityIdFromReverseInventoryEntity(EntityId ownerEntityId, EntityId removeInventoryEntityId)
-    public
-    asWorld
-  {
-    _removeEntityIdFromReverseInventoryEntity(ownerEntityId, removeInventoryEntityId);
+  function removeFromReverseInventoryEntity(EntityId ownerEntityId, EntityId removeInventoryEntityId) public asWorld {
+    _removeFromReverseInventoryEntity(ownerEntityId, removeInventoryEntityId);
   }
 
   function removeObjectTypeIdFromInventoryObjects(EntityId ownerEntityId, ObjectTypeId removeObjectTypeId)

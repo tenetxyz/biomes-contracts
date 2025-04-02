@@ -20,19 +20,19 @@ import { Vec3 } from "../Vec3.sol";
 contract FoodSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
-  function eat(EntityId callerEntityId, ObjectTypeId objectTypeId, uint16 numToEat) public {
-    EnergyData memory energyData = callerEntityId.activate();
+  function eat(EntityId caller, ObjectTypeId objectTypeId, uint16 numToEat) public {
+    EnergyData memory energyData = caller.activate();
 
     require(objectTypeId.isFood(), "Object is not food");
 
     uint128 newEnergy = ObjectTypeMetadata._getEnergy(objectTypeId) * numToEat + energyData.energy;
     if (newEnergy > MAX_PLAYER_ENERGY) {
-      addEnergyToLocalPool(callerEntityId.getPosition(), newEnergy - MAX_PLAYER_ENERGY);
+      addEnergyToLocalPool(caller.getPosition(), newEnergy - MAX_PLAYER_ENERGY);
       newEnergy = MAX_PLAYER_ENERGY;
     }
 
-    removeFromInventory(callerEntityId, objectTypeId, numToEat);
+    removeFromInventory(caller, objectTypeId, numToEat);
 
-    Energy._setEnergy(callerEntityId, newEnergy);
+    Energy._setEnergy(caller, newEnergy);
   }
 }

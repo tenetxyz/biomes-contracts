@@ -13,7 +13,7 @@ import { Direction } from "../common.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IMoveSystem {
-  function move(EntityId callerEntityId, Vec3[] memory newCoords) external;
+  function move(EntityId caller, Vec3[] memory newCoords) external;
 
-  function moveDirections(EntityId callerEntityId, Direction[] memory directions) external;
+  function moveDirections(EntityId caller, Direction[] memory directions) external;
 }

@@ -14,14 +14,14 @@ import { ObjectAmount } from "../../ObjectTypeLib.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IPickupSystem {
-  function pickupAll(EntityId callerEntityId, Vec3 coord) external;
+  function pickupAll(EntityId caller, Vec3 coord) external;
 
-  function pickup(EntityId callerEntityId, ObjectTypeId pickupObjectTypeId, uint16 numToPickup, Vec3 coord) external;
+  function pickup(EntityId caller, ObjectTypeId pickupObjectTypeId, uint16 numToPickup, Vec3 coord) external;
 
-  function pickupTool(EntityId callerEntityId, EntityId toolEntityId, Vec3 coord) external;
+  function pickupTool(EntityId caller, EntityId tool, Vec3 coord) external;
 
   function pickupMultiple(
-    EntityId callerEntityId,
+    EntityId caller,
     ObjectAmount[] memory pickupObjects,
     EntityId[] memory pickupTools,
     Vec3 coord

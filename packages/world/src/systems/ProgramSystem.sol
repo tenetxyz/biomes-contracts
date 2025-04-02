@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
-import { ActionType } from "../codegen/common.sol";
+import { Action } from "../codegen/common.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { EnergyData } from "../codegen/tables/Energy.sol";
 import { EntityProgram } from "../codegen/tables/EntityProgram.sol";
@@ -14,7 +14,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField, isForceFieldFragmentActive } from "../utils/ForceFieldUtils.sol";
-import { AttachProgramNotifData, DetachProgramNotifData, notify } from "../utils/NotifUtils.sol";
+import { AttachProgramNotification, DetachProgramNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { SAFE_PROGRAM_GAS } from "../Constants.sol";
@@ -49,7 +49,7 @@ contract ProgramSystem is System {
 
     program.callOrRevert(abi.encodeCall(IAttachProgramHook.onAttachProgram, (caller, target, extraData)));
 
-    notify(caller, AttachProgramNotifData({ attachEntityId: target, programSystemId: program.toResourceId() }));
+    notify(caller, AttachProgramNotification({ attachedTo: target, programSystemId: program.toResourceId() }));
   }
 
   function detachProgram(EntityId caller, EntityId target, bytes calldata extraData) public payable {
@@ -73,7 +73,7 @@ contract ProgramSystem is System {
 
     EntityProgram._deleteRecord(target);
 
-    notify(caller, DetachProgramNotifData({ detachEntityId: target, programSystemId: program.toResourceId() }));
+    notify(caller, DetachProgramNotification({ detachedFrom: target, programSystemId: program.toResourceId() }));
   }
 
   function _getValidatorProgram(Vec3 coord) internal returns (EntityId, ProgramId) {

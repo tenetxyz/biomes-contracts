@@ -13,9 +13,9 @@ import { Vec3 } from "../../Vec3.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IDropSystem {
-  function drop(EntityId callerEntityId, ObjectTypeId dropObjectTypeId, uint16 numToDrop, Vec3 coord) external;
+  function drop(EntityId caller, ObjectTypeId dropObjectTypeId, uint16 numToDrop, Vec3 coord) external;
 
-  function dropTool(EntityId callerEntityId, EntityId toolEntityId, Vec3 coord) external;
+  function dropTool(EntityId caller, EntityId tool, Vec3 coord) external;
 
-  function dropTools(EntityId callerEntityId, EntityId[] memory toolEntityIds, Vec3 coord) external;
+  function dropTools(EntityId caller, EntityId[] memory tools, Vec3 coord) external;
 }

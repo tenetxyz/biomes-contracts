@@ -12,7 +12,7 @@ import { Vec3 } from "../../Vec3.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IBucketSystem {
-  function fillBucket(EntityId callerEntityId, Vec3 waterCoord) external;
+  function fillBucket(EntityId caller, Vec3 waterCoord) external;
 
-  function wetFarmland(EntityId callerEntityId, Vec3 coord) external;
+  function wetFarmland(EntityId caller, Vec3 coord) external;
 }

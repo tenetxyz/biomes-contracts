@@ -17,7 +17,7 @@
     "name": "activatePlayer",
     "inputs": [
       {
-        "name": "player",
+        "name": "playerAddress",
         "type": "address",
         "internalType": "address"
       }
@@ -63,7 +63,7 @@
     "name": "adminAddToInventory",
     "inputs": [
       {
-        "name": "ownerEntityId",
+        "name": "owner",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -86,7 +86,7 @@
     "name": "adminAddToolToInventory",
     "inputs": [
       {
-        "name": "ownerEntityId",
+        "name": "owner",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -110,7 +110,7 @@
     "name": "adminRemoveFromInventory",
     "inputs": [
       {
-        "name": "ownerEntityId",
+        "name": "owner",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -133,12 +133,12 @@
     "name": "adminRemoveToolFromInventory",
     "inputs": [
       {
-        "name": "ownerEntityId",
+        "name": "owner",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toolEntityId",
+        "name": "tool",
         "type": "bytes32",
         "internalType": "EntityId"
       }
@@ -264,7 +264,7 @@
     "name": "build",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -298,7 +298,7 @@
     "name": "buildWithDirection",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -419,7 +419,7 @@
     "name": "craft",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -437,7 +437,7 @@
     "name": "craftWithStation",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -447,7 +447,7 @@
         "internalType": "bytes32"
       },
       {
-        "name": "stationEntityId",
+        "name": "station",
         "type": "bytes32",
         "internalType": "EntityId"
       }
@@ -514,7 +514,7 @@
     "name": "drop",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -542,12 +542,12 @@
     "name": "dropTool",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toolEntityId",
+        "name": "tool",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -565,12 +565,12 @@
     "name": "dropTools",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toolEntityIds",
+        "name": "tools",
         "type": "bytes32[]",
         "internalType": "EntityId[]"
       },
@@ -588,7 +588,7 @@
     "name": "eat",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -611,7 +611,7 @@
     "name": "equip",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -675,7 +675,7 @@
     "name": "fillBucket",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -693,12 +693,12 @@
     "name": "fuelMachine",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "machineEntityId",
+        "name": "machine",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -1563,12 +1563,12 @@
             "internalType": "address"
           },
           {
-            "name": "bedEntityId",
+            "name": "bed",
             "type": "bytes32",
             "internalType": "EntityId"
           },
           {
-            "name": "equippedEntityId",
+            "name": "equipped",
             "type": "bytes32",
             "internalType": "EntityId"
           },
@@ -1714,12 +1714,12 @@
             "internalType": "address"
           },
           {
-            "name": "bedEntityId",
+            "name": "bed",
             "type": "bytes32",
             "internalType": "EntityId"
           },
           {
-            "name": "equippedEntityId",
+            "name": "equipped",
             "type": "bytes32",
             "internalType": "EntityId"
           },
@@ -2054,7 +2054,7 @@
     "name": "growSeed",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2072,7 +2072,7 @@
     "name": "hitForceField",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2158,7 +2158,7 @@
     "name": "jumpBuild",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2181,7 +2181,7 @@
     "name": "jumpBuildWithDirection",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2209,7 +2209,7 @@
     "name": "mine",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2238,7 +2238,7 @@
     "name": "mineUntilDestroyed",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2261,7 +2261,7 @@
     "name": "move",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2279,7 +2279,7 @@
     "name": "moveDirections",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2297,7 +2297,7 @@
     "name": "oreChunkCommit",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2315,7 +2315,7 @@
     "name": "pickup",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2343,7 +2343,7 @@
     "name": "pickupAll",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2361,7 +2361,7 @@
     "name": "pickupMultiple",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2401,12 +2401,12 @@
     "name": "pickupTool",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toolEntityId",
+        "name": "tool",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2723,7 +2723,7 @@
     "name": "removeDeadPlayerFromBed",
     "inputs": [
       {
-        "name": "playerEntityId",
+        "name": "player",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -2996,12 +2996,12 @@
     "name": "sleep",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "bedEntityId",
+        "name": "bed",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -3019,7 +3019,7 @@
     "name": "spawn",
     "inputs": [
       {
-        "name": "spawnTileEntityId",
+        "name": "spawnTile",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -3127,7 +3127,7 @@
     "name": "till",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -3145,17 +3145,17 @@
     "name": "transfer",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "fromEntityId",
+        "name": "from",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toEntityId",
+        "name": "to",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -3247,22 +3247,22 @@
     "name": "transferTool",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "fromEntityId",
+        "name": "from",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toEntityId",
+        "name": "to",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toolEntityId",
+        "name": "tool",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -3280,22 +3280,22 @@
     "name": "transferTools",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "fromEntityId",
+        "name": "from",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toEntityId",
+        "name": "to",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "toolEntityIds",
+        "name": "tools",
         "type": "bytes32[]",
         "internalType": "EntityId[]"
       },
@@ -3313,7 +3313,7 @@
     "name": "unequip",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       }
@@ -3417,7 +3417,7 @@
     "name": "wakeup",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },
@@ -3440,7 +3440,7 @@
     "name": "wetFarmland",
     "inputs": [
       {
-        "name": "callerEntityId",
+        "name": "caller",
         "type": "bytes32",
         "internalType": "EntityId"
       },

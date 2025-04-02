@@ -51,8 +51,8 @@ library EntityIdLib {
   }
 
   function baseEntityId(EntityId self) internal view returns (EntityId) {
-    EntityId base = BaseEntity._get(self);
-    return EntityId.unwrap(base) == 0 ? self : base;
+    EntityId _base = BaseEntity._get(self);
+    return EntityId.unwrap(_base) == 0 ? self : _base;
   }
 
   // TODO: add pipe connections
@@ -72,8 +72,8 @@ library EntityIdLib {
     return ObjectType._get(self).isMovable() ? MovablePosition._get(self) : Position._get(self);
   }
 
-  function getProgram(EntityId entityId) internal view returns (ProgramId) {
-    return EntityProgram._get(entityId);
+  function getProgram(EntityId self) internal view returns (ProgramId) {
+    return EntityProgram._get(self);
   }
 
   function exists(EntityId self) internal pure returns (bool) {
@@ -108,14 +108,14 @@ library ActivateLib {
       require(!PlayerStatus._getBedEntityId(self).exists(), "Player is sleeping");
       energyData = updatePlayerEnergy(self);
     } else {
-      EntityId forceFieldEntityId;
+      EntityId forceField;
       if (objectTypeId == ObjectTypes.ForceField) {
-        forceFieldEntityId = self;
+        forceField = self;
       } else {
-        (forceFieldEntityId,) = getForceField(self.getPosition());
+        (forceField,) = getForceField(self.getPosition());
       }
 
-      (energyData,) = updateMachineEnergy(forceFieldEntityId);
+      (energyData,) = updateMachineEnergy(forceField);
     }
 
     require(energyData.energy > 0, "Entity has no energy");

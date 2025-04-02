@@ -40,18 +40,18 @@ library MoveLib {
     }
   }
 
-  function _getPlayerEntityIds(EntityId basePlayerEntityId, Vec3[] memory playerCoords)
+  function _getPlayers(EntityId basePlayer, Vec3[] memory playerCoords)
     internal
     view
     returns (EntityId[] memory)
   {
-    EntityId[] memory playerEntityIds = new EntityId[](playerCoords.length);
-    playerEntityIds[0] = basePlayerEntityId;
+    EntityId[] memory players = new EntityId[](playerCoords.length);
+    players[0] = basePlayer;
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < playerCoords.length; i++) {
-      playerEntityIds[i] = getMovableEntityAt(playerCoords[i]);
+      players[i] = getMovableEntityAt(playerCoords[i]);
     }
-    return playerEntityIds;
+    return players;
   }
 
   function _gravityApplies(Vec3 playerCoord) internal view returns (bool) {
@@ -143,16 +143,16 @@ library MoveLib {
     return (oldBaseCoord, totalCost, currentFallHeight, gravityApplies);
   }
 
-  function moveWithoutGravity(EntityId playerEntityId, Vec3 playerCoord, Vec3[] memory newBaseCoords) public {
+  function moveWithoutGravity(EntityId player, Vec3 playerCoord, Vec3[] memory newBaseCoords) public {
     Vec3[] memory playerCoords = ObjectTypes.Player.getRelativeCoords(playerCoord);
-    EntityId[] memory playerEntityIds = _getPlayerEntityIds(playerEntityId, playerCoords);
+    EntityId[] memory players = _getPlayers(player, playerCoords);
 
     // Remove the current player from the grid
     for (uint256 i = 0; i < playerCoords.length; i++) {
       ReverseMovablePosition._deleteRecord(playerCoords[i]);
     }
 
-    uint128 currentEnergy = Energy._getEnergy(playerEntityId);
+    uint128 currentEnergy = Energy._getEnergy(player);
 
     (Vec3 finalCoord, uint128 totalCost,,) = _computePathResult(playerCoord, newBaseCoords, currentEnergy);
 
@@ -162,25 +162,25 @@ library MoveLib {
 
     Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(finalCoord);
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
-      setMovableEntityAt(newPlayerCoords[i], playerEntityIds[i]);
+      setMovableEntityAt(newPlayerCoords[i], players[i]);
     }
 
     if (totalCost > 0) {
-      decreasePlayerEnergy(playerEntityId, finalCoord, totalCost);
+      decreasePlayerEnergy(player, finalCoord, totalCost);
       addEnergyToLocalPool(finalCoord, totalCost);
     }
   }
 
-  function move(EntityId playerEntityId, Vec3 playerCoord, Vec3[] memory newBaseCoords) public {
+  function move(EntityId player, Vec3 playerCoord, Vec3[] memory newBaseCoords) public {
     Vec3[] memory playerCoords = ObjectTypes.Player.getRelativeCoords(playerCoord);
-    EntityId[] memory playerEntityIds = _getPlayerEntityIds(playerEntityId, playerCoords);
+    EntityId[] memory players = _getPlayers(player, playerCoords);
 
     // Remove the current player from the grid
     for (uint256 i = 0; i < playerCoords.length; i++) {
       ReverseMovablePosition._deleteRecord(playerCoords[i]);
     }
 
-    uint128 currentEnergy = Energy._getEnergy(playerEntityId);
+    uint128 currentEnergy = Energy._getEnergy(player);
 
     (Vec3 finalCoord, uint128 cost, uint16 currentFallHeight, bool gravityApplies) =
       _computePathResult(playerCoord, newBaseCoords, currentEnergy);
@@ -197,30 +197,30 @@ library MoveLib {
 
     Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(finalCoord);
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
-      setMovableEntityAt(newPlayerCoords[i], playerEntityIds[i]);
+      setMovableEntityAt(newPlayerCoords[i], players[i]);
     }
 
     if (totalCost > 0) {
-      decreasePlayerEnergy(playerEntityId, finalCoord, totalCost);
+      decreasePlayerEnergy(player, finalCoord, totalCost);
       addEnergyToLocalPool(finalCoord, totalCost);
     }
 
     Vec3 aboveCoord = playerCoord + vec3(0, 2, 0);
-    EntityId aboveEntityId = getMovableEntityAt(aboveCoord);
+    EntityId above = getMovableEntityAt(aboveCoord);
     // Note: currently it is not possible for the above player to not be the base entity,
     // but if we add other types of movable entities we should check that it is a base entity
-    if (aboveEntityId.exists()) {
-      runGravity(aboveEntityId, aboveCoord);
+    if (above.exists()) {
+      runGravity(above, aboveCoord);
     }
   }
 
-  function runGravity(EntityId playerEntityId, Vec3 playerCoord) public {
+  function runGravity(EntityId player, Vec3 playerCoord) public {
     if (!_gravityApplies(playerCoord)) {
       return;
     }
 
     Vec3[] memory playerCoords = ObjectTypes.Player.getRelativeCoords(playerCoord);
-    EntityId[] memory playerEntityIds = _getPlayerEntityIds(playerEntityId, playerCoords);
+    EntityId[] memory players = _getPlayers(player, playerCoords);
 
     // Remove the current player from the grid
     for (uint256 i = 0; i < playerCoords.length; i++) {
@@ -231,26 +231,26 @@ library MoveLib {
 
     Vec3[] memory newPlayerCoords = ObjectTypes.Player.getRelativeCoords(finalCoord);
     for (uint256 i = 0; i < newPlayerCoords.length; i++) {
-      setMovableEntityAt(newPlayerCoords[i], playerEntityIds[i]);
+      setMovableEntityAt(newPlayerCoords[i], players[i]);
     }
 
-    uint128 currentEnergy = updatePlayerEnergy(playerEntityId).energy;
+    uint128 currentEnergy = updatePlayerEnergy(player).energy;
 
     if (totalCost > currentEnergy) {
       totalCost = currentEnergy;
     }
 
     if (totalCost > 0) {
-      decreasePlayerEnergy(playerEntityId, finalCoord, totalCost);
+      decreasePlayerEnergy(player, finalCoord, totalCost);
       addEnergyToLocalPool(finalCoord, totalCost);
     }
 
     Vec3 aboveCoord = playerCoord + vec3(0, 2, 0);
-    EntityId aboveEntityId = getMovableEntityAt(aboveCoord);
+    EntityId above = getMovableEntityAt(aboveCoord);
     // Note: currently it is not possible for the above player to not be the base entity,
     // but if we add other types of movable entities we should check that it is a base entity
-    if (aboveEntityId.exists()) {
-      runGravity(aboveEntityId, aboveCoord);
+    if (above.exists()) {
+      runGravity(above, aboveCoord);
     }
   }
 }

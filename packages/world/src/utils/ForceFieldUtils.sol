@@ -44,9 +44,9 @@ function getForceField(Vec3 coord) view returns (EntityId, EntityId) {
 /**
  * @dev Check if the fragment at coord belongs to a forcefield
  */
-function isForceFieldFragment(EntityId forceFieldEntityId, Vec3 fragmentCoord) view returns (bool) {
+function isForceFieldFragment(EntityId forceField, Vec3 fragmentCoord) view returns (bool) {
   ForceFieldFragmentData memory fragmentData = ForceFieldFragment._get(fragmentCoord);
-  return _isFragmentActive(fragmentData, forceFieldEntityId);
+  return _isFragmentActive(fragmentData, forceField);
 }
 
 /**
@@ -60,8 +60,8 @@ function isForceFieldFragmentActive(Vec3 fragmentCoord) view returns (bool) {
 /**
  * @dev Check if the is active and belongs to any forcefield
  */
-function isForceFieldFragmentActive(EntityId fragmentEntityId) view returns (bool) {
-  Vec3 fragmentCoord = ForceFieldFragmentPosition._get(fragmentEntityId);
+function isForceFieldFragmentActive(EntityId fragment) view returns (bool) {
+  Vec3 fragmentCoord = ForceFieldFragmentPosition._get(fragment);
   ForceFieldFragmentData memory fragmentData = ForceFieldFragment._get(fragmentCoord);
   return _isFragmentActive(fragmentData, fragmentData.forceFieldId);
 }
@@ -69,25 +69,25 @@ function isForceFieldFragmentActive(EntityId fragmentEntityId) view returns (boo
 /**
  * @dev Check if the forcefield is active (exists and hasn't been destroyed
  */
-function isForceFieldActive(EntityId forceFieldEntityId) view returns (bool) {
-  return forceFieldEntityId.exists() && Machine._getCreatedAt(forceFieldEntityId) > 0;
+function isForceFieldActive(EntityId forceField) view returns (bool) {
+  return forceField.exists() && Machine._getCreatedAt(forceField) > 0;
 }
 
 /**
  * @dev Set up a new forcefield with its initial fragment
  */
-function setupForceField(EntityId forceFieldEntityId, Vec3 coord) {
+function setupForceField(EntityId forceField, Vec3 coord) {
   // Set up the forcefield first
-  Machine._setCreatedAt(forceFieldEntityId, uint128(block.timestamp));
+  Machine._setCreatedAt(forceField, uint128(block.timestamp));
 
   Vec3 fragmentCoord = coord.toForceFieldFragmentCoord();
-  setupForceFieldFragment(forceFieldEntityId, fragmentCoord);
+  setupForceFieldFragment(forceField, fragmentCoord);
 }
 
 /**
  * @dev Add a fragment to an existing forcefield
  */
-function setupForceFieldFragment(EntityId forceFieldEntityId, Vec3 fragmentCoord) returns (EntityId) {
+function setupForceFieldFragment(EntityId forceField, Vec3 fragmentCoord) returns (EntityId) {
   ForceFieldFragmentData memory fragmentData = ForceFieldFragment._get(fragmentCoord);
 
   // Create a new fragment entity if needed
@@ -98,8 +98,8 @@ function setupForceFieldFragment(EntityId forceFieldEntityId, Vec3 fragmentCoord
   }
 
   // Update the fragment data to associate it with the forcefield
-  fragmentData.forceFieldId = forceFieldEntityId;
-  fragmentData.forceFieldCreatedAt = Machine._getCreatedAt(forceFieldEntityId);
+  fragmentData.forceFieldId = forceField;
+  fragmentData.forceFieldCreatedAt = Machine._getCreatedAt(forceField);
 
   require(!fragmentData.entityId.getProgram().exists(), "Can't expand into a fragment with a program");
   EntityProgram._deleteRecord(fragmentData.entityId);
@@ -125,7 +125,7 @@ function removeForceFieldFragment(Vec3 fragmentCoord) returns (EntityId) {
 /**
  * @dev Destroys a forcefield, without cleaning up its shards
  */
-function destroyForceField(EntityId forceFieldEntityId) {
-  EntityProgram._deleteRecord(forceFieldEntityId);
-  Machine._deleteRecord(forceFieldEntityId);
+function destroyForceField(EntityId forceField) {
+  EntityProgram._deleteRecord(forceField);
+  Machine._deleteRecord(forceField);
 }
