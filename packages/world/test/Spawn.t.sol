@@ -39,8 +39,7 @@ contract SpawnTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function spawnEnergy() internal view returns (uint128) {
-    uint32 playerMass = ObjectTypeMetadata.getMass(ObjectTypes.Player);
-    return MAX_PLAYER_ENERGY + playerMass;
+    return MAX_PLAYER_ENERGY;
   }
 
   function testRandomSpawn() public {
@@ -203,7 +202,7 @@ contract SpawnTest is DustTest {
     Vec3 spawnTileCoord = spawnCoord - vec3(0, 1, 0);
 
     // Drain energy from player
-    vm.warp(vm.getBlockTimestamp() + MAX_PLAYER_ENERGY * PLAYER_ENERGY_DRAIN_RATE);
+    vm.warp(vm.getBlockTimestamp() + (MAX_PLAYER_ENERGY / PLAYER_ENERGY_DRAIN_RATE) + 1);
 
     // Set forcefield
     EntityId forceFieldEntityId = setupForceField(spawnTileCoord);
@@ -264,7 +263,7 @@ contract SpawnTest is DustTest {
     (address alice, EntityId aliceEntityId,) = setupAirChunkWithPlayer();
 
     // Drain energy from player
-    vm.warp(vm.getBlockTimestamp() + MAX_PLAYER_ENERGY * PLAYER_ENERGY_DRAIN_RATE);
+    vm.warp(vm.getBlockTimestamp() + (MAX_PLAYER_ENERGY / PLAYER_ENERGY_DRAIN_RATE) + 1);
 
     uint256 blockNumber = block.number - 5;
 

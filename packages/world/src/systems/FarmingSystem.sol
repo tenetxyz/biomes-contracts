@@ -64,12 +64,12 @@ contract FarmingSystem is System {
       (uint32 trunkHeight, uint32 leaves) = FarmingLib._growTree(seed, coord, treeData);
 
       // Seed energy is the sum of the energy of all the blocks of the tree
-      uint32 seedEnergy = ObjectTypeMetadata._getEnergy(objectTypeId);
+      uint128 seedEnergy = ObjectTypeMetadata._getEnergy(objectTypeId);
 
-      uint32 trunkEnergy = trunkHeight * ObjectTypeMetadata._getEnergy(treeData.logType);
-      uint32 leafEnergy = leaves * ObjectTypeMetadata._getEnergy(treeData.leafType);
+      uint128 trunkEnergy = trunkHeight * ObjectTypeMetadata._getEnergy(treeData.logType);
+      uint128 leafEnergy = leaves * ObjectTypeMetadata._getEnergy(treeData.leafType);
 
-      uint32 energyToReturn = seedEnergy - trunkEnergy - leafEnergy;
+      uint128 energyToReturn = seedEnergy - trunkEnergy - leafEnergy;
       if (energyToReturn > 0) {
         addEnergyToLocalPool(coord, energyToReturn);
       }

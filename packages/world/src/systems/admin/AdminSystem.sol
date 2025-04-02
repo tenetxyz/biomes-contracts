@@ -35,19 +35,12 @@ contract AdminSystem is System {
     _;
   }
 
-  function adminAddToInventory(EntityId owner, ObjectTypeId objectTypeId, uint16 numObjectsToAdd)
-    public
-    onlyAdmin
-  {
+  function adminAddToInventory(EntityId owner, ObjectTypeId objectTypeId, uint16 numObjectsToAdd) public onlyAdmin {
     require(!objectTypeId.isTool(), "To add a tool, you must use adminAddToolToInventory");
     addToInventory(owner, ObjectType._get(owner), objectTypeId, numObjectsToAdd);
   }
 
-  function adminAddToolToInventory(EntityId owner, ObjectTypeId toolObjectTypeId)
-    public
-    onlyAdmin
-    returns (EntityId)
-  {
+  function adminAddToolToInventory(EntityId owner, ObjectTypeId toolObjectTypeId) public onlyAdmin returns (EntityId) {
     return addToolToInventory(owner, toolObjectTypeId);
   }
 

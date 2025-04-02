@@ -34,9 +34,7 @@ contract GiveScript is Script {
     world.adminAddToInventory(playerEntityId, ObjectTypes.OakLog, 99);
     world.adminAddToInventory(playerEntityId, ObjectTypes.Chest, 1);
     world.adminAddToInventory(playerEntityId, ObjectTypes.ForceField, 10);
-    world.adminAddToInventory(playerEntityId, ObjectTypes.SmartChest, 1);
     world.adminAddToInventory(playerEntityId, ObjectTypes.TextSign, 1);
-    world.adminAddToInventory(playerEntityId, ObjectTypes.SmartTextSign, 1);
     world.adminAddToInventory(playerEntityId, ObjectTypes.Workbench, 1);
     world.adminAddToInventory(playerEntityId, ObjectTypes.Thermoblaster, 1);
     world.adminAddToInventory(playerEntityId, ObjectTypes.SpawnTile, 1);
@@ -49,6 +47,7 @@ contract GiveScript is Script {
     world.adminAddToInventory(playerEntityId, ObjectTypes.Wheat, 10);
     world.adminAddToolToInventory(playerEntityId, ObjectTypes.WoodenHoe);
     world.adminAddToolToInventory(playerEntityId, ObjectTypes.SilverPick);
+    world.adminAddToolToInventory(playerEntityId, ObjectTypes.NeptuniumAxe);
 
     vm.stopBroadcast();
   }

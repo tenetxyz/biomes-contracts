@@ -34,7 +34,7 @@ contract FoodTest is DustTest {
     TestInventoryUtils.addToInventory(aliceEntityId, foodType, foodAmount);
 
     // Get energy value of food
-    uint32 foodEnergyValue = ObjectTypeMetadata.getEnergy(foodType);
+    uint128 foodEnergyValue = ObjectTypeMetadata.getEnergy(foodType);
 
     // Eat food
     uint16 amountToEat = 2;
@@ -75,7 +75,7 @@ contract FoodTest is DustTest {
     TestInventoryUtils.addToInventory(aliceEntityId, foodType, foodAmount);
 
     // Get energy value of food (which will be > 10)
-    uint32 foodEnergyValue = ObjectTypeMetadata.getEnergy(foodType);
+    uint128 foodEnergyValue = ObjectTypeMetadata.getEnergy(foodType);
 
     // Record initial local energy pool value
     Vec3 shardCoord = aliceCoord.toLocalEnergyPoolShardCoord();

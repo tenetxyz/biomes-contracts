@@ -120,12 +120,11 @@ library ObjectTypes {
   ObjectTypeId constant LilacFlower = ObjectTypeId.wrap(Block | 132);
   ObjectTypeId constant RoseFlower = ObjectTypeId.wrap(Block | 133);
   ObjectTypeId constant FireFlower = ObjectTypeId.wrap(Block | 134);
-  ObjectTypeId constant MarigoldFlower = ObjectTypeId.wrap(Block | 135);
-  ObjectTypeId constant MorninggloryFlower = ObjectTypeId.wrap(Block | 136);
-  ObjectTypeId constant PeonyFlower = ObjectTypeId.wrap(Block | 137);
-  ObjectTypeId constant Ultraviolet = ObjectTypeId.wrap(Block | 138);
-  ObjectTypeId constant SunFlower = ObjectTypeId.wrap(Block | 139);
-  ObjectTypeId constant FlyTrap = ObjectTypeId.wrap(Block | 140);
+  ObjectTypeId constant MorninggloryFlower = ObjectTypeId.wrap(Block | 135);
+  ObjectTypeId constant PeonyFlower = ObjectTypeId.wrap(Block | 136);
+  ObjectTypeId constant Ultraviolet = ObjectTypeId.wrap(Block | 137);
+  ObjectTypeId constant SunFlower = ObjectTypeId.wrap(Block | 138);
+  ObjectTypeId constant FlyTrap = ObjectTypeId.wrap(Block | 139);
 
   // Greenery
   ObjectTypeId constant FescueGrass = ObjectTypeId.wrap(Block | 144);
@@ -181,21 +180,19 @@ library ObjectTypes {
   ObjectTypeId constant Dyeomatic = ObjectTypeId.wrap(Block | 265);
   ObjectTypeId constant Powerstone = ObjectTypeId.wrap(Block | 266);
   ObjectTypeId constant CoalOre = ObjectTypeId.wrap(Block | 267);
-  ObjectTypeId constant SilverOre = ObjectTypeId.wrap(Block | 268);
+  ObjectTypeId constant IronOre = ObjectTypeId.wrap(Block | 268);
   ObjectTypeId constant GoldOre = ObjectTypeId.wrap(Block | 269);
   ObjectTypeId constant DiamondOre = ObjectTypeId.wrap(Block | 270);
-  ObjectTypeId constant NeptuniumOre = ObjectTypeId.wrap(Block | 271);
+  ObjectTypeId constant EmeraldOre = ObjectTypeId.wrap(Block | 271);
   ObjectTypeId constant WetFarmland = ObjectTypeId.wrap(Block | 272);
   ObjectTypeId constant WheatSeed = ObjectTypeId.wrap(Block | 273);
   ObjectTypeId constant OakSeed = ObjectTypeId.wrap(Block | 274);
   ObjectTypeId constant SpruceSeed = ObjectTypeId.wrap(Block | 275);
   ObjectTypeId constant ForceField = ObjectTypeId.wrap(Block | 600);
   ObjectTypeId constant Chest = ObjectTypeId.wrap(Block | 601);
-  ObjectTypeId constant SmartChest = ObjectTypeId.wrap(Block | 602);
-  ObjectTypeId constant TextSign = ObjectTypeId.wrap(Block | 603);
-  ObjectTypeId constant SmartTextSign = ObjectTypeId.wrap(Block | 604);
-  ObjectTypeId constant SpawnTile = ObjectTypeId.wrap(Block | 605);
-  ObjectTypeId constant Bed = ObjectTypeId.wrap(Block | 606);
+  ObjectTypeId constant TextSign = ObjectTypeId.wrap(Block | 602);
+  ObjectTypeId constant SpawnTile = ObjectTypeId.wrap(Block | 603);
+  ObjectTypeId constant Bed = ObjectTypeId.wrap(Block | 604);
 
   // ------------------------------------------------------------
   // Tool

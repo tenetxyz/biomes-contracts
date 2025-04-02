@@ -108,66 +108,42 @@ struct DeathNotification {
 function notify(EntityId player, BuildNotification memory buildNotification) {
   Notification._set(
     player,
-    NotificationData({
-      timestamp: uint128(block.timestamp),
-      action: Action.Build,
-      data: abi.encode(buildNotification)
-    })
+    NotificationData({ timestamp: uint128(block.timestamp), action: Action.Build, data: abi.encode(buildNotification) })
   );
 }
 
 function notify(EntityId player, MineNotification memory mineNotification) {
   Notification._set(
     player,
-    NotificationData({
-      timestamp: uint128(block.timestamp),
-      action: Action.Mine,
-      data: abi.encode(mineNotification)
-    })
+    NotificationData({ timestamp: uint128(block.timestamp), action: Action.Mine, data: abi.encode(mineNotification) })
   );
 }
 
 function notify(EntityId player, MoveNotification memory moveNotification) {
   Notification._set(
     player,
-    NotificationData({
-      timestamp: uint128(block.timestamp),
-      action: Action.Move,
-      data: abi.encode(moveNotification)
-    })
+    NotificationData({ timestamp: uint128(block.timestamp), action: Action.Move, data: abi.encode(moveNotification) })
   );
 }
 
 function notify(EntityId player, CraftNotification memory craftNotification) {
   Notification._set(
     player,
-    NotificationData({
-      timestamp: uint128(block.timestamp),
-      action: Action.Craft,
-      data: abi.encode(craftNotification)
-    })
+    NotificationData({ timestamp: uint128(block.timestamp), action: Action.Craft, data: abi.encode(craftNotification) })
   );
 }
 
 function notify(EntityId player, DropNotification memory dropNotification) {
   Notification._set(
     player,
-    NotificationData({
-      timestamp: uint128(block.timestamp),
-      action: Action.Drop,
-      data: abi.encode(dropNotification)
-    })
+    NotificationData({ timestamp: uint128(block.timestamp), action: Action.Drop, data: abi.encode(dropNotification) })
   );
 }
 
 function notify(EntityId player, PickupNotification memory pickupNotification) {
   Notification._set(
     player,
-    NotificationData({
-      timestamp: uint128(block.timestamp),
-      action: Action.Pickup,
-      data: abi.encode(pickupNotification)
-    })
+    NotificationData({ timestamp: uint128(block.timestamp), action: Action.Pickup, data: abi.encode(pickupNotification) })
   );
 }
 
@@ -185,11 +161,7 @@ function notify(EntityId player, TransferNotification memory transferNotificatio
 function notify(EntityId player, EquipNotification memory equipNotification) {
   Notification._set(
     player,
-    NotificationData({
-      timestamp: uint128(block.timestamp),
-      action: Action.Equip,
-      data: abi.encode(equipNotification)
-    })
+    NotificationData({ timestamp: uint128(block.timestamp), action: Action.Equip, data: abi.encode(equipNotification) })
   );
 }
 
@@ -207,11 +179,7 @@ function notify(EntityId player, UnequipNotification memory unequipNotification)
 function notify(EntityId player, SpawnNotification memory spawnNotification) {
   Notification._set(
     player,
-    NotificationData({
-      timestamp: uint128(block.timestamp),
-      action: Action.Spawn,
-      data: abi.encode(spawnNotification)
-    })
+    NotificationData({ timestamp: uint128(block.timestamp), action: Action.Spawn, data: abi.encode(spawnNotification) })
   );
 }
 
@@ -262,22 +230,14 @@ function notify(EntityId player, DetachProgramNotification memory detachProgramN
 function notify(EntityId player, SleepNotification memory sleepNotification) {
   Notification._set(
     player,
-    NotificationData({
-      timestamp: uint128(block.timestamp),
-      action: Action.Sleep,
-      data: abi.encode(sleepNotification)
-    })
+    NotificationData({ timestamp: uint128(block.timestamp), action: Action.Sleep, data: abi.encode(sleepNotification) })
   );
 }
 
 function notify(EntityId player, WakeupNotification memory wakeupNotification) {
   Notification._set(
     player,
-    NotificationData({
-      timestamp: uint128(block.timestamp),
-      action: Action.Wakeup,
-      data: abi.encode(wakeupNotification)
-    })
+    NotificationData({ timestamp: uint128(block.timestamp), action: Action.Wakeup, data: abi.encode(wakeupNotification) })
   );
 }
 
@@ -306,10 +266,6 @@ function notify(EntityId player, RemoveFragmentNotification memory removeFragmen
 function notify(EntityId player, DeathNotification memory deathNotification) {
   Notification._set(
     player,
-    NotificationData({
-      timestamp: uint128(block.timestamp),
-      action: Action.Death,
-      data: abi.encode(deathNotification)
-    })
+    NotificationData({ timestamp: uint128(block.timestamp), action: Action.Death, data: abi.encode(deathNotification) })
   );
 }

@@ -46,7 +46,7 @@ library ObjectTypeLib {
       return bedRelativePositions;
     }
 
-    if (self == ObjectTypes.TextSign || self == ObjectTypes.SmartTextSign) {
+    if (self == ObjectTypes.TextSign) {
       Vec3[] memory textSignRelativePositions = new Vec3[](1);
       textSignRelativePositions[0] = vec3(0, 1, 0);
       return textSignRelativePositions;
@@ -118,11 +118,7 @@ library ObjectTypeLib {
   }
 
   function canHoldDisplay(ObjectTypeId self) internal pure returns (bool) {
-    return self == ObjectTypes.TextSign || self == ObjectTypes.SmartTextSign;
-  }
-
-  function isSmartDisplay(ObjectTypeId self) internal pure returns (bool) {
-    return self == ObjectTypes.SmartTextSign;
+    return self == ObjectTypes.TextSign;
   }
 
   function isFood(ObjectTypeId self) internal pure returns (bool) {
@@ -220,9 +216,12 @@ library ObjectTypeLib {
   }
 
   function timeToGrow(ObjectTypeId self) internal pure returns (uint128) {
-    // TODO: different times for different seeds
-    if (self.isSeed()) {
+    if (self == ObjectTypes.WheatSeed) {
       return 15 minutes;
+    }
+
+    if (self == ObjectTypes.OakSeed || self == ObjectTypes.SpruceSeed) {
+      return 5760 minutes;
     }
 
     return 0;
@@ -246,10 +245,10 @@ library ObjectTypeLib {
   function getOreAmount(ObjectTypeId self) internal pure returns (ObjectAmount memory) {
     // Silver tools
     if (self == ObjectTypes.SilverPick || self == ObjectTypes.SilverAxe) {
-      return ObjectAmount(ObjectTypes.SilverOre, 4); // 4 silver bars = 4 ores
+      return ObjectAmount(ObjectTypes.IronOre, 4); // 4 silver bars = 4 ores
     }
     if (self == ObjectTypes.SilverWhacker) {
-      return ObjectAmount(ObjectTypes.SilverOre, 6); // 6 silver bars = 6 ores
+      return ObjectAmount(ObjectTypes.IronOre, 6); // 6 silver bars = 6 ores
     }
 
     // Gold tools
@@ -264,7 +263,7 @@ library ObjectTypeLib {
 
     // Neptunium tools
     if (self == ObjectTypes.NeptuniumPick || self == ObjectTypes.NeptuniumAxe) {
-      return ObjectAmount(ObjectTypes.NeptuniumOre, 4); // 4 neptunium bars = 4 ores
+      return ObjectAmount(ObjectTypes.EmeraldOre, 4); // 4 neptunium bars = 4 ores
     }
 
     // Return zero amount for any other tool
@@ -297,7 +296,7 @@ library ObjectTypeLib {
       return true;
     }
 
-    if (self == ObjectTypes.SmartChest) {
+    if (self == ObjectTypes.Chest) {
       return sig == ITransferSystem.transfer.selector || sig == ITransferSystem.transferTool.selector
         || sig == ITransferSystem.transferTools.selector || sig == IMachineSystem.fuelMachine.selector;
     }
@@ -333,10 +332,10 @@ function getPlanksObjectTypes() pure returns (ObjectTypeId[] memory) {
 function getOreObjectTypes() pure returns (ObjectTypeId[] memory) {
   ObjectTypeId[] memory result = new ObjectTypeId[](5);
   result[0] = ObjectTypes.CoalOre;
-  result[1] = ObjectTypes.SilverOre;
+  result[1] = ObjectTypes.IronOre;
   result[2] = ObjectTypes.GoldOre;
   result[3] = ObjectTypes.DiamondOre;
-  result[4] = ObjectTypes.NeptuniumOre;
+  result[4] = ObjectTypes.EmeraldOre;
   return result;
 }
 

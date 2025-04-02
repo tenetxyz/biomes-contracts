@@ -191,9 +191,7 @@ function removeObjectTypeIdFromInventoryObjects(EntityId owner, ObjectTypeId rem
   }
 }
 
-function transferAllInventoryEntities(EntityId from, EntityId to, ObjectTypeId toObjectTypeId)
-  returns (uint256)
-{
+function transferAllInventoryEntities(EntityId from, EntityId to, ObjectTypeId toObjectTypeId) returns (uint256) {
   uint256 numTransferred = 0;
   uint16[] memory fromObjectTypeIds = InventoryObjects._get(from);
   for (uint256 i = 0; i < fromObjectTypeIds.length; i++) {
@@ -228,12 +226,9 @@ function transferInventoryNonEntity(
   addToInventory(dst, dstObjectTypeId, transferObjectTypeId, numObjectsToTransfer);
 }
 
-function transferInventoryEntity(
-  EntityId src,
-  EntityId dst,
-  ObjectTypeId dstObjectTypeId,
-  EntityId inventory
-) returns (ObjectTypeId) {
+function transferInventoryEntity(EntityId src, EntityId dst, ObjectTypeId dstObjectTypeId, EntityId inventory)
+  returns (ObjectTypeId)
+{
   require(InventoryEntity._get(inventory) == src, "Entity does not own inventory item");
   if (Equipped._get(src) == inventory) {
     Equipped._deleteRecord(src);

@@ -61,7 +61,7 @@ library BuildLib {
     Vec3[] memory coords = buildObjectTypeId.getRelativeCoords(baseCoord, direction);
     EntityId base = _addBlock(buildObjectTypeId, baseCoord);
     Orientation._set(base, direction);
-    uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
+    uint128 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
     Mass._setMass(base, mass);
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < coords.length; i++) {
@@ -146,7 +146,9 @@ contract BuildSystem is System {
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
     BuildLib._requireBuildsAllowed(caller, base, buildObjectTypeId, coords, extraData);
 
-    notify(caller, BuildNotification({ buildEntityId: base, buildCoord: coords[0], buildObjectTypeId: buildObjectTypeId }));
+    notify(
+      caller, BuildNotification({ buildEntityId: base, buildCoord: coords[0], buildObjectTypeId: buildObjectTypeId })
+    );
 
     return base;
   }
