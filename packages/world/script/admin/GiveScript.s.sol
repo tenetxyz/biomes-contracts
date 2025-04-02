@@ -47,6 +47,7 @@ contract GiveScript is Script {
     world.adminAddToInventory(playerEntityId, ObjectTypes.Wheat, 10);
     world.adminAddToolToInventory(playerEntityId, ObjectTypes.WoodenHoe);
     world.adminAddToolToInventory(playerEntityId, ObjectTypes.SilverPick);
+    world.adminAddToolToInventory(playerEntityId, ObjectTypes.NeptuniumAxe);
 
     vm.stopBroadcast();
   }
