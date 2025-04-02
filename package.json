@@ -10,7 +10,7 @@
     "deploy:mainnet": "NODE_ENV=mainnet pnpm --filter 'world' deploy:mainnet",
     "deploy:testnet": "NODE_ENV=testnet pnpm --filter 'world' deploy:testnet",
     "dev": "mprocs",
-    "fix": "pnpm run fix:package-json && pnpm recursive run fix",
+    "fix": "pnpm run fix:package-json && biome check --write && pnpm recursive run fix",
     "fix:package-json": "pnpx sort-package-json package.json 'packages/*/package.json'",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
     "mud:up": "pnpm mud set-version --tag main && pnpm install",

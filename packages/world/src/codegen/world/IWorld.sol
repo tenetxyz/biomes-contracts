@@ -62,6 +62,4 @@ interface IWorld is
   IUnequipSystem,
   IAdminSystem,
   IReadSystem
-{
-
-}
+{}

@@ -12,10 +12,9 @@
   },
   "files": ["dist", "json-schemas"],
   "scripts": {
-    "build": "pnpm run build:json-schema && pnpm run build:js && pnpm run fix",
+    "build": "pnpm run build:json-schema && pnpm run build:js",
     "build:js": "tsc",
     "build:json-schema": "tsx scripts/generate-json-schemas.ts",
-    "fix": "biome check --fix",
     "test": "tsc --noEmit"
   },
   "dependencies": {
