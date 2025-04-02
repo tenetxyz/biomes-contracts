@@ -1,0 +1,34 @@
+[profile.default]
+solc = "0.8.24"
+ffi = false
+fuzz_runs = 256
+optimizer = true
+optimizer_runs = 1000000
+verbosity = 2
+src = "src"
+test = "test"
+out = "out"
+allow_paths = [
+  # pnpm symlinks to the project root's node_modules
+  "../../node_modules",
+]
+extra_output_files = [
+  "abi",
+  "evm.bytecode"
+]
+fs_permissions = [{ access = "read", path = "./"}]
+
+[fmt]
+ignore = ['**/codegen/**/*.sol']
+sort_imports = true
+tab_width = 2
+bracket_spacing = true
+
+[profile.garnet]
+eth_rpc_url = "https://rpc.garnetchain.com"
+
+[profile.redstone]
+eth_rpc_url = "https://rpc.redstonechain.com"
+
+[profile.pyrope]
+eth_rpc_url = "https://rpc.pyropechain.com"

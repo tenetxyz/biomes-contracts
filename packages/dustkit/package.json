@@ -12,12 +12,16 @@
   },
   "files": ["dist", "json-schemas"],
   "scripts": {
-    "build": "pnpm run build:json-schema && pnpm run build:js",
+    "build": "pnpm run build:json-schema && pnpm run build:mud && pnpm run build:js",
     "build:js": "tsc",
+    "build:mud": "mud build",
     "build:json-schema": "tsx scripts/generate-json-schemas.ts",
     "test": "tsc --noEmit"
   },
   "dependencies": {
+    "@latticexyz/store": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
+    "@latticexyz/world": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
+    "@latticexyz/cli": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
     "arktype": "^2.1.15",
     "ox": "^0.6.10"
   }
