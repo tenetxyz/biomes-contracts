@@ -409,7 +409,9 @@ contract TransferTest is DustTest {
     assertInventoryHasObject(chestEntityId, transferObjectTypeId, numToTransfer);
     assertInventoryHasObject(otherChestEntityId, transferObjectTypeId, 0);
 
-    setupForceField(chestCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 }));
+    setupForceField(
+      chestCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000 * 10 ** 14, drainRate: 1 })
+    );
 
     TestChestProgram program = new TestChestProgram();
     attachTestProgram(chestEntityId, program, "namespace");

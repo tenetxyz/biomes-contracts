@@ -97,7 +97,6 @@ abstract contract DustTest is MudTest, GasReporter, DustAssertions {
     Player.set(playerAddress, playerEntityId);
     ReversePlayer.set(playerEntityId, playerAddress);
 
-    Mass.set(playerEntityId, ObjectTypeMetadata.getMass(ObjectTypes.Player));
     Energy.set(
       playerEntityId,
       EnergyData({

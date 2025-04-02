@@ -136,7 +136,7 @@ contract ForceFieldTest is DustTest {
     Vec3 mineCoord = forceFieldCoord + vec3(1, 0, 0);
 
     ObjectTypeId mineObjectTypeId = ObjectTypes.Grass;
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, playerHandMassReduction - 1);
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
     // Prank as the player to mine the block
@@ -166,7 +166,7 @@ contract ForceFieldTest is DustTest {
     Vec3 mineCoord = forceFieldCoord + vec3(1, 0, 0);
 
     ObjectTypeId mineObjectTypeId = ObjectTypes.Grass;
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, playerHandMassReduction - 1);
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
     // Prank as the player to mine the block
@@ -195,7 +195,7 @@ contract ForceFieldTest is DustTest {
     Vec3 mineCoord = forceFieldCoord + vec3(1, 0, 0);
 
     ObjectTypeId mineObjectTypeId = ObjectTypes.Grass;
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, playerHandMassReduction - 1);
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
     // Prank as the player to mine the block
@@ -350,7 +350,7 @@ contract ForceFieldTest is DustTest {
     Vec3 mineCoord = forceFieldCoord + vec3(1, 0, 0);
 
     ObjectTypeId mineObjectTypeId = ObjectTypes.Grass;
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, playerHandMassReduction - 1);
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
     // Prank as the player to mine the block, should not revert since forcefield has no energy
@@ -387,7 +387,7 @@ contract ForceFieldTest is DustTest {
     Vec3 mineCoord = forceFieldCoord + vec3(1, 0, 0);
 
     ObjectTypeId mineObjectTypeId = ObjectTypes.Grass;
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, playerHandMassReduction - 1);
     setObjectAtCoord(mineCoord, mineObjectTypeId);
 
     // Prank as the player to mine the block, should not revert since forcefield is destroyed
@@ -733,7 +733,7 @@ contract ForceFieldTest is DustTest {
       Vec3 mineCoord = forceFieldCoord + vec3(1, 0, 0);
 
       ObjectTypeId mineObjectTypeId = ObjectTypes.Grass;
-      ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction - 1));
+      ObjectTypeMetadata.setMass(mineObjectTypeId, playerHandMassReduction - 1);
       setObjectAtCoord(mineCoord, mineObjectTypeId);
 
       // Mining should succeed
