@@ -27,6 +27,39 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "addFragment",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "forceField",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "refFragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "fragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "adminAddToInventory",
     "inputs": [
       {
@@ -357,17 +390,12 @@ declare const abi: [
     "name": "computeBoundaryFragments",
     "inputs": [
       {
-        "name": "forceFieldEntityId",
+        "name": "forceField",
         "type": "bytes32",
         "internalType": "EntityId"
       },
       {
-        "name": "fromFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "toFragmentCoord",
+        "name": "fragmentCoord",
         "type": "uint96",
         "internalType": "Vec3"
       }
@@ -375,8 +403,8 @@ declare const abi: [
     "outputs": [
       {
         "name": "",
-        "type": "uint96[]",
-        "internalType": "Vec3[]"
+        "type": "uint96[26]",
+        "internalType": "Vec3[26]"
       },
       {
         "name": "",
@@ -385,44 +413,6 @@ declare const abi: [
       }
     ],
     "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "contractForceField",
-    "inputs": [
-      {
-        "name": "callerEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "forceFieldEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "fromFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "toFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "parents",
-        "type": "uint256[]",
-        "internalType": "uint256[]"
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -629,44 +619,6 @@ declare const abi: [
         "name": "inventoryEntityId",
         "type": "bytes32",
         "internalType": "EntityId"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "expandForceField",
-    "inputs": [
-      {
-        "name": "callerEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "forceFieldEntityId",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "refFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "fromFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "toFragmentCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      },
-      {
-        "name": "extraData",
-        "type": "bytes",
-        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -2786,6 +2738,39 @@ declare const abi: [
   },
   {
     "type": "function",
+    "name": "removeFragment",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "forceField",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "fragmentCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      },
+      {
+        "name": "parents",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "extraData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "renounceOwnership",
     "inputs": [
       {
@@ -3404,8 +3389,8 @@ declare const abi: [
     "inputs": [
       {
         "name": "boundaryFragments",
-        "type": "uint96[]",
-        "internalType": "Vec3[]"
+        "type": "uint96[26]",
+        "internalType": "Vec3[26]"
       },
       {
         "name": "len",

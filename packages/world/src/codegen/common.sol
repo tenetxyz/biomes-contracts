@@ -21,8 +21,8 @@ enum ActionType {
   HitMachine,
   AttachProgram,
   DetachProgram,
-  ExpandForceField,
-  ContractForceField,
+  AddFragment,
+  RemoveFragment,
   Death
 }
 

@@ -23,8 +23,8 @@ export default defineWorld({
       "HitMachine",
       "AttachProgram",
       "DetachProgram",
-      "ExpandForceField",
-      "ContractForceField",
+      "AddFragment",
+      "RemoveFragment",
       "Death",
     ],
     Direction: [
