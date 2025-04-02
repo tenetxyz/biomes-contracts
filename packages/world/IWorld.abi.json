@@ -387,6 +387,24 @@
   },
   {
     "type": "function",
+    "name": "chunkCommit",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "chunkCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "computeBoundaryFragments",
     "inputs": [
       {
@@ -1845,12 +1863,17 @@
   },
   {
     "type": "function",
-    "name": "getRandomOreType",
+    "name": "getRandomResourceType",
     "inputs": [
       {
         "name": "coord",
         "type": "uint96",
         "internalType": "Vec3"
+      },
+      {
+        "name": "category",
+        "type": "uint8",
+        "internalType": "enum ResourceCategory"
       }
     ],
     "outputs": [
@@ -2287,24 +2310,6 @@
         "name": "directions",
         "type": "uint8[]",
         "internalType": "enum Direction[]"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "oreChunkCommit",
-    "inputs": [
-      {
-        "name": "caller",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "chunkCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
       }
     ],
     "outputs": [],
@@ -2784,12 +2789,17 @@
   },
   {
     "type": "function",
-    "name": "respawnOre",
+    "name": "respawnResource",
     "inputs": [
       {
         "name": "blockNumber",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "category",
+        "type": "uint8",
+        "internalType": "enum ResourceCategory"
       }
     ],
     "outputs": [],

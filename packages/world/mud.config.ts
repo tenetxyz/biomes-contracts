@@ -27,6 +27,10 @@ export default defineWorld({
       "RemoveFragment",
       "Death",
     ],
+    ResourceCategory: [
+      "Mining",
+      "Farming",
+    ],
     Direction: [
       // Cardinal directions (6)
       "PositiveX",
@@ -340,9 +344,9 @@ export default defineWorld({
       key: ["entityId"],
     },
     // ------------------------------------------------------------
-    // Ores
+    // Resources
     // ------------------------------------------------------------
-    OreCommitment: {
+    ChunkCommitment: {
       schema: {
         x: "int32",
         y: "int32",
@@ -351,33 +355,36 @@ export default defineWorld({
       },
       key: ["x", "y", "z"],
     },
-    TotalMinedOreCount: {
+    ResourcePosition: {
       schema: {
-        count: "uint256",
-      },
-      key: [],
-    },
-    MinedOrePosition: {
-      schema: {
+        category: "ResourceCategory",
         index: "uint256",
         x: "int32",
         y: "int32",
         z: "int32",
       },
-      key: ["index"],
+      key: ["category", "index"],
     },
-    MinedOreCount: {
+    ResourceCount: {
       schema: {
         objectTypeId: "ObjectTypeId",
         count: "uint256",
       },
       key: ["objectTypeId"],
     },
-    TotalBurnedOreCount: {
+    TotalResourceCount: {
       schema: {
+        category: "ResourceCategory",
         count: "uint256",
       },
-      key: [],
+      key: ["category"],
+    },
+    TotalBurnedResourceCount: {
+      schema: {
+        category: "ResourceCategory",
+        count: "uint256",
+      },
+      key: ["category"],
     },
     // ------------------------------------------------------------
     // Farming

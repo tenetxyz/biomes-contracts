@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { Direction } from "./codegen/common.sol";
-import { MinedOreCount } from "./codegen/tables/MinedOreCount.sol";
-import { TotalBurnedOreCount } from "./codegen/tables/TotalBurnedOreCount.sol";
+import { Direction, ResourceCategory } from "./codegen/common.sol";
+import { ResourceCount } from "./codegen/tables/ResourceCount.sol";
+import { TotalBurnedResourceCount } from "./codegen/tables/TotalBurnedResourceCount.sol";
 
 import { IMachineSystem } from "./codegen/world/IMachineSystem.sol";
 import { ITransferSystem } from "./codegen/world/ITransferSystem.sol";
@@ -277,9 +277,9 @@ library ObjectTypeLib {
     if (!objectTypeId.isNull()) {
       uint256 amount = ores.amount;
       // This increases the availability of the ores being burned
-      MinedOreCount._set(objectTypeId, MinedOreCount._get(objectTypeId) - amount);
+      ResourceCount._set(objectTypeId, ResourceCount._get(objectTypeId) - amount);
       // This allows the same amount of ores to respawn
-      TotalBurnedOreCount._set(TotalBurnedOreCount._get() + amount);
+      TotalBurnedResourceCount._set(ResourceCategory.Mining, TotalBurnedResourceCount._get(ResourceCategory.Mining) + amount);
     }
   }
 

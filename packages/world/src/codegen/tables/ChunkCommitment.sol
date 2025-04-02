@@ -16,9 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-library OreCommitment {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "OreCommitment", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004f7265436f6d6d69746d656e74000000);
+library ChunkCommitment {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ChunkCommitment", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004368756e6b436f6d6d69746d656e7400);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);

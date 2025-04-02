@@ -4,18 +4,19 @@ pragma solidity >=0.8.24;
 import { EntityId } from "../src/EntityId.sol";
 
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
+import { ResourceCategory } from "../src/codegen/common.sol";
 
-import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
+import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 
-import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
-import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
+import { TotalBurnedResourceCount } from "../src/codegen/tables/TotalBurnedResourceCount.sol";
+import { TotalResourceCount } from "../src/codegen/tables/TotalResourceCount.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { DustTest } from "./DustTest.sol";
 
 import {
-  LocalEnergyPool, MinedOrePosition, OreCommitment, Position, ReversePosition
+  LocalEnergyPool, ResourcePosition, ChunkCommitment, Position, ReversePosition
 } from "../src/utils/Vec3Storage.sol";
 
 import { CHUNK_COMMIT_EXPIRY_BLOCKS, CHUNK_SIZE } from "../src/Constants.sol";
@@ -25,7 +26,7 @@ import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 
-contract OreTest is DustTest {
+contract ResourceTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function exploreChunk(Vec3 coord) internal {
@@ -38,13 +39,13 @@ contract OreTest is DustTest {
     vm.etch(chunkPtr, chunkData);
   }
 
-  function addMinedOre(Vec3 coord) internal {
-    uint256 count = TotalMinedOreCount.get();
-    TotalMinedOreCount.set(count + 1);
-    MinedOrePosition.set(count, coord);
+  function addResourcePosition(ResourceCategory category, Vec3 coord) internal {
+    uint256 count = TotalResourceCount.get(category);
+    TotalResourceCount.set(category, count + 1);
+    ResourcePosition.set(category, count, coord);
   }
 
-  function testOreChunkCommit() public {
+  function testChunkCommit() public {
     Vec3 coord = vec3(0, 0, 0);
     Vec3 chunkCoord = coord.toChunkCoord();
     exploreChunk(coord);
@@ -52,12 +53,12 @@ contract OreTest is DustTest {
     (address alice, EntityId aliceEntityId) = createTestPlayer(coord);
 
     vm.prank(alice);
-    world.oreChunkCommit(aliceEntityId, chunkCoord);
+    world.chunkCommit(aliceEntityId, chunkCoord);
 
-    assertEq(OreCommitment.get(chunkCoord), block.number + 1);
+    assertEq(ChunkCommitment.get(chunkCoord), block.number + 1);
   }
 
-  function testOreChunkCommitCannotCommitIfExisting() public {
+  function testChunkCommitCannotCommitIfExisting() public {
     Vec3 coord = vec3(0, 0, 0);
     Vec3 chunkCoord = coord.toChunkCoord();
     exploreChunk(coord);
@@ -65,61 +66,63 @@ contract OreTest is DustTest {
     (address alice, EntityId aliceEntityId) = createTestPlayer(coord);
 
     vm.prank(alice);
-    world.oreChunkCommit(aliceEntityId, chunkCoord);
+    world.chunkCommit(aliceEntityId, chunkCoord);
 
     vm.roll(block.number + 1 + CHUNK_COMMIT_EXPIRY_BLOCKS);
 
     vm.prank(alice);
-    vm.expectRevert("Existing ore commitment");
-    world.oreChunkCommit(aliceEntityId, chunkCoord);
+    vm.expectRevert("Existing chunk commitment");
+    world.chunkCommit(aliceEntityId, chunkCoord);
 
     // Next block it should be possible to commit
     vm.roll(block.number + 1);
     vm.prank(alice);
-    world.oreChunkCommit(aliceEntityId, chunkCoord);
+    world.chunkCommit(aliceEntityId, chunkCoord);
 
-    assertEq(OreCommitment.get(chunkCoord), block.number + 1);
+    assertEq(ChunkCommitment.get(chunkCoord), block.number + 1);
   }
 
-  function testRespawnOre() public {
-    Vec3 minedOreCoord = vec3(0, 0, 0);
+  function testRespawnResource() public {
+    Vec3 resourceCoord = vec3(0, 0, 0);
+    ResourceCategory category = ResourceCategory.Mining;
 
-    addMinedOre(minedOreCoord);
+    addResourcePosition(category, resourceCoord);
 
-    // Burn ore so it becomes available to respawn
-    TotalBurnedOreCount.set(1);
+    // Burn resource so it becomes available to respawn
+    TotalBurnedResourceCount.set(category, 1);
 
     // Set coord to air
     EntityId entityId = randomEntityId();
-    ReversePosition.set(minedOreCoord, entityId);
+    ReversePosition.set(resourceCoord, entityId);
     ObjectType.set(entityId, ObjectTypes.Air);
 
     address alice = vm.randomAddress();
 
     vm.prank(alice);
-    world.respawnOre(block.number - 1);
+    world.respawnResource(block.number - 1, category);
 
-    assertEq(TotalMinedOreCount.get(), 0);
-    assertEq(TotalBurnedOreCount.get(), 0);
+    assertEq(TotalResourceCount.get(category), 0);
+    assertEq(TotalBurnedResourceCount.get(category), 0);
 
     // Check that the air entity was removed
     assertTrue(ObjectType.get(entityId).isNull());
   }
 
-  function testRespawnOreFailsIfNoBurnedOres() public {
-    Vec3 minedOreCoord = vec3(0, 0, 0);
+  function testRespawnResourceFailsIfNoBurned() public {
+    Vec3 resourceCoord = vec3(0, 0, 0);
+    ResourceCategory category = ResourceCategory.Mining;
 
-    addMinedOre(minedOreCoord);
+    addResourcePosition(category, resourceCoord);
 
     // Set coord to air
     EntityId entityId = randomEntityId();
-    ReversePosition.set(minedOreCoord, entityId);
+    ReversePosition.set(resourceCoord, entityId);
     ObjectType.set(entityId, ObjectTypes.Air);
 
     address alice = vm.randomAddress();
 
     vm.prank(alice);
-    vm.expectRevert("No ores available for respawn");
-    world.respawnOre(block.number - 1);
+    vm.expectRevert("No resources available for respawn");
+    world.respawnResource(block.number - 1, category);
   }
 }

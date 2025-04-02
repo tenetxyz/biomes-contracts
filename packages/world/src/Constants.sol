@@ -38,6 +38,11 @@ uint128 constant CRAFT_ENERGY_COST = 50;
 uint128 constant MOVE_ENERGY_COST = 5;
 uint128 constant PLAYER_FALL_ENERGY_COST = MAX_PLAYER_ENERGY / 25; // This makes it so, with full energy, you die from a 25 block fall
 
+// Resource caps
+uint256 constant MAX_WHEAT_SEED = 5_000_000;
+uint256 constant MAX_OAK_SEED = 1_000_000;
+uint256 constant MAX_SPRUCE_SEED = 1_000_000;
+
 uint256 constant MAX_COAL = 10_000_000;
 uint256 constant MAX_SILVER = 5_000_000;
 uint256 constant MAX_GOLD = 1_000_000;

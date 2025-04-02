@@ -19,7 +19,7 @@ import { IHitMachineSystem } from "./IHitMachineSystem.sol";
 import { IMachineSystem } from "./IMachineSystem.sol";
 import { IMineSystem } from "./IMineSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
-import { IOreSystem } from "./IOreSystem.sol";
+import { INatureSystem } from "./INatureSystem.sol";
 import { IPickupSystem } from "./IPickupSystem.sol";
 import { IProgramSystem } from "./IProgramSystem.sol";
 import { ISpawnSystem } from "./ISpawnSystem.sol";
@@ -53,7 +53,7 @@ interface IWorld is
   IMachineSystem,
   IMineSystem,
   IMoveSystem,
-  IOreSystem,
+  INatureSystem,
   IPickupSystem,
   IProgramSystem,
   ISpawnSystem,
