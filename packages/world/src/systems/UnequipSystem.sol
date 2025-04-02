@@ -15,14 +15,14 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { Vec3 } from "../Vec3.sol";
 
 contract UnequipSystem is System {
-  function unequip(EntityId callerEntityId) public {
-    callerEntityId.activate();
-    EntityId equippedEntityId = Equipped._get(callerEntityId);
-    if (!equippedEntityId.exists()) {
+  function unequip(EntityId caller) public {
+    caller.activate();
+    EntityId equipped = Equipped._get(caller);
+    if (!equipped.exists()) {
       return;
     }
-    Equipped._deleteRecord(callerEntityId);
+    Equipped._deleteRecord(caller);
 
-    notify(callerEntityId, UnequipNotifData({ inventoryEntityId: equippedEntityId }));
+    notify(caller, UnequipNotifData({ inventoryEntityId: equipped }));
   }
 }

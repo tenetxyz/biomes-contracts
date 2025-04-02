@@ -24,5 +24,5 @@ interface ISpawnSystem {
 
   function randomSpawn(uint256 blockNumber, int32 y) external returns (EntityId);
 
-  function spawn(EntityId spawnTileEntityId, Vec3 spawnCoord, bytes memory extraData) external returns (EntityId);
+  function spawn(EntityId spawnTile, Vec3 spawnCoord, bytes memory extraData) external returns (EntityId);
 }

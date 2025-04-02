@@ -107,7 +107,7 @@ contract ForceFieldSystem is System {
     bytes calldata extraData
   ) public {
     caller.activate();
-    // callerEntityId.requireConnected(forceFieldEntityId);
+    // caller.requireConnected(forceField);
 
     ObjectTypeId objectTypeId = ObjectType._get(forceField);
     require(objectTypeId == ObjectTypes.ForceField, "Invalid object type");
@@ -129,7 +129,7 @@ contract ForceFieldSystem is System {
 
     forceField.getProgram().callOrRevert(onAddFragment);
 
-    notify(caller, AddFragmentNotifData({ forceFieldEntityId: forceField }));
+    notify(caller, AddFragmentNotifData({ forceField: forceField }));
   }
 
   /**
@@ -177,6 +177,6 @@ contract ForceFieldSystem is System {
       forceField.getProgram().callOrRevert(onRemoveFragment);
     }
 
-    notify(caller, RemoveFragmentNotifData({ forceFieldEntityId: forceField }));
+    notify(caller, RemoveFragmentNotifData({ forceField: forceField }));
   }
 }

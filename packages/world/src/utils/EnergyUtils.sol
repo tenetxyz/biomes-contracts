@@ -77,46 +77,46 @@ function updateMachineEnergy(EntityId entityId) returns (EnergyData memory, uint
 }
 
 /// @dev Used within systems before performing an action
-function updatePlayerEnergy(EntityId playerEntityId) returns (EnergyData memory) {
-  (EnergyData memory energyData, uint128 energyDrained,) = getLatestEnergyData(playerEntityId);
+function updatePlayerEnergy(EntityId player) returns (EnergyData memory) {
+  (EnergyData memory energyData, uint128 energyDrained,) = getLatestEnergyData(player);
 
-  Vec3 coord = MovablePosition._get(playerEntityId);
+  Vec3 coord = MovablePosition._get(player);
 
   if (energyDrained > 0) {
     addEnergyToLocalPool(coord, energyDrained);
   }
 
   if (energyData.energy == 0) {
-    PlayerUtils.killPlayer(playerEntityId, coord);
+    PlayerUtils.killPlayer(player, coord);
   }
 
-  Energy._set(playerEntityId, energyData);
+  Energy._set(player, energyData);
 
   return energyData;
 }
 
-function decreaseMachineEnergy(EntityId machineEntityId, uint128 amount) {
+function decreaseMachineEnergy(EntityId machine, uint128 amount) {
   require(amount > 0, "Cannot decrease 0 energy");
-  uint128 current = Energy._getEnergy(machineEntityId);
+  uint128 current = Energy._getEnergy(machine);
   require(current >= amount, "Not enough energy");
 
   // Set the energy data
-  Energy._setEnergy(machineEntityId, current - amount);
+  Energy._setEnergy(machine, current - amount);
 }
 
-function decreasePlayerEnergy(EntityId playerEntityId, Vec3 playerCoord, uint128 amount) {
+function decreasePlayerEnergy(EntityId player, Vec3 playerCoord, uint128 amount) {
   require(amount > 0, "Cannot decrease 0 energy");
-  uint128 current = Energy._getEnergy(playerEntityId);
+  uint128 current = Energy._getEnergy(player);
   require(current >= amount, "Not enough energy");
 
   uint128 newEnergy = current - amount;
 
   // Set the energy data
-  Energy._setEnergy(playerEntityId, newEnergy);
+  Energy._setEnergy(player, newEnergy);
 
   // Check if player is dead (zero energy)
   if (newEnergy == 0) {
-    PlayerUtils.killPlayer(playerEntityId, playerCoord);
+    PlayerUtils.killPlayer(player, playerCoord);
   }
 }
 
@@ -150,11 +150,11 @@ function removeEnergyFromLocalPool(Vec3 coord, uint128 numToRemove) returns (uin
   return newLocalEnergy;
 }
 
-function updateSleepingPlayerEnergy(EntityId playerEntityId, EntityId bedEntityId, uint128 depletedTime, Vec3 bedCoord)
+function updateSleepingPlayerEnergy(EntityId player, EntityId bed, uint128 depletedTime, Vec3 bedCoord)
   returns (EnergyData memory)
 {
-  uint128 timeWithoutEnergy = depletedTime - BedPlayer._getLastDepletedTime(bedEntityId);
-  EnergyData memory playerEnergyData = Energy._get(playerEntityId);
+  uint128 timeWithoutEnergy = depletedTime - BedPlayer._getLastDepletedTime(bed);
+  EnergyData memory playerEnergyData = Energy._get(player);
 
   if (timeWithoutEnergy > 0) {
     uint128 totalEnergyDepleted = timeWithoutEnergy * PLAYER_ENERGY_DRAIN_RATE;
@@ -168,8 +168,8 @@ function updateSleepingPlayerEnergy(EntityId playerEntityId, EntityId bedEntityI
 
   // Set last updated so next time updatePlayerEnergyLevel is called it will drain from here
   playerEnergyData.lastUpdatedTime = uint128(block.timestamp);
-  Energy._set(playerEntityId, playerEnergyData);
-  BedPlayer._setLastDepletedTime(bedEntityId, depletedTime);
+  Energy._set(player, playerEnergyData);
+  BedPlayer._setLastDepletedTime(bed, depletedTime);
 
   return playerEnergyData;
 }

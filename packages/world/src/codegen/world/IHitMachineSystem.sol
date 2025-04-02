@@ -12,5 +12,5 @@ import { Vec3 } from "../../Vec3.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IHitMachineSystem {
-  function hitForceField(EntityId callerEntityId, Vec3 coord) external;
+  function hitForceField(EntityId caller, Vec3 coord) external;
 }

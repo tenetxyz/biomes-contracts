@@ -11,7 +11,7 @@ import { EntityId } from "../../EntityId.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface ICraftSystem {
-  function craftWithStation(EntityId callerEntityId, bytes32 recipeId, EntityId stationEntityId) external;
+  function craftWithStation(EntityId caller, bytes32 recipeId, EntityId station) external;
 
-  function craft(EntityId callerEntityId, bytes32 recipeId) external;
+  function craft(EntityId caller, bytes32 recipeId) external;
 }

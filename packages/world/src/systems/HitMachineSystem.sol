@@ -35,36 +35,36 @@ import { Vec3 } from "../Vec3.sol";
 contract HitMachineSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
-  function hitForceField(EntityId callerEntityId, Vec3 coord) public {
-    callerEntityId.activate();
-    callerEntityId.requireConnected(coord);
+  function hitForceField(EntityId caller, Vec3 coord) public {
+    caller.activate();
+    caller.requireConnected(coord);
 
-    (EntityId forceFieldEntityId,) = getForceField(coord);
-    require(forceFieldEntityId.exists(), "No force field at this location");
-    Vec3 forceFieldCoord = Position._get(forceFieldEntityId);
+    (EntityId forceField,) = getForceField(coord);
+    require(forceField.exists(), "No force field at this location");
+    Vec3 forceFieldCoord = Position._get(forceField);
 
     uint128 energyReduction =
-      HitMachineLib._processEnergyReduction(callerEntityId, forceFieldEntityId, coord, forceFieldCoord);
+      HitMachineLib._processEnergyReduction(caller, forceField, coord, forceFieldCoord);
 
-    ProgramId program = forceFieldEntityId.getProgram();
-    bytes memory onHit = abi.encodeCall(IHitHook.onHit, (callerEntityId, forceFieldEntityId, energyReduction, ""));
+    ProgramId program = forceField.getProgram();
+    bytes memory onHit = abi.encodeCall(IHitHook.onHit, (caller, forceField, energyReduction, ""));
     // Don't revert and use a fixed amount of gas so the program can't prevent hitting
     program.call({ gas: SAFE_PROGRAM_GAS, hook: onHit });
 
-    notify(callerEntityId, HitMachineNotifData({ machineEntityId: forceFieldEntityId, machineCoord: forceFieldCoord }));
+    notify(caller, HitMachineNotifData({ machine: forceField, machineCoord: forceFieldCoord }));
   }
 }
 
 library HitMachineLib {
   function _processEnergyReduction(
-    EntityId callerEntityId,
-    EntityId forceFieldEntityId,
+    EntityId caller,
+    EntityId forceField,
     Vec3 playerCoord,
     Vec3 forceFieldCoord
   ) public returns (uint128) {
-    (EnergyData memory machineData,) = updateMachineEnergy(forceFieldEntityId);
+    (EnergyData memory machineData,) = updateMachineEnergy(forceField);
     require(machineData.energy > 0, "Cannot hit depleted forcefield");
-    (uint128 toolMassReduction,) = useEquipped(callerEntityId, machineData.energy);
+    (uint128 toolMassReduction,) = useEquipped(caller, machineData.energy);
 
     uint128 playerEnergyReduction = 0;
 
@@ -72,11 +72,11 @@ library HitMachineLib {
     if (toolMassReduction < machineData.energy) {
       uint128 remaining = machineData.energy - toolMassReduction;
       playerEnergyReduction = HIT_ENERGY_COST <= remaining ? HIT_ENERGY_COST : remaining;
-      decreasePlayerEnergy(callerEntityId, playerCoord, playerEnergyReduction);
+      decreasePlayerEnergy(caller, playerCoord, playerEnergyReduction);
     }
 
     uint128 machineEnergyReduction = playerEnergyReduction + toolMassReduction;
-    decreaseMachineEnergy(forceFieldEntityId, machineEnergyReduction);
+    decreaseMachineEnergy(forceField, machineEnergyReduction);
     addEnergyToLocalPool(forceFieldCoord, machineEnergyReduction + playerEnergyReduction);
     return machineEnergyReduction;
   }

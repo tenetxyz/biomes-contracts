@@ -35,40 +35,40 @@ contract AdminSystem is System {
     _;
   }
 
-  function adminAddToInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToAdd)
+  function adminAddToInventory(EntityId owner, ObjectTypeId objectTypeId, uint16 numObjectsToAdd)
     public
     onlyAdmin
   {
     require(!objectTypeId.isTool(), "To add a tool, you must use adminAddToolToInventory");
-    addToInventory(ownerEntityId, ObjectType._get(ownerEntityId), objectTypeId, numObjectsToAdd);
+    addToInventory(owner, ObjectType._get(owner), objectTypeId, numObjectsToAdd);
   }
 
-  function adminAddToolToInventory(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId)
+  function adminAddToolToInventory(EntityId owner, ObjectTypeId toolObjectTypeId)
     public
     onlyAdmin
     returns (EntityId)
   {
-    return addToolToInventory(ownerEntityId, toolObjectTypeId);
+    return addToolToInventory(owner, toolObjectTypeId);
   }
 
-  function adminRemoveFromInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToRemove)
+  function adminRemoveFromInventory(EntityId owner, ObjectTypeId objectTypeId, uint16 numObjectsToRemove)
     public
     onlyAdmin
   {
     require(!objectTypeId.isTool(), "To remove a tool, you must pass in the tool entity id");
-    removeFromInventory(ownerEntityId, objectTypeId, numObjectsToRemove);
+    removeFromInventory(owner, objectTypeId, numObjectsToRemove);
   }
 
-  function adminRemoveToolFromInventory(EntityId ownerEntityId, EntityId toolEntityId) public onlyAdmin {
-    removeToolFromInventory(ownerEntityId, toolEntityId, ObjectType._get(toolEntityId));
+  function adminRemoveToolFromInventory(EntityId owner, EntityId tool) public onlyAdmin {
+    removeToolFromInventory(owner, tool, ObjectType._get(tool));
   }
 
   function adminTeleportPlayer(address player, Vec3 finalCoord) public onlyAdmin {
-    EntityId playerEntityId = Player.get(player);
-    playerEntityId.activate();
+    EntityId player = Player.get(player);
+    player.activate();
 
-    Vec3[] memory playerCoords = ObjectTypes.Player.getRelativeCoords(playerEntityId.getPosition());
-    EntityId[] memory playerEntityIds = MoveLib._getPlayerEntityIds(playerEntityId, playerCoords);
+    Vec3[] memory playerCoords = ObjectTypes.Player.getRelativeCoords(player.getPosition());
+    EntityId[] memory players = MoveLib._getPlayers(player, playerCoords);
     require(!MoveLib._gravityApplies(finalCoord), "Cannot teleport here as gravity applies");
 
     for (uint256 i = 0; i < playerCoords.length; i++) {
@@ -83,7 +83,7 @@ contract AdminSystem is System {
       require(ObjectTypeMetadata._getCanPassThrough(newObjectTypeId), "Cannot teleport to a non-passable block");
       require(!getMovableEntityAt(newCoord).exists(), "Cannot teleport where a player already exists");
 
-      setMovableEntityAt(newCoord, playerEntityIds[i]);
+      setMovableEntityAt(newCoord, players[i]);
     }
   }
 }

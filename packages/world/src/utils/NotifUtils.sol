@@ -29,7 +29,7 @@ struct MoveNotifData {
 
 struct CraftNotifData {
   bytes32 recipeId;
-  EntityId stationEntityId;
+  EntityId station;
 }
 
 struct DropNotifData {
@@ -46,7 +46,7 @@ struct PickupNotifData {
 
 struct TransferNotifData {
   EntityId transferEntityId;
-  EntityId[] toolEntityIds;
+  EntityId[] tools;
   ObjectAmount[] objectAmounts;
 }
 
@@ -63,51 +63,51 @@ struct SpawnNotifData {
 }
 
 struct PowerMachineNotifData {
-  EntityId machineEntityId;
+  EntityId machine;
   Vec3 machineCoord;
   uint16 fuelAmount;
 }
 
 struct HitMachineNotifData {
-  EntityId machineEntityId;
+  EntityId machine;
   Vec3 machineCoord;
 }
 
 struct AttachProgramNotifData {
-  EntityId attachEntityId;
+  EntityId attachedTo;
   ResourceId programSystemId;
 }
 
 struct DetachProgramNotifData {
-  EntityId detachEntityId;
+  EntityId detachedFrom;
   ResourceId programSystemId;
 }
 
 struct SleepNotifData {
-  EntityId bedEntityId;
+  EntityId bed;
   Vec3 bedCoord;
 }
 
 struct WakeupNotifData {
-  EntityId bedEntityId;
+  EntityId bed;
   Vec3 bedCoord;
 }
 
 struct AddFragmentNotifData {
-  EntityId forceFieldEntityId;
+  EntityId forceField;
 }
 
 struct RemoveFragmentNotifData {
-  EntityId forceFieldEntityId;
+  EntityId forceField;
 }
 
 struct DeathNotifData {
   Vec3 deathCoord;
 }
 
-function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {
+function notify(EntityId player, BuildNotifData memory buildNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Build,
@@ -116,9 +116,9 @@ function notify(EntityId playerEntityId, BuildNotifData memory buildNotifData) {
   );
 }
 
-function notify(EntityId playerEntityId, MineNotifData memory mineNotifData) {
+function notify(EntityId player, MineNotifData memory mineNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Mine,
@@ -127,9 +127,9 @@ function notify(EntityId playerEntityId, MineNotifData memory mineNotifData) {
   );
 }
 
-function notify(EntityId playerEntityId, MoveNotifData memory moveNotifData) {
+function notify(EntityId player, MoveNotifData memory moveNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Move,
@@ -138,9 +138,9 @@ function notify(EntityId playerEntityId, MoveNotifData memory moveNotifData) {
   );
 }
 
-function notify(EntityId playerEntityId, CraftNotifData memory craftNotifData) {
+function notify(EntityId player, CraftNotifData memory craftNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Craft,
@@ -149,9 +149,9 @@ function notify(EntityId playerEntityId, CraftNotifData memory craftNotifData) {
   );
 }
 
-function notify(EntityId playerEntityId, DropNotifData memory dropNotifData) {
+function notify(EntityId player, DropNotifData memory dropNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Drop,
@@ -160,9 +160,9 @@ function notify(EntityId playerEntityId, DropNotifData memory dropNotifData) {
   );
 }
 
-function notify(EntityId playerEntityId, PickupNotifData memory pickupNotifData) {
+function notify(EntityId player, PickupNotifData memory pickupNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Pickup,
@@ -171,9 +171,9 @@ function notify(EntityId playerEntityId, PickupNotifData memory pickupNotifData)
   );
 }
 
-function notify(EntityId playerEntityId, TransferNotifData memory transferNotifData) {
+function notify(EntityId player, TransferNotifData memory transferNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Transfer,
@@ -182,9 +182,9 @@ function notify(EntityId playerEntityId, TransferNotifData memory transferNotifD
   );
 }
 
-function notify(EntityId playerEntityId, EquipNotifData memory equipNotifData) {
+function notify(EntityId player, EquipNotifData memory equipNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Equip,
@@ -193,9 +193,9 @@ function notify(EntityId playerEntityId, EquipNotifData memory equipNotifData) {
   );
 }
 
-function notify(EntityId playerEntityId, UnequipNotifData memory unequipNotifData) {
+function notify(EntityId player, UnequipNotifData memory unequipNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Unequip,
@@ -204,9 +204,9 @@ function notify(EntityId playerEntityId, UnequipNotifData memory unequipNotifDat
   );
 }
 
-function notify(EntityId playerEntityId, SpawnNotifData memory spawnNotifData) {
+function notify(EntityId player, SpawnNotifData memory spawnNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Spawn,
@@ -215,9 +215,9 @@ function notify(EntityId playerEntityId, SpawnNotifData memory spawnNotifData) {
   );
 }
 
-function notify(EntityId playerEntityId, PowerMachineNotifData memory powerMachineNotifData) {
+function notify(EntityId player, PowerMachineNotifData memory powerMachineNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.PowerMachine,
@@ -226,9 +226,9 @@ function notify(EntityId playerEntityId, PowerMachineNotifData memory powerMachi
   );
 }
 
-function notify(EntityId playerEntityId, HitMachineNotifData memory hitMachineNotifData) {
+function notify(EntityId player, HitMachineNotifData memory hitMachineNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.HitMachine,
@@ -237,9 +237,9 @@ function notify(EntityId playerEntityId, HitMachineNotifData memory hitMachineNo
   );
 }
 
-function notify(EntityId playerEntityId, AttachProgramNotifData memory attachProgramNotifData) {
+function notify(EntityId player, AttachProgramNotifData memory attachProgramNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.AttachProgram,
@@ -248,9 +248,9 @@ function notify(EntityId playerEntityId, AttachProgramNotifData memory attachPro
   );
 }
 
-function notify(EntityId playerEntityId, DetachProgramNotifData memory detachProgramNotifData) {
+function notify(EntityId player, DetachProgramNotifData memory detachProgramNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.DetachProgram,
@@ -259,9 +259,9 @@ function notify(EntityId playerEntityId, DetachProgramNotifData memory detachPro
   );
 }
 
-function notify(EntityId playerEntityId, SleepNotifData memory sleepNotifData) {
+function notify(EntityId player, SleepNotifData memory sleepNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Sleep,
@@ -270,9 +270,9 @@ function notify(EntityId playerEntityId, SleepNotifData memory sleepNotifData) {
   );
 }
 
-function notify(EntityId playerEntityId, WakeupNotifData memory wakeupNotifData) {
+function notify(EntityId player, WakeupNotifData memory wakeupNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Wakeup,
@@ -281,9 +281,9 @@ function notify(EntityId playerEntityId, WakeupNotifData memory wakeupNotifData)
   );
 }
 
-function notify(EntityId playerEntityId, AddFragmentNotifData memory addFragmentNotifData) {
+function notify(EntityId player, AddFragmentNotifData memory addFragmentNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.AddFragment,
@@ -292,9 +292,9 @@ function notify(EntityId playerEntityId, AddFragmentNotifData memory addFragment
   );
 }
 
-function notify(EntityId playerEntityId, RemoveFragmentNotifData memory removeFragmentNotifData) {
+function notify(EntityId player, RemoveFragmentNotifData memory removeFragmentNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.RemoveFragment,
@@ -303,9 +303,9 @@ function notify(EntityId playerEntityId, RemoveFragmentNotifData memory removeFr
   );
 }
 
-function notify(EntityId playerEntityId, DeathNotifData memory deathNotifData) {
+function notify(EntityId player, DeathNotifData memory deathNotifData) {
   Notification._set(
-    playerEntityId,
+    player,
     NotificationData({
       timestamp: uint128(block.timestamp),
       actionType: ActionType.Death,

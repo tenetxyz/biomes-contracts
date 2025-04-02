@@ -49,7 +49,7 @@ contract ProgramSystem is System {
 
     program.callOrRevert(abi.encodeCall(IAttachProgramHook.onAttachProgram, (caller, target, extraData)));
 
-    notify(caller, AttachProgramNotifData({ attachEntityId: target, programSystemId: program.toResourceId() }));
+    notify(caller, AttachProgramNotifData({ attachedTo: target, programSystemId: program.toResourceId() }));
   }
 
   function detachProgram(EntityId caller, EntityId target, bytes calldata extraData) public payable {
@@ -73,7 +73,7 @@ contract ProgramSystem is System {
 
     EntityProgram._deleteRecord(target);
 
-    notify(caller, DetachProgramNotifData({ detachEntityId: target, programSystemId: program.toResourceId() }));
+    notify(caller, DetachProgramNotifData({ detachedFrom: target, programSystemId: program.toResourceId() }));
   }
 
   function _getValidatorProgram(Vec3 coord) internal returns (EntityId, ProgramId) {

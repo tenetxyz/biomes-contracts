@@ -14,11 +14,11 @@ import { EquipNotifData, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 contract EquipSystem is System {
-  function equip(EntityId callerEntityId, EntityId inventoryEntityId) public {
-    callerEntityId.activate();
-    require(InventoryEntity._get(inventoryEntityId) == callerEntityId, "Player does not own inventory item");
-    Equipped._set(callerEntityId, inventoryEntityId);
+  function equip(EntityId caller, EntityId inventoryEntityId) public {
+    caller.activate();
+    require(InventoryEntity._get(inventoryEntityId) == caller, "Player does not own inventory item");
+    Equipped._set(caller, inventoryEntityId);
 
-    notify(callerEntityId, EquipNotifData({ inventoryEntityId: inventoryEntityId }));
+    notify(caller, EquipNotifData({ inventoryEntityId: inventoryEntityId }));
   }
 }

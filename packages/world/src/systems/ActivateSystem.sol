@@ -24,24 +24,24 @@ contract ActivateSystem is System {
     checkWorldStatus();
 
     require(entityId.exists(), "Entity does not exist");
-    EntityId baseEntityId = entityId.baseEntityId();
-    ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
+    EntityId base = entityId.baseEntityId();
+    ObjectTypeId objectTypeId = ObjectType._get(base);
     require(!objectTypeId.isNull(), "Entity has no object type");
 
     if (objectTypeId == ObjectTypes.Player) {
-      updatePlayerEnergy(baseEntityId);
+      updatePlayerEnergy(base);
     } else {
       // if there's no program, it'll just do nothing
-      updateMachineEnergy(baseEntityId);
+      updateMachineEnergy(base);
     }
   }
 
-  function activatePlayer(address player) public {
-    EntityId playerEntityId = Player._get(player);
-    playerEntityId = playerEntityId.baseEntityId();
-    require(playerEntityId.exists(), "Entity does not exist");
-    ObjectTypeId objectTypeId = ObjectType._get(playerEntityId);
+  function activatePlayer(address playerAddress) public {
+    EntityId player = Player._get(playerAddress);
+    player = player.baseEntityId();
+    require(player.exists(), "Entity does not exist");
+    ObjectTypeId objectTypeId = ObjectType._get(player);
     require(objectTypeId == ObjectTypes.Player, "Entity is not player");
-    updatePlayerEnergy(playerEntityId);
+    updatePlayerEnergy(player);
   }
 }

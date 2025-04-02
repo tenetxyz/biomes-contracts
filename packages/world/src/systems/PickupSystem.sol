@@ -25,9 +25,9 @@ import { ObjectTypes } from "../ObjectTypes.sol";
 import { Vec3 } from "../Vec3.sol";
 
 contract PickupSystem is System {
-  function pickupCommon(EntityId callerEntityId, Vec3 coord) internal returns (EntityId) {
-    callerEntityId.activate();
-    callerEntityId.requireConnected(coord);
+  function pickupCommon(EntityId caller, Vec3 coord) internal returns (EntityId) {
+    caller.activate();
+    caller.requireConnected(coord);
 
     EntityId entityId = ReversePosition._get(coord);
     require(entityId.exists(), "No entity at pickup location");
@@ -38,51 +38,51 @@ contract PickupSystem is System {
     return entityId;
   }
 
-  function pickupAll(EntityId callerEntityId, Vec3 coord) public {
-    EntityId entityId = pickupCommon(callerEntityId, coord);
-    uint256 numTransferred = transferAllInventoryEntities(entityId, callerEntityId, ObjectTypes.Player);
+  function pickupAll(EntityId caller, Vec3 coord) public {
+    EntityId entityId = pickupCommon(caller, coord);
+    uint256 numTransferred = transferAllInventoryEntities(entityId, caller, ObjectTypes.Player);
 
     notify(
-      callerEntityId,
+      caller,
       PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: ObjectTypes.Air, pickupAmount: uint16(numTransferred) })
     );
   }
 
-  function pickup(EntityId callerEntityId, ObjectTypeId pickupObjectTypeId, uint16 numToPickup, Vec3 coord) public {
-    EntityId entityId = pickupCommon(callerEntityId, coord);
-    transferInventoryNonEntity(entityId, callerEntityId, ObjectTypes.Player, pickupObjectTypeId, numToPickup);
+  function pickup(EntityId caller, ObjectTypeId pickupObjectTypeId, uint16 numToPickup, Vec3 coord) public {
+    EntityId entityId = pickupCommon(caller, coord);
+    transferInventoryNonEntity(entityId, caller, ObjectTypes.Player, pickupObjectTypeId, numToPickup);
 
     notify(
-      callerEntityId,
+      caller,
       PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: pickupObjectTypeId, pickupAmount: numToPickup })
     );
   }
 
-  function pickupTool(EntityId callerEntityId, EntityId toolEntityId, Vec3 coord) public {
-    EntityId entityId = pickupCommon(callerEntityId, coord);
-    ObjectTypeId toolObjectTypeId = transferInventoryEntity(entityId, callerEntityId, ObjectTypes.Player, toolEntityId);
+  function pickupTool(EntityId caller, EntityId tool, Vec3 coord) public {
+    EntityId entityId = pickupCommon(caller, coord);
+    ObjectTypeId toolObjectTypeId = transferInventoryEntity(entityId, caller, ObjectTypes.Player, tool);
 
     notify(
-      callerEntityId, PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
+      caller, PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
     );
   }
 
   function pickupMultiple(
-    EntityId callerEntityId,
+    EntityId caller,
     ObjectAmount[] memory pickupObjects,
     EntityId[] memory pickupTools,
     Vec3 coord
   ) public {
-    EntityId entityId = pickupCommon(callerEntityId, coord);
+    EntityId entityId = pickupCommon(caller, coord);
 
     for (uint256 i = 0; i < pickupObjects.length; i++) {
       ObjectAmount memory pickupObject = pickupObjects[i];
       transferInventoryNonEntity(
-        entityId, callerEntityId, ObjectTypes.Player, pickupObject.objectTypeId, pickupObject.amount
+        entityId, caller, ObjectTypes.Player, pickupObject.objectTypeId, pickupObject.amount
       );
 
       notify(
-        callerEntityId,
+        caller,
         PickupNotifData({
           pickupCoord: coord,
           pickupObjectTypeId: pickupObject.objectTypeId,
@@ -93,10 +93,10 @@ contract PickupSystem is System {
 
     for (uint256 i = 0; i < pickupTools.length; i++) {
       ObjectTypeId toolObjectTypeId =
-        transferInventoryEntity(entityId, callerEntityId, ObjectTypes.Player, pickupTools[i]);
+        transferInventoryEntity(entityId, caller, ObjectTypes.Player, pickupTools[i]);
 
       notify(
-        callerEntityId, PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
+        caller, PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
       );
     }
   }

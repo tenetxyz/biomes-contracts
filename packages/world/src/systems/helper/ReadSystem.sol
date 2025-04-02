@@ -33,12 +33,12 @@ import { TerrainLib } from "../libraries/TerrainLib.sol";
 
 // Public getters so clients can read the world state more easily
 contract ReadSystem is System {
-  function getCoordForEntityId(EntityId entityId) internal view returns (Vec3) {
+  function getCoordFor(EntityId entityId) internal view returns (Vec3) {
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
     if (objectTypeId == ObjectTypes.Player) {
-      EntityId bedEntityId = PlayerStatus._getBedEntityId(entityId);
-      if (bedEntityId.exists()) {
-        return Position._get(bedEntityId);
+      EntityId bed = PlayerStatus._getBedEntityId(entityId);
+      if (bed.exists()) {
+        return Position._get(bed);
       } else {
         return MovablePosition._get(entityId);
       }
@@ -63,20 +63,20 @@ contract ReadSystem is System {
       });
     }
 
-    EntityId rawBaseEntityId = BaseEntity._get(entityId);
-    EntityId baseEntityId = rawBaseEntityId.exists() ? rawBaseEntityId : entityId;
+    EntityId rawBase = BaseEntity._get(entityId);
+    EntityId base = rawBase.exists() ? rawBase : entityId;
 
     return EntityData({
       entityId: entityId,
-      baseEntityId: rawBaseEntityId,
+      baseEntityId: rawBase,
       objectTypeId: ObjectType._get(entityId),
-      position: getCoordForEntityId(entityId),
-      orientation: Orientation._get(baseEntityId),
-      inventory: getEntityInventory(baseEntityId),
-      programSystemId: EntityProgram._get(baseEntityId).toResourceId(),
-      mass: Mass._get(baseEntityId),
-      energy: Energy._get(baseEntityId),
-      machine: Machine._get(baseEntityId)
+      position: getCoordFor(entityId),
+      orientation: Orientation._get(base),
+      inventory: getEntityInventory(base),
+      programSystemId: EntityProgram._get(base).toResourceId(),
+      mass: Mass._get(base),
+      energy: Energy._get(base),
+      machine: Machine._get(base)
     });
   }
 
@@ -97,20 +97,20 @@ contract ReadSystem is System {
       });
     }
 
-    EntityId rawBaseEntityId = BaseEntity._get(entityId);
-    EntityId baseEntityId = rawBaseEntityId.exists() ? rawBaseEntityId : entityId;
+    EntityId rawBase = BaseEntity._get(entityId);
+    EntityId base = rawBase.exists() ? rawBase : entityId;
 
     return EntityData({
       entityId: entityId,
-      baseEntityId: rawBaseEntityId,
+      baseEntityId: rawBase,
       objectTypeId: ObjectType._get(entityId),
       position: coord,
-      orientation: Orientation._get(baseEntityId),
-      inventory: getEntityInventory(baseEntityId),
-      programSystemId: EntityProgram._get(baseEntityId).toResourceId(),
-      mass: Mass._get(baseEntityId),
-      energy: Energy._get(baseEntityId),
-      machine: Machine._get(baseEntityId)
+      orientation: Orientation._get(base),
+      inventory: getEntityInventory(base),
+      programSystemId: EntityProgram._get(base).toResourceId(),
+      mass: Mass._get(base),
+      energy: Energy._get(base),
+      machine: Machine._get(base)
     });
   }
 
@@ -135,16 +135,16 @@ contract ReadSystem is System {
     if (!entityId.exists()) {
       return PlayerEntityData({
         playerAddress: player,
-        bedEntityId: EntityId.wrap(0),
-        equippedEntityId: EntityId.wrap(0),
+        bed: EntityId.wrap(0),
+        equipped: EntityId.wrap(0),
         entityData: getEntityData(entityId)
       });
     }
 
     return PlayerEntityData({
       playerAddress: player,
-      bedEntityId: PlayerStatus._getBedEntityId(entityId),
-      equippedEntityId: Equipped._get(entityId),
+      bed: PlayerStatus._getBedEntityId(entityId),
+      equipped: Equipped._get(entityId),
       entityData: getEntityData(entityId)
     });
   }

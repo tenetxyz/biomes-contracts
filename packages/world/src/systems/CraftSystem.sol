@@ -30,15 +30,15 @@ import { CraftNotifData, notify } from "../utils/NotifUtils.sol";
 contract CraftSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
-  function craftWithStation(EntityId callerEntityId, bytes32 recipeId, EntityId stationEntityId) public {
-    callerEntityId.activate();
+  function craftWithStation(EntityId caller, bytes32 recipeId, EntityId station) public {
+    caller.activate();
     RecipesData memory recipeData = Recipes._get(recipeId);
     require(recipeData.inputTypes.length > 0, "Recipe not found");
 
     if (!recipeData.stationTypeId.isNull()) {
-      require(stationEntityId.exists(), "This recipe requires a station");
-      require(ObjectType._get(stationEntityId) == recipeData.stationTypeId, "Invalid station");
-      callerEntityId.requireConnected(stationEntityId);
+      require(station.exists(), "This recipe requires a station");
+      require(ObjectType._get(station) == recipeData.stationTypeId, "Invalid station");
+      caller.requireConnected(station);
     }
 
     // Require that the entity has all the ingredients in its inventory
@@ -50,9 +50,9 @@ contract CraftSystem is System {
       // totalInputObjectMass += ObjectTypeMetadata._getMass(inputObjectTypeId);
       // totalInputObjectEnergy += ObjectTypeMetadata._getEnergy(inputObjectTypeId);
       if (inputObjectTypeId.isAny()) {
-        removeAnyFromInventory(callerEntityId, inputObjectTypeId, recipeData.inputAmounts[i]);
+        removeAnyFromInventory(caller, inputObjectTypeId, recipeData.inputAmounts[i]);
       } else {
-        removeFromInventory(callerEntityId, inputObjectTypeId, recipeData.inputAmounts[i]);
+        removeFromInventory(caller, inputObjectTypeId, recipeData.inputAmounts[i]);
       }
     }
 
@@ -62,21 +62,21 @@ contract CraftSystem is System {
       uint16 outputAmount = recipeData.outputAmounts[i];
       if (outputType.isTool()) {
         for (uint256 j = 0; j < outputAmount; j++) {
-          addToolToInventory(callerEntityId, outputType);
+          addToolToInventory(caller, outputType);
         }
       } else {
-        addToInventory(callerEntityId, ObjectType._get(callerEntityId), outputType, outputAmount);
+        addToInventory(caller, ObjectType._get(caller), outputType, outputAmount);
       }
     }
 
     // TODO: handle dyes
 
-    transferEnergyToPool(callerEntityId, CRAFT_ENERGY_COST);
+    transferEnergyToPool(caller, CRAFT_ENERGY_COST);
 
-    notify(callerEntityId, CraftNotifData({ recipeId: recipeId, stationEntityId: stationEntityId }));
+    notify(caller, CraftNotifData({ recipeId: recipeId, station: station }));
   }
 
-  function craft(EntityId callerEntityId, bytes32 recipeId) public {
-    craftWithStation(callerEntityId, recipeId, EntityId.wrap(bytes32(0)));
+  function craft(EntityId caller, bytes32 recipeId) public {
+    craftWithStation(caller, recipeId, EntityId.wrap(bytes32(0)));
   }
 }

@@ -22,105 +22,90 @@ import { Vec3 } from "../Vec3.sol";
 
 contract TransferSystem is System {
   function transfer(
-    EntityId callerEntityId,
-    EntityId fromEntityId,
-    EntityId toEntityId,
+    EntityId caller,
+    EntityId from,
+    EntityId to,
     ObjectTypeId transferObjectTypeId,
     uint16 numToTransfer,
     bytes calldata extraData
   ) public payable {
-    callerEntityId.activate();
+    caller.activate();
 
-    if (callerEntityId != fromEntityId) {
-      callerEntityId.requireConnected(fromEntityId);
+    if (caller != from) {
+      caller.requireConnected(from);
     }
-    fromEntityId.requireConnected(toEntityId);
+    from.requireConnected(to);
 
-    transferEnergyToPool(callerEntityId, SMART_CHEST_ENERGY_COST);
+    transferEnergyToPool(caller, SMART_CHEST_ENERGY_COST);
 
-    ObjectTypeId toObjectTypeId = ObjectType._get(toEntityId);
+    ObjectTypeId toObjectTypeId = ObjectType._get(to);
 
-    transferInventoryNonEntity(fromEntityId, toEntityId, toObjectTypeId, transferObjectTypeId, numToTransfer);
+    transferInventoryNonEntity(from, to, toObjectTypeId, transferObjectTypeId, numToTransfer);
 
     ObjectAmount[] memory objectAmounts = new ObjectAmount[](1);
     objectAmounts[0] = ObjectAmount(transferObjectTypeId, numToTransfer);
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    TransferLib._onTransfer(callerEntityId, fromEntityId, toEntityId, new EntityId[](0), objectAmounts, extraData);
+    TransferLib._onTransfer(caller, from, to, new EntityId[](0), objectAmounts, extraData);
   }
 
-  function transferTool(
-    EntityId callerEntityId,
-    EntityId fromEntityId,
-    EntityId toEntityId,
-    EntityId toolEntityId,
-    bytes calldata extraData
-  ) public payable {
-    EntityId[] memory toolEntityIds = new EntityId[](1);
-    toolEntityIds[0] = toolEntityId;
-    transferTools(callerEntityId, fromEntityId, toEntityId, toolEntityIds, extraData);
+  function transferTool(EntityId caller, EntityId from, EntityId to, EntityId tool, bytes calldata extraData)
+    public
+    payable
+  {
+    EntityId[] memory tools = new EntityId[](1);
+    tools[0] = tool;
+    transferTools(caller, from, to, tools, extraData);
   }
 
-  function transferTools(
-    EntityId callerEntityId,
-    EntityId fromEntityId,
-    EntityId toEntityId,
-    EntityId[] memory toolEntityIds,
-    bytes calldata extraData
-  ) public payable {
-    require(toolEntityIds.length > 0, "Must transfer at least one tool");
+  function transferTools(EntityId caller, EntityId from, EntityId to, EntityId[] memory tools, bytes calldata extraData)
+    public
+    payable
+  {
+    require(tools.length > 0, "Must transfer at least one tool");
 
-    callerEntityId.activate();
-    callerEntityId.requireConnected(toEntityId);
+    caller.activate();
+    caller.requireConnected(to);
 
-    transferEnergyToPool(callerEntityId, SMART_CHEST_ENERGY_COST);
+    transferEnergyToPool(caller, SMART_CHEST_ENERGY_COST);
 
-    ObjectTypeId toObjectTypeId = ObjectType._get(toEntityId);
+    ObjectTypeId toObjectTypeId = ObjectType._get(to);
 
-    for (uint256 i = 0; i < toolEntityIds.length; i++) {
-      transferInventoryEntity(fromEntityId, toEntityId, toObjectTypeId, toolEntityIds[i]);
+    for (uint256 i = 0; i < tools.length; i++) {
+      transferInventoryEntity(from, to, toObjectTypeId, tools[i]);
     }
 
     // Note: we call this after the transfer state has been updated, to prevent re-entrancy attacks
-    TransferLib._onTransfer(callerEntityId, fromEntityId, toEntityId, toolEntityIds, new ObjectAmount[](0), extraData);
+    TransferLib._onTransfer(caller, from, to, tools, new ObjectAmount[](0), extraData);
   }
 }
 
 library TransferLib {
   function _onTransfer(
-    EntityId callerEntityId,
-    EntityId fromEntityId,
-    EntityId toEntityId,
-    EntityId[] memory toolEntityIds,
+    EntityId caller,
+    EntityId from,
+    EntityId to,
+    EntityId[] memory tools,
     ObjectAmount[] memory objectAmounts,
     bytes calldata extraData
   ) public {
-    EntityId targetEntityId = _getTargetEntityId(callerEntityId, fromEntityId, toEntityId);
+    EntityId target = _getTarget(caller, from, to);
 
-    require(ObjectType._get(targetEntityId) != ObjectTypes.Player, "Cannot transfer to player");
+    require(ObjectType._get(target) != ObjectTypes.Player, "Cannot transfer to player");
 
-    bytes memory onTransfer = abi.encodeCall(
-      ITransferHook.onTransfer,
-      (callerEntityId, targetEntityId, fromEntityId, toEntityId, objectAmounts, toolEntityIds, extraData)
-    );
+    bytes memory onTransfer =
+      abi.encodeCall(ITransferHook.onTransfer, (caller, target, from, to, objectAmounts, tools, extraData));
 
-    targetEntityId.getProgram().callOrRevert(onTransfer);
+    target.getProgram().callOrRevert(onTransfer);
 
-    notify(
-      callerEntityId,
-      TransferNotifData({ transferEntityId: targetEntityId, toolEntityIds: toolEntityIds, objectAmounts: objectAmounts })
-    );
+    notify(caller, TransferNotifData({ transferEntityId: target, tools: tools, objectAmounts: objectAmounts }));
   }
 
-  function _getTargetEntityId(EntityId callerEntityId, EntityId fromEntityId, EntityId toEntityId)
-    internal
-    pure
-    returns (EntityId)
-  {
-    if (callerEntityId == fromEntityId) {
-      return toEntityId;
-    } else if (callerEntityId == toEntityId) {
-      return fromEntityId;
+  function _getTarget(EntityId caller, EntityId from, EntityId to) internal pure returns (EntityId) {
+    if (caller == from) {
+      return to;
+    } else if (caller == to) {
+      return from;
     } else {
       revert("Caller is not involved in transfer");
     }

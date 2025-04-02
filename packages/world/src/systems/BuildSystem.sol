@@ -42,16 +42,16 @@ using ObjectTypeLib for ObjectTypeId;
 
 library BuildLib {
   function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) internal returns (EntityId) {
-    (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = getOrCreateEntityAt(coord);
+    (EntityId terrain, ObjectTypeId terrainObjectTypeId) = getOrCreateEntityAt(coord);
     require(terrainObjectTypeId == ObjectTypes.Air, "Cannot build on a non-air block");
-    require(InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0, "Cannot build where there are dropped objects");
+    require(InventoryObjects._lengthObjectTypeIds(terrain) == 0, "Cannot build where there are dropped objects");
     if (!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId)) {
       require(!getMovableEntityAt(coord).exists(), "Cannot build on a movable entity");
     }
 
-    ObjectType._set(terrainEntityId, buildObjectTypeId);
+    ObjectType._set(terrain, buildObjectTypeId);
 
-    return terrainEntityId;
+    return terrain;
   }
 
   function _addBlocks(Vec3 baseCoord, ObjectTypeId buildObjectTypeId, Direction direction)
@@ -59,20 +59,20 @@ library BuildLib {
     returns (EntityId, Vec3[] memory)
   {
     Vec3[] memory coords = buildObjectTypeId.getRelativeCoords(baseCoord, direction);
-    EntityId baseEntityId = _addBlock(buildObjectTypeId, baseCoord);
-    Orientation._set(baseEntityId, direction);
+    EntityId base = _addBlock(buildObjectTypeId, baseCoord);
+    Orientation._set(base, direction);
     uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
-    Mass._setMass(baseEntityId, mass);
+    Mass._setMass(base, mass);
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < coords.length; i++) {
       Vec3 relativeCoord = coords[i];
-      EntityId relativeEntityId = _addBlock(buildObjectTypeId, relativeCoord);
-      BaseEntity._set(relativeEntityId, baseEntityId);
+      EntityId relative = _addBlock(buildObjectTypeId, relativeCoord);
+      BaseEntity._set(relative, base);
     }
-    return (baseEntityId, coords);
+    return (base, coords);
   }
 
-  function _handleSeed(EntityId baseEntityId, ObjectTypeId buildObjectTypeId, Vec3 baseCoord) public {
+  function _handleSeed(EntityId base, ObjectTypeId buildObjectTypeId, Vec3 baseCoord) public {
     ObjectTypeId belowTypeId = getObjectTypeIdAt(baseCoord - vec3(0, 1, 0));
     if (buildObjectTypeId.isCropSeed()) {
       require(belowTypeId == ObjectTypes.WetFarmland, "Crop seeds need wet farmland");
@@ -82,37 +82,37 @@ library BuildLib {
 
     removeEnergyFromLocalPool(baseCoord, ObjectTypeMetadata._getEnergy(buildObjectTypeId));
 
-    SeedGrowth._setFullyGrownAt(baseEntityId, uint128(block.timestamp) + buildObjectTypeId.timeToGrow());
+    SeedGrowth._setFullyGrownAt(base, uint128(block.timestamp) + buildObjectTypeId.timeToGrow());
   }
 
   function _requireBuildsAllowed(
-    EntityId callerEntityId,
-    EntityId baseEntityId,
+    EntityId caller,
+    EntityId base,
     ObjectTypeId objectTypeId,
     Vec3[] memory coords,
     bytes calldata extraData
   ) public {
     for (uint256 i = 0; i < coords.length; i++) {
       Vec3 coord = coords[i];
-      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(coord);
+      (EntityId forceField, EntityId fragment) = getForceField(coord);
 
       // If placing a forcefield, there should be no active forcefield at coord
       if (objectTypeId == ObjectTypes.ForceField) {
-        require(!forceFieldEntityId.exists(), "Force field overlaps with another force field");
-        setupForceField(baseEntityId, coord);
+        require(!forceField.exists(), "Force field overlaps with another force field");
+        setupForceField(base, coord);
       }
 
-      if (forceFieldEntityId.exists()) {
-        (EnergyData memory machineData,) = updateMachineEnergy(forceFieldEntityId);
+      if (forceField.exists()) {
+        (EnergyData memory machineData,) = updateMachineEnergy(forceField);
         if (machineData.energy > 0) {
           // We know fragment is active because its forcefield exists, so we can use its program
-          ProgramId program = fragmentEntityId.getProgram();
+          ProgramId program = fragment.getProgram();
           if (!program.exists()) {
-            program = forceFieldEntityId.getProgram();
+            program = forceField.getProgram();
           }
 
           bytes memory onBuild =
-            abi.encodeCall(IBuildHook.onBuild, (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData));
+            abi.encodeCall(IBuildHook.onBuild, (caller, forceField, objectTypeId, coord, extraData));
 
           program.callOrRevert(onBuild);
         }
@@ -123,67 +123,64 @@ library BuildLib {
 
 contract BuildSystem is System {
   function buildWithDirection(
-    EntityId callerEntityId,
+    EntityId caller,
     ObjectTypeId buildObjectTypeId,
     Vec3 baseCoord,
     Direction direction,
     bytes calldata extraData
   ) public payable returns (EntityId) {
-    callerEntityId.activate();
-    callerEntityId.requireConnected(baseCoord);
+    caller.activate();
+    caller.requireConnected(baseCoord);
     require(buildObjectTypeId.isBlock(), "Cannot build non-block object");
 
-    (EntityId baseEntityId, Vec3[] memory coords) = BuildLib._addBlocks(baseCoord, buildObjectTypeId, direction);
+    (EntityId base, Vec3[] memory coords) = BuildLib._addBlocks(baseCoord, buildObjectTypeId, direction);
 
     if (buildObjectTypeId.isSeed()) {
-      BuildLib._handleSeed(baseEntityId, buildObjectTypeId, baseCoord);
+      BuildLib._handleSeed(base, buildObjectTypeId, baseCoord);
     }
 
-    removeFromInventory(callerEntityId, buildObjectTypeId, 1);
+    removeFromInventory(caller, buildObjectTypeId, 1);
 
-    transferEnergyToPool(callerEntityId, BUILD_ENERGY_COST);
+    transferEnergyToPool(caller, BUILD_ENERGY_COST);
 
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
-    BuildLib._requireBuildsAllowed(callerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
+    BuildLib._requireBuildsAllowed(caller, base, buildObjectTypeId, coords, extraData);
 
-    notify(
-      callerEntityId,
-      BuildNotifData({ buildEntityId: baseEntityId, buildCoord: coords[0], buildObjectTypeId: buildObjectTypeId })
-    );
+    notify(caller, BuildNotifData({ buildEntityId: base, buildCoord: coords[0], buildObjectTypeId: buildObjectTypeId }));
 
-    return baseEntityId;
+    return base;
   }
 
-  function build(EntityId callerEntityId, ObjectTypeId buildObjectTypeId, Vec3 baseCoord, bytes calldata extraData)
+  function build(EntityId caller, ObjectTypeId buildObjectTypeId, Vec3 baseCoord, bytes calldata extraData)
     public
     payable
     returns (EntityId)
   {
-    return buildWithDirection(callerEntityId, buildObjectTypeId, baseCoord, Direction.PositiveZ, extraData);
+    return buildWithDirection(caller, buildObjectTypeId, baseCoord, Direction.PositiveZ, extraData);
   }
 
   function jumpBuildWithDirection(
-    EntityId callerEntityId,
+    EntityId caller,
     ObjectTypeId buildObjectTypeId,
     Direction direction,
     bytes calldata extraData
   ) public payable {
-    callerEntityId.activate();
+    caller.activate();
 
-    Vec3 coord = MovablePosition._get(callerEntityId);
+    Vec3 coord = MovablePosition._get(caller);
 
     Vec3[] memory moveCoords = new Vec3[](1);
     moveCoords[0] = coord + vec3(0, 1, 0);
-    MoveLib.moveWithoutGravity(callerEntityId, coord, moveCoords);
+    MoveLib.moveWithoutGravity(caller, coord, moveCoords);
 
-    notify(callerEntityId, MoveNotifData({ moveCoords: moveCoords }));
+    notify(caller, MoveNotifData({ moveCoords: moveCoords }));
 
     require(!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId), "Cannot jump build on a pass-through block");
 
-    buildWithDirection(callerEntityId, buildObjectTypeId, coord, direction, extraData);
+    buildWithDirection(caller, buildObjectTypeId, coord, direction, extraData);
   }
 
-  function jumpBuild(EntityId callerEntityId, ObjectTypeId buildObjectTypeId, bytes calldata extraData) public payable {
-    jumpBuildWithDirection(callerEntityId, buildObjectTypeId, Direction.PositiveZ, extraData);
+  function jumpBuild(EntityId caller, ObjectTypeId buildObjectTypeId, bytes calldata extraData) public payable {
+    jumpBuildWithDirection(caller, buildObjectTypeId, Direction.PositiveZ, extraData);
   }
 }
