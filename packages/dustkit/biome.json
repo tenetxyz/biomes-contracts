@@ -1,12 +1,7 @@
 {
-  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "$schema": "../../node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignore": [
-      "**/node_modules",
-      "packages/*/dist",
-      "packages/world",
-      "scripts"
-    ]
+    "ignore": ["node_modules", "dist"]
   },
   "formatter": {
     "enabled": true,
