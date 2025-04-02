@@ -12,9 +12,9 @@ import { Vec3 } from "../../Vec3.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IBedSystem {
-  function removeDeadPlayerFromBed(EntityId playerEntityId, Vec3 dropCoord) external;
+  function removeDeadPlayerFromBed(EntityId player, Vec3 dropCoord) external;
 
-  function sleep(EntityId callerEntityId, EntityId bedEntityId, bytes calldata extraData) external;
+  function sleep(EntityId caller, EntityId bed, bytes calldata extraData) external;
 
-  function wakeup(EntityId callerEntityId, Vec3 spawnCoord, bytes calldata extraData) external;
+  function wakeup(EntityId caller, Vec3 spawnCoord, bytes calldata extraData) external;
 }

@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { ActionType } from "../codegen/common.sol";
+import { Action } from "../codegen/common.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -17,7 +17,7 @@ import {
   removeForceFieldFragment,
   setupForceFieldFragment
 } from "../utils/ForceFieldUtils.sol";
-import { AddFragmentNotifData, RemoveFragmentNotifData, notify } from "../utils/NotifUtils.sol";
+import { AddFragmentNotification, RemoveFragmentNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { ForceFieldFragment, Position } from "../utils/Vec3Storage.sol";
@@ -107,7 +107,7 @@ contract ForceFieldSystem is System {
     bytes calldata extraData
   ) public {
     caller.activate();
-    // callerEntityId.requireConnected(forceFieldEntityId);
+    // caller.requireConnected(forceField);
 
     ObjectTypeId objectTypeId = ObjectType._get(forceField);
     require(objectTypeId == ObjectTypes.ForceField, "Invalid object type");
@@ -129,7 +129,7 @@ contract ForceFieldSystem is System {
 
     forceField.getProgram().callOrRevert(onAddFragment);
 
-    notify(caller, AddFragmentNotifData({ forceFieldEntityId: forceField }));
+    notify(caller, AddFragmentNotification({ forceField: forceField }));
   }
 
   /**
@@ -177,6 +177,6 @@ contract ForceFieldSystem is System {
       forceField.getProgram().callOrRevert(onRemoveFragment);
     }
 
-    notify(caller, RemoveFragmentNotifData({ forceFieldEntityId: forceField }));
+    notify(caller, RemoveFragmentNotification({ forceField: forceField }));
   }
 }

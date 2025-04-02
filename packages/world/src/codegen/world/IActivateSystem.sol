@@ -13,5 +13,5 @@ import { EntityId } from "../../EntityId.sol";
 interface IActivateSystem {
   function activate(EntityId entityId) external;
 
-  function activatePlayer(address player) external;
+  function activatePlayer(address playerAddress) external;
 }

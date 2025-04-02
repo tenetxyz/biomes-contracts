@@ -12,5 +12,5 @@ import { ObjectTypeId } from "../../ObjectTypeId.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IFoodSystem {
-  function eat(EntityId callerEntityId, ObjectTypeId objectTypeId, uint16 numToEat) external;
+  function eat(EntityId caller, ObjectTypeId objectTypeId, uint16 numToEat) external;
 }

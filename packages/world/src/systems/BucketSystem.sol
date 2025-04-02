@@ -15,25 +15,25 @@ import { Vec3 } from "../Vec3.sol";
 
 // TODO: should we have an "emptyBucket()" function or should we allow placing water in the build system?
 contract BucketSystem is System {
-  function fillBucket(EntityId callerEntityId, Vec3 waterCoord) external {
-    callerEntityId.activate();
-    callerEntityId.requireConnected(waterCoord);
+  function fillBucket(EntityId caller, Vec3 waterCoord) external {
+    caller.activate();
+    caller.requireConnected(waterCoord);
 
     require(safeGetObjectTypeIdAt(waterCoord) == ObjectTypes.Water, "Not water");
 
-    removeFromInventory(callerEntityId, ObjectTypes.Bucket, 1);
-    addToInventory(callerEntityId, ObjectType._get(callerEntityId), ObjectTypes.WaterBucket, 1);
+    removeFromInventory(caller, ObjectTypes.Bucket, 1);
+    addToInventory(caller, ObjectType._get(caller), ObjectTypes.WaterBucket, 1);
   }
 
-  function wetFarmland(EntityId callerEntityId, Vec3 coord) external {
-    callerEntityId.activate();
-    callerEntityId.requireConnected(coord);
+  function wetFarmland(EntityId caller, Vec3 coord) external {
+    caller.activate();
+    caller.requireConnected(coord);
 
-    (EntityId farmlandEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
+    (EntityId farmland, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(objectTypeId == ObjectTypes.Farmland, "Not farmland");
-    ObjectType._set(farmlandEntityId, ObjectTypes.WetFarmland);
+    ObjectType._set(farmland, ObjectTypes.WetFarmland);
 
-    removeFromInventory(callerEntityId, ObjectTypes.WaterBucket, 1);
-    addToInventory(callerEntityId, ObjectType._get(callerEntityId), ObjectTypes.Bucket, 1);
+    removeFromInventory(caller, ObjectTypes.WaterBucket, 1);
+    addToInventory(caller, ObjectType._get(caller), ObjectTypes.Bucket, 1);
   }
 }

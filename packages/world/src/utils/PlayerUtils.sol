@@ -31,28 +31,28 @@ import { EntityId } from "../EntityId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 
-import { DeathNotifData, notify } from "./NotifUtils.sol";
+import { DeathNotification, notify } from "./NotifUtils.sol";
 
 using ObjectTypeLib for ObjectTypeId;
 
 library PlayerUtils {
   function getOrCreatePlayer() internal returns (EntityId) {
     address playerAddress = WorldContextConsumerLib._msgSender();
-    EntityId playerEntityId = Player._get(playerAddress);
-    if (!playerEntityId.exists()) {
-      playerEntityId = getUniqueEntity();
+    EntityId player = Player._get(playerAddress);
+    if (!player.exists()) {
+      player = getUniqueEntity();
 
-      Player._set(playerAddress, playerEntityId);
-      ReversePlayer._set(playerEntityId, playerAddress);
+      Player._set(playerAddress, player);
+      ReversePlayer._set(player, playerAddress);
 
       // Set the player object type first
-      ObjectType._set(playerEntityId, ObjectTypes.Player);
+      ObjectType._set(player, ObjectTypes.Player);
     }
 
-    return playerEntityId;
+    return player;
   }
 
-  function addPlayerToGrid(EntityId playerEntityId, Vec3 playerCoord) internal {
+  function addPlayerToGrid(EntityId player, Vec3 playerCoord) internal {
     // Check if the spawn location is valid
     ObjectTypeId terrainObjectTypeId = safeGetObjectTypeIdAt(playerCoord);
     require(
@@ -61,7 +61,7 @@ library PlayerUtils {
     );
 
     // Set the player at the base coordinate
-    setMovableEntityAt(playerCoord, playerEntityId);
+    setMovableEntityAt(playerCoord, player);
 
     // Handle the player's body parts
     Vec3[] memory coords = ObjectTypes.Player.getRelativeCoords(playerCoord);
@@ -74,46 +74,46 @@ library PlayerUtils {
           && !getMovableEntityAt(relativeCoord).exists(),
         "Cannot spawn on a non-passable block"
       );
-      EntityId relativePlayerEntityId = getUniqueEntity();
-      ObjectType._set(relativePlayerEntityId, ObjectTypes.Player);
-      setMovableEntityAt(relativeCoord, relativePlayerEntityId);
-      BaseEntity._set(relativePlayerEntityId, playerEntityId);
+      EntityId relativePlayer = getUniqueEntity();
+      ObjectType._set(relativePlayer, ObjectTypes.Player);
+      setMovableEntityAt(relativeCoord, relativePlayer);
+      BaseEntity._set(relativePlayer, player);
     }
   }
 
-  function removePlayerFromGrid(EntityId playerEntityId, Vec3 playerCoord) internal {
-    MovablePosition._deleteRecord(playerEntityId);
+  function removePlayerFromGrid(EntityId player, Vec3 playerCoord) internal {
+    MovablePosition._deleteRecord(player);
     ReverseMovablePosition._deleteRecord(playerCoord);
 
     Vec3[] memory coords = ObjectTypes.Player.getRelativeCoords(playerCoord);
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < coords.length; i++) {
       Vec3 relativeCoord = coords[i];
-      EntityId relativePlayerEntityId = getMovableEntityAt(relativeCoord);
-      MovablePosition._deleteRecord(relativePlayerEntityId);
+      EntityId relativePlayer = getMovableEntityAt(relativeCoord);
+      MovablePosition._deleteRecord(relativePlayer);
       ReverseMovablePosition._deleteRecord(relativeCoord);
-      ObjectType._deleteRecord(relativePlayerEntityId);
-      BaseEntity._deleteRecord(relativePlayerEntityId);
+      ObjectType._deleteRecord(relativePlayer);
+      BaseEntity._deleteRecord(relativePlayer);
     }
   }
 
-  function removePlayerFromBed(EntityId playerEntityId, EntityId bedEntityId, EntityId forceFieldEntityId) internal {
-    PlayerStatus._deleteRecord(playerEntityId);
-    BedPlayer._deleteRecord(bedEntityId);
+  function removePlayerFromBed(EntityId player, EntityId bed, EntityId forceField) internal {
+    PlayerStatus._deleteRecord(player);
+    BedPlayer._deleteRecord(bed);
 
     // Decrease forcefield's drain rate
-    Energy._setDrainRate(forceFieldEntityId, Energy._getDrainRate(forceFieldEntityId) - PLAYER_ENERGY_DRAIN_RATE);
+    Energy._setDrainRate(forceField, Energy._getDrainRate(forceField) - PLAYER_ENERGY_DRAIN_RATE);
   }
 
   /// @dev Kills the player, it assumes the player is not sleeping
   // If the player was already killed, it will return early
-  function killPlayer(EntityId playerEntityId, Vec3 coord) internal {
-    if (ReverseMovablePosition._get(coord) != playerEntityId) {
+  function killPlayer(EntityId player, Vec3 coord) internal {
+    if (ReverseMovablePosition._get(coord) != player) {
       return;
     }
-    (EntityId toEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
-    transferAllInventoryEntities(playerEntityId, toEntityId, objectTypeId);
-    removePlayerFromGrid(playerEntityId, coord);
-    notify(playerEntityId, DeathNotifData({ deathCoord: coord }));
+    (EntityId to, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
+    transferAllInventoryEntities(player, to, objectTypeId);
+    removePlayerFromGrid(player, coord);
+    notify(player, DeathNotification({ deathCoord: coord }));
   }
 }

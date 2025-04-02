@@ -5,7 +5,7 @@ export default defineWorld({
     upgradeableWorldImplementation: true,
   },
   enums: {
-    ActionType: [
+    Action: [
       "None",
       "Build",
       "Mine",
@@ -19,7 +19,7 @@ export default defineWorld({
       "Spawn",
       "Sleep",
       "Wakeup",
-      "PowerMachine",
+      "FuelMachine",
       "HitMachine",
       "AttachProgram",
       "DetachProgram",
@@ -396,8 +396,8 @@ export default defineWorld({
       schema: {
         playerEntityId: "EntityId",
         timestamp: "uint128",
-        actionType: "ActionType",
-        actionData: "bytes",
+        action: "Action",
+        data: "bytes",
       },
       key: ["playerEntityId"],
       type: "offchainTable",

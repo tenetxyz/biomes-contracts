@@ -40,7 +40,7 @@ import { Vec3, vec3 } from "../Vec3.sol";
 import { removeEnergyFromLocalPool, updateMachineEnergy, updatePlayerEnergy } from "../utils/EnergyUtils.sol";
 import { getMovableEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { SpawnNotifData, notify } from "../utils/NotifUtils.sol";
+import { SpawnNotification, notify } from "../utils/NotifUtils.sol";
 
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -149,8 +149,8 @@ contract SpawnSystem is System {
     // Use the y coordinate given by the player
     spawnCoord = vec3(spawnCoord.x(), y, spawnCoord.z());
 
-    (EntityId forceFieldEntityId,) = getForceField(spawnCoord);
-    require(!forceFieldEntityId.exists(), "Cannot spawn in force field");
+    (EntityId forceField,) = getForceField(spawnCoord);
+    require(!forceField.exists(), "Cannot spawn in force field");
 
     // Extract energy from local pool
     removeEnergyFromLocalPool(spawnCoord, MAX_PLAYER_ENERGY);
@@ -158,39 +158,39 @@ contract SpawnSystem is System {
     return _spawnPlayer(spawnCoord);
   }
 
-  function spawn(EntityId spawnTileEntityId, Vec3 spawnCoord, bytes memory extraData) public returns (EntityId) {
+  function spawn(EntityId spawnTile, Vec3 spawnCoord, bytes memory extraData) public returns (EntityId) {
     checkWorldStatus();
-    ObjectTypeId objectTypeId = ObjectType._get(spawnTileEntityId);
+    ObjectTypeId objectTypeId = ObjectType._get(spawnTile);
     require(objectTypeId == ObjectTypes.SpawnTile, "Not a spawn tile");
 
-    Vec3 spawnTileCoord = Position._get(spawnTileEntityId);
+    Vec3 spawnTileCoord = Position._get(spawnTile);
     require(spawnTileCoord.inSurroundingCube(spawnCoord, MAX_RESPAWN_HALF_WIDTH), "Spawn tile is too far away");
 
-    (EntityId forceFieldEntityId,) = getForceField(spawnTileCoord);
-    require(forceFieldEntityId.exists(), "Spawn tile is not inside a forcefield");
-    (EnergyData memory machineData,) = updateMachineEnergy(forceFieldEntityId);
+    (EntityId forceField,) = getForceField(spawnTileCoord);
+    require(forceField.exists(), "Spawn tile is not inside a forcefield");
+    (EnergyData memory machineData,) = updateMachineEnergy(forceField);
     require(machineData.energy >= MAX_PLAYER_ENERGY, "Not enough energy in spawn tile forcefield");
-    Energy._setEnergy(forceFieldEntityId, machineData.energy - MAX_PLAYER_ENERGY);
+    Energy._setEnergy(forceField, machineData.energy - MAX_PLAYER_ENERGY);
 
-    EntityId playerEntityId = _spawnPlayer(spawnCoord);
+    EntityId player = _spawnPlayer(spawnCoord);
 
-    bytes memory onSpawn = abi.encodeCall(ISpawnHook.onSpawn, (playerEntityId, spawnTileEntityId, extraData));
-    spawnTileEntityId.getProgram().callOrRevert(onSpawn);
+    bytes memory onSpawn = abi.encodeCall(ISpawnHook.onSpawn, (player, spawnTile, extraData));
+    spawnTile.getProgram().callOrRevert(onSpawn);
 
-    return playerEntityId;
+    return player;
   }
 
   function _spawnPlayer(Vec3 spawnCoord) internal returns (EntityId) {
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
-    EntityId playerEntityId = PlayerUtils.getOrCreatePlayer();
-    SpawnLib._requirePlayerDead(playerEntityId);
+    EntityId player = PlayerUtils.getOrCreatePlayer();
+    SpawnLib._requirePlayerDead(player);
 
     // Position the player at the given coordinates
-    PlayerUtils.addPlayerToGrid(playerEntityId, spawnCoord);
+    PlayerUtils.addPlayerToGrid(player, spawnCoord);
 
     Energy._set(
-      playerEntityId,
+      player,
       EnergyData({
         energy: MAX_PLAYER_ENERGY,
         lastUpdatedTime: uint128(block.timestamp),
@@ -198,14 +198,14 @@ contract SpawnSystem is System {
       })
     );
 
-    notify(playerEntityId, SpawnNotifData({ spawnCoord: spawnCoord }));
+    notify(player, SpawnNotification({ spawnCoord: spawnCoord }));
 
-    return playerEntityId;
+    return player;
   }
 }
 
 library SpawnLib {
-  function _requirePlayerDead(EntityId playerEntityId) public {
-    require(updatePlayerEnergy(playerEntityId).energy == 0, "Player already spawned");
+  function _requirePlayerDead(EntityId player) public {
+    require(updatePlayerEnergy(player).energy == 0, "Player already spawned");
   }
 }

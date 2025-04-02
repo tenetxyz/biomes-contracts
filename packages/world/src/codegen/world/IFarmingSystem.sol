@@ -12,7 +12,7 @@ import { Vec3 } from "../../Vec3.sol";
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IFarmingSystem {
-  function till(EntityId callerEntityId, Vec3 coord) external;
+  function till(EntityId caller, Vec3 coord) external;
 
-  function growSeed(EntityId callerEntityId, Vec3 coord) external;
+  function growSeed(EntityId caller, Vec3 coord) external;
 }

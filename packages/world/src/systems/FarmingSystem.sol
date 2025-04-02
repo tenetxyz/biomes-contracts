@@ -25,43 +25,43 @@ import { Vec3, vec3 } from "../Vec3.sol";
 contract FarmingSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
-  function till(EntityId callerEntityId, Vec3 coord) external {
-    callerEntityId.activate();
-    callerEntityId.requireConnected(coord);
+  function till(EntityId caller, Vec3 coord) external {
+    caller.activate();
+    caller.requireConnected(coord);
 
-    (EntityId farmlandEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
+    (EntityId farmland, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(objectTypeId == ObjectTypes.Dirt || objectTypeId == ObjectTypes.Grass, "Not dirt or grass");
-    (, ObjectTypeId toolObjectTypeId) = useEquipped(callerEntityId, type(uint128).max);
+    (, ObjectTypeId toolObjectTypeId) = useEquipped(caller, type(uint128).max);
     require(toolObjectTypeId.isHoe(), "Must equip a hoe");
 
-    FarmingLib._processEnergyReduction(callerEntityId);
+    FarmingLib._processEnergyReduction(caller);
 
-    ObjectType._set(farmlandEntityId, ObjectTypes.Farmland);
+    ObjectType._set(farmland, ObjectTypes.Farmland);
   }
 
-  function growSeed(EntityId callerEntityId, Vec3 coord) external {
-    callerEntityId.activate();
+  function growSeed(EntityId caller, Vec3 coord) external {
+    caller.activate();
     // TODO: should we do proximity checks?
 
-    (EntityId seedEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
+    (EntityId seed, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(objectTypeId.isSeed(), "Not a seed");
 
-    require(SeedGrowth._getFullyGrownAt(seedEntityId) <= block.timestamp, "Seed cannot be grown yet");
+    require(SeedGrowth._getFullyGrownAt(seed) <= block.timestamp, "Seed cannot be grown yet");
 
     if (objectTypeId.isCropSeed()) {
       // Turn wet farmland to regular farmland if mining a seed or crop
-      (EntityId belowEntityId, ObjectTypeId belowTypeId) = getOrCreateEntityAt(coord - vec3(0, 1, 0));
+      (EntityId below, ObjectTypeId belowTypeId) = getOrCreateEntityAt(coord - vec3(0, 1, 0));
       // Sanity check
       if (belowTypeId == ObjectTypes.WetFarmland) {
-        ObjectType._set(belowEntityId, ObjectTypes.Farmland);
+        ObjectType._set(below, ObjectTypes.Farmland);
       }
 
-      ObjectType._set(seedEntityId, objectTypeId.getCrop());
+      ObjectType._set(seed, objectTypeId.getCrop());
     } else if (objectTypeId.isTreeSeed()) {
       TreeData memory treeData = objectTypeId.getTreeData();
 
       // Grow the tree (replace the seed with the trunk and add blocks)
-      (uint32 trunkHeight, uint32 leaves) = FarmingLib._growTree(seedEntityId, coord, treeData);
+      (uint32 trunkHeight, uint32 leaves) = FarmingLib._growTree(seed, coord, treeData);
 
       // Seed energy is the sum of the energy of all the blocks of the tree
       uint128 seedEnergy = ObjectTypeMetadata._getEnergy(objectTypeId);
@@ -78,12 +78,12 @@ contract FarmingSystem is System {
 }
 
 library FarmingLib {
-  function _processEnergyReduction(EntityId callerEntityId) public {
-    transferEnergyToPool(callerEntityId, TILL_ENERGY_COST);
+  function _processEnergyReduction(EntityId caller) public {
+    transferEnergyToPool(caller, TILL_ENERGY_COST);
   }
 
-  function _growTree(EntityId seedEntityId, Vec3 baseCoord, TreeData memory treeData) public returns (uint32, uint32) {
-    uint32 trunkHeight = _growTreeTrunk(seedEntityId, baseCoord, treeData);
+  function _growTree(EntityId seed, Vec3 baseCoord, TreeData memory treeData) public returns (uint32, uint32) {
+    uint32 trunkHeight = _growTreeTrunk(seed, baseCoord, treeData);
 
     if (trunkHeight <= 2) {
       // Very small tree, no leaves
@@ -142,11 +142,11 @@ library FarmingLib {
             }
           }
 
-          (EntityId leafEntityId, ObjectTypeId existingType) = getOrCreateEntityAt(coord + vec3(x, y, z));
+          (EntityId leaf, ObjectTypeId existingType) = getOrCreateEntityAt(coord + vec3(x, y, z));
 
           // Only place leaves in air blocks
           if (existingType == ObjectTypes.Air) {
-            ObjectType._set(leafEntityId, leafType);
+            ObjectType._set(leaf, leafType);
             leaves++;
           }
         }
@@ -156,19 +156,19 @@ library FarmingLib {
     return (trunkHeight, leaves);
   }
 
-  function _growTreeTrunk(EntityId seedEntityId, Vec3 baseCoord, TreeData memory treeData) internal returns (uint32) {
+  function _growTreeTrunk(EntityId seed, Vec3 baseCoord, TreeData memory treeData) internal returns (uint32) {
     // Replace the seed with the trunk
-    ObjectType._set(seedEntityId, treeData.logType);
+    ObjectType._set(seed, treeData.logType);
 
     // Create the trunk up to available space
     for (uint32 i = 1; i < treeData.trunkHeight; i++) {
       Vec3 trunkCoord = baseCoord + vec3(0, int32(i), 0);
-      (EntityId trunkEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(trunkCoord);
+      (EntityId trunk, ObjectTypeId objectTypeId) = getOrCreateEntityAt(trunkCoord);
       if (objectTypeId != ObjectTypes.Air) {
         return i;
       }
 
-      ObjectType._set(trunkEntityId, treeData.logType);
+      ObjectType._set(trunk, treeData.logType);
     }
 
     return treeData.trunkHeight;

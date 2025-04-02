@@ -33,20 +33,20 @@ library ObjectTypeLib {
     return ObjectTypeId.unwrap(self);
   }
 
-  function getObjectTypeSchema(ObjectTypeId objectTypeId) internal pure returns (Vec3[] memory) {
-    if (objectTypeId == ObjectTypes.Player) {
+  function getObjectTypeSchema(ObjectTypeId self) internal pure returns (Vec3[] memory) {
+    if (self == ObjectTypes.Player) {
       Vec3[] memory playerRelativePositions = new Vec3[](1);
       playerRelativePositions[0] = vec3(0, 1, 0);
       return playerRelativePositions;
     }
 
-    if (objectTypeId == ObjectTypes.Bed) {
+    if (self == ObjectTypes.Bed) {
       Vec3[] memory bedRelativePositions = new Vec3[](1);
       bedRelativePositions[0] = vec3(0, 0, 1);
       return bedRelativePositions;
     }
 
-    if (objectTypeId == ObjectTypes.TextSign) {
+    if (self == ObjectTypes.TextSign) {
       Vec3[] memory textSignRelativePositions = new Vec3[](1);
       textSignRelativePositions[0] = vec3(0, 1, 0);
       return textSignRelativePositions;
@@ -73,28 +73,28 @@ library ObjectTypeLib {
     return coords;
   }
 
-  function getRelativeCoords(ObjectTypeId objectTypeId, Vec3 baseCoord) internal pure returns (Vec3[] memory) {
-    return getRelativeCoords(objectTypeId, baseCoord, Direction.PositiveZ);
+  function getRelativeCoords(ObjectTypeId self, Vec3 baseCoord) internal pure returns (Vec3[] memory) {
+    return getRelativeCoords(self, baseCoord, Direction.PositiveZ);
   }
 
   function getCategory(ObjectTypeId self) internal pure returns (uint16) {
     return ObjectTypeId.unwrap(self) & CATEGORY_MASK;
   }
 
-  function isBlock(ObjectTypeId id) internal pure returns (bool) {
-    return !id.isNull() && id.getCategory() == Block;
+  function isBlock(ObjectTypeId self) internal pure returns (bool) {
+    return !self.isNull() && self.getCategory() == Block;
   }
 
   function isMineable(ObjectTypeId self) internal pure returns (bool) {
     return self.isBlock() && self != ObjectTypes.Air && self != ObjectTypes.Water && self != ObjectTypes.Lava;
   }
 
-  function isTool(ObjectTypeId id) internal pure returns (bool) {
-    return id.getCategory() == Tool;
+  function isTool(ObjectTypeId self) internal pure returns (bool) {
+    return self.getCategory() == Tool;
   }
 
-  function isItem(ObjectTypeId id) internal pure returns (bool) {
-    return id.getCategory() == Item;
+  function isItem(ObjectTypeId self) internal pure returns (bool) {
+    return self.getCategory() == Item;
   }
 
   function isNull(ObjectTypeId self) internal pure returns (bool) {
@@ -105,54 +105,53 @@ library ObjectTypeLib {
     return self == ObjectTypes.AnyLog || self == ObjectTypes.AnyPlanks;
   }
 
-  function isWhacker(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return objectTypeId == ObjectTypes.WoodenWhacker || objectTypeId == ObjectTypes.StoneWhacker
-      || objectTypeId == ObjectTypes.SilverWhacker;
+  function isWhacker(ObjectTypeId self) internal pure returns (bool) {
+    return self == ObjectTypes.WoodenWhacker || self == ObjectTypes.StoneWhacker || self == ObjectTypes.SilverWhacker;
   }
 
-  function isHoe(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return objectTypeId == ObjectTypes.WoodenHoe;
+  function isHoe(ObjectTypeId self) internal pure returns (bool) {
+    return self == ObjectTypes.WoodenHoe;
   }
 
-  function isMachine(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return objectTypeId == ObjectTypes.ForceField;
+  function isMachine(ObjectTypeId self) internal pure returns (bool) {
+    return self == ObjectTypes.ForceField;
   }
 
-  function canHoldDisplay(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return objectTypeId == ObjectTypes.TextSign;
+  function canHoldDisplay(ObjectTypeId self) internal pure returns (bool) {
+    return self == ObjectTypes.TextSign;
   }
 
-  function isFood(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return objectTypeId.isCrop();
+  function isFood(ObjectTypeId self) internal pure returns (bool) {
+    return self.isCrop();
   }
 
-  function isSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return isCropSeed(objectTypeId) || isTreeSeed(objectTypeId);
+  function isSeed(ObjectTypeId self) internal pure returns (bool) {
+    return isCropSeed(self) || isTreeSeed(self);
   }
 
-  function isCropSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return objectTypeId == ObjectTypes.WheatSeed;
+  function isCropSeed(ObjectTypeId self) internal pure returns (bool) {
+    return self == ObjectTypes.WheatSeed;
   }
 
-  function isTreeSeed(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return objectTypeId == ObjectTypes.OakSeed || objectTypeId == ObjectTypes.SpruceSeed;
+  function isTreeSeed(ObjectTypeId self) internal pure returns (bool) {
+    return self == ObjectTypes.OakSeed || self == ObjectTypes.SpruceSeed;
   }
 
-  function isCrop(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return objectTypeId == ObjectTypes.Wheat;
+  function isCrop(ObjectTypeId self) internal pure returns (bool) {
+    return self == ObjectTypes.Wheat;
   }
 
   // TODO: one possible way to optimize is to follow some kind of schema for crops and their seeds
-  function getCrop(ObjectTypeId objectTypeId) internal pure returns (ObjectTypeId) {
-    if (objectTypeId == ObjectTypes.WheatSeed) {
+  function getCrop(ObjectTypeId self) internal pure returns (ObjectTypeId) {
+    if (self == ObjectTypes.WheatSeed) {
       return ObjectTypes.Wheat;
     }
 
     revert("Invalid crop seed type");
   }
 
-  function getTreeData(ObjectTypeId seedTypeId) internal pure returns (TreeData memory) {
-    if (seedTypeId == ObjectTypes.OakSeed) {
+  function getTreeData(ObjectTypeId seedType) internal pure returns (TreeData memory) {
+    if (seedType == ObjectTypes.OakSeed) {
       return TreeData({
         logType: ObjectTypes.OakLog,
         leafType: ObjectTypes.OakLeaf,
@@ -163,7 +162,7 @@ library ObjectTypeLib {
         stretchFactor: 2,
         centerOffset: -2
       });
-    } else if (seedTypeId == ObjectTypes.SpruceSeed) {
+    } else if (seedType == ObjectTypes.SpruceSeed) {
       return TreeData({
         logType: ObjectTypes.SpruceLog,
         leafType: ObjectTypes.SpruceLeaf,
@@ -180,48 +179,48 @@ library ObjectTypeLib {
   }
 
   // TODO: one possible way to optimize is to follow some kind of schema for crops and their seeds
-  function getSeedDrop(ObjectTypeId objectTypeId) internal pure returns (ObjectTypeId) {
-    if (objectTypeId == ObjectTypes.Wheat) {
+  function getSeedDrop(ObjectTypeId self) internal pure returns (ObjectTypeId) {
+    if (self == ObjectTypes.Wheat) {
       return ObjectTypes.WheatSeed;
     }
 
     return ObjectTypes.Null;
   }
 
-  function getMineDrop(ObjectTypeId objectTypeId) internal pure returns (ObjectAmount[] memory amounts) {
+  function getMineDrop(ObjectTypeId self) internal pure returns (ObjectAmount[] memory amounts) {
     // TODO: figure out conservation of fescue grass (no way to regenerate yet)
-    if (objectTypeId == ObjectTypes.FescueGrass) {
+    if (self == ObjectTypes.FescueGrass) {
       // TODO: add randomness?
       amounts = new ObjectAmount[](1);
       amounts[0] = ObjectAmount(ObjectTypes.WheatSeed, 1);
       return amounts;
     }
 
-    if (objectTypeId == ObjectTypes.Farmland || objectTypeId == ObjectTypes.WetFarmland) {
+    if (self == ObjectTypes.Farmland || self == ObjectTypes.WetFarmland) {
       amounts = new ObjectAmount[](1);
       amounts[0] = ObjectAmount(ObjectTypes.Dirt, 1);
       return amounts;
     }
 
-    ObjectTypeId seedTypeId = objectTypeId.getSeedDrop();
+    ObjectTypeId seedTypeId = self.getSeedDrop();
     if (seedTypeId != ObjectTypes.Null) {
       amounts = new ObjectAmount[](2);
-      amounts[0] = ObjectAmount(objectTypeId, 1);
+      amounts[0] = ObjectAmount(self, 1);
       amounts[1] = ObjectAmount(seedTypeId, 1);
       return amounts;
     }
 
     amounts = new ObjectAmount[](1);
-    amounts[0] = ObjectAmount(objectTypeId, 1);
+    amounts[0] = ObjectAmount(self, 1);
     return amounts;
   }
 
-  function timeToGrow(ObjectTypeId objectTypeId) internal pure returns (uint128) {
-    if (objectTypeId == ObjectTypes.WheatSeed) {
+  function timeToGrow(ObjectTypeId self) internal pure returns (uint128) {
+    if (self == ObjectTypes.WheatSeed) {
       return 15 minutes;
     }
 
-    if (objectTypeId == ObjectTypes.OakSeed || objectTypeId == ObjectTypes.SpruceSeed) {
+    if (self == ObjectTypes.OakSeed || self == ObjectTypes.SpruceSeed) {
       return 5760 minutes;
     }
 

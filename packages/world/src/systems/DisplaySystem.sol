@@ -32,19 +32,18 @@ contract DisplaySystem is System {
   {
     require(entityId.exists(), "Entity does not exist");
 
-    EntityId baseEntityId = entityId.baseEntityId();
-    ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
-    Vec3 entityCoord = Position._get(baseEntityId);
+    EntityId base = entityId.baseEntityId();
+    Vec3 entityCoord = Position._get(base);
 
-    (EntityId forceFieldEntityId,) = getForceField(entityCoord);
+    (EntityId forceField,) = getForceField(entityCoord);
     uint256 machineEnergyLevel = 0;
-    if (forceFieldEntityId.exists()) {
-      (EnergyData memory machineData,,) = getLatestEnergyData(forceFieldEntityId);
+    if (forceField.exists()) {
+      (EnergyData memory machineData,,) = getLatestEnergyData(forceField);
       machineEnergyLevel = machineData.energy;
     }
     if (machineEnergyLevel > 0) {
-      bytes memory _getDisplayURI = abi.encodeCall(IDisplay.getDisplayURI, (caller, baseEntityId, extraData));
-      bytes memory returnData = baseEntityId.getProgram().staticcallOrRevert(_getDisplayURI);
+      bytes memory _getDisplayURI = abi.encodeCall(IDisplay.getDisplayURI, (caller, base, extraData));
+      bytes memory returnData = base.getProgram().staticcallOrRevert(_getDisplayURI);
       return abi.decode(returnData, (string));
     }
 
@@ -54,11 +53,11 @@ contract DisplaySystem is System {
   function setDisplayURI(EntityId, /* caller */ EntityId entityId, string memory uri) public {
     // TODO: auth?
 
-    EntityId baseEntityId = entityId.baseEntityId();
-    require(ObjectType._get(baseEntityId).canHoldDisplay(), "You can only set the display content of a basic display");
-    Vec3 entityCoord = Position._get(baseEntityId);
-    require(ReversePosition._get(entityCoord) == baseEntityId, "Entity is not at the specified position");
+    EntityId base = entityId.baseEntityId();
+    require(ObjectType._get(base).canHoldDisplay(), "You can only set the display content of a basic display");
+    Vec3 entityCoord = Position._get(base);
+    require(ReversePosition._get(entityCoord) == base, "Entity is not at the specified position");
 
-    DisplayURI._set(baseEntityId, uri);
+    DisplayURI._set(base, uri);
   }
 }

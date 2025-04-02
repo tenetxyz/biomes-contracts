@@ -13,27 +13,27 @@ import { ObjectTypeId } from "../../ObjectTypeId.sol";
  */
 interface ITransferSystem {
   function transfer(
-    EntityId callerEntityId,
-    EntityId fromEntityId,
-    EntityId toEntityId,
+    EntityId caller,
+    EntityId from,
+    EntityId to,
     ObjectTypeId transferObjectTypeId,
     uint16 numToTransfer,
     bytes calldata extraData
   ) external payable;
 
   function transferTool(
-    EntityId callerEntityId,
-    EntityId fromEntityId,
-    EntityId toEntityId,
-    EntityId toolEntityId,
+    EntityId caller,
+    EntityId from,
+    EntityId to,
+    EntityId tool,
     bytes calldata extraData
   ) external payable;
 
   function transferTools(
-    EntityId callerEntityId,
-    EntityId fromEntityId,
-    EntityId toEntityId,
-    EntityId[] memory toolEntityIds,
+    EntityId caller,
+    EntityId from,
+    EntityId to,
+    EntityId[] memory tools,
     bytes calldata extraData
   ) external payable;
 }

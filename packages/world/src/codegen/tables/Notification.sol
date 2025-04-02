@@ -18,12 +18,12 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 // Import user types
 import { EntityId } from "../../EntityId.sol";
-import { ActionType } from "../common.sol";
+import { Action } from "../common.sol";
 
 struct NotificationData {
   uint128 timestamp;
-  ActionType actionType;
-  bytes actionData;
+  Action action;
+  bytes data;
 }
 
 library Notification {
@@ -54,8 +54,8 @@ library Notification {
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](3);
     fieldNames[0] = "timestamp";
-    fieldNames[1] = "actionType";
-    fieldNames[2] = "actionData";
+    fieldNames[1] = "action";
+    fieldNames[2] = "data";
   }
 
   /**
@@ -93,33 +93,33 @@ library Notification {
   }
 
   /**
-   * @notice Set actionType.
+   * @notice Set action.
    */
-  function setActionType(EntityId playerEntityId, ActionType actionType) internal {
+  function setAction(EntityId playerEntityId, Action action) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(uint8(actionType)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(uint8(action)), _fieldLayout);
   }
 
   /**
-   * @notice Set actionType.
+   * @notice Set action.
    */
-  function _setActionType(EntityId playerEntityId, ActionType actionType) internal {
+  function _setAction(EntityId playerEntityId, Action action) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(playerEntityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(uint8(actionType)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked(uint8(action)), _fieldLayout);
   }
 
   /**
    * @notice Set the full data using individual values.
    */
-  function set(EntityId playerEntityId, uint128 timestamp, ActionType actionType, bytes memory actionData) internal {
-    bytes memory _staticData = encodeStatic(timestamp, actionType);
+  function set(EntityId playerEntityId, uint128 timestamp, Action action, bytes memory data) internal {
+    bytes memory _staticData = encodeStatic(timestamp, action);
 
-    EncodedLengths _encodedLengths = encodeLengths(actionData);
-    bytes memory _dynamicData = encodeDynamic(actionData);
+    EncodedLengths _encodedLengths = encodeLengths(data);
+    bytes memory _dynamicData = encodeDynamic(data);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(playerEntityId);
@@ -130,11 +130,11 @@ library Notification {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(EntityId playerEntityId, uint128 timestamp, ActionType actionType, bytes memory actionData) internal {
-    bytes memory _staticData = encodeStatic(timestamp, actionType);
+  function _set(EntityId playerEntityId, uint128 timestamp, Action action, bytes memory data) internal {
+    bytes memory _staticData = encodeStatic(timestamp, action);
 
-    EncodedLengths _encodedLengths = encodeLengths(actionData);
-    bytes memory _dynamicData = encodeDynamic(actionData);
+    EncodedLengths _encodedLengths = encodeLengths(data);
+    bytes memory _dynamicData = encodeDynamic(data);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(playerEntityId);
@@ -146,10 +146,10 @@ library Notification {
    * @notice Set the full data using the data struct.
    */
   function set(EntityId playerEntityId, NotificationData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.timestamp, _table.actionType);
+    bytes memory _staticData = encodeStatic(_table.timestamp, _table.action);
 
-    EncodedLengths _encodedLengths = encodeLengths(_table.actionData);
-    bytes memory _dynamicData = encodeDynamic(_table.actionData);
+    EncodedLengths _encodedLengths = encodeLengths(_table.data);
+    bytes memory _dynamicData = encodeDynamic(_table.data);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(playerEntityId);
@@ -161,10 +161,10 @@ library Notification {
    * @notice Set the full data using the data struct.
    */
   function _set(EntityId playerEntityId, NotificationData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.timestamp, _table.actionType);
+    bytes memory _staticData = encodeStatic(_table.timestamp, _table.action);
 
-    EncodedLengths _encodedLengths = encodeLengths(_table.actionData);
-    bytes memory _dynamicData = encodeDynamic(_table.actionData);
+    EncodedLengths _encodedLengths = encodeLengths(_table.data);
+    bytes memory _dynamicData = encodeDynamic(_table.data);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(playerEntityId);
@@ -175,25 +175,22 @@ library Notification {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (uint128 timestamp, ActionType actionType) {
+  function decodeStatic(bytes memory _blob) internal pure returns (uint128 timestamp, Action action) {
     timestamp = (uint128(Bytes.getBytes16(_blob, 0)));
 
-    actionType = ActionType(uint8(Bytes.getBytes1(_blob, 16)));
+    action = Action(uint8(Bytes.getBytes1(_blob, 16)));
   }
 
   /**
    * @notice Decode the tightly packed blob of dynamic data using the encoded lengths.
    */
-  function decodeDynamic(
-    EncodedLengths _encodedLengths,
-    bytes memory _blob
-  ) internal pure returns (bytes memory actionData) {
+  function decodeDynamic(EncodedLengths _encodedLengths, bytes memory _blob) internal pure returns (bytes memory data) {
     uint256 _start;
     uint256 _end;
     unchecked {
       _end = _encodedLengths.atIndex(0);
     }
-    actionData = (bytes(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
+    data = (bytes(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
   }
 
   /**
@@ -207,9 +204,9 @@ library Notification {
     EncodedLengths _encodedLengths,
     bytes memory _dynamicData
   ) internal pure returns (NotificationData memory _table) {
-    (_table.timestamp, _table.actionType) = decodeStatic(_staticData);
+    (_table.timestamp, _table.action) = decodeStatic(_staticData);
 
-    (_table.actionData) = decodeDynamic(_encodedLengths, _dynamicData);
+    (_table.data) = decodeDynamic(_encodedLengths, _dynamicData);
   }
 
   /**
@@ -236,18 +233,18 @@ library Notification {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint128 timestamp, ActionType actionType) internal pure returns (bytes memory) {
-    return abi.encodePacked(timestamp, actionType);
+  function encodeStatic(uint128 timestamp, Action action) internal pure returns (bytes memory) {
+    return abi.encodePacked(timestamp, action);
   }
 
   /**
    * @notice Tightly pack dynamic data lengths using this table's schema.
    * @return _encodedLengths The lengths of the dynamic fields (packed into a single bytes32 value).
    */
-  function encodeLengths(bytes memory actionData) internal pure returns (EncodedLengths _encodedLengths) {
+  function encodeLengths(bytes memory data) internal pure returns (EncodedLengths _encodedLengths) {
     // Lengths are effectively checked during copy by 2**40 bytes exceeding gas limits
     unchecked {
-      _encodedLengths = EncodedLengthsLib.pack(bytes(actionData).length);
+      _encodedLengths = EncodedLengthsLib.pack(bytes(data).length);
     }
   }
 
@@ -255,8 +252,8 @@ library Notification {
    * @notice Tightly pack dynamic (variable length) data using this table's schema.
    * @return The dynamic data, encoded into a sequence of bytes.
    */
-  function encodeDynamic(bytes memory actionData) internal pure returns (bytes memory) {
-    return abi.encodePacked(bytes((actionData)));
+  function encodeDynamic(bytes memory data) internal pure returns (bytes memory) {
+    return abi.encodePacked(bytes((data)));
   }
 
   /**
@@ -267,13 +264,13 @@ library Notification {
    */
   function encode(
     uint128 timestamp,
-    ActionType actionType,
-    bytes memory actionData
+    Action action,
+    bytes memory data
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(timestamp, actionType);
+    bytes memory _staticData = encodeStatic(timestamp, action);
 
-    EncodedLengths _encodedLengths = encodeLengths(actionData);
-    bytes memory _dynamicData = encodeDynamic(actionData);
+    EncodedLengths _encodedLengths = encodeLengths(data);
+    bytes memory _dynamicData = encodeDynamic(data);
 
     return (_staticData, _encodedLengths, _dynamicData);
   }

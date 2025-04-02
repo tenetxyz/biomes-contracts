@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { ActionType } from "../codegen/common.sol";
+import { Action } from "../codegen/common.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Player } from "../codegen/tables/Player.sol";
@@ -21,10 +21,10 @@ import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 
 contract OreSystem is System {
-  function oreChunkCommit(EntityId callerEntityId, Vec3 chunkCoord) public {
-    callerEntityId.activate();
+  function oreChunkCommit(EntityId caller, Vec3 chunkCoord) public {
+    caller.activate();
 
-    Vec3 callerChunkCoord = callerEntityId.getPosition().toChunkCoord();
+    Vec3 callerChunkCoord = caller.getPosition().toChunkCoord();
     require(callerChunkCoord.inSurroundingCube(chunkCoord, CHUNK_COMMIT_HALF_WIDTH), "Not in commit range");
 
     // Check existing commitment
