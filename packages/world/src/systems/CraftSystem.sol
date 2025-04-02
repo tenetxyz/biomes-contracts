@@ -25,7 +25,7 @@ import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import {
   addToInventory, addToolToInventory, removeAnyFromInventory, removeFromInventory
 } from "../utils/InventoryUtils.sol";
-import { CraftNotifData, notify } from "../utils/NotifUtils.sol";
+import { CraftNotification, notify } from "../utils/NotifUtils.sol";
 
 contract CraftSystem is System {
   using ObjectTypeLib for ObjectTypeId;
@@ -73,7 +73,7 @@ contract CraftSystem is System {
 
     transferEnergyToPool(caller, CRAFT_ENERGY_COST);
 
-    notify(caller, CraftNotifData({ recipeId: recipeId, station: station }));
+    notify(caller, CraftNotification({ recipeId: recipeId, station: station }));
   }
 
   function craft(EntityId caller, bytes32 recipeId) public {

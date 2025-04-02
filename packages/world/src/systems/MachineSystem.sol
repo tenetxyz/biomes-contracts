@@ -11,7 +11,7 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
-import { PowerMachineNotifData, notify } from "../utils/NotifUtils.sol";
+import { PowerMachineNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";

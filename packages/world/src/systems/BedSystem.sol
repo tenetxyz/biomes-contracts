@@ -24,7 +24,7 @@ import { updateMachineEnergy, updateSleepingPlayerEnergy } from "../utils/Energy
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { SleepNotifData, WakeupNotifData, notify } from "../utils/NotifUtils.sol";
+import { SleepNotification, WakeupNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -104,7 +104,7 @@ contract BedSystem is System {
     bytes memory onSleep = abi.encodeCall(ISleepHook.onSleep, (caller, bed, extraData));
     bed.getProgram().callOrRevert(onSleep);
 
-    notify(caller, SleepNotifData({ bed: bed, bedCoord: bedCoord }));
+    notify(caller, SleepNotification({ bed: bed, bedCoord: bedCoord }));
   }
 
   // TODO: for now this only supports players, as players are the only entities that can sleep
@@ -134,6 +134,6 @@ contract BedSystem is System {
     bytes memory onWakeup = abi.encodeCall(IWakeupHook.onWakeup, (caller, bed, extraData));
     bed.getProgram().callOrRevert(onWakeup);
 
-    notify(caller, WakeupNotifData({ bed: bed, bedCoord: bedCoord }));
+    notify(caller, WakeupNotification({ bed: bed, bedCoord: bedCoord }));
   }
 }

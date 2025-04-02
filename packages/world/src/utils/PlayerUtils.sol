@@ -31,7 +31,7 @@ import { EntityId } from "../EntityId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 
-import { DeathNotifData, notify } from "./NotifUtils.sol";
+import { DeathNotification, notify } from "./NotifUtils.sol";
 
 using ObjectTypeLib for ObjectTypeId;
 
@@ -114,6 +114,6 @@ library PlayerUtils {
     (EntityId to, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     transferAllInventoryEntities(player, to, objectTypeId);
     removePlayerFromGrid(player, coord);
-    notify(player, DeathNotifData({ deathCoord: coord }));
+    notify(player, DeathNotification({ deathCoord: coord }));
   }
 }

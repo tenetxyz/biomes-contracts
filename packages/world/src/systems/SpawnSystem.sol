@@ -40,7 +40,7 @@ import { Vec3, vec3 } from "../Vec3.sol";
 import { removeEnergyFromLocalPool, updateMachineEnergy, updatePlayerEnergy } from "../utils/EnergyUtils.sol";
 import { getMovableEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { SpawnNotifData, notify } from "../utils/NotifUtils.sol";
+import { SpawnNotification, notify } from "../utils/NotifUtils.sol";
 
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -198,7 +198,7 @@ contract SpawnSystem is System {
       })
     );
 
-    notify(player, SpawnNotifData({ spawnCoord: spawnCoord }));
+    notify(player, SpawnNotification({ spawnCoord: spawnCoord }));
 
     return player;
   }

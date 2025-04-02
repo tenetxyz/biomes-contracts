@@ -7,7 +7,7 @@ import { ActionType } from "../codegen/common.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
-import { UnequipNotifData, notify } from "../utils/NotifUtils.sol";
+import { UnequipNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -23,6 +23,6 @@ contract UnequipSystem is System {
     }
     Equipped._deleteRecord(caller);
 
-    notify(caller, UnequipNotifData({ inventoryEntityId: equipped }));
+    notify(caller, UnequipNotification({ inventoryEntityId: equipped }));
   }
 }

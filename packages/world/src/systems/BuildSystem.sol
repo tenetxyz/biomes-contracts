@@ -23,7 +23,7 @@ import { removeEnergyFromLocalPool, transferEnergyToPool, updateMachineEnergy } 
 import { getMovableEntityAt, getObjectTypeIdAt, getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { removeFromInventory } from "../utils/InventoryUtils.sol";
-import { BuildNotifData, MoveNotifData, notify } from "../utils/NotifUtils.sol";
+import { BuildNotification, MoveNotification, notify } from "../utils/NotifUtils.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
@@ -146,7 +146,7 @@ contract BuildSystem is System {
     // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
     BuildLib._requireBuildsAllowed(caller, base, buildObjectTypeId, coords, extraData);
 
-    notify(caller, BuildNotifData({ buildEntityId: base, buildCoord: coords[0], buildObjectTypeId: buildObjectTypeId }));
+    notify(caller, BuildNotification({ buildEntityId: base, buildCoord: coords[0], buildObjectTypeId: buildObjectTypeId }));
 
     return base;
   }
@@ -173,7 +173,7 @@ contract BuildSystem is System {
     moveCoords[0] = coord + vec3(0, 1, 0);
     MoveLib.moveWithoutGravity(caller, coord, moveCoords);
 
-    notify(caller, MoveNotifData({ moveCoords: moveCoords }));
+    notify(caller, MoveNotification({ moveCoords: moveCoords }));
 
     require(!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId), "Cannot jump build on a pass-through block");
 

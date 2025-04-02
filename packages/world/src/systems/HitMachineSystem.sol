@@ -22,7 +22,7 @@ import {
 } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { useEquipped } from "../utils/InventoryUtils.sol";
-import { HitMachineNotifData, notify } from "../utils/NotifUtils.sol";
+import { HitMachineNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
@@ -51,7 +51,7 @@ contract HitMachineSystem is System {
     // Don't revert and use a fixed amount of gas so the program can't prevent hitting
     program.call({ gas: SAFE_PROGRAM_GAS, hook: onHit });
 
-    notify(caller, HitMachineNotifData({ machine: forceField, machineCoord: forceFieldCoord }));
+    notify(caller, HitMachineNotification({ machine: forceField, machineCoord: forceFieldCoord }));
   }
 }
 

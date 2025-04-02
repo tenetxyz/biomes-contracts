@@ -10,7 +10,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
-import { EquipNotifData, notify } from "../utils/NotifUtils.sol";
+import { EquipNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 contract EquipSystem is System {
@@ -19,6 +19,6 @@ contract EquipSystem is System {
     require(InventoryEntity._get(inventoryEntityId) == caller, "Player does not own inventory item");
     Equipped._set(caller, inventoryEntityId);
 
-    notify(caller, EquipNotifData({ inventoryEntityId: inventoryEntityId }));
+    notify(caller, EquipNotification({ inventoryEntityId: inventoryEntityId }));
   }
 }

@@ -17,7 +17,7 @@ import {
   removeForceFieldFragment,
   setupForceFieldFragment
 } from "../utils/ForceFieldUtils.sol";
-import { AddFragmentNotifData, RemoveFragmentNotifData, notify } from "../utils/NotifUtils.sol";
+import { AddFragmentNotification, RemoveFragmentNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { ForceFieldFragment, Position } from "../utils/Vec3Storage.sol";
@@ -129,7 +129,7 @@ contract ForceFieldSystem is System {
 
     forceField.getProgram().callOrRevert(onAddFragment);
 
-    notify(caller, AddFragmentNotifData({ forceField: forceField }));
+    notify(caller, AddFragmentNotification({ forceField: forceField }));
   }
 
   /**
@@ -177,6 +177,6 @@ contract ForceFieldSystem is System {
       forceField.getProgram().callOrRevert(onRemoveFragment);
     }
 
-    notify(caller, RemoveFragmentNotifData({ forceField: forceField }));
+    notify(caller, RemoveFragmentNotification({ forceField: forceField }));
   }
 }

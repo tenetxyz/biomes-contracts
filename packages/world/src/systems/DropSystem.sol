@@ -16,7 +16,7 @@ import { getUniqueEntity } from "../Utils.sol";
 import { Vec3 } from "../Vec3.sol";
 import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
-import { DropNotifData, notify } from "../utils/NotifUtils.sol";
+import { DropNotification, notify } from "../utils/NotifUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 
 // TODO: combine the tool and non-tool drop functions
@@ -36,7 +36,7 @@ contract DropSystem is System {
     transferInventoryNonEntity(caller, entityId, ObjectType._get(entityId), dropObjectTypeId, numToDrop);
 
     notify(
-      caller, DropNotifData({ dropCoord: coord, dropObjectTypeId: dropObjectTypeId, dropAmount: numToDrop })
+      caller, DropNotification({ dropCoord: coord, dropObjectTypeId: dropObjectTypeId, dropAmount: numToDrop })
     );
   }
 
@@ -45,7 +45,7 @@ contract DropSystem is System {
     ObjectTypeId toolObjectTypeId =
       transferInventoryEntity(caller, entityId, ObjectType._get(entityId), tool);
 
-    notify(caller, DropNotifData({ dropCoord: coord, dropObjectTypeId: toolObjectTypeId, dropAmount: 1 }));
+    notify(caller, DropNotification({ dropCoord: coord, dropObjectTypeId: toolObjectTypeId, dropAmount: 1 }));
   }
 
   function dropTools(EntityId caller, EntityId[] memory tools, Vec3 coord) public {
@@ -66,7 +66,7 @@ contract DropSystem is System {
 
     notify(
       caller,
-      DropNotifData({ dropCoord: coord, dropObjectTypeId: toolObjectTypeId, dropAmount: uint16(tools.length) })
+      DropNotification({ dropCoord: coord, dropObjectTypeId: toolObjectTypeId, dropAmount: uint16(tools.length) })
     );
   }
 }

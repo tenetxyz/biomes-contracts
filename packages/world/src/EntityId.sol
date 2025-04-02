@@ -72,8 +72,8 @@ library EntityIdLib {
     return ObjectType._get(self).isMovable() ? MovablePosition._get(self) : Position._get(self);
   }
 
-  function getProgram(EntityId entityId) internal view returns (ProgramId) {
-    return EntityProgram._get(entityId);
+  function getProgram(EntityId self) internal view returns (ProgramId) {
+    return EntityProgram._get(self);
   }
 
   function exists(EntityId self) internal pure returns (bool) {

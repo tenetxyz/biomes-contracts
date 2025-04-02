@@ -41,7 +41,7 @@ import {
 } from "../utils/EntityUtils.sol";
 import { destroyForceField, getForceField } from "../utils/ForceFieldUtils.sol";
 import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
-import { DeathNotifData, MineNotifData, notify } from "../utils/NotifUtils.sol";
+import { DeathNotification, MineNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -184,7 +184,7 @@ contract MineSystem is System {
       }
     }
 
-    notify(caller, MineNotifData({ mineEntityId: entityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId }));
+    notify(caller, MineNotification({ mineEntityId: entityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId }));
 
     return entityId;
   }
@@ -212,7 +212,7 @@ library MineLib {
       // The player is not on the grid so no need to call killPlayer
       Energy._setEnergy(sleepingPlayerId, 0);
       addEnergyToLocalPool(bedCoord, playerData.energy);
-      notify(sleepingPlayerId, DeathNotifData({ deathCoord: bedCoord }));
+      notify(sleepingPlayerId, DeathNotification({ deathCoord: bedCoord }));
     }
   }
 

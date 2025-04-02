@@ -9,7 +9,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { transferEnergyToPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
-import { TransferNotifData, notify } from "../utils/NotifUtils.sol";
+import { TransferNotification, notify } from "../utils/NotifUtils.sol";
 
 import { SMART_CHEST_ENERGY_COST } from "../Constants.sol";
 import { EntityId } from "../EntityId.sol";
@@ -98,7 +98,7 @@ library TransferLib {
 
     target.getProgram().callOrRevert(onTransfer);
 
-    notify(caller, TransferNotifData({ transferEntityId: target, tools: tools, objectAmounts: objectAmounts }));
+    notify(caller, TransferNotification({ transferEntityId: target, tools: tools, objectAmounts: objectAmounts }));
   }
 
   function _getTarget(EntityId caller, EntityId from, EntityId to) internal pure returns (EntityId) {

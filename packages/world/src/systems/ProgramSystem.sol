@@ -14,7 +14,7 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField, isForceFieldFragmentActive } from "../utils/ForceFieldUtils.sol";
-import { AttachProgramNotifData, DetachProgramNotifData, notify } from "../utils/NotifUtils.sol";
+import { AttachProgramNotification, DetachProgramNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { SAFE_PROGRAM_GAS } from "../Constants.sol";
@@ -49,7 +49,7 @@ contract ProgramSystem is System {
 
     program.callOrRevert(abi.encodeCall(IAttachProgramHook.onAttachProgram, (caller, target, extraData)));
 
-    notify(caller, AttachProgramNotifData({ attachedTo: target, programSystemId: program.toResourceId() }));
+    notify(caller, AttachProgramNotification({ attachedTo: target, programSystemId: program.toResourceId() }));
   }
 
   function detachProgram(EntityId caller, EntityId target, bytes calldata extraData) public payable {
@@ -73,7 +73,7 @@ contract ProgramSystem is System {
 
     EntityProgram._deleteRecord(target);
 
-    notify(caller, DetachProgramNotifData({ detachedFrom: target, programSystemId: program.toResourceId() }));
+    notify(caller, DetachProgramNotification({ detachedFrom: target, programSystemId: program.toResourceId() }));
   }
 
   function _getValidatorProgram(Vec3 coord) internal returns (EntityId, ProgramId) {

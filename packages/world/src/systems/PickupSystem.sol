@@ -13,7 +13,7 @@ import {
   transferInventoryNonEntity
 } from "../utils/InventoryUtils.sol";
 
-import { PickupNotifData, notify } from "../utils/NotifUtils.sol";
+import { PickupNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { ReversePosition } from "../utils/Vec3Storage.sol";
 
@@ -44,7 +44,7 @@ contract PickupSystem is System {
 
     notify(
       caller,
-      PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: ObjectTypes.Air, pickupAmount: uint16(numTransferred) })
+      PickupNotification({ pickupCoord: coord, pickupObjectTypeId: ObjectTypes.Air, pickupAmount: uint16(numTransferred) })
     );
   }
 
@@ -54,7 +54,7 @@ contract PickupSystem is System {
 
     notify(
       caller,
-      PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: pickupObjectTypeId, pickupAmount: numToPickup })
+      PickupNotification({ pickupCoord: coord, pickupObjectTypeId: pickupObjectTypeId, pickupAmount: numToPickup })
     );
   }
 
@@ -63,7 +63,7 @@ contract PickupSystem is System {
     ObjectTypeId toolObjectTypeId = transferInventoryEntity(entityId, caller, ObjectTypes.Player, tool);
 
     notify(
-      caller, PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
+      caller, PickupNotification({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
     );
   }
 
@@ -83,7 +83,7 @@ contract PickupSystem is System {
 
       notify(
         caller,
-        PickupNotifData({
+        PickupNotification({
           pickupCoord: coord,
           pickupObjectTypeId: pickupObject.objectTypeId,
           pickupAmount: pickupObject.amount
@@ -96,7 +96,7 @@ contract PickupSystem is System {
         transferInventoryEntity(entityId, caller, ObjectTypes.Player, pickupTools[i]);
 
       notify(
-        caller, PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
+        caller, PickupNotification({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
       );
     }
   }
