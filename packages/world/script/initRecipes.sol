@@ -222,7 +222,7 @@ function initRecipes() {
   {
     ObjectTypeId stationObjectTypeId = ObjectTypes.Thermoblaster;
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = ObjectTypes.SilverOre;
+    inputTypes[0] = ObjectTypes.IronOre;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
@@ -312,7 +312,7 @@ function initRecipes() {
   {
     ObjectTypeId stationObjectTypeId = ObjectTypes.Thermoblaster;
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = ObjectTypes.NeptuniumOre;
+    inputTypes[0] = ObjectTypes.EmeraldOre;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
@@ -527,76 +527,12 @@ function initRecipes() {
   }
   {
     ObjectTypeId stationObjectTypeId = ObjectTypes.Workbench;
-    ObjectTypeId[] memory inputTypes = new ObjectTypeId[](2);
-    inputTypes[0] = ObjectTypes.Chest;
-    inputTypes[1] = ObjectTypes.SilverBar;
-    uint16[] memory inputAmounts = new uint16[](2);
-    inputAmounts[0] = 1;
-    inputAmounts[1] = 1;
-    ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = ObjectTypes.SmartChest;
-    uint16[] memory outputAmounts = new uint16[](1);
-    outputAmounts[0] = 1;
-
-    uint16[] memory _inputTypes;
-    assembly ("memory-safe") {
-      _inputTypes := inputTypes
-    }
-
-    uint16[] memory _outputTypes;
-    assembly ("memory-safe") {
-      _outputTypes := outputTypes
-    }
-
-    Recipes.set(
-      keccak256(abi.encode(stationObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts)),
-      stationObjectTypeId,
-      _inputTypes,
-      inputAmounts,
-      _outputTypes,
-      outputAmounts
-    );
-  }
-  {
-    ObjectTypeId stationObjectTypeId = ObjectTypes.Workbench;
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
     inputTypes[0] = ObjectTypes.AnyPlanks;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 4;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
     outputTypes[0] = ObjectTypes.TextSign;
-    uint16[] memory outputAmounts = new uint16[](1);
-    outputAmounts[0] = 1;
-
-    uint16[] memory _inputTypes;
-    assembly ("memory-safe") {
-      _inputTypes := inputTypes
-    }
-
-    uint16[] memory _outputTypes;
-    assembly ("memory-safe") {
-      _outputTypes := outputTypes
-    }
-
-    Recipes.set(
-      keccak256(abi.encode(stationObjectTypeId, inputTypes, inputAmounts, outputTypes, outputAmounts)),
-      stationObjectTypeId,
-      _inputTypes,
-      inputAmounts,
-      _outputTypes,
-      outputAmounts
-    );
-  }
-  {
-    ObjectTypeId stationObjectTypeId = ObjectTypes.Workbench;
-    ObjectTypeId[] memory inputTypes = new ObjectTypeId[](2);
-    inputTypes[0] = ObjectTypes.TextSign;
-    inputTypes[1] = ObjectTypes.SilverBar;
-    uint16[] memory inputAmounts = new uint16[](2);
-    inputAmounts[0] = 1;
-    inputAmounts[1] = 1;
-    ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
-    outputTypes[0] = ObjectTypes.SmartTextSign;
     uint16[] memory outputAmounts = new uint16[](1);
     outputAmounts[0] = 1;
 

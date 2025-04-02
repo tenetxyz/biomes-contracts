@@ -5,8 +5,8 @@ pragma solidity >=0.8.24;
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 
-import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 
 function initObjects() {
   ObjectTypeMetadata.set(
@@ -1194,7 +1194,7 @@ function initObjects() {
     })
   );
   ObjectTypeMetadata.set(
-    ObjectTypes.SilverOre,
+    ObjectTypes.IronOre,
     ObjectTypeMetadataData({
       stackable: 99,
       maxInventorySlots: 0,
@@ -1224,7 +1224,7 @@ function initObjects() {
     })
   );
   ObjectTypeMetadata.set(
-    ObjectTypes.NeptuniumOre,
+    ObjectTypes.EmeraldOre,
     ObjectTypeMetadataData({
       stackable: 99,
       maxInventorySlots: 0,
@@ -1282,15 +1282,7 @@ function initObjects() {
     ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 27, mass: 100, energy: 0, canPassThrough: false })
   );
   ObjectTypeMetadata.set(
-    ObjectTypes.SmartChest,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 27, mass: 100, energy: 0, canPassThrough: false })
-  );
-  ObjectTypeMetadata.set(
     ObjectTypes.TextSign,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
-  );
-  ObjectTypeMetadata.set(
-    ObjectTypes.SmartTextSign,
     ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
   );
   ObjectTypeMetadata.set(
@@ -1398,7 +1390,7 @@ function initObjects() {
     ObjectTypeMetadataData({
       stackable: 0,
       maxInventorySlots: 36,
-      mass: 10,
+      mass: 0,
       energy: uint32(MAX_PLAYER_ENERGY),
       canPassThrough: false
     })

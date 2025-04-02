@@ -221,9 +221,12 @@ library ObjectTypeLib {
   }
 
   function timeToGrow(ObjectTypeId objectTypeId) internal pure returns (uint128) {
-    // TODO: different times for different seeds
-    if (objectTypeId.isSeed()) {
+    if (objectTypeId == ObjectTypes.WheatSeed) {
       return 15 minutes;
+    }
+
+    if (objectTypeId == ObjectTypes.OakSeed || objectTypeId == ObjectTypes.SpruceSeed) {
+      return 5760 minutes;
     }
 
     return 0;
