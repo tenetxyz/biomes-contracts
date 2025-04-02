@@ -1,31 +1,33 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
-import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
-import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
-import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { System } from "@latticexyz/world/src/System.sol";
+
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
+import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 
-import { TestForceFieldUtils, TestInventoryUtils, TestEnergyUtils } from "./utils/TestUtils.sol";
+import { TestEnergyUtils, TestForceFieldUtils, TestInventoryUtils } from "./utils/TestUtils.sol";
 
-import { DustTest, console } from "./DustTest.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { Machine } from "../src/codegen/tables/Machine.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
-import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+
 import { EntityProgram } from "../src/codegen/tables/EntityProgram.sol";
+import { Machine } from "../src/codegen/tables/Machine.sol";
+import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+import { DustTest, console } from "./DustTest.sol";
 
-import { ReversePosition, MovablePosition, Position } from "../src/utils/Vec3Storage.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
+import { MovablePosition, Position, ReversePosition } from "../src/utils/Vec3Storage.sol";
 
-import { Vec3, vec3 } from "../src/Vec3.sol";
+import { FRAGMENT_SIZE, MACHINE_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ProgramId } from "../src/ProgramId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
-import { MACHINE_ENERGY_DRAIN_RATE, FRAGMENT_SIZE } from "../src/Constants.sol";
+import { ProgramId } from "../src/ProgramId.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 
 contract TestForceFieldProgram is System {
   // Just for testing, real programs should use tables
@@ -58,7 +60,7 @@ contract TestForceFieldProgram is System {
     revertOnValidateProgram = _revert;
   }
 
-  fallback() external {}
+  fallback() external { }
 }
 
 contract TestForceFieldFragmentProgram is System {
@@ -92,11 +94,11 @@ contract TestForceFieldFragmentProgram is System {
     revertOnValidateProgram = _revert;
   }
 
-  fallback() external {}
+  fallback() external { }
 }
 
 contract TestChestProgram is System {
-  fallback() external {}
+  fallback() external { }
 }
 
 contract ForceFieldTest is DustTest {
@@ -123,8 +125,7 @@ contract ForceFieldTest is DustTest {
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 })
     );
 
     TestForceFieldProgram program = new TestForceFieldProgram();
@@ -154,8 +155,7 @@ contract ForceFieldTest is DustTest {
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     TestForceFieldProgram program = new TestForceFieldProgram();
@@ -182,8 +182,7 @@ contract ForceFieldTest is DustTest {
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     (, EntityId fragmentEntityId) = TestForceFieldUtils.getForceField(forceFieldCoord);
@@ -212,8 +211,7 @@ contract ForceFieldTest is DustTest {
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 })
     );
 
     TestForceFieldProgram program = new TestForceFieldProgram();
@@ -310,7 +308,7 @@ contract ForceFieldTest is DustTest {
 
   function testSetupForceField() public {
     // Set up a flat chunk with a player
-    (, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (,, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -322,16 +320,13 @@ contract ForceFieldTest is DustTest {
     // Verify that the fragment at the force field coordinate exists
     Vec3 fragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
     assertTrue(
-      TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, fragmentCoord),
-      "Force field fragment not found"
+      TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, fragmentCoord), "Force field fragment not found"
     );
 
     // Verify that we can get the force field from the coordinate
-    (EntityId retrievedForceFieldId, ) = TestForceFieldUtils.getForceField(forceFieldCoord);
+    (EntityId retrievedForceFieldId,) = TestForceFieldUtils.getForceField(forceFieldCoord);
     assertEq(
-      EntityId.unwrap(retrievedForceFieldId),
-      EntityId.unwrap(forceFieldEntityId),
-      "Retrieved incorrect force field"
+      EntityId.unwrap(retrievedForceFieldId), EntityId.unwrap(forceFieldEntityId), "Retrieved incorrect force field"
     );
   }
 
@@ -341,10 +336,7 @@ contract ForceFieldTest is DustTest {
 
     // Set up a force field with NO energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
-    setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 })
-    );
+    setupForceField(forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 }));
 
     // Get the fragment entity ID
     (, EntityId fragmentEntityId) = TestForceFieldUtils.getForceField(forceFieldCoord);
@@ -377,8 +369,7 @@ contract ForceFieldTest is DustTest {
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Get the fragment entity ID
@@ -412,11 +403,8 @@ contract ForceFieldTest is DustTest {
     // Set up a flat chunk with a player
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    EnergyData memory initialEnergyData = EnergyData({
-      lastUpdatedTime: uint128(block.timestamp),
-      energy: 1000,
-      drainRate: 1
-    });
+    EnergyData memory initialEnergyData =
+      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 });
 
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
@@ -453,8 +441,7 @@ contract ForceFieldTest is DustTest {
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
@@ -510,8 +497,7 @@ contract ForceFieldTest is DustTest {
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Reference fragment coordinate
@@ -533,8 +519,7 @@ contract ForceFieldTest is DustTest {
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Invalid reference fragment coordinate (not part of the force field)
@@ -556,8 +541,7 @@ contract ForceFieldTest is DustTest {
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Add a fragment to the force field
@@ -585,8 +569,7 @@ contract ForceFieldTest is DustTest {
 
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Expand the force field
@@ -636,15 +619,13 @@ contract ForceFieldTest is DustTest {
     // Create first force field
     Vec3 forceField1Coord = playerCoord + vec3(2, 0, 0);
     EntityId forceField1EntityId = setupForceField(
-      forceField1Coord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceField1Coord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Create second force field
     Vec3 forceField2Coord = forceField1Coord + vec3(FRAGMENT_SIZE, 0, 0);
     setupForceField(
-      forceField2Coord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceField2Coord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Try to expand first force field into second force field's area (should fail)
@@ -657,13 +638,12 @@ contract ForceFieldTest is DustTest {
 
   function testForceFieldEnergyDrainsOverTime() public {
     // Set up a flat chunk with a player
-    (address alice, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (address alice,, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Create a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 100, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 100, drainRate: 1 })
     );
 
     // Fast forward time
@@ -694,8 +674,7 @@ contract ForceFieldTest is DustTest {
     // Set up a force field
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Create and attach a test program
@@ -787,15 +766,13 @@ contract ForceFieldTest is DustTest {
     // Create first force field
     Vec3 forceField1Coord = playerCoord - vec3(10, 0, 0);
     EntityId forceField1EntityId = setupForceField(
-      forceField1Coord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceField1Coord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Create second force field
     Vec3 forceField2Coord = playerCoord + vec3(10, 0, 0);
     EntityId forceField2EntityId = setupForceField(
-      forceField2Coord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceField2Coord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Add fragment to first force field
@@ -830,8 +807,7 @@ contract ForceFieldTest is DustTest {
     // Create a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 10000, drainRate: 1 })
     );
 
     Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
@@ -863,8 +839,7 @@ contract ForceFieldTest is DustTest {
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Create forcefield program and attach it
@@ -905,8 +880,7 @@ contract ForceFieldTest is DustTest {
     // Set up a force field with energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
     // Create forcefield program, attach it, and configure it to disallow program attachments
@@ -935,13 +909,12 @@ contract ForceFieldTest is DustTest {
 
   function testAttachProgramToObjectWithNoForceFieldEnergy() public {
     // Set up a flat chunk with a player
-    (, , Vec3 playerCoord) = setupFlatChunkWithPlayer();
+    (,, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with NO energy
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 })
+      forceFieldCoord, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 0, drainRate: 1 })
     );
 
     // Create forcefield program and attach it
@@ -1314,8 +1287,7 @@ contract ForceFieldTest is DustTest {
       parents[9] = 8;
 
       assertFalse(
-        world.validateSpanningTree(fragments, 10, parents),
-        "Complex disconnected components should be invalid"
+        world.validateSpanningTree(fragments, 10, parents), "Complex disconnected components should be invalid"
       );
     }
   }

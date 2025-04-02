@@ -3,15 +3,17 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Player } from "../codegen/tables/Player.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
+
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { updateMachineEnergy, updatePlayerEnergy } from "../utils/EnergyUtils.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+
 import { checkWorldStatus } from "../Utils.sol";
+import { updateMachineEnergy, updatePlayerEnergy } from "../utils/EnergyUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 

@@ -3,25 +3,29 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
-import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
-import { Mass } from "../codegen/tables/Mass.sol";
-import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { ActionType } from "../codegen/common.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
+import { Mass } from "../codegen/tables/Mass.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
-import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { addToInventory, removeFromInventory, removeAnyFromInventory, addToolToInventory } from "../utils/InventoryUtils.sol";
-import { notify, CraftNotifData } from "../utils/NotifUtils.sol";
-import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
-import { EntityId } from "../EntityId.sol";
-import { Vec3 } from "../Vec3.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
+import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
+
 import { CRAFT_ENERGY_COST } from "../Constants.sol";
+import { EntityId } from "../EntityId.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+
+import { Vec3 } from "../Vec3.sol";
+import { transferEnergyToPool } from "../utils/EnergyUtils.sol";
+import {
+  addToInventory, addToolToInventory, removeAnyFromInventory, removeFromInventory
+} from "../utils/InventoryUtils.sol";
+import { CraftNotifData, notify } from "../utils/NotifUtils.sol";
 
 contract CraftSystem is System {
   using ObjectTypeLib for ObjectTypeId;

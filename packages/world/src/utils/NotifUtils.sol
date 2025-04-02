@@ -3,13 +3,13 @@ pragma solidity >=0.8.24;
 
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-import { Notification, NotificationData } from "../codegen/tables/Notification.sol";
 import { ActionType } from "../codegen/common.sol";
+import { Notification, NotificationData } from "../codegen/tables/Notification.sol";
 
-import { Vec3 } from "../Vec3.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectAmount } from "../ObjectTypeLib.sol";
+import { Vec3 } from "../Vec3.sol";
 
 struct BuildNotifData {
   EntityId buildEntityId;

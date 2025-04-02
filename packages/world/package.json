@@ -16,7 +16,7 @@
     "deploy:testnet": "pnpm run build && mud deploy --profile=garnet --rpcBatch",
     "dev": "pnpm entrykit-deploy && pnpm run build && pnpm mud dev-contracts --rpc http://127.0.0.1:8545",
     "fix": "pnpm run fix:format",
-    "fix:format": "prettier --write '**/*.sol'",
+    "fix:format": "forge fmt",
     "fix:lint": "solhint --config ./.solhint.json '**/*.sol' --fix",
     "script:give": "./runForgeScript.bash script/admin/GiveScript.s.sol",
     "script:teleport": "./runForgeScript.bash script/admin/TeleportScript.s.sol",
@@ -38,8 +38,6 @@
   },
   "devDependencies": {
     "forge-std": "https://github.com/foundry-rs/forge-std.git#3b20d60d14b343ee4f908cb8079495c07f5e8981",
-    "prettier": "3.2.5",
-    "prettier-plugin-solidity": "1.1.3",
     "solhint": "^3.4.1",
     "tsup": "8.3.0",
     "tsx": "^4.7.2"

@@ -1,38 +1,47 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { console } from "forge-std/console.sol";
-import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
+import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
+import { console } from "forge-std/console.sol";
 
-import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
 
 import { ObjectAmount, getOreObjectTypes } from "../src/ObjectTypeLib.sol";
 
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { Mass } from "../src/codegen/tables/Mass.sol";
-import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
-import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
-import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
 import { Vec3 } from "../src/Vec3.sol";
-import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
-import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
+import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
+import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
+
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
+import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
 import { InventoryObjects } from "../src/codegen/tables/InventoryObjects.sol";
+import { Mass } from "../src/codegen/tables/Mass.sol";
+import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+
+import { Player } from "../src/codegen/tables/Player.sol";
+import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
+import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
 
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 
-import { Position, ReversePosition, MovablePosition, ReverseMovablePosition, LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
+import {
+  LocalEnergyPool,
+  MovablePosition,
+  Position,
+  ReverseMovablePosition,
+  ReversePosition
+} from "../src/utils/Vec3Storage.sol";
 
-import { encodeChunk } from "./utils/encodeChunk.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ProgramId } from "../src/ProgramId.sol";
+
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { ProgramId } from "../src/ProgramId.sol";
 import { TestForceFieldUtils } from "./utils/TestUtils.sol";
+import { encodeChunk } from "./utils/encodeChunk.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
@@ -43,10 +52,11 @@ abstract contract DustAssertions is MudTest, GasReporter {
     uint128 forceFieldEnergy;
   }
 
-  function inventoryObjectsHasObjectType(
-    EntityId ownerEntityId,
-    ObjectTypeId objectTypeId
-  ) internal view returns (bool) {
+  function inventoryObjectsHasObjectType(EntityId ownerEntityId, ObjectTypeId objectTypeId)
+    internal
+    view
+    returns (bool)
+  {
     uint16[] memory inventoryObjectTypes = InventoryObjects.get(ownerEntityId);
     for (uint256 i = 0; i < inventoryObjectTypes.length; i++) {
       if (inventoryObjectTypes[i] == ObjectTypeId.unwrap(objectTypeId)) {
@@ -56,10 +66,11 @@ abstract contract DustAssertions is MudTest, GasReporter {
     return false;
   }
 
-  function reverseInventoryEntityHasEntity(
-    EntityId ownerEntityId,
-    EntityId inventoryEntityId
-  ) internal view returns (bool) {
+  function reverseInventoryEntityHasEntity(EntityId ownerEntityId, EntityId inventoryEntityId)
+    internal
+    view
+    returns (bool)
+  {
     bytes32[] memory inventoryEntityIds = ReverseInventoryEntity.get(ownerEntityId);
     for (uint256 i = 0; i < inventoryEntityIds.length; i++) {
       if (inventoryEntityIds[i] == EntityId.unwrap(inventoryEntityId)) {
@@ -103,27 +114,25 @@ abstract contract DustAssertions is MudTest, GasReporter {
     if (amount > 0) {
       assertEq(InventoryEntity.get(toolEntityId), entityId, "Inventory entity is not owned by entity");
       assertTrue(
-        reverseInventoryEntityHasEntity(entityId, toolEntityId),
-        "Inventory entity is not in reverse inventory entity"
+        reverseInventoryEntityHasEntity(entityId, toolEntityId), "Inventory entity is not in reverse inventory entity"
       );
     } else {
       assertFalse(InventoryEntity.get(toolEntityId) == entityId, "Inventory entity is not owned by entity");
       assertFalse(
-        reverseInventoryEntityHasEntity(entityId, toolEntityId),
-        "Inventory entity is in reverse inventory entity"
+        reverseInventoryEntityHasEntity(entityId, toolEntityId), "Inventory entity is in reverse inventory entity"
       );
     }
   }
 
-  function getEnergyDataSnapshot(
-    EntityId playerEntityId,
-    Vec3 snapshotCoord
-  ) internal returns (EnergyDataSnapshot memory) {
+  function getEnergyDataSnapshot(EntityId playerEntityId, Vec3 snapshotCoord)
+    internal
+    returns (EnergyDataSnapshot memory)
+  {
     EnergyDataSnapshot memory snapshot;
     snapshot.playerEnergy = Energy.getEnergy(playerEntityId);
     Vec3 shardCoord = snapshotCoord.toLocalEnergyPoolShardCoord();
     snapshot.localPoolEnergy = LocalEnergyPool.get(shardCoord);
-    (EntityId forceFieldEntityId, ) = TestForceFieldUtils.getForceField(snapshotCoord);
+    (EntityId forceFieldEntityId,) = TestForceFieldUtils.getForceField(snapshotCoord);
     snapshot.forceFieldEnergy = forceFieldEntityId.exists() ? Energy.getEnergy(forceFieldEntityId) : 0;
     return snapshot;
   }

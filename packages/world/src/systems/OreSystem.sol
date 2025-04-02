@@ -3,21 +3,22 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
+import { ActionType } from "../codegen/common.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
-import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
-import { TotalBurnedOreCount } from "../codegen/tables/TotalBurnedOreCount.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Player } from "../codegen/tables/Player.sol";
-import { ActionType } from "../codegen/common.sol";
-import { Position, ReversePosition, OreCommitment, MinedOrePosition } from "../utils/Vec3Storage.sol";
+import { TotalBurnedOreCount } from "../codegen/tables/TotalBurnedOreCount.sol";
+import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
 
-import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { TerrainLib } from "./libraries/TerrainLib.sol";
+import { MinedOrePosition, OreCommitment, Position, ReversePosition } from "../utils/Vec3Storage.sol";
+
+import { CHUNK_COMMIT_EXPIRY_BLOCKS, CHUNK_COMMIT_HALF_WIDTH, RESPAWN_ORE_BLOCK_RANGE } from "../Constants.sol";
+import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
-import { CHUNK_COMMIT_EXPIRY_BLOCKS, CHUNK_COMMIT_HALF_WIDTH, RESPAWN_ORE_BLOCK_RANGE } from "../Constants.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
+import { TerrainLib } from "./libraries/TerrainLib.sol";
 
 contract OreSystem is System {
   function oreChunkCommit(EntityId callerEntityId, Vec3 chunkCoord) public {

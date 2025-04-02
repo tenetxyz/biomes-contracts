@@ -3,33 +3,37 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
+import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
+
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { Machine } from "../codegen/tables/Machine.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../codegen/tables/Player.sol";
 import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
-import { Machine } from "../codegen/tables/Machine.sol";
-import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
 
-import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { PLAYER_ENERGY_DRAIN_RATE, MAX_RESPAWN_HALF_WIDTH } from "../Constants.sol";
+import { MAX_RESPAWN_HALF_WIDTH, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
-import { notify, SleepNotifData, WakeupNotifData } from "../utils/NotifUtils.sol";
-import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { TerrainLib } from "./libraries/TerrainLib.sol";
-import { updateMachineEnergy, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
-import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
-import { MoveLib } from "./libraries/MoveLib.sol";
-import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 
-import { Vec3 } from "../Vec3.sol";
+import { updateMachineEnergy, updateSleepingPlayerEnergy } from "../utils/EnergyUtils.sol";
+
+import { getOrCreateEntityAt } from "../utils/EntityUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { SleepNotifData, WakeupNotifData, notify } from "../utils/NotifUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
+
+import { MoveLib } from "./libraries/MoveLib.sol";
+import { TerrainLib } from "./libraries/TerrainLib.sol";
+
 import { EntityId } from "../EntityId.sol";
 import { ProgramId } from "../ProgramId.sol";
-import { IWakeupHook, ISleepHook } from "../ProgramInterfaces.sol";
+import { ISleepHook, IWakeupHook } from "../ProgramInterfaces.sol";
+import { Vec3 } from "../Vec3.sol";
 
 // To avoid reaching bytecode size limit
 library BedLib {
@@ -64,13 +68,9 @@ contract BedSystem is System {
     (EntityId dropEntityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(dropCoord);
     require(ObjectTypeMetadata.getCanPassThrough(objectTypeId), "Cannot drop items on a non-passable block");
 
-    (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
-    EnergyData memory playerData = BedLib.updateSleepingPlayer(
-      forceFieldEntityId,
-      playerEntityId,
-      bedEntityId,
-      bedCoord
-    );
+    (EntityId forceFieldEntityId,) = getForceField(bedCoord);
+    EnergyData memory playerData =
+      BedLib.updateSleepingPlayer(forceFieldEntityId, playerEntityId, bedEntityId, bedCoord);
 
     require(playerData.energy == 0, "Player is not dead");
 
@@ -90,7 +90,7 @@ contract BedSystem is System {
     bedEntityId = bedEntityId.baseEntityId();
     require(!BedPlayer._getPlayerEntityId(bedEntityId).exists(), "Bed full");
 
-    (EntityId forceFieldEntityId, ) = getForceField(Position._get(bedEntityId));
+    (EntityId forceFieldEntityId,) = getForceField(Position._get(bedEntityId));
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
     (EnergyData memory machineData, uint128 depletedTime) = updateMachineEnergy(forceFieldEntityId);
 
@@ -124,13 +124,9 @@ contract BedSystem is System {
 
     require(!MoveLib._gravityApplies(spawnCoord), "Cannot spawn player here as gravity applies");
 
-    (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
-    EnergyData memory playerData = BedLib.updateSleepingPlayer(
-      forceFieldEntityId,
-      callerEntityId,
-      bedEntityId,
-      bedCoord
-    );
+    (EntityId forceFieldEntityId,) = getForceField(bedCoord);
+    EnergyData memory playerData =
+      BedLib.updateSleepingPlayer(forceFieldEntityId, callerEntityId, bedEntityId, bedCoord);
 
     require(playerData.energy > 0, "Player died while sleeping");
 

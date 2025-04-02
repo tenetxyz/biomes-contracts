@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
-import { SSTORE2 } from "../../utils/SSTORE2.sol";
 import { CHUNK_SIZE } from "../../Constants.sol";
-import { Vec3, vec3 } from "../../Vec3.sol";
+
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
+import { Vec3, vec3 } from "../../Vec3.sol";
+import { SSTORE2 } from "../../utils/SSTORE2.sol";
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
 uint256 constant VERSION_PADDING = 1;
 uint256 constant BIOME_PADDING = 1;
@@ -14,6 +15,7 @@ uint256 constant SURFACE_PADDING = 1;
 
 library TerrainLib {
   using SSTORE2 for address;
+
   bytes1 constant _VERSION = 0x00;
   bytes32 constant _VEGETATION_KEY = keccak256(abi.encode("region.vegetation"));
 
@@ -106,11 +108,8 @@ library TerrainLib {
   /// @dev Get the index of a voxel coordinate within the encoded chunk
   function _getBlockIndex(Vec3 coord) internal pure returns (uint256) {
     Vec3 relativeCoord = _getRelativeCoord(coord);
-    return
-      VERSION_PADDING +
-      BIOME_PADDING +
-      SURFACE_PADDING +
-      uint256(
+    return VERSION_PADDING + BIOME_PADDING + SURFACE_PADDING
+      + uint256(
         int256(relativeCoord.x()) * CHUNK_SIZE ** 2 + int256(relativeCoord.y()) * CHUNK_SIZE + int256(relativeCoord.z())
       );
   }

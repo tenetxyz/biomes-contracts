@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { Direction } from "./codegen/common.sol";
 import { MinedOreCount } from "./codegen/tables/MinedOreCount.sol";
 import { TotalBurnedOreCount } from "./codegen/tables/TotalBurnedOreCount.sol";
-import { Direction } from "./codegen/common.sol";
-import { ITransferSystem } from "./codegen/world/ITransferSystem.sol";
+
 import { IMachineSystem } from "./codegen/world/IMachineSystem.sol";
+import { ITransferSystem } from "./codegen/world/ITransferSystem.sol";
 
 import { ObjectTypeId } from "./ObjectTypeId.sol";
-import { ObjectTypes, Block, Tool, Item, Misc, CATEGORY_MASK } from "./ObjectTypes.sol";
+import { Block, CATEGORY_MASK, Item, Misc, ObjectTypes, Tool } from "./ObjectTypes.sol";
 import { Vec3, vec3 } from "./Vec3.sol";
 
 struct ObjectAmount {
@@ -55,11 +56,11 @@ library ObjectTypeLib {
   }
 
   /// @dev Get relative schema coords, including base coord
-  function getRelativeCoords(
-    ObjectTypeId self,
-    Vec3 baseCoord,
-    Direction direction
-  ) internal pure returns (Vec3[] memory) {
+  function getRelativeCoords(ObjectTypeId self, Vec3 baseCoord, Direction direction)
+    internal
+    pure
+    returns (Vec3[] memory)
+  {
     Vec3[] memory schemaCoords = getObjectTypeSchema(self);
     Vec3[] memory coords = new Vec3[](schemaCoords.length + 1);
 
@@ -105,10 +106,8 @@ library ObjectTypeLib {
   }
 
   function isWhacker(ObjectTypeId objectTypeId) internal pure returns (bool) {
-    return
-      objectTypeId == ObjectTypes.WoodenWhacker ||
-      objectTypeId == ObjectTypes.StoneWhacker ||
-      objectTypeId == ObjectTypes.SilverWhacker;
+    return objectTypeId == ObjectTypes.WoodenWhacker || objectTypeId == ObjectTypes.StoneWhacker
+      || objectTypeId == ObjectTypes.SilverWhacker;
   }
 
   function isHoe(ObjectTypeId objectTypeId) internal pure returns (bool) {
@@ -158,29 +157,27 @@ library ObjectTypeLib {
 
   function getTreeData(ObjectTypeId seedTypeId) internal pure returns (TreeData memory) {
     if (seedTypeId == ObjectTypes.OakSeed) {
-      return
-        TreeData({
-          logType: ObjectTypes.OakLog,
-          leafType: ObjectTypes.OakLeaf,
-          trunkHeight: 5,
-          canopyStart: 3,
-          canopyEnd: 7,
-          canopyWidth: 2,
-          stretchFactor: 2,
-          centerOffset: -2
-        });
+      return TreeData({
+        logType: ObjectTypes.OakLog,
+        leafType: ObjectTypes.OakLeaf,
+        trunkHeight: 5,
+        canopyStart: 3,
+        canopyEnd: 7,
+        canopyWidth: 2,
+        stretchFactor: 2,
+        centerOffset: -2
+      });
     } else if (seedTypeId == ObjectTypes.SpruceSeed) {
-      return
-        TreeData({
-          logType: ObjectTypes.SpruceLog,
-          leafType: ObjectTypes.SpruceLeaf,
-          trunkHeight: 7,
-          canopyStart: 2,
-          canopyEnd: 10,
-          canopyWidth: 2,
-          stretchFactor: 3,
-          centerOffset: -5
-        });
+      return TreeData({
+        logType: ObjectTypes.SpruceLog,
+        leafType: ObjectTypes.SpruceLeaf,
+        trunkHeight: 7,
+        canopyStart: 2,
+        canopyEnd: 10,
+        canopyWidth: 2,
+        stretchFactor: 3,
+        centerOffset: -5
+      });
     }
 
     revert("Invalid tree seed type");
@@ -302,11 +299,8 @@ library ObjectTypeLib {
     }
 
     if (self == ObjectTypes.SmartChest) {
-      return
-        sig == ITransferSystem.transfer.selector ||
-        sig == ITransferSystem.transferTool.selector ||
-        sig == ITransferSystem.transferTools.selector ||
-        sig == IMachineSystem.fuelMachine.selector;
+      return sig == ITransferSystem.transfer.selector || sig == ITransferSystem.transferTool.selector
+        || sig == ITransferSystem.transferTools.selector || sig == IMachineSystem.fuelMachine.selector;
     }
 
     return false;

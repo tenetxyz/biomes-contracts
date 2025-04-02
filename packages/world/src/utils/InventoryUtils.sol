@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
-import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
-import { InventorySlots } from "../codegen/tables/InventorySlots.sol";
-import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
-import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
+import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
+import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
+import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
+import { InventorySlots } from "../codegen/tables/InventorySlots.sol";
+
 import { Mass } from "../codegen/tables/Mass.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
@@ -37,8 +38,8 @@ function addToInventory(
   bool hasFinalPartialStack = numFinalObjects % stackable != 0;
 
   uint16 numInitialSlotsUsed = InventorySlots._get(ownerEntityId);
-  uint16 numFinalSlotsUsedDelta = (numFinalFullStacks + (hasFinalPartialStack ? 1 : 0)) -
-    (numInitialFullStacks + (hasInitialPartialStack ? 1 : 0));
+  uint16 numFinalSlotsUsedDelta =
+    (numFinalFullStacks + (hasFinalPartialStack ? 1 : 0)) - (numInitialFullStacks + (hasInitialPartialStack ? 1 : 0));
   uint16 numFinalSlotsUsed = numInitialSlotsUsed + numFinalSlotsUsedDelta;
   require(numFinalSlotsUsed <= ObjectTypeMetadata._getMaxInventorySlots(ownerObjectTypeId), "Inventory is full");
   InventorySlots._set(ownerEntityId, numFinalSlotsUsed);
@@ -64,8 +65,8 @@ function removeFromInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, 
   bool hasFinalPartialStack = numFinalObjects % stackable != 0;
 
   uint16 numInitialSlotsUsed = InventorySlots._get(ownerEntityId);
-  uint16 numFinalSlotsUsedDelta = (numInitialFullStacks + (hasInitialPartialStack ? 1 : 0)) -
-    (numFinalFullStacks + (hasFinalPartialStack ? 1 : 0));
+  uint16 numFinalSlotsUsedDelta =
+    (numInitialFullStacks + (hasInitialPartialStack ? 1 : 0)) - (numFinalFullStacks + (hasFinalPartialStack ? 1 : 0));
   uint16 numFinalSlotsUsed = numInitialSlotsUsed - numFinalSlotsUsedDelta;
   if (numFinalSlotsUsed == 0) {
     InventorySlots._deleteRecord(ownerEntityId);
@@ -118,10 +119,9 @@ function removeAnyFromInventory(EntityId playerEntityId, ObjectTypeId objectType
   require(remaining == 0, "Not enough objects in the inventory");
 }
 
-function useEquipped(
-  EntityId entityId,
-  uint128 useMassMax
-) returns (uint128 toolMassUsed, ObjectTypeId inventoryObjectTypeId) {
+function useEquipped(EntityId entityId, uint128 useMassMax)
+  returns (uint128 toolMassUsed, ObjectTypeId inventoryObjectTypeId)
+{
   EntityId inventoryEntityId = Equipped._get(entityId);
   if (inventoryEntityId.exists()) {
     inventoryObjectTypeId = ObjectType._get(inventoryEntityId);
@@ -191,11 +191,9 @@ function removeObjectTypeIdFromInventoryObjects(EntityId ownerEntityId, ObjectTy
   }
 }
 
-function transferAllInventoryEntities(
-  EntityId fromEntityId,
-  EntityId toEntityId,
-  ObjectTypeId toObjectTypeId
-) returns (uint256) {
+function transferAllInventoryEntities(EntityId fromEntityId, EntityId toEntityId, ObjectTypeId toObjectTypeId)
+  returns (uint256)
+{
   uint256 numTransferred = 0;
   uint16[] memory fromObjectTypeIds = InventoryObjects._get(fromEntityId);
   for (uint256 i = 0; i < fromObjectTypeIds.length; i++) {

@@ -1,32 +1,45 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { console } from "forge-std/console.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
+import { console } from "forge-std/console.sol";
 
-import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
-import { Mass } from "../src/codegen/tables/Mass.sol";
+
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
-import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
+import { Mass } from "../src/codegen/tables/Mass.sol";
+
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
-import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
+import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+import { Player } from "../src/codegen/tables/Player.sol";
+
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
+import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
+import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
+import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
+import { DustTest } from "./DustTest.sol";
 
-import { MinedOrePosition, ForceFieldFragment, LocalEnergyPool, ReversePosition, MovablePosition, ReverseMovablePosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import {
+  ForceFieldFragment,
+  LocalEnergyPool,
+  MinedOrePosition,
+  MovablePosition,
+  OreCommitment,
+  Position,
+  ReverseMovablePosition,
+  ReversePosition
+} from "../src/utils/Vec3Storage.sol";
 
-import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
+import { BUILD_ENERGY_COST, CHUNK_SIZE, MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
-import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_ENTITY_INFLUENCE_HALF_WIDTH, BUILD_ENERGY_COST } from "../src/Constants.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+
 import { Vec3, vec3 } from "../src/Vec3.sol";
+import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
 contract BuildTest is DustTest {
@@ -57,9 +70,7 @@ contract BuildTest is DustTest {
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     assertEq(
-      Mass.getMass(buildEntityId),
-      ObjectTypeMetadata.getMass(buildObjectTypeId),
-      "Build entity mass is not correct"
+      Mass.getMass(buildEntityId), ObjectTypeMetadata.getMass(buildObjectTypeId), "Build entity mass is not correct"
     );
   }
 
@@ -87,9 +98,7 @@ contract BuildTest is DustTest {
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     assertEq(
-      Mass.getMass(buildEntityId),
-      ObjectTypeMetadata.getMass(buildObjectTypeId),
-      "Build entity mass is not correct"
+      Mass.getMass(buildEntityId), ObjectTypeMetadata.getMass(buildObjectTypeId), "Build entity mass is not correct"
     );
   }
 
@@ -122,9 +131,7 @@ contract BuildTest is DustTest {
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     assertEq(
-      Mass.getMass(buildEntityId),
-      ObjectTypeMetadata.getMass(buildObjectTypeId),
-      "Build entity mass is not correct"
+      Mass.getMass(buildEntityId), ObjectTypeMetadata.getMass(buildObjectTypeId), "Build entity mass is not correct"
     );
     assertEq(Mass.getMass(topEntityId), 0, "Top entity mass is not correct");
   }
@@ -153,9 +160,7 @@ contract BuildTest is DustTest {
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     assertEq(
-      Mass.getMass(buildEntityId),
-      ObjectTypeMetadata.getMass(buildObjectTypeId),
-      "Build entity mass is not correct"
+      Mass.getMass(buildEntityId), ObjectTypeMetadata.getMass(buildObjectTypeId), "Build entity mass is not correct"
     );
   }
 
@@ -175,9 +180,7 @@ contract BuildTest is DustTest {
     EntityId buildEntityId = ReversePosition.get(bobCoord);
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Build entity is not build object type");
     assertEq(
-      Mass.getMass(buildEntityId),
-      ObjectTypeMetadata.getMass(buildObjectTypeId),
-      "Build entity mass is not correct"
+      Mass.getMass(buildEntityId), ObjectTypeMetadata.getMass(buildObjectTypeId), "Build entity mass is not correct"
     );
 
     Vec3 aboveBobCoord = bobCoord + vec3(0, 1, 0);
@@ -186,9 +189,7 @@ contract BuildTest is DustTest {
     buildEntityId = ReversePosition.get(aboveBobCoord);
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertEq(
-      Mass.getMass(buildEntityId),
-      ObjectTypeMetadata.getMass(buildObjectTypeId),
-      "Top entity mass is not correct"
+      Mass.getMass(buildEntityId), ObjectTypeMetadata.getMass(buildObjectTypeId), "Top entity mass is not correct"
     );
 
     vm.prank(alice);
@@ -196,9 +197,7 @@ contract BuildTest is DustTest {
     buildEntityId = ReversePosition.get(aliceCoord);
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertEq(
-      Mass.getMass(buildEntityId),
-      ObjectTypeMetadata.getMass(buildObjectTypeId),
-      "Top entity mass is not correct"
+      Mass.getMass(buildEntityId), ObjectTypeMetadata.getMass(buildObjectTypeId), "Top entity mass is not correct"
     );
 
     Vec3 aboveAliceCoord = aliceCoord + vec3(0, 1, 0);
@@ -207,9 +206,7 @@ contract BuildTest is DustTest {
     buildEntityId = ReversePosition.get(aboveAliceCoord);
     assertEq(ObjectType.get(buildEntityId), buildObjectTypeId, "Top entity is not build object type");
     assertEq(
-      Mass.getMass(buildEntityId),
-      ObjectTypeMetadata.getMass(buildObjectTypeId),
-      "Top entity mass is not correct"
+      Mass.getMass(buildEntityId), ObjectTypeMetadata.getMass(buildObjectTypeId), "Top entity mass is not correct"
     );
   }
 
@@ -288,7 +285,7 @@ contract BuildTest is DustTest {
   function testBuildFailsIfPlayer() public {
     (address alice, EntityId aliceEntityId, Vec3 aliceCoord) = setupAirChunkWithPlayer();
 
-    (, , Vec3 bobCoord) = spawnPlayerOnAirChunk(aliceCoord + vec3(0, 0, 1));
+    (,, Vec3 bobCoord) = spawnPlayerOnAirChunk(aliceCoord + vec3(0, 0, 1));
 
     ObjectTypeId buildObjectTypeId = ObjectTypes.Grass;
     TestInventoryUtils.addToInventory(aliceEntityId, buildObjectTypeId, 1);
@@ -391,8 +388,7 @@ contract BuildTest is DustTest {
     // Set player energy to exactly enough for one build operation
     uint128 exactEnergy = BUILD_ENERGY_COST;
     Energy.set(
-      aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: exactEnergy, drainRate: 0 })
+      aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: exactEnergy, drainRate: 0 })
     );
 
     vm.prank(alice);

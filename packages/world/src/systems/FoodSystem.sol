@@ -7,14 +7,15 @@ import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 
 import { addEnergyToLocalPool } from "../utils/EnergyUtils.sol";
-import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { removeFromInventory } from "../utils/InventoryUtils.sol";
 
+import { removeFromInventory } from "../utils/InventoryUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
+
+import { MAX_PLAYER_ENERGY } from "../Constants.sol";
+import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
-import { MAX_PLAYER_ENERGY } from "../Constants.sol";
 
 contract FoodSystem is System {
   using ObjectTypeLib for ObjectTypeId;

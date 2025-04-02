@@ -4,41 +4,66 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { LibPRNG } from "solady/utils/LibPRNG.sol";
 
-import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
-import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
-import { Orientation } from "../codegen/tables/Orientation.sol";
+
+import { DisplayURI } from "../codegen/tables/DisplayURI.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
+import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { Orientation } from "../codegen/tables/Orientation.sol";
 import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
-import { DisplayURI } from "../codegen/tables/DisplayURI.sol";
+import { TotalMinedOreCount } from "../codegen/tables/TotalMinedOreCount.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
 import { MinedOrePosition } from "../utils/Vec3Storage.sol";
 import { OreCommitment } from "../utils/Vec3Storage.sol";
 
 import { getUniqueEntity } from "../Utils.sol";
+
+import {
+  addEnergyToLocalPool,
+  decreasePlayerEnergy,
+  transferEnergyToPool,
+  updateMachineEnergy,
+  updatePlayerEnergy,
+  updateSleepingPlayerEnergy
+} from "../utils/EnergyUtils.sol";
+
+import {
+  createEntityAt,
+  getEntityAt,
+  getMovableEntityAt,
+  getObjectTypeIdAt,
+  getOrCreateEntityAt
+} from "../utils/EntityUtils.sol";
+import { destroyForceField, getForceField } from "../utils/ForceFieldUtils.sol";
 import { addToInventory, useEquipped } from "../utils/InventoryUtils.sol";
+import { DeathNotifData, MineNotifData, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { transferEnergyToPool, updateMachineEnergy, updatePlayerEnergy, addEnergyToLocalPool, updateSleepingPlayerEnergy, decreasePlayerEnergy } from "../utils/EnergyUtils.sol";
-import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
-import { notify, MineNotifData, DeathNotifData } from "../utils/NotifUtils.sol";
-import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, getMovableEntityAt } from "../utils/EntityUtils.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
 
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
-import { ObjectTypeLib, ObjectAmount } from "../ObjectTypeLib.sol";
-import { EntityId } from "../EntityId.sol";
-import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM, SAFE_PROGRAM_GAS } from "../Constants.sol";
+import {
+  CHUNK_COMMIT_EXPIRY_BLOCKS,
+  MAX_COAL,
+  MAX_DIAMOND,
+  MAX_GOLD,
+  MAX_NEPTUNIUM,
+  MAX_SILVER,
+  SAFE_PROGRAM_GAS
+} from "../Constants.sol";
 import { MINE_ENERGY_COST } from "../Constants.sol";
-import { Vec3, vec3 } from "../Vec3.sol";
+import { EntityId } from "../EntityId.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectAmount, ObjectTypeLib } from "../ObjectTypeLib.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+
 import { ProgramId } from "../ProgramId.sol";
-import { IMineHook, IDetachProgramHook } from "../ProgramInterfaces.sol";
+import { IDetachProgramHook, IMineHook } from "../ProgramInterfaces.sol";
+import { Vec3, vec3 } from "../Vec3.sol";
 
 contract MineSystem is System {
   using ObjectTypeLib for ObjectTypeId;
@@ -68,7 +93,7 @@ contract MineSystem is System {
   }
 
   function getRandomOreType(Vec3 coord) external view returns (ObjectTypeId) {
-    (ObjectTypeId ore, ) = RandomOreLib._getRandomOreType(coord);
+    (ObjectTypeId ore,) = RandomOreLib._getRandomOreType(coord);
     return ore;
   }
 
@@ -83,7 +108,7 @@ contract MineSystem is System {
     Vec3 baseCoord = Position._get(baseEntityId);
 
     if (mineObjectTypeId.isMachine()) {
-      (EnergyData memory machineData, ) = updateMachineEnergy(baseEntityId);
+      (EnergyData memory machineData,) = updateMachineEnergy(baseEntityId);
       require(machineData.energy == 0, "Cannot mine a machine that has energy");
     } else if (mineObjectTypeId.isSeed()) {
       _requireSeedNotFullyGrown(baseEntityId);
@@ -134,7 +159,7 @@ contract MineSystem is System {
         // Only iterate through relative schema coords
         for (uint256 i = 1; i < coords.length; i++) {
           Vec3 relativeCoord = coords[i];
-          (EntityId relativeEntityId, ) = getEntityAt(relativeCoord);
+          (EntityId relativeEntityId,) = getEntityAt(relativeCoord);
           BaseEntity._deleteRecord(relativeEntityId);
 
           _removeBlock(relativeEntityId, relativeCoord);
@@ -150,10 +175,8 @@ contract MineSystem is System {
       // Detach program if it exists
       ProgramId program = baseEntityId.getProgram();
       if (program.exists()) {
-        bytes memory onDetachProgram = abi.encodeCall(
-          IDetachProgramHook.onDetachProgram,
-          (callerEntityId, baseEntityId, extraData)
-        );
+        bytes memory onDetachProgram =
+          abi.encodeCall(IDetachProgramHook.onDetachProgram, (callerEntityId, baseEntityId, extraData));
         program.call({ gas: SAFE_PROGRAM_GAS, hook: onDetachProgram });
       }
 
@@ -184,7 +207,7 @@ library MineLib {
   function _mineBed(EntityId bedEntityId, Vec3 bedCoord) public {
     EntityId sleepingPlayerId = BedPlayer._getPlayerEntityId(bedEntityId);
     if (sleepingPlayerId.exists()) {
-      (EntityId forceFieldEntityId, ) = getForceField(bedCoord);
+      (EntityId forceFieldEntityId,) = getForceField(bedCoord);
       (, uint128 depletedTime) = updateMachineEnergy(forceFieldEntityId);
       EnergyData memory playerData = updateSleepingPlayerEnergy(sleepingPlayerId, bedEntityId, depletedTime, bedCoord);
       PlayerUtils.removePlayerFromBed(sleepingPlayerId, bedEntityId, forceFieldEntityId);
@@ -208,7 +231,7 @@ library MineLib {
     if (!forceFieldEntityId.exists()) {
       return;
     }
-    (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
+    (EnergyData memory machineData,) = updateMachineEnergy(forceFieldEntityId);
     if (machineData.energy == 0) {
       return;
     }
@@ -222,10 +245,8 @@ library MineLib {
       }
     }
 
-    bytes memory onMine = abi.encodeCall(
-      IMineHook.onMine,
-      (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
-    );
+    bytes memory onMine =
+      abi.encodeCall(IMineHook.onMine, (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData));
 
     program.callOrRevert(onMine);
   }
@@ -238,7 +259,7 @@ library MassReductionLib {
       return massLeft;
     }
 
-    (uint128 toolMassReduction, ) = useEquipped(callerEntityId, massLeft);
+    (uint128 toolMassReduction,) = useEquipped(callerEntityId, massLeft);
 
     // if tool mass reduction is not enough, consume energy from player up to mine energy cost
     if (toolMassReduction < massLeft) {

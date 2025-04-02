@@ -1,27 +1,28 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { console } from "forge-std/console.sol";
-import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
+import { console } from "forge-std/console.sol";
 
 import { EntityId } from "../src/EntityId.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { Mass } from "../src/codegen/tables/Mass.sol";
+
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
+import { Mass } from "../src/codegen/tables/Mass.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { ReversePosition, MovablePosition } from "../src/utils/Vec3Storage.sol";
+import { MovablePosition, ReversePosition } from "../src/utils/Vec3Storage.sol";
 
-import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
-import { ObjectTypeId } from "../src/ObjectTypeId.sol";
-import { ObjectTypes } from "../src/ObjectTypes.sol";
-import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { Vec3, vec3 } from "../src/Vec3.sol";
 import { MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
+import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 
 import { DustTest } from "./DustTest.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";

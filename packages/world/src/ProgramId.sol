@@ -6,9 +6,9 @@ import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
 
+import { EntityId } from "./EntityId.sol";
 import { ObjectTypeId } from "./ObjectTypeId.sol";
 import { ObjectAmount } from "./ObjectTypeLib.sol";
-import { EntityId } from "./EntityId.sol";
 import { Vec3 } from "./Vec3.sol";
 
 type ProgramId is bytes32;
@@ -30,7 +30,7 @@ library ProgramIdLib {
     if (!self.exists()) {
       return address(0);
     }
-    (address programAddress, ) = Systems._get(self.toResourceId());
+    (address programAddress,) = Systems._get(self.toResourceId());
     return programAddress;
   }
 

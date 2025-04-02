@@ -3,19 +3,25 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
+import { ActionType } from "../codegen/common.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { ActionType } from "../codegen/common.sol";
 
-import { ReversePosition } from "../utils/Vec3Storage.sol";
-import { transferInventoryNonEntity, transferInventoryEntity, transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import {
+  transferAllInventoryEntities,
+  transferInventoryEntity,
+  transferInventoryNonEntity
+} from "../utils/InventoryUtils.sol";
+
+import { PickupNotifData, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { notify, PickupNotifData } from "../utils/NotifUtils.sol";
+import { ReversePosition } from "../utils/Vec3Storage.sol";
 
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
-import { ObjectAmount } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectAmount } from "../ObjectTypeLib.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+
 import { Vec3 } from "../Vec3.sol";
 
 contract PickupSystem is System {
@@ -57,8 +63,7 @@ contract PickupSystem is System {
     ObjectTypeId toolObjectTypeId = transferInventoryEntity(entityId, callerEntityId, ObjectTypes.Player, toolEntityId);
 
     notify(
-      callerEntityId,
-      PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
+      callerEntityId, PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
     );
   }
 
@@ -73,11 +78,7 @@ contract PickupSystem is System {
     for (uint256 i = 0; i < pickupObjects.length; i++) {
       ObjectAmount memory pickupObject = pickupObjects[i];
       transferInventoryNonEntity(
-        entityId,
-        callerEntityId,
-        ObjectTypes.Player,
-        pickupObject.objectTypeId,
-        pickupObject.amount
+        entityId, callerEntityId, ObjectTypes.Player, pickupObject.objectTypeId, pickupObject.amount
       );
 
       notify(
@@ -91,16 +92,11 @@ contract PickupSystem is System {
     }
 
     for (uint256 i = 0; i < pickupTools.length; i++) {
-      ObjectTypeId toolObjectTypeId = transferInventoryEntity(
-        entityId,
-        callerEntityId,
-        ObjectTypes.Player,
-        pickupTools[i]
-      );
+      ObjectTypeId toolObjectTypeId =
+        transferInventoryEntity(entityId, callerEntityId, ObjectTypes.Player, pickupTools[i]);
 
       notify(
-        callerEntityId,
-        PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
+        callerEntityId, PickupNotifData({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
       );
     }
   }

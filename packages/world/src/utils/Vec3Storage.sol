@@ -1,24 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { EncodedLengths } from "@latticexyz/store/src/EncodedLengths.sol";
+import { FieldLayout } from "@latticexyz/store/src/FieldLayout.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { StoreCore } from "@latticexyz/store/src/StoreCore.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
-import { FieldLayout } from "@latticexyz/store/src/FieldLayout.sol";
-import { EncodedLengths } from "@latticexyz/store/src/EncodedLengths.sol";
 
-import { Position as _Position } from "../codegen/tables/Position.sol";
-import { ReversePosition as _ReversePosition } from "../codegen/tables/ReversePosition.sol";
-import { MovablePosition as _MovablePosition } from "../codegen/tables/MovablePosition.sol";
-import { ReverseMovablePosition as _ReverseMovablePosition } from "../codegen/tables/ReverseMovablePosition.sol";
+import { ExploredChunk as _ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
+
+import {
+  ForceFieldFragment as _ForceFieldFragment, ForceFieldFragmentData
+} from "../codegen/tables/ForceFieldFragment.sol";
+import { ForceFieldFragmentPosition as _ForceFieldFragmentPosition } from
+  "../codegen/tables/ForceFieldFragmentPosition.sol";
 import { InitialEnergyPool as _InitialEnergyPool } from "../codegen/tables/InitialEnergyPool.sol";
 import { LocalEnergyPool as _LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
-import { ExploredChunk as _ExploredChunk } from "../codegen/tables/ExploredChunk.sol";
-import { SurfaceChunkByIndex as _SurfaceChunkByIndex } from "../codegen/tables/SurfaceChunkByIndex.sol";
-import { ForceFieldFragment as _ForceFieldFragment, ForceFieldFragmentData } from "../codegen/tables/ForceFieldFragment.sol";
-import { ForceFieldFragmentPosition as _ForceFieldFragmentPosition } from "../codegen/tables/ForceFieldFragmentPosition.sol";
-import { OreCommitment as _OreCommitment } from "../codegen/tables/OreCommitment.sol";
+
 import { MinedOrePosition as _MinedOrePosition } from "../codegen/tables/MinedOrePosition.sol";
+import { MovablePosition as _MovablePosition } from "../codegen/tables/MovablePosition.sol";
+import { OreCommitment as _OreCommitment } from "../codegen/tables/OreCommitment.sol";
+import { Position as _Position } from "../codegen/tables/Position.sol";
+import { ReverseMovablePosition as _ReverseMovablePosition } from "../codegen/tables/ReverseMovablePosition.sol";
+import { ReversePosition as _ReversePosition } from "../codegen/tables/ReversePosition.sol";
+
+import { SurfaceChunkByIndex as _SurfaceChunkByIndex } from "../codegen/tables/SurfaceChunkByIndex.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
@@ -26,7 +32,7 @@ import { Vec3 } from "../Vec3.sol";
 /// @dev Library to get and set Vec3s in tables. It only support schemas of <single key> -> Vec3 and Vec3 -> <single value>
 library Vec3Storage {
   function get(ResourceId tableId, FieldLayout fieldLayout, bytes32 key) internal view returns (Vec3 output) {
-    (bytes memory _staticData, , ) = StoreSwitch.getRecord(tableId, _encodeKeyTuple(key), fieldLayout);
+    (bytes memory _staticData,,) = StoreSwitch.getRecord(tableId, _encodeKeyTuple(key), fieldLayout);
 
     assembly {
       output := mload(add(_staticData, 0xc))
@@ -34,27 +40,27 @@ library Vec3Storage {
   }
 
   function _get(ResourceId tableId, FieldLayout fieldLayout, bytes32 key) internal view returns (Vec3 output) {
-    (bytes memory _staticData, , ) = StoreCore.getRecord(tableId, _encodeKeyTuple(key), fieldLayout);
+    (bytes memory _staticData,,) = StoreCore.getRecord(tableId, _encodeKeyTuple(key), fieldLayout);
 
     assembly {
       output := mload(add(_staticData, 0xc))
     }
   }
 
-  function getAsBytes(
-    ResourceId tableId,
-    FieldLayout fieldLayout,
-    Vec3 position
-  ) internal view returns (bytes memory output) {
-    (output, , ) = StoreSwitch.getRecord(tableId, _encodeKeyTuple(position), fieldLayout);
+  function getAsBytes(ResourceId tableId, FieldLayout fieldLayout, Vec3 position)
+    internal
+    view
+    returns (bytes memory output)
+  {
+    (output,,) = StoreSwitch.getRecord(tableId, _encodeKeyTuple(position), fieldLayout);
   }
 
-  function _getAsBytes(
-    ResourceId tableId,
-    FieldLayout fieldLayout,
-    Vec3 position
-  ) internal view returns (bytes memory output) {
-    (output, , ) = StoreCore.getRecord(tableId, _encodeKeyTuple(position), fieldLayout);
+  function _getAsBytes(ResourceId tableId, FieldLayout fieldLayout, Vec3 position)
+    internal
+    view
+    returns (bytes memory output)
+  {
+    (output,,) = StoreCore.getRecord(tableId, _encodeKeyTuple(position), fieldLayout);
   }
 
   function get(ResourceId tableId, FieldLayout fieldLayout, Vec3 vec) internal view returns (bytes32) {
@@ -65,21 +71,19 @@ library Vec3Storage {
     return StoreCore.getStaticField(tableId, _encodeKeyTuple(vec), 0, fieldLayout);
   }
 
-  function getStatic(
-    ResourceId tableId,
-    FieldLayout fieldLayout,
-    uint8 fieldIndex,
-    Vec3 vec
-  ) internal view returns (bytes32) {
+  function getStatic(ResourceId tableId, FieldLayout fieldLayout, uint8 fieldIndex, Vec3 vec)
+    internal
+    view
+    returns (bytes32)
+  {
     return StoreSwitch.getStaticField(tableId, _encodeKeyTuple(vec), fieldIndex, fieldLayout);
   }
 
-  function _getStatic(
-    ResourceId tableId,
-    FieldLayout fieldLayout,
-    uint8 fieldIndex,
-    Vec3 vec
-  ) internal view returns (bytes32) {
+  function _getStatic(ResourceId tableId, FieldLayout fieldLayout, uint8 fieldIndex, Vec3 vec)
+    internal
+    view
+    returns (bytes32)
+  {
     return StoreCore.getStaticField(tableId, _encodeKeyTuple(vec), fieldIndex, fieldLayout);
   }
 
@@ -223,19 +227,13 @@ library ReverseMovablePosition {
 
   function set(Vec3 position, EntityId entityId) internal {
     Vec3Storage.set(
-      _ReverseMovablePosition._tableId,
-      _ReverseMovablePosition._fieldLayout,
-      position,
-      abi.encodePacked(entityId)
+      _ReverseMovablePosition._tableId, _ReverseMovablePosition._fieldLayout, position, abi.encodePacked(entityId)
     );
   }
 
   function _set(Vec3 position, EntityId entityId) internal {
     Vec3Storage._set(
-      _ReverseMovablePosition._tableId,
-      _ReverseMovablePosition._fieldLayout,
-      position,
-      abi.encodePacked(entityId)
+      _ReverseMovablePosition._tableId, _ReverseMovablePosition._fieldLayout, position, abi.encodePacked(entityId)
     );
   }
 
@@ -354,20 +352,14 @@ library SurfaceChunkByIndex {
 
 library ForceFieldFragment {
   function get(Vec3 position) internal view returns (ForceFieldFragmentData memory value) {
-    bytes memory staticData = Vec3Storage.getAsBytes(
-      _ForceFieldFragment._tableId,
-      _ForceFieldFragment._fieldLayout,
-      position
-    );
+    bytes memory staticData =
+      Vec3Storage.getAsBytes(_ForceFieldFragment._tableId, _ForceFieldFragment._fieldLayout, position);
     (value.entityId, value.forceFieldId, value.forceFieldCreatedAt) = _ForceFieldFragment.decodeStatic(staticData);
   }
 
   function _get(Vec3 position) internal view returns (ForceFieldFragmentData memory value) {
-    bytes memory staticData = Vec3Storage._getAsBytes(
-      _ForceFieldFragment._tableId,
-      _ForceFieldFragment._fieldLayout,
-      position
-    );
+    bytes memory staticData =
+      Vec3Storage._getAsBytes(_ForceFieldFragment._tableId, _ForceFieldFragment._fieldLayout, position);
     (value.entityId, value.forceFieldId, value.forceFieldCreatedAt) = _ForceFieldFragment.decodeStatic(staticData);
   }
 
@@ -377,20 +369,14 @@ library ForceFieldFragment {
   }
 
   function set(Vec3 position, ForceFieldFragmentData memory value) internal {
-    bytes memory staticData = _ForceFieldFragment.encodeStatic(
-      value.entityId,
-      value.forceFieldId,
-      value.forceFieldCreatedAt
-    );
+    bytes memory staticData =
+      _ForceFieldFragment.encodeStatic(value.entityId, value.forceFieldId, value.forceFieldCreatedAt);
     Vec3Storage.set(_ForceFieldFragment._tableId, _ForceFieldFragment._fieldLayout, position, staticData);
   }
 
   function _set(Vec3 position, ForceFieldFragmentData memory value) internal {
-    bytes memory staticData = _ForceFieldFragment.encodeStatic(
-      value.entityId,
-      value.forceFieldId,
-      value.forceFieldCreatedAt
-    );
+    bytes memory staticData =
+      _ForceFieldFragment.encodeStatic(value.entityId, value.forceFieldId, value.forceFieldCreatedAt);
     Vec3Storage._set(_ForceFieldFragment._tableId, _ForceFieldFragment._fieldLayout, position, staticData);
   }
 
@@ -406,20 +392,13 @@ library ForceFieldFragment {
 library ForceFieldFragmentPosition {
   function get(EntityId entityId) internal view returns (Vec3 position) {
     return
-      Vec3Storage.get(
-        _ForceFieldFragmentPosition._tableId,
-        _ForceFieldFragmentPosition._fieldLayout,
-        entityId.unwrap()
-      );
+      Vec3Storage.get(_ForceFieldFragmentPosition._tableId, _ForceFieldFragmentPosition._fieldLayout, entityId.unwrap());
   }
 
   function _get(EntityId entityId) internal view returns (Vec3 position) {
-    return
-      Vec3Storage._get(
-        _ForceFieldFragmentPosition._tableId,
-        _ForceFieldFragmentPosition._fieldLayout,
-        entityId.unwrap()
-      );
+    return Vec3Storage._get(
+      _ForceFieldFragmentPosition._tableId, _ForceFieldFragmentPosition._fieldLayout, entityId.unwrap()
+    );
   }
 
   function set(EntityId entityId, Vec3 position) internal {

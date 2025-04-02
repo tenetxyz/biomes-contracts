@@ -3,36 +3,40 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
+import { ActionType, Direction } from "../codegen/common.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
-import { Orientation } from "../codegen/tables/Orientation.sol";
+
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { Orientation } from "../codegen/tables/Orientation.sol";
+
 import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
-import { ActionType, Direction } from "../codegen/common.sol";
 
 import { MovablePosition, ReverseMovablePosition } from "../utils/Vec3Storage.sol";
 
 import { getUniqueEntity } from "../Utils.sol";
-import { removeFromInventory } from "../utils/InventoryUtils.sol";
-import { getOrCreateEntityAt, getObjectTypeIdAt, getMovableEntityAt } from "../utils/EntityUtils.sol";
-import { removeEnergyFromLocalPool, updateMachineEnergy, transferEnergyToPool } from "../utils/EnergyUtils.sol";
+
+import { removeEnergyFromLocalPool, transferEnergyToPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
+import { getMovableEntityAt, getObjectTypeIdAt, getOrCreateEntityAt } from "../utils/EntityUtils.sol";
 import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
-import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
+import { removeFromInventory } from "../utils/InventoryUtils.sol";
+import { BuildNotifData, MoveNotifData, notify } from "../utils/NotifUtils.sol";
 
-import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
+import { TerrainLib } from "./libraries/TerrainLib.sol";
 
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
-import { ObjectTypeLib } from "../ObjectTypeLib.sol";
+import { BUILD_ENERGY_COST } from "../Constants.sol";
 import { EntityId } from "../EntityId.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+
 import { ProgramId } from "../ProgramId.sol";
 import { IBuildHook } from "../ProgramInterfaces.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
-import { BUILD_ENERGY_COST } from "../Constants.sol";
 
 using ObjectTypeLib for ObjectTypeId;
 
@@ -40,10 +44,7 @@ library BuildLib {
   function _addBlock(ObjectTypeId buildObjectTypeId, Vec3 coord) internal returns (EntityId) {
     (EntityId terrainEntityId, ObjectTypeId terrainObjectTypeId) = getOrCreateEntityAt(coord);
     require(terrainObjectTypeId == ObjectTypes.Air, "Cannot build on a non-air block");
-    require(
-      InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0,
-      "Cannot build where there are dropped objects"
-    );
+    require(InventoryObjects._lengthObjectTypeIds(terrainEntityId) == 0, "Cannot build where there are dropped objects");
     if (!ObjectTypeMetadata._getCanPassThrough(buildObjectTypeId)) {
       require(!getMovableEntityAt(coord).exists(), "Cannot build on a movable entity");
     }
@@ -53,11 +54,10 @@ library BuildLib {
     return terrainEntityId;
   }
 
-  function _addBlocks(
-    Vec3 baseCoord,
-    ObjectTypeId buildObjectTypeId,
-    Direction direction
-  ) public returns (EntityId, Vec3[] memory) {
+  function _addBlocks(Vec3 baseCoord, ObjectTypeId buildObjectTypeId, Direction direction)
+    public
+    returns (EntityId, Vec3[] memory)
+  {
     Vec3[] memory coords = buildObjectTypeId.getRelativeCoords(baseCoord, direction);
     EntityId baseEntityId = _addBlock(buildObjectTypeId, baseCoord);
     Orientation._set(baseEntityId, direction);
@@ -103,7 +103,7 @@ library BuildLib {
       }
 
       if (forceFieldEntityId.exists()) {
-        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
+        (EnergyData memory machineData,) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
           // We know fragment is active because its forcefield exists, so we can use its program
           ProgramId program = fragmentEntityId.getProgram();
@@ -111,10 +111,8 @@ library BuildLib {
             program = forceFieldEntityId.getProgram();
           }
 
-          bytes memory onBuild = abi.encodeCall(
-            IBuildHook.onBuild,
-            (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
-          );
+          bytes memory onBuild =
+            abi.encodeCall(IBuildHook.onBuild, (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData));
 
           program.callOrRevert(onBuild);
         }
@@ -156,12 +154,11 @@ contract BuildSystem is System {
     return baseEntityId;
   }
 
-  function build(
-    EntityId callerEntityId,
-    ObjectTypeId buildObjectTypeId,
-    Vec3 baseCoord,
-    bytes calldata extraData
-  ) public payable returns (EntityId) {
+  function build(EntityId callerEntityId, ObjectTypeId buildObjectTypeId, Vec3 baseCoord, bytes calldata extraData)
+    public
+    payable
+    returns (EntityId)
+  {
     return buildWithDirection(callerEntityId, buildObjectTypeId, baseCoord, Direction.PositiveZ, extraData);
   }
 

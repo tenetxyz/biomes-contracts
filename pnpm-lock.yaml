@@ -93,12 +93,6 @@ importers:
       forge-std:
         specifier: https://github.com/foundry-rs/forge-std.git#3b20d60d14b343ee4f908cb8079495c07f5e8981
         version: https://codeload.github.com/foundry-rs/forge-std/tar.gz/3b20d60d14b343ee4f908cb8079495c07f5e8981
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
-      prettier-plugin-solidity:
-        specifier: 1.1.3
-        version: 1.1.3(prettier@3.2.5)
       solhint:
         specifier: ^3.4.1
         version: 3.6.2(typescript@5.8.2)
@@ -5653,12 +5647,6 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  prettier-plugin-solidity@1.1.3:
-    resolution: {integrity: sha512-fQ9yucPi2sBbA2U2Xjh6m4isUTJ7S7QLc/XDDsktqqxYfTwdYKJ0EnnywXHwCGAaYbQNK+HIYPL1OemxuMsgeg==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      prettier: '>=2.3.0 || >=3.0.0-alpha.0'
-
   prettier-plugin-solidity@1.3.1:
     resolution: {integrity: sha512-MN4OP5I2gHAzHZG1wcuJl0FsLS3c4Cc5494bbg+6oQWBPuEamjwDvmGfFMZ6NFzsh3Efd9UUxeT7ImgjNH4ozA==}
     engines: {node: '>=16'}
@@ -6169,9 +6157,6 @@ packages:
   solhint@3.6.2:
     resolution: {integrity: sha512-85EeLbmkcPwD+3JR7aEMKsVC9YrRSxd4qkXuMzrlf7+z2Eqdfm1wHWq1ffTuo5aDhoZxp2I9yF3QkxZOxOL7aQ==}
     hasBin: true
-
-  solidity-comments-extractor@0.0.7:
-    resolution: {integrity: sha512-wciNMLg/Irp8OKGrh3S2tfvZiZ0NEyILfcRCXCD4mp7SgK/i9gzLfhY2hY7VMCQJ3kH9UB9BzNdibIVMchzyYw==}
 
   solidity-comments-extractor@0.0.8:
     resolution: {integrity: sha512-htM7Vn6LhHreR+EglVMd2s+sZhcXAirB1Zlyrv5zBuTxieCvjfnRpd7iZk75m/u6NOlEyQ94C6TWbBn2cY7w8g==}
@@ -13830,13 +13815,6 @@ snapshots:
       tar-fs: 2.1.2
       tunnel-agent: 0.6.0
 
-  prettier-plugin-solidity@1.1.3(prettier@3.2.5):
-    dependencies:
-      '@solidity-parser/parser': 0.16.2
-      prettier: 3.2.5
-      semver: 7.6.0
-      solidity-comments-extractor: 0.0.7
-
   prettier-plugin-solidity@1.3.1(prettier@3.2.5):
     dependencies:
       '@solidity-parser/parser': 0.17.0
@@ -14461,8 +14439,6 @@ snapshots:
       prettier: 2.8.8
     transitivePeerDependencies:
       - typescript
-
-  solidity-comments-extractor@0.0.7: {}
 
   solidity-comments-extractor@0.0.8: {}
 

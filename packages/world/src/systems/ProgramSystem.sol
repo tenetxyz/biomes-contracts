@@ -1,29 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
-import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
-import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
 import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
+import { System } from "@latticexyz/world/src/System.sol";
+import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 
-import { EntityProgram } from "../codegen/tables/EntityProgram.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { ActionType } from "../codegen/common.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { EnergyData } from "../codegen/tables/Energy.sol";
-import { ActionType } from "../codegen/common.sol";
+import { EntityProgram } from "../codegen/tables/EntityProgram.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
-import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField, isForceFieldFragmentActive } from "../utils/ForceFieldUtils.sol";
-import { notify, AttachProgramNotifData, DetachProgramNotifData } from "../utils/NotifUtils.sol";
+import { AttachProgramNotifData, DetachProgramNotifData, notify } from "../utils/NotifUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
+import { SAFE_PROGRAM_GAS } from "../Constants.sol";
+import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { EntityId } from "../EntityId.sol";
-import { Vec3 } from "../Vec3.sol";
+
 import { ProgramId } from "../ProgramId.sol";
 import { IAttachProgramHook, IDetachProgramHook, IProgramValidator } from "../ProgramInterfaces.sol";
-import { SAFE_PROGRAM_GAS } from "../Constants.sol";
+import { Vec3 } from "../Vec3.sol";
 
 contract ProgramSystem is System {
   function attachProgram(EntityId caller, EntityId target, ProgramId program, bytes calldata extraData) public payable {
@@ -38,10 +39,8 @@ contract ProgramSystem is System {
 
     (EntityId validator, ProgramId validatorProgram) = _getValidatorProgram(targetCoord);
 
-    bytes memory validateProgram = abi.encodeCall(
-      IProgramValidator.validateProgram,
-      (caller, validator, target, program, extraData)
-    );
+    bytes memory validateProgram =
+      abi.encodeCall(IProgramValidator.validateProgram, (caller, validator, target, program, extraData));
 
     // The validateProgram view function should revert if the program is not allowed
     validatorProgram.staticcallOrRevert(validateProgram);
@@ -63,9 +62,9 @@ contract ProgramSystem is System {
 
     bytes memory onDetachProgram = abi.encodeCall(IDetachProgramHook.onDetachProgram, (caller, target, extraData));
 
-    (EntityId forceField, ) = getForceField(targetCoord);
+    (EntityId forceField,) = getForceField(targetCoord);
     // If forcefield doesn't have energy, allow the program
-    (EnergyData memory machineData, ) = updateMachineEnergy(forceField);
+    (EnergyData memory machineData,) = updateMachineEnergy(forceField);
     if (machineData.energy > 0) {
       program.callOrRevert(onDetachProgram);
     } else {
@@ -85,7 +84,7 @@ contract ProgramSystem is System {
     }
 
     // If forcefield doesn't have energy, allow the program
-    (EnergyData memory machineData, ) = updateMachineEnergy(forceField);
+    (EnergyData memory machineData,) = updateMachineEnergy(forceField);
     if (machineData.energy == 0) {
       return (EntityId.wrap(0), ProgramId.wrap(0));
     }

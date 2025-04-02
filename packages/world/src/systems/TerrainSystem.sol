@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
+import { CHUNK_SIZE, INITIAL_ENERGY_PER_VEGETATION, INITIAL_LOCAL_ENERGY_BUFFER, REGION_SIZE } from "../Constants.sol";
 import { Vec3 } from "../Vec3.sol";
-import { SurfaceChunkCount } from "../codegen/tables/SurfaceChunkCount.sol";
-import { SurfaceChunkByIndex, ExploredChunk, InitialEnergyPool, LocalEnergyPool } from "../utils/Vec3Storage.sol";
 import { RegionMerkleRoot } from "../codegen/tables/RegionMerkleRoot.sol";
+import { SurfaceChunkCount } from "../codegen/tables/SurfaceChunkCount.sol";
 import { SSTORE2 } from "../utils/SSTORE2.sol";
-import { INITIAL_ENERGY_PER_VEGETATION, REGION_SIZE, CHUNK_SIZE, INITIAL_LOCAL_ENERGY_BUFFER } from "../Constants.sol";
+import { ExploredChunk, InitialEnergyPool, LocalEnergyPool, SurfaceChunkByIndex } from "../utils/Vec3Storage.sol";
+import { System } from "@latticexyz/world/src/System.sol";
+
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 import { TerrainLib } from "./libraries/TerrainLib.sol";

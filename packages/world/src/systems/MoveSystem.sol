@@ -8,11 +8,12 @@ import { EnergyData } from "../codegen/tables/Energy.sol";
 
 import { MovablePosition } from "../utils/Vec3Storage.sol";
 
-import { MoveLib } from "./libraries/MoveLib.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
+
+import { MoveNotifData, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { notify, MoveNotifData } from "../utils/NotifUtils.sol";
+import { MoveLib } from "./libraries/MoveLib.sol";
 
 contract MoveSystem is System {
   function move(EntityId callerEntityId, Vec3[] memory newCoords) public {

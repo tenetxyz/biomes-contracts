@@ -3,16 +3,19 @@ pragma solidity >=0.8.24;
 
 import { DustTest } from "./DustTest.sol";
 
-import { TerrainLib, VERSION_PADDING, BIOME_PADDING, SURFACE_PADDING } from "../src/systems/libraries/TerrainLib.sol";
+import {
+  CHUNK_SIZE, INITIAL_ENERGY_PER_VEGETATION, INITIAL_LOCAL_ENERGY_BUFFER, REGION_SIZE
+} from "../src/Constants.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { CHUNK_SIZE, REGION_SIZE, INITIAL_ENERGY_PER_VEGETATION, INITIAL_LOCAL_ENERGY_BUFFER } from "../src/Constants.sol";
-import { encodeChunk } from "./utils/encodeChunk.sol";
-import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { InitialEnergyPool, LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
+
 import { RegionMerkleRoot } from "../src/codegen/tables/RegionMerkleRoot.sol";
+import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { BIOME_PADDING, SURFACE_PADDING, TerrainLib, VERSION_PADDING } from "../src/systems/libraries/TerrainLib.sol";
+import { InitialEnergyPool, LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
 import { MockChunk, MockVegetation } from "./mockData.sol";
+import { encodeChunk } from "./utils/encodeChunk.sol";
 
 contract TerrainTest is DustTest {
   function testGetChunkCoord() public pure {
@@ -156,8 +159,7 @@ contract TerrainTest is DustTest {
           coord = vec3(x, y, z);
           blockType = TerrainLib.getBlockType(coord);
           assertEq(
-            ObjectTypeId.unwrap(blockType),
-            uint16(chunk[uint256(int256(x))][uint256(int256(y))][uint256(int256(z))])
+            ObjectTypeId.unwrap(blockType), uint16(chunk[uint256(int256(x))][uint256(int256(y))][uint256(int256(z))])
           );
         }
       }

@@ -1,33 +1,38 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
 import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
-import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
-import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { System } from "@latticexyz/world/src/System.sol";
+
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
+import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 
 import { TestUtils } from "./utils/TestUtils.sol";
 
-import { DustTest, console } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
+
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
+import { DustTest, console } from "./DustTest.sol";
 
-import { LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
+import { LocalEnergyPool, Position, ReversePosition } from "../src/utils/Vec3Storage.sol";
 
+import {
+  CHUNK_SIZE, MACHINE_ENERGY_DRAIN_RATE, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE
+} from "../src/Constants.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ProgramId } from "../src/ProgramId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
-import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { ProgramId } from "../src/ProgramId.sol";
+
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { CHUNK_SIZE, MAX_PLAYER_ENERGY, MACHINE_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 
 contract TestSpawnProgram is System {
-  fallback() external {}
+  fallback() external { }
 }
 
 contract SpawnTest is DustTest {
@@ -226,7 +231,7 @@ contract SpawnTest is DustTest {
 
   function testSpawnFailsIfNotDead() public {
     // This should setup a player with energy
-    (address alice, , Vec3 playerCoord) = setupAirChunkWithPlayer();
+    (address alice,, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 spawnCoord = playerCoord;
     Vec3 spawnTileCoord = spawnCoord - vec3(0, 1, 0);
@@ -256,7 +261,7 @@ contract SpawnTest is DustTest {
 
   function testRandomSpawnAfterDeath() public {
     // This should setup a player with energy
-    (address alice, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId,) = setupAirChunkWithPlayer();
 
     // Drain energy from player
     vm.warp(vm.getBlockTimestamp() + MAX_PLAYER_ENERGY * PLAYER_ENERGY_DRAIN_RATE);
@@ -282,7 +287,7 @@ contract SpawnTest is DustTest {
 
   function testRandomSpawnFailsIfNotDead() public {
     // This should setup a player with energy
-    (address alice, , ) = setupAirChunkWithPlayer();
+    (address alice,,) = setupAirChunkWithPlayer();
 
     uint256 blockNumber = block.number - 5;
 
