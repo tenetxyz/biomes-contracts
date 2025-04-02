@@ -17,6 +17,9 @@
     "prepare": "(forge --version || pnpm foundry:up) && pnpm simple-git-hooks",
     "test": "pnpm recursive run test"
   },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm run fix"
+  },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@latticexyz/cli": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
@@ -29,9 +32,6 @@
     "shx": "^0.4.0",
     "simple-git-hooks": "^2.12.1",
     "tsx": "^4.19.3"
-  },
-  "simple-git-hooks": {
-    "pre-commit": "pnpm run fix"
   },
   "packageManager": "pnpm@9.6.0",
   "engines": {
