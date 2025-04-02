@@ -408,7 +408,7 @@ contract ForceFieldTest is DustTest {
     assertTrue(ObjectType.get(mineEntityId) == ObjectTypes.Air, "Block was not mined");
   }
 
-  function testExpandForceField() public {
+  function testAddFragment() public {
     // Set up a flat chunk with a player
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
@@ -424,41 +424,30 @@ contract ForceFieldTest is DustTest {
 
     // Define expansion area
     Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
-    Vec3 fromFragmentCoord = refFragmentCoord + vec3(1, 0, 0);
-    Vec3 toFragmentCoord = refFragmentCoord + vec3(2, 0, 1);
+    Vec3 newFragmentCoord = refFragmentCoord + vec3(1, 0, 0);
 
     // Expand the force field
     vm.prank(alice);
-    startGasReport("Expand forcefield 2x2");
-    world.expandForceField(aliceEntityId, forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
+    startGasReport("Add single fragment");
+    world.addFragment(aliceEntityId, forceFieldEntityId, refFragmentCoord, newFragmentCoord, "");
     endGasReport();
-
-    // Calculate expected number of added fragments (2x1x2 = 4 new fragments)
-    uint128 addedFragments = 4;
 
     // Verify that the energy drain rate has increased
     EnergyData memory afterEnergyData = Energy.get(forceFieldEntityId);
     assertEq(
       afterEnergyData.drainRate,
-      initialEnergyData.drainRate + MACHINE_ENERGY_DRAIN_RATE * addedFragments,
+      initialEnergyData.drainRate + MACHINE_ENERGY_DRAIN_RATE,
       "Energy drain rate did not increase correctly"
     );
 
     // Verify that each new fragment exists
-    for (int32 x = fromFragmentCoord.x(); x <= toFragmentCoord.x(); x++) {
-      for (int32 y = fromFragmentCoord.y(); y <= toFragmentCoord.y(); y++) {
-        for (int32 z = fromFragmentCoord.z(); z <= toFragmentCoord.z(); z++) {
-          Vec3 fragmentCoord = vec3(x, y, z);
-          assertTrue(
-            TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, fragmentCoord),
-            "Force field fragment not found at coordinate"
-          );
-        }
-      }
-    }
+    assertTrue(
+      TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, newFragmentCoord),
+      "Force field fragment not found at coordinate"
+    );
   }
 
-  function testContractForceField() public {
+  function testRemoveFragment() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
     // Set up a force field with energy
@@ -469,62 +458,43 @@ contract ForceFieldTest is DustTest {
     );
 
     Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
+    Vec3 newFragmentCoord = refFragmentCoord + vec3(1, 0, 0);
 
-    // Expand the force field
+    // Add a fragment
     vm.prank(alice);
-    startGasReport("Expand forcefield 3x3");
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord,
-      refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(3, 0, 2),
-      ""
-    );
+    world.addFragment(aliceEntityId, forceFieldEntityId, refFragmentCoord, newFragmentCoord, "");
+
+    // Get energy data after addition
+    EnergyData memory afterAddEnergyData = Energy.get(forceFieldEntityId);
+
+    // Compute boundary fragments
+    (Vec3[26] memory boundary, uint256 len) = world.computeBoundaryFragments(forceFieldEntityId, newFragmentCoord);
+
+    // Create a valid parent array for the boundary
+    uint256[] memory parents = new uint256[](len);
+    parents[0] = 0; // Root
+
+    // Remove the fragment
+    vm.prank(alice);
+    startGasReport("Remove forcefield fragment");
+    world.removeFragment(aliceEntityId, forceFieldEntityId, newFragmentCoord, parents, "");
     endGasReport();
 
-    // Get energy data after expansion
-    EnergyData memory afterExpandEnergyData = Energy.get(forceFieldEntityId);
+    // Get energy data after removal
+    EnergyData memory afterRemoveEnergyData = Energy.get(forceFieldEntityId);
 
-    // Contract a portion of the force field within a scope
-    {
-      Vec3 contractFrom = refFragmentCoord + vec3(2, 0, 0);
-      Vec3 contractTo = refFragmentCoord + vec3(3, 0, 1);
-
-      uint256[] memory parents = new uint256[](5);
-      parents[0] = 0;
-      parents[1] = 0;
-      parents[2] = 1;
-      parents[3] = 2;
-      parents[4] = 3;
-
-      vm.prank(alice);
-      startGasReport("Contract forcefield 2x2");
-      world.contractForceField(aliceEntityId, forceFieldEntityId, contractFrom, contractTo, parents, "");
-      endGasReport();
-    }
-
-    // Get energy data after contraction
-    EnergyData memory afterContractEnergyData = Energy.get(forceFieldEntityId);
-
-    // Verify energy drain rate (4 fragments removed: 2x1x2)
+    // Verify energy drain rate decreased
     assertEq(
-      afterContractEnergyData.drainRate,
-      afterExpandEnergyData.drainRate - MACHINE_ENERGY_DRAIN_RATE * 4,
+      afterRemoveEnergyData.drainRate,
+      afterAddEnergyData.drainRate - MACHINE_ENERGY_DRAIN_RATE,
       "Energy drain rate did not decrease correctly"
     );
 
-    // Verify removed fragments no longer exist
-    for (int32 x = refFragmentCoord.x() + 2; x <= refFragmentCoord.x() + 3; x++) {
-      for (int32 y = refFragmentCoord.y(); y <= refFragmentCoord.y(); y++) {
-        for (int32 z = refFragmentCoord.z(); z <= refFragmentCoord.z() + 1; z++) {
-          assertFalse(
-            TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, vec3(x, y, z)),
-            "Force field fragment still exists after contraction"
-          );
-        }
-      }
-    }
+    // Verify fragment no longer exists
+    assertFalse(
+      TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, newFragmentCoord),
+      "Force field fragment still exists after removal"
+    );
 
     // Verify original fragment still exists
     assertTrue(
@@ -533,7 +503,7 @@ contract ForceFieldTest is DustTest {
     );
   }
 
-  function testExpandForceFieldFailsIfInvalidCoordinates() public {
+  function testAddFragmentFailsIfRefFragmentNotAdjacent() public {
     // Set up a flat chunk with a player
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
@@ -547,41 +517,16 @@ contract ForceFieldTest is DustTest {
     // Reference fragment coordinate
     Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
 
-    // Test with fromFragmentCoord > toFragmentCoord (invalid)
-    Vec3 fromFragmentCoord = refFragmentCoord + vec3(2, 0, 0);
-    Vec3 toFragmentCoord = refFragmentCoord + vec3(1, 0, 0);
+    // This coordinate is not adjacent to the reference fragment
+    Vec3 newFragmentCoord = refFragmentCoord + vec3(2, 0, 0);
 
-    // Expand should fail with these invalid coordinates
+    // Add should fail because new fragment is not adjacent to reference fragment
     vm.prank(alice);
-    vm.expectRevert("Invalid coordinates");
-    world.expandForceField(aliceEntityId, forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
+    vm.expectRevert("Reference fragment is not adjacent to new fragment");
+    world.addFragment(aliceEntityId, forceFieldEntityId, refFragmentCoord, newFragmentCoord, "");
   }
 
-  function testExpandForceFieldFailsIfRefFragmentNotAdjacent() public {
-    // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
-
-    // Set up a force field with energy
-    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
-    EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
-    );
-
-    // Reference fragment coordinate
-    Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
-
-    // These coordinates are not adjacent to the reference fragment
-    Vec3 fromFragmentCoord = refFragmentCoord + vec3(3, 0, 0);
-    Vec3 toFragmentCoord = refFragmentCoord + vec3(4, 0, 0);
-
-    // Expand should fail because new fragments not adjacent to reference fragment
-    vm.prank(alice);
-    vm.expectRevert("Reference fragment is not adjacent to new fragments");
-    world.expandForceField(aliceEntityId, forceFieldEntityId, refFragmentCoord, fromFragmentCoord, toFragmentCoord, "");
-  }
-
-  function testExpandForceFieldFailsIfRefFragmentNotInForceField() public {
+  function testAddFragmentFailsIfRefFragmentNotInForceField() public {
     // Set up a flat chunk with a player
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
@@ -596,23 +541,15 @@ contract ForceFieldTest is DustTest {
     Vec3 invalidRefFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord() + vec3(10, 0, 0);
 
     // Expansion area
-    Vec3 fromFragmentCoord = invalidRefFragmentCoord + vec3(1, 0, 0);
-    Vec3 toFragmentCoord = invalidRefFragmentCoord + vec3(2, 0, 0);
+    Vec3 newFragmentCoord = invalidRefFragmentCoord + vec3(1, 0, 0);
 
     // Expand should fail because reference fragment is not part of the force field
     vm.prank(alice);
     vm.expectRevert("Reference fragment is not part of forcefield");
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      invalidRefFragmentCoord,
-      fromFragmentCoord,
-      toFragmentCoord,
-      ""
-    );
+    world.addFragment(aliceEntityId, forceFieldEntityId, invalidRefFragmentCoord, newFragmentCoord, "");
   }
 
-  function testContractForceFieldFailsIfInvalidCoordinates() public {
+  function testRemoveFragmentFailsIfInvalidSpanningTree() public {
     // Set up a flat chunk with a player
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
@@ -623,165 +560,52 @@ contract ForceFieldTest is DustTest {
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
-    // First expand the force field to create a larger area
+    // Add a fragment to the force field
     Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
-    Vec3 expandFromFragmentCoord = refFragmentCoord + vec3(1, 0, 0);
-    Vec3 expandToFragmentCoord = refFragmentCoord + vec3(3, 0, 2);
+    Vec3 newFragmentCoord = refFragmentCoord + vec3(1, 0, 0);
 
-    // Expand the force field
     vm.prank(alice);
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord,
-      expandFromFragmentCoord,
-      expandToFragmentCoord,
-      ""
-    );
-
-    // Try to contract with invalid coordinates (from > to)
-    Vec3 contractFromFragmentCoord = refFragmentCoord + vec3(3, 0, 0);
-    Vec3 contractToFragmentCoord = refFragmentCoord + vec3(1, 0, 0);
-    uint256[] memory parents = new uint256[](0);
-
-    // Contract should fail with invalid coordinates
-    vm.prank(alice);
-    vm.expectRevert("Invalid coordinates");
-    world.contractForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      contractFromFragmentCoord,
-      contractToFragmentCoord,
-      parents,
-      ""
-    );
-  }
-
-  function testContractForceFieldFailsIfNoBoundaryFragments() public {
-    // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
-
-    // Set up a force field with energy
-    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
-    EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
-    );
-
-    // Try to contract an area that has no fragments or boundaries
-    Vec3 contractFromFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord() + vec3(10, 0, 0);
-    Vec3 contractToFragmentCoord = contractFromFragmentCoord + vec3(1, 0, 0);
-    uint256[] memory parents = new uint256[](0);
-
-    // Contract should fail because there are no boundary fragments
-    vm.prank(alice);
-    vm.expectRevert("No boundary fragments found");
-    world.contractForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      contractFromFragmentCoord,
-      contractToFragmentCoord,
-      parents,
-      ""
-    );
-  }
-
-  function testContractForceFieldFailsIfInvalidSpanningTree() public {
-    // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
-
-    // Set up a force field with energy
-    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
-    EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
-    );
-
-    // First expand the force field to create a larger area
-    Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
-    Vec3 expandFromFragmentCoord = refFragmentCoord + vec3(1, 0, 0);
-    Vec3 expandToFragmentCoord = refFragmentCoord + vec3(3, 0, 2);
-
-    // Expand the force field
-    vm.prank(alice);
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord,
-      expandFromFragmentCoord,
-      expandToFragmentCoord,
-      ""
-    );
-
-    // Try to contract with valid coordinates but invalid parent array
-    Vec3 contractFromFragmentCoord = refFragmentCoord + vec3(2, 0, 0);
-    Vec3 contractToFragmentCoord = refFragmentCoord + vec3(3, 0, 1);
-
-    // Compute the boundary fragments that will remain after contraction
-    (Vec3[] memory boundaryFragments, uint256 len) = world.computeBoundaryFragments(
-      forceFieldEntityId,
-      contractFromFragmentCoord,
-      contractToFragmentCoord
-    );
+    world.addFragment(aliceEntityId, forceFieldEntityId, refFragmentCoord, newFragmentCoord, "");
 
     // Create an INVALID parent array for the boundary fragments (all zeros)
-    uint256[] memory invalidParents = new uint256[](len);
-    for (uint256 i = 0; i < len; i++) {
-      invalidParents[i] = 0; // This creates disconnected components
+    uint256[] memory invalidParents = new uint256[](2);
+    for (uint256 i = 0; i < 2; i++) {
+      invalidParents[i] = 0;
     }
 
-    // Contract should fail because the parent array doesn't represent a valid spanning tree
+    // Remove should fail because the parent array doesn't represent a valid spanning tree
     vm.prank(alice);
     vm.expectRevert("Invalid spanning tree");
-    world.contractForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      contractFromFragmentCoord,
-      contractToFragmentCoord,
-      invalidParents,
-      ""
-    );
+    world.removeFragment(aliceEntityId, forceFieldEntityId, newFragmentCoord, invalidParents, "");
   }
 
   function testComputeBoundaryFragments() public {
     // Set up a flat chunk with a player
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
-    // Create a 3x3x3 force field
     Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
     EntityId forceFieldEntityId = setupForceField(
       forceFieldCoord,
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
-    // Expand the force field to create a 3x3x3 cube
+    // Expand the force field
     Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
-    Vec3 expandFromFragmentCoord = refFragmentCoord + vec3(1, 0, 0);
-    Vec3 expandToFragmentCoord = expandFromFragmentCoord + vec3(2, 2, 2);
+    Vec3 fragment1 = refFragmentCoord + vec3(1, 0, 0);
+    Vec3 fragment2 = refFragmentCoord + vec3(0, 1, 0);
+    Vec3 fragment3 = refFragmentCoord + vec3(1, 1, 0);
 
-    vm.prank(alice);
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord,
-      expandFromFragmentCoord,
-      expandToFragmentCoord,
-      ""
-    );
+    vm.startPrank(alice);
+    world.addFragment(aliceEntityId, forceFieldEntityId, refFragmentCoord, fragment1, "");
+    world.addFragment(aliceEntityId, forceFieldEntityId, refFragmentCoord, fragment2, "");
+    world.addFragment(aliceEntityId, forceFieldEntityId, fragment1, fragment3, "");
+    vm.stopPrank();
 
-    // Define a 1x1x1 cuboid in the center to remove
-    Vec3 contractFromFragmentCoord = expandFromFragmentCoord + vec3(1, 1, 1);
-    Vec3 contractToFragmentCoord = contractFromFragmentCoord;
+    // Compute the boundary fragments for fragment3
+    (Vec3[26] memory boundaryFragments, uint256 len) = world.computeBoundaryFragments(forceFieldEntityId, fragment3);
 
-    // Compute the boundary fragments
-    (Vec3[] memory boundaryFragments, uint256 len) = world.computeBoundaryFragments(
-      forceFieldEntityId,
-      contractFromFragmentCoord,
-      contractToFragmentCoord
-    );
-
-    // For a 1x1x1 cuboid, we expect 26 boundary fragments (one on each face plus edges/corners)
-    assertEq(len, 26, "Expected 26 boundary fragments for a 1x1x1 cuboid");
+    // We expect 2 boundary fragments (fragment1 and fragment2)
+    assertEq(len, 3, "Expected 3 boundary fragments");
 
     // Verify that each boundary fragment is part of the force field
     for (uint256 i = 0; i < len; i++) {
@@ -791,23 +615,21 @@ contract ForceFieldTest is DustTest {
       );
     }
 
-    // Define expected boundary fragments to check
-    Vec3[26] memory expectedBoundaries = contractFromFragmentCoord.neighbors26();
-
-    // Check each expected boundary
-    for (uint256 i = 0; i < expectedBoundaries.length; i++) {
-      bool found = false;
-      for (uint256 j = 0; j < len; j++) {
-        if (expectedBoundaries[i] == boundaryFragments[j]) {
-          found = true;
-          break;
-        }
-      }
-      assertTrue(found, "Missing boundary fragment");
+    // Check that fragment1 and fragment2 are in the boundary
+    bool foundRefFragment = false;
+    bool foundFragment1 = false;
+    bool foundFragment2 = false;
+    for (uint256 i = 0; i < len; i++) {
+      if (boundaryFragments[i] == refFragmentCoord) foundRefFragment = true;
+      if (boundaryFragments[i] == fragment1) foundFragment1 = true;
+      if (boundaryFragments[i] == fragment2) foundFragment2 = true;
     }
+    assertTrue(foundRefFragment, "Fragment1 should be in the boundary");
+    assertTrue(foundFragment1, "Fragment1 should be in the boundary");
+    assertTrue(foundFragment2, "Fragment2 should be in the boundary");
   }
 
-  function testExpandIntoExistingForceField() public {
+  function testAddIntoExistingForceField() public {
     // Set up a flat chunk with a player
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
@@ -827,16 +649,10 @@ contract ForceFieldTest is DustTest {
 
     // Try to expand first force field into second force field's area (should fail)
     Vec3 refFragmentCoord = forceField1Coord.toForceFieldFragmentCoord();
+    Vec3 newFragmentCoord = forceField2Coord.toForceFieldFragmentCoord();
     vm.prank(alice);
-    vm.expectRevert("Can't expand to existing forcefield");
-    world.expandForceField(
-      aliceEntityId,
-      forceField1EntityId,
-      refFragmentCoord,
-      refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(1, 0, 0),
-      ""
-    );
+    vm.expectRevert("Fragment already belongs to a forcefield");
+    world.addFragment(aliceEntityId, forceField1EntityId, refFragmentCoord, newFragmentCoord, "");
   }
 
   function testForceFieldEnergyDrainsOverTime() public {
@@ -869,106 +685,6 @@ contract ForceFieldTest is DustTest {
     currentEnergy = Energy.get(forceFieldEntityId);
     assertEq(currentEnergy.energy, 0, "Energy should be completely depleted");
     assertEq(Machine.getDepletedTime(forceFieldEntityId), 10, "Accumulated depleted time should be tracked");
-  }
-
-  function testExpandAndContractForceFieldComplex() public {
-    // Set up a flat chunk with a player
-    (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
-
-    // Create a force field with energy
-    Vec3 forceFieldCoord = playerCoord + vec3(2, 0, 0);
-    EntityId forceFieldEntityId = setupForceField(
-      forceFieldCoord,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
-    );
-
-    Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
-
-    // Expand in multiple directions to create a complex shape
-    vm.startPrank(alice);
-
-    // Expand in the X direction
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord,
-      refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(2, 0, 0),
-      ""
-    );
-
-    // Expand in the Y direction
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord,
-      refFragmentCoord + vec3(0, 1, 0),
-      refFragmentCoord + vec3(0, 2, 0),
-      ""
-    );
-
-    // Expand in the Z direction
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord,
-      refFragmentCoord + vec3(0, 0, 1),
-      refFragmentCoord + vec3(0, 0, 2),
-      ""
-    );
-
-    // Expand diagonally from a different reference point
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord + vec3(2, 0, 0),
-      refFragmentCoord + vec3(3, 0, 0),
-      refFragmentCoord + vec3(3, 1, 1),
-      ""
-    );
-
-    vm.stopPrank();
-
-    // Now contract part of the force field (removing everything in x > 1)
-    Vec3 contractFrom = refFragmentCoord + vec3(2, 0, 0);
-    Vec3 contractTo = refFragmentCoord + vec3(4, 1, 1);
-
-    // Compute boundary fragments
-    (, uint256 len) = world.computeBoundaryFragments(forceFieldEntityId, contractFrom, contractTo);
-
-    // Ensure we have the correct number of boundary fragments
-    assertEq(len, 1, "Expected 1 boundary fragment");
-
-    // Create a valid spanning tree for the boundary
-    uint256[] memory parents = new uint256[](len);
-    parents[0] = 0; // Root
-
-    vm.prank(alice);
-    world.contractForceField(aliceEntityId, forceFieldEntityId, contractFrom, contractTo, parents, "");
-
-    uint256 remainingFragments = 0;
-
-    // Check all possible locations where fragments might be
-    for (int32 x = refFragmentCoord.x(); x <= refFragmentCoord.x() + 3; x++) {
-      for (int32 y = refFragmentCoord.y(); y <= refFragmentCoord.y() + 3; y++) {
-        for (int32 z = refFragmentCoord.z(); z <= refFragmentCoord.z() + 3; z++) {
-          if (TestForceFieldUtils.isForceFieldFragment(forceFieldEntityId, vec3(x, y, z))) {
-            remainingFragments++;
-          }
-        }
-      }
-    }
-
-    // Remaing fragments are the main fragment plus 4 fragments in x == 1 and 1 fragment in x == 2
-    assertEq(remainingFragments, 6, "Expected 6 remaining fragments after contraction");
-
-    // Check energy drain rate has been updated correctly
-    EnergyData memory energyData = Energy.get(forceFieldEntityId);
-    assertEq(
-      energyData.drainRate,
-      1 + MACHINE_ENERGY_DRAIN_RATE * 5, // 1 (base) + 5 (additional fragments)
-      "Energy drain rate should be updated"
-    );
   }
 
   function testOnBuildAndOnMineHooksForForceField() public {
@@ -1082,58 +798,32 @@ contract ForceFieldTest is DustTest {
       EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: 1000, drainRate: 1 })
     );
 
-    // Expand first force field towards second
+    // Add fragment to first force field
     Vec3 refFragmentCoord1 = forceField1Coord.toForceFieldFragmentCoord();
+    Vec3 newFragment1 = refFragmentCoord1 + vec3(1, 0, 0);
     vm.prank(alice);
-    world.expandForceField(
-      aliceEntityId,
-      forceField1EntityId,
-      refFragmentCoord1,
-      refFragmentCoord1 + vec3(1, 0, 0),
-      refFragmentCoord1 + vec3(1, 0, 0),
-      ""
-    );
+    world.addFragment(aliceEntityId, forceField1EntityId, refFragmentCoord1, newFragment1, "");
 
-    // Expand second force field towards first
+    // Add fragment to second force field
     Vec3 refFragmentCoord2 = forceField2Coord.toForceFieldFragmentCoord();
+    Vec3 newFragment2 = refFragmentCoord2 - vec3(1, 0, 0);
     vm.prank(alice);
-    world.expandForceField(
-      aliceEntityId,
-      forceField2EntityId,
-      refFragmentCoord2,
-      refFragmentCoord2 - vec3(1, 0, 0),
-      refFragmentCoord2 - vec3(1, 0, 0),
-      ""
-    );
+    world.addFragment(aliceEntityId, forceField2EntityId, refFragmentCoord2, newFragment2, "");
 
-    // Try to expand first force field into area occupied by second force field
+    // Try to add fragment to first force field in area occupied by second force field
     // This should fail
     vm.prank(alice);
-    vm.expectRevert("Can't expand to existing forcefield");
-    world.expandForceField(
-      aliceEntityId,
-      forceField1EntityId,
-      refFragmentCoord1 + vec3(1, 0, 0),
-      refFragmentCoord1 + vec3(2, 0, 0),
-      refFragmentCoord1 + vec3(2, 0, 0),
-      ""
-    );
+    vm.expectRevert("Fragment already belongs to a forcefield");
+    world.addFragment(aliceEntityId, forceField1EntityId, newFragment1, newFragment2, "");
 
-    // Try to expand second force field into area occupied by first force field
+    // Try to add fragment to second force field in area occupied by first force field
     // This should fail
     vm.prank(alice);
-    vm.expectRevert("Can't expand to existing forcefield");
-    world.expandForceField(
-      aliceEntityId,
-      forceField2EntityId,
-      refFragmentCoord2 - vec3(1, 0, 0),
-      refFragmentCoord2 - vec3(2, 0, 0),
-      refFragmentCoord2 - vec3(2, 0, 0),
-      ""
-    );
+    vm.expectRevert("Fragment already belongs to a forcefield");
+    world.addFragment(aliceEntityId, forceField2EntityId, newFragment2, newFragment1, "");
   }
 
-  function testForceFieldExpandGasUsage() public {
+  function testForceFieldFragmentGasUsage() public {
     // Set up a flat chunk with a player
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupFlatChunkWithPlayer();
 
@@ -1145,78 +835,22 @@ contract ForceFieldTest is DustTest {
     );
 
     Vec3 refFragmentCoord = forceFieldCoord.toForceFieldFragmentCoord();
+    Vec3 newFragmentCoord = refFragmentCoord + vec3(1, 0, 0);
 
-    uint256 snapshotId = vm.snapshotState();
-
-    // Test expanding with different cuboid sizes
+    // Test adding a fragment
     vm.startPrank(alice);
 
-    // 1x1x1 expansion (single fragment)
-    startGasReport("Expand forcefield 1x1x1");
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord,
-      refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(1, 0, 0),
-      ""
-    );
+    startGasReport("Add forcefield fragment");
+    world.addFragment(aliceEntityId, forceFieldEntityId, refFragmentCoord, newFragmentCoord, "");
     endGasReport();
 
-    vm.revertToState(snapshotId);
+    // Compute boundary fragments for removal
+    (, uint256 len) = world.computeBoundaryFragments(forceFieldEntityId, newFragmentCoord);
+    uint256[] memory parents = new uint256[](len);
+    parents[0] = 0; // Root
 
-    // 2x2x1 expansion (4 fragments)
-    startGasReport("Expand forcefield 2x2x1 = 4");
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord,
-      refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(2, 1, 0),
-      ""
-    );
-    endGasReport();
-
-    vm.revertToState(snapshotId);
-
-    // 2x2x2 expansion (8 fragments)
-    startGasReport("Expand forcefield 2x2x2 = 8");
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord,
-      refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(2, 1, 1),
-      ""
-    );
-    endGasReport();
-
-    vm.revertToState(snapshotId);
-
-    // 3x3x1 expansion (9 fragments)
-    startGasReport("Expand forcefield 3x3x1 = 9");
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord,
-      refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(3, 2, 0),
-      ""
-    );
-    endGasReport();
-
-    vm.revertToState(snapshotId);
-
-    // 3x3x3 expansion (27 fragments)
-    startGasReport("Expand forcefield 3x3x3 = 27");
-    world.expandForceField(
-      aliceEntityId,
-      forceFieldEntityId,
-      refFragmentCoord,
-      refFragmentCoord + vec3(1, 0, 0),
-      refFragmentCoord + vec3(3, 2, 2),
-      ""
-    );
+    startGasReport("Remove forcefield fragment");
+    world.removeFragment(aliceEntityId, forceFieldEntityId, newFragmentCoord, parents, "");
     endGasReport();
 
     vm.stopPrank();
@@ -1333,23 +967,23 @@ contract ForceFieldTest is DustTest {
   function testValidateSpanningTree() public view {
     // Test case 1: Empty array (trivial case)
     {
-      Vec3[] memory fragments = new Vec3[](0);
+      Vec3[26] memory fragments;
       uint256[] memory parents = new uint256[](0);
-      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Empty array should not be valid");
+      assertFalse(world.validateSpanningTree(fragments, 0, parents), "Empty array should not be valid");
     }
 
     // Test case 2: Single node (trivial case)
     {
-      Vec3[] memory fragments = new Vec3[](1);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       uint256[] memory parents = new uint256[](1);
       parents[0] = 0; // Self-referential
-      assertTrue(world.validateSpanningTree(fragments, fragments.length, parents), "Single node should be valid");
+      assertTrue(world.validateSpanningTree(fragments, 1, parents), "Single node should be valid");
     }
 
     // Test case 3: Simple line of 3 nodes
     {
-      Vec3[] memory fragments = new Vec3[](3);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0); // Adjacent to fragments[0]
       fragments[2] = vec3(2, 0, 0); // Adjacent to fragments[1]
@@ -1359,12 +993,12 @@ contract ForceFieldTest is DustTest {
       parents[1] = 0; // Parent is fragments[0]
       parents[2] = 1; // Parent is fragments[1]
 
-      assertTrue(world.validateSpanningTree(fragments, fragments.length, parents), "Line of 3 nodes should be valid");
+      assertTrue(world.validateSpanningTree(fragments, 3, parents), "Line of 3 nodes should be valid");
     }
 
     // Test case 4: Star pattern (all nodes connected to root)
     {
-      Vec3[] memory fragments = new Vec3[](5);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0); // Center
       fragments[1] = vec3(1, 0, 0); // East
       fragments[2] = vec3(0, 1, 0); // North
@@ -1378,12 +1012,12 @@ contract ForceFieldTest is DustTest {
       parents[3] = 0;
       parents[4] = 0;
 
-      assertTrue(world.validateSpanningTree(fragments, fragments.length, parents), "Star pattern should be valid");
+      assertTrue(world.validateSpanningTree(fragments, 5, parents), "Star pattern should be valid");
     }
 
     // Test case 5: Invalid - parents array length mismatch
     {
-      Vec3[] memory fragments = new Vec3[](3);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0);
       fragments[2] = vec3(2, 0, 0);
@@ -1392,12 +1026,12 @@ contract ForceFieldTest is DustTest {
       parents[0] = 0;
       parents[1] = 0;
 
-      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Invalid parents length");
+      assertFalse(world.validateSpanningTree(fragments, 3, parents), "Invalid parents length");
     }
 
     // Test case 6: Invalid - non-adjacent nodes
     {
-      Vec3[] memory fragments = new Vec3[](3);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0); // Adjacent to fragments[0]
       fragments[2] = vec3(3, 0, 0); // NOT adjacent to fragments[1] (distance = 2)
@@ -1407,12 +1041,12 @@ contract ForceFieldTest is DustTest {
       parents[1] = 0;
       parents[2] = 1; // Claims fragments[1] is parent, but they're not adjacent
 
-      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Non-adjacent fragments");
+      assertFalse(world.validateSpanningTree(fragments, 3, parents), "Non-adjacent fragments");
     }
 
     // Test case 7: Invalid - disconnected graph
     {
-      Vec3[] memory fragments = new Vec3[](4);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0); // Adjacent to fragments[0]
       fragments[2] = vec3(5, 0, 0); // Disconnected from others
@@ -1424,15 +1058,12 @@ contract ForceFieldTest is DustTest {
       parents[2] = 2; // Self-referential, creating a second "root"
       parents[3] = 2;
 
-      assertFalse(
-        world.validateSpanningTree(fragments, fragments.length, parents),
-        "Disconnected graph should be invalid"
-      );
+      assertFalse(world.validateSpanningTree(fragments, 4, parents), "Disconnected graph should be invalid");
     }
 
     // Test case 8: Invalid - cycle in the graph
     {
-      Vec3[] memory fragments = new Vec3[](3);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0); // Adjacent to fragments[0]
       fragments[2] = vec3(1, 1, 0); // Adjacent to fragments[1]
@@ -1442,12 +1073,12 @@ contract ForceFieldTest is DustTest {
       parents[1] = 0;
       parents[2] = 1;
 
-      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Root must be self-referential");
+      assertFalse(world.validateSpanningTree(fragments, 3, parents), "Root must be self-referential");
     }
 
     // Test case 9: Valid - complex tree with branches
     {
-      Vec3[] memory fragments = new Vec3[](7);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0); // Root
       fragments[1] = vec3(1, 0, 0); // Level 1, branch 1
       fragments[2] = vec3(0, 1, 0); // Level 1, branch 2
@@ -1465,12 +1096,12 @@ contract ForceFieldTest is DustTest {
       parents[5] = 2; // Connected to branch 2
       parents[6] = 3; // Connected to level 2 of branch 1
 
-      assertTrue(world.validateSpanningTree(fragments, fragments.length, parents), "Complex tree should be valid");
+      assertTrue(world.validateSpanningTree(fragments, 7, parents), "Complex tree should be valid");
     }
 
     // Test case 10: Invalid - diagonal neighbors (not in Von Neumann neighborhood)
     {
-      Vec3[] memory fragments = new Vec3[](2);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 1, 0); // Diagonal to fragments[0], not in Von Neumann neighborhood
 
@@ -1478,12 +1109,12 @@ contract ForceFieldTest is DustTest {
       parents[0] = 0;
       parents[1] = 0;
 
-      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Non-adjacent fragments");
+      assertFalse(world.validateSpanningTree(fragments, 2, parents), "Non-adjacent fragments");
     }
 
     // Test case 11: Invalid - parent index out of bounds
     {
-      Vec3[] memory fragments = new Vec3[](3);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0);
       fragments[2] = vec3(2, 0, 0);
@@ -1493,12 +1124,12 @@ contract ForceFieldTest is DustTest {
       parents[1] = 0;
       parents[2] = 999; // Parent index out of bounds
 
-      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Parent index out of bounds");
+      assertFalse(world.validateSpanningTree(fragments, 3, parents), "Parent index out of bounds");
     }
 
     // Test case 12: Invalid - cycle in the middle of the array
     {
-      Vec3[] memory fragments = new Vec3[](5);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0);
       fragments[2] = vec3(2, 0, 0);
@@ -1512,12 +1143,12 @@ contract ForceFieldTest is DustTest {
       parents[3] = 2; // Part of the cycle
       parents[4] = 3; // Valid connection to node 3
 
-      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Cycle in the middle of the array");
+      assertFalse(world.validateSpanningTree(fragments, 5, parents), "Cycle in the middle of the array");
     }
 
     // Test case 13: Invalid - multiple nodes pointing to non-existent parent
     {
-      Vec3[] memory fragments = new Vec3[](5);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0);
       fragments[2] = vec3(2, 0, 0);
@@ -1531,15 +1162,12 @@ contract ForceFieldTest is DustTest {
       parents[3] = 10; // Same invalid parent
       parents[4] = 0;
 
-      assertFalse(
-        world.validateSpanningTree(fragments, fragments.length, parents),
-        "Multiple nodes pointing to non-existent parent"
-      );
+      assertFalse(world.validateSpanningTree(fragments, 5, parents), "Multiple nodes pointing to non-existent parent");
     }
 
     // Test case 14: Invalid - node is its own parent (except root)
     {
-      Vec3[] memory fragments = new Vec3[](4);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0);
       fragments[2] = vec3(2, 0, 0);
@@ -1551,12 +1179,12 @@ contract ForceFieldTest is DustTest {
       parents[2] = 2; // Node is its own parent
       parents[3] = 2; // Valid
 
-      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Node cannot be its own parent");
+      assertFalse(world.validateSpanningTree(fragments, 4, parents), "Node cannot be its own parent");
     }
 
     // Test case 15: Invalid - complex cycle in a larger graph
     {
-      Vec3[] memory fragments = new Vec3[](8);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0);
       fragments[2] = vec3(2, 0, 0);
@@ -1576,12 +1204,12 @@ contract ForceFieldTest is DustTest {
       parents[6] = 7; // Part of cycle
       parents[7] = 5; // Creates cycle: 5->6->7->5
 
-      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Complex cycle in larger graph");
+      assertFalse(world.validateSpanningTree(fragments, 8, parents), "Complex cycle in larger graph");
     }
 
     // Test case 16: Invalid - root not at index 0
     {
-      Vec3[] memory fragments = new Vec3[](4);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0);
       fragments[2] = vec3(2, 0, 0);
@@ -1593,12 +1221,12 @@ contract ForceFieldTest is DustTest {
       parents[2] = 1;
       parents[3] = 2;
 
-      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Root must be at index 0");
+      assertFalse(world.validateSpanningTree(fragments, 4, parents), "Root must be at index 0");
     }
 
     // Test case 17: Invalid - parent references later index (creating forward reference)
     {
-      Vec3[] memory fragments = new Vec3[](4);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0);
       fragments[2] = vec3(1, 1, 0);
@@ -1610,15 +1238,12 @@ contract ForceFieldTest is DustTest {
       parents[2] = 1;
       parents[3] = 0;
 
-      assertFalse(
-        world.validateSpanningTree(fragments, fragments.length, parents),
-        "Forward reference creates invalid tree"
-      );
+      assertFalse(world.validateSpanningTree(fragments, 4, parents), "Forward reference creates invalid tree");
     }
 
     // Test case 18: Valid - zigzag pattern
     {
-      Vec3[] memory fragments = new Vec3[](5);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0);
       fragments[2] = vec3(1, 1, 0);
@@ -1632,12 +1257,12 @@ contract ForceFieldTest is DustTest {
       parents[3] = 2;
       parents[4] = 3;
 
-      assertTrue(world.validateSpanningTree(fragments, fragments.length, parents), "Zigzag pattern should be valid");
+      assertTrue(world.validateSpanningTree(fragments, 5, parents), "Zigzag pattern should be valid");
     }
 
     // Test case 19: Invalid - multiple roots
     {
-      Vec3[] memory fragments = new Vec3[](6);
+      Vec3[26] memory fragments;
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0);
       fragments[2] = vec3(2, 0, 0);
@@ -1653,12 +1278,12 @@ contract ForceFieldTest is DustTest {
       parents[4] = 3;
       parents[5] = 4;
 
-      assertFalse(world.validateSpanningTree(fragments, fragments.length, parents), "Multiple roots should be invalid");
+      assertFalse(world.validateSpanningTree(fragments, 6, parents), "Multiple roots should be invalid");
     }
 
     // Test case 20: Invalid - complex disconnected components
     {
-      Vec3[] memory fragments = new Vec3[](10);
+      Vec3[26] memory fragments;
       // Component 1
       fragments[0] = vec3(0, 0, 0);
       fragments[1] = vec3(1, 0, 0);
@@ -1689,7 +1314,7 @@ contract ForceFieldTest is DustTest {
       parents[9] = 8;
 
       assertFalse(
-        world.validateSpanningTree(fragments, fragments.length, parents),
+        world.validateSpanningTree(fragments, 10, parents),
         "Complex disconnected components should be invalid"
       );
     }

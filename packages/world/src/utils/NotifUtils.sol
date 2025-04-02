@@ -93,11 +93,11 @@ struct WakeupNotifData {
   Vec3 bedCoord;
 }
 
-struct ExpandForceFieldNotifData {
+struct AddFragmentNotifData {
   EntityId forceFieldEntityId;
 }
 
-struct ContractForceFieldNotifData {
+struct RemoveFragmentNotifData {
   EntityId forceFieldEntityId;
 }
 
@@ -281,24 +281,24 @@ function notify(EntityId playerEntityId, WakeupNotifData memory wakeupNotifData)
   );
 }
 
-function notify(EntityId playerEntityId, ExpandForceFieldNotifData memory expandForceFieldNotifData) {
+function notify(EntityId playerEntityId, AddFragmentNotifData memory addFragmentNotifData) {
   Notification._set(
     playerEntityId,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.ExpandForceField,
-      actionData: abi.encode(expandForceFieldNotifData)
+      actionType: ActionType.AddFragment,
+      actionData: abi.encode(addFragmentNotifData)
     })
   );
 }
 
-function notify(EntityId playerEntityId, ContractForceFieldNotifData memory contractForceFieldNotifData) {
+function notify(EntityId playerEntityId, RemoveFragmentNotifData memory removeFragmentNotifData) {
   Notification._set(
     playerEntityId,
     NotificationData({
       timestamp: uint128(block.timestamp),
-      actionType: ActionType.ContractForceField,
-      actionData: abi.encode(contractForceFieldNotifData)
+      actionType: ActionType.RemoveFragment,
+      actionData: abi.encode(removeFragmentNotifData)
     })
   );
 }
