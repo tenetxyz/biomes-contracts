@@ -2,7 +2,7 @@
 
 ## Abstract
 
-This document provides a detailed examination of the Programs architecture within the DUST smart contract ecosystem. Programs represent a powerful abstraction layer that enables dynamic behavior and programmable logic for entities within the virtual world. By leveraging the MUD framework's capabilities, Programs offer a flexible mechanism for extending entity functionality through custom logic that can respond to various in-world events. This paper explores the theoretical foundations, implementation details, and practical applications of Programs, serving both as an academic analysis and a practical guide for developers.
+This document provides an overview of the Programs architecture within the DUST smart contract ecosystem. Programs represent a powerful abstraction layer that enables dynamic behavior and programmable logic for entities within the virtual world. By leveraging the MUD framework's capabilities, Programs offer a flexible mechanism for extending entity functionality through custom logic that can respond to various in-world events. This document explains the concepts, implementation details and practical applications of Programs, serving as a practical guide for developers.
 
 ## 1. Introduction
 
@@ -16,7 +16,7 @@ Programs function as an extension mechanism that separates an entity's data from
 
 Programs in this architecture are defined by several key abstractions:
 
-- **ProgramId**: A unique identifier that references a specific program implementation (the underlying value is a MUD's `ResourceId`)
+- **ProgramId**: A unique identifier that references a specific program implementation (the underlying value is a MUD `ResourceId`)
 - **EntityId**: A unique identifier for entities within the world (ForceFields, Chests, etc)
 - **Program**: Smart contracts (MUD systems) which can be attached to specific entities to define their behavior
 
@@ -126,9 +126,9 @@ This allows machines to execute custom logic when they receive fuel, potentially
 
 ## 5. Practical Applications
 
-### 5.1 Smart Objects
+### 5.1 Smart Entities
 
-Programs enable the creation of smart objects with custom behaviors:
+Programs enable the creation of smart entities with custom behaviors:
 
 - **Smart Doors**: Doors that only open for specific entities or under certain conditions
 - **Resource Generators**: Machines that produce resources at regular intervals
