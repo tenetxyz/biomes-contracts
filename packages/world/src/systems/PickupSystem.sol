@@ -44,7 +44,11 @@ contract PickupSystem is System {
 
     notify(
       caller,
-      PickupNotification({ pickupCoord: coord, pickupObjectTypeId: ObjectTypes.Air, pickupAmount: uint16(numTransferred) })
+      PickupNotification({
+        pickupCoord: coord,
+        pickupObjectTypeId: ObjectTypes.Air,
+        pickupAmount: uint16(numTransferred)
+      })
     );
   }
 
@@ -62,9 +66,7 @@ contract PickupSystem is System {
     EntityId entityId = pickupCommon(caller, coord);
     ObjectTypeId toolObjectTypeId = transferInventoryEntity(entityId, caller, ObjectTypes.Player, tool);
 
-    notify(
-      caller, PickupNotification({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
-    );
+    notify(caller, PickupNotification({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 }));
   }
 
   function pickupMultiple(
@@ -77,9 +79,7 @@ contract PickupSystem is System {
 
     for (uint256 i = 0; i < pickupObjects.length; i++) {
       ObjectAmount memory pickupObject = pickupObjects[i];
-      transferInventoryNonEntity(
-        entityId, caller, ObjectTypes.Player, pickupObject.objectTypeId, pickupObject.amount
-      );
+      transferInventoryNonEntity(entityId, caller, ObjectTypes.Player, pickupObject.objectTypeId, pickupObject.amount);
 
       notify(
         caller,
@@ -92,12 +92,9 @@ contract PickupSystem is System {
     }
 
     for (uint256 i = 0; i < pickupTools.length; i++) {
-      ObjectTypeId toolObjectTypeId =
-        transferInventoryEntity(entityId, caller, ObjectTypes.Player, pickupTools[i]);
+      ObjectTypeId toolObjectTypeId = transferInventoryEntity(entityId, caller, ObjectTypes.Player, pickupTools[i]);
 
-      notify(
-        caller, PickupNotification({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 })
-      );
+      notify(caller, PickupNotification({ pickupCoord: coord, pickupObjectTypeId: toolObjectTypeId, pickupAmount: 1 }));
     }
   }
 }

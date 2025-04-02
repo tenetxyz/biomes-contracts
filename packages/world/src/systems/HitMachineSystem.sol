@@ -43,8 +43,7 @@ contract HitMachineSystem is System {
     require(forceField.exists(), "No force field at this location");
     Vec3 forceFieldCoord = Position._get(forceField);
 
-    uint128 energyReduction =
-      HitMachineLib._processEnergyReduction(caller, forceField, coord, forceFieldCoord);
+    uint128 energyReduction = HitMachineLib._processEnergyReduction(caller, forceField, coord, forceFieldCoord);
 
     ProgramId program = forceField.getProgram();
     bytes memory onHit = abi.encodeCall(IHitHook.onHit, (caller, forceField, energyReduction, ""));
@@ -56,12 +55,10 @@ contract HitMachineSystem is System {
 }
 
 library HitMachineLib {
-  function _processEnergyReduction(
-    EntityId caller,
-    EntityId forceField,
-    Vec3 playerCoord,
-    Vec3 forceFieldCoord
-  ) public returns (uint128) {
+  function _processEnergyReduction(EntityId caller, EntityId forceField, Vec3 playerCoord, Vec3 forceFieldCoord)
+    public
+    returns (uint128)
+  {
     (EnergyData memory machineData,) = updateMachineEnergy(forceField);
     require(machineData.energy > 0, "Cannot hit depleted forcefield");
     (uint128 toolMassReduction,) = useEquipped(caller, machineData.energy);
