@@ -5,8 +5,9 @@ fuzz_runs = 256
 optimizer = true
 optimizer_runs = 1000000
 verbosity = 2
-src = "src"
-test = "test"
+src = "contracts"
+test = "contracts"
+script = "contracts/scripts"
 out = "out"
 allow_paths = [
   # pnpm symlinks to the project root's node_modules
