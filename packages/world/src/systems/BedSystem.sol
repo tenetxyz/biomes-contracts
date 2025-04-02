@@ -90,12 +90,9 @@ contract BedSystem is System {
     bedEntityId = bedEntityId.baseEntityId();
     require(!BedPlayer._getPlayerEntityId(bedEntityId).exists(), "Bed full");
 
-    // TODO: do we need a forcefield for sleeping?
     (EntityId forceFieldEntityId, ) = getForceField(Position._get(bedEntityId));
     require(forceFieldEntityId.exists(), "Bed is not inside a forcefield");
     (EnergyData memory machineData, uint128 depletedTime) = updateMachineEnergy(forceFieldEntityId);
-    // TODO: confirm we don't care if the machine has data
-    // require(machineData.energy > 0, "Forcefield has no energy");
 
     PlayerStatus._setBedEntityId(callerEntityId, bedEntityId);
     BedPlayer._set(bedEntityId, callerEntityId, depletedTime);
