@@ -31,11 +31,6 @@ contract ProgramSystem is System {
     (, Vec3 targetCoord) = caller.requireConnected(target);
     target = target.baseEntityId();
 
-    // ForceField fragments don't have a position on the grid, so we need to handle them differently
-    // if (objectTypeId == ObjectTypes.ForceFieldFragment) {
-    //   // TODO: figure out proximity checks for fragments
-    // }
-
     require(!target.getProgram().exists(), "Existing program must be detached");
 
     (, bool publicAccess) = Systems._get(program.toResourceId());
@@ -62,11 +57,6 @@ contract ProgramSystem is System {
     caller.activate();
     (, Vec3 targetCoord) = caller.requireConnected(target);
     target = target.baseEntityId();
-
-    // ForceField fragments don't have a position on the grid, so we need to handle them differently
-    // if (ObjectType._get(baseEntityId) == ObjectTypes.ForceFieldFragment) {
-    //   // TODO: figure out proximity checks for fragments
-    // }
 
     ProgramId program = target.getProgram();
     require(program.exists(), "No program attached");
