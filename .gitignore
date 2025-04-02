@@ -1,12 +1,12 @@
 *.idea
 *.DS_Store
-*.vscode
 .yarn
 .yarnrc.yml
 *.swp
 .venv
 
 node_modules
+dist
 
 # mud artifacts
 .mud

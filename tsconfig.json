@@ -1,0 +1,8 @@
+{
+  "extends": "@latticexyz/common/tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declarationMap": true,
+    "noUncheckedIndexedAccess": true
+  }
+}
