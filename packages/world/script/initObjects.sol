@@ -5,8 +5,8 @@ pragma solidity >=0.8.24;
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 
-import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 
 function initObjects() {
   ObjectTypeMetadata.set(
@@ -1141,47 +1141,113 @@ function initObjects() {
   );
   ObjectTypeMetadata.set(
     ObjectTypes.OakPlanks,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.BirchPlanks,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.JunglePlanks,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.SakuraPlanks,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.SprucePlanks,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.AcaciaPlanks,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.DarkOakPlanks,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Thermoblaster,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Workbench,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Dyeomatic,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Powerstone,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.CoalOre,
@@ -1275,87 +1341,213 @@ function initObjects() {
   );
   ObjectTypeMetadata.set(
     ObjectTypes.ForceField,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Chest,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 27, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 27,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.TextSign,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.SpawnTile,
-    ObjectTypeMetadataData({ stackable: 99, maxInventorySlots: 0, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 99,
+      maxInventorySlots: 0,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.Bed,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 36, mass: 100, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 36,
+      mass: 10000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.WoodenPick,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 18750, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 1875000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.WoodenAxe,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 18750, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 1875000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.WoodenWhacker,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 18750, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 1875000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.WoodenHoe,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 18750, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 1875000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.StonePick,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 100000, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 10000000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.StoneAxe,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 100000, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 10000000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.StoneWhacker,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 100000, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 10000000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.SilverPick,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 1400000, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 140000000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.SilverAxe,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 1400000, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 140000000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.SilverWhacker,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 1400000, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 140000000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.GoldPick,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 1200000, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 120000000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.GoldAxe,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 1200000, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 120000000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.DiamondPick,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 1900000, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 190000000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.DiamondAxe,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 1900000, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 190000000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.NeptuniumPick,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 5500000, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 550000000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.NeptuniumAxe,
-    ObjectTypeMetadataData({ stackable: 1, maxInventorySlots: 0, mass: 5500000, energy: 0, canPassThrough: false })
+    ObjectTypeMetadataData({
+      stackable: 1,
+      maxInventorySlots: 0,
+      mass: 550000000000000000000,
+      energy: 0,
+      canPassThrough: false
+    })
   );
   ObjectTypeMetadata.set(
     ObjectTypes.GoldBar,
