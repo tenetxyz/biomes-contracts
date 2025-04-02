@@ -1,0 +1,29 @@
+{
+  "name": "dustkit",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./dist/exports/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "index": [
+        "./dist/exports/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "json-schemas"
+  ],
+  "scripts": {
+    "build:js": "tsc",
+    "build:json-schema": "tsx scripts/generate-json-schemas.ts",
+    "build": "pnpm run build:json-schema && pnpm run build:js",
+    "test": "tsc --noEmit"
+  },
+  "dependencies": {
+    "arktype": "^2.1.15",
+    "ox": "^0.6.10"
+  }
+}
