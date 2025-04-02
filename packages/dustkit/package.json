@@ -7,19 +7,14 @@
   },
   "typesVersions": {
     "*": {
-      "index": [
-        "./dist/exports/index.d.ts"
-      ]
+      "index": ["./dist/exports/index.d.ts"]
     }
   },
-  "files": [
-    "dist",
-    "json-schemas"
-  ],
+  "files": ["dist", "json-schemas"],
   "scripts": {
+    "build": "pnpm run build:json-schema && pnpm run build:js && biome check --fix",
     "build:js": "tsc",
     "build:json-schema": "tsx scripts/generate-json-schemas.ts",
-    "build": "pnpm run build:json-schema && pnpm run build:js",
     "test": "tsc --noEmit"
   },
   "dependencies": {

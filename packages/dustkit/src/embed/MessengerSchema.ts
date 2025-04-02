@@ -1,4 +1,4 @@
-import { Hex } from "ox";
+import type { Hex } from "ox";
 
 export type MessengerSchema = [
   {

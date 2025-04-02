@@ -10,6 +10,6 @@ const outDir = path.join(__dirname, "..", "json-schemas");
 fs.mkdirSync(outDir, { recursive: true });
 
 fs.writeFileSync(
-  path.join(outDir, "embed-config.json"),
-  JSON.stringify(config.toJsonSchema(), null, 2)
+	path.join(outDir, "embed-config.json"),
+	JSON.stringify(config.toJsonSchema(), null, 2),
 );

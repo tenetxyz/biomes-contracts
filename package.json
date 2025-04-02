@@ -1,34 +1,39 @@
 {
   "name": "dust",
+  "private": true,
+  "type": "module",
   "scripts": {
     "build": "pnpm recursive run build",
     "clean": "pnpm recursive run clean",
-    "dev": "mprocs",
     "deploy:dev": "pnpm --filter 'world' run dev",
     "deploy:local": "pnpm --filter 'world' deploy:local",
-    "deploy:testnet": "NODE_ENV=testnet pnpm --filter 'world' deploy:testnet",
     "deploy:mainnet": "NODE_ENV=mainnet pnpm --filter 'world' deploy:mainnet",
+    "deploy:testnet": "NODE_ENV=testnet pnpm --filter 'world' deploy:testnet",
+    "dev": "mprocs",
+    "fix": "pnpm run fix:package-json && pnpm run fix:lint",
+    "fix:lint": "biome check --fix",
+    "fix:package-json": "pnpx sort-package-json package.json 'packages/*/package.json'",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
+    "lint": "biome check",
     "mud:up": "pnpm mud set-version --tag main && pnpm install",
     "prepare": "(forge --version || pnpm foundry:up)",
     "test": "pnpm recursive run test"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@latticexyz/cli": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
+    "@latticexyz/common": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
+    "@latticexyz/entrykit": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
     "@latticexyz/explorer": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
     "@latticexyz/store-indexer": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
-    "@latticexyz/entrykit": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
-    "@types/node": "^18",
-    "@typescript-eslint/eslint-plugin": "7.1.1",
-    "@typescript-eslint/parser": "7.1.1",
-    "eslint": "8.57.0",
+    "@types/node": "^20.17.30",
     "mprocs": "^0.7.1",
-    "shx": "^0.3.4",
-    "typescript": "5.4.2"
+    "shx": "^0.4.0",
+    "tsx": "^4.19.3"
   },
   "packageManager": "pnpm@9.6.0",
   "engines": {
-    "node": "18.x || 20.x",
-    "pnpm": "^9.6.0"
+    "node": "^20",
+    "pnpm": "^9"
   }
 }

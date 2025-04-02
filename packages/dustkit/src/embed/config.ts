@@ -29,7 +29,7 @@ export async function getConfig({ url }: { url: string }): Promise<Config> {
   const startUrl = new URL(config.startUrl ?? ".", url);
   if (startUrl.origin !== configUrl.origin) {
     throw new Error(
-      `Config \`startUrl\` origin ("${startUrl.origin}") did not match config origin ("${configUrl.origin}").`
+      `Config \`startUrl\` origin ("${startUrl.origin}") did not match config origin ("${configUrl.origin}").`,
     );
   }
 

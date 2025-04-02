@@ -92,7 +92,7 @@ async function main() {
     if (processedUsers.has(user.toLowerCase())) continue;
     processedUsers.add(user.toLowerCase());
 
-    let txCounts = allUserStats[user].txCounts;
+    const txCounts = allUserStats[user].txCounts;
     let firstTxDate = allUserStats[user].firstTxDate ? new Date(allUserStats[user].firstTxDate) : null;
     let lastTxDate = allUserStats[user].lastTxDate ? new Date(allUserStats[user].lastTxDate) : null;
     let numTxs = allUserStats[user].numTxs;
@@ -102,7 +102,7 @@ async function main() {
     let totalBaseFees = allUserStats[user].totalBaseFees;
     let totalPriorityFees = allUserStats[user].totalPriorityFees;
 
-    let delegator = delegateeToDelegator.get(user);
+    const delegator = delegateeToDelegator.get(user);
     if (delegator) {
       processedUsers.add(delegator.toLowerCase());
       const delegatorStats = allUserStats[delegator];
@@ -128,7 +128,7 @@ async function main() {
         }
       }
     }
-    let delegatee = delegatorToDelegatee.get(user);
+    const delegatee = delegatorToDelegatee.get(user);
     if (delegatee) {
       processedUsers.add(delegatee.toLowerCase());
       const delegateeStats = allUserStats[delegatee];
@@ -158,7 +158,7 @@ async function main() {
       continue;
     }
 
-    let userAddress = delegator ? delegator : user;
+    const userAddress = delegator ? delegator : user;
     if (firstTxDate === null) {
       throw new Error("firstTxDate is null for user " + user);
     }

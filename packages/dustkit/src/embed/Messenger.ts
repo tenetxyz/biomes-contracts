@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 import type { MessengerSchema as Schema } from "./MessengerSchema";
 
 /**
@@ -13,16 +12,16 @@ export type Messenger = {
   on: <const topic extends Topic>(
     topic: topic | Topic,
     listener: (payload: Payload<topic>) => void,
-    id?: string | undefined
+    id?: string | undefined,
   ) => () => void;
   send: <const topic extends Topic>(
     topic: topic | Topic,
     payload: Payload<topic>,
-    targetOrigin?: string | undefined
+    targetOrigin?: string | undefined,
   ) => Promise<{ id: string; topic: topic; payload: Payload<topic> }>;
   sendAsync: <const topic extends Topic>(
     topic: topic | Topic,
-    payload: Payload<topic>
+    payload: Payload<topic>,
   ) => Promise<Response<topic>>;
 };
 
@@ -62,7 +61,7 @@ export function from(messenger: Messenger): Messenger {
  */
 export function fromWindow(
   w: Window,
-  options: fromWindow.Options = {}
+  options: fromWindow.Options = {},
 ): Messenger {
   const { targetOrigin } = options;
   const handlers: ((event: MessageEvent) => void)[] = [];
@@ -90,7 +89,6 @@ export function fromWindow(
     },
     async sendAsync(topic, payload) {
       const { id } = await this.send(topic, payload);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return new Promise<any>((resolve) => {
         const off = this.on(
           topic,
@@ -98,7 +96,7 @@ export function fromWindow(
             off();
             resolve(payload);
           },
-          id
+          id,
         );
       });
     },
