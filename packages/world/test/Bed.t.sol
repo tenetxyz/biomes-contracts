@@ -7,11 +7,12 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
 
+import { TestEnergyUtils } from "./utils/TestUtils.sol";
+
 import { DustTest, console } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 import { Machine } from "../src/codegen/tables/Machine.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
@@ -20,26 +21,16 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 
 import { LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
 
-import { IBedProgram } from "../src/prototypes/IBedProgram.sol";
+import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
+import { ProgramId } from "../src/ProgramId.sol";
 import { CHUNK_SIZE, MACHINE_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
-import { TestEnergyUtils } from "./utils/TestUtils.sol";
 
-contract TestBedProgram is IBedProgram, System {
-  function onAttached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
-
-  function onDetached(EntityId callerEntityId, EntityId targetEntityId, bytes memory extraData) external payable {}
-
-  function onSleep(EntityId callerEntityId, EntityId bedEntityId, bytes memory extraData) external payable {}
-
-  function onWakeup(EntityId callerEntityId, EntityId bedEntityId, bytes memory extraData) external payable {}
-
-  function supportsInterface(bytes4 interfaceId) public pure override(IERC165, WorldContextConsumer) returns (bool) {
-    return interfaceId == type(IBedProgram).interfaceId || super.supportsInterface(interfaceId);
-  }
+contract TestBedProgram is System {
+  fallback() external {}
 }
 
 contract BedTest is DustTest {
@@ -61,14 +52,13 @@ contract BedTest is DustTest {
     ResourceId programSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, namespace, "programName");
     world.registerNamespace(namespaceId);
     world.registerSystem(programSystemId, program, false);
-    world.transferOwnership(namespaceId, address(0));
 
     Vec3 bedCoord = Position.get(bedEntityId);
 
     // Attach program with test player
     (address bob, EntityId bobEntityId) = createTestPlayer(bedCoord - vec3(1, 0, 0));
     vm.prank(bob);
-    world.attachProgram(bobEntityId, bedEntityId, programSystemId, "");
+    world.attachProgram(bobEntityId, bedEntityId, ProgramId.wrap(programSystemId.unwrap()), "");
   }
 
   function testSleep() public {

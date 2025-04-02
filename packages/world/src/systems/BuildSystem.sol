@@ -2,7 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -22,9 +21,6 @@ import { getOrCreateEntityAt, getObjectTypeIdAt, getMovableEntityAt } from "../u
 import { removeEnergyFromLocalPool, updateMachineEnergy, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { getForceField, setupForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, BuildNotifData, MoveNotifData } from "../utils/NotifUtils.sol";
-import { callProgramOrRevert } from "../utils/callProgram.sol";
-
-import { IForceFieldFragmentProgram } from "../prototypes/IForceFieldProgram.sol";
 
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
@@ -33,6 +29,8 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
+import { ProgramId } from "../ProgramId.sol";
+import { IBuildHook } from "../ProgramInterfaces.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { BUILD_ENERGY_COST } from "../Constants.sol";
 
@@ -107,18 +105,18 @@ library BuildLib {
       if (forceFieldEntityId.exists()) {
         (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
         if (machineData.energy > 0) {
-          bytes memory onBuildCall = abi.encodeCall(
-            IForceFieldFragmentProgram.onBuild,
+          // We know fragment is active because its forcefield exists, so we can use its program
+          ProgramId program = fragmentEntityId.getProgram();
+          if (!program.exists()) {
+            program = forceFieldEntityId.getProgram();
+          }
+
+          bytes memory onBuild = abi.encodeCall(
+            IBuildHook.onBuild,
             (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
           );
 
-          // We know fragment is active because its forcefield exists, so we can use its program
-          ResourceId fragmentProgram = fragmentEntityId.getProgram();
-          if (fragmentProgram.unwrap() != 0) {
-            callProgramOrRevert(fragmentProgram, onBuildCall);
-          } else {
-            callProgramOrRevert(forceFieldEntityId.getProgram(), onBuildCall);
-          }
+          program.callOrRevert(onBuild);
         }
       }
     }
@@ -147,13 +145,13 @@ contract BuildSystem is System {
 
     transferEnergyToPool(callerEntityId, BUILD_ENERGY_COST);
 
+    // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
+    BuildLib._requireBuildsAllowed(callerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
+
     notify(
       callerEntityId,
       BuildNotifData({ buildEntityId: baseEntityId, buildCoord: coords[0], buildObjectTypeId: buildObjectTypeId })
     );
-
-    // Note: we call this after the build state has been updated, to prevent re-entrancy attacks
-    BuildLib._requireBuildsAllowed(callerEntityId, baseEntityId, buildObjectTypeId, coords, extraData);
 
     return baseEntityId;
   }

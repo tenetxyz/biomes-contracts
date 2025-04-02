@@ -1,157 +1,110 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { ResourceId, WorldResourceIdInstance } from "@latticexyz/world/src/WorldResourceId.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
 import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
 
+import { EntityProgram } from "../codegen/tables/EntityProgram.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { EnergyData } from "../codegen/tables/Energy.sol";
-import { Program } from "../codegen/tables/Program.sol";
 import { ActionType } from "../codegen/common.sol";
 
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField, isForceFieldFragmentActive } from "../utils/ForceFieldUtils.sol";
 import { notify, AttachProgramNotifData, DetachProgramNotifData } from "../utils/NotifUtils.sol";
 
-import { IProgram } from "../prototypes/IProgram.sol";
-import { IChestProgram } from "../prototypes/IChestProgram.sol";
-import { IForceFieldProgram } from "../prototypes/IForceFieldProgram.sol";
-import { IForceFieldFragmentProgram } from "../prototypes/IForceFieldFragmentProgram.sol";
-import { IDisplayProgram } from "../prototypes/IDisplayProgram.sol";
-import { ISpawnTileProgram } from "../prototypes/ISpawnTileProgram.sol";
-import { IBedProgram } from "../prototypes/IBedProgram.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
 import { Vec3 } from "../Vec3.sol";
-import { safeCallProgram, callProgramOrRevert } from "../utils/callProgram.sol";
+import { ProgramId } from "../ProgramId.sol";
+import { IAttachProgramHook, IDetachProgramHook, IProgramValidator } from "../ProgramInterfaces.sol";
+import { SAFE_PROGRAM_GAS } from "../Constants.sol";
 
 contract ProgramSystem is System {
-  using WorldResourceIdInstance for ResourceId;
+  function attachProgram(EntityId caller, EntityId target, ProgramId program, bytes calldata extraData) public payable {
+    caller.activate();
+    (, Vec3 targetCoord) = caller.requireConnected(target);
+    target = target.baseEntityId();
 
-  function _requireInterface(address programAddress, bytes4 interfaceId) internal view {
-    require(
-      ERC165Checker.supportsInterface(programAddress, interfaceId),
-      "Program does not implement the required interface"
-    );
-  }
+    require(!target.getProgram().exists(), "Existing program must be detached");
 
-  function _callForceFieldProgram(EntityId forceFieldEntityId, EntityId fragmentEntityId, bytes memory data) internal {
-    // We know fragment is active because its forcefield exists, so we can use its program
-    ResourceId fragmentProgram = fragmentEntityId.getProgram();
-    if (fragmentProgram.unwrap() != 0) {
-      callProgramOrRevert(fragmentProgram, data);
-    } else {
-      callProgramOrRevert(forceFieldEntityId.getProgram(), data);
-    }
-  }
-
-  function attachProgram(
-    EntityId callerEntityId,
-    EntityId targetEntityId,
-    ResourceId programSystemId,
-    bytes calldata extraData
-  ) public payable {
-    callerEntityId.activate();
-    (, Vec3 targetCoord) = callerEntityId.requireConnected(targetEntityId);
-
-    EntityId baseEntityId = targetEntityId.baseEntityId();
-    ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
-
-    require(baseEntityId.getProgram().unwrap() == 0, "Program already attached");
-
-    // ForceField fragments don't have a position on the grid, so we need to handle them differently
-    if (objectTypeId == ObjectTypes.ForceFieldFragment) {
-      // TODO: figure out proximity checks for fragments
-    }
-
-    (address programAddress, bool publicAccess) = Systems._get(programSystemId);
+    (, bool publicAccess) = Systems._get(program.toResourceId());
     require(!publicAccess, "Program system must be private");
 
-    if (objectTypeId == ObjectTypes.ForceField) {
-      _requireInterface(programAddress, type(IForceFieldProgram).interfaceId);
-    } else if (objectTypeId == ObjectTypes.ForceFieldFragment) {
-      _requireInterface(programAddress, type(IForceFieldFragmentProgram).interfaceId);
-    } else if (objectTypeId == ObjectTypes.SmartChest) {
-      _requireInterface(programAddress, type(IChestProgram).interfaceId);
-    } else if (objectTypeId == ObjectTypes.SmartTextSign) {
-      _requireInterface(programAddress, type(IDisplayProgram).interfaceId);
-    } else if (objectTypeId == ObjectTypes.SpawnTile) {
-      _requireInterface(programAddress, type(ISpawnTileProgram).interfaceId);
-    } else if (objectTypeId == ObjectTypes.Bed) {
-      _requireInterface(programAddress, type(IBedProgram).interfaceId);
-    } else {
-      revert("Cannot attach a program to this object");
-    }
+    (EntityId validator, ProgramId validatorProgram) = _getValidatorProgram(targetCoord);
 
-    notify(callerEntityId, AttachProgramNotifData({ attachEntityId: baseEntityId, programSystemId: programSystemId }));
+    bytes memory validateProgram = abi.encodeCall(
+      IProgramValidator.validateProgram,
+      (caller, validator, target, program, extraData)
+    );
 
-    // If forcefield is active, call its hook
-    if (objectTypeId != ObjectTypes.ForceField) {
-      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(targetCoord);
-      if (forceFieldEntityId.exists()) {
-        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
-        if (machineData.energy > 0) {
-          bytes memory onProgramAttachedCall = abi.encodeCall(
-            IForceFieldFragmentProgram.onProgramAttached,
-            (callerEntityId, forceFieldEntityId, baseEntityId, extraData)
-          );
+    // The validateProgram view function should revert if the program is not allowed
+    validatorProgram.staticcallOrRevert(validateProgram);
 
-          _callForceFieldProgram(forceFieldEntityId, fragmentEntityId, onProgramAttachedCall);
-        }
-      }
-    }
+    EntityProgram._set(target, program);
 
-    // Program needs to be set after calling the forcefield's hook,
-    // otherwise if it is a fragment it would call itself
-    Program._setProgramSystemId(baseEntityId, programSystemId);
+    program.callOrRevert(abi.encodeCall(IAttachProgramHook.onAttachProgram, (caller, target, extraData)));
 
-    bytes memory onAttachedCall = abi.encodeCall(IProgram.onAttached, (callerEntityId, baseEntityId, extraData));
-    callProgramOrRevert(programSystemId, onAttachedCall);
+    notify(caller, AttachProgramNotifData({ attachEntityId: target, programSystemId: program.toResourceId() }));
   }
 
-  function detachProgram(EntityId callerEntityId, EntityId targetEntityId, bytes calldata extraData) public payable {
-    callerEntityId.activate();
-    (, Vec3 targetCoord) = callerEntityId.requireConnected(targetEntityId);
-    EntityId baseEntityId = targetEntityId.baseEntityId();
+  function detachProgram(EntityId caller, EntityId target, bytes calldata extraData) public payable {
+    caller.activate();
+    (, Vec3 targetCoord) = caller.requireConnected(target);
+    target = target.baseEntityId();
 
-    // ForceField fragments don't have a position on the grid, so we need to handle them differently
-    if (ObjectType._get(baseEntityId) == ObjectTypes.ForceFieldFragment) {
-      // TODO: figure out proximity checks for fragments
-    }
+    ProgramId program = target.getProgram();
+    require(program.exists(), "No program attached");
 
-    ResourceId programSystemId = baseEntityId.getProgram();
+    bytes memory onDetachProgram = abi.encodeCall(IDetachProgramHook.onDetachProgram, (caller, target, extraData));
 
-    require(programSystemId.unwrap() != 0, "No program attached");
-
-    Program._deleteRecord(baseEntityId);
-
-    notify(callerEntityId, DetachProgramNotifData({ detachEntityId: baseEntityId, programSystemId: programSystemId }));
-
-    (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(targetCoord);
-
-    (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
-
-    // If forcefield is active, call its hook
-    bytes memory onDetachedCall = abi.encodeCall(IProgram.onDetached, (callerEntityId, baseEntityId, extraData));
+    (EntityId forceField, ) = getForceField(targetCoord);
+    // If forcefield doesn't have energy, allow the program
+    (EnergyData memory machineData, ) = updateMachineEnergy(forceField);
     if (machineData.energy > 0) {
-      if (forceFieldEntityId.exists() && ObjectType._get(baseEntityId) != ObjectTypes.ForceField) {
-        bytes memory onProgramDetachedCall = abi.encodeCall(
-          IForceFieldFragmentProgram.onProgramDetached,
-          (callerEntityId, forceFieldEntityId, baseEntityId, extraData)
-        );
-        _callForceFieldProgram(forceFieldEntityId, fragmentEntityId, onProgramDetachedCall);
-      }
-
-      // Don't safe call here because we want to revert if the program doesn't allow the detachment
-      callProgramOrRevert(programSystemId, onDetachedCall);
+      program.callOrRevert(onDetachProgram);
     } else {
-      safeCallProgram(programSystemId, onDetachedCall);
+      program.call({ gas: SAFE_PROGRAM_GAS, hook: onDetachProgram });
     }
+
+    EntityProgram._deleteRecord(target);
+
+    notify(caller, DetachProgramNotifData({ detachEntityId: target, programSystemId: program.toResourceId() }));
+  }
+
+  function _getValidatorProgram(Vec3 coord) internal returns (EntityId, ProgramId) {
+    // Check if the forcefield (or fragment) allow the new program
+    (EntityId forceField, EntityId fragment) = getForceField(coord);
+    if (!forceField.exists()) {
+      return (EntityId.wrap(0), ProgramId.wrap(0));
+    }
+
+    // If forcefield doesn't have energy, allow the program
+    (EnergyData memory machineData, ) = updateMachineEnergy(forceField);
+    if (machineData.energy == 0) {
+      return (EntityId.wrap(0), ProgramId.wrap(0));
+    }
+
+    // Try to get program from fragment first, then from force field if needed
+    ProgramId program = fragment.getProgram();
+    EntityId validator = fragment;
+
+    // If fragment has no program, try the force field
+    if (!program.exists()) {
+      program = forceField.getProgram();
+      validator = forceField;
+
+      // If neither has a program, we're done
+      if (!program.exists()) {
+        return (EntityId.wrap(0), ProgramId.wrap(0));
+      }
+    }
+
+    return (validator, program);
   }
 }

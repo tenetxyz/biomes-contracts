@@ -2,7 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { LibPRNG } from "solady/utils/LibPRNG.sol";
 
 import { MinedOreCount } from "../codegen/tables/MinedOreCount.sol";
@@ -15,8 +14,7 @@ import { Orientation } from "../codegen/tables/Orientation.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
-import { DisplayContent, DisplayContentData } from "../codegen/tables/DisplayContent.sol";
-import { DisplayContentType } from "../codegen/common.sol";
+import { DisplayURI } from "../codegen/tables/DisplayURI.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
 import { MinedOrePosition } from "../utils/Vec3Storage.sol";
@@ -29,19 +27,18 @@ import { transferEnergyToPool, updateMachineEnergy, updatePlayerEnergy, addEnerg
 import { getForceField, destroyForceField } from "../utils/ForceFieldUtils.sol";
 import { notify, MineNotifData, DeathNotifData } from "../utils/NotifUtils.sol";
 import { getOrCreateEntityAt, getObjectTypeIdAt, createEntityAt, getEntityAt, getMovableEntityAt } from "../utils/EntityUtils.sol";
-import { callProgramOrRevert } from "../utils/callProgram.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
-
-import { IForceFieldFragmentProgram } from "../prototypes/IForceFieldProgram.sol";
 
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectTypeLib, ObjectAmount } from "../ObjectTypeLib.sol";
 import { EntityId } from "../EntityId.sol";
-import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM } from "../Constants.sol";
+import { CHUNK_COMMIT_EXPIRY_BLOCKS, MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM, SAFE_PROGRAM_GAS } from "../Constants.sol";
 import { MINE_ENERGY_COST } from "../Constants.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
+import { ProgramId } from "../ProgramId.sol";
+import { IMineHook, IDetachProgramHook } from "../ProgramInterfaces.sol";
 
 contract MineSystem is System {
   using ObjectTypeLib for ObjectTypeId;
@@ -85,8 +82,6 @@ contract MineSystem is System {
     EntityId baseEntityId = entityId.baseEntityId();
     Vec3 baseCoord = Position._get(baseEntityId);
 
-    // Program needs to be detached first
-    require(baseEntityId.getProgram().unwrap() == 0, "Cannot mine a programped block");
     if (mineObjectTypeId.isMachine()) {
       (EnergyData memory machineData, ) = updateMachineEnergy(baseEntityId);
       require(machineData.energy == 0, "Cannot mine a machine that has energy");
@@ -108,8 +103,8 @@ contract MineSystem is System {
           MineLib._mineBed(baseEntityId, baseCoord);
         }
 
-        if (DisplayContent._getContentType(baseEntityId) != DisplayContentType.None) {
-          DisplayContent._deleteRecord(baseEntityId);
+        if (bytes(DisplayURI._get(baseEntityId)).length > 0) {
+          DisplayURI._deleteRecord(baseEntityId);
         }
 
         Mass._deleteRecord(baseEntityId);
@@ -149,16 +144,28 @@ contract MineSystem is System {
       }
     }
 
+    MineLib._requireMinesAllowed(callerEntityId, mineObjectTypeId, coord, extraData);
+
+    if (finalMass == 0) {
+      // Detach program if it exists
+      ProgramId program = baseEntityId.getProgram();
+      if (program.exists()) {
+        bytes memory onDetachProgram = abi.encodeCall(
+          IDetachProgramHook.onDetachProgram,
+          (callerEntityId, baseEntityId, extraData)
+        );
+        program.call({ gas: SAFE_PROGRAM_GAS, hook: onDetachProgram });
+      }
+
+      if (mineObjectTypeId == ObjectTypes.ForceField) {
+        destroyForceField(baseEntityId);
+      }
+    }
+
     notify(
       callerEntityId,
       MineNotifData({ mineEntityId: baseEntityId, mineCoord: coord, mineObjectTypeId: mineObjectTypeId })
     );
-
-    MineLib._requireMinesAllowed(callerEntityId, mineObjectTypeId, coords, extraData);
-
-    if (mineObjectTypeId == ObjectTypes.ForceField && finalMass == 0) {
-      destroyForceField(baseEntityId);
-    }
 
     return baseEntityId;
   }
@@ -193,30 +200,34 @@ library MineLib {
   function _requireMinesAllowed(
     EntityId callerEntityId,
     ObjectTypeId objectTypeId,
-    Vec3[] memory coords,
+    Vec3 coord,
     bytes calldata extraData
   ) public {
-    for (uint256 i = 0; i < coords.length; i++) {
-      Vec3 coord = coords[i];
-      (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(coord);
-      if (forceFieldEntityId.exists()) {
-        (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
-        if (machineData.energy > 0) {
-          bytes memory onMineCall = abi.encodeCall(
-            IForceFieldFragmentProgram.onMine,
-            (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
-          );
+    (EntityId forceFieldEntityId, EntityId fragmentEntityId) = getForceField(coord);
 
-          // We know fragment is active because its forcefield exists, so we can use its program
-          ResourceId fragmentProgram = fragmentEntityId.getProgram();
-          if (fragmentProgram.unwrap() != 0) {
-            callProgramOrRevert(fragmentProgram, onMineCall);
-          } else {
-            callProgramOrRevert(forceFieldEntityId.getProgram(), onMineCall);
-          }
-        }
+    if (!forceFieldEntityId.exists()) {
+      return;
+    }
+    (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
+    if (machineData.energy == 0) {
+      return;
+    }
+
+    // We know fragment is active because its forcefield exists, so we can use its program
+    ProgramId program = fragmentEntityId.getProgram();
+    if (!program.exists()) {
+      program = forceFieldEntityId.getProgram();
+      if (!program.exists()) {
+        return;
       }
     }
+
+    bytes memory onMine = abi.encodeCall(
+      IMineHook.onMine,
+      (callerEntityId, forceFieldEntityId, objectTypeId, coord, extraData)
+    );
+
+    program.callOrRevert(onMine);
   }
 }
 

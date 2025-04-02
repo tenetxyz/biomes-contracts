@@ -38,7 +38,6 @@ struct EntityData {
   ResourceId programSystemId;
   uint256 mass;
   EnergyData energy;
-  MachineData machine;
 }
 
 struct PickupData {

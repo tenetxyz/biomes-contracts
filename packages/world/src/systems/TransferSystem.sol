@@ -3,24 +3,20 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { Program } from "../codegen/tables/Program.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { EnergyData } from "../codegen/tables/Energy.sol";
 
-import { IChestProgram } from "../prototypes/IChestProgram.sol";
-
 import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
 import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
-import { callProgramOrRevert } from "../utils/callProgram.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { updateMachineEnergy, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 
-import { ProgramOnTransferData } from "../Types.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectAmount } from "../ObjectTypeLib.sol";
 import { Vec3 } from "../Vec3.sol";
+import { ITransferHook } from "../ProgramInterfaces.sol";
 import { SMART_CHEST_ENERGY_COST } from "../Constants.sol";
 
 contract TransferSystem is System {
@@ -102,6 +98,13 @@ library TransferLib {
 
     require(ObjectType._get(targetEntityId) != ObjectTypes.Player, "Cannot transfer to player");
 
+    bytes memory onTransfer = abi.encodeCall(
+      ITransferHook.onTransfer,
+      (callerEntityId, targetEntityId, fromEntityId, toEntityId, objectAmounts, toolEntityIds, extraData)
+    );
+
+    targetEntityId.getProgram().callOrRevert(onTransfer);
+
     notify(
       callerEntityId,
       TransferNotifData({
@@ -110,27 +113,6 @@ library TransferLib {
         objectAmounts: objectAmounts
       })
     );
-
-    (EntityId forceFieldEntityId, ) = getForceField(targetEntityId.getPosition());
-    (EnergyData memory energyData, ) = updateMachineEnergy(forceFieldEntityId);
-    if (energyData.energy > 0) {
-      // Don't safe call here as we want to revert if the program doesn't allow the transfer
-      bytes memory onTransferCall = abi.encodeCall(
-        IChestProgram.onTransfer,
-        (
-          ProgramOnTransferData(
-            callerEntityId,
-            targetEntityId,
-            fromEntityId,
-            toEntityId,
-            toolEntityIds,
-            objectAmounts,
-            extraData
-          )
-        )
-      );
-      callProgramOrRevert(targetEntityId.getProgram(), onTransferCall);
-    }
   }
 
   function _getTargetEntityId(

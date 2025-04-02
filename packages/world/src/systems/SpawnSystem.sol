@@ -25,13 +25,12 @@ import { getForceField } from "../utils/ForceFieldUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
 import { removeEnergyFromLocalPool, updateMachineEnergy, updatePlayerEnergy } from "../utils/EnergyUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { callProgramOrRevert } from "../utils/callProgram.sol";
-import { ISpawnTileProgram } from "../prototypes/ISpawnTileProgram.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
 import { getObjectTypeIdAt, getMovableEntityAt } from "../utils/EntityUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
+import { ISpawnHook } from "../ProgramInterfaces.sol";
 
 contract SpawnSystem is System {
   using ObjectTypeLib for ObjectTypeId;
@@ -153,17 +152,13 @@ contract SpawnSystem is System {
     (EntityId forceFieldEntityId, ) = getForceField(spawnTileCoord);
     require(forceFieldEntityId.exists(), "Spawn tile is not inside a forcefield");
     (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
-    uint128 energyRequired = MAX_PLAYER_ENERGY;
-    require(machineData.energy >= energyRequired, "Not enough energy in spawn tile forcefield");
-    Energy._setEnergy(forceFieldEntityId, machineData.energy - energyRequired);
+    require(machineData.energy >= MAX_PLAYER_ENERGY, "Not enough energy in spawn tile forcefield");
+    Energy._setEnergy(forceFieldEntityId, machineData.energy - MAX_PLAYER_ENERGY);
 
     EntityId playerEntityId = _spawnPlayer(spawnCoord);
 
-    bytes memory onSpawnCall = abi.encodeCall(
-      ISpawnTileProgram.onSpawn,
-      (playerEntityId, spawnTileEntityId, extraData)
-    );
-    callProgramOrRevert(spawnTileEntityId.getProgram(), onSpawnCall);
+    bytes memory onSpawn = abi.encodeCall(ISpawnHook.onSpawn, (playerEntityId, spawnTileEntityId, extraData));
+    spawnTileEntityId.getProgram().callOrRevert(onSpawn);
 
     return playerEntityId;
   }
