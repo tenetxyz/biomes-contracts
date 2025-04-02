@@ -50,9 +50,9 @@ import {
   CHUNK_COMMIT_EXPIRY_BLOCKS,
   MAX_COAL,
   MAX_DIAMOND,
+  MAX_EMERALD,
   MAX_GOLD,
-  MAX_NEPTUNIUM,
-  MAX_SILVER,
+  MAX_IRON,
   SAFE_PROGRAM_GAS
 } from "../Constants.sol";
 import { MINE_ENERGY_COST } from "../Constants.sol";
@@ -284,18 +284,13 @@ library RandomOreLib {
     require(block.number <= commitment + CHUNK_COMMIT_EXPIRY_BLOCKS, "Ore commitment expired");
 
     // TODO: can optimize by not storing these in memory and returning the type depending on for loop index
-    ObjectTypeId[5] memory ores = [
-      ObjectTypes.CoalOre,
-      ObjectTypes.SilverOre,
-      ObjectTypes.GoldOre,
-      ObjectTypes.DiamondOre,
-      ObjectTypes.NeptuniumOre
-    ];
+    ObjectTypeId[5] memory ores =
+      [ObjectTypes.CoalOre, ObjectTypes.IronOre, ObjectTypes.GoldOre, ObjectTypes.DiamondOre, ObjectTypes.EmeraldOre];
 
-    uint256[5] memory max = [MAX_COAL, MAX_SILVER, MAX_GOLD, MAX_DIAMOND, MAX_NEPTUNIUM];
+    uint256[5] memory max = [MAX_COAL, MAX_IRON, MAX_GOLD, MAX_DIAMOND, MAX_EMERALD];
 
-    // For y > -50: More common ores (coal, silver)
-    // For y <= -50: More rare ores (gold, diamond, neptunium)
+    // For y > -50: More common ores (coal, iron)
+    // For y <= -50: More rare ores (gold, diamond, emerald)
     // uint256[5] memory depthMultiplier;
     // if (coord.y > -50) {
     //   depthMultiplier = [uint256(4), 3, 1, 1, 1];

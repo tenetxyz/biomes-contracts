@@ -378,7 +378,7 @@ contract TransferTest is DustTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     uint16 numToTransfer = 10;
     TestInventoryUtils.addToInventory(aliceEntityId, transferObjectTypeId, numToTransfer);
@@ -401,8 +401,8 @@ contract TransferTest is DustTest {
 
     setupAirChunk(chestCoord);
 
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
-    EntityId otherChestEntityId = setObjectAtCoord(chestCoord + vec3(1, 0, 0), ObjectTypes.SmartChest);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
+    EntityId otherChestEntityId = setObjectAtCoord(chestCoord + vec3(1, 0, 0), ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     uint16 numToTransfer = 10;
     TestInventoryUtils.addToInventory(chestEntityId, transferObjectTypeId, numToTransfer);
@@ -431,8 +431,8 @@ contract TransferTest is DustTest {
 
     setupAirChunk(chestCoord);
 
-    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.SmartChest);
-    EntityId otherChestEntityId = setObjectAtCoord(otherChestCoord, ObjectTypes.SmartChest);
+    EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
+    EntityId otherChestEntityId = setObjectAtCoord(otherChestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     uint16 numToTransfer = 10;
     TestInventoryUtils.addToInventory(chestEntityId, transferObjectTypeId, numToTransfer);

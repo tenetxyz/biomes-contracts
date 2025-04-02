@@ -132,7 +132,7 @@ contract CraftTest is DustTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = ObjectTypes.SilverOre;
+    inputTypes[0] = ObjectTypes.IronOre;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);
@@ -375,7 +375,7 @@ contract CraftTest is DustTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     ObjectTypeId[] memory inputTypes = new ObjectTypeId[](1);
-    inputTypes[0] = ObjectTypes.SilverOre;
+    inputTypes[0] = ObjectTypes.IronOre;
     uint16[] memory inputAmounts = new uint16[](1);
     inputAmounts[0] = 1;
     ObjectTypeId[] memory outputTypes = new ObjectTypeId[](1);

@@ -34,10 +34,6 @@ contract DisplaySystem is System {
 
     EntityId baseEntityId = entityId.baseEntityId();
     ObjectTypeId objectTypeId = ObjectType._get(baseEntityId);
-    if (!objectTypeId.isSmartDisplay()) {
-      // TODO: support display data for all entities?
-      return "";
-    }
     Vec3 entityCoord = Position._get(baseEntityId);
 
     (EntityId forceFieldEntityId,) = getForceField(entityCoord);
