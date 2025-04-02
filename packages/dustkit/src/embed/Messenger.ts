@@ -89,6 +89,7 @@ export function fromWindow(
     },
     async sendAsync(topic, payload) {
       const { id } = await this.send(topic, payload);
+      // biome-ignore lint/suspicious/noExplicitAny: Messenger types above cover the Promise type
       return new Promise<any>((resolve) => {
         const off = this.on(
           topic,
