@@ -33,7 +33,7 @@ contract PickupSystem is System {
     require(entityId.exists(), "No entity at pickup location");
 
     ObjectTypeId objectTypeId = ObjectType._get(entityId);
-    require(ObjectTypeMetadata.getCanPassThrough(objectTypeId), "Cannot pickup from a non-passable block");
+    require(ObjectTypeMetadata._getCanPassThrough(objectTypeId), "Cannot pickup from a non-passable block");
 
     return entityId;
   }

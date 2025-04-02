@@ -39,7 +39,7 @@ contract SpawnTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
 
   function spawnEnergy() internal view returns (uint128) {
-    uint32 playerMass = ObjectTypeMetadata.getMass(ObjectTypes.Player);
+    uint128 playerMass = ObjectTypeMetadata.getMass(ObjectTypes.Player);
     return MAX_PLAYER_ENERGY + playerMass;
   }
 
