@@ -19,16 +19,11 @@ import { mudFoundry } from "@latticexyz/common/chains";
 
 dotenv.config();
 
-const PROD_CHAIN_ID = supportedChains.find((chain) => chain.name === "Redstone")?.id ?? 1337;
-const TESNET_CHAIN_ID = supportedChains.find((chain) => chain.name === "Garnet Holesky")?.id ?? 1337;
 const DEV_CHAIN_ID = supportedChains.find((chain) => chain.name === "Foundry")?.id ?? 31337;
 
-const chainId =
-  process.env.NODE_ENV === "mainnet"
-    ? PROD_CHAIN_ID
-    : process.env.NODE_ENV === "testnet"
-      ? TESNET_CHAIN_ID
-      : DEV_CHAIN_ID;
+const chainId = process.env.CHAIN_ID
+  ? parseInt(process.env.CHAIN_ID)
+  : DEV_CHAIN_ID;
 
 export type SetupNetwork = Awaited<ReturnType<typeof setupNetwork>>;
 

@@ -12,8 +12,6 @@
     "clean": "forge clean && shx rm -rf src/**/codegen",
     "cp-abi": "cp out/IWorld.sol/IWorld.abi.json IWorld.abi.json",
     "deploy:local": "pnpm entrykit-deploy && pnpm run build && mud deploy",
-    "deploy:mainnet": "pnpm run build && mud deploy --profile=redstone --rpcBatch",
-    "deploy:testnet": "pnpm run build && mud deploy --profile=garnet --rpcBatch",
     "dev": "pnpm entrykit-deploy && pnpm run build && pnpm mud dev-contracts --rpc http://127.0.0.1:8545",
     "fix": "pnpm run fix:format",
     "fix:format": "forge fmt",
