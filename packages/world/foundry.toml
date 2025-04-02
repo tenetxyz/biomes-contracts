@@ -18,6 +18,12 @@ extra_output_files = [
 ]
 fs_permissions = [{ access = "read", path = "./"}]
 
+[fmt]
+ignore = ['**/codegen/**/*.sol']
+sort_imports = true
+tab_width = 2
+bracket_spacing = true
+
 [profile.garnet]
 eth_rpc_url = "https://rpc.garnetchain.com"
 

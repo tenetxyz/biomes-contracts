@@ -4,7 +4,7 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "solidity.formatter": "prettier",
+  "solidity.formatter": "forge",
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
