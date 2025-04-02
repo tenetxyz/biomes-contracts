@@ -120,12 +120,11 @@ library ObjectTypes {
   ObjectTypeId constant LilacFlower = ObjectTypeId.wrap(Block | 132);
   ObjectTypeId constant RoseFlower = ObjectTypeId.wrap(Block | 133);
   ObjectTypeId constant FireFlower = ObjectTypeId.wrap(Block | 134);
-  ObjectTypeId constant MarigoldFlower = ObjectTypeId.wrap(Block | 135);
-  ObjectTypeId constant MorninggloryFlower = ObjectTypeId.wrap(Block | 136);
-  ObjectTypeId constant PeonyFlower = ObjectTypeId.wrap(Block | 137);
-  ObjectTypeId constant Ultraviolet = ObjectTypeId.wrap(Block | 138);
-  ObjectTypeId constant SunFlower = ObjectTypeId.wrap(Block | 139);
-  ObjectTypeId constant FlyTrap = ObjectTypeId.wrap(Block | 140);
+  ObjectTypeId constant MorninggloryFlower = ObjectTypeId.wrap(Block | 135);
+  ObjectTypeId constant PeonyFlower = ObjectTypeId.wrap(Block | 136);
+  ObjectTypeId constant Ultraviolet = ObjectTypeId.wrap(Block | 137);
+  ObjectTypeId constant SunFlower = ObjectTypeId.wrap(Block | 138);
+  ObjectTypeId constant FlyTrap = ObjectTypeId.wrap(Block | 139);
 
   // Greenery
   ObjectTypeId constant FescueGrass = ObjectTypeId.wrap(Block | 144);

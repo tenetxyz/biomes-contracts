@@ -5,8 +5,8 @@ pragma solidity >=0.8.24;
 
 import { ObjectTypeMetadata, ObjectTypeMetadataData } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 
-import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 
 function initObjects() {
   ObjectTypeMetadata.set(
@@ -765,16 +765,6 @@ function initObjects() {
       stackable: 99,
       maxInventorySlots: type(uint16).max,
       mass: 300000000000000,
-      energy: 0,
-      canPassThrough: true
-    })
-  );
-  ObjectTypeMetadata.set(
-    ObjectTypes.MarigoldFlower,
-    ObjectTypeMetadataData({
-      stackable: 99,
-      maxInventorySlots: type(uint16).max,
-      mass: 1,
       energy: 0,
       canPassThrough: true
     })
