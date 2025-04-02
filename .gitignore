@@ -4,6 +4,7 @@
 .yarn
 .yarnrc.yml
 *.swp
+.venv
 
 node_modules
 
