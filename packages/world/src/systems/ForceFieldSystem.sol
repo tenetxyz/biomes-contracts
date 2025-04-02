@@ -67,9 +67,9 @@ contract ForceFieldSystem is System {
   }
 
   /**
-   * @notice Identify all boundary fragments of a forcefield that are adjacent to a cuboid
+   * @notice Identify all boundary fragments of a forcefield that are adjacent to a fragment
    * @param forceField The forcefield entity ID
-   * @param fragmentCoord The starting coordinate of the cuboid
+   * @param fragmentCoord The coordinate of the fragment
    * @return An array of boundary fragment coordinates and its length (the array can be longer)
    */
   function computeBoundaryFragments(
@@ -128,9 +128,9 @@ contract ForceFieldSystem is System {
   }
 
   /**
-   * @notice Contract a forcefield by removing fragments within a specified cuboid
+   * @notice Removes a fragment from a forcefield
    * @param forceField The forcefield entity ID
-   * @param fragmentCoord The starting coordinate of the cuboid to remove
+   * @param fragmentCoord The coordinate of the fragment
    * @param parents Indicates the parent of each boundary fragment in the spanning tree, parents must be ordered (each parent comes before its children)
    */
   function removeFragment(
@@ -151,7 +151,7 @@ contract ForceFieldSystem is System {
     require(forceFieldFragmentCoord != fragmentCoord, "Can't remove forcefield's fragment");
     require(isForceFieldFragment(forceField, fragmentCoord), "Fragment is not part of forcefield");
 
-    // First, identify all boundary fragments (fragments adjacent to the cuboid to be removed)
+    // First, identify all boundary fragments (fragments adjacent to the fragment to be removed)
     (Vec3[26] memory boundary, uint256 len) = computeBoundaryFragments(forceField, fragmentCoord);
 
     require(len > 0, "No boundary fragments found");
