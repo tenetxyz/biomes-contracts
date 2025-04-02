@@ -1,2 +1,4 @@
 forge-std/=node_modules/forge-std/src/
 @latticexyz/=node_modules/@latticexyz/
+@dust/=node_modules/@dust/
+solady/=node_modules/@dust/world/node_modules/solady/src/

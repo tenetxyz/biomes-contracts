@@ -19,6 +19,7 @@
     "test": "tsc --noEmit"
   },
   "dependencies": {
+    "@dust/world": "workspace:*",
     "@latticexyz/cli": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
     "@latticexyz/schema-type": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
     "@latticexyz/store": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",

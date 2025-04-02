@@ -5,17 +5,27 @@ export default defineWorld({
   namespace: "dustkit",
   userTypes: {
     ResourceId: {
-      filePath: "@latticexyz/store/src/ResourceId.sol",
       type: "bytes32",
+      filePath: "@latticexyz/store/src/ResourceId.sol",
     },
+    EntityId: { type: "bytes32", filePath: "@dust/world/src/EntityId.sol" },
+    ProgramId: { type: "bytes32", filePath: "@dust/world/src/ProgramId.sol" },
   },
   tables: {
-    AppRegistry: {
+    App: {
       schema: {
-        appId: "ResourceId",
-        appConfigUrl: "string",
+        app: "ResourceId",
+        configUrl: "string",
       },
-      key: ["appId"],
+      key: ["app"],
+    },
+    ProgramEntity: {
+      schema: {
+        program: "ProgramId",
+        entity: "EntityId", // optional, assumes all entities if empty
+        defaultApp: "ResourceId",
+      },
+      key: ["program", "entity"],
     },
   },
 });

@@ -19,9 +19,9 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-library AppRegistry {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "dustkit", name: "AppRegistry", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x7462647573746b69740000000000000041707052656769737472790000000000);
+library App {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "dustkit", name: "App", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x7462647573746b69740000000000000041707000000000000000000000000000);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0000000100000000000000000000000000000000000000000000000000000000);
@@ -37,7 +37,7 @@ library AppRegistry {
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
     keyNames = new string[](1);
-    keyNames[0] = "appId";
+    keyNames[0] = "app";
   }
 
   /**
@@ -46,7 +46,7 @@ library AppRegistry {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "appConfigUrl";
+    fieldNames[0] = "configUrl";
   }
 
   /**
@@ -64,95 +64,95 @@ library AppRegistry {
   }
 
   /**
-   * @notice Get appConfigUrl.
+   * @notice Get configUrl.
    */
-  function getAppConfigUrl(ResourceId appId) internal view returns (string memory appConfigUrl) {
+  function getConfigUrl(ResourceId app) internal view returns (string memory configUrl) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
     return (string(_blob));
   }
 
   /**
-   * @notice Get appConfigUrl.
+   * @notice Get configUrl.
    */
-  function _getAppConfigUrl(ResourceId appId) internal view returns (string memory appConfigUrl) {
+  function _getConfigUrl(ResourceId app) internal view returns (string memory configUrl) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
     return (string(_blob));
   }
 
   /**
-   * @notice Get appConfigUrl.
+   * @notice Get configUrl.
    */
-  function get(ResourceId appId) internal view returns (string memory appConfigUrl) {
+  function get(ResourceId app) internal view returns (string memory configUrl) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 0);
     return (string(_blob));
   }
 
   /**
-   * @notice Get appConfigUrl.
+   * @notice Get configUrl.
    */
-  function _get(ResourceId appId) internal view returns (string memory appConfigUrl) {
+  function _get(ResourceId app) internal view returns (string memory configUrl) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 0);
     return (string(_blob));
   }
 
   /**
-   * @notice Set appConfigUrl.
+   * @notice Set configUrl.
    */
-  function setAppConfigUrl(ResourceId appId, string memory appConfigUrl) internal {
+  function setConfigUrl(ResourceId app, string memory configUrl) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
-    StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, bytes((appConfigUrl)));
+    StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, bytes((configUrl)));
   }
 
   /**
-   * @notice Set appConfigUrl.
+   * @notice Set configUrl.
    */
-  function _setAppConfigUrl(ResourceId appId, string memory appConfigUrl) internal {
+  function _setConfigUrl(ResourceId app, string memory configUrl) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
-    StoreCore.setDynamicField(_tableId, _keyTuple, 0, bytes((appConfigUrl)));
+    StoreCore.setDynamicField(_tableId, _keyTuple, 0, bytes((configUrl)));
   }
 
   /**
-   * @notice Set appConfigUrl.
+   * @notice Set configUrl.
    */
-  function set(ResourceId appId, string memory appConfigUrl) internal {
+  function set(ResourceId app, string memory configUrl) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
-    StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, bytes((appConfigUrl)));
+    StoreSwitch.setDynamicField(_tableId, _keyTuple, 0, bytes((configUrl)));
   }
 
   /**
-   * @notice Set appConfigUrl.
+   * @notice Set configUrl.
    */
-  function _set(ResourceId appId, string memory appConfigUrl) internal {
+  function _set(ResourceId app, string memory configUrl) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
-    StoreCore.setDynamicField(_tableId, _keyTuple, 0, bytes((appConfigUrl)));
+    StoreCore.setDynamicField(_tableId, _keyTuple, 0, bytes((configUrl)));
   }
 
   /**
-   * @notice Get the length of appConfigUrl.
+   * @notice Get the length of configUrl.
    */
-  function lengthAppConfigUrl(ResourceId appId) internal view returns (uint256) {
+  function lengthConfigUrl(ResourceId app) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -161,11 +161,11 @@ library AppRegistry {
   }
 
   /**
-   * @notice Get the length of appConfigUrl.
+   * @notice Get the length of configUrl.
    */
-  function _lengthAppConfigUrl(ResourceId appId) internal view returns (uint256) {
+  function _lengthConfigUrl(ResourceId app) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -174,11 +174,11 @@ library AppRegistry {
   }
 
   /**
-   * @notice Get the length of appConfigUrl.
+   * @notice Get the length of configUrl.
    */
-  function length(ResourceId appId) internal view returns (uint256) {
+  function length(ResourceId app) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -187,11 +187,11 @@ library AppRegistry {
   }
 
   /**
-   * @notice Get the length of appConfigUrl.
+   * @notice Get the length of configUrl.
    */
-  function _length(ResourceId appId) internal view returns (uint256) {
+  function _length(ResourceId app) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 0);
     unchecked {
@@ -200,12 +200,12 @@ library AppRegistry {
   }
 
   /**
-   * @notice Get an item of appConfigUrl.
+   * @notice Get an item of configUrl.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItemAppConfigUrl(ResourceId appId, uint256 _index) internal view returns (string memory) {
+  function getItemConfigUrl(ResourceId app, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
@@ -214,12 +214,12 @@ library AppRegistry {
   }
 
   /**
-   * @notice Get an item of appConfigUrl.
+   * @notice Get an item of configUrl.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItemAppConfigUrl(ResourceId appId, uint256 _index) internal view returns (string memory) {
+  function _getItemConfigUrl(ResourceId app, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
@@ -228,12 +228,12 @@ library AppRegistry {
   }
 
   /**
-   * @notice Get an item of appConfigUrl.
+   * @notice Get an item of configUrl.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function getItem(ResourceId appId, uint256 _index) internal view returns (string memory) {
+  function getItem(ResourceId app, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     unchecked {
       bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
@@ -242,12 +242,12 @@ library AppRegistry {
   }
 
   /**
-   * @notice Get an item of appConfigUrl.
+   * @notice Get an item of configUrl.
    * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
    */
-  function _getItem(ResourceId appId, uint256 _index) internal view returns (string memory) {
+  function _getItem(ResourceId app, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     unchecked {
       bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 0, _index * 1, (_index + 1) * 1);
@@ -256,91 +256,91 @@ library AppRegistry {
   }
 
   /**
-   * @notice Push a slice to appConfigUrl.
+   * @notice Push a slice to configUrl.
    */
-  function pushAppConfigUrl(ResourceId appId, string memory _slice) internal {
+  function pushConfigUrl(ResourceId app, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 0, bytes((_slice)));
   }
 
   /**
-   * @notice Push a slice to appConfigUrl.
+   * @notice Push a slice to configUrl.
    */
-  function _pushAppConfigUrl(ResourceId appId, string memory _slice) internal {
+  function _pushConfigUrl(ResourceId app, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, bytes((_slice)));
   }
 
   /**
-   * @notice Push a slice to appConfigUrl.
+   * @notice Push a slice to configUrl.
    */
-  function push(ResourceId appId, string memory _slice) internal {
+  function push(ResourceId app, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 0, bytes((_slice)));
   }
 
   /**
-   * @notice Push a slice to appConfigUrl.
+   * @notice Push a slice to configUrl.
    */
-  function _push(ResourceId appId, string memory _slice) internal {
+  function _push(ResourceId app, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     StoreCore.pushToDynamicField(_tableId, _keyTuple, 0, bytes((_slice)));
   }
 
   /**
-   * @notice Pop a slice from appConfigUrl.
+   * @notice Pop a slice from configUrl.
    */
-  function popAppConfigUrl(ResourceId appId) internal {
+  function popConfigUrl(ResourceId app) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 1);
   }
 
   /**
-   * @notice Pop a slice from appConfigUrl.
+   * @notice Pop a slice from configUrl.
    */
-  function _popAppConfigUrl(ResourceId appId) internal {
+  function _popConfigUrl(ResourceId app) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 1);
   }
 
   /**
-   * @notice Pop a slice from appConfigUrl.
+   * @notice Pop a slice from configUrl.
    */
-  function pop(ResourceId appId) internal {
+  function pop(ResourceId app) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 0, 1);
   }
 
   /**
-   * @notice Pop a slice from appConfigUrl.
+   * @notice Pop a slice from configUrl.
    */
-  function _pop(ResourceId appId) internal {
+  function _pop(ResourceId app) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     StoreCore.popFromDynamicField(_tableId, _keyTuple, 0, 1);
   }
 
   /**
-   * @notice Update a slice of appConfigUrl at `_index`.
+   * @notice Update a slice of configUrl at `_index`.
    */
-  function updateAppConfigUrl(ResourceId appId, uint256 _index, string memory _slice) internal {
+  function updateConfigUrl(ResourceId app, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
@@ -349,11 +349,11 @@ library AppRegistry {
   }
 
   /**
-   * @notice Update a slice of appConfigUrl at `_index`.
+   * @notice Update a slice of configUrl at `_index`.
    */
-  function _updateAppConfigUrl(ResourceId appId, uint256 _index, string memory _slice) internal {
+  function _updateConfigUrl(ResourceId app, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
@@ -362,11 +362,11 @@ library AppRegistry {
   }
 
   /**
-   * @notice Update a slice of appConfigUrl at `_index`.
+   * @notice Update a slice of configUrl at `_index`.
    */
-  function update(ResourceId appId, uint256 _index, string memory _slice) internal {
+  function update(ResourceId app, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
@@ -375,11 +375,11 @@ library AppRegistry {
   }
 
   /**
-   * @notice Update a slice of appConfigUrl at `_index`.
+   * @notice Update a slice of configUrl at `_index`.
    */
-  function _update(ResourceId appId, uint256 _index, string memory _slice) internal {
+  function _update(ResourceId app, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
@@ -390,9 +390,9 @@ library AppRegistry {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(ResourceId appId) internal {
+  function deleteRecord(ResourceId app) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -400,9 +400,9 @@ library AppRegistry {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(ResourceId appId) internal {
+  function _deleteRecord(ResourceId app) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -411,10 +411,10 @@ library AppRegistry {
    * @notice Tightly pack dynamic data lengths using this table's schema.
    * @return _encodedLengths The lengths of the dynamic fields (packed into a single bytes32 value).
    */
-  function encodeLengths(string memory appConfigUrl) internal pure returns (EncodedLengths _encodedLengths) {
+  function encodeLengths(string memory configUrl) internal pure returns (EncodedLengths _encodedLengths) {
     // Lengths are effectively checked during copy by 2**40 bytes exceeding gas limits
     unchecked {
-      _encodedLengths = EncodedLengthsLib.pack(bytes(appConfigUrl).length);
+      _encodedLengths = EncodedLengthsLib.pack(bytes(configUrl).length);
     }
   }
 
@@ -422,8 +422,8 @@ library AppRegistry {
    * @notice Tightly pack dynamic (variable length) data using this table's schema.
    * @return The dynamic data, encoded into a sequence of bytes.
    */
-  function encodeDynamic(string memory appConfigUrl) internal pure returns (bytes memory) {
-    return abi.encodePacked(bytes((appConfigUrl)));
+  function encodeDynamic(string memory configUrl) internal pure returns (bytes memory) {
+    return abi.encodePacked(bytes((configUrl)));
   }
 
   /**
@@ -432,10 +432,10 @@ library AppRegistry {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(string memory appConfigUrl) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+  function encode(string memory configUrl) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(appConfigUrl);
-    bytes memory _dynamicData = encodeDynamic(appConfigUrl);
+    EncodedLengths _encodedLengths = encodeLengths(configUrl);
+    bytes memory _dynamicData = encodeDynamic(configUrl);
 
     return (_staticData, _encodedLengths, _dynamicData);
   }
@@ -443,9 +443,9 @@ library AppRegistry {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(ResourceId appId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(ResourceId app) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = ResourceId.unwrap(appId);
+    _keyTuple[0] = ResourceId.unwrap(app);
 
     return _keyTuple;
   }
