@@ -318,6 +318,7 @@ contract BedTest is DustTest {
 
     // After 1000 seconds, the forcefield should be depleted
     // We wait for the player to also get fully depleted
+    // + 1 so the player is fully drained
     uint128 playerDrainTime = initialPlayerEnergy / PLAYER_ENERGY_DRAIN_RATE + 1;
     vm.warp(vm.getBlockTimestamp() + 1000 seconds + playerDrainTime);
 
@@ -369,6 +370,7 @@ contract BedTest is DustTest {
 
     // After 1000 seconds, the forcefield should be depleted
     // We wait more time so the player's energy is FULLY depleted in this period
+    // + 1 so the player is fully drained
     uint128 playerDrainTime = initialPlayerEnergy / PLAYER_ENERGY_DRAIN_RATE + 1;
     uint128 timeDelta = 1000 seconds + playerDrainTime;
     vm.warp(vm.getBlockTimestamp() + timeDelta);
