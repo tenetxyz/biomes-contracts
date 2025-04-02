@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { EntityProgram } from "../codegen/tables/EntityProgram.sol";
 import { Machine } from "../codegen/tables/Machine.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { EntityProgram } from "../codegen/tables/EntityProgram.sol";
 
-import { Position, ForceFieldFragment, ForceFieldFragmentData, ForceFieldFragmentPosition } from "../utils/Vec3Storage.sol";
+import {
+  ForceFieldFragment, ForceFieldFragmentData, ForceFieldFragmentPosition, Position
+} from "../utils/Vec3Storage.sol";
 
-import { Vec3 } from "../Vec3.sol";
-import { getUniqueEntity } from "../Utils.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
 import { EntityId } from "../EntityId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+import { getUniqueEntity } from "../Utils.sol";
+import { Vec3 } from "../Vec3.sol";
 
 /**
  * @dev Check if a fragment is active in a specific forcefield

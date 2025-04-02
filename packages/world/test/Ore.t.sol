@@ -1,24 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
+
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
-import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
+
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
+import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
+import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
+import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
+import { DustTest } from "./DustTest.sol";
 
-import { OreCommitment, MinedOrePosition, LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
+import {
+  LocalEnergyPool, MinedOrePosition, OreCommitment, Position, ReversePosition
+} from "../src/utils/Vec3Storage.sol";
 
-import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
+import { CHUNK_COMMIT_EXPIRY_BLOCKS, CHUNK_SIZE } from "../src/Constants.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
-import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";
-import { CHUNK_SIZE, CHUNK_COMMIT_EXPIRY_BLOCKS } from "../src/Constants.sol";
+import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 
 contract OreTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;

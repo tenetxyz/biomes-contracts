@@ -5,13 +5,13 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
-import { safeGetObjectTypeIdAt, getOrCreateEntityAt } from "../utils/EntityUtils.sol";
-import { removeFromInventory, addToInventory } from "../utils/InventoryUtils.sol";
+import { getOrCreateEntityAt, safeGetObjectTypeIdAt } from "../utils/EntityUtils.sol";
+import { addToInventory, removeFromInventory } from "../utils/InventoryUtils.sol";
 
-import { ObjectTypes } from "../ObjectTypes.sol";
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { Vec3 } from "../Vec3.sol";
 import { EntityId } from "../EntityId.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+import { Vec3 } from "../Vec3.sol";
 
 // TODO: should we have an "emptyBucket()" function or should we allow placing water in the build system?
 contract BucketSystem is System {

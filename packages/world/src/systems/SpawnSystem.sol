@@ -4,30 +4,47 @@ pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 import { LibPRNG } from "solady/utils/LibPRNG.sol";
 
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { Player } from "../codegen/tables/Player.sol";
-import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
+
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { Player } from "../codegen/tables/Player.sol";
+import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
+
 import { SurfaceChunkCount } from "../codegen/tables/SurfaceChunkCount.sol";
 
-import { SurfaceChunkByIndex, ExploredChunk, Position, ReversePosition, MovablePosition, ReverseMovablePosition } from "../utils/Vec3Storage.sol";
+import {
+  ExploredChunk,
+  MovablePosition,
+  Position,
+  ReverseMovablePosition,
+  ReversePosition,
+  SurfaceChunkByIndex
+} from "../utils/Vec3Storage.sol";
 
-import { MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, SPAWN_BLOCK_RANGE, MAX_RESPAWN_HALF_WIDTH, CHUNK_SIZE } from "../Constants.sol";
+import {
+  CHUNK_SIZE,
+  MAX_PLAYER_ENERGY,
+  MAX_RESPAWN_HALF_WIDTH,
+  PLAYER_ENERGY_DRAIN_RATE,
+  SPAWN_BLOCK_RANGE
+} from "../Constants.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 import { checkWorldStatus } from "../Utils.sol";
-import { notify, SpawnNotifData } from "../utils/NotifUtils.sol";
-import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { TerrainLib } from "./libraries/TerrainLib.sol";
+
+import { Vec3, vec3 } from "../Vec3.sol";
 import { removeEnergyFromLocalPool, updateMachineEnergy, updatePlayerEnergy } from "../utils/EnergyUtils.sol";
+import { getMovableEntityAt, getObjectTypeIdAt } from "../utils/EntityUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { SpawnNotifData, notify } from "../utils/NotifUtils.sol";
+
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { MoveLib } from "./libraries/MoveLib.sol";
-import { Vec3, vec3 } from "../Vec3.sol";
-import { getObjectTypeIdAt, getMovableEntityAt } from "../utils/EntityUtils.sol";
+import { TerrainLib } from "./libraries/TerrainLib.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { ISpawnHook } from "../ProgramInterfaces.sol";
@@ -36,9 +53,11 @@ contract SpawnSystem is System {
   using ObjectTypeLib for ObjectTypeId;
   using LibPRNG for LibPRNG.PRNG;
 
-  function getAllRandomSpawnCoords(
-    address sender
-  ) public view returns (Vec3[] memory spawnCoords, uint256[] memory blockNumbers) {
+  function getAllRandomSpawnCoords(address sender)
+    public
+    view
+    returns (Vec3[] memory spawnCoords, uint256[] memory blockNumbers)
+  {
     spawnCoords = new Vec3[](SPAWN_BLOCK_RANGE);
     blockNumbers = new uint256[](SPAWN_BLOCK_RANGE);
     for (uint256 i = 0; i < SPAWN_BLOCK_RANGE; i++) {
@@ -78,28 +97,27 @@ contract SpawnSystem is System {
 
     ObjectTypeId spawnObjectTypeId = getObjectTypeIdAt(spawnCoord);
     if (
-      spawnObjectTypeId.isNull() ||
-      !ObjectTypeMetadata._getCanPassThrough(spawnObjectTypeId) ||
-      getMovableEntityAt(spawnCoord).exists()
+      spawnObjectTypeId.isNull() || !ObjectTypeMetadata._getCanPassThrough(spawnObjectTypeId)
+        || getMovableEntityAt(spawnCoord).exists()
     ) {
       return false;
     }
 
     ObjectTypeId topObjectTypeId = getObjectTypeIdAt(topCoord);
     if (
-      topObjectTypeId.isNull() ||
-      !ObjectTypeMetadata._getCanPassThrough(topObjectTypeId) ||
-      getMovableEntityAt(topCoord).exists()
+      topObjectTypeId.isNull() || !ObjectTypeMetadata._getCanPassThrough(topObjectTypeId)
+        || getMovableEntityAt(topCoord).exists()
     ) {
       return false;
     }
 
     ObjectTypeId belowObjectTypeId = getObjectTypeIdAt(belowCoord);
     if (
-      belowObjectTypeId.isNull() ||
-      (belowObjectTypeId != ObjectTypes.Water &&
-        ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId) &&
-        !getMovableEntityAt(belowCoord).exists())
+      belowObjectTypeId.isNull()
+        || (
+          belowObjectTypeId != ObjectTypes.Water && ObjectTypeMetadata._getCanPassThrough(belowObjectTypeId)
+            && !getMovableEntityAt(belowCoord).exists()
+        )
     ) {
       return false;
     }
@@ -121,8 +139,7 @@ contract SpawnSystem is System {
   function randomSpawn(uint256 blockNumber, int32 y) public returns (EntityId) {
     checkWorldStatus();
     require(
-      blockNumber < block.number && blockNumber >= block.number - SPAWN_BLOCK_RANGE,
-      "Can only choose past 10 blocks"
+      blockNumber < block.number && blockNumber >= block.number - SPAWN_BLOCK_RANGE, "Can only choose past 10 blocks"
     );
 
     Vec3 spawnCoord = getRandomSpawnCoord(blockNumber, _msgSender());
@@ -132,7 +149,7 @@ contract SpawnSystem is System {
     // Use the y coordinate given by the player
     spawnCoord = vec3(spawnCoord.x(), y, spawnCoord.z());
 
-    (EntityId forceFieldEntityId, ) = getForceField(spawnCoord);
+    (EntityId forceFieldEntityId,) = getForceField(spawnCoord);
     require(!forceFieldEntityId.exists(), "Cannot spawn in force field");
 
     // Extract energy from local pool
@@ -149,9 +166,9 @@ contract SpawnSystem is System {
     Vec3 spawnTileCoord = Position._get(spawnTileEntityId);
     require(spawnTileCoord.inSurroundingCube(spawnCoord, MAX_RESPAWN_HALF_WIDTH), "Spawn tile is too far away");
 
-    (EntityId forceFieldEntityId, ) = getForceField(spawnTileCoord);
+    (EntityId forceFieldEntityId,) = getForceField(spawnTileCoord);
     require(forceFieldEntityId.exists(), "Spawn tile is not inside a forcefield");
-    (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
+    (EnergyData memory machineData,) = updateMachineEnergy(forceFieldEntityId);
     require(machineData.energy >= MAX_PLAYER_ENERGY, "Not enough energy in spawn tile forcefield");
     Energy._setEnergy(forceFieldEntityId, machineData.energy - MAX_PLAYER_ENERGY);
 

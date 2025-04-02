@@ -2,27 +2,28 @@
 pragma solidity >=0.8.24;
 
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
-import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
-import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
-import { PlayerStatus } from "./codegen/tables/PlayerStatus.sol";
-import { ReversePlayer } from "./codegen/tables/ReversePlayer.sol";
-import { EntityProgram } from "./codegen/tables/EntityProgram.sol";
-import { ObjectType } from "./codegen/tables/ObjectType.sol";
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
+import { Systems } from "@latticexyz/world/src/codegen/tables/Systems.sol";
+
 import { BaseEntity } from "./codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "./codegen/tables/Energy.sol";
+import { EntityProgram } from "./codegen/tables/EntityProgram.sol";
+import { ObjectType } from "./codegen/tables/ObjectType.sol";
+import { PlayerStatus } from "./codegen/tables/PlayerStatus.sol";
+import { ReversePlayer } from "./codegen/tables/ReversePlayer.sol";
 
-import { MovablePosition, Position } from "./utils/Vec3Storage.sol";
-import { updatePlayerEnergy, updateMachineEnergy } from "./utils/EnergyUtils.sol";
+import { updateMachineEnergy, updatePlayerEnergy } from "./utils/EnergyUtils.sol";
 import { getForceField } from "./utils/ForceFieldUtils.sol";
+import { MovablePosition, Position } from "./utils/Vec3Storage.sol";
 
-import { checkWorldStatus } from "./Utils.sol";
-import { ObjectTypeId } from "./ObjectTypeId.sol";
-import { ObjectTypes } from "./ObjectTypes.sol";
-import { ObjectTypeLib } from "./ObjectTypeLib.sol";
-import { ProgramId } from "./ProgramId.sol";
-import { Vec3 } from "./Vec3.sol";
 import { MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "./Constants.sol";
+import { ObjectTypeId } from "./ObjectTypeId.sol";
+import { ObjectTypeLib } from "./ObjectTypeLib.sol";
+import { ObjectTypes } from "./ObjectTypes.sol";
+import { ProgramId } from "./ProgramId.sol";
+import { checkWorldStatus } from "./Utils.sol";
+import { Vec3 } from "./Vec3.sol";
 
 using ObjectTypeLib for ObjectTypeId;
 
@@ -111,10 +112,10 @@ library ActivateLib {
       if (objectTypeId == ObjectTypes.ForceField) {
         forceFieldEntityId = self;
       } else {
-        (forceFieldEntityId, ) = getForceField(self.getPosition());
+        (forceFieldEntityId,) = getForceField(self.getPosition());
       }
 
-      (energyData, ) = updateMachineEnergy(forceFieldEntityId);
+      (energyData,) = updateMachineEnergy(forceFieldEntityId);
     }
 
     require(energyData.energy > 0, "Entity has no energy");

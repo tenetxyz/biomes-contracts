@@ -1,32 +1,44 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { console } from "forge-std/console.sol";
-import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
+import { console } from "forge-std/console.sol";
 
-import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
+
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
-import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
+
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
+import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+import { Player } from "../src/codegen/tables/Player.sol";
+
 import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
+import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
+import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
+import { DustTest } from "./DustTest.sol";
 
-import { MinedOrePosition, LocalEnergyPool, ReversePosition, MovablePosition, ReverseMovablePosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import {
+  LocalEnergyPool,
+  MinedOrePosition,
+  MovablePosition,
+  OreCommitment,
+  Position,
+  ReverseMovablePosition,
+  ReversePosition
+} from "../src/utils/Vec3Storage.sol";
 
-import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
+import { CHUNK_SIZE, MINE_ENERGY_COST, MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST } from "../src/Constants.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
-import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, PLAYER_FALL_ENERGY_COST, MINE_ENERGY_COST, MOVE_ENERGY_COST } from "../src/Constants.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+
 import { Vec3, vec3 } from "../src/Vec3.sol";
+import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { TestUtils } from "./utils/TestUtils.sol";
 
 contract GravityTest is DustTest {
@@ -53,23 +65,17 @@ contract GravityTest is DustTest {
     assertEq(finalCoord, mineCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
-      aliceEntityId,
-      "Above coord is not the player"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)), aliceEntityId, "Above coord is not the player"
     );
 
     mineEntityId = ReversePosition.get(mineCoord);
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
-      beforeEnergyDataSnapshot,
-      afterEnergyDataSnapshot
-    );
+    uint128 playerEnergyLost =
+      assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     assertEq(
-      playerEnergyLost,
-      playerHandMassReduction,
-      "Player shouldn't have lost energy from falling a safe distance"
+      playerEnergyLost, playerHandMassReduction, "Player shouldn't have lost energy from falling a safe distance"
     );
   }
 
@@ -97,19 +103,15 @@ contract GravityTest is DustTest {
     assertEq(finalCoord, mineCoord - vec3(0, 2, 0), "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
-      aliceEntityId,
-      "Above coord is not the player"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)), aliceEntityId, "Above coord is not the player"
     );
 
     mineEntityId = ReversePosition.get(mineCoord);
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 1);
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
-      beforeEnergyDataSnapshot,
-      afterEnergyDataSnapshot
-    );
+    uint128 playerEnergyLost =
+      assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     assertEq(
       playerEnergyLost,
       playerHandMassReduction + PLAYER_FALL_ENERGY_COST,
@@ -165,9 +167,7 @@ contract GravityTest is DustTest {
       );
       Vec3 aboveFinalBobCoord = finalBobCoord + vec3(0, 1, 0);
       assertEq(
-        BaseEntity.get(ReverseMovablePosition.get(aboveFinalBobCoord)),
-        bobEntityId,
-        "Above coord is not the player bob"
+        BaseEntity.get(ReverseMovablePosition.get(aboveFinalBobCoord)), bobEntityId, "Above coord is not the player bob"
       );
     }
 
@@ -215,15 +215,11 @@ contract GravityTest is DustTest {
     assertEq(finalCoord, expectedFinalCoord, "Player did not fall back to the original coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
-      aliceEntityId,
-      "Above coord is not the player"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)), aliceEntityId, "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, expectedFinalCoord);
-    uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
-      beforeEnergyDataSnapshot,
-      afterEnergyDataSnapshot
-    );
+    uint128 playerEnergyLost =
+      assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     assertEq(playerEnergyLost, MOVE_ENERGY_COST, "Player should only lose energy from the initial move");
   }
 
@@ -253,15 +249,11 @@ contract GravityTest is DustTest {
     assertEq(finalCoord, expectedFinalCoord, "Player did not fall back to the original coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
-      aliceEntityId,
-      "Above coord is not the player"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)), aliceEntityId, "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, expectedFinalCoord);
-    uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
-      beforeEnergyDataSnapshot,
-      afterEnergyDataSnapshot
-    );
+    uint128 playerEnergyLost =
+      assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     assertEq(
       playerEnergyLost,
       MOVE_ENERGY_COST + PLAYER_FALL_ENERGY_COST,
@@ -314,9 +306,7 @@ contract GravityTest is DustTest {
     );
     Vec3 aboveFinalBobCoord = finalBobCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalBobCoord)),
-      bobEntityId,
-      "Above coord is not the player bob"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalBobCoord)), bobEntityId, "Above coord is not the player bob"
     );
     uint128 energyGainedInPool = LocalEnergyPool.get(shardCoord) - localEnergyPoolBefore;
     assertGt(energyGainedInPool, 0, "Local energy pool did not gain energy");

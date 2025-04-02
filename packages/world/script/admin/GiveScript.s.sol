@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
-import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 
 import { IWorld } from "../../src/codegen/world/IWorld.sol";
 
-import { Player } from "../../src/codegen/tables/Player.sol";
-import { ObjectTypes } from "../../src/ObjectTypes.sol";
 import { EntityId } from "../../src/EntityId.sol";
+import { ObjectTypes } from "../../src/ObjectTypes.sol";
+import { Player } from "../../src/codegen/tables/Player.sol";
 
 import { ensureAdminSystem } from "./ensureAdminSystem.sol";
 

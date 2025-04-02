@@ -3,15 +3,16 @@ pragma solidity >=0.8.24;
 
 import { ResourceId } from "@latticexyz/world/src/WorldResourceId.sol";
 
+import { Direction } from "../codegen/common.sol";
 import { EnergyData } from "../codegen/tables/Energy.sol";
-import { MachineData } from "../codegen/tables/Machine.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { MachineData } from "../codegen/tables/Machine.sol";
+
 import { Mass } from "../codegen/tables/Mass.sol";
-import { Direction } from "../codegen/common.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
@@ -78,11 +79,8 @@ function getEntityInventory(EntityId entityId) view returns (InventoryObject[] m
         }
       }
     }
-    inventoryObjects[i] = InventoryObject({
-      objectTypeId: objectTypeId,
-      numObjects: count,
-      inventoryEntities: inventoryEntities
-    });
+    inventoryObjects[i] =
+      InventoryObject({ objectTypeId: objectTypeId, numObjects: count, inventoryEntities: inventoryEntities });
   }
   return inventoryObjects;
 }

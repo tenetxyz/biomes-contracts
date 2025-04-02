@@ -1,28 +1,33 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
-import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
-import { Equipped } from "../codegen/tables/Equipped.sol";
-import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { ActionType } from "../codegen/common.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { Equipped } from "../codegen/tables/Equipped.sol";
+import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { ERC165Checker } from "@latticexyz/world/src/ERC165Checker.sol";
+import { System } from "@latticexyz/world/src/System.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
 
-import { useEquipped } from "../utils/InventoryUtils.sol";
-import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergy, addEnergyToLocalPool, decreasePlayerEnergy, decreaseMachineEnergy } from "../utils/EnergyUtils.sol";
-import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { notify, HitMachineNotifData } from "../utils/NotifUtils.sol";
 import { HIT_ENERGY_COST, SAFE_PROGRAM_GAS } from "../Constants.sol";
+import {
+  addEnergyToLocalPool,
+  decreaseMachineEnergy,
+  decreasePlayerEnergy,
+  updateMachineEnergy
+} from "../utils/EnergyUtils.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { useEquipped } from "../utils/InventoryUtils.sol";
+import { HitMachineNotifData, notify } from "../utils/NotifUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
+import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { EntityId } from "../EntityId.sol";
 import { ProgramId } from "../ProgramId.sol";
 import { IHitHook } from "../ProgramInterfaces.sol";
 import { Vec3 } from "../Vec3.sol";
@@ -34,16 +39,12 @@ contract HitMachineSystem is System {
     callerEntityId.activate();
     callerEntityId.requireConnected(coord);
 
-    (EntityId forceFieldEntityId, ) = getForceField(coord);
+    (EntityId forceFieldEntityId,) = getForceField(coord);
     require(forceFieldEntityId.exists(), "No force field at this location");
     Vec3 forceFieldCoord = Position._get(forceFieldEntityId);
 
-    uint128 energyReduction = HitMachineLib._processEnergyReduction(
-      callerEntityId,
-      forceFieldEntityId,
-      coord,
-      forceFieldCoord
-    );
+    uint128 energyReduction =
+      HitMachineLib._processEnergyReduction(callerEntityId, forceFieldEntityId, coord, forceFieldCoord);
 
     ProgramId program = forceFieldEntityId.getProgram();
     bytes memory onHit = abi.encodeCall(IHitHook.onHit, (callerEntityId, forceFieldEntityId, energyReduction, ""));
@@ -61,9 +62,9 @@ library HitMachineLib {
     Vec3 playerCoord,
     Vec3 forceFieldCoord
   ) public returns (uint128) {
-    (EnergyData memory machineData, ) = updateMachineEnergy(forceFieldEntityId);
+    (EnergyData memory machineData,) = updateMachineEnergy(forceFieldEntityId);
     require(machineData.energy > 0, "Cannot hit depleted forcefield");
-    (uint128 toolMassReduction, ) = useEquipped(callerEntityId, machineData.energy);
+    (uint128 toolMassReduction,) = useEquipped(callerEntityId, machineData.energy);
 
     uint128 playerEnergyReduction = 0;
 

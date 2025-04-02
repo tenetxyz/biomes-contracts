@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
-import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 
 import { IWorld } from "../../src/codegen/world/IWorld.sol";
 
-import { ensureAdminSystem } from "./ensureAdminSystem.sol";
 import { vec3 } from "../../src/Vec3.sol";
+import { ensureAdminSystem } from "./ensureAdminSystem.sol";
 
 contract TeleportScript is Script {
   function run(address worldAddress, address playerAddress, int32 x, int32 y, int32 z) external {

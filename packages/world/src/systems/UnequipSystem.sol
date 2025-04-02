@@ -3,12 +3,12 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
+import { ActionType } from "../codegen/common.sol";
 import { Equipped } from "../codegen/tables/Equipped.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { ActionType } from "../codegen/common.sol";
 
+import { UnequipNotifData, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { notify, UnequipNotifData } from "../utils/NotifUtils.sol";
 
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";

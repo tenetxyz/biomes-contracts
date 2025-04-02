@@ -1,36 +1,43 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { console } from "forge-std/console.sol";
-import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
+import { console } from "forge-std/console.sol";
 
-import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
+
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
-import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
-import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
-import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
-import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
-import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
+
 import { Equipped } from "../src/codegen/tables/Equipped.sol";
+import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
+import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
+import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
+
 import { Mass } from "../src/codegen/tables/Mass.sol";
+import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
+import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+import { Player } from "../src/codegen/tables/Player.sol";
+
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
+import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
+import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
+import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
+import { DustTest } from "./DustTest.sol";
 
-import { MinedOrePosition, MovablePosition, Position, ReversePosition, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import {
+  MinedOrePosition, MovablePosition, OreCommitment, Position, ReversePosition
+} from "../src/utils/Vec3Storage.sol";
 
-import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
-import { ObjectTypeId } from "../src/ObjectTypeId.sol";
-import { ObjectTypes } from "../src/ObjectTypes.sol";
-import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { Vec3, vec3 } from "../src/Vec3.sol";
 import { CHUNK_SIZE } from "../src/Constants.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
+import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
+
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
 contract EquipTest is DustTest {
@@ -210,9 +217,7 @@ contract EquipTest is DustTest {
 
     uint128 toolMassAfter = Mass.getMass(toolEntityId);
     assertEq(
-      toolMassAfter,
-      toolMassBefore - expectedMassReductionFromTool,
-      "Tool mass is not reduced by expected amount"
+      toolMassAfter, toolMassBefore - expectedMassReductionFromTool, "Tool mass is not reduced by expected amount"
     );
     mineEntityId = ReversePosition.get(mineCoord);
     assertEq(ObjectType.get(mineEntityId), ObjectTypes.Air, "Mine entity is not air");

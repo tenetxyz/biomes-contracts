@@ -3,24 +3,31 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { ActionType } from "../codegen/common.sol";
+import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
-import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getUniqueEntity } from "../Utils.sol";
-import { notify, AddFragmentNotifData, RemoveFragmentNotifData } from "../utils/NotifUtils.sol";
-import { isForceFieldFragment, isForceFieldFragmentActive, setupForceFieldFragment, removeForceFieldFragment } from "../utils/ForceFieldUtils.sol";
+import { updateMachineEnergy } from "../utils/EnergyUtils.sol";
+
+import {
+  isForceFieldFragment,
+  isForceFieldFragmentActive,
+  removeForceFieldFragment,
+  setupForceFieldFragment
+} from "../utils/ForceFieldUtils.sol";
+import { AddFragmentNotifData, RemoveFragmentNotifData, notify } from "../utils/NotifUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
+
 import { ForceFieldFragment, Position } from "../utils/Vec3Storage.sol";
 
+import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
+import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { EntityId } from "../EntityId.sol";
 import { IAddFragmentHook, IRemoveFragmentHook } from "../ProgramInterfaces.sol";
 import { Vec3, vec3 } from "../Vec3.sol";
-import { MACHINE_ENERGY_DRAIN_RATE } from "../Constants.sol";
 
 contract ForceFieldSystem is System {
   /**
@@ -30,11 +37,11 @@ contract ForceFieldSystem is System {
    * @param parents Array indicating the parent of each fragment in the spanning tree
    * @return True if the spanning tree is valid and connects all boundary fragments
    */
-  function validateSpanningTree(
-    Vec3[26] memory boundaryFragments,
-    uint256 len,
-    uint256[] calldata parents
-  ) public pure returns (bool) {
+  function validateSpanningTree(Vec3[26] memory boundaryFragments, uint256 len, uint256[] calldata parents)
+    public
+    pure
+    returns (bool)
+  {
     // If no boundary, it means no forcefield exists
     if (len == 0) return false;
     if (len == 1) return parents.length == 1 && parents[0] == 0;
@@ -72,10 +79,11 @@ contract ForceFieldSystem is System {
    * @param fragmentCoord The coordinate of the fragment
    * @return An array of boundary fragment coordinates and its length (the array can be longer)
    */
-  function computeBoundaryFragments(
-    EntityId forceField,
-    Vec3 fragmentCoord
-  ) public view returns (Vec3[26] memory, uint256) {
+  function computeBoundaryFragments(EntityId forceField, Vec3 fragmentCoord)
+    public
+    view
+    returns (Vec3[26] memory, uint256)
+  {
     uint256 count = 0;
 
     // Iterate through the entire boundary
@@ -103,11 +111,10 @@ contract ForceFieldSystem is System {
 
     ObjectTypeId objectTypeId = ObjectType._get(forceField);
     require(objectTypeId == ObjectTypes.ForceField, "Invalid object type");
-    (EnergyData memory machineData, ) = updateMachineEnergy(forceField);
+    (EnergyData memory machineData,) = updateMachineEnergy(forceField);
 
     require(
-      refFragmentCoord.inVonNeumannNeighborhood(fragmentCoord),
-      "Reference fragment is not adjacent to new fragment"
+      refFragmentCoord.inVonNeumannNeighborhood(fragmentCoord), "Reference fragment is not adjacent to new fragment"
     );
 
     require(isForceFieldFragment(forceField, refFragmentCoord), "Reference fragment is not part of forcefield");
@@ -117,10 +124,8 @@ contract ForceFieldSystem is System {
     // Increase drain rate per new fragment
     Energy._setDrainRate(forceField, machineData.drainRate + MACHINE_ENERGY_DRAIN_RATE);
 
-    bytes memory onAddFragment = abi.encodeCall(
-      IAddFragmentHook.onAddFragment,
-      (caller, forceField, fragment, extraData)
-    );
+    bytes memory onAddFragment =
+      abi.encodeCall(IAddFragmentHook.onAddFragment, (caller, forceField, fragment, extraData));
 
     forceField.getProgram().callOrRevert(onAddFragment);
 
@@ -161,16 +166,14 @@ contract ForceFieldSystem is System {
 
     EntityId fragment = removeForceFieldFragment(fragmentCoord);
 
-    (EnergyData memory machineData, ) = updateMachineEnergy(forceField);
+    (EnergyData memory machineData,) = updateMachineEnergy(forceField);
 
     // Update drain rate
     Energy._setDrainRate(forceField, machineData.drainRate - MACHINE_ENERGY_DRAIN_RATE);
 
     {
-      bytes memory onRemoveFragment = abi.encodeCall(
-        IRemoveFragmentHook.onRemoveFragment,
-        (caller, forceField, fragment, extraData)
-      );
+      bytes memory onRemoveFragment =
+        abi.encodeCall(IRemoveFragmentHook.onRemoveFragment, (caller, forceField, fragment, extraData));
       forceField.getProgram().callOrRevert(onRemoveFragment);
     }
 

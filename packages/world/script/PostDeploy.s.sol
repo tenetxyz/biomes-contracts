@@ -1,20 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
-import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
 import { registerERC20 } from "@latticexyz/world-modules/src/modules/erc20-puppet/registerERC20.sol";
-import { registerERC721 } from "@latticexyz/world-modules/src/modules/erc721-puppet/registerERC721.sol";
-import { ERC721MetadataData as MUDERC721MetadataData } from "@latticexyz/world-modules/src/modules/erc721-puppet/tables/ERC721Metadata.sol";
-import { ERC20MetadataData as MUDERC20MetadataData } from "@latticexyz/world-modules/src/modules/erc20-puppet/tables/ERC20Metadata.sol";
 
-import { initTerrain } from "./initTerrain.sol";
+import { ERC20MetadataData as MUDERC20MetadataData } from
+  "@latticexyz/world-modules/src/modules/erc20-puppet/tables/ERC20Metadata.sol";
+import { registerERC721 } from "@latticexyz/world-modules/src/modules/erc721-puppet/registerERC721.sol";
+import { ERC721MetadataData as MUDERC721MetadataData } from
+  "@latticexyz/world-modules/src/modules/erc721-puppet/tables/ERC721Metadata.sol";
+
 import { initObjects } from "./initObjects.sol";
 import { initRecipes } from "./initRecipes.sol";
+import { initTerrain } from "./initTerrain.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {

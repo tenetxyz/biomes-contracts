@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { DustTest, console } from "./DustTest.sol";
 
-import { LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
+import { LocalEnergyPool, Position, ReversePosition } from "../src/utils/Vec3Storage.sol";
 
 import { EntityId } from "../src/EntityId.sol";
 import { Vec3, vec3 } from "../src/Vec3.sol";

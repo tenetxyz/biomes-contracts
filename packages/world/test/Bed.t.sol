@@ -1,36 +1,40 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
 import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
-import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
-import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { System } from "@latticexyz/world/src/System.sol";
+
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
+import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 
 import { TestEnergyUtils } from "./utils/TestUtils.sol";
 
-import { DustTest, console } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
-import { Machine } from "../src/codegen/tables/Machine.sol";
-import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
+
 import { BedPlayer, BedPlayerData } from "../src/codegen/tables/BedPlayer.sol";
+import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
+import { Machine } from "../src/codegen/tables/Machine.sol";
+
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
+import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
+import { DustTest, console } from "./DustTest.sol";
 
-import { LocalEnergyPool, ReversePosition, Position } from "../src/utils/Vec3Storage.sol";
+import { LocalEnergyPool, Position, ReversePosition } from "../src/utils/Vec3Storage.sol";
 
+import { CHUNK_SIZE, MACHINE_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
-import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { Vec3, vec3 } from "../src/Vec3.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+
 import { ProgramId } from "../src/ProgramId.sol";
-import { CHUNK_SIZE, MACHINE_ENERGY_DRAIN_RATE, PLAYER_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 
 contract TestBedProgram is System {
-  fallback() external {}
+  fallback() external { }
 }
 
 contract BedTest is DustTest {
@@ -69,11 +73,7 @@ contract BedTest is DustTest {
     // Set forcefield
     setupForceField(
       bedCoord,
-      EnergyData({
-        energy: 1000,
-        lastUpdatedTime: uint128(vm.getBlockTimestamp()),
-        drainRate: MACHINE_ENERGY_DRAIN_RATE
-      })
+      EnergyData({ energy: 1000, lastUpdatedTime: uint128(vm.getBlockTimestamp()), drainRate: MACHINE_ENERGY_DRAIN_RATE })
     );
 
     EntityId bedEntityId = createBed(bedCoord);
@@ -88,14 +88,12 @@ contract BedTest is DustTest {
     assertEq(bedPlayerData.playerEntityId.unwrap(), aliceEntityId.unwrap(), "Bed's player entity is not alice");
     assertEq(bedPlayerData.lastDepletedTime, 0, "Wrong lastDepletedTime");
     assertEq(
-      PlayerStatus.getBedEntityId(aliceEntityId).unwrap(),
-      bedEntityId.unwrap(),
-      "Player's bed entity is not the bed"
+      PlayerStatus.getBedEntityId(aliceEntityId).unwrap(), bedEntityId.unwrap(), "Player's bed entity is not the bed"
     );
   }
 
   function testSleepFailsIfNoBed() public {
-    (address alice, EntityId aliceEntityId, ) = setupAirChunkWithPlayer();
+    (address alice, EntityId aliceEntityId,) = setupAirChunkWithPlayer();
 
     // Use a random entity for (non) bed
     EntityId bedEntityId = randomEntityId();

@@ -1,25 +1,31 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { System } from "@latticexyz/world/src/System.sol";
 import { AccessControl } from "@latticexyz/world/src/AccessControl.sol";
+import { System } from "@latticexyz/world/src/System.sol";
 import { ROOT_NAMESPACE_ID } from "@latticexyz/world/src/constants.sol";
 
+import { Vec3, vec3 } from "../../Vec3.sol";
 import { ObjectType } from "../../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../../codegen/tables/Player.sol";
 import { MovablePosition, ReverseMovablePosition } from "../../utils/Vec3Storage.sol";
-import { Vec3, vec3 } from "../../Vec3.sol";
 
-import { addToInventory, removeFromInventory, addToolToInventory, removeToolFromInventory } from "../../utils/InventoryUtils.sol";
+import { EntityId } from "../../EntityId.sol";
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../../ObjectTypeLib.sol";
 import { ObjectTypes } from "../../ObjectTypes.sol";
-import { EntityId } from "../../EntityId.sol";
 import { getUniqueEntity } from "../../Utils.sol";
-import { MoveLib } from "../libraries/MoveLib.sol";
+
+import { getMovableEntityAt, safeGetObjectTypeIdAt, setMovableEntityAt } from "../../utils/EntityUtils.sol";
+import {
+  addToInventory,
+  addToolToInventory,
+  removeFromInventory,
+  removeToolFromInventory
+} from "../../utils/InventoryUtils.sol";
 import { PlayerUtils } from "../../utils/PlayerUtils.sol";
-import { safeGetObjectTypeIdAt, getMovableEntityAt, setMovableEntityAt } from "../../utils/EntityUtils.sol";
+import { MoveLib } from "../libraries/MoveLib.sol";
 
 contract AdminSystem is System {
   using ObjectTypeLib for ObjectTypeId;
@@ -29,27 +35,26 @@ contract AdminSystem is System {
     _;
   }
 
-  function adminAddToInventory(
-    EntityId ownerEntityId,
-    ObjectTypeId objectTypeId,
-    uint16 numObjectsToAdd
-  ) public onlyAdmin {
+  function adminAddToInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToAdd)
+    public
+    onlyAdmin
+  {
     require(!objectTypeId.isTool(), "To add a tool, you must use adminAddToolToInventory");
     addToInventory(ownerEntityId, ObjectType._get(ownerEntityId), objectTypeId, numObjectsToAdd);
   }
 
-  function adminAddToolToInventory(
-    EntityId ownerEntityId,
-    ObjectTypeId toolObjectTypeId
-  ) public onlyAdmin returns (EntityId) {
+  function adminAddToolToInventory(EntityId ownerEntityId, ObjectTypeId toolObjectTypeId)
+    public
+    onlyAdmin
+    returns (EntityId)
+  {
     return addToolToInventory(ownerEntityId, toolObjectTypeId);
   }
 
-  function adminRemoveFromInventory(
-    EntityId ownerEntityId,
-    ObjectTypeId objectTypeId,
-    uint16 numObjectsToRemove
-  ) public onlyAdmin {
+  function adminRemoveFromInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToRemove)
+    public
+    onlyAdmin
+  {
     require(!objectTypeId.isTool(), "To remove a tool, you must pass in the tool entity id");
     removeFromInventory(ownerEntityId, objectTypeId, numObjectsToRemove);
   }

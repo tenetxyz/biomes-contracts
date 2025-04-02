@@ -1,24 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+
 import { Machine } from "../codegen/tables/Machine.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 
-import { LocalEnergyPool, Position, MovablePosition } from "../utils/Vec3Storage.sol";
-import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
 import { getEntityAt } from "../utils/EntityUtils.sol";
-import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { getForceField } from "../utils/ForceFieldUtils.sol";
 
-import { EntityId } from "../EntityId.sol";
-import { Vec3 } from "../Vec3.sol";
-import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
-import { ObjectTypeLib } from "../ObjectTypeLib.sol";
+import { getForceField } from "../utils/ForceFieldUtils.sol";
+import { transferAllInventoryEntities } from "../utils/InventoryUtils.sol";
+import { PlayerUtils } from "../utils/PlayerUtils.sol";
+import { LocalEnergyPool, MovablePosition, Position } from "../utils/Vec3Storage.sol";
+
 import { PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
+import { EntityId } from "../EntityId.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
+import { ObjectTypeLib } from "../ObjectTypeLib.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+import { Vec3 } from "../Vec3.sol";
 
 using ObjectTypeLib for ObjectTypeId;
 
@@ -76,7 +78,7 @@ function updateMachineEnergy(EntityId entityId) returns (EnergyData memory, uint
 
 /// @dev Used within systems before performing an action
 function updatePlayerEnergy(EntityId playerEntityId) returns (EnergyData memory) {
-  (EnergyData memory energyData, uint128 energyDrained, ) = getLatestEnergyData(playerEntityId);
+  (EnergyData memory energyData, uint128 energyDrained,) = getLatestEnergyData(playerEntityId);
 
   Vec3 coord = MovablePosition._get(playerEntityId);
 
@@ -132,7 +134,7 @@ function transferEnergyToPool(EntityId entityId, uint128 amount) {
     decreasePlayerEnergy(entityId, coord, amount);
   } else {
     if (!objectTypeId.isMachine()) {
-      (entityId, ) = getForceField(coord);
+      (entityId,) = getForceField(coord);
     }
     decreaseMachineEnergy(entityId, amount);
   }
@@ -148,21 +150,17 @@ function removeEnergyFromLocalPool(Vec3 coord, uint128 numToRemove) returns (uin
   return newLocalEnergy;
 }
 
-function updateSleepingPlayerEnergy(
-  EntityId playerEntityId,
-  EntityId bedEntityId,
-  uint128 depletedTime,
-  Vec3 bedCoord
-) returns (EnergyData memory) {
+function updateSleepingPlayerEnergy(EntityId playerEntityId, EntityId bedEntityId, uint128 depletedTime, Vec3 bedCoord)
+  returns (EnergyData memory)
+{
   uint128 timeWithoutEnergy = depletedTime - BedPlayer._getLastDepletedTime(bedEntityId);
   EnergyData memory playerEnergyData = Energy._get(playerEntityId);
 
   if (timeWithoutEnergy > 0) {
     uint128 totalEnergyDepleted = timeWithoutEnergy * PLAYER_ENERGY_DRAIN_RATE;
     // No need to call updatePlayerEnergyLevel as drain rate is 0 if sleeping
-    uint128 transferredToPool = playerEnergyData.energy > totalEnergyDepleted
-      ? totalEnergyDepleted
-      : playerEnergyData.energy;
+    uint128 transferredToPool =
+      playerEnergyData.energy > totalEnergyDepleted ? totalEnergyDepleted : playerEnergyData.energy;
 
     playerEnergyData.energy -= transferredToPool;
     addEnergyToLocalPool(bedCoord, transferredToPool);

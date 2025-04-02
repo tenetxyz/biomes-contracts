@@ -3,32 +3,35 @@ pragma solidity >=0.8.24;
 
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
-import { Player } from "../codegen/tables/Player.sol";
-import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
-import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Equipped } from "../codegen/tables/Equipped.sol";
-import { Mass } from "../codegen/tables/Mass.sol";
-import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
+import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
+import { Equipped } from "../codegen/tables/Equipped.sol";
+import { Mass } from "../codegen/tables/Mass.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
+
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+import { Player } from "../codegen/tables/Player.sol";
+import { PlayerStatus } from "../codegen/tables/PlayerStatus.sol";
+import { ReversePlayer } from "../codegen/tables/ReversePlayer.sol";
 
-import { Position, MovablePosition, ReverseMovablePosition, ForceFieldFragmentPosition } from "../utils/Vec3Storage.sol";
+import { ForceFieldFragmentPosition, MovablePosition, Position, ReverseMovablePosition } from "../utils/Vec3Storage.sol";
 
-import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
+import { checkWorldStatus, getUniqueEntity } from "../Utils.sol";
 import { updatePlayerEnergy } from "./EnergyUtils.sol";
+
+import { getMovableEntityAt, getOrCreateEntityAt, safeGetObjectTypeIdAt, setMovableEntityAt } from "./EntityUtils.sol";
 import { getForceField } from "./ForceFieldUtils.sol";
 import { transferAllInventoryEntities } from "./InventoryUtils.sol";
-import { safeGetObjectTypeIdAt, getOrCreateEntityAt, getMovableEntityAt, setMovableEntityAt } from "./EntityUtils.sol";
 
+import { FRAGMENT_SIZE, PLAYER_ENERGY_DRAIN_RATE } from "../Constants.sol";
 import { EntityId } from "../EntityId.sol";
-import { Vec3, vec3 } from "../Vec3.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { PLAYER_ENERGY_DRAIN_RATE, FRAGMENT_SIZE } from "../Constants.sol";
-import { notify, DeathNotifData } from "./NotifUtils.sol";
+import { Vec3, vec3 } from "../Vec3.sol";
+
+import { DeathNotifData, notify } from "./NotifUtils.sol";
 
 using ObjectTypeLib for ObjectTypeId;
 
@@ -67,8 +70,8 @@ library PlayerUtils {
       Vec3 relativeCoord = coords[i];
       ObjectTypeId relativeTerrainObjectTypeId = safeGetObjectTypeIdAt(relativeCoord);
       require(
-        ObjectTypeMetadata._getCanPassThrough(relativeTerrainObjectTypeId) &&
-          !getMovableEntityAt(relativeCoord).exists(),
+        ObjectTypeMetadata._getCanPassThrough(relativeTerrainObjectTypeId)
+          && !getMovableEntityAt(relativeCoord).exists(),
         "Cannot spawn on a non-passable block"
       );
       EntityId relativePlayerEntityId = getUniqueEntity();

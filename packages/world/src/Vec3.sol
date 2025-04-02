@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { LibString } from "solady/utils/LibString.sol";
 import { FixedPointMathLib } from "solady/utils/FixedPointMathLib.sol";
+import { LibString } from "solady/utils/LibString.sol";
 
-import { Direction } from "./codegen/common.sol";
 import { CHUNK_SIZE, FRAGMENT_SIZE, REGION_SIZE } from "./Constants.sol";
+import { Direction } from "./codegen/common.sol";
 
 // Vec3 stores 3 packed int32 values (x, y, z)
 type Vec3 is uint96;
@@ -190,31 +190,22 @@ library Vec3Lib {
   function isAdjacentToCuboid(Vec3 self, Vec3 from, Vec3 to) internal pure returns (bool) {
     // X-axis adjacency (left or right face)
     if (
-      (self.x() == from.x() - 1 || self.x() == to.x() + 1) &&
-      self.y() >= from.y() &&
-      self.y() <= to.y() &&
-      self.z() >= from.z() &&
-      self.z() <= to.z()
+      (self.x() == from.x() - 1 || self.x() == to.x() + 1) && self.y() >= from.y() && self.y() <= to.y()
+        && self.z() >= from.z() && self.z() <= to.z()
     ) {
       return true;
     }
     // Y-axis adjacency (bottom or top face)
     if (
-      (self.y() == from.y() - 1 || self.y() == to.y() + 1) &&
-      self.x() >= from.x() &&
-      self.x() <= to.x() &&
-      self.z() >= from.z() &&
-      self.z() <= to.z()
+      (self.y() == from.y() - 1 || self.y() == to.y() + 1) && self.x() >= from.x() && self.x() <= to.x()
+        && self.z() >= from.z() && self.z() <= to.z()
     ) {
       return true;
     }
     // Z-axis adjacency (front or back face)
     if (
-      (self.z() == from.z() - 1 || self.z() == to.z() + 1) &&
-      self.x() >= from.x() &&
-      self.x() <= to.x() &&
-      self.y() >= from.y() &&
-      self.y() <= to.y()
+      (self.z() == from.z() - 1 || self.z() == to.z() + 1) && self.x() >= from.x() && self.x() <= to.x()
+        && self.y() >= from.y() && self.y() <= to.y()
     ) {
       return true;
     }

@@ -6,15 +6,16 @@ import { console } from "forge-std/console.sol";
 import { DustTest } from "./DustTest.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
+import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
+import { EntityId } from "../src/EntityId.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
-import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+
+import { Vec3, vec3 } from "../src/Vec3.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
-import { EntityId } from "../src/EntityId.sol";
-import { Vec3, vec3 } from "../src/Vec3.sol";
-import { MAX_PLAYER_ENERGY } from "../src/Constants.sol";
 
 contract FoodTest is DustTest {
   using ObjectTypeLib for ObjectTypeId;
@@ -24,8 +25,7 @@ contract FoodTest is DustTest {
     (address alice, EntityId aliceEntityId, Vec3 aliceCoord) = setupFlatChunkWithPlayer();
     uint128 initialEnergy = MAX_PLAYER_ENERGY / 2;
     Energy.set(
-      aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: initialEnergy, drainRate: 1 })
+      aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: initialEnergy, drainRate: 1 })
     );
 
     // Add some wheat to player inventory
@@ -66,8 +66,7 @@ contract FoodTest is DustTest {
     (address alice, EntityId aliceEntityId, Vec3 aliceCoord) = setupFlatChunkWithPlayer();
     uint128 initialEnergy = MAX_PLAYER_ENERGY - 10; // Just below max
     Energy.set(
-      aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: initialEnergy, drainRate: 1 })
+      aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: initialEnergy, drainRate: 1 })
     );
 
     // Add food to player inventory

@@ -1,37 +1,52 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { console } from "forge-std/console.sol";
-import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
+import { MudTest } from "@latticexyz/world/test/MudTest.t.sol";
+import { console } from "forge-std/console.sol";
 
-import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { NamespaceOwner } from "@latticexyz/world/src/codegen/tables/NamespaceOwner.sol";
 
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { Mass } from "../src/codegen/tables/Mass.sol";
-import { Machine } from "../src/codegen/tables/Machine.sol";
-import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
-import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
-import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
-import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
-import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
-import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
-import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
-import { RegionMerkleRoot } from "../src/codegen/tables/RegionMerkleRoot.sol";
+import {
+  CHUNK_SIZE, MAX_PLAYER_ENERGY, MINE_ENERGY_COST, PLAYER_ENERGY_DRAIN_RATE, REGION_SIZE
+} from "../src/Constants.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { Vec3, vec3 } from "../src/Vec3.sol";
-import { encodeChunk } from "./utils/encodeChunk.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
-import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MINE_ENERGY_COST, MAX_PLAYER_ENERGY, PLAYER_ENERGY_DRAIN_RATE, REGION_SIZE } from "../src/Constants.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
+import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
+import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 
-import { LocalEnergyPool, Position, ReversePosition, MovablePosition, ReverseMovablePosition } from "../src/utils/Vec3Storage.sol";
-import { TestInventoryUtils, TestForceFieldUtils, TestEnergyUtils } from "./utils/TestUtils.sol";
+import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
+import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
+import { Machine } from "../src/codegen/tables/Machine.sol";
+import { Mass } from "../src/codegen/tables/Mass.sol";
+
+import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+
+import { Player } from "../src/codegen/tables/Player.sol";
+
+import { RegionMerkleRoot } from "../src/codegen/tables/RegionMerkleRoot.sol";
+import { ReverseInventoryEntity } from "../src/codegen/tables/ReverseInventoryEntity.sol";
+import { ReversePlayer } from "../src/codegen/tables/ReversePlayer.sol";
+
+import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
+
+import { encodeChunk } from "./utils/encodeChunk.sol";
+
+import {
+  LocalEnergyPool,
+  MovablePosition,
+  Position,
+  ReverseMovablePosition,
+  ReversePosition
+} from "../src/utils/Vec3Storage.sol";
+
 import { DustAssertions } from "./DustAssertions.sol";
+import { TestEnergyUtils, TestForceFieldUtils, TestInventoryUtils } from "./utils/TestUtils.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 

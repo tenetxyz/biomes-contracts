@@ -2,17 +2,17 @@
 pragma solidity >=0.8.24;
 
 import { EntityId } from "./EntityId.sol";
-import { ProgramId } from "./ProgramId.sol";
-import { Vec3 } from "./Vec3.sol";
+
 import { ObjectTypeId } from "./ObjectTypeId.sol";
 import { ObjectAmount } from "./ObjectTypeLib.sol";
+import { ProgramId } from "./ProgramId.sol";
+import { Vec3 } from "./Vec3.sol";
 
 /**
  * Naming convention for all hooks/getters:
  * - caller is the entity that called the system and triggered the call to the program
  * - target is the entity for which the function is being called
  */
-
 interface IProgramValidator {
   function validateProgram(
     EntityId caller,
@@ -24,11 +24,10 @@ interface IProgramValidator {
 }
 
 interface IDisplay {
-  function getDisplayURI(
-    EntityId caller,
-    EntityId target,
-    bytes memory extraData
-  ) external view returns (string memory);
+  function getDisplayURI(EntityId caller, EntityId target, bytes memory extraData)
+    external
+    view
+    returns (string memory);
 }
 
 interface IAttachProgramHook {
@@ -68,23 +67,15 @@ interface IRemoveFragmentHook {
 }
 
 interface IBuildHook {
-  function onBuild(
-    EntityId caller,
-    EntityId target,
-    ObjectTypeId objectTypeId,
-    Vec3 coord,
-    bytes memory extraData
-  ) external payable;
+  function onBuild(EntityId caller, EntityId target, ObjectTypeId objectTypeId, Vec3 coord, bytes memory extraData)
+    external
+    payable;
 }
 
 interface IMineHook {
-  function onMine(
-    EntityId caller,
-    EntityId target,
-    ObjectTypeId objectTypeId,
-    Vec3 coord,
-    bytes memory extraData
-  ) external payable;
+  function onMine(EntityId caller, EntityId target, ObjectTypeId objectTypeId, Vec3 coord, bytes memory extraData)
+    external
+    payable;
 }
 
 interface ISpawnHook {

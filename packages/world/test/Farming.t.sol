@@ -1,29 +1,34 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { console } from "forge-std/console.sol";
-import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
+import { console } from "forge-std/console.sol";
 
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { Mass } from "../src/codegen/tables/Mass.sol";
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
+import { Mass } from "../src/codegen/tables/Mass.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
-import { LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
+
 import { SeedGrowth } from "../src/codegen/tables/SeedGrowth.sol";
+import { LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
 
-import { ReversePosition, MovablePosition } from "../src/utils/Vec3Storage.sol";
+import { MovablePosition, ReversePosition } from "../src/utils/Vec3Storage.sol";
 
-import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
-import { ObjectTypeId } from "../src/ObjectTypeId.sol";
-import { ObjectTypes } from "../src/ObjectTypes.sol";
-import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { TILL_ENERGY_COST, BUILD_ENERGY_COST, MINE_ENERGY_COST, MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
-import { Vec3, vec3 } from "../src/Vec3.sol";
+import {
+  BUILD_ENERGY_COST, MAX_ENTITY_INFLUENCE_HALF_WIDTH, MINE_ENERGY_COST, TILL_ENERGY_COST
+} from "../src/Constants.sol";
+
 import { EntityId } from "../src/EntityId.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+
+import { Vec3, vec3 } from "../src/Vec3.sol";
+import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 
 import { DustTest } from "./DustTest.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
@@ -177,8 +182,7 @@ contract FarmingTest is DustTest {
     uint128 toolMass = 0; // Assuming tool mass is 0 for simplicity
     uint128 energyCost = TILL_ENERGY_COST + toolMass;
     Energy.set(
-      aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: energyCost - 1, drainRate: 0 })
+      aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: energyCost - 1, drainRate: 0 })
     );
 
     vm.prank(alice);

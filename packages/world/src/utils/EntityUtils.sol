@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { Position, ReversePosition, MovablePosition, ReverseMovablePosition } from "../utils/Vec3Storage.sol";
+import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
-import { Mass } from "../codegen/tables/Mass.sol";
 import { TerrainLib } from "../systems/libraries/TerrainLib.sol";
+import { MovablePosition, Position, ReverseMovablePosition, ReversePosition } from "../utils/Vec3Storage.sol";
 
-import { getUniqueEntity } from "../Utils.sol";
+import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypeLib } from "../ObjectTypeLib.sol";
-import { EntityId } from "../EntityId.sol";
+import { getUniqueEntity } from "../Utils.sol";
+
 import { Vec3 } from "../Vec3.sol";
 
 using ObjectTypeLib for ObjectTypeId;

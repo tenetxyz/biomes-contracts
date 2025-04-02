@@ -3,42 +3,50 @@ pragma solidity >=0.8.24;
 
 import { console } from "forge-std/console.sol";
 
-import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
-import { System } from "@latticexyz/world/src/System.sol";
 import { IERC165 } from "@latticexyz/world/src/IERC165.sol";
+import { System } from "@latticexyz/world/src/System.sol";
 import { WorldContextConsumer } from "@latticexyz/world/src/WorldContext.sol";
-import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
+
 import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
+import { revertWithBytes } from "@latticexyz/world/src/revertWithBytes.sol";
+import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 
-import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
-import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { EnergyData } from "../src/codegen/tables/Energy.sol";
-import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
-import { Player } from "../src/codegen/tables/Player.sol";
-import { MovablePosition } from "../src/codegen/tables/MovablePosition.sol";
-import { ReverseMovablePosition } from "../src/codegen/tables/ReverseMovablePosition.sol";
-import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
-import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
-import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
-import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
-import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
-import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
-import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
-import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
-import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
+import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
+import { EnergyData } from "../src/codegen/tables/Energy.sol";
+
+import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
+
+import { InventoryEntity } from "../src/codegen/tables/InventoryEntity.sol";
+import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
+
+import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
+
+import { MinedOrePosition } from "../src/codegen/tables/MinedOrePosition.sol";
+import { MovablePosition } from "../src/codegen/tables/MovablePosition.sol";
+import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+import { OreCommitment } from "../src/codegen/tables/OreCommitment.sol";
+import { Player } from "../src/codegen/tables/Player.sol";
+
+import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
+import { ReverseMovablePosition } from "../src/codegen/tables/ReverseMovablePosition.sol";
+import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
+import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
+import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
+import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { DustTest } from "./DustTest.sol";
+
+import { CHUNK_SIZE, MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
+import { ObjectTypeId } from "../src/ObjectTypeId.sol";
+import { ObjectAmount, ObjectTypeLib } from "../src/ObjectTypeLib.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+
+import { ProgramId } from "../src/ProgramId.sol";
+import { Vec3, vec3 } from "../src/Vec3.sol";
 import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { Position } from "../src/utils/Vec3Storage.sol";
-import { ObjectTypeId } from "../src/ObjectTypeId.sol";
-import { ObjectTypes } from "../src/ObjectTypes.sol";
-import { ObjectAmount, ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_ENTITY_INFLUENCE_HALF_WIDTH } from "../src/Constants.sol";
-import { Vec3, vec3 } from "../src/Vec3.sol";
-import { ProgramId } from "../src/ProgramId.sol";
 
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
@@ -46,15 +54,10 @@ contract TestChestProgram is System {
   // Control revert behavior
   bool revertOnTransfer;
 
-  function onTransfer(
-    EntityId,
-    EntityId,
-    EntityId,
-    EntityId,
-    ObjectAmount[] memory,
-    EntityId[] memory,
-    bytes memory
-  ) external view {
+  function onTransfer(EntityId, EntityId, EntityId, EntityId, ObjectAmount[] memory, EntityId[] memory, bytes memory)
+    external
+    view
+  {
     require(!revertOnTransfer, "Transfer not allowed by chest");
   }
 
@@ -70,7 +73,7 @@ contract TestChestProgram is System {
     }
   }
 
-  fallback() external {}
+  fallback() external { }
 }
 
 contract TransferTest is DustTest {
@@ -414,8 +417,7 @@ contract TransferTest is DustTest {
     program.call(
       world,
       abi.encodeCall(
-        world.transfer,
-        (chestEntityId, chestEntityId, otherChestEntityId, transferObjectTypeId, numToTransfer, "")
+        world.transfer, (chestEntityId, chestEntityId, otherChestEntityId, transferObjectTypeId, numToTransfer, "")
       )
     );
 
@@ -446,8 +448,7 @@ contract TransferTest is DustTest {
     program.call(
       world,
       abi.encodeCall(
-        world.transfer,
-        (chestEntityId, chestEntityId, otherChestEntityId, transferObjectTypeId, numToTransfer, "")
+        world.transfer, (chestEntityId, chestEntityId, otherChestEntityId, transferObjectTypeId, numToTransfer, "")
       )
     );
   }

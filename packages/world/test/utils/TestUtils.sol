@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
+import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { Vm } from "forge-std/Vm.sol";
 import { console } from "forge-std/console.sol";
-import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 
 import { EntityId } from "../../src/EntityId.sol";
 import { Vec3 } from "../../src/Vec3.sol";
@@ -12,10 +12,31 @@ import { EnergyData } from "../../src/codegen/tables/Energy.sol";
 import { ObjectType } from "../../src/codegen/tables/ObjectType.sol";
 
 import { ObjectTypeId } from "../../src/ObjectTypeId.sol";
-import { addToInventory as _addToInventory, removeFromInventory as _removeFromInventory, addToolToInventory as _addToolToInventory, removeToolFromInventory as _removeToolFromInventory, useEquipped as _useEquipped, removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity, removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects, transferAllInventoryEntities as _transferAllInventoryEntities, transferInventoryNonEntity as _transferInventoryNonEntity, transferInventoryEntity as _transferInventoryEntity } from "../../src/utils/InventoryUtils.sol";
-import { ObjectTypeLib, ObjectAmount, getOreObjectTypes } from "../../src/ObjectTypeLib.sol";
-import { updateMachineEnergy as _updateMachineEnergy, updatePlayerEnergy as _updatePlayerEnergy } from "../../src/utils/EnergyUtils.sol";
-import { isForceFieldFragment as _isForceFieldFragment, isForceFieldActive as _isForceFieldActive, getForceField as _getForceField, setupForceField as _setupForceField, destroyForceField as _destroyForceField } from "../../src/utils/ForceFieldUtils.sol";
+
+import { ObjectAmount, ObjectTypeLib, getOreObjectTypes } from "../../src/ObjectTypeLib.sol";
+import {
+  updateMachineEnergy as _updateMachineEnergy,
+  updatePlayerEnergy as _updatePlayerEnergy
+} from "../../src/utils/EnergyUtils.sol";
+import {
+  destroyForceField as _destroyForceField,
+  getForceField as _getForceField,
+  isForceFieldActive as _isForceFieldActive,
+  isForceFieldFragment as _isForceFieldFragment,
+  setupForceField as _setupForceField
+} from "../../src/utils/ForceFieldUtils.sol";
+import {
+  addToInventory as _addToInventory,
+  addToolToInventory as _addToolToInventory,
+  removeEntityIdFromReverseInventoryEntity as _removeEntityIdFromReverseInventoryEntity,
+  removeFromInventory as _removeFromInventory,
+  removeObjectTypeIdFromInventoryObjects as _removeObjectTypeIdFromInventoryObjects,
+  removeToolFromInventory as _removeToolFromInventory,
+  transferAllInventoryEntities as _transferAllInventoryEntities,
+  transferInventoryEntity as _transferInventoryEntity,
+  transferInventoryNonEntity as _transferInventoryNonEntity,
+  useEquipped as _useEquipped
+} from "../../src/utils/InventoryUtils.sol";
 
 Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
@@ -34,12 +55,8 @@ library TestUtils {
         let dataOffset := add(data, 0x20)
         let dataSize := mload(data)
         switch success
-        case 1 {
-          return(dataOffset, dataSize)
-        }
-        default {
-          revert(dataOffset, dataSize)
-        }
+        case 1 { return(dataOffset, dataSize) }
+        default { revert(dataOffset, dataSize) }
       }
     }
   }
@@ -75,11 +92,10 @@ library TestInventoryUtils {
     return _addToolToInventory(ownerEntityId, toolObjectTypeId);
   }
 
-  function removeFromInventory(
-    EntityId ownerEntityId,
-    ObjectTypeId objectTypeId,
-    uint16 numObjectsToRemove
-  ) public asWorld {
+  function removeFromInventory(EntityId ownerEntityId, ObjectTypeId objectTypeId, uint16 numObjectsToRemove)
+    public
+    asWorld
+  {
     require(!objectTypeId.isTool(), "To remove a tool, you must pass in the tool entity id");
     _removeFromInventory(ownerEntityId, objectTypeId, numObjectsToRemove);
   }
@@ -92,25 +108,25 @@ library TestInventoryUtils {
     _useEquipped(entityId, useMassMax);
   }
 
-  function removeEntityIdFromReverseInventoryEntity(
-    EntityId ownerEntityId,
-    EntityId removeInventoryEntityId
-  ) public asWorld {
+  function removeEntityIdFromReverseInventoryEntity(EntityId ownerEntityId, EntityId removeInventoryEntityId)
+    public
+    asWorld
+  {
     _removeEntityIdFromReverseInventoryEntity(ownerEntityId, removeInventoryEntityId);
   }
 
-  function removeObjectTypeIdFromInventoryObjects(
-    EntityId ownerEntityId,
-    ObjectTypeId removeObjectTypeId
-  ) public asWorld {
+  function removeObjectTypeIdFromInventoryObjects(EntityId ownerEntityId, ObjectTypeId removeObjectTypeId)
+    public
+    asWorld
+  {
     _removeObjectTypeIdFromInventoryObjects(ownerEntityId, removeObjectTypeId);
   }
 
-  function transferAllInventoryEntities(
-    EntityId fromEntityId,
-    EntityId toEntityId,
-    ObjectTypeId toObjectTypeId
-  ) public asWorld returns (uint256) {
+  function transferAllInventoryEntities(EntityId fromEntityId, EntityId toEntityId, ObjectTypeId toObjectTypeId)
+    public
+    asWorld
+    returns (uint256)
+  {
     return _transferAllInventoryEntities(fromEntityId, toEntityId, toObjectTypeId);
   }
 

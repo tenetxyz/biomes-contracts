@@ -1,33 +1,52 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { console } from "forge-std/console.sol";
 import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { console } from "forge-std/console.sol";
 
-import { DustTest } from "./DustTest.sol";
 import { EntityId } from "../src/EntityId.sol";
 import { BaseEntity } from "../src/codegen/tables/BaseEntity.sol";
-import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
-import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
+
 import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
-import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
-import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
+
 import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
-import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
-import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
+import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
+import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
+
 import { Player } from "../src/codegen/tables/Player.sol";
+import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
+import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
+import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
+import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
+import { DustTest } from "./DustTest.sol";
 
-import { MinedOrePosition, LocalEnergyPool, ReversePosition, MovablePosition, ReverseMovablePosition, Position, OreCommitment } from "../src/utils/Vec3Storage.sol";
+import {
+  LocalEnergyPool,
+  MinedOrePosition,
+  MovablePosition,
+  OreCommitment,
+  Position,
+  ReverseMovablePosition,
+  ReversePosition
+} from "../src/utils/Vec3Storage.sol";
 
-import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
+import {
+  CHUNK_SIZE,
+  MAX_PLAYER_GLIDES,
+  MAX_PLAYER_JUMPS,
+  MOVE_ENERGY_COST,
+  PLAYER_FALL_DAMAGE_THRESHOLD,
+  PLAYER_FALL_ENERGY_COST
+} from "../src/Constants.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";
-import { ObjectTypes } from "../src/ObjectTypes.sol";
 import { ObjectTypeLib } from "../src/ObjectTypeLib.sol";
-import { CHUNK_SIZE, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, PLAYER_FALL_DAMAGE_THRESHOLD } from "../src/Constants.sol";
+import { ObjectTypes } from "../src/ObjectTypes.sol";
+
 import { Vec3, vec3 } from "../src/Vec3.sol";
+import { TerrainLib } from "../src/systems/libraries/TerrainLib.sol";
 import { TestInventoryUtils } from "./utils/TestUtils.sol";
 
 contract MoveTest is DustTest {
@@ -53,10 +72,8 @@ contract MoveTest is DustTest {
       }
     }
 
-    EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(
-      playerEntityId,
-      newCoords[numBlocksToMove - 1]
-    );
+    EnergyDataSnapshot memory beforeEnergyDataSnapshot =
+      getEnergyDataSnapshot(playerEntityId, newCoords[numBlocksToMove - 1]);
 
     vm.prank(player);
     startGasReport(
@@ -69,21 +86,15 @@ contract MoveTest is DustTest {
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(finalCoord, newCoords[numBlocksToMove - 1], "Player did not move to the correct coord");
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
-      playerEntityId,
-      "Above coord is not the player"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)), playerEntityId, "Above coord is not the player"
     );
     assertEq(EntityId.unwrap(ReverseMovablePosition.get(startingCoord)), bytes32(0), "Player position was not deleted");
     assertEq(
-      EntityId.unwrap(ReverseMovablePosition.get(startingCoord)),
-      bytes32(0),
-      "Above starting coord is not the player"
+      EntityId.unwrap(ReverseMovablePosition.get(startingCoord)), bytes32(0), "Above starting coord is not the player"
     );
 
-    EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(
-      playerEntityId,
-      newCoords[numBlocksToMove - 1]
-    );
+    EnergyDataSnapshot memory afterEnergyDataSnapshot =
+      getEnergyDataSnapshot(playerEntityId, newCoords[numBlocksToMove - 1]);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
@@ -160,9 +171,7 @@ contract MoveTest is DustTest {
     assertEq(finalCoord, playerCoord, "Player did not fall back to the original coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
-      aliceEntityId,
-      "Above coord is not the player"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)), aliceEntityId, "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -191,9 +200,7 @@ contract MoveTest is DustTest {
     assertEq(finalCoord, expectedFinalCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
-      aliceEntityId,
-      "Above coord is not the player"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)), aliceEntityId, "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -223,15 +230,11 @@ contract MoveTest is DustTest {
     assertEq(finalCoord, grassCoord + vec3(0, 1, 0), "Player did not move to the grass coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
-      aliceEntityId,
-      "Above coord is not the player"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)), aliceEntityId, "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
-      beforeEnergyDataSnapshot,
-      afterEnergyDataSnapshot
-    );
+    uint128 playerEnergyLost =
+      assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     // Fall damage is greater than the move energy cost
     assertGt(PLAYER_FALL_ENERGY_COST, MOVE_ENERGY_COST, "Fall energy cost is not greater than the move energy cost");
     assertEq(
@@ -265,15 +268,11 @@ contract MoveTest is DustTest {
     assertEq(finalCoord, grassCoord + vec3(0, 1, 0), "Player did not move to the grass coord");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
-      aliceEntityId,
-      "Above coord is not the player"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)), aliceEntityId, "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
-    uint128 playerEnergyLost = assertEnergyFlowedFromPlayerToLocalPool(
-      beforeEnergyDataSnapshot,
-      afterEnergyDataSnapshot
-    );
+    uint128 playerEnergyLost =
+      assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
     // Fall damage is greater than the move energy cost
     assertGt(PLAYER_FALL_ENERGY_COST, MOVE_ENERGY_COST, "Fall energy cost is not greater than the move energy cost");
     assertGt(
@@ -300,9 +299,7 @@ contract MoveTest is DustTest {
     assertEq(finalCoord, newCoords[newCoords.length - 1], "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
-      aliceEntityId,
-      "Above coord is not the player"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)), aliceEntityId, "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -330,9 +327,7 @@ contract MoveTest is DustTest {
     assertEq(finalCoord, playerCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
-      aliceEntityId,
-      "Above coord is not the player"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)), aliceEntityId, "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -364,9 +359,7 @@ contract MoveTest is DustTest {
     assertEq(finalCoord, expectedFinalCoord, "Player did not move to new coords");
     Vec3 aboveFinalCoord = finalCoord + vec3(0, 1, 0);
     assertEq(
-      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)),
-      aliceEntityId,
-      "Above coord is not the player"
+      BaseEntity.get(ReverseMovablePosition.get(aboveFinalCoord)), aliceEntityId, "Above coord is not the player"
     );
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
@@ -378,7 +371,7 @@ contract MoveTest is DustTest {
     uint256 numJumps = MAX_PLAYER_JUMPS + 1;
     Vec3[] memory newCoords = new Vec3[](numJumps);
     for (uint8 i = 0; i < numJumps; i++) {
-      newCoords[i] = playerCoord + vec3(0, int32(int(uint(i))) + 1, 0);
+      newCoords[i] = playerCoord + vec3(0, int32(int256(uint256(i))) + 1, 0);
       setObjectAtCoord(newCoords[i], ObjectTypes.Air);
       setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
@@ -394,7 +387,7 @@ contract MoveTest is DustTest {
     uint256 numGlides = MAX_PLAYER_GLIDES + 1;
     Vec3[] memory newCoords = new Vec3[](numGlides + 1);
     for (uint8 i = 0; i < newCoords.length; i++) {
-      newCoords[i] = playerCoord + vec3(0, 1, int32(int(uint(i))));
+      newCoords[i] = playerCoord + vec3(0, 1, int32(int256(uint256(i))));
       setObjectAtCoord(newCoords[i], ObjectTypes.Air);
       setObjectAtCoord(newCoords[i] + vec3(0, 1, 0), ObjectTypes.Air);
     }
@@ -479,8 +472,7 @@ contract MoveTest is DustTest {
     // Set player energy to exactly enough for one move
     uint128 exactEnergy = MOVE_ENERGY_COST;
     Energy.set(
-      aliceEntityId,
-      EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: exactEnergy, drainRate: 0 })
+      aliceEntityId, EnergyData({ lastUpdatedTime: uint128(block.timestamp), energy: exactEnergy, drainRate: 0 })
     );
 
     Vec3[] memory newCoords = new Vec3[](1);
@@ -576,9 +568,7 @@ contract MoveTest is DustTest {
     // Player's inventory should be empty
     assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.Stone), 0, "Player should not have stone after death");
     assertEq(
-      InventoryCount.get(aliceEntityId, ObjectTypes.SilverOre),
-      0,
-      "Player should not have silver ore after death"
+      InventoryCount.get(aliceEntityId, ObjectTypes.SilverOre), 0, "Player should not have silver ore after death"
     );
   }
 
@@ -637,9 +627,7 @@ contract MoveTest is DustTest {
 
     // Player's inventory should be empty
     assertEq(
-      InventoryCount.get(aliceEntityId, ObjectTypes.SilverOre),
-      0,
-      "Player should not have silver ore after death"
+      InventoryCount.get(aliceEntityId, ObjectTypes.SilverOre), 0, "Player should not have silver ore after death"
     );
     assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.Diamond), 0, "Player should not have diamond after death");
   }

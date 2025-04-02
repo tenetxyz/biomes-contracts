@@ -3,21 +3,22 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { EnergyData } from "../codegen/tables/Energy.sol";
+import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
-import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
-import { notify, TransferNotifData } from "../utils/NotifUtils.sol";
+import { transferEnergyToPool, updateMachineEnergy } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { updateMachineEnergy, transferEnergyToPool } from "../utils/EnergyUtils.sol";
+import { transferInventoryEntity, transferInventoryNonEntity } from "../utils/InventoryUtils.sol";
+import { TransferNotifData, notify } from "../utils/NotifUtils.sol";
 
+import { SMART_CHEST_ENERGY_COST } from "../Constants.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
-import { ObjectTypes } from "../ObjectTypes.sol";
 import { ObjectAmount } from "../ObjectTypeLib.sol";
-import { Vec3 } from "../Vec3.sol";
+import { ObjectTypes } from "../ObjectTypes.sol";
+
 import { ITransferHook } from "../ProgramInterfaces.sol";
-import { SMART_CHEST_ENERGY_COST } from "../Constants.sol";
+import { Vec3 } from "../Vec3.sol";
 
 contract TransferSystem is System {
   function transfer(
@@ -76,7 +77,7 @@ contract TransferSystem is System {
 
     ObjectTypeId toObjectTypeId = ObjectType._get(toEntityId);
 
-    for (uint i = 0; i < toolEntityIds.length; i++) {
+    for (uint256 i = 0; i < toolEntityIds.length; i++) {
       transferInventoryEntity(fromEntityId, toEntityId, toObjectTypeId, toolEntityIds[i]);
     }
 
@@ -107,19 +108,15 @@ library TransferLib {
 
     notify(
       callerEntityId,
-      TransferNotifData({
-        transferEntityId: targetEntityId,
-        toolEntityIds: toolEntityIds,
-        objectAmounts: objectAmounts
-      })
+      TransferNotifData({ transferEntityId: targetEntityId, toolEntityIds: toolEntityIds, objectAmounts: objectAmounts })
     );
   }
 
-  function _getTargetEntityId(
-    EntityId callerEntityId,
-    EntityId fromEntityId,
-    EntityId toEntityId
-  ) internal pure returns (EntityId) {
+  function _getTargetEntityId(EntityId callerEntityId, EntityId fromEntityId, EntityId toEntityId)
+    internal
+    pure
+    returns (EntityId)
+  {
     if (callerEntityId == fromEntityId) {
       return toEntityId;
     } else if (callerEntityId == toEntityId) {

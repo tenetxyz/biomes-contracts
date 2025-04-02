@@ -1,19 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 import { Energy } from "../../codegen/tables/Energy.sol";
+import { ObjectTypeMetadata } from "../../codegen/tables/ObjectTypeMetadata.sol";
 
 import { ReverseMovablePosition } from "../../utils/Vec3Storage.sol";
 
-import { ObjectTypeId } from "../../ObjectTypeId.sol";
-import { ObjectTypes } from "../../ObjectTypes.sol";
-import { ObjectTypeLib } from "../../ObjectTypeLib.sol";
-import { MOVE_ENERGY_COST, PLAYER_FALL_ENERGY_COST, MAX_PLAYER_JUMPS, MAX_PLAYER_GLIDES, PLAYER_FALL_DAMAGE_THRESHOLD } from "../../Constants.sol";
+import {
+  MAX_PLAYER_GLIDES,
+  MAX_PLAYER_JUMPS,
+  MOVE_ENERGY_COST,
+  PLAYER_FALL_DAMAGE_THRESHOLD,
+  PLAYER_FALL_ENERGY_COST
+} from "../../Constants.sol";
 import { EntityId } from "../../EntityId.sol";
+import { ObjectTypeId } from "../../ObjectTypeId.sol";
+import { ObjectTypeLib } from "../../ObjectTypeLib.sol";
+import { ObjectTypes } from "../../ObjectTypes.sol";
+
 import { Vec3, vec3 } from "../../Vec3.sol";
 import { addEnergyToLocalPool, decreasePlayerEnergy, updatePlayerEnergy } from "../../utils/EnergyUtils.sol";
-import { safeGetObjectTypeIdAt, getMovableEntityAt, setMovableEntityAt } from "../../utils/EntityUtils.sol";
+import { getMovableEntityAt, safeGetObjectTypeIdAt, setMovableEntityAt } from "../../utils/EntityUtils.sol";
 
 library MoveLib {
   using ObjectTypeLib for ObjectTypeId;
@@ -33,10 +40,11 @@ library MoveLib {
     }
   }
 
-  function _getPlayerEntityIds(
-    EntityId basePlayerEntityId,
-    Vec3[] memory playerCoords
-  ) internal view returns (EntityId[] memory) {
+  function _getPlayerEntityIds(EntityId basePlayerEntityId, Vec3[] memory playerCoords)
+    internal
+    view
+    returns (EntityId[] memory)
+  {
     EntityId[] memory playerEntityIds = new EntityId[](playerCoords.length);
     playerEntityIds[0] = basePlayerEntityId;
     // Only iterate through relative schema coords
@@ -81,12 +89,14 @@ library MoveLib {
     return (current, cost);
   }
 
-  /** Calculate total energy cost and final path coordinate */
-  function _computePathResult(
-    Vec3 currentBaseCoord,
-    Vec3[] memory newBaseCoords,
-    uint128 currentEnergy
-  ) internal view returns (Vec3, uint128, uint16, bool) {
+  /**
+   * Calculate total energy cost and final path coordinate
+   */
+  function _computePathResult(Vec3 currentBaseCoord, Vec3[] memory newBaseCoords, uint128 currentEnergy)
+    internal
+    view
+    returns (Vec3, uint128, uint16, bool)
+  {
     uint128 totalCost = 0;
     uint16 numJumps = 0;
     uint16 numGlides = 0;
@@ -144,7 +154,7 @@ library MoveLib {
 
     uint128 currentEnergy = Energy._getEnergy(playerEntityId);
 
-    (Vec3 finalCoord, uint128 totalCost, , ) = _computePathResult(playerCoord, newBaseCoords, currentEnergy);
+    (Vec3 finalCoord, uint128 totalCost,,) = _computePathResult(playerCoord, newBaseCoords, currentEnergy);
 
     if (totalCost > currentEnergy) {
       totalCost = currentEnergy;
@@ -172,11 +182,8 @@ library MoveLib {
 
     uint128 currentEnergy = Energy._getEnergy(playerEntityId);
 
-    (Vec3 finalCoord, uint128 cost, uint16 currentFallHeight, bool gravityApplies) = _computePathResult(
-      playerCoord,
-      newBaseCoords,
-      currentEnergy
-    );
+    (Vec3 finalCoord, uint128 cost, uint16 currentFallHeight, bool gravityApplies) =
+      _computePathResult(playerCoord, newBaseCoords, currentEnergy);
 
     uint128 totalCost = cost;
     if (gravityApplies) {
