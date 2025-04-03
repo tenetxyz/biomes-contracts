@@ -3,13 +3,11 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { Action } from "../codegen/common.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-import { Player } from "../codegen/tables/Player.sol";
 
-import { ResourceCount } from "../codegen/tables/ResourceCount.sol";
 import { BurnedResourceCount } from "../codegen/tables/BurnedResourceCount.sol";
+import { ResourceCount } from "../codegen/tables/ResourceCount.sol";
 
 import { ChunkCommitment, Position, ResourcePosition, ReversePosition } from "../utils/Vec3Storage.sol";
 
@@ -19,8 +17,6 @@ import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 
 import { Vec3 } from "../Vec3.sol";
-import { PlayerUtils } from "../utils/PlayerUtils.sol";
-import { TerrainLib } from "./libraries/TerrainLib.sol";
 
 contract NatureSystem is System {
   function chunkCommit(EntityId caller, Vec3 chunkCoord) public {

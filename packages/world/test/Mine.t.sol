@@ -17,8 +17,8 @@ import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
 
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
-import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
 import { BurnedResourceCount } from "../src/codegen/tables/BurnedResourceCount.sol";
+import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { DustTest } from "./DustTest.sol";
 
