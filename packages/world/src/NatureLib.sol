@@ -18,11 +18,13 @@ library NatureLib {
   using LibPRNG for LibPRNG.PRNG;
   using ObjectTypeLib for ObjectTypeId;
 
-  function getMineDrops(ObjectTypeId objectTypeId, bytes32 randomSeed)
+  function getMineDrops(ObjectTypeId objectTypeId, Vec3 coord, uint256 commitment)
     internal
     view
     returns (ObjectAmount[] memory result)
   {
+    uint256 randomSeed = uint256(keccak256(abi.encodePacked(blockhash(commitment), coord)));
+
     // Wheat drops: Always drops wheat + 0-3 wheat seeds based on adjusted binomial distribution
     if (objectTypeId == ObjectTypes.Wheat) {
       return getWheatDrops(objectTypeId, randomSeed);
@@ -40,7 +42,7 @@ library NatureLib {
     return result;
   }
 
-  function getWheatDrops(ObjectTypeId objectTypeId, bytes32 randomSeed)
+  function getWheatDrops(ObjectTypeId objectTypeId, uint256 randomSeed)
     internal
     view
     returns (ObjectAmount[] memory result)
@@ -53,8 +55,7 @@ library NatureLib {
     distribution[3] = 20; // 3 seeds: 20%
 
     // Get wheat seed options and their weights using pre-calculated distribution
-    (ObjectAmount[] memory seedOptions, uint256[] memory weights) =
-      getResourceDropWeights(ObjectTypes.WheatSeed, distribution);
+    (ObjectAmount[] memory seedOptions, uint256[] memory weights) = getDropWeights(ObjectTypes.WheatSeed, distribution);
 
     // Select seed drop based on calculated weights
     ObjectAmount memory seedDrop = selectObjectByWeight(seedOptions, weights, randomSeed);
@@ -72,13 +73,12 @@ library NatureLib {
     return result;
   }
 
-  function getGrassDrops(bytes32 randomSeed) internal view returns (ObjectAmount[] memory result) {
+  function getGrassDrops(uint256 randomSeed) internal view returns (ObjectAmount[] memory result) {
     uint256[] memory distribution = new uint256[](2);
     distribution[0] = 43; // No seed: 43%
     distribution[1] = 57; // 1 seed: 57%
 
-    (ObjectAmount[] memory grassOptions, uint256[] memory weights) =
-      getResourceDropWeights(ObjectTypes.WheatSeed, distribution);
+    (ObjectAmount[] memory grassOptions, uint256[] memory weights) = getDropWeights(ObjectTypes.WheatSeed, distribution);
 
     // Select drop based on calculated weights
     ObjectAmount memory seedDrop = selectObjectByWeight(grassOptions, weights, randomSeed);
@@ -92,8 +92,7 @@ library NatureLib {
   }
 
   function getRandomOre(Vec3 coord, uint256 commitment) internal view returns (ObjectTypeId) {
-    // Generate random seed based on commitment and coordinates
-    bytes32 seed = keccak256(abi.encodePacked(blockhash(commitment), coord));
+    uint256 seed = uint256(keccak256(abi.encodePacked(blockhash(commitment), coord)));
 
     // Get ore options and their weights (based on remaining amounts)
     (ObjectAmount[] memory oreOptions, uint256[] memory weights) = getOreWeights();
@@ -145,7 +144,7 @@ library NatureLib {
   }
 
   // Simple random selection based on weights
-  function selectObjectByWeight(ObjectAmount[] memory options, uint256[] memory weights, bytes32 seed)
+  function selectObjectByWeight(ObjectAmount[] memory options, uint256[] memory weights, uint256 seed)
     internal
     pure
     returns (ObjectAmount memory)
@@ -155,7 +154,7 @@ library NatureLib {
   }
 
   // Simple weighted selection from an array of weights
-  function selectByWeight(uint256[] memory weights, bytes32 seed) internal pure returns (uint256) {
+  function selectByWeight(uint256[] memory weights, uint256 seed) internal pure returns (uint256) {
     uint256 totalWeight = 0;
     for (uint256 i = 0; i < weights.length; i++) {
       totalWeight += weights[i];
@@ -165,7 +164,7 @@ library NatureLib {
 
     // Initialize PRNG
     LibPRNG.PRNG memory prng;
-    prng.seed(uint256(seed));
+    prng.seed(seed);
 
     // Select option based on weights
     uint256 randomValue = prng.uniform(totalWeight);
@@ -181,19 +180,19 @@ library NatureLib {
   }
 
   // Generic function to adjust pre-calculated weights based on resource availability
-  // baseWeights: pre-calculated distribution weights (index 0 is for 0 items, etc.)
-  function getResourceDropWeights(
-    ObjectTypeId resourceType, // The resource type to get
-    uint256[] memory distribution // Pre-calculated weights for distribution
-  ) internal view returns (ObjectAmount[] memory options, uint256[] memory weights) {
+  // distribution: pre-calculated distribution weights (index 0 is for 0 items, etc.)
+  function getDropWeights(ObjectTypeId objectType, uint256[] memory distribution)
+    internal
+    view
+    returns (ObjectAmount[] memory options, uint256[] memory weights)
+  {
     uint8 maxAmount = uint8(distribution.length - 1);
 
-    // Create options array from 0 to maxAmount
     options = new ObjectAmount[](distribution.length);
     options[0] = ObjectAmount(ObjectTypes.Null, 0); // Option for 0 drops
 
     for (uint8 i = 1; i <= maxAmount; i++) {
-      options[i] = ObjectAmount(resourceType, i);
+      options[i] = ObjectAmount(objectType, i);
     }
 
     // Start with the base weights and adjust for availability
@@ -201,8 +200,8 @@ library NatureLib {
     weights[0] = distribution[0]; // Weight for 0 drops stays the same
 
     // Get resource availability info
-    uint256 remaining = getRemainingAmount(resourceType);
-    uint256 cap = getResourceCap(resourceType);
+    uint256 remaining = getRemainingAmount(objectType);
+    uint256 cap = getResourceCap(objectType);
 
     // For each non-zero option, apply compound probability adjustment
     for (uint8 i = 1; i <= maxAmount; i++) {

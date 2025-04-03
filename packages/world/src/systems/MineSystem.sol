@@ -76,10 +76,8 @@ contract MineSystem is System {
   }
 
   function _handleDrop(EntityId caller, ObjectTypeId mineObjectTypeId, Vec3 coord) internal {
-    bytes32 seed = keccak256(abi.encodePacked(caller, coord));
-
     // Get drops with all metadata for resource tracking
-    ObjectAmount[] memory result = NatureLib.getMineDrops(mineObjectTypeId, seed);
+    ObjectAmount[] memory result = RandomResourceLib._getMineDrops(mineObjectTypeId, coord);
 
     // Add resources to inventory
     for (uint256 i = 0; i < result.length; i++) {
@@ -98,10 +96,8 @@ contract MineSystem is System {
     require(SeedGrowth._getFullyGrownAt(entityId) > block.timestamp, "Cannot mine fully grown seed");
   }
 
-  function getRandomResourceType(Vec3 coord, ObjectTypeId objectType) external view returns (ObjectTypeId) {
-    (ObjectTypeId resourceType,) =
-      NatureLib.getRandomResource(objectType, coord, ChunkCommitment._get(coord.toChunkCoord()));
-    return resourceType;
+  function getRandomOreType(Vec3 coord) external view returns (ObjectTypeId) {
+    return RandomResourceLib._getRandomOre(coord);
   }
 
   function mine(EntityId caller, Vec3 coord, bytes calldata extraData) public payable returns (EntityId) {
@@ -275,14 +271,35 @@ library MassReductionLib {
 library RandomResourceLib {
   using LibPRNG for LibPRNG.PRNG;
 
-  function _getRandomOre(Vec3 coord) public view returns (ObjectTypeId) {
+  function _getCommitment(Vec3 coord) public view returns (uint256) {
     Vec3 chunkCoord = coord.toChunkCoord();
     uint256 commitment = ChunkCommitment._get(chunkCoord);
     // We can't get blockhash of current block
     require(block.number > commitment, "Not within commitment blocks");
     require(block.number <= commitment + CHUNK_COMMIT_EXPIRY_BLOCKS, "Chunk commitment expired");
+    return commitment;
+  }
 
-    return NatureLib.getRandomOre(coord, commitment);
+  function _getMineDrops(ObjectTypeId objectTypeId, Vec3 coord) public view returns (ObjectAmount[] memory) {
+    return NatureLib.getMineDrops(objectTypeId, coord, _getCommitment(coord));
+  }
+
+  function _getRandomOre(Vec3 coord) public view returns (ObjectTypeId) {
+    return NatureLib.getRandomOre(coord, _getCommitment(coord));
+  }
+
+  function _collapseRandomOre(EntityId entityId, Vec3 coord) public returns (ObjectTypeId) {
+    ObjectTypeId ore = _getRandomOre(coord);
+
+    // We use AnyOre as we want to track for all ores
+    _decreaseAvailable(coord, ObjectTypes.AnyOre);
+
+    // Set mined resource count for the specific ore
+    ResourceCount._set(ore, ResourceCount._get(ore) + 1);
+    ObjectType._set(entityId, ore);
+    Mass._setMass(entityId, ObjectTypeMetadata._getMass(ore));
+
+    return ore;
   }
 
   function _decreaseAvailable(Vec3 coord, ObjectTypeId objectType) public {
@@ -290,18 +307,5 @@ library RandomResourceLib {
     uint256 totalResources = TotalResourceCount._get(objectType);
     ResourcePosition._set(objectType, totalResources, coord);
     TotalResourceCount._set(objectType, totalResources + 1);
-  }
-
-  function _collapseRandomOre(EntityId entityId, Vec3 coord) public returns (ObjectTypeId) {
-    ObjectTypeId ore = _getRandomOre(coord);
-
-    _decreaseAvailable(coord, ObjectTypes.AnyOre);
-
-    uint256 resourceCount = ResourceCount._get(ore);
-    ResourceCount._set(ore, resourceCount);
-    ObjectType._set(entityId, ore);
-    Mass._setMass(entityId, ObjectTypeMetadata._getMass(ore));
-
-    return ore;
   }
 }
