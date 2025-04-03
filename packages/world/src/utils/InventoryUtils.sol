@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { Equipped } from "../codegen/tables/Equipped.sol";
 import { InventoryCount } from "../codegen/tables/InventoryCount.sol";
 import { InventoryEntity } from "../codegen/tables/InventoryEntity.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
@@ -19,6 +18,48 @@ import { getUniqueEntity } from "../Utils.sol";
 import { EntityId } from "../EntityId.sol";
 
 using ObjectTypeLib for ObjectTypeId;
+
+library InventoryUtils {
+  function add(EntityId owner) internal { }
+
+  function useTool(EntityId owner, EntityId tool, uint128 useMassMax)
+    internal
+    returns (uint128 toolMassUsed, ObjectTypeId toolType)
+  {
+    if (tool.exists()) {
+      toolType = ObjectType._get(tool);
+      require(toolType.isTool(), "Inventory item is not a tool");
+      require(owner == InventoryEntity._get(tool), "Tool not owned");
+      uint128 toolMassLeft = Mass._getMass(tool);
+      require(toolMassLeft > 0, "Tool is already broken");
+
+      // TODO: separate mine and hit?
+      if (toolMassLeft >= useMassMax) {
+        toolMassUsed = useMassMax;
+      } else {
+        // use 10% of the mass if it's greater than 10
+        if (toolMassLeft > 10) {
+          // TODO: shouldn't it be a percentage of the max mass?
+          toolMassUsed = toolMassLeft / 10;
+        } else {
+          toolMassUsed = toolMassLeft;
+        }
+      }
+
+      if (toolMassLeft <= toolMassUsed) {
+        // Destroy equipped item
+        removeToolFromInventory(owner, tool, toolType);
+
+        // Burn ores and make them available for respawn
+        toolType.burnOres();
+
+        // TODO: return energy to local pool
+      } else {
+        Mass._setMass(tool, toolMassLeft - toolMassUsed);
+      }
+    }
+  }
+}
 
 function addToInventory(
   EntityId owner,
@@ -51,6 +92,10 @@ function addToInventory(
 }
 
 function removeFromInventory(EntityId owner, ObjectTypeId objectTypeId, uint16 numObjectsToRemove) {
+  if (inputObjectTypeId.isAny()) {
+    removeAnyFromInventory(caller, inputObjectTypeId, recipeData.inputAmounts[i]);
+    return;
+  }
   uint16 numInitialObjects = InventoryCount._get(owner, objectTypeId);
   require(numInitialObjects >= numObjectsToRemove, "Not enough objects in the inventory");
 
@@ -117,44 +162,6 @@ function removeAnyFromInventory(EntityId player, ObjectTypeId objectTypeId, uint
     }
   }
   require(remaining == 0, "Not enough objects in the inventory");
-}
-
-function useEquipped(EntityId entityId, uint128 useMassMax)
-  returns (uint128 toolMassUsed, ObjectTypeId inventoryObjectTypeId)
-{
-  EntityId inventory = Equipped._get(entityId);
-  if (inventory.exists()) {
-    inventoryObjectTypeId = ObjectType._get(inventory);
-    require(inventoryObjectTypeId.isTool(), "Inventory item is not a tool");
-    uint128 toolMassLeft = Mass._getMass(inventory);
-    require(toolMassLeft > 0, "Tool is already broken");
-
-    // TODO: separate mine and hit?
-    if (toolMassLeft >= useMassMax) {
-      toolMassUsed = useMassMax;
-    } else {
-      // use 10% of the mass if it's greater than 10
-      if (toolMassLeft > 10) {
-        // TODO: shouldn't it be a percentage of the max mass?
-        toolMassUsed = toolMassLeft / 10;
-      } else {
-        toolMassUsed = toolMassLeft;
-      }
-    }
-
-    if (toolMassLeft <= toolMassUsed) {
-      // Destroy equipped item
-      removeToolFromInventory(entityId, inventory, inventoryObjectTypeId);
-      Equipped._deleteRecord(entityId);
-
-      // Burn ores and make them available for respawn
-      inventoryObjectTypeId.burnOres();
-
-      // TODO: return energy to local pool
-    } else {
-      Mass._setMass(inventory, toolMassLeft - toolMassUsed);
-    }
-  }
 }
 
 function removeFromReverseInventoryEntity(EntityId owner, EntityId removeInventory) {
@@ -230,9 +237,6 @@ function transferInventoryEntity(EntityId src, EntityId dst, ObjectTypeId dstObj
   returns (ObjectTypeId)
 {
   require(InventoryEntity._get(inventory) == src, "Entity does not own inventory item");
-  if (Equipped._get(src) == inventory) {
-    Equipped._deleteRecord(src);
-  }
   InventoryEntity._set(inventory, dst);
   ReverseInventoryEntity._push(dst, EntityId.unwrap(inventory));
   removeFromReverseInventoryEntity(src, inventory);

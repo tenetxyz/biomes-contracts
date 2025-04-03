@@ -12,8 +12,6 @@ enum Action {
   Drop,
   Pickup,
   Transfer,
-  Equip,
-  Unequip,
   Spawn,
   Sleep,
   Wakeup,

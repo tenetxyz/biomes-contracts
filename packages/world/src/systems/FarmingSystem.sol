@@ -11,7 +11,7 @@ import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
 
 import { addEnergyToLocalPool, transferEnergyToPool } from "../utils/EnergyUtils.sol";
 import { getObjectTypeIdAt, getOrCreateEntityAt } from "../utils/EntityUtils.sol";
-import { useEquipped } from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
@@ -25,14 +25,14 @@ import { Vec3, vec3 } from "../Vec3.sol";
 contract FarmingSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
-  function till(EntityId caller, Vec3 coord) external {
+  function till(EntityId caller, Vec3 coord, EntityId tool) external {
     caller.activate();
     caller.requireConnected(coord);
 
     (EntityId farmland, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
     require(objectTypeId == ObjectTypes.Dirt || objectTypeId == ObjectTypes.Grass, "Not dirt or grass");
-    (, ObjectTypeId toolObjectTypeId) = useEquipped(caller, type(uint128).max);
-    require(toolObjectTypeId.isHoe(), "Must equip a hoe");
+    (, ObjectTypeId toolType) = InventoryUtils.useTool(caller, tool, type(uint128).max);
+    require(toolType.isHoe(), "Must equip a hoe");
 
     FarmingLib._processEnergyReduction(caller);
 

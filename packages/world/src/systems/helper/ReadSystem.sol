@@ -10,7 +10,6 @@ import { Direction } from "../../codegen/common.sol";
 import { BaseEntity } from "../../codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "../../codegen/tables/Energy.sol";
 import { EntityProgram } from "../../codegen/tables/EntityProgram.sol";
-import { Equipped } from "../../codegen/tables/Equipped.sol";
 
 import { InventoryCount } from "../../codegen/tables/InventoryCount.sol";
 import { InventoryObjects } from "../../codegen/tables/InventoryObjects.sol";
@@ -133,18 +132,12 @@ contract ReadSystem is System {
   function getPlayerEntityData(address player) public view returns (PlayerEntityData memory) {
     EntityId entityId = Player._get(player);
     if (!entityId.exists()) {
-      return PlayerEntityData({
-        playerAddress: player,
-        bed: EntityId.wrap(0),
-        equipped: EntityId.wrap(0),
-        entityData: getEntityData(entityId)
-      });
+      return PlayerEntityData({ playerAddress: player, bed: EntityId.wrap(0), entityData: getEntityData(entityId) });
     }
 
     return PlayerEntityData({
       playerAddress: player,
       bed: PlayerStatus._getBedEntityId(entityId),
-      equipped: Equipped._get(entityId),
       entityData: getEntityData(entityId)
     });
   }

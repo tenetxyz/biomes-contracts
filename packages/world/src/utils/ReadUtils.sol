@@ -35,7 +35,6 @@ struct InventoryObject {
 struct PlayerEntityData {
   address playerAddress;
   EntityId bed;
-  EntityId equipped;
   EntityData entityData;
 }
 

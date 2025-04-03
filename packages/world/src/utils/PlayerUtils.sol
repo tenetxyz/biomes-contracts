@@ -6,7 +6,6 @@ import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol"
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { BedPlayer } from "../codegen/tables/BedPlayer.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { Equipped } from "../codegen/tables/Equipped.sol";
 import { Mass } from "../codegen/tables/Mass.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 

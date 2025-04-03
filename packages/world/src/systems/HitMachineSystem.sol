@@ -4,7 +4,6 @@ pragma solidity >=0.8.24;
 import { Action } from "../codegen/common.sol";
 import { BaseEntity } from "../codegen/tables/BaseEntity.sol";
 import { Energy, EnergyData } from "../codegen/tables/Energy.sol";
-import { Equipped } from "../codegen/tables/Equipped.sol";
 import { LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
@@ -21,7 +20,7 @@ import {
   updateMachineEnergy
 } from "../utils/EnergyUtils.sol";
 import { getForceField } from "../utils/ForceFieldUtils.sol";
-import { useEquipped } from "../utils/InventoryUtils.sol";
+import { InventoryUtils } from "../utils/InventoryUtils.sol";
 import { HitMachineNotification, notify } from "../utils/NotifUtils.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
@@ -35,15 +34,16 @@ import { Vec3 } from "../Vec3.sol";
 contract HitMachineSystem is System {
   using ObjectTypeLib for ObjectTypeId;
 
-  function hitForceField(EntityId caller, Vec3 coord) public {
+  function hitForceField(EntityId caller, Vec3 coord, EntityId tool) public {
     caller.activate();
-    caller.requireConnected(coord);
+    (Vec3 callerCoord,) = caller.requireConnected(coord);
 
     (EntityId forceField,) = getForceField(coord);
     require(forceField.exists(), "No force field at this location");
     Vec3 forceFieldCoord = Position._get(forceField);
 
-    uint128 energyReduction = HitMachineLib._processEnergyReduction(caller, forceField, coord, forceFieldCoord);
+    uint128 energyReduction =
+      HitMachineLib._processEnergyReduction(caller, callerCoord, tool, forceField, forceFieldCoord);
 
     ProgramId program = forceField.getProgram();
     bytes memory onHit = abi.encodeCall(IHitHook.onHit, (caller, forceField, energyReduction, ""));
@@ -55,13 +55,16 @@ contract HitMachineSystem is System {
 }
 
 library HitMachineLib {
-  function _processEnergyReduction(EntityId caller, EntityId forceField, Vec3 playerCoord, Vec3 forceFieldCoord)
-    public
-    returns (uint128)
-  {
+  function _processEnergyReduction(
+    EntityId caller,
+    Vec3 callerCoord,
+    EntityId tool,
+    EntityId forceField,
+    Vec3 forceFieldCoord
+  ) public returns (uint128) {
     (EnergyData memory machineData,) = updateMachineEnergy(forceField);
     require(machineData.energy > 0, "Cannot hit depleted forcefield");
-    (uint128 toolMassReduction,) = useEquipped(caller, machineData.energy);
+    (uint128 toolMassReduction,) = InventoryUtils.useTool(caller, tool, machineData.energy);
 
     uint128 playerEnergyReduction = 0;
 
@@ -69,7 +72,7 @@ library HitMachineLib {
     if (toolMassReduction < machineData.energy) {
       uint128 remaining = machineData.energy - toolMassReduction;
       playerEnergyReduction = HIT_ENERGY_COST <= remaining ? HIT_ENERGY_COST : remaining;
-      decreasePlayerEnergy(caller, playerCoord, playerEnergyReduction);
+      decreasePlayerEnergy(caller, callerCoord, playerEnergyReduction);
     }
 
     uint128 machineEnergyReduction = playerEnergyReduction + toolMassReduction;

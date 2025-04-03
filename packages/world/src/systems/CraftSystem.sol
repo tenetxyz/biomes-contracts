@@ -48,11 +48,7 @@ contract CraftSystem is System {
       ObjectTypeId inputObjectTypeId = ObjectTypeId.wrap(recipeData.inputTypes[i]);
       // totalInputObjectMass += ObjectTypeMetadata._getMass(inputObjectTypeId);
       // totalInputObjectEnergy += ObjectTypeMetadata._getEnergy(inputObjectTypeId);
-      if (inputObjectTypeId.isAny()) {
-        removeAnyFromInventory(caller, inputObjectTypeId, recipeData.inputAmounts[i]);
-      } else {
-        removeFromInventory(caller, inputObjectTypeId, recipeData.inputAmounts[i]);
-      }
+      removeFromInventory(caller, inputObjectTypeId, recipeData.inputAmounts[i]);
     }
 
     // Create the crafted objects

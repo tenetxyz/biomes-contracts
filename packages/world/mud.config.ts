@@ -14,8 +14,6 @@ export default defineWorld({
       "Drop",
       "Pickup",
       "Transfer",
-      "Equip",
-      "Unequip",
       "Spawn",
       "Sleep",
       "Wakeup",
@@ -207,12 +205,19 @@ export default defineWorld({
       schema: {
         owner: "EntityId",
         slot: "uint16",
-        // TODO: we could merge entityId and amount into a single field
         entityId: "EntityId",
         objectType: "ObjectTypeId",
         amount: "uint16",
       },
       key: ["owner", "slot"],
+    },
+    InventoryEntity: {
+      schema: {
+        entityId: "EntityId",
+        owner: "EntityId",
+        slot: "uint16",
+      },
+      key: ["entityId"],
     },
     InventorySlots: {
       schema: {
@@ -236,24 +241,10 @@ export default defineWorld({
       },
       key: ["ownerEntityId", "objectTypeId"],
     },
-    InventoryEntity: {
-      schema: {
-        entityId: "EntityId",
-        ownerEntityId: "EntityId",
-      },
-      key: ["entityId"],
-    },
     ReverseInventoryEntity: {
       schema: {
         ownerEntityId: "EntityId",
         entityIds: "bytes32[]",
-      },
-      key: ["ownerEntityId"],
-    },
-    Equipped: {
-      schema: {
-        ownerEntityId: "EntityId",
-        entityId: "EntityId",
       },
       key: ["ownerEntityId"],
     },

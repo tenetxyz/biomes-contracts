@@ -24,7 +24,6 @@ import { InventoryObjects } from "./tables/InventoryObjects.sol";
 import { InventoryCount } from "./tables/InventoryCount.sol";
 import { InventoryEntity } from "./tables/InventoryEntity.sol";
 import { ReverseInventoryEntity } from "./tables/ReverseInventoryEntity.sol";
-import { Equipped } from "./tables/Equipped.sol";
 import { MovablePosition, MovablePositionData } from "./tables/MovablePosition.sol";
 import { ReverseMovablePosition } from "./tables/ReverseMovablePosition.sol";
 import { Player } from "./tables/Player.sol";

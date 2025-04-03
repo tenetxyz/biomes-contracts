@@ -26,6 +26,7 @@ import {
   setupForceField as _setupForceField
 } from "../../src/utils/ForceFieldUtils.sol";
 import {
+  InventoryUtils,
   addToInventory as _addToInventory,
   addToolToInventory as _addToolToInventory,
   removeFromInventory as _removeFromInventory,
@@ -34,8 +35,7 @@ import {
   removeToolFromInventory as _removeToolFromInventory,
   transferAllInventoryEntities as _transferAllInventoryEntities,
   transferInventoryEntity as _transferInventoryEntity,
-  transferInventoryNonEntity as _transferInventoryNonEntity,
-  useEquipped as _useEquipped
+  transferInventoryNonEntity as _transferInventoryNonEntity
 } from "../../src/utils/InventoryUtils.sol";
 
 Vm constant vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
@@ -102,10 +102,6 @@ library TestInventoryUtils {
 
   function removeFromInventory(EntityId ownerEntityId, EntityId toolEntityId) public asWorld {
     _removeToolFromInventory(ownerEntityId, toolEntityId, ObjectType.get(toolEntityId));
-  }
-
-  function useEquipped(EntityId entityId, uint128 useMassMax) public asWorld {
-    _useEquipped(entityId, useMassMax);
   }
 
   function removeFromReverseInventoryEntity(EntityId ownerEntityId, EntityId removeInventoryEntityId) public asWorld {
