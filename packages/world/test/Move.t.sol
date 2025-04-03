@@ -502,7 +502,7 @@ contract MoveTest is DustTest {
 
     // Add items to player's inventory to test transfer
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.Stone, 10);
-    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.SilverOre, 5);
+    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.IronOre, 5);
 
     // Setup a fall path with a specific death point
     uint32 fallHeight = 10; // Well above the PLAYER_FALL_DAMAGE_THRESHOLD
@@ -534,7 +534,7 @@ contract MoveTest is DustTest {
 
     // Verify inventory before move
     assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.Stone), 10, "Wrong initial stone count");
-    assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.SilverOre), 5, "Wrong initial silver ore count");
+    assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.IronOre), 5, "Wrong initial silver ore count");
 
     // Get entity at the expected death location
     EntityId entityAtDeathLocation = ReversePosition.get(newCoords[fallHeight]);
@@ -555,23 +555,21 @@ contract MoveTest is DustTest {
       "Stone inventory not correctly transferred to death location"
     );
     assertEq(
-      InventoryCount.get(entityAtDeathLocation, ObjectTypes.SilverOre),
+      InventoryCount.get(entityAtDeathLocation, ObjectTypes.IronOre),
       5,
-      "SilverOre inventory not correctly transferred to death location"
+      "IronOre inventory not correctly transferred to death location"
     );
 
     // Player's inventory should be empty
     assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.Stone), 0, "Player should not have stone after death");
-    assertEq(
-      InventoryCount.get(aliceEntityId, ObjectTypes.SilverOre), 0, "Player should not have silver ore after death"
-    );
+    assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.IronOre), 0, "Player should not have silver ore after death");
   }
 
   function testMoveHorizontalPathFatal() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     // Add items to player's inventory to test transfer
-    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.SilverOre, 8);
+    TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.IronOre, 8);
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.Diamond, 3);
 
     // Create a horizontal path where player will run out of energy at a specific point
@@ -610,9 +608,9 @@ contract MoveTest is DustTest {
 
     // Verify inventory was transferred to the entity at death location
     assertEq(
-      InventoryCount.get(entityAtDeathLocation, ObjectTypes.SilverOre),
+      InventoryCount.get(entityAtDeathLocation, ObjectTypes.IronOre),
       8,
-      "SilverOre inventory not correctly transferred to death location"
+      "IronOre inventory not correctly transferred to death location"
     );
     assertEq(
       InventoryCount.get(entityAtDeathLocation, ObjectTypes.Diamond),
@@ -621,9 +619,7 @@ contract MoveTest is DustTest {
     );
 
     // Player's inventory should be empty
-    assertEq(
-      InventoryCount.get(aliceEntityId, ObjectTypes.SilverOre), 0, "Player should not have silver ore after death"
-    );
+    assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.IronOre), 0, "Player should not have silver ore after death");
     assertEq(InventoryCount.get(aliceEntityId, ObjectTypes.Diamond), 0, "Player should not have diamond after death");
   }
 

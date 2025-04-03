@@ -11,8 +11,8 @@ import {
     MAX_COAL,
     MAX_DIAMOND,
     MAX_GOLD,
-    MAX_NEPTUNIUM,
-    MAX_SILVER,
+    MAX_EMERALD,
+    MAX_IRON,
     MAX_WHEAT_SEED
 } from "./Constants.sol";
 import {ObjectTypeId} from "./ObjectTypeId.sol";
@@ -25,7 +25,7 @@ library NatureLib {
     using ObjectTypeLib for ObjectTypeId;
 
     function getMineDrops(ObjectTypeId objectTypeId, Vec3 coord) internal view returns (ObjectAmount[] memory result) {
-        // Wheat drops: Always drops wheat + 0-3 wheat seeds based on adjusted binomial distribution
+        // Wheat drops wheat + 0-3 wheat seeds
         if (objectTypeId == ObjectTypes.Wheat) {
             return getWheatDrops(objectTypeId, getRandomSeed(coord));
         }
@@ -33,6 +33,12 @@ library NatureLib {
         // FescueGrass has a chance to drop wheat seeds
         if (objectTypeId == ObjectTypes.FescueGrass) {
             return getGrassDrops(getRandomSeed(coord));
+        }
+
+        if (objectTypeId == ObjectTypes.Farmland || objectTypeId == ObjectTypes.WetFarmland) {
+            result = new ObjectAmount[](1);
+            result[0] = ObjectAmount(ObjectTypes.Dirt, 1);
+            return result;
         }
 
         // Default behavior for all other objects
@@ -127,10 +133,10 @@ library NatureLib {
     // Get resource cap for a specific resource type
     function getResourceCap(ObjectTypeId objectTypeId) internal pure returns (uint256) {
         if (objectTypeId == ObjectTypes.CoalOre) return MAX_COAL;
-        if (objectTypeId == ObjectTypes.SilverOre) return MAX_SILVER;
+        if (objectTypeId == ObjectTypes.IronOre) return MAX_IRON;
         if (objectTypeId == ObjectTypes.GoldOre) return MAX_GOLD;
         if (objectTypeId == ObjectTypes.DiamondOre) return MAX_DIAMOND;
-        if (objectTypeId == ObjectTypes.NeptuniumOre) return MAX_NEPTUNIUM;
+        if (objectTypeId == ObjectTypes.EmeraldOre) return MAX_EMERALD;
         if (objectTypeId == ObjectTypes.WheatSeed) return MAX_WHEAT_SEED;
 
         // If no specific cap, use a high value

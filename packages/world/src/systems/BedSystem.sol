@@ -64,7 +64,7 @@ contract BedSystem is System {
     require(bedCoord.inSurroundingCube(dropCoord, MAX_RESPAWN_HALF_WIDTH), "Drop location is too far from bed");
 
     (EntityId drop, ObjectTypeId objectTypeId) = getOrCreateEntityAt(dropCoord);
-    require(ObjectTypeMetadata.getCanPassThrough(objectTypeId), "Cannot drop items on a non-passable block");
+    require(ObjectTypeMetadata._getCanPassThrough(objectTypeId), "Cannot drop items on a non-passable block");
 
     (EntityId forceField,) = getForceField(bedCoord);
     EnergyData memory playerData = BedLib.updateSleepingPlayer(forceField, player, bed, bedCoord);

@@ -3,21 +3,27 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./dist/exports/index.js"
+    ".": "./dist/src/exports/index.js"
   },
   "typesVersions": {
     "*": {
-      "index": ["./dist/exports/index.d.ts"]
+      "index": ["./dist/src/exports/index.d.ts"]
     }
   },
   "files": ["dist", "json-schemas"],
   "scripts": {
-    "build": "pnpm run build:json-schema && pnpm run build:js",
+    "build": "pnpm run build:json-schema && pnpm run build:mud && pnpm run build:js",
     "build:js": "tsc",
     "build:json-schema": "tsx scripts/generate-json-schemas.ts",
+    "build:mud": "mud build",
     "test": "tsc --noEmit"
   },
   "dependencies": {
+    "@dust/world": "workspace:*",
+    "@latticexyz/cli": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
+    "@latticexyz/schema-type": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
+    "@latticexyz/store": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
+    "@latticexyz/world": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
     "arktype": "^2.1.15",
     "ox": "^0.6.10"
   }

@@ -61,7 +61,7 @@ library BuildLib {
     Vec3[] memory coords = buildObjectTypeId.getRelativeCoords(baseCoord, direction);
     EntityId base = _addBlock(buildObjectTypeId, baseCoord);
     Orientation._set(base, direction);
-    uint32 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
+    uint128 mass = ObjectTypeMetadata._getMass(buildObjectTypeId);
     Mass._setMass(base, mass);
     // Only iterate through relative schema coords
     for (uint256 i = 1; i < coords.length; i++) {

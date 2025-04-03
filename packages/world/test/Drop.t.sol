@@ -262,7 +262,7 @@ contract DropTest is DustTest {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 chestCoord = playerCoord + vec3(0, 0, 1);
-    ObjectTypeMetadata.setMass(ObjectTypes.Chest, uint32(playerHandMassReduction - 1));
+    ObjectTypeMetadata.setMass(ObjectTypes.Chest, playerHandMassReduction - 1);
     EntityId chestEntityId = setObjectAtCoord(chestCoord, ObjectTypes.Chest);
     ObjectTypeId transferObjectTypeId = ObjectTypes.Grass;
     uint16 numToPickup = 10;

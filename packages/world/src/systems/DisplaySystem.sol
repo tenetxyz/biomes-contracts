@@ -33,11 +33,6 @@ contract DisplaySystem is System {
     require(entityId.exists(), "Entity does not exist");
 
     EntityId base = entityId.baseEntityId();
-    ObjectTypeId objectTypeId = ObjectType._get(base);
-    if (!objectTypeId.isSmartDisplay()) {
-      // TODO: support display data for all entities?
-      return "";
-    }
     Vec3 entityCoord = Position._get(base);
 
     (EntityId forceField,) = getForceField(entityCoord);

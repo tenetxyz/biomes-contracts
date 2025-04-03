@@ -44,7 +44,7 @@ contract GravityTest is DustTest {
 
     Vec3 mineCoord = playerCoord - vec3(0, 1, 0);
     ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, playerHandMassReduction);
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
@@ -79,7 +79,7 @@ contract GravityTest is DustTest {
 
     Vec3 mineCoord = playerCoord - vec3(0, 1, 0);
     ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, playerHandMassReduction);
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);
@@ -131,7 +131,7 @@ contract GravityTest is DustTest {
 
     Vec3 mineCoord = aliceCoord - vec3(0, 1, 0);
     ObjectTypeId mineObjectTypeId = TerrainLib.getBlockType(mineCoord);
-    ObjectTypeMetadata.setMass(mineObjectTypeId, uint32(playerHandMassReduction));
+    ObjectTypeMetadata.setMass(mineObjectTypeId, playerHandMassReduction);
     EntityId mineEntityId = ReversePosition.get(mineCoord);
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
     assertInventoryHasObject(aliceEntityId, mineObjectTypeId, 0);

@@ -26,7 +26,7 @@ contract DropSystem is System {
     caller.requireConnected(coord);
 
     (EntityId entityId, ObjectTypeId objectTypeId) = getOrCreateEntityAt(coord);
-    require(ObjectTypeMetadata.getCanPassThrough(objectTypeId), "Cannot drop on a non-passable block");
+    require(ObjectTypeMetadata._getCanPassThrough(objectTypeId), "Cannot drop on a non-passable block");
 
     return entityId;
   }
