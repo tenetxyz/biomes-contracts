@@ -16,7 +16,10 @@
     "test": "pnpm recursive run test"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm run fix"
+    "pre-commit": "./node_modules/.bin/nano-staged"
+  },
+  "nano-staged": {
+    "*": "pnpm run fix"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -27,6 +30,7 @@
     "@latticexyz/store-indexer": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
     "@types/node": "^20.17.30",
     "mprocs": "^0.7.1",
+    "nano-staged": "^0.8.0",
     "shx": "^0.4.0",
     "simple-git-hooks": "^2.12.1",
     "tsx": "^4.19.3"
