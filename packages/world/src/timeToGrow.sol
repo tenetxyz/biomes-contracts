@@ -8,7 +8,15 @@ import { ObjectTypes } from "./ObjectTypes.sol";
 
 function timeToGrow(ObjectTypeId objectTypeId) pure returns (uint128) {
   if (objectTypeId == ObjectTypes.WheatSeed) {
-    return 10 seconds;
+    return 900 seconds;
+  }
+
+  if (objectTypeId == ObjectTypes.OakSeed) {
+    return 900 seconds;
+  }
+
+  if (objectTypeId == ObjectTypes.SpruceSeed) {
+    return 345600 seconds;
   }
 
   return 0;
