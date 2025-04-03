@@ -12,7 +12,7 @@ export type MessengerSchema = [
     response: undefined;
   },
   {
-    topic: "requestMarker";
+    topic: "requestWaypoint";
     payload: { entityId: Hex.Hex };
     response: undefined;
   },
