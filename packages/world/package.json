@@ -30,13 +30,13 @@
     "@latticexyz/world-consumer": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
     "@latticexyz/world-modules": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
     "@openzeppelin/contracts": "^4.9.6",
-    "solady": "^0.1.12",
-    "solhint-config-mud": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
-    "solhint-plugin-mud": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf"
+    "solady": "^0.1.12"
   },
   "devDependencies": {
     "forge-std": "https://github.com/foundry-rs/forge-std.git#3b20d60d14b343ee4f908cb8079495c07f5e8981",
     "solhint": "^3.4.1",
+    "solhint-config-mud": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
+    "solhint-plugin-mud": "2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf",
     "tsup": "8.3.0",
     "tsx": "^4.7.2"
   }

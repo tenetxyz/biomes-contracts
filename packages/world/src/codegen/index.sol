@@ -34,11 +34,10 @@ import { ForceFieldFragment, ForceFieldFragmentData } from "./tables/ForceFieldF
 import { ForceFieldFragmentPosition, ForceFieldFragmentPositionData } from "./tables/ForceFieldFragmentPosition.sol";
 import { Machine, MachineData } from "./tables/Machine.sol";
 import { DisplayURI } from "./tables/DisplayURI.sol";
-import { OreCommitment } from "./tables/OreCommitment.sol";
-import { TotalMinedOreCount } from "./tables/TotalMinedOreCount.sol";
-import { MinedOrePosition, MinedOrePositionData } from "./tables/MinedOrePosition.sol";
-import { MinedOreCount } from "./tables/MinedOreCount.sol";
-import { TotalBurnedOreCount } from "./tables/TotalBurnedOreCount.sol";
+import { ChunkCommitment } from "./tables/ChunkCommitment.sol";
+import { ResourcePosition, ResourcePositionData } from "./tables/ResourcePosition.sol";
+import { ResourceCount } from "./tables/ResourceCount.sol";
+import { BurnedResourceCount } from "./tables/BurnedResourceCount.sol";
 import { SeedGrowth } from "./tables/SeedGrowth.sol";
 import { Notification, NotificationData } from "./tables/Notification.sol";
 import { WorldStatus } from "./tables/WorldStatus.sol";

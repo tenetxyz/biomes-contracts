@@ -101,12 +101,6 @@ importers:
       solady:
         specifier: ^0.1.12
         version: 0.1.12
-      solhint-config-mud:
-        specifier: 2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf
-        version: 2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf
-      solhint-plugin-mud:
-        specifier: 2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf
-        version: 2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf
     devDependencies:
       forge-std:
         specifier: https://github.com/foundry-rs/forge-std.git#3b20d60d14b343ee4f908cb8079495c07f5e8981
@@ -114,6 +108,12 @@ importers:
       solhint:
         specifier: ^3.4.1
         version: 3.6.2(typescript@5.8.2)
+      solhint-config-mud:
+        specifier: 2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf
+        version: 2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf
+      solhint-plugin-mud:
+        specifier: 2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf
+        version: 2.2.21-b18c0ef0edeab2378b08d9f4a328a5d0d817f6bf
       tsup:
         specifier: 8.3.0
         version: 8.3.0(postcss@8.4.31)(tsx@4.7.2)(typescript@5.8.2)

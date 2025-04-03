@@ -2,8 +2,9 @@
 pragma solidity >=0.8.24;
 
 import { Direction } from "./codegen/common.sol";
-import { MinedOreCount } from "./codegen/tables/MinedOreCount.sol";
-import { TotalBurnedOreCount } from "./codegen/tables/TotalBurnedOreCount.sol";
+
+import { BurnedResourceCount } from "./codegen/tables/BurnedResourceCount.sol";
+import { ResourceCount } from "./codegen/tables/ResourceCount.sol";
 
 import { IMachineSystem } from "./codegen/world/IMachineSystem.sol";
 import { ITransferSystem } from "./codegen/world/ITransferSystem.sol";
@@ -180,43 +181,6 @@ library ObjectTypeLib {
     revert("Invalid tree seed type");
   }
 
-  // TODO: one possible way to optimize is to follow some kind of schema for crops and their seeds
-  function getSeedDrop(ObjectTypeId self) internal pure returns (ObjectTypeId) {
-    if (self == ObjectTypes.Wheat) {
-      return ObjectTypes.WheatSeed;
-    }
-
-    return ObjectTypes.Null;
-  }
-
-  function getMineDrop(ObjectTypeId self) internal pure returns (ObjectAmount[] memory amounts) {
-    // TODO: figure out conservation of fescue grass (no way to regenerate yet)
-    if (self == ObjectTypes.FescueGrass) {
-      // TODO: add randomness?
-      amounts = new ObjectAmount[](1);
-      amounts[0] = ObjectAmount(ObjectTypes.WheatSeed, 1);
-      return amounts;
-    }
-
-    if (self == ObjectTypes.Farmland || self == ObjectTypes.WetFarmland) {
-      amounts = new ObjectAmount[](1);
-      amounts[0] = ObjectAmount(ObjectTypes.Dirt, 1);
-      return amounts;
-    }
-
-    ObjectTypeId seedTypeId = self.getSeedDrop();
-    if (seedTypeId != ObjectTypes.Null) {
-      amounts = new ObjectAmount[](2);
-      amounts[0] = ObjectAmount(self, 1);
-      amounts[1] = ObjectAmount(seedTypeId, 1);
-      return amounts;
-    }
-
-    amounts = new ObjectAmount[](1);
-    amounts[0] = ObjectAmount(self, 1);
-    return amounts;
-  }
-
   function timeToGrow(ObjectTypeId objectTypeId) internal pure returns (uint128) {
     return _timeToGrow(objectTypeId);
   }
@@ -270,9 +234,9 @@ library ObjectTypeLib {
     if (!objectTypeId.isNull()) {
       uint256 amount = ores.amount;
       // This increases the availability of the ores being burned
-      MinedOreCount._set(objectTypeId, MinedOreCount._get(objectTypeId) - amount);
+      ResourceCount._set(objectTypeId, ResourceCount._get(objectTypeId) - amount);
       // This allows the same amount of ores to respawn
-      TotalBurnedOreCount._set(TotalBurnedOreCount._get() + amount);
+      BurnedResourceCount._set(ObjectTypes.AnyOre, BurnedResourceCount._get(ObjectTypes.AnyOre) + amount);
     }
   }
 

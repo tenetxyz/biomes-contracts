@@ -5,14 +5,15 @@ pragma solidity >=0.8.24;
 
 import { EntityId } from "../../EntityId.sol";
 import { Vec3 } from "../../Vec3.sol";
+import { ObjectTypeId } from "../../ObjectTypeId.sol";
 
 /**
- * @title IOreSystem
+ * @title INatureSystem
  * @author MUD (https://mud.dev) by Lattice (https://lattice.xyz)
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
-interface IOreSystem {
-  function oreChunkCommit(EntityId caller, Vec3 chunkCoord) external;
+interface INatureSystem {
+  function chunkCommit(EntityId caller, Vec3 chunkCoord) external;
 
-  function respawnOre(uint256 blockNumber) external;
+  function respawnResource(uint256 blockNumber, ObjectTypeId objectType) external;
 }

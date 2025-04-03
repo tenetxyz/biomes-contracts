@@ -5,8 +5,9 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { FixedPointMathLib } from "solady/utils/FixedPointMathLib.sol";
 
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
-
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
+
+import { ResourceCount } from "../codegen/tables/ResourceCount.sol";
 import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
 
 import { addEnergyToLocalPool, transferEnergyToPool } from "../utils/EnergyUtils.sol";
@@ -47,6 +48,13 @@ contract FarmingSystem is System {
     require(objectTypeId.isSeed(), "Not a seed");
 
     require(SeedGrowth._getFullyGrownAt(seed) <= block.timestamp, "Seed cannot be grown yet");
+
+    // When a seed grows, it's removed from circulation
+    // We only update ResourceCount since seeds don't participate in respawning (no need to track positions
+    uint256 seedCount = ResourceCount._get(objectTypeId);
+    // This should never happen if there are seeds in the world obtained from drops
+    require(seedCount > 0, "Not enough seeds in circulation");
+    ResourceCount._set(objectTypeId, seedCount - 1);
 
     if (objectTypeId.isCropSeed()) {
       // Turn wet farmland to regular farmland if mining a seed or crop

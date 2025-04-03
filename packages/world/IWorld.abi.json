@@ -387,6 +387,24 @@
   },
   {
     "type": "function",
+    "name": "chunkCommit",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "bytes32",
+        "internalType": "EntityId"
+      },
+      {
+        "name": "chunkCoord",
+        "type": "uint96",
+        "internalType": "Vec3"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "computeBoundaryFragments",
     "inputs": [
       {
@@ -2294,24 +2312,6 @@
   },
   {
     "type": "function",
-    "name": "oreChunkCommit",
-    "inputs": [
-      {
-        "name": "caller",
-        "type": "bytes32",
-        "internalType": "EntityId"
-      },
-      {
-        "name": "chunkCoord",
-        "type": "uint96",
-        "internalType": "Vec3"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "pickup",
     "inputs": [
       {
@@ -2784,12 +2784,17 @@
   },
   {
     "type": "function",
-    "name": "respawnOre",
+    "name": "respawnResource",
     "inputs": [
       {
         "name": "blockNumber",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "objectType",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
       }
     ],
     "outputs": [],

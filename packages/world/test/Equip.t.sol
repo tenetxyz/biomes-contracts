@@ -16,20 +16,15 @@ import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { LocalEnergyPool } from "../src/codegen/tables/LocalEnergyPool.sol";
 
 import { Mass } from "../src/codegen/tables/Mass.sol";
-import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
-import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
-import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { DustTest } from "./DustTest.sol";
 
-import {
-  MinedOrePosition, MovablePosition, OreCommitment, Position, ReversePosition
-} from "../src/utils/Vec3Storage.sol";
+import { MovablePosition, Position, ReversePosition } from "../src/utils/Vec3Storage.sol";
 
 import { CHUNK_SIZE } from "../src/Constants.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";

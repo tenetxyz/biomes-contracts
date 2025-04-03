@@ -10,23 +10,24 @@ import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 import { Mass } from "../src/codegen/tables/Mass.sol";
 
-import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
+import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
 
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
-import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
-import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
+
+import { BurnedResourceCount } from "../src/codegen/tables/BurnedResourceCount.sol";
+import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { DustTest } from "./DustTest.sol";
 
 import {
+  ChunkCommitment,
   LocalEnergyPool,
-  MinedOrePosition,
   MovablePosition,
-  OreCommitment,
   Position,
+  ResourcePosition,
   ReverseMovablePosition,
   ReversePosition
 } from "../src/utils/Vec3Storage.sol";
@@ -129,7 +130,7 @@ contract MineTest is DustTest {
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
-  function testMineOre() public {
+  function testMineResource() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
@@ -144,10 +145,10 @@ contract MineTest is DustTest {
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     ObjectAmount[] memory oreAmounts = inventoryGetOreAmounts(aliceEntityId);
     assertEq(oreAmounts.length, 0, "Existing ores in inventory");
-    assertEq(TotalMinedOreCount.get(), 0, "Mined ore count is not 0");
+    assertEq(ResourceCount.get(ObjectTypes.AnyOre), 0, "Mined resource count is not 0");
 
     vm.prank(alice);
-    world.oreChunkCommit(aliceEntityId, mineCoord.toChunkCoord());
+    world.chunkCommit(aliceEntityId, mineCoord.toChunkCoord());
 
     vm.roll(vm.getBlockNumber() + 2);
 
@@ -164,14 +165,14 @@ contract MineTest is DustTest {
     oreAmounts = inventoryGetOreAmounts(aliceEntityId);
     assertEq(oreAmounts.length, 1, "No ores in inventory");
     assertEq(oreAmounts[0].amount, 1, "Did not get exactly one ore");
-    assertEq(MinedOreCount.get(oreAmounts[0].objectTypeId), 1, "Mined ore count was not updated");
-    assertEq(TotalMinedOreCount.get(), 1, "Total mined ore count was not updated");
+    assertEq(ResourceCount.get(oreAmounts[0].objectTypeId), 1, "Resource count was not updated");
+    assertEq(ResourceCount.get(ObjectTypes.AnyOre), 1, "Total resource count was not updated");
 
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);
   }
 
-  function testMineOreTypeIsFixedAfterPartialMine() public {
+  function testMineResourceTypeIsFixedAfterPartialMine() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
     Vec3 mineCoord = vec3(playerCoord.x() + 1, FLAT_CHUNK_GRASS_LEVEL, playerCoord.z());
@@ -183,7 +184,7 @@ contract MineTest is DustTest {
     assertFalse(mineEntityId.exists(), "Mine entity already exists");
 
     vm.prank(alice);
-    world.oreChunkCommit(aliceEntityId, mineCoord.toChunkCoord());
+    world.chunkCommit(aliceEntityId, mineCoord.toChunkCoord());
 
     vm.roll(vm.getBlockNumber() + 2);
 
@@ -193,14 +194,14 @@ contract MineTest is DustTest {
     world.mine(aliceEntityId, mineCoord, "");
     endGasReport();
 
-    // Check that the type has been set to specific ore
+    // Check that the type has been set to specific resource
     mineEntityId = ReversePosition.get(mineCoord);
-    ObjectTypeId oreType = ObjectType.get(mineEntityId);
-    assertNeq(oreType, ObjectTypes.AnyOre, "Ore type should have been set to a specific ore");
+    ObjectTypeId resourceType = ObjectType.get(mineEntityId);
+    assertNeq(resourceType, ObjectTypes.AnyOre, "Resource type should have been set to a specific resource");
 
-    // Verify mass has been set to the ore's
+    // Verify mass has been set to the resource's
     uint128 mass = Mass.getMass(mineEntityId);
-    uint128 expectedMass = ObjectTypeMetadata.getMass(oreType) - MINE_ENERGY_COST;
+    uint128 expectedMass = ObjectTypeMetadata.getMass(resourceType) - MINE_ENERGY_COST;
     assertEq(mass, expectedMass, "Mass was not set correctly");
 
     // Roll forward many blocks to ensure the commitment expires
@@ -210,12 +211,12 @@ contract MineTest is DustTest {
     vm.prank(alice);
     world.mine(aliceEntityId, mineCoord, "");
 
-    // Verify the ore type hasn't changed even though commitment expired
+    // Verify the resource type hasn't changed even though commitment expired
     mineEntityId = ReversePosition.get(mineCoord);
-    oreType = ObjectType.get(mineEntityId);
-    assertNeq(oreType, ObjectTypes.AnyOre, "Ore type should remain consistent after commitment expired");
+    resourceType = ObjectType.get(mineEntityId);
+    assertNeq(resourceType, ObjectTypes.AnyOre, "Resource type should remain consistent after commitment expired");
 
-    // Verify mass has been set to the ore's
+    // Verify mass has been set to the resource's
     mass = Mass.getMass(mineEntityId);
     expectedMass -= MINE_ENERGY_COST;
     assertEq(mass, expectedMass, "Mass should decrease after another mining attempt");

@@ -19,9 +19,9 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { ObjectTypeId } from "../../ObjectTypeId.sol";
 
-library MinedOreCount {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "MinedOreCount", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004d696e65644f7265436f756e74000000);
+library ResourceCount {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "ResourceCount", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000005265736f75726365436f756e74000000);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);

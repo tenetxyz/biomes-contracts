@@ -11,24 +11,14 @@ import { Energy, EnergyData } from "../src/codegen/tables/Energy.sol";
 import { InventoryCount } from "../src/codegen/tables/InventoryCount.sol";
 import { InventorySlots } from "../src/codegen/tables/InventorySlots.sol";
 
-import { MinedOreCount } from "../src/codegen/tables/MinedOreCount.sol";
 import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { Player } from "../src/codegen/tables/Player.sol";
 
-import { TotalBurnedOreCount } from "../src/codegen/tables/TotalBurnedOreCount.sol";
-import { TotalMinedOreCount } from "../src/codegen/tables/TotalMinedOreCount.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { DustTest } from "./DustTest.sol";
 
-import {
-  LocalEnergyPool,
-  MinedOrePosition,
-  MovablePosition,
-  OreCommitment,
-  Position,
-  ReversePosition
-} from "../src/utils/Vec3Storage.sol";
+import { LocalEnergyPool, MovablePosition, Position, ReversePosition } from "../src/utils/Vec3Storage.sol";
 
 import { CHUNK_SIZE, MACHINE_ENERGY_DRAIN_RATE } from "../src/Constants.sol";
 import { ObjectTypeId } from "../src/ObjectTypeId.sol";

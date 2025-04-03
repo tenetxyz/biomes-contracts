@@ -17,16 +17,17 @@ import { ForceFieldFragmentPosition as _ForceFieldFragmentPosition } from
 import { InitialEnergyPool as _InitialEnergyPool } from "../codegen/tables/InitialEnergyPool.sol";
 import { LocalEnergyPool as _LocalEnergyPool } from "../codegen/tables/LocalEnergyPool.sol";
 
-import { MinedOrePosition as _MinedOrePosition } from "../codegen/tables/MinedOrePosition.sol";
+import { ChunkCommitment as _ChunkCommitment } from "../codegen/tables/ChunkCommitment.sol";
 import { MovablePosition as _MovablePosition } from "../codegen/tables/MovablePosition.sol";
-import { OreCommitment as _OreCommitment } from "../codegen/tables/OreCommitment.sol";
 import { Position as _Position } from "../codegen/tables/Position.sol";
+import { ResourcePosition as _ResourcePosition } from "../codegen/tables/ResourcePosition.sol";
 import { ReverseMovablePosition as _ReverseMovablePosition } from "../codegen/tables/ReverseMovablePosition.sol";
 import { ReversePosition as _ReversePosition } from "../codegen/tables/ReversePosition.sol";
 
 import { SurfaceChunkByIndex as _SurfaceChunkByIndex } from "../codegen/tables/SurfaceChunkByIndex.sol";
 
 import { EntityId } from "../EntityId.sol";
+import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { Vec3 } from "../Vec3.sol";
 
 /// @dev Library to get and set Vec3s in tables. It only support schemas of <single key> -> Vec3 and Vec3 -> <single value>
@@ -418,54 +419,92 @@ library ForceFieldFragmentPosition {
   }
 }
 
-library OreCommitment {
+library ChunkCommitment {
   function get(Vec3 position) internal view returns (uint256 value) {
-    return uint256(Vec3Storage.get(_OreCommitment._tableId, _OreCommitment._fieldLayout, position));
+    return uint256(Vec3Storage.get(_ChunkCommitment._tableId, _ChunkCommitment._fieldLayout, position));
   }
 
   function _get(Vec3 position) internal view returns (uint256 value) {
-    return uint256(Vec3Storage._get(_OreCommitment._tableId, _OreCommitment._fieldLayout, position));
+    return uint256(Vec3Storage._get(_ChunkCommitment._tableId, _ChunkCommitment._fieldLayout, position));
   }
 
   function set(Vec3 position, uint256 value) internal {
-    Vec3Storage.set(_OreCommitment._tableId, _OreCommitment._fieldLayout, position, abi.encodePacked(value));
+    Vec3Storage.set(_ChunkCommitment._tableId, _ChunkCommitment._fieldLayout, position, abi.encodePacked(value));
   }
 
   function _set(Vec3 position, uint256 value) internal {
-    Vec3Storage._set(_OreCommitment._tableId, _OreCommitment._fieldLayout, position, abi.encodePacked(value));
+    Vec3Storage._set(_ChunkCommitment._tableId, _ChunkCommitment._fieldLayout, position, abi.encodePacked(value));
   }
 
   function deleteRecord(Vec3 position) internal {
-    Vec3Storage.deleteRecord(_OreCommitment._tableId, position);
+    Vec3Storage.deleteRecord(_ChunkCommitment._tableId, position);
   }
 
   function _deleteRecord(Vec3 position) internal {
-    Vec3Storage._deleteRecord(_OreCommitment._tableId, position);
+    Vec3Storage._deleteRecord(_ChunkCommitment._tableId, position);
   }
 }
 
-library MinedOrePosition {
-  function get(uint256 key) internal view returns (Vec3 position) {
-    return Vec3Storage.get(_MinedOrePosition._tableId, _MinedOrePosition._fieldLayout, bytes32(key));
+library ResourcePosition {
+  function get(ObjectTypeId objectType, uint256 key) internal view returns (Vec3 position) {
+    bytes32[] memory keyTuple = new bytes32[](2);
+    keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectType)));
+    keyTuple[1] = bytes32(key);
+    (bytes memory _staticData,,) =
+      StoreSwitch.getRecord(_ResourcePosition._tableId, keyTuple, _ResourcePosition._fieldLayout);
+
+    assembly {
+      position := mload(add(_staticData, 0xc))
+    }
   }
 
-  function _get(uint256 key) internal view returns (Vec3 position) {
-    return Vec3Storage._get(_MinedOrePosition._tableId, _MinedOrePosition._fieldLayout, bytes32(key));
+  function _get(ObjectTypeId objectType, uint256 key) internal view returns (Vec3 position) {
+    bytes32[] memory keyTuple = new bytes32[](2);
+    keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectType)));
+    keyTuple[1] = bytes32(key);
+    (bytes memory _staticData,,) =
+      StoreCore.getRecord(_ResourcePosition._tableId, keyTuple, _ResourcePosition._fieldLayout);
+
+    assembly {
+      position := mload(add(_staticData, 0xc))
+    }
   }
 
-  function set(uint256 key, Vec3 position) internal {
-    Vec3Storage.set(_MinedOrePosition._tableId, bytes32(key), position);
+  function set(ObjectTypeId objectType, uint256 key, Vec3 position) internal {
+    bytes32[] memory keyTuple = new bytes32[](2);
+    keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectType)));
+    keyTuple[1] = bytes32(key);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+    StoreSwitch.setRecord(
+      _ResourcePosition._tableId, keyTuple, abi.encodePacked(position), _encodedLengths, _dynamicData
+    );
   }
 
-  function _set(uint256 key, Vec3 position) internal {
-    Vec3Storage._set(_MinedOrePosition._tableId, bytes32(key), position);
+  function _set(ObjectTypeId objectType, uint256 key, Vec3 position) internal {
+    bytes32[] memory keyTuple = new bytes32[](2);
+    keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectType)));
+    keyTuple[1] = bytes32(key);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+    StoreCore.setRecord(_ResourcePosition._tableId, keyTuple, abi.encodePacked(position), _encodedLengths, _dynamicData);
   }
 
-  function deleteRecord(uint256 key) internal {
-    Vec3Storage.deleteRecord(_MinedOrePosition._tableId, bytes32(key));
+  function deleteRecord(ObjectTypeId objectType, uint256 key) internal {
+    bytes32[] memory keyTuple = new bytes32[](2);
+    keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectType)));
+    keyTuple[1] = bytes32(key);
+
+    StoreSwitch.deleteRecord(_ResourcePosition._tableId, keyTuple);
   }
 
-  function _deleteRecord(uint256 key) internal {
-    Vec3Storage._deleteRecord(_MinedOrePosition._tableId, bytes32(key));
+  function _deleteRecord(ObjectTypeId objectType, uint256 key) internal {
+    bytes32[] memory keyTuple = new bytes32[](2);
+    keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectType)));
+    keyTuple[1] = bytes32(key);
+
+    StoreCore.deleteRecord(_ResourcePosition._tableId, keyTuple, _ResourcePosition._fieldLayout);
   }
 }

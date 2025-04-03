@@ -16,15 +16,18 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-library TotalBurnedOreCount {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "TotalBurnedOreCo", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000546f74616c4275726e65644f7265436f);
+// Import user types
+import { ObjectTypeId } from "../../ObjectTypeId.sol";
+
+library BurnedResourceCount {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "BurnedResourceCo", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004275726e65645265736f75726365436f);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
 
-  // Hex-encoded key schema of ()
-  Schema constant _keySchema = Schema.wrap(0x0000000000000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded key schema of (uint16)
+  Schema constant _keySchema = Schema.wrap(0x0002010001000000000000000000000000000000000000000000000000000000);
   // Hex-encoded value schema of (uint256)
   Schema constant _valueSchema = Schema.wrap(0x002001001f000000000000000000000000000000000000000000000000000000);
 
@@ -33,7 +36,8 @@ library TotalBurnedOreCount {
    * @return keyNames An array of strings with the names of key fields.
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
-    keyNames = new string[](0);
+    keyNames = new string[](1);
+    keyNames[0] = "objectTypeId";
   }
 
   /**
@@ -62,8 +66,9 @@ library TotalBurnedOreCount {
   /**
    * @notice Get count.
    */
-  function getCount() internal view returns (uint256 count) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function getCount(ObjectTypeId objectTypeId) internal view returns (uint256 count) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
@@ -72,8 +77,9 @@ library TotalBurnedOreCount {
   /**
    * @notice Get count.
    */
-  function _getCount() internal view returns (uint256 count) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function _getCount(ObjectTypeId objectTypeId) internal view returns (uint256 count) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
@@ -82,8 +88,9 @@ library TotalBurnedOreCount {
   /**
    * @notice Get count.
    */
-  function get() internal view returns (uint256 count) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function get(ObjectTypeId objectTypeId) internal view returns (uint256 count) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
@@ -92,8 +99,9 @@ library TotalBurnedOreCount {
   /**
    * @notice Get count.
    */
-  function _get() internal view returns (uint256 count) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function _get(ObjectTypeId objectTypeId) internal view returns (uint256 count) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
     return (uint256(bytes32(_blob)));
@@ -102,8 +110,9 @@ library TotalBurnedOreCount {
   /**
    * @notice Set count.
    */
-  function setCount(uint256 count) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function setCount(ObjectTypeId objectTypeId, uint256 count) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((count)), _fieldLayout);
   }
@@ -111,8 +120,9 @@ library TotalBurnedOreCount {
   /**
    * @notice Set count.
    */
-  function _setCount(uint256 count) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function _setCount(ObjectTypeId objectTypeId, uint256 count) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((count)), _fieldLayout);
   }
@@ -120,8 +130,9 @@ library TotalBurnedOreCount {
   /**
    * @notice Set count.
    */
-  function set(uint256 count) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function set(ObjectTypeId objectTypeId, uint256 count) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((count)), _fieldLayout);
   }
@@ -129,8 +140,9 @@ library TotalBurnedOreCount {
   /**
    * @notice Set count.
    */
-  function _set(uint256 count) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function _set(ObjectTypeId objectTypeId, uint256 count) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((count)), _fieldLayout);
   }
@@ -138,8 +150,9 @@ library TotalBurnedOreCount {
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord() internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function deleteRecord(ObjectTypeId objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -147,8 +160,9 @@ library TotalBurnedOreCount {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord() internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function _deleteRecord(ObjectTypeId objectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -179,8 +193,9 @@ library TotalBurnedOreCount {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple() internal pure returns (bytes32[] memory) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function encodeKeyTuple(ObjectTypeId objectTypeId) internal pure returns (bytes32[] memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(ObjectTypeId.unwrap(objectTypeId)));
 
     return _keyTuple;
   }
