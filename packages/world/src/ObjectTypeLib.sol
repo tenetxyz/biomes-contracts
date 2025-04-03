@@ -67,10 +67,19 @@ library ObjectTypeLib {
     coords[0] = baseCoord;
 
     for (uint256 i = 0; i < schemaCoords.length; i++) {
+      require(isDirectionSupported(self, direction), "Direction not supported");
       coords[i + 1] = baseCoord + schemaCoords[i].rotate(direction);
     }
 
     return coords;
+  }
+
+  function isDirectionSupported(ObjectTypeId self, Direction direction) internal pure returns (bool) {
+    if (self == ObjectTypes.Bed) {
+      return direction == Direction.PositiveX || direction == Direction.NegativeZ;
+    }
+
+    return true;
   }
 
   function getRelativeCoords(ObjectTypeId self, Vec3 baseCoord) internal pure returns (Vec3[] memory) {
