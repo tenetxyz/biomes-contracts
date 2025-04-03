@@ -4,13 +4,19 @@ pragma solidity >=0.8.24;
 import { LibPRNG } from "solady/utils/LibPRNG.sol";
 
 import { ResourceCount } from "./codegen/tables/ResourceCount.sol";
+import { ChunkCommitment } from "./utils/Vec3Storage.sol";
 
-import { TotalBurnedResourceCount } from "./codegen/tables/TotalBurnedResourceCount.sol";
-import { TotalResourceCount } from "./codegen/tables/TotalResourceCount.sol";
-
-import { MAX_COAL, MAX_DIAMOND, MAX_GOLD, MAX_NEPTUNIUM, MAX_SILVER, MAX_WHEAT_SEED } from "./Constants.sol";
+import {
+  CHUNK_COMMIT_EXPIRY_BLOCKS,
+  MAX_COAL,
+  MAX_DIAMOND,
+  MAX_GOLD,
+  MAX_NEPTUNIUM,
+  MAX_SILVER,
+  MAX_WHEAT_SEED
+} from "./Constants.sol";
 import { ObjectTypeId } from "./ObjectTypeId.sol";
-import { ObjectAmount, ObjectTypeLib } from "./ObjectTypeLib.sol";
+import { ObjectAmount, ObjectTypeLib, getOreObjectTypes } from "./ObjectTypeLib.sol";
 import { ObjectTypes } from "./ObjectTypes.sol";
 import { Vec3 } from "./Vec3.sol";
 
@@ -18,21 +24,15 @@ library NatureLib {
   using LibPRNG for LibPRNG.PRNG;
   using ObjectTypeLib for ObjectTypeId;
 
-  function getMineDrops(ObjectTypeId objectTypeId, Vec3 coord, uint256 commitment)
-    internal
-    view
-    returns (ObjectAmount[] memory result)
-  {
-    uint256 randomSeed = uint256(keccak256(abi.encodePacked(blockhash(commitment), coord)));
-
+  function getMineDrops(ObjectTypeId objectTypeId, Vec3 coord) internal view returns (ObjectAmount[] memory result) {
     // Wheat drops: Always drops wheat + 0-3 wheat seeds based on adjusted binomial distribution
     if (objectTypeId == ObjectTypes.Wheat) {
-      return getWheatDrops(objectTypeId, randomSeed);
+      return getWheatDrops(objectTypeId, getRandomSeed(coord));
     }
 
     // FescueGrass has a chance to drop wheat seeds
     if (objectTypeId == ObjectTypes.FescueGrass) {
-      return getGrassDrops(randomSeed);
+      return getGrassDrops(getRandomSeed(coord));
     }
 
     // Default behavior for all other objects
@@ -47,14 +47,14 @@ library NatureLib {
     view
     returns (ObjectAmount[] memory result)
   {
-    // Pre-calculated binomial distribution for n=3, p=0.57
+    // Distribution with expected value of exactly 1
     uint256[] memory distribution = new uint256[](4);
-    distribution[0] = 8; // 0 seeds: 8%
-    distribution[1] = 31; // 1 seed: 31%
-    distribution[2] = 41; // 2 seeds: 41%
-    distribution[3] = 20; // 3 seeds: 20%
+    distribution[0] = 40; // 0 seeds: 40%
+    distribution[1] = 30; // 1 seed: 30%
+    distribution[2] = 20; // 2 seeds: 20%
+    distribution[3] = 10; // 3 seeds: 10%
 
-    // Get wheat seed options and their weights using pre-calculated distribution
+    // Get wheat seed options and their weights using distribution
     (ObjectAmount[] memory seedOptions, uint256[] memory weights) = getDropWeights(ObjectTypes.WheatSeed, distribution);
 
     // Select seed drop based on calculated weights
@@ -91,8 +91,18 @@ library NatureLib {
     return result;
   }
 
-  function getRandomOre(Vec3 coord, uint256 commitment) internal view returns (ObjectTypeId) {
-    uint256 seed = uint256(keccak256(abi.encodePacked(blockhash(commitment), coord)));
+  function getRandomSeed(Vec3 coord) internal view returns (uint256) {
+    // Get chunk commitment for the coord, but only validate it for random resources (done in NatureLib)
+    Vec3 chunkCoord = coord.toChunkCoord();
+    uint256 commitment = ChunkCommitment._get(chunkCoord);
+    // We can't get blockhash of current block
+    require(block.number > commitment, "Not within commitment blocks");
+    require(block.number <= commitment + CHUNK_COMMIT_EXPIRY_BLOCKS, "Chunk commitment expired");
+    return uint256(keccak256(abi.encodePacked(blockhash(commitment), coord)));
+  }
+
+  function getRandomOre(Vec3 coord) internal view returns (ObjectTypeId) {
+    uint256 seed = getRandomSeed(coord);
 
     // Get ore options and their weights (based on remaining amounts)
     (ObjectAmount[] memory oreOptions, uint256[] memory weights) = getOreWeights();
@@ -109,15 +119,11 @@ library NatureLib {
     options = new ObjectAmount[](5);
     weights = new uint256[](5);
 
-    options[0] = ObjectAmount(ObjectTypes.CoalOre, 1);
-    options[1] = ObjectAmount(ObjectTypes.SilverOre, 1);
-    options[2] = ObjectAmount(ObjectTypes.GoldOre, 1);
-    options[3] = ObjectAmount(ObjectTypes.DiamondOre, 1);
-    options[4] = ObjectAmount(ObjectTypes.NeptuniumOre, 1);
-
+    ObjectTypeId[] memory oreTypes = getOreObjectTypes();
     // Use remaining amounts directly as weights
     for (uint256 i = 0; i < weights.length; i++) {
-      weights[i] = getRemainingAmount(options[i].objectTypeId);
+      options[i] = ObjectAmount(oreTypes[i], 1);
+      weights[i] = getRemainingAmount(oreTypes[i]);
     }
   }
 
@@ -149,8 +155,7 @@ library NatureLib {
     pure
     returns (ObjectAmount memory)
   {
-    uint256 selectedIndex = selectByWeight(weights, seed);
-    return options[selectedIndex];
+    return options[selectByWeight(weights, seed)];
   }
 
   // Simple weighted selection from an array of weights

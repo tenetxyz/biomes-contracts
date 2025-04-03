@@ -7,8 +7,9 @@ import { Action } from "../codegen/common.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { Player } from "../codegen/tables/Player.sol";
-import { TotalBurnedResourceCount } from "../codegen/tables/TotalBurnedResourceCount.sol";
-import { TotalResourceCount } from "../codegen/tables/TotalResourceCount.sol";
+
+import { ResourceCount } from "../codegen/tables/ResourceCount.sol";
+import { BurnedResourceCount } from "../codegen/tables/BurnedResourceCount.sol";
 
 import { ChunkCommitment, Position, ResourcePosition, ReversePosition } from "../utils/Vec3Storage.sol";
 
@@ -42,10 +43,10 @@ contract NatureSystem is System {
       "Can only choose past 10 blocks"
     );
 
-    uint256 burned = TotalBurnedResourceCount._get(objectType);
+    uint256 burned = BurnedResourceCount._get(objectType);
     require(burned > 0, "No resources available for respawn");
 
-    uint256 collected = TotalResourceCount._get(objectType);
+    uint256 collected = ResourceCount._get(objectType);
     uint256 resourceIdx = uint256(blockhash(blockNumber)) % collected;
 
     Vec3 resourceCoord = ResourcePosition._get(objectType, resourceIdx);
@@ -64,8 +65,8 @@ contract NatureSystem is System {
     ResourcePosition._deleteRecord(objectType, collected - 1);
 
     // Update total amounts
-    TotalBurnedResourceCount._set(objectType, burned - 1);
-    TotalResourceCount._set(objectType, collected - 1);
+    BurnedResourceCount._set(objectType, burned - 1);
+    ResourceCount._set(objectType, collected - 1);
 
     // This is enough to respawn the resource block, as it will be read from the original terrain next time
     ObjectType._deleteRecord(entityId);

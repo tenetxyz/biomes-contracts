@@ -16,8 +16,9 @@ import { Player } from "../src/codegen/tables/Player.sol";
 import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
 
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
-import { TotalBurnedResourceCount } from "../src/codegen/tables/TotalBurnedResourceCount.sol";
-import { TotalResourceCount } from "../src/codegen/tables/TotalResourceCount.sol";
+
+import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
+import { BurnedResourceCount } from "../src/codegen/tables/BurnedResourceCount.sol";
 import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 import { DustTest } from "./DustTest.sol";
 
@@ -144,7 +145,7 @@ contract MineTest is DustTest {
     EnergyDataSnapshot memory beforeEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     ObjectAmount[] memory oreAmounts = inventoryGetOreAmounts(aliceEntityId);
     assertEq(oreAmounts.length, 0, "Existing ores in inventory");
-    assertEq(TotalResourceCount.get(ObjectTypes.AnyOre), 0, "Mined resource count is not 0");
+    assertEq(ResourceCount.get(ObjectTypes.AnyOre), 0, "Mined resource count is not 0");
 
     vm.prank(alice);
     world.chunkCommit(aliceEntityId, mineCoord.toChunkCoord());
@@ -165,7 +166,7 @@ contract MineTest is DustTest {
     assertEq(oreAmounts.length, 1, "No ores in inventory");
     assertEq(oreAmounts[0].amount, 1, "Did not get exactly one ore");
     assertEq(ResourceCount.get(oreAmounts[0].objectTypeId), 1, "Resource count was not updated");
-    assertEq(TotalResourceCount.get(ObjectTypes.AnyOre), 1, "Total resource count was not updated");
+    assertEq(ResourceCount.get(ObjectTypes.AnyOre), 1, "Total resource count was not updated");
 
     EnergyDataSnapshot memory afterEnergyDataSnapshot = getEnergyDataSnapshot(aliceEntityId, playerCoord);
     assertEnergyFlowedFromPlayerToLocalPool(beforeEnergyDataSnapshot, afterEnergyDataSnapshot);

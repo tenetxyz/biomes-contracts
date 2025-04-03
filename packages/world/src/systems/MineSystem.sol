@@ -15,13 +15,11 @@ import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Orientation } from "../codegen/tables/Orientation.sol";
 import { ResourceCount } from "../codegen/tables/ResourceCount.sol";
 
+import { BurnedResourceCount } from "../codegen/tables/BurnedResourceCount.sol";
 import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
-import { TotalBurnedResourceCount } from "../codegen/tables/TotalBurnedResourceCount.sol";
-import { TotalResourceCount } from "../codegen/tables/TotalResourceCount.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
 import { ResourcePosition } from "../utils/Vec3Storage.sol";
-import { ChunkCommitment } from "../utils/Vec3Storage.sol";
 
 import { getUniqueEntity } from "../Utils.sol";
 
@@ -48,7 +46,7 @@ import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
 
-import { CHUNK_COMMIT_EXPIRY_BLOCKS, MINE_ENERGY_COST, SAFE_PROGRAM_GAS } from "../Constants.sol";
+import { MINE_ENERGY_COST, SAFE_PROGRAM_GAS } from "../Constants.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectAmount, ObjectTypeLib } from "../ObjectTypeLib.sol";
@@ -84,11 +82,11 @@ contract MineSystem is System {
       (ObjectTypeId dropType, uint16 amount) = (result[i].objectTypeId, uint16(result[i].amount));
       addToInventory(caller, ObjectType._get(caller), dropType, amount);
 
-      // Track resource
-      ResourceCount._set(dropType, ResourceCount._get(dropType) + amount);
-
-      // TODO: Handle capped resource pool return (for seeds that weren't harvested)
-      // TotalBurnedResourceCount._set(result.category, TotalBurnedResourceCount._get(result.category) + 1);
+      // Track mined resource count for seeds
+      // TODO: could make it more general like .isCappedResource() or something
+      if (dropType.isSeed()) {
+        ResourceCount._set(dropType, ResourceCount._get(dropType) + amount);
+      }
     }
   }
 
@@ -271,28 +269,19 @@ library MassReductionLib {
 library RandomResourceLib {
   using LibPRNG for LibPRNG.PRNG;
 
-  function _getCommitment(Vec3 coord) public view returns (uint256) {
-    Vec3 chunkCoord = coord.toChunkCoord();
-    uint256 commitment = ChunkCommitment._get(chunkCoord);
-    // We can't get blockhash of current block
-    require(block.number > commitment, "Not within commitment blocks");
-    require(block.number <= commitment + CHUNK_COMMIT_EXPIRY_BLOCKS, "Chunk commitment expired");
-    return commitment;
-  }
-
   function _getMineDrops(ObjectTypeId objectTypeId, Vec3 coord) public view returns (ObjectAmount[] memory) {
-    return NatureLib.getMineDrops(objectTypeId, coord, _getCommitment(coord));
+    return NatureLib.getMineDrops(objectTypeId, coord);
   }
 
   function _getRandomOre(Vec3 coord) public view returns (ObjectTypeId) {
-    return NatureLib.getRandomOre(coord, _getCommitment(coord));
+    return NatureLib.getRandomOre(coord);
   }
 
   function _collapseRandomOre(EntityId entityId, Vec3 coord) public returns (ObjectTypeId) {
     ObjectTypeId ore = _getRandomOre(coord);
 
     // We use AnyOre as we want to track for all ores
-    _decreaseAvailable(coord, ObjectTypes.AnyOre);
+    _trackPosition(coord, ObjectTypes.AnyOre);
 
     // Set mined resource count for the specific ore
     ResourceCount._set(ore, ResourceCount._get(ore) + 1);
@@ -302,10 +291,10 @@ library RandomResourceLib {
     return ore;
   }
 
-  function _decreaseAvailable(Vec3 coord, ObjectTypeId objectType) public {
-    // Set total mined resource and add position
-    uint256 totalResources = TotalResourceCount._get(objectType);
-    ResourcePosition._set(objectType, totalResources, coord);
-    TotalResourceCount._set(objectType, totalResources + 1);
+  function _trackPosition(Vec3 coord, ObjectTypeId objectType) public {
+    // Track resource position for mining/respawning
+    uint256 count = ResourceCount._get(objectType);
+    ResourcePosition._set(objectType, count, coord);
+    ResourceCount._set(objectType, count + 1);
   }
 }

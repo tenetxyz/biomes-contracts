@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { Direction } from "./codegen/common.sol";
 import { ResourceCount } from "./codegen/tables/ResourceCount.sol";
-import { TotalBurnedResourceCount } from "./codegen/tables/TotalBurnedResourceCount.sol";
+import { BurnedResourceCount } from "./codegen/tables/BurnedResourceCount.sol";
 
 import { IMachineSystem } from "./codegen/world/IMachineSystem.sol";
 import { ITransferSystem } from "./codegen/world/ITransferSystem.sol";
@@ -251,7 +251,7 @@ library ObjectTypeLib {
       // This increases the availability of the ores being burned
       ResourceCount._set(objectTypeId, ResourceCount._get(objectTypeId) - amount);
       // This allows the same amount of ores to respawn
-      TotalBurnedResourceCount._set(ObjectTypes.AnyOre, TotalBurnedResourceCount._get(ObjectTypes.AnyOre) + amount);
+      BurnedResourceCount._set(ObjectTypes.AnyOre, BurnedResourceCount._get(ObjectTypes.AnyOre) + amount);
     }
   }
 

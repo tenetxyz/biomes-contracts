@@ -368,14 +368,7 @@ export default defineWorld({
       },
       key: ["objectTypeId"],
     },
-    TotalResourceCount: {
-      schema: {
-        objectTypeId: "ObjectTypeId",
-        count: "uint256",
-      },
-      key: ["objectTypeId"],
-    },
-    TotalBurnedResourceCount: {
+    BurnedResourceCount: {
       schema: {
         objectTypeId: "ObjectTypeId",
         count: "uint256",

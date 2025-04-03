@@ -1863,17 +1863,12 @@
   },
   {
     "type": "function",
-    "name": "getRandomResourceType",
+    "name": "getRandomOreType",
     "inputs": [
       {
         "name": "coord",
         "type": "uint96",
         "internalType": "Vec3"
-      },
-      {
-        "name": "category",
-        "type": "uint8",
-        "internalType": "enum ResourceCategory"
       }
     ],
     "outputs": [
@@ -2797,9 +2792,9 @@
         "internalType": "uint256"
       },
       {
-        "name": "category",
-        "type": "uint8",
-        "internalType": "enum ResourceCategory"
+        "name": "objectType",
+        "type": "uint16",
+        "internalType": "ObjectTypeId"
       }
     ],
     "outputs": [],

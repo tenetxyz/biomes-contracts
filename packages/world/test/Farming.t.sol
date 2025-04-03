@@ -13,13 +13,19 @@ import { ObjectType } from "../src/codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 import { PlayerStatus } from "../src/codegen/tables/PlayerStatus.sol";
 
+import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
 import { SeedGrowth } from "../src/codegen/tables/SeedGrowth.sol";
+
 import { LocalEnergyPool } from "../src/utils/Vec3Storage.sol";
 
 import { MovablePosition, ReversePosition } from "../src/utils/Vec3Storage.sol";
 
 import {
-  BUILD_ENERGY_COST, MAX_ENTITY_INFLUENCE_HALF_WIDTH, MINE_ENERGY_COST, TILL_ENERGY_COST
+  BUILD_ENERGY_COST,
+  CHUNK_COMMIT_EXPIRY_BLOCKS,
+  MAX_ENTITY_INFLUENCE_HALF_WIDTH,
+  MINE_ENERGY_COST,
+  TILL_ENERGY_COST
 } from "../src/Constants.sol";
 
 import { EntityId } from "../src/EntityId.sol";
@@ -257,6 +263,8 @@ contract FarmingTest is DustTest {
 
     // Add wheat seeds to inventory
     TestInventoryUtils.addToInventory(aliceEntityId, ObjectTypes.WheatSeed, 1);
+    // Set seed count to 1 so we can grow it
+    ResourceCount.set(ObjectTypes.WheatSeed, 1);
 
     Vec3 cropCoord = farmlandCoord + vec3(0, 1, 0);
 
@@ -276,6 +284,13 @@ contract FarmingTest is DustTest {
     vm.prank(alice);
     world.growSeed(aliceEntityId, cropCoord);
 
+    // Set up chunk commitment for randomness when mining
+    Vec3 chunkCoord = cropCoord.toChunkCoord();
+    vm.prank(alice);
+    world.chunkCommit(aliceEntityId, chunkCoord);
+    // Move forward a block to make the commitment valid
+    vm.roll(vm.getBlockNumber() + 2);
+
     // Check local energy pool before harvesting
     uint128 initialLocalEnergy = LocalEnergyPool.get(farmlandCoord.toLocalEnergyPoolShardCoord());
 
@@ -285,10 +300,12 @@ contract FarmingTest is DustTest {
 
     // Verify wheat and seeds were obtained
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Wheat, 1);
-    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 1);
+    // TODO: test randomness
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 0);
 
     // Verify crop no longer exists
     assertEq(ObjectType.get(cropEntityId), ObjectTypes.Air, "Crop wasn't removed after harvesting");
+    assertEq(ResourceCount.get(ObjectTypes.WheatSeed), 0, "Seed wasn't removed from circulation");
 
     // Verify local energy pool hasn't changed (energy not returned since crop was fully grown)
     // NOTE: player's energy is not reduced as currently wheat has 0 mass
@@ -329,6 +346,13 @@ contract FarmingTest is DustTest {
     // Update player's energy and transfer to pool
     world.activatePlayer(alice);
 
+    // Set up chunk commitment for randomness when mining
+    Vec3 chunkCoord = cropCoord.toChunkCoord();
+    vm.prank(alice);
+    world.chunkCommit(aliceEntityId, chunkCoord);
+    // Move forward a block to make the commitment valid
+    vm.roll(block.number + 1);
+
     // Check local energy pool before harvesting
     uint128 beforeHarvestEnergy = LocalEnergyPool.get(farmlandCoord.toLocalEnergyPoolShardCoord());
 
@@ -356,19 +380,37 @@ contract FarmingTest is DustTest {
   function testMiningFescueGrassDropsWheatSeeds() public {
     (address alice, EntityId aliceEntityId, Vec3 playerCoord) = setupAirChunkWithPlayer();
 
-    // Create FescueGrass
-    Vec3 grassCoord = vec3(playerCoord.x() + 1, 0, playerCoord.z());
-    setTerrainAtCoord(grassCoord, ObjectTypes.FescueGrass);
-
-    // Verify no wheat seeds in inventory
+    // Verify no wheat seeds in inventory initially
     assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 0);
 
-    // Harvest the FescueGrass
-    vm.prank(alice);
-    world.mineUntilDestroyed(aliceEntityId, grassCoord, "");
+    Vec3 grassCoord = vec3(playerCoord.x() + 1, 0, playerCoord.z());
 
-    // Verify wheat seeds were obtained
-    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 1);
+    // Try up to 10 times to get wheat seeds (there's a 40% chance of getting 0 seeds)
+    for (uint256 i = 0; i < 10; i++) {
+      // Create FescueGrass
+      setTerrainAtCoord(grassCoord, ObjectTypes.FescueGrass);
+
+      // Set up chunk commitment for randomness when mining grass
+      Vec3 chunkCoord = grassCoord.toChunkCoord();
+      vm.prank(alice);
+      world.chunkCommit(aliceEntityId, chunkCoord);
+      // Move forward 2 blocks to make the commitment valid
+      vm.roll(vm.getBlockNumber() + 2);
+
+      // Harvest the FescueGrass
+      vm.prank(alice);
+      world.mineUntilDestroyed(aliceEntityId, grassCoord, "");
+
+      // Check if we got seeds
+      uint256 seedCount = InventoryCount.get(aliceEntityId, ObjectTypes.WheatSeed);
+
+      if (seedCount > 0) break;
+
+      vm.roll(vm.getBlockNumber() + CHUNK_COMMIT_EXPIRY_BLOCKS);
+    }
+
+    // Verify wheat seeds were obtained in at least one attempt
+    assertGt(InventoryCount.get(aliceEntityId, ObjectTypes.WheatSeed), 0, "Should have at least one wheat seed");
   }
 
   function testCropGrowthLifecycle() public {
@@ -411,16 +453,25 @@ contract FarmingTest is DustTest {
     fullyGrownAt = SeedGrowth.getFullyGrownAt(cropEntityId);
 
     // Full growth - Warp past the full growth time
+    vm.roll(vm.getBlockNumber() + CHUNK_COMMIT_EXPIRY_BLOCKS + 1);
     vm.warp(fullyGrownAt + 1);
     vm.prank(alice);
     world.growSeed(aliceEntityId, cropCoord);
+
+    // Set up chunk commitment for randomness when mining
+    Vec3 chunkCoord = cropCoord.toChunkCoord();
+    vm.prank(alice);
+    world.chunkCommit(aliceEntityId, chunkCoord);
+    // Move forward 2 blocks to make the commitment valid
+    vm.roll(vm.getBlockNumber() + 2);
 
     // Mine the crop
     vm.prank(alice);
     world.mineUntilDestroyed(aliceEntityId, cropCoord, "");
 
     // Now we get wheat and seeds
-    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 1);
     assertInventoryHasObject(aliceEntityId, ObjectTypes.Wheat, 1);
+    // TODO: test randomness
+    assertInventoryHasObject(aliceEntityId, ObjectTypes.WheatSeed, 0);
   }
 }

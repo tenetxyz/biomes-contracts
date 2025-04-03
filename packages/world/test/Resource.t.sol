@@ -10,7 +10,7 @@
 // import { ObjectTypeMetadata } from "../src/codegen/tables/ObjectTypeMetadata.sol";
 // import { ResourceCount } from "../src/codegen/tables/ResourceCount.sol";
 //
-// import { TotalBurnedResourceCount } from "../src/codegen/tables/TotalBurnedResourceCount.sol";
+// import { BurnedResourceCount } from "../src/codegen/tables/BurnedResourceCount.sol";
 // import { TotalResourceCount } from "../src/codegen/tables/TotalResourceCount.sol";
 // import { WorldStatus } from "../src/codegen/tables/WorldStatus.sol";
 // import { DustTest } from "./DustTest.sol";
@@ -89,7 +89,7 @@
 //     addResourcePosition(category, resourceCoord);
 //
 //     // Burn resource so it becomes available to respawn
-//     TotalBurnedResourceCount.set(category, 1);
+//     BurnedResourceCount.set(category, 1);
 //
 //     // Set coord to air
 //     EntityId entityId = randomEntityId();
@@ -102,7 +102,7 @@
 //     world.respawnResource(block.number - 1, category);
 //
 //     assertEq(TotalResourceCount.get(category), 0);
-//     assertEq(TotalBurnedResourceCount.get(category), 0);
+//     assertEq(BurnedResourceCount.get(category), 0);
 //
 //     // Check that the air entity was removed
 //     assertTrue(ObjectType.get(entityId).isNull());
