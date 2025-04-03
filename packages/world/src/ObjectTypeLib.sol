@@ -10,7 +10,9 @@ import { ITransferSystem } from "./codegen/world/ITransferSystem.sol";
 
 import { ObjectTypeId } from "./ObjectTypeId.sol";
 import { Block, CATEGORY_MASK, Item, Misc, ObjectTypes, Tool } from "./ObjectTypes.sol";
+
 import { Vec3, vec3 } from "./Vec3.sol";
+import { timeToGrow as _timeToGrow } from "./timeToGrow.sol";
 
 struct ObjectAmount {
   ObjectTypeId objectTypeId;
@@ -225,16 +227,8 @@ library ObjectTypeLib {
     return amounts;
   }
 
-  function timeToGrow(ObjectTypeId self) internal pure returns (uint128) {
-    if (self == ObjectTypes.WheatSeed) {
-      return 15 minutes;
-    }
-
-    if (self == ObjectTypes.OakSeed || self == ObjectTypes.SpruceSeed) {
-      return 5760 minutes;
-    }
-
-    return 0;
+  function timeToGrow(ObjectTypeId objectTypeId) internal pure returns (uint128) {
+    return _timeToGrow(objectTypeId);
   }
 
   function getObjectTypes(ObjectTypeId self) internal pure returns (ObjectTypeId[] memory) {

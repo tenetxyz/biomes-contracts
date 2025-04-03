@@ -17,14 +17,8 @@
           "type": "number"
         }
       },
-      "required": [
-        "height",
-        "width"
-      ]
+      "required": ["height", "width"]
     }
   },
-  "required": [
-    "name",
-    "startUrl"
-  ]
+  "required": ["name", "startUrl"]
 }

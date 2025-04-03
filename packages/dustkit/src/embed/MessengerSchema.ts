@@ -1,4 +1,4 @@
-import type { Hex } from "ox";
+import type { EntityId } from "../common";
 
 export type MessengerSchema = [
   {
@@ -12,8 +12,11 @@ export type MessengerSchema = [
     response: undefined;
   },
   {
-    topic: "requestMarker";
-    payload: { entityId: Hex.Hex };
+    topic: "requestWaypoint";
+    payload: {
+      target: EntityId;
+      label: string;
+    };
     response: undefined;
   },
 ];
