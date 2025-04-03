@@ -14,8 +14,10 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Orientation } from "../codegen/tables/Orientation.sol";
 import { ResourceCount } from "../codegen/tables/ResourceCount.sol";
+
 import { SeedGrowth } from "../codegen/tables/SeedGrowth.sol";
 import { TotalBurnedResourceCount } from "../codegen/tables/TotalBurnedResourceCount.sol";
+import { TotalResourceCount } from "../codegen/tables/TotalResourceCount.sol";
 
 import { Position } from "../utils/Vec3Storage.sol";
 import { ResourcePosition } from "../utils/Vec3Storage.sol";
@@ -45,16 +47,14 @@ import { DeathNotification, MineNotification, notify } from "../utils/NotifUtils
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 
 import { MoveLib } from "./libraries/MoveLib.sol";
-import { RandomResourceLib } from "./libraries/RandomResourceLib.sol";
 
-import { MINE_ENERGY_COST, SAFE_PROGRAM_GAS } from "../Constants.sol";
+import { CHUNK_COMMIT_EXPIRY_BLOCKS, MINE_ENERGY_COST, SAFE_PROGRAM_GAS } from "../Constants.sol";
 import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectAmount, ObjectTypeLib } from "../ObjectTypeLib.sol";
 
+import { NatureLib } from "../NatureLib.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
-import { ResourceLib } from "../ResourceLib.sol";
-import { ResourceCategory } from "../codegen/common.sol";
 
 import { ProgramId } from "../ProgramId.sol";
 import { IDetachProgramHook, IMineHook } from "../ProgramInterfaces.sol";
@@ -76,27 +76,21 @@ contract MineSystem is System {
   }
 
   function _handleDrop(EntityId caller, ObjectTypeId mineObjectTypeId, Vec3 coord) internal {
-    // Get a randomness seed based on the caller, block number, and coordinates
-    bytes32 seed = keccak256(abi.encodePacked(caller, block.number, coord));
+    bytes32 seed = keccak256(abi.encodePacked(caller, coord));
 
     // Get drops with all metadata for resource tracking
-    ResourceLib.ResourceDropResult memory result = ResourceLib.getResourceDrops(mineObjectTypeId, seed);
+    ObjectAmount[] memory result = NatureLib.getMineDrops(mineObjectTypeId, seed);
 
     // Add resources to inventory
-    for (uint256 i = 0; i < result.amounts.length; i++) {
-      addToInventory(caller, ObjectType._get(caller), result.amounts[i].objectTypeId, result.amounts[i].amount);
+    for (uint256 i = 0; i < result.length; i++) {
+      (ObjectTypeId dropType, uint16 amount) = (result[i].objectTypeId, uint16(result[i].amount));
+      addToInventory(caller, ObjectType._get(caller), dropType, amount);
 
-      // Track resource if needed
-      if (result.requiresResourceTracking) {
-        ResourceCount._set(
-          result.amounts[i].objectTypeId, ResourceCount._get(result.amounts[i].objectTypeId) + result.amounts[i].amount
-        );
-      }
-    }
+      // Track resource
+      ResourceCount._set(dropType, ResourceCount._get(dropType) + amount);
 
-    // Handle resource pool return (for seeds that weren't harvested)
-    if (result.returnToPool) {
-      TotalBurnedResourceCount._set(result.category, TotalBurnedResourceCount._get(result.category) + 1);
+      // TODO: Handle capped resource pool return (for seeds that weren't harvested)
+      // TotalBurnedResourceCount._set(result.category, TotalBurnedResourceCount._get(result.category) + 1);
     }
   }
 
@@ -104,8 +98,9 @@ contract MineSystem is System {
     require(SeedGrowth._getFullyGrownAt(entityId) > block.timestamp, "Cannot mine fully grown seed");
   }
 
-  function getRandomResourceType(Vec3 coord, ResourceCategory category) external view returns (ObjectTypeId) {
-    (ObjectTypeId resourceType,) = RandomResourceLib._getRandomResourceType(coord, category);
+  function getRandomResourceType(Vec3 coord, ObjectTypeId objectType) external view returns (ObjectTypeId) {
+    (ObjectTypeId resourceType,) =
+      NatureLib.getRandomResource(objectType, coord, ChunkCommitment._get(coord.toChunkCoord()));
     return resourceType;
   }
 
@@ -125,17 +120,15 @@ contract MineSystem is System {
     } else if (mineObjectTypeId.isSeed()) {
       _requireSeedNotFullyGrown(entityId);
     } else if (mineObjectTypeId == ObjectTypes.AnyOre) {
-      // Handle random resource generation
-      ResourceCategory category = ResourceCategory.Mining; // Default to mining for AnyOre
-      mineObjectTypeId = RandomResourceLib._mineRandomResource(entityId, coord, category);
+      mineObjectTypeId = RandomResourceLib._collapseRandomOre(entityId, coord);
     }
+
+    uint128 finalMass = MassReductionLib._processMassReduction(caller, entityId);
 
     // First coord will be the base coord, the rest is relative schema coords
     Vec3[] memory coords = mineObjectTypeId.getRelativeCoords(baseCoord, Orientation._get(entityId));
 
-    uint128 finalMass;
     {
-      finalMass = MassReductionLib._processMassReduction(caller, entityId);
       if (finalMass == 0) {
         if (mineObjectTypeId == ObjectTypes.Bed) {
           // If mining a bed with a sleeping player, kill the player
@@ -276,5 +269,39 @@ library MassReductionLib {
     }
 
     return massLeft - toolMassReduction;
+  }
+}
+
+library RandomResourceLib {
+  using LibPRNG for LibPRNG.PRNG;
+
+  function _getRandomOre(Vec3 coord) public view returns (ObjectTypeId) {
+    Vec3 chunkCoord = coord.toChunkCoord();
+    uint256 commitment = ChunkCommitment._get(chunkCoord);
+    // We can't get blockhash of current block
+    require(block.number > commitment, "Not within commitment blocks");
+    require(block.number <= commitment + CHUNK_COMMIT_EXPIRY_BLOCKS, "Chunk commitment expired");
+
+    return NatureLib.getRandomOre(coord, commitment);
+  }
+
+  function _decreaseAvailable(Vec3 coord, ObjectTypeId objectType) public {
+    // Set total mined resource and add position
+    uint256 totalResources = TotalResourceCount._get(objectType);
+    ResourcePosition._set(objectType, totalResources, coord);
+    TotalResourceCount._set(objectType, totalResources + 1);
+  }
+
+  function _collapseRandomOre(EntityId entityId, Vec3 coord) public returns (ObjectTypeId) {
+    ObjectTypeId ore = _getRandomOre(coord);
+
+    _decreaseAvailable(coord, ObjectTypes.AnyOre);
+
+    uint256 resourceCount = ResourceCount._get(ore);
+    ResourceCount._set(ore, resourceCount);
+    ObjectType._set(entityId, ore);
+    Mass._setMass(entityId, ObjectTypeMetadata._getMass(ore));
+
+    return ore;
   }
 }

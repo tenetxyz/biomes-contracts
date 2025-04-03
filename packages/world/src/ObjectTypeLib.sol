@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.24;
 
-import { Direction, ResourceCategory } from "./codegen/common.sol";
+import { Direction } from "./codegen/common.sol";
 import { ResourceCount } from "./codegen/tables/ResourceCount.sol";
 import { TotalBurnedResourceCount } from "./codegen/tables/TotalBurnedResourceCount.sol";
 
@@ -191,34 +191,6 @@ library ObjectTypeLib {
     return ObjectTypes.Null;
   }
 
-  function getMineDrop(ObjectTypeId self) internal pure returns (ObjectAmount[] memory amounts) {
-    // TODO: figure out conservation of fescue grass (no way to regenerate yet)
-    if (self == ObjectTypes.FescueGrass) {
-      // TODO: add randomness?
-      amounts = new ObjectAmount[](1);
-      amounts[0] = ObjectAmount(ObjectTypes.WheatSeed, 1);
-      return amounts;
-    }
-
-    if (self == ObjectTypes.Farmland || self == ObjectTypes.WetFarmland) {
-      amounts = new ObjectAmount[](1);
-      amounts[0] = ObjectAmount(ObjectTypes.Dirt, 1);
-      return amounts;
-    }
-
-    ObjectTypeId seedTypeId = self.getSeedDrop();
-    if (seedTypeId != ObjectTypes.Null) {
-      amounts = new ObjectAmount[](2);
-      amounts[0] = ObjectAmount(self, 1);
-      amounts[1] = ObjectAmount(seedTypeId, 1);
-      return amounts;
-    }
-
-    amounts = new ObjectAmount[](1);
-    amounts[0] = ObjectAmount(self, 1);
-    return amounts;
-  }
-
   function timeToGrow(ObjectTypeId self) internal pure returns (uint128) {
     // TODO: different times for different seeds
     if (self.isSeed()) {
@@ -279,9 +251,7 @@ library ObjectTypeLib {
       // This increases the availability of the ores being burned
       ResourceCount._set(objectTypeId, ResourceCount._get(objectTypeId) - amount);
       // This allows the same amount of ores to respawn
-      TotalBurnedResourceCount._set(
-        ResourceCategory.Mining, TotalBurnedResourceCount._get(ResourceCategory.Mining) + amount
-      );
+      TotalBurnedResourceCount._set(ObjectTypes.AnyOre, TotalBurnedResourceCount._get(ObjectTypes.AnyOre) + amount);
     }
   }
 

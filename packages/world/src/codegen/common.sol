@@ -26,11 +26,6 @@ enum Action {
   Death
 }
 
-enum ResourceCategory {
-  Mining,
-  Farming
-}
-
 enum Direction {
   PositiveX,
   NegativeX,

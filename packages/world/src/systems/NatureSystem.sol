@@ -3,7 +3,6 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { ResourceCategory } from "../codegen/common.sol";
 import { Action } from "../codegen/common.sol";
 import { InventoryObjects } from "../codegen/tables/InventoryObjects.sol";
 import { ObjectType } from "../codegen/tables/ObjectType.sol";
@@ -18,7 +17,6 @@ import { EntityId } from "../EntityId.sol";
 import { ObjectTypeId } from "../ObjectTypeId.sol";
 import { ObjectTypes } from "../ObjectTypes.sol";
 
-import { ResourceLib } from "../ResourceLib.sol";
 import { Vec3 } from "../Vec3.sol";
 import { PlayerUtils } from "../utils/PlayerUtils.sol";
 import { TerrainLib } from "./libraries/TerrainLib.sol";
@@ -38,19 +36,19 @@ contract NatureSystem is System {
     ChunkCommitment._set(chunkCoord, block.number + 1);
   }
 
-  function respawnResource(uint256 blockNumber, ResourceCategory category) public {
+  function respawnResource(uint256 blockNumber, ObjectTypeId objectType) public {
     require(
       blockNumber < block.number && blockNumber >= block.number - RESPAWN_ORE_BLOCK_RANGE,
       "Can only choose past 10 blocks"
     );
 
-    uint256 burned = TotalBurnedResourceCount._get(category);
+    uint256 burned = TotalBurnedResourceCount._get(objectType);
     require(burned > 0, "No resources available for respawn");
 
-    uint256 collected = TotalResourceCount._get(category);
+    uint256 collected = TotalResourceCount._get(objectType);
     uint256 resourceIdx = uint256(blockhash(blockNumber)) % collected;
 
-    Vec3 resourceCoord = ResourcePosition._get(category, resourceIdx);
+    Vec3 resourceCoord = ResourcePosition._get(objectType, resourceIdx);
 
     // Check existing entity
     EntityId entityId = ReversePosition._get(resourceCoord);
@@ -60,14 +58,14 @@ contract NatureSystem is System {
 
     // Remove from collected resource array
     if (resourceIdx < collected) {
-      Vec3 last = ResourcePosition._get(category, collected - 1);
-      ResourcePosition._set(category, resourceIdx, last);
+      Vec3 last = ResourcePosition._get(objectType, collected - 1);
+      ResourcePosition._set(objectType, resourceIdx, last);
     }
-    ResourcePosition._deleteRecord(category, collected - 1);
+    ResourcePosition._deleteRecord(objectType, collected - 1);
 
     // Update total amounts
-    TotalBurnedResourceCount._set(category, burned - 1);
-    TotalResourceCount._set(category, collected - 1);
+    TotalBurnedResourceCount._set(objectType, burned - 1);
+    TotalResourceCount._set(objectType, collected - 1);
 
     // This is enough to respawn the resource block, as it will be read from the original terrain next time
     ObjectType._deleteRecord(entityId);

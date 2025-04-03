@@ -27,10 +27,6 @@ export default defineWorld({
       "RemoveFragment",
       "Death",
     ],
-    ResourceCategory: [
-      "Mining",
-      "Farming",
-    ],
     Direction: [
       // Cardinal directions (6)
       "PositiveX",
@@ -357,13 +353,13 @@ export default defineWorld({
     },
     ResourcePosition: {
       schema: {
-        category: "ResourceCategory",
+        objectTypeId: "ObjectTypeId",
         index: "uint256",
         x: "int32",
         y: "int32",
         z: "int32",
       },
-      key: ["category", "index"],
+      key: ["objectTypeId", "index"],
     },
     ResourceCount: {
       schema: {
@@ -374,17 +370,17 @@ export default defineWorld({
     },
     TotalResourceCount: {
       schema: {
-        category: "ResourceCategory",
+        objectTypeId: "ObjectTypeId",
         count: "uint256",
       },
-      key: ["category"],
+      key: ["objectTypeId"],
     },
     TotalBurnedResourceCount: {
       schema: {
-        category: "ResourceCategory",
+        objectTypeId: "ObjectTypeId",
         count: "uint256",
       },
-      key: ["category"],
+      key: ["objectTypeId"],
     },
     // ------------------------------------------------------------
     // Farming
