@@ -12,7 +12,7 @@ function timeToGrow(ObjectTypeId objectTypeId) pure returns (uint128) {
   }
 
   if (objectTypeId == ObjectTypes.OakSeed) {
-    return 900 seconds;
+    return 345600 seconds;
   }
 
   if (objectTypeId == ObjectTypes.SpruceSeed) {
