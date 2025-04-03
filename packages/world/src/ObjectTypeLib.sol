@@ -76,7 +76,8 @@ library ObjectTypeLib {
 
   function isDirectionSupported(ObjectTypeId self, Direction direction) internal pure returns (bool) {
     if (self == ObjectTypes.Bed) {
-      return direction == Direction.PositiveX || direction == Direction.NegativeZ;
+      // Note: before supporting more directions, we need to ensure clients can render it
+      return direction == Direction.NegativeX || direction == Direction.NegativeZ;
     }
 
     return true;
