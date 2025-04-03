@@ -219,6 +219,14 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
+    InventoryAvailableSlots: {
+      schema: {
+        owner: "EntityId",
+        objectType: "ObjectTypeId",
+        slots: "uint16[]",
+      },
+      key: ["owner", "objectType"],
+    },
     InventorySlots: {
       schema: {
         ownerEntityId: "EntityId",

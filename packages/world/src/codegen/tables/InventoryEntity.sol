@@ -19,17 +19,22 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 // Import user types
 import { EntityId } from "../../EntityId.sol";
 
+struct InventoryEntityData {
+  EntityId owner;
+  uint16 slot;
+}
+
 library InventoryEntity {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "InventoryEntity", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000496e76656e746f7279456e7469747900);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0022020020020000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bytes32)
-  Schema constant _valueSchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32, uint16)
+  Schema constant _valueSchema = Schema.wrap(0x002202005f010000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -45,8 +50,9 @@ library InventoryEntity {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](1);
-    fieldNames[0] = "ownerEntityId";
+    fieldNames = new string[](2);
+    fieldNames[0] = "owner";
+    fieldNames[1] = "slot";
   }
 
   /**
@@ -64,9 +70,9 @@ library InventoryEntity {
   }
 
   /**
-   * @notice Get ownerEntityId.
+   * @notice Get owner.
    */
-  function getOwnerEntityId(EntityId entityId) internal view returns (EntityId ownerEntityId) {
+  function getOwner(EntityId entityId) internal view returns (EntityId owner) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -75,9 +81,9 @@ library InventoryEntity {
   }
 
   /**
-   * @notice Get ownerEntityId.
+   * @notice Get owner.
    */
-  function _getOwnerEntityId(EntityId entityId) internal view returns (EntityId ownerEntityId) {
+  function _getOwner(EntityId entityId) internal view returns (EntityId owner) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
@@ -86,65 +92,178 @@ library InventoryEntity {
   }
 
   /**
-   * @notice Get ownerEntityId.
+   * @notice Set owner.
    */
-  function get(EntityId entityId) internal view returns (EntityId ownerEntityId) {
+  function setOwner(EntityId entityId, EntityId owner) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return EntityId.wrap(bytes32(_blob));
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(owner)), _fieldLayout);
   }
 
   /**
-   * @notice Get ownerEntityId.
+   * @notice Set owner.
    */
-  function _get(EntityId entityId) internal view returns (EntityId ownerEntityId) {
+  function _setOwner(EntityId entityId, EntityId owner) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return EntityId.wrap(bytes32(_blob));
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(owner)), _fieldLayout);
   }
 
   /**
-   * @notice Set ownerEntityId.
+   * @notice Get slot.
    */
-  function setOwnerEntityId(EntityId entityId, EntityId ownerEntityId) internal {
+  function getSlot(EntityId entityId) internal view returns (uint16 slot) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(ownerEntityId)), _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (uint16(bytes2(_blob)));
   }
 
   /**
-   * @notice Set ownerEntityId.
+   * @notice Get slot.
    */
-  function _setOwnerEntityId(EntityId entityId, EntityId ownerEntityId) internal {
+  function _getSlot(EntityId entityId) internal view returns (uint16 slot) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(ownerEntityId)), _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (uint16(bytes2(_blob)));
   }
 
   /**
-   * @notice Set ownerEntityId.
+   * @notice Set slot.
    */
-  function set(EntityId entityId, EntityId ownerEntityId) internal {
+  function setSlot(EntityId entityId, uint16 slot) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(ownerEntityId)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((slot)), _fieldLayout);
   }
 
   /**
-   * @notice Set ownerEntityId.
+   * @notice Set slot.
    */
-  function _set(EntityId entityId, EntityId ownerEntityId) internal {
+  function _setSlot(EntityId entityId, uint16 slot) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = EntityId.unwrap(entityId);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked(EntityId.unwrap(ownerEntityId)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((slot)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get the full data.
+   */
+  function get(EntityId entityId) internal view returns (InventoryEntityData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(entityId);
+
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Get the full data.
+   */
+  function _get(EntityId entityId) internal view returns (InventoryEntityData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(entityId);
+
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Set the full data using individual values.
+   */
+  function set(EntityId entityId, EntityId owner, uint16 slot) internal {
+    bytes memory _staticData = encodeStatic(owner, slot);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(entityId);
+
+    StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Set the full data using individual values.
+   */
+  function _set(EntityId entityId, EntityId owner, uint16 slot) internal {
+    bytes memory _staticData = encodeStatic(owner, slot);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(entityId);
+
+    StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Set the full data using the data struct.
+   */
+  function set(EntityId entityId, InventoryEntityData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.owner, _table.slot);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(entityId);
+
+    StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Set the full data using the data struct.
+   */
+  function _set(EntityId entityId, InventoryEntityData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.owner, _table.slot);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = EntityId.unwrap(entityId);
+
+    StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Decode the tightly packed blob of static data using this table's field layout.
+   */
+  function decodeStatic(bytes memory _blob) internal pure returns (EntityId owner, uint16 slot) {
+    owner = EntityId.wrap(Bytes.getBytes32(_blob, 0));
+
+    slot = (uint16(Bytes.getBytes2(_blob, 32)));
+  }
+
+  /**
+   * @notice Decode the tightly packed blobs using this table's field layout.
+   * @param _staticData Tightly packed static fields.
+   *
+   *
+   */
+  function decode(
+    bytes memory _staticData,
+    EncodedLengths,
+    bytes memory
+  ) internal pure returns (InventoryEntityData memory _table) {
+    (_table.owner, _table.slot) = decodeStatic(_staticData);
   }
 
   /**
@@ -171,8 +290,8 @@ library InventoryEntity {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(EntityId ownerEntityId) internal pure returns (bytes memory) {
-    return abi.encodePacked(ownerEntityId);
+  function encodeStatic(EntityId owner, uint16 slot) internal pure returns (bytes memory) {
+    return abi.encodePacked(owner, slot);
   }
 
   /**
@@ -181,8 +300,8 @@ library InventoryEntity {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(EntityId ownerEntityId) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(ownerEntityId);
+  function encode(EntityId owner, uint16 slot) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(owner, slot);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
