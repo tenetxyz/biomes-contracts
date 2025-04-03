@@ -196,6 +196,24 @@ export default defineWorld({
     // ------------------------------------------------------------
     // Inventory
     // ------------------------------------------------------------
+    Inventory: {
+      schema: {
+        owner: "EntityId",
+        slotsUsed: "uint16",
+      },
+      key: ["owner"],
+    },
+    InventorySlot: {
+      schema: {
+        owner: "EntityId",
+        slot: "uint16",
+        // TODO: we could merge entityId and amount into a single field
+        entityId: "EntityId",
+        objectType: "ObjectTypeId",
+        amount: "uint16",
+      },
+      key: ["owner", "slot"],
+    },
     InventorySlots: {
       schema: {
         ownerEntityId: "EntityId",

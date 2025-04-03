@@ -12,7 +12,6 @@ import { ObjectType } from "../codegen/tables/ObjectType.sol";
 
 import { ObjectTypeMetadata } from "../codegen/tables/ObjectTypeMetadata.sol";
 import { Recipes, RecipesData } from "../codegen/tables/Recipes.sol";
-import { ReverseInventoryEntity } from "../codegen/tables/ReverseInventoryEntity.sol";
 
 import { CRAFT_ENERGY_COST } from "../Constants.sol";
 import { EntityId } from "../EntityId.sol";

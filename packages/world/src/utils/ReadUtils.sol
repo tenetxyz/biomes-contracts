@@ -55,15 +55,15 @@ struct EntityData {
 function getEntityInventory(EntityId entityId) view returns (InventoryObject[] memory) {
   uint16[] memory objectTypeIds = InventoryObjects._get(entityId);
   InventoryObject[] memory inventoryObjects = new InventoryObject[](objectTypeIds.length);
-  bytes32[] memory allInventorys = ReverseInventoryEntity._get(entityId);
+  bytes32[] memory allInventories = ReverseInventoryEntity._get(entityId);
   for (uint256 i = 0; i < objectTypeIds.length; i++) {
     ObjectTypeId objectTypeId = ObjectTypeId.wrap(objectTypeIds[i]);
     uint16 count = InventoryCount._get(entityId, objectTypeId);
     bool isTool = objectTypeId.isTool();
     uint256 numEntities = 0;
     if (isTool) {
-      for (uint256 j = 0; j < allInventorys.length; j++) {
-        if (ObjectType._get(EntityId.wrap(allInventorys[j])) == objectTypeId) {
+      for (uint256 j = 0; j < allInventories.length; j++) {
+        if (ObjectType._get(EntityId.wrap(allInventories[j])) == objectTypeId) {
           numEntities++;
         }
       }
@@ -71,8 +71,8 @@ function getEntityInventory(EntityId entityId) view returns (InventoryObject[] m
     InventoryEntity[] memory inventoryEntities = new InventoryEntity[](numEntities);
     if (numEntities > 0) {
       uint256 k = 0;
-      for (uint256 j = 0; j < allInventorys.length; j++) {
-        EntityId tool = EntityId.wrap(allInventorys[j]);
+      for (uint256 j = 0; j < allInventories.length; j++) {
+        EntityId tool = EntityId.wrap(allInventories[j]);
         if (ObjectType._get(tool) == objectTypeId) {
           inventoryEntities[k] = InventoryEntity({ entityId: tool, mass: Mass._getMass(tool) });
           k++;

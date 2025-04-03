@@ -158,19 +158,19 @@ function useEquipped(EntityId entityId, uint128 useMassMax)
 }
 
 function removeFromReverseInventoryEntity(EntityId owner, EntityId removeInventory) {
-  bytes32[] memory inventorys = ReverseInventoryEntity._get(owner);
-  bytes32[] memory newInventorys = new bytes32[](inventorys.length - 1);
+  bytes32[] memory inventories = ReverseInventoryEntity._get(owner);
+  bytes32[] memory newInventories = new bytes32[](inventories.length - 1);
   uint256 j = 0;
-  for (uint256 i = 0; i < inventorys.length; i++) {
-    if (inventorys[i] != EntityId.unwrap(removeInventory)) {
-      newInventorys[j] = inventorys[i];
+  for (uint256 i = 0; i < inventories.length; i++) {
+    if (inventories[i] != EntityId.unwrap(removeInventory)) {
+      newInventories[j] = inventories[i];
       j++;
     }
   }
-  if (newInventorys.length == 0) {
+  if (newInventories.length == 0) {
     ReverseInventoryEntity._deleteRecord(owner);
   } else {
-    ReverseInventoryEntity._set(owner, newInventorys);
+    ReverseInventoryEntity._set(owner, newInventories);
   }
 }
 
@@ -201,12 +201,12 @@ function transferAllInventoryEntities(EntityId from, EntityId to, ObjectTypeId t
     numTransferred += objectTypeCount;
   }
 
-  bytes32[] memory fromInventorys = ReverseInventoryEntity._get(from);
-  for (uint256 i = 0; i < fromInventorys.length; i++) {
-    InventoryEntity._set(EntityId.wrap(fromInventorys[i]), to);
-    ReverseInventoryEntity._push(to, fromInventorys[i]);
+  bytes32[] memory fromInventories = ReverseInventoryEntity._get(from);
+  for (uint256 i = 0; i < fromInventories.length; i++) {
+    InventoryEntity._set(EntityId.wrap(fromInventories[i]), to);
+    ReverseInventoryEntity._push(to, fromInventories[i]);
   }
-  if (fromInventorys.length > 0) {
+  if (fromInventories.length > 0) {
     ReverseInventoryEntity._deleteRecord(from);
   }
 
