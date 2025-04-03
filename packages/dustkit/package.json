@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./dist/exports/index.js"
+    ".": "./dist/src/exports/index.js"
   },
   "typesVersions": {
     "*": {
-      "index": ["./dist/exports/index.d.ts"]
+      "index": ["./dist/src/exports/index.d.ts"]
     }
   },
   "files": ["dist", "json-schemas"],
