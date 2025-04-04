@@ -170,17 +170,11 @@ library Vec3Lib {
 
   function rotate(Vec3 self, Direction direction) internal pure returns (Vec3) {
     // Default facing direction is North (Positive Z)
-    if (direction == Direction.PositiveZ) {
+    if (direction == Direction.PositiveZ || direction == Direction.NegativeZ) {
       return self; // No rotation needed for default facing direction
-    } else if (direction == Direction.PositiveX) {
+    } else if (direction == Direction.PositiveX || direction == Direction.NegativeX) {
       // 90 degree rotation clockwise around Y axis
-      return vec3(self.z(), self.y(), -self.x());
-    } else if (direction == Direction.NegativeZ) {
-      // 180 degree rotation around Y axis
-      return vec3(-self.x(), self.y(), -self.z());
-    } else if (direction == Direction.NegativeX) {
-      // 270 degree rotation around Y axis
-      return vec3(-self.z(), self.y(), self.x());
+      return vec3(self.x(), self.z(), self.y());
     }
 
     // Note: before supporting more directions, we need to ensure clients can render it
