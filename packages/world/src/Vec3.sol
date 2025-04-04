@@ -179,10 +179,11 @@ library Vec3Lib {
       // 180 degree rotation around Y axis
       return vec3(-self.x(), self.y(), -self.z());
     } else if (direction == Direction.NegativeX) {
-      // 260 degree rotation around Y axis
+      // 270 degree rotation around Y axis
       return vec3(-self.z(), self.y(), self.x());
     }
 
+    // Note: before supporting more directions, we need to ensure clients can render it
     revert("Direction not supported for rotation");
   }
 
