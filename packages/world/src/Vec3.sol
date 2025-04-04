@@ -173,8 +173,7 @@ library Vec3Lib {
     if (direction == Direction.PositiveZ || direction == Direction.NegativeZ) {
       return self; // No rotation needed for default facing direction
     } else if (direction == Direction.PositiveX || direction == Direction.NegativeX) {
-      // 90 degree rotation clockwise around Y axis
-      return vec3(self.x(), self.z(), self.y());
+      return vec3(self.z(), self.y(), self.x());
     }
 
     // Note: before supporting more directions, we need to ensure clients can render it
