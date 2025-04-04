@@ -144,54 +144,51 @@ library InventoryUtils {
     InventoryEntity._deleteRecord(tool);
   }
 
-  function removeObject(EntityId owner, ObjectTypeId objectType, uint16 amount) internal returns (uint16) {
+  function removeObject(EntityId owner, ObjectTypeId objectType, uint16 amount) internal {
     require(amount > 0, "Amount must be greater than 0");
 
+    uint16 stackable = ObjectTypeMetadata._getStackable(objectType);
     uint16 remainingToRemove = amount;
-    uint16 removed = 0;
 
-    // Iterate through occupied slots efficiently
+    // Iterate through occupied slots
     uint256 numOccupiedSlots = Inventory._lengthOccupiedSlots(owner);
     for (uint256 i = 0; i < numOccupiedSlots && remainingToRemove > 0; i++) {
       uint16 slot = Inventory._getItemOccupiedSlots(owner, i);
       InventorySlotData memory slotData = InventorySlot._get(owner, slot);
 
-      if (slotData.objectType == objectType) {
-        if (slotData.amount <= remainingToRemove) {
-          // Remove entire slot contents
-          removed += slotData.amount;
-          remainingToRemove -= slotData.amount;
+      if (slotData.objectType != objectType) {
+        continue;
+      }
 
-          // Clear the slot and mark it as available
-          InventorySlot._setObjectType(owner, slot, ObjectTypes.Null);
-          InventorySlot._setAmount(owner, slot, 0);
+      if (slotData.amount <= remainingToRemove) {
+        remainingToRemove -= slotData.amount;
 
-          // Remove from available slots for that object type
-          removeFromAvailableSlots(owner, objectType, slot);
+        InventorySlot._deleteRecord(owner, slot);
 
-          // Recycle the slot (marks as empty and updates occupied slots array)
-          recycleSlot(owner, slot);
+        // Remove from available slots for that object type
+        removeFromAvailableSlots(owner, objectType, slot);
 
-          // Update the counter as we removed an item
-          numOccupiedSlots--;
-          i--; // Stay at the same index since we've moved an element here
-        } else {
-          // Remove partial amount
-          uint16 newAmount = slotData.amount - remainingToRemove;
-          InventorySlot._setAmount(owner, slot, newAmount);
-          removed += remainingToRemove;
-          remainingToRemove = 0;
+        // Recycle the slot (marks as empty and updates occupied slots array)
+        recycleSlot(owner, slot);
 
-          // Add to available slots for this object type if not already there
+        // Update the counter as we removed an item
+        numOccupiedSlots--;
+        i--; // Stay at the same index since we've moved an element here
+      } else {
+        // Remove partial amount
+        uint16 newAmount = slotData.amount - remainingToRemove;
+        InventorySlot._setAmount(owner, slot, newAmount);
+        remainingToRemove = 0;
+
+        // Add to available slots for this object type if not already there
+        if (slotData.amount == stackable) {
           addToAvailableSlots(owner, objectType, slot);
         }
       }
     }
-
-    return removed;
   }
 
-  // Add a slot to AvailableSlots - O(1) operation
+  // Add a slot to AvailableSlots - O(1)
   function addToAvailableSlots(EntityId owner, ObjectTypeId objectType, uint16 slot) private {
     // Check if already in available slots by looking at availableIndex
     uint16 availableIndex = InventorySlot._getAvailableIndex(owner, slot);
@@ -204,7 +201,7 @@ library InventoryUtils {
     InventorySlot._setAvailableIndex(owner, slot, uint16(newIndex));
   }
 
-  // Remove a slot from AvailableSlots - O(1) operation
+  // Remove a slot from AvailableSlots - O(1)
   function removeFromAvailableSlots(EntityId owner, ObjectTypeId objectType, uint16 slot) private {
     // Get the index in available slots
     uint16 availableIndex = InventorySlot._getAvailableIndex(owner, slot);
